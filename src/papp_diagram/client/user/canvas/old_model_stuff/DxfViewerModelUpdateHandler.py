@@ -3,14 +3,14 @@
 # import shapely
 # from shapely.geometry.linestring import LineString
 # from shapely.geometry.point import Point
-# from sqlalchemy.orm.attributes import flag_modified
-# from sqlalchemy.orm.exc import NoResultFound
+# from sqlalchemy.storage.attributes import flag_modified
+# from sqlalchemy.storage.exc import NoResultFound
 # from rapui.payload.Payload import Payload
 # from peek_server.core.import_aurora_dxf.ExtractAuroraDunedinModel import \
 #     ExtractAuroraDunedinModel
 # from peek_server.core.import_aurora_dxf.ImportAurora import DXF_PAGE_ID
 # from peek_server.core.import_util.ModelSetBaseline import ModelSetBaseline
-# from peek_server.core.orm.ModelSet import ModelNode, ModelConn, ModelConnCoord, \
+# from peek_server.core.storage.ModelSet import ModelNode, ModelConn, ModelConnCoord, \
 #     ModelConnType, ModelSet, ModelCoordSet, \
 #     ModelNodeCoord, ModelNodeType
 #
@@ -23,8 +23,8 @@
 #
 # from rapui.payload.PayloadEndpoint import PayloadEndpoint
 # from rapui.vortex.Vortex import vortexSendTuple, vortexSendPayload
-# from peek_server.core.orm import getNovaOrmSession
-# from peek_server.core.orm.Renderable import OvalRenderable, RenderablePoly, \
+# from peek_server.core.storage import getNovaOrmSession
+# from peek_server.core.storage.Renderable import OvalRenderable, RenderablePoly, \
 #     RenderablePolyPoint
 #
 # import logging

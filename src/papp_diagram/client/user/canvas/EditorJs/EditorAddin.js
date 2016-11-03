@@ -15,7 +15,7 @@ Addin.inheritsFrom(Storable);
 
 Addin.TAG_NAME = 'addin';
 
-// Must align with constants in orm Addin class
+// Must align with constants in storage Addin class
 // Addin types
 Addin.GOTO_PAGE = 0;
 Addin.SCALED_TELE_IND = 1;

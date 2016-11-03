@@ -26,7 +26,7 @@ Renderable.inheritsFrom(Storable);
 
 Renderable.TAG_NAME = 'renderable';
 
-// Must align with constants in orm Renderable class
+// Must align with constants in storage Renderable class
 // Renderable types
 Renderable.RECTANGLE = 0;
 Renderable.TEXT = 1;
