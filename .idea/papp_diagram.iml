@@ -7,5 +7,6 @@
     <orderEntry type="jdk" jdkName="Python 2.7.9 virtualenv at ~/python" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="rapui" />
+    <orderEntry type="module" module-name="papp_base" />
   </component>
 </module>
