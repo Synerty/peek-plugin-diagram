@@ -110,7 +110,7 @@ class DispQueueIndexer:
     #     for dispId in dispIds:
     #         inserts.append(dict(dispId=dispId))
     #
-    #     conn = conn if conn else SynSqlaConn.dbEngine
+    #     conn = conn if conn else SqlaConn.dbEngine
     #     conn.execute(DispIndexerQueue.__table__.insert(), inserts)
 
 
