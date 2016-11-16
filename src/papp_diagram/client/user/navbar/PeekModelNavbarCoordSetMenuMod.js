@@ -28,6 +28,15 @@ define( [
                                 dataIsArray: true
                             });
 
+                    // self.loader.loadCallback.add(function () {
+                    //     if ($scope.modelSets.length == 1) {
+                    //         var coordSets = $scope.modelSets[0];
+                    //         if (coordSets.length == 1) {
+                    //             $scope.coordSetClicked(coordSets[0]);
+                    //         }
+                    //     }
+                    // });
+
                     $scope.coordSetClicked = function (coordSet) {
                         $scope.diagramData.coordSet = coordSet;
                     };
