@@ -88,7 +88,7 @@ class ClientGridHandler(object):
 
         self._observedVortexUuidsByGridKey = defaultdict(list)
 
-        for vortexUuid, gridKeys in self._observedGridKeysByVortexUuid.items():
+        for vortexUuid, gridKeys in list(self._observedGridKeysByVortexUuid.items()):
             for gridKey in gridKeys:
                 self._observedVortexUuidsByGridKey[gridKey].append(vortexUuid)
 
@@ -113,7 +113,7 @@ class ClientGridHandler(object):
                 payloadsByVortexUuid[vortexUuid].tuples.append(compiledGrid)
 
         # Send the updates to the clients
-        for vortexUuid, payload in payloadsByVortexUuid.items():
+        for vortexUuid, payload in list(payloadsByVortexUuid.items()):
             payload.filt = clientGridUpdateCheckFilt
             vortexSendPayload(payload, vortexUuid=vortexUuid)
 
@@ -183,7 +183,7 @@ class ClientGridHandler(object):
         gridsToSend = []
         missingGridKeys = []
 
-        for key, cDate in clientLastUpdateByGridKey.items():
+        for key, cDate in list(clientLastUpdateByGridKey.items()):
 
             gridCompiled = self._gridCache.get(key)
 
@@ -200,7 +200,7 @@ class ClientGridHandler(object):
 
                 # ELSE, It's up to date, which means we don't query for it and don't send it
 
-        filt['gridKeys'] = clientLastUpdateByGridKey.keys()
+        filt['gridKeys'] = list(clientLastUpdateByGridKey.keys())
         payload = Payload(filt=filt, tuples=gridsToSend)
 
         if missingGridKeys:

@@ -1,5 +1,5 @@
 from peek_agent.orm.Display import DispLevel
-from EnmacImportLookup import EnmacImportLookup
+from .EnmacImportLookup import EnmacImportLookup
 from peek_agent_pof.imp_model.EnmacOrm import getEnmacSession, DeclutterData, getEnmacWorlds
 
 

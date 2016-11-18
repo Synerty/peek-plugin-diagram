@@ -21,8 +21,8 @@ from sqlalchemy.orm.mapper import reconstructor
 from sqlalchemy.sql.schema import Index
 
 from Base import Base, BaseMixin
-from Display import DispBase
-from ModelSet import ModelCoordSet, ModelSet
+from .Display import DispBase
+from .ModelSet import ModelCoordSet, ModelSet
 from rapui.vortex.Tuple import Tuple, addTupleType, JSON_EXCLUDE
 
 logger = logging.getLogger(__name__)

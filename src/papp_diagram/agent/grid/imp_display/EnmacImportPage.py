@@ -11,12 +11,12 @@ from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 from twisted.internet.protocol import ProcessProtocol
 
-from EnmacImportPprimConn import EnmacImportPprimConn
-from EnmacImportPprimDynamic import EnmacImportPprimDynamic
-from EnmacImportPprimEllipse import EnmacImportPprimEllipse
-from EnmacImportPprimHotspot import EnmacImportPprimHotspot
-from EnmacImportPprimPoly import EnmacImportPprimPoly
-from EnmacImportPprimText import EnmacImportPprimText
+from .EnmacImportPprimConn import EnmacImportPprimConn
+from .EnmacImportPprimDynamic import EnmacImportPprimDynamic
+from .EnmacImportPprimEllipse import EnmacImportPprimEllipse
+from .EnmacImportPprimHotspot import EnmacImportPprimHotspot
+from .EnmacImportPprimPoly import EnmacImportPprimPoly
+from .EnmacImportPprimText import EnmacImportPprimText
 from peek_agent_pof.imp_model.EnmacOrm import getEnmacSession, ComponentHeader, \
     ComponentAttribute, \
     ComponentClassDefn
@@ -134,7 +134,7 @@ class EnmacImportPage:
                     liveDbDispLink.importGroupHash = importGroupHash
 
                 # SET GEOM FOR TRANSPORT
-                if hasattr(disp, 'geom') and not isinstance(disp.geom, basestring):
+                if hasattr(disp, 'geom') and not isinstance(disp.geom, str):
                     disp.geom = b64encode(shapely.wkb.dumps(to_shape(disp.geom)))
                     disp.geomConverted = True
 
@@ -320,7 +320,7 @@ class EnmacImportPage:
 
         # Filter for strings
         operationIds = set([getSectionOperationId(s) for s in pprimSections])
-        operationIds = [o for o in operationIds if isinstance(o, basestring)]
+        operationIds = [o for o in operationIds if isinstance(o, str)]
 
         if not operationIds:
             visibleOperationIds = set()
@@ -440,7 +440,7 @@ class PPrimProtocol(ProcessProtocol):
                     val = val.strip()
 
             except:
-                print line
+                print(line)
                 raise
 
             sectionData[key] = val

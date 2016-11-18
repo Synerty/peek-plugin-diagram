@@ -27,7 +27,7 @@ class RealtimePollerEcomController(object):
 
     def updateLiveDb(self, liveDbs):
         if liveDbs is None:
-            self.allKeys = self._realTimeValuesByKey.values()
+            self.allKeys = list(self._realTimeValuesByKey.values())
             self._pollerFactory.startPolling()
 
             # End of bulk load

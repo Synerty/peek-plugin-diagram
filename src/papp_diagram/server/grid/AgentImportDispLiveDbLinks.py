@@ -77,7 +77,7 @@ class AgentImportDispLiveDbLinks:
 
         for disp in disps:
             for dispLink in disp.importLiveDbDispLinks:
-                dispLink.id = dispLinkIdGen.next()
+                dispLink.id = next(dispLinkIdGen)
                 dispLink.coordSetId = coordSet.id
                 dispLink.dispId = disp.id
 
@@ -135,7 +135,7 @@ class AgentImportDispLiveDbLinks:
         convertedValue = getattr(disp, dispLink.dispAttrName, None)
         value = getattr(disp, dispLink.dispAttrName + 'Before', None)
 
-        newLiveDbKey = LiveDbKey(id=liveDbKeyIdGen.next(),
+        newLiveDbKey = LiveDbKey(id=next(liveDbKeyIdGen),
                                  modelSetId=modelSetId,
                                  dataType=dataType,
                                  value=value,

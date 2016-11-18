@@ -206,7 +206,7 @@ class DispQueueIndexerTask:
         shape = to_shape(disp.geom)
 
         gridKeys = []
-        for gridSize in GRID_SIZES.values():
+        for gridSize in list(GRID_SIZES.values()):
             # CHECK Declutter
             if 0 > (min(gridSize.max, (disp.level.maxZoom - 0.00001))
                         - max(gridSize.min, disp.level.minZoom)):

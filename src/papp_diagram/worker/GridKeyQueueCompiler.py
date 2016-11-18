@@ -93,10 +93,10 @@ class DispQueueIndexer:
         session.close()
 
     def _callback(self, arg, startTime):
-        print datetime.utcnow() - startTime
+        print(datetime.utcnow() - startTime)
 
     def _errback(self, failure):
-        print failure
+        print(failure)
 
 
 dispQueueCompiler = DispQueueIndexer()

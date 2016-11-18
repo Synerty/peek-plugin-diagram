@@ -54,7 +54,7 @@ class GridKeyQueueCompilerTask:
         conn.execute(gridTable.delete(gridTable.c.gridKey.in_(gridKeys)))
 
         inserts = []
-        for gridKey, blobData in dispData.items():
+        for gridKey, blobData in list(dispData.items()):
             inserts.append(GridKeyIndexCompiled(coordSetId=coordSetIdByGridKey[gridKey],
                                                 gridKey=gridKey,
                                                 lastUpdate=lastUpdate,
@@ -114,7 +114,7 @@ class GridKeyQueueCompilerTask:
         for item in indexQry:
             dispsByGridKeys[item[0]].append(DispData(*item[1:]))
 
-        for gridKey, dispDatas in dispsByGridKeys.items():
+        for gridKey, dispDatas in list(dispsByGridKeys.items()):
             dispsDumpedJson = [d.json
                                for d in sorted(dispDatas,
                                                cmp=self._dispBaseSortCmp)

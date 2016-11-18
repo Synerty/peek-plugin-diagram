@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 
 from celery.signals import worker_process_init
 

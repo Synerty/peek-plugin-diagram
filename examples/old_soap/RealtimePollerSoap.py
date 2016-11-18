@@ -79,7 +79,7 @@ class RealtimePoller:
 
         fetchSize = 400
         chunkIndex = 0
-        allRtValues = self._realTimeValuesByKey.values()
+        allRtValues = list(self._realTimeValuesByKey.values())
 
         while chunkIndex < len(allRtValues):
             chunkRtValues = allRtValues[chunkIndex:chunkIndex + fetchSize]

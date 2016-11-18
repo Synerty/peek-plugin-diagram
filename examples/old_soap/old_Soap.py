@@ -34,13 +34,13 @@ class PofRtClient:
         # Create a context for the call, example sendDocument() call. This doesn't yet
         # send anything, only creates an object with the request and capable of parsing
         # the response
-        print parameter
+        print(parameter)
         context = sudsClient.service.FetchScalarValues(parameter)
 
         # Actually send the request. Use any web client you want. I actually use
         # something more sophisticated, but below I put the example using
         # standard twisted web client.
-        print str(context)
+        print(str(context))
 
         # d = TwistedClient.getPage(url="http://192.168.35.128:15043/enmac/SOAP",
         #                           # url=context.client.location(),

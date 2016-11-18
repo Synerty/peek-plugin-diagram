@@ -39,7 +39,7 @@ class DispLookupDataCache(object):
         return newHandler
 
     def refreshAll(self):
-        for handler in self._handlersByCoordSetId.values():
+        for handler in list(self._handlersByCoordSetId.values()):
             handler.setExpired()
         self._handlersByCoordSetId = {}
 

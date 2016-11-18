@@ -72,14 +72,14 @@ class AgentImportLookup:
                 session.add(lookup)
                 addCount += 1
 
-        for lookup in itemsByImportHash.values():
+        for lookup in list(itemsByImportHash.values()):
             session.delete(lookup)
             deleteCount += 1
 
         try:
             session.commit()
         except Exception as e:
-            print e
+            print(e)
             raise e
         session.close()
 

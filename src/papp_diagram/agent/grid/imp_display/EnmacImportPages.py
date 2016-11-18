@@ -129,7 +129,7 @@ class EnmacImportPages:
 
             # TODO, Handle when files are deleted
 
-            output = filter(lambda line: '|' in line, output.splitlines())
+            output = [line for line in output.splitlines() if '|' in line]
 
             for line in output:
                 fileDetails = FileDetails(*line.split('|'))

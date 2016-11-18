@@ -1,5 +1,5 @@
 from peek_agent.orm.Display import DispLineStyle
-from EnmacImportLookup import EnmacImportLookup
+from .EnmacImportLookup import EnmacImportLookup
 from peek_agent_pof.imp_model import EnmacOrm
 from peek_agent_pof.imp_model.EnmacOrm import getEnmacSession
 

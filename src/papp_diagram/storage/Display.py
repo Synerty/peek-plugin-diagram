@@ -22,7 +22,7 @@ from sqlalchemy.sql.schema import Index
 from sqlalchemy.sql.sqltypes import Float, DateTime
 
 from Base import Base, BaseMixin
-from ModelSet import ModelCoordSet, ModelSet
+from .ModelSet import ModelCoordSet, ModelSet
 from rapui.vortex.Tuple import Tuple, addTupleType, TupleField, JSON_EXCLUDE
 
 DISP_SHORT_ATTR_NAME_MAP = {'colorId': 'c',

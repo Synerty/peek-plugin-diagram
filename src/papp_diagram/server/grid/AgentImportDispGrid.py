@@ -45,7 +45,7 @@ class AgentImportDispGrid:
 
         def process():
             for disp in disps:
-                disp.id = dispIdGen.next()
+                disp.id = next(dispIdGen)
                 disp.coordSetId = coordSetId
                 disp.dispJson = {}
 

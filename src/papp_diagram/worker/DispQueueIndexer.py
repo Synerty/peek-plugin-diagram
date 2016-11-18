@@ -91,7 +91,7 @@ class DispQueueIndexer:
         d.addErrback(self._errback)
 
     def _callback(self, arg, startTime, queueDispIds):
-        print datetime.utcnow() - startTime
+        print(datetime.utcnow() - startTime)
 
         session = getNovaOrmSession()
         (session.query(DispIndexerQueue)
@@ -100,7 +100,7 @@ class DispQueueIndexer:
          )
 
     def _errback(self, failure):
-        print failure
+        print(failure)
 
     # def queueDisps(self, dispIds, conn=None):
     #     if not dispIds:

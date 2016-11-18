@@ -3,6 +3,7 @@ import logging
 from celery.signals import worker_process_init, worker_process_shutdown
 
 from proj import DbConnection
+import imp
 
 logger = logging.getLogger(__name__)
 
@@ -12,11 +13,11 @@ logger = logging.getLogger(__name__)
 
 @worker_process_init.connect
 def init_worker(**kwargs):
-    print "db init INIT"
+    print("db init INIT")
 
 @worker_process_init.connect
 def init_worker(**kwargs):
-    reload(DbConnection)
+    imp.reload(DbConnection)
     logger.info('Reloaded database connection for worker.')
 
 

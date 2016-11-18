@@ -1,11 +1,11 @@
 __author__ = 'synerty'
 
-import app
-import cache
-import canvas
-import splash
-import popup_menu
-import dashboard
-import navbar
+from . import app
+from . import cache
+from . import canvas
+from . import splash
+from . import popup_menu
+from . import dashboard
+from . import navbar
 
 

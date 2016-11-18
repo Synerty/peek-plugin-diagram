@@ -17,7 +17,7 @@ class RealtimeValue:
 
     '''
 
-    _tt = u'LDK'
+    _tt = 'LDK'
     __slots__ = ['dt', 'id', 'key', 'v',
                  'lastUpdateDate']
 
@@ -44,9 +44,9 @@ class RealtimeValue:
         return True
 
     def toTuple(self):
-        return {u'dt': self.dt,
-                u'_tt': self._tt,
-                u'id': self.id_,
-                u'key': self.key,
-                u'v': self.value
+        return {'dt': self.dt,
+                '_tt': self._tt,
+                'id': self.id_,
+                'key': self.key,
+                'v': self.value
                 }

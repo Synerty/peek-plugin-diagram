@@ -90,11 +90,11 @@ class _CommonRealtimePollerEcomProtocol(Protocol):
             # print ordData
 
             attrId, dataType, row, col, valueType, value = line.split(' ', 5)
-            value = u''.join([unichr(ord(b)) for b in value])
+            value = ''.join([chr(ord(b)) for b in value])
             attrIdRowCol = '|'.join((attrId, row, col, dataType))
             valuesByAttrIdRowCol[attrIdRowCol] = value
 
-        self._processValues(valuesByAttrIdRowCol.items())
+        self._processValues(list(valuesByAttrIdRowCol.items()))
 
     def _pollNonRtValues(self, keys):
         SIZE = 1000

@@ -44,7 +44,7 @@ def run(argData):
 
     if not argData:
         result['error'] = "argData was empty"
-        print json.dumps(result)
+        print(json.dumps(result))
         return
 
     actionData = json.loads(b64decode(argData))
@@ -54,7 +54,7 @@ def run(argData):
     for handlerFunc in MENU_HANDLERS[menuName]:
         handlerFunc(menuName, componentId)
 
-    print json.dumps(result)
+    print(json.dumps(result))
 
 
 ###############################################################################
