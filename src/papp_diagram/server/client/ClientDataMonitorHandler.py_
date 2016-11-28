@@ -10,7 +10,7 @@ from twisted.python.failure import Failure
 
 from peek.core.orm.GridKeyIndex import GridKeyIndexCompiled
 from rapui.vortex.Payload import Payload
-from rapui.vortex.Vortex import vortexSendVortexMsg, vortexSendPayload
+from rapui.vortex.VortexService import vortexSendVortexMsg, vortexSendPayload
 
 __author__ = 'peek'
 '''

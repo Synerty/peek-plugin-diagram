@@ -1,9 +1,6 @@
 import logging
 from datetime import datetime
 
-from twisted.internet import task
-from twisted.internet.defer import DeferredList, succeed
-
 from peek_agent_pof.grid.imp_display.EnmacImportPages import EnmacImportPages
 from peek_agent_pof.grid.imp_lookup.EnmacImportDispColor import EnmacImportDispColor
 from peek_agent_pof.grid.imp_lookup.EnmacImportDispLayer import EnmacImportDispLayer
@@ -12,7 +9,8 @@ from peek_agent_pof.grid.imp_lookup.EnmacImportDispLineStyle import \
     EnmacImportDispLineStyle
 from peek_agent_pof.grid.imp_lookup.EnmacImportDispTextStyle import \
     EnmacImportDispTextStyle
-from rapui.DeferUtil import printFailure
+from twisted.internet import task
+from twisted.internet.defer import DeferredList, succeed
 
 logger = logging.getLogger(__name__)
 

@@ -1,13 +1,11 @@
 import json
 from base64 import b64encode
-from copy import copy
 
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.utils import getProcessOutput
 
-from rapui.vortex.Payload import Payload
-from rapui.vortex.PayloadEndpoint import PayloadEndpoint
-from rapui.vortex.Vortex import vortexSendVortexMsg, vortexSendTuple
+from txhttputil import PayloadEndpoint
+from txhttputil import vortexSendTuple
 
 __author__ = 'peek_server'
 '''

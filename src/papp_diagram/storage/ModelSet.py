@@ -10,6 +10,7 @@
  *  Synerty Pty Ltd
  *
 """
+from Base import Base, BaseMixin
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
@@ -19,8 +20,7 @@ from sqlalchemy.sql.schema import Index
 from sqlalchemy.sql.sqltypes import Boolean
 from sqlalchemy.types import Float
 
-from Base import Base, BaseMixin
-from rapui.vortex.Tuple import addTupleType, Tuple, TupleField
+from txhttputil import addTupleType, Tuple, TupleField
 
 
 @addTupleType

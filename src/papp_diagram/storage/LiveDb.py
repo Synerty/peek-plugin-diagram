@@ -12,6 +12,7 @@
 """
 import logging
 
+from Base import Base, BaseMixin
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
@@ -20,10 +21,9 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm.mapper import reconstructor
 from sqlalchemy.sql.schema import Index
 
-from Base import Base, BaseMixin
+from txhttputil import Tuple, addTupleType, JSON_EXCLUDE
 from .Display import DispBase
 from .ModelSet import ModelCoordSet, ModelSet
-from rapui.vortex.Tuple import Tuple, addTupleType, JSON_EXCLUDE
 
 logger = logging.getLogger(__name__)
 

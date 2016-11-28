@@ -1,10 +1,10 @@
 import traceback
 
 from peek.core.import_util.ModelSetBaseline import ModelSetBaseline
-from rapui.payload.PayloadEndpoint import PayloadEndpoint
-
 from peek.core.orm.ModelSet import ModelNode, ModelNodeCoord, ModelNodeType
-from rapui.vortex.Payload import Payload
+
+from txhttputil import Payload
+from txhttputil import PayloadEndpoint
 
 __author__ = 'peek_server'
 '''
@@ -13,7 +13,7 @@ Created on 09/07/2014
 @author: synerty
 '''
 
-from rapui.vortex.Vortex import vortexSendPayload
+from txhttputil import vortexSendPayload
 from peek.core.orm import getNovaOrmSession
 
 import logging

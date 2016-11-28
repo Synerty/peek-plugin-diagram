@@ -5,18 +5,18 @@ from collections import namedtuple
 from datetime import datetime
 
 from geoalchemy2.shape import to_shape
-from shapely.geometry.point import Point
-from sqlalchemy.orm import subqueryload
-from sqlalchemy.sql.selectable import Select
-
 from peek.core.orm.Display import DispBase, DispText
 from peek.core.orm.GridKeyIndex import GridKeyIndex, DispIndexerQueue
 from peek.core.orm.LiveDb import LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR, LiveDbKey
 from peek.core.queue_processesors.GridKeyQueueCompiler import gridKeyQueueCompiler
 from peek.core.queue_processesors.GridKeyUtil import GRID_SIZES, makeGridKey
 from proj.DbConnection import getSession, getEngine
-from rapui.vortex.SerialiseUtil import convertFromShape
+from shapely.geometry.point import Point
+from sqlalchemy.orm import subqueryload
+from sqlalchemy.sql.selectable import Select
 from txcelery.defer import CeleryClient
+
+from txhttputil import convertFromShape
 
 logger = logging.getLogger(__name__)
 

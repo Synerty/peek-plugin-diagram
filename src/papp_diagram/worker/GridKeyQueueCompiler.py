@@ -1,12 +1,12 @@
 import logging
 from datetime import datetime
 
-from twisted.internet import task
-
 from peek.core.orm import getNovaOrmSession
 from peek.core.orm.GridKeyIndex import GridKeyCompilerQueue
-from rapui.DeferUtil import deferToThreadWrap
-from rapui.vortex.Payload import Payload
+from twisted.internet import task
+
+from txhttputil import Payload
+from txhttputil import deferToThreadWrap
 
 logger = logging.getLogger(__name__)
 

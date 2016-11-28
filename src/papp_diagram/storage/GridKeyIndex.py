@@ -12,19 +12,18 @@
 """
 import logging
 
+from peek.core.orm.Base import Base, BaseMixin
+from peek.core.orm.Display import DispBase
+from peek.core.orm.ModelSet import ModelCoordSet
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
 from sqlalchemy.dialects.postgresql.base import BYTEA
-from sqlalchemy.dialects.postgresql.json import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Index
 from sqlalchemy.sql.sqltypes import DateTime
 
-from peek.core.orm.Base import Base, BaseMixin
-from peek.core.orm.Display import DispBase
-from peek.core.orm.ModelSet import ModelCoordSet
-from rapui.vortex.Tuple import Tuple, addTupleType, TupleField
+from txhttputil import Tuple, addTupleType
 
 logger = logging.getLogger(__name__)
 

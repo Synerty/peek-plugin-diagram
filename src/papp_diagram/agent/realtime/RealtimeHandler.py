@@ -1,15 +1,14 @@
 import json
 from copy import copy
 
-from twisted.internet.defer import inlineCallbacks
-
-from rapui.DeferUtil import deferToThreadWrap
-from rapui.vortex.PayloadEndpoint import PayloadEndpoint
-
-from peek_agent.PeekVortexClient import ModData, sendPayloadToPeekServer, \
+from peek_agent.PeekVortexClient import sendPayloadToPeekServer, \
     sendVortexMsgToPeekServer
 from peek_agent_pof.realtime.RealtimePollerEcomFactory import realtimePoller
-from rapui.vortex.Payload import Payload
+from twisted.internet.defer import inlineCallbacks
+
+from txhttputil import Payload
+from txhttputil import PayloadEndpoint
+from txhttputil import deferToThreadWrap
 
 __author__ = 'peek'
 '''

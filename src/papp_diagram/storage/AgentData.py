@@ -12,13 +12,13 @@
 """
 import logging
 
+from Base import Base, BaseMixin
 from sqlalchemy import Column
 from sqlalchemy import Integer, String
 from sqlalchemy.sql.schema import Index
 from sqlalchemy.sql.sqltypes import DateTime
 
-from Base import Base, BaseMixin
-from rapui.vortex.Tuple import Tuple, addTupleType, TupleField
+from txhttputil import Tuple, addTupleType, TupleField
 
 logger = logging.getLogger(__name__)
 

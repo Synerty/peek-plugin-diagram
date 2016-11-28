@@ -20,12 +20,12 @@
 # from twisted.internet.threads import deferToThread
 # from twisted.web.server import NOT_DONE_YET
 #
-# from rapui.Resources import RapuiResource, addResource
+# from txhttputil.Resources import BasicResource, addResource
 #
 # logger = logging.getLogger(__name__)
 #
 # @addResource('/peek_server.agent.import.disp')
-# class PeekDispGridKeyResource(RapuiResource):
+# class PeekDispGridKeyResource(BasicResource):
 #     isLeaf = True
 #     isGzipped = True
 #

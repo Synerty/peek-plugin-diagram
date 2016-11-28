@@ -3,10 +3,11 @@ Created on 09/07/2014
 
 @author: synerty
 '''
-from sqlalchemy.orm import subqueryload
 from peek.core.orm import getNovaOrmSession
 from peek.core.orm.ModelSet import ModelSet
-from rapui.handler.ModelHandler import ModelHandler
+from sqlalchemy.orm import subqueryload
+
+from txhttputil import ModelHandler
 
 modelSetListDataKey = "c.s.s.p.modelset.list.data"
 

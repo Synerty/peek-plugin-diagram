@@ -5,7 +5,7 @@
 # from shapely.geometry.point import Point
 # from sqlalchemy.storage.attributes import flag_modified
 # from sqlalchemy.storage.exc import NoResultFound
-# from rapui.payload.Payload import Payload
+# from txhttputil.payload.Payload import Payload
 # from peek_server.core.import_aurora_dxf.ExtractAuroraDunedinModel import \
 #     ExtractAuroraDunedinModel
 # from peek_server.core.import_aurora_dxf.ImportAurora import DXF_PAGE_ID
@@ -21,8 +21,8 @@
 # @author: synerty
 # '''
 #
-# from rapui.payload.PayloadEndpoint import PayloadEndpoint
-# from rapui.vortex.Vortex import vortexSendTuple, vortexSendPayload
+# from txhttputil.payload.PayloadEndpoint import PayloadEndpoint
+# from txhttputil.vortex.Vortex import vortexSendTuple, vortexSendPayload
 # from peek_server.core.storage import getNovaOrmSession
 # from peek_server.core.storage.Renderable import OvalRenderable, RenderablePoly, \
 #     RenderablePolyPoint

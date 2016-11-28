@@ -6,21 +6,21 @@ from datetime import datetime
 
 import shapely
 from geoalchemy2.shape import to_shape
+from peek_agent_pof.imp_model.EnmacOrm import getEnmacSession, ComponentHeader, \
+    ComponentAttribute, \
+    ComponentClassDefn
 from sqlalchemy.sql.expression import text
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 from twisted.internet.protocol import ProcessProtocol
 
+from txhttputil import deferToThreadWrap
 from .EnmacImportPprimConn import EnmacImportPprimConn
 from .EnmacImportPprimDynamic import EnmacImportPprimDynamic
 from .EnmacImportPprimEllipse import EnmacImportPprimEllipse
 from .EnmacImportPprimHotspot import EnmacImportPprimHotspot
 from .EnmacImportPprimPoly import EnmacImportPprimPoly
 from .EnmacImportPprimText import EnmacImportPprimText
-from peek_agent_pof.imp_model.EnmacOrm import getEnmacSession, ComponentHeader, \
-    ComponentAttribute, \
-    ComponentClassDefn
-from rapui.DeferUtil import deferToThreadWrap
 
 logger = logging.getLogger(__name__)
 

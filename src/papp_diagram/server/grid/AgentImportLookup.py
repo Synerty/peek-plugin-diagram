@@ -1,11 +1,11 @@
 import logging
 
-from twisted.internet import defer
-
 from peek.core.orm import getNovaOrmSession
 from peek.core.orm.ModelSet import getOrCreateModelSet, \
     getOrCreateCoordSet
-from rapui.vortex.Tuple import TUPLE_TYPES_BY_NAME
+from twisted.internet import defer
+
+from txhttputil import TUPLE_TYPES_BY_NAME
 
 logger = logging.getLogger(__name__)
 

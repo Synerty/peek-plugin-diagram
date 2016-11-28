@@ -1,12 +1,12 @@
 import logging
 from datetime import datetime
 
+from peek.core.orm import getNovaOrmSession
+from peek.core.orm.GridKeyIndex import DispIndexerQueue
 from sqlalchemy.sql.expression import asc
 from twisted.internet import task
 
-from peek.core.orm import getNovaOrmSession
-from peek.core.orm.GridKeyIndex import DispIndexerQueue
-from rapui.DeferUtil import deferToThreadWrap
+from txhttputil import deferToThreadWrap
 
 logger = logging.getLogger(__name__)
 

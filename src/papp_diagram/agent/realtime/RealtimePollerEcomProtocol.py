@@ -1,13 +1,11 @@
 import logging
-from datetime import datetime
 
-from twisted.internet import reactor
+from peek_agent_pof.imp_model.EnmacOrm import getEnmacSession
 from twisted.internet.defer import DeferredList
 from twisted.internet.protocol import Protocol, connectionDone
 from twisted.internet.task import LoopingCall
 
-from peek_agent_pof.imp_model.EnmacOrm import getEnmacSession
-from rapui.DeferUtil import printFailure, deferToThreadWrap
+from txhttputil import printFailure, deferToThreadWrap
 
 logger = logging.getLogger(__name__)
 

@@ -11,32 +11,27 @@
  *  Synerty Pty Ltd
  *
 """
-import subprocess
-
-import os
 
 from peek_server.api.client.ClientGridHandler import clientGridHandler
-from rapui import LoggingSetup
-from rapui.util.Directory import DirSettings
-from rapui.vortex.VortexForkParent import killAllChildProcs
+from txhttputil.util.Directory import DirSettings
 
-LoggingSetup.setup()
+from txhttputil.util import LoggingUtil
+
+LoggingUtil.setup()
 
 import logging
 
 from twisted.internet import reactor, defer
 
-import rapui
+import txhttputil
 from peek_server.server.orm.ModelSet import getOrCreateModelSet
-from peek_server.server.queue_processesors import DispQueueIndexer
-from peek_server.server.queue_processesors import GridKeyQueueCompiler
 from peek_server.server.queue_processesors.DispQueueIndexer import dispQueueCompiler
 from peek_server.server.queue_processesors.GridKeyQueueCompiler import gridKeyQueueCompiler
-from rapui import addMetaTag
-from rapui.site.Site import setupSite
+from txhttputil import addMetaTag
+from txhttputil.site.SiteUtil import setupSite
 
-rapui.DESCRIPTION = "Peek"
-rapui.TITLE = "Peek"
+txhttputil.DESCRIPTION = "Peek"
+txhttputil.TITLE = "Peek"
 
 addMetaTag(name="apple-mobile-web-app-capable", content="yes")
 addMetaTag(name="apple-mobile-web-app-app-title", content="Peek")
@@ -92,7 +87,7 @@ def main():
 
     sitePort = 8000
     setupSite(sitePort, debug=True)
-    # setupSite(8000, debug=True, protectedResource=AuthSessionWrapper())
+    # setupSite(8000, debug=True, protectedResource=HTTPAuthSessionWrapper())
 
     reactor.run()
 

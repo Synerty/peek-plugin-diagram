@@ -1,7 +1,8 @@
 from peek.core.orm import getNovaOrmSession
 from peek.core.orm.Display import DispLevel, DispLayer, DispColor, DispTextStyle, \
     DispLineStyle
-from rapui.handler.AsyncModelHandler import SendAllModelHandler
+
+from txhttputil import SendAllModelHandler
 
 ###############################################################################
 

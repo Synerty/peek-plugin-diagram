@@ -2,13 +2,13 @@ import hashlib
 import logging
 from datetime import datetime
 
+from peek_agent.PeekVortexClient import sendPayloadToPeekServer, sendVortexMsgToPeekServer
+from peek_agent.orm.AgentData import AgentImportLookupInfo
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.threads import deferToThread
 
-from peek_agent.PeekVortexClient import sendPayloadToPeekServer, sendVortexMsgToPeekServer
-from peek_agent.orm.AgentData import AgentImportLookupInfo
-from rapui.vortex.Payload import Payload
-from rapui.vortex.PayloadEndpoint import PayloadEndpoint
+from txhttputil import Payload
+from txhttputil import PayloadEndpoint
 
 logger = logging.getLogger(__name__)
 

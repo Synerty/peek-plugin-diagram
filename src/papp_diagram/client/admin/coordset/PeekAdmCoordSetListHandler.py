@@ -3,11 +3,11 @@ Created on 09/07/2014
 
 @author: synerty
 '''
-from twisted.internet import reactor
-
 from peek.core.orm import getNovaOrmSession
 from peek.core.orm.ModelSet import ModelCoordSet
-from rapui.handler.OrmCrudHandler import OrmCrudHandler, OrmCrudHandlerExtension
+from twisted.internet import reactor
+
+from txhttputil import OrmCrudHandler, OrmCrudHandlerExtension
 
 executeListDataKey = {'key':"peakadm.coordset.list.data"}
 

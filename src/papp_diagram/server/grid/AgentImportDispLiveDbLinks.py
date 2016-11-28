@@ -1,12 +1,12 @@
 import logging
 from datetime import datetime
 
-from peek.core.live_db.LiveDb import liveDb
 from peek.core.orm import getNovaOrmSession, getPgSequenceGenerator, SynSqlaConn
 from peek.core.orm.LiveDb import LiveDbDispLink, LiveDbKey, \
     LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR
 from peek.core.orm.ModelSet import ModelCoordSet
-from rapui.DeferUtil import deferToThreadWrap
+
+from txhttputil import deferToThreadWrap
 
 logger = logging.getLogger(__name__)
 

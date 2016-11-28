@@ -14,8 +14,8 @@ class EnmacImportDispLayer(EnmacImportLookup):
         enmacSession = getEnmacSession()
 
         # 0 = disbled
-        # 1 = enabled but turned off at login
-        # 2 = enabled and turned on at login
+        # 1 = enabled but turned off at login_page
+        # 2 = enabled and turned on at login_page
         # 3 = current state
         # 4 = normal state
 

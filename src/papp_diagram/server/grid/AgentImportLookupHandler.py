@@ -3,10 +3,11 @@ import logging
 from peek.api.agent.grid.AgentImportLookup import AgentImportLookup
 from peek.core.orm import getNovaOrmSession
 from peek.core.orm.AgentData import AgentImportLookupInfo
-from rapui.handler.OrmCrudHandler import OrmCrudHandler
-from rapui.vortex.Payload import Payload
-from rapui.vortex.PayloadEndpoint import PayloadEndpoint
-from rapui.vortex.Vortex import vortexSendPayload
+
+from txhttputil import OrmCrudHandler
+from txhttputil import Payload
+from txhttputil import PayloadEndpoint
+from txhttputil import vortexSendPayload
 
 logger = logging.getLogger(__name__)
 

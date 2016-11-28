@@ -1,5 +1,6 @@
 from peek.core.orm.ModelSet import ModelSet
-from rapui.handler.ModelHandler import ModelHandler
+
+from txhttputil import ModelHandler
 
 __author__ = 'peek_server'
 '''

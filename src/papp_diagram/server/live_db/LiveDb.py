@@ -1,15 +1,14 @@
 import logging
 from datetime import datetime
 
-from sqlalchemy.sql.expression import select
-
 from peek.core.orm import getNovaOrmSession, SynSqlaConn
 from peek.core.orm.GridKeyIndex import GridKeyIndex
 from peek.core.orm.LiveDb import LiveDbDispLink, LiveDbKey
-from peek.core.orm.ModelSet import ModelSet, ModelCoordSet
+from peek.core.orm.ModelSet import ModelCoordSet
 from peek.core.queue_processesors.DispQueueIndexer import dispQueueCompiler
-from rapui.DeferUtil import deferToThreadWrap
-from rapui.vortex.Vortex import Vortex, vortexIsClientAlive, vortexClientIpPort
+
+from txhttputil import deferToThreadWrap
+from txhttputil import vortexClientIpPort
 
 logger = logging.getLogger(__name__)
 

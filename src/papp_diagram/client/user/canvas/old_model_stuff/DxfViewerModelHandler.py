@@ -9,8 +9,8 @@
 #     ModelNodeCoord, ModelNodeType
 # from peek_server.ui.diagram.ModelNodeToRenderable import createNodeRenderable, \
 #     createConnRenderable
-# from rapui.handler.ModelHandler import ModelHandler
-# from rapui.payload.Payload import Payload
+# from txhttputil.handler.ModelHandler import ModelHandler
+# from txhttputil.payload.Payload import Payload
 #
 # __author__ = 'peek_server'
 # '''
@@ -19,8 +19,8 @@
 # @author: synerty
 # '''
 #
-# from rapui.payload.PayloadEndpoint import PayloadEndpoint
-# from rapui.vortex.Vortex import vortexSendTuple, vortexSendPayload
+# from txhttputil.payload.PayloadEndpoint import PayloadEndpoint
+# from txhttputil.vortex.Vortex import vortexSendTuple, vortexSendPayload
 # from peek_server.core.storage import getNovaOrmSession
 #
 # import logging

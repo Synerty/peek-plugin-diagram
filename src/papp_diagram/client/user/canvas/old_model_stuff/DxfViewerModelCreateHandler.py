@@ -11,8 +11,8 @@
 #     ModelNodeCoord, ModelNodeType
 # from peek_server.ui.diagram.DxfViewerModelHandler import createConnRenderable, \
 #     createNodeRenderable, dxfModelDataHandler
-# from rapui.payload.Payload import Payload
-# from rapui.payload.PayloadFilterKeys import plIdKey
+# from txhttputil.payload.Payload import Payload
+# from txhttputil.payload.PayloadFilterKeys import plIdKey
 #
 # __author__ = 'peek_server'
 # '''
@@ -21,8 +21,8 @@
 # @author: synerty
 # '''
 #
-# from rapui.payload.PayloadEndpoint import PayloadEndpoint
-# from rapui.vortex.Vortex import vortexSendTuple, vortexSendPayload
+# from txhttputil.payload.PayloadEndpoint import PayloadEndpoint
+# from txhttputil.vortex.Vortex import vortexSendTuple, vortexSendPayload
 # from peek_server.core.storage import getNovaOrmSession
 #
 # import logging

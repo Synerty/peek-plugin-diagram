@@ -11,6 +11,7 @@
  *
 """
 
+from Base import Base, BaseMixin
 from geoalchemy2.types import Geometry
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
@@ -21,9 +22,8 @@ from sqlalchemy.orm.mapper import reconstructor
 from sqlalchemy.sql.schema import Index
 from sqlalchemy.sql.sqltypes import Float, DateTime
 
-from Base import Base, BaseMixin
+from txhttputil import Tuple, addTupleType, TupleField, JSON_EXCLUDE
 from .ModelSet import ModelCoordSet, ModelSet
-from rapui.vortex.Tuple import Tuple, addTupleType, TupleField, JSON_EXCLUDE
 
 DISP_SHORT_ATTR_NAME_MAP = {'colorId': 'c',
                             'fillColorId': 'fc',
