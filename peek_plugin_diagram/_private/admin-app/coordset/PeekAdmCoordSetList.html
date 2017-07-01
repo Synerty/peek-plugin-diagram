@@ -1,0 +1,55 @@
+<div ng-controller="PeekAdmCoordSetListCtrl as coordSetC">
+
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            Disabling and enabling coord sets will cause the peek server
+            to pause and re-cache the display data.
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Initial X</th>
+            <th>Initial Y</th>
+            <th>Initial Zoom</th>
+            <th>Comment</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="coordSet in coordSetList">
+            <td>{{coordSet.name}}</td>
+            <td><input type="number" ng-model="coordSet.initialPanX"
+                       class="form-control"/></td>
+            <td><input type="number" ng-model="coordSet.initialPanY"
+                       class="form-control"/></td>
+            <td><input type="number" ng-model="coordSet.initialZoom"
+                       class="form-control"/></td>
+            <td>
+                <button ng-click="coordSet.enabled = !coordSet.enabled"
+                        type="button"
+                        class="form-control btn btn-default"
+                        ng-class="{active:coordSet.enabled}">
+                    <span ng-show="coordSet.enabled">Enabled</span>
+                    <span ng-hide="coordSet.enabled">Disabled</span>
+                </button>
+            </td>
+            <td><input type="text" ng-model="coordSet.comment" class="form-control"/></td>
+        </tr>
+
+        </tbody>
+    </table>
+    <div class="btn-toolbar">
+        <div class="btn-group">
+            <div class="btn btn-default" ng-click='saveCoordSets()'>
+                Save
+            </div>
+            <div class="btn btn-default" ng-click='loadCoordSets()'>
+                Reset
+            </div>
+
+        </div>
+    </div>
+    <br/>
+</div>

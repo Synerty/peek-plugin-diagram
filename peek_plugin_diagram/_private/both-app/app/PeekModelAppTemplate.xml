@@ -1,0 +1,12 @@
+<div xmlns:t="http://twistedmatrix.com/ns/twisted.web.template/0.1"
+     ng-controller="PeekModelAppCtrl">
+
+        <script type="text/javascript">
+            requirejs(["PeekModelAppMod"]);
+        </script>
+
+    <peek-model-navbar></peek-model-navbar>
+
+    <div ng-view="1" class="view-animate" autoscroll="true"></div>
+
+</div>
