@@ -1,19 +1,20 @@
-// ============================================================================
-// Editor Ui Mouse
-
-/*
- * This class manages the currently selected tool
- * 
- */
-
-import {MousePos, PeekCanvasMouseDelegate} from "./PeekCanvasMouseDelegate";
+import {MousePos, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate";
 import {PeekCanvasConfig} from "./PeekCanvasConfig";
 import {PeekCanvasModel} from "./PeekCanvasModel";
-import {PeekCanvasMouse} from "./PeekCanvasMouse";
+import {PeekCanvasInput} from "./PeekCanvasInput";
 import * as assert from "assert";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {PeekDispRenderFactory} from "./PeekDispRenderFactory";
 
-export class PeekCanvasMouseSelectDelegate extends PeekCanvasMouseDelegate {
+/**
+ * This input delegate handles :
+ * Zooming (touch and mouse)
+ * Panning (touch and mouse)
+ * Selecting at a point (touch and mouse)
+ *
+ */
+export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
+    static readonly TOOL_NAME: "SELECT";
 
     // CONSTANTS
     STATE_NONE = 0;
@@ -39,11 +40,11 @@ export class PeekCanvasMouseSelectDelegate extends PeekCanvasMouseDelegate {
     // See mousedown and mousemove events for explanation
     _startMousePos: MousePos | null = null;
 
-    constructor(private canvasMouse: PeekCanvasMouse,
+    constructor(private canvasInput: PeekCanvasInput,
                 private config: PeekCanvasConfig,
                 private model: PeekCanvasModel,
                 private dispDelegate: PeekDispRenderFactory) {
-        super("SELECT");
+        super(PeekCanvasInputSelectDelegate.TOOL_NAME);
 
         this._reset();
     }
@@ -62,6 +63,7 @@ export class PeekCanvasMouseSelectDelegate extends PeekCanvasMouseDelegate {
         this._mouseDownRightButton = false;
         this._mouseDownOnHandle = null;
 
+
         this._lastPinchDist = null;
 
         // See mousedown and mousemove events for explanation
@@ -79,22 +81,26 @@ export class PeekCanvasMouseSelectDelegate extends PeekCanvasMouseDelegate {
 
         // Delete the coord on the canvas
         if (event.keyCode == 46) {
-            let coords = this.model.selectedDisps();
-            this.model.deleteDisp(coords);
-            this.model.clearSelection();
+            // let coords = this.model.selectedDisps();
+            // this.model.deleteDisp(coords);
+            // this.model.clearSelection();
 
         } else if (event.keyCode == 33) { // Page UP
-            editorRenderer.zoom(1.0 + phUpDownZoomFactor / 100.0);
+            let zoom = this.config.canvas.zoom;
+            zoom *= (1.0 + phUpDownZoomFactor / 100.0);
+            this.config.updateZoom(zoom);
 
         } else if (event.keyCode == 34) { // Page Down
-            editorRenderer.zoom(1.0 - phUpDownZoomFactor / 100.0);
+            let zoom = this.config.canvas.zoom;
+            zoom *= (1.0 - phUpDownZoomFactor / 100.0);
+            this.config.updateZoom(zoom);
 
-        } else if (event.keyCode == 67) { // the letter c
-            updateSelectedCoordNodesClosedState(true);
+            // } else if (event.keyCode == 67) { // the letter c
+            //     updateSelectedCoordNodesClosedState(true);
 
 
-        } else if (event.keyCode == 79) { // the letter o
-            updateSelectedCoordNodesClosedState(false);
+            // } else if (event.keyCode == 79) { // the letter o
+            //     updateSelectedCoordNodesClosedState(false);
 
             // Snap selected objects to grid
             //} else if (String.fromCharCode(event.keyCode) == "S") {
@@ -246,8 +252,7 @@ export class PeekCanvasMouseSelectDelegate extends PeekCanvasMouseDelegate {
 
     };
 
-    _zoomPan
-    (clientX, clientY, delta) {
+    _zoomPan(clientX, clientY, delta) {
 
 
         if (!delta) {
@@ -281,13 +286,13 @@ export class PeekCanvasMouseSelectDelegate extends PeekCanvasMouseDelegate {
             y: clientY / zoom + pan.y
         };
 
-        // Update values in canvas
-        this.config.canvas.zoom = zoom;
-        this.config.canvas.pan.x += (panStart.x - panEnd.x);
-        this.config.canvas.pan.y += (panStart.y - panEnd.y);
+        let newPan = {
+            x: pan.x + (panStart.x - panEnd.x),
+            y: pan.y + (panStart.y - panEnd.y)
+        };
+        this.config.updatePan(newPan);
+        this.config.updateZoom(zoom);
 
-        // Iterate the angular processor
-        this._canvasMouse.applyUpdates();
     };
 
     mouseMove(event, mouse) {
@@ -320,9 +325,12 @@ export class PeekCanvasMouseSelectDelegate extends PeekCanvasMouseDelegate {
                 let delta = this._setLastMousePos(mouse);
                 // Dragging the mouse left makes a negative delta, we increase X
                 // Dragging the mouse up makes a negative delta, we increase Y
-                this.config.canvas.pan.x -= delta.dClientX / this.config.canvas.zoom;
-                this.config.canvas.pan.y -= delta.dClientY / this.config.canvas.zoom;
-                this._canvasMouse.applyUpdates();
+                let oldPan = this.config.canvas.pan;
+                let newPan = {
+                    x: oldPan.x - delta.dClientX / this.config.canvas.zoom,
+                    y: oldPan.y - delta.dClientY / this.config.canvas.zoom
+                };
+                this.config.updatePan(newPan);
                 break;
             }
 
@@ -350,7 +358,7 @@ export class PeekCanvasMouseSelectDelegate extends PeekCanvasMouseDelegate {
                 }
 
                 if (selectedCoords.length != 0) {
-                    this._canvasMouse.applyUpdates();
+                    this.config.invalidate();
                     break;
                 }
 
@@ -381,7 +389,7 @@ export class PeekCanvasMouseSelectDelegate extends PeekCanvasMouseDelegate {
 
         }
 
-        this._canvasMouse.applyUpdates();
+        this.canvasInput.applyUpdates();
     };
 
     touchEnd(event, mouse) {
@@ -420,13 +428,13 @@ export class PeekCanvasMouseSelectDelegate extends PeekCanvasMouseDelegate {
                 // TODO, Not a nice structure this is a hack
                 // We need a proper structure
 
-                console.log("TODO, this._canvasMouse._notifyOfChange");
-                // this._canvasMouse._notifyOfChange(selectedCoords);
+                console.log("TODO, this.canvasInput._notifyOfChange");
+                // this.canvasInput._notifyOfChange(selectedCoords);
                 break;
         }
 
         this._reset();
-        this._canvasMouse.applyUpdates();
+        this.canvasInput.applyUpdates();
     };
 
     mouseDoubleClick(event, mouse) {
@@ -559,7 +567,7 @@ export class PeekCanvasMouseSelectDelegate extends PeekCanvasMouseDelegate {
     //
     //    // TODO, Not a nice structure this is a hack
     //    // We need a proper structure
-    //    this._canvasMouse._notifyOfChange(selectedCoords);
+    //    this.canvasInput._notifyOfChange(selectedCoords);
     //    editorRenderer.invalidate();
     //};
 

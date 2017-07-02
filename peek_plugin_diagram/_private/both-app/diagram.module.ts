@@ -50,6 +50,7 @@ import {
 // Import global modules, for example, the canvas extensions.
 import "./canvas/PeekCanvasExtensions";
 import {DisplayCanvasSplashScreen} from "./splash/diagram-splash-screen.service";
+import {PeekModelDataGridManager} from "./cache/PeekModelDataGridManager";
 
 export function tupleActionPushNameServiceFactory() {
     return new TupleActionPushNameService(
@@ -103,7 +104,9 @@ export const pluginRoutes: Routes = [
             provide: TupleDataObservableNameService,
             useFactory: tupleDataObservableNameServiceFactory
         },
-        DisplayCanvasSplashScreen
+        DisplayCanvasSplashScreen,
+        PeekModelDataGridManager
+
     ],
     declarations: [DiagramComponent, StringIntComponent]
 })

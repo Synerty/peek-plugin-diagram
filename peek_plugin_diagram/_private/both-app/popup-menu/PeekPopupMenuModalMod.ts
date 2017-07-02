@@ -81,10 +81,10 @@ define("PeekPopupMenuModalMod", [
                                 dataType: "text",
                                 error: function (xhr, status, error) {
                                     if (xhr.responseText == null) {
-                                        logError("Command failed : Could not connect to "
+                                        this.balloonMsg.showError("Command failed : Could not connect to "
                                                 + menuItem.url);
                                     } else {
-                                        logError("Command failed : "
+                                        this.balloonMsg.showError("Command failed : "
                                                 // + xhr.status + '\n'
                                                 + xhr.responseText);
                                     }
@@ -104,11 +104,11 @@ define("PeekPopupMenuModalMod", [
                         }
 
                         if (menuItem.urlType == URL_OPEN_IN_FRAME) {
-                            logError("Frame style menu item not implemented");
+                            this.balloonMsg.showError("Frame style menu item not implemented");
                             return;
                         }
 
-                        logError("Unhandled menu option type");
+                        this.balloonMsg.showError("Unhandled menu option type");
 
                     }
                 }

@@ -54,7 +54,7 @@ define([
                     };
 
                     // self.cacheAll = function () {
-                    //     vortexSendFilt({'key': "c.s.p.model.disp.cache_all"});
+                    //     this.vortexService.sendFilt({'key': "c.s.p.model.disp.cache_all"});
                     // };
 
                     new PayloadEndpoint({'key': "c.s.p.model.disp.cache_all.progress"},
@@ -63,7 +63,7 @@ define([
                                     logSuccess(payload.result.message);
 
                                 } else if (payload.result.error == true) {
-                                    logError(payload.result.message);
+                                    this.balloonMsg.showError(payload.result.message);
 
                                 } else {
                                     logInfo(payload.result.message);

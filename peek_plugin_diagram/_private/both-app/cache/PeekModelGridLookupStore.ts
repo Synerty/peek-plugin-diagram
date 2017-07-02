@@ -1,270 +1,249 @@
-/**
- * Created by Jarrod Chesney on 13/03/16.
- */
-
-'use strict';
-
+import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import {PayloadEndpoint, VortexService} from "@synerty/vortexjs";
+import {dictValuesFromObject} from "../DiagramUtil";
 
 /** Peek Model Grid Lookup Store
  *
  * This class is responsible for storing the lookup data from the server
  *
  */
-define('PeekModelGridLookupStore', [
-            // Named Dependencies
-            "PayloadEndpoint", "Payload",
-            // Unnamed Dependencies
-            "Vortex", "jquery"
-        ],
-        function (PayloadEndpoint, Payload) {
-            function PeekModelGridLookupStore() {
-                var self = this;
+export class PeekModelGridLookupStore {
+    private _lookupLoadCount = 0;
+    private _lookupTargetCount = 5;
 
-                self._lookupLoadCount = 0;
-                self._lookupTargetCount = 5;
+    private _levelsById = {};
+    private _layersById = {};
+    private _colorsById = {};
+    private _textStyleById = {};
+    private _lineStyleById = {};
+    private _dispGroupById = {}; // NOT USED UET
 
-                self._levelsById = {};
-                self._layersById = {};
-                self._colorsById = {};
-                self._textStyleById = {};
-                self._lineStyleById = {};
+    private _levelsByCoordSetIdOrderedByOrder = null;
+    private _layersOrderedByOrder = null;
 
-                self._levelsByCoordSetIdOrderedByOrder = null;
-                self._layersOrderedByOrder = null;
+    constructor(private balloonMsg: Ng2BalloonMsgService,
+                private vortexService: VortexService) {
 
-                // // Display Groups are reusable, they are referred to by DispGroupPtrs
-                // // Presently they have no dynamics
-                //
-                // self._lookupTargetCount++;
-                // self._dispGroupById = {};
+        this._init();
 
-                self._init();
-
-
-            }
+    }
 
 // ============================================================================
 // Init
 
-            PeekModelGridLookupStore.prototype.isReady = function () {
-                var self = this;
-                return (self._lookupTargetCount <= self._lookupLoadCount);
-            };
+    isReady() {
+        return (this._lookupTargetCount <= this._lookupLoadCount);
+    };
 
 // ============================================================================
 // Accessors for common lookup data
 
-            PeekModelGridLookupStore.prototype._init = function () {
-                var self = this;
-
-                function makeEndpoint(key, lookupName, callback) {
-                    // Send after vortex is initiaised
-                    vortexSendFilt({'key': key});
-
-                    return new PayloadEndpoint({'key': key},
-                            function (payload) {
-                                if (payload.result) {
-                                    logError(payload.result);
-                                    return false;
-                                }
-
-                                self[lookupName] = {};
-                                for (var i = 0; i < payload.tuples.length; i++) {
-                                    var item = payload.tuples[i];
-                                    self[lookupName][item.id] = item;
-                                }
-
-                                if (callback != null)
-                                    callback();
-
-                                self._lookupLoadCount++;
-                            });
-                }
-
-                var levelEndpoint = makeEndpoint("c.s.p.model.disp.level", "_levelsById");
-                var layerEndpoint = makeEndpoint("c.s.p.model.disp.layer", "_layersById");
-                var colorEndpoint = makeEndpoint("c.s.p.model.disp.color", "_colorsById",
-                        bind(self, self._validateColors));
-                var textStyleEndpoint = makeEndpoint("c.s.p.model.disp.text_style", "_textStyleById");
-                var lineStyleEndpoint = makeEndpoint("c.s.p.model.disp.line_style", "_lineStyleById");
+    _init() {
 
 
-                // self.loadFromDispCache(DRESSING_COORD_SET_ID, ["dressings"], "from_cache");
-            };
+        let makeEndpoint = (key, lookupName, callback = null) => {
+            // Send after vortex is initiaised
+            this.vortexService.sendFilt({'key': key});
+
+            return new PayloadEndpoint({'key': key},
+                (payload) => {
+                    if (payload.result) {
+                        this.balloonMsg.showError(payload.result);
+                        return false;
+                    }
+
+                    this[lookupName] = {};
+                    for (let i = 0; i < payload.tuples.length; i++) {
+                        let item = payload.tuples[i];
+                        this[lookupName][item.id] = item;
+                    }
+
+                    if (callback != null)
+                        callback();
+
+                    this._lookupLoadCount++;
+                });
+        };
+
+        let levelEndpoint = makeEndpoint("c.s.p.model.disp.level", "_levelsById");
+        let layerEndpoint = makeEndpoint("c.s.p.model.disp.layer", "_layersById");
+        let colorEndpoint = makeEndpoint("c.s.p.model.disp.color", "_colorsById",
+            () => this._validateColors());
+        let textStyleEndpoint = makeEndpoint("c.s.p.model.disp.text_style", "_textStyleById");
+        let lineStyleEndpoint = makeEndpoint("c.s.p.model.disp.line_style", "_lineStyleById");
+
+
+        // this.loadFromDispCache(DRESSING_COORD_SET_ID, ["dressings"], "from_cache");
+    };
 
 
 // ============================================================================
 // Load Callbacks
 
-            PeekModelGridLookupStore.prototype._validateColors = function () {
-                var self = this;
+    _validateColors() {
 
-                function validTextColor(stringToTest) {
-                    //Alter the following conditions according to your need.
-                    if (stringToTest === "") {
-                        return false;
-                    }
-                    if (stringToTest === "inherit") {
-                        return false;
-                    }
-                    if (stringToTest === "transparent") {
-                        return false;
-                    }
 
-                    var image = document.createElement("img");
-                    image.style.color = "rgb(0, 0, 0)";
-                    image.style.color = stringToTest;
-                    if (image.style.color !== "rgb(0, 0, 0)") {
-                        return true;
-                    }
-                    image.style.color = "rgb(255, 255, 255)";
-                    image.style.color = stringToTest;
-                    return image.style.color !== "rgb(255, 255, 255)";
-                }
+        function validTextColor(stringToTest) {
+            //Alter the following conditions according to your need.
+            if (stringToTest === "") {
+                return false;
+            }
+            if (stringToTest === "inherit") {
+                return false;
+            }
+            if (stringToTest === "transparent") {
+                return false;
+            }
 
-                var colors = dictValuesFromObject(self._colorsById);
-                for (var i = 0; i < colors.length; i++) {
-                    var color = colors[i];
-                    if (!validTextColor(color.color)) {
-                        console.log("Color " + color.color + " is not a valid CSS color");
-                        color.color = "green";
-                    }
-                }
+            let image = document.createElement("img");
+            image.style.color = "rgb(0, 0, 0)";
+            image.style.color = stringToTest;
+            if (image.style.color !== "rgb(0, 0, 0)") {
+                return true;
+            }
+            image.style.color = "rgb(255, 255, 255)";
+            image.style.color = stringToTest;
+            return image.style.color !== "rgb(255, 255, 255)";
+        }
 
-            };
+        let colors = dictValuesFromObject(this._colorsById);
+        for (let i = 0; i < colors.length; i++) {
+            let color = colors[i];
+            if (!validTextColor(color.color)) {
+                console.log("Color " + color.color + " is not a valid CSS color");
+                color.color = "green";
+            }
+        }
+
+    };
 
 
 // ============================================================================
 // Accessors
 
-            PeekModelGridLookupStore.prototype.levelForId = function (levelId) {
-                var self = this;
-                return self._levelsById[levelId];
-            };
+    levelForId(levelId) {
 
-            PeekModelGridLookupStore.prototype.layerForId = function (layerId) {
-                var self = this;
-                return self._layersById[layerId];
-            };
+        return this._levelsById[levelId];
+    };
 
-            PeekModelGridLookupStore.prototype.colorForId = function (colorId) {
-                var self = this;
-                return self._colorsById[colorId];
-            };
+    layerForId(layerId) {
 
-            PeekModelGridLookupStore.prototype.textStyleForId = function (textStyleId) {
-                var self = this;
-                return self._textStyleById[textStyleId];
-            };
+        return this._layersById[layerId];
+    };
 
-            PeekModelGridLookupStore.prototype.lineStyleForId = function (lineStyleId) {
-                var self = this;
-                return self._lineStyleById[lineStyleId];
-            };
+    colorForId(colorId) {
 
-            PeekModelGridLookupStore.prototype.dispGroupForId = function (dispGroupId) {
-                var self = this;
-                return self._dispGroupById[dispGroupId];
-            };
+        return this._colorsById[colorId];
+    };
 
-            PeekModelGridLookupStore.prototype._sortDictValuesByOrder = function (thingsById) {
-                var self = this;
-            };
+    textStyleForId(textStyleId) {
 
-            PeekModelGridLookupStore.prototype.layersOrderedByOrder = function () {
-                var self = this;
+        return this._textStyleById[textStyleId];
+    };
 
-                function comp(o1, o2) {
-                    return o1.order - o2.order;
-                }
+    lineStyleForId(lineStyleId) {
 
-                // Lazy instantiation
-                if (!self.isReady())
-                    return [];
+        return this._lineStyleById[lineStyleId];
+    };
 
-                if (self._layersOrderedByOrder == null)
-                    self._layersOrderedByOrder = dictValuesFromObject(self._layersById).sort(comp);
+    dispGroupForId(dispGroupId) {
 
-                return self._layersOrderedByOrder;
-            };
+        return this._dispGroupById[dispGroupId];
+    };
 
-            PeekModelGridLookupStore.prototype.levelsOrderedByOrder = function (coordSetId) {
-                var self = this;
+    _sortDictValuesByOrder(thingsById) {
 
-                function comp(o1, o2) {
-                    return o1.order - o2.order;
-                }
+    };
 
-                if (!self.isReady())
-                    return [];
-
-                // Lazy instantiation
-                if (self._levelsByCoordSetIdOrderedByOrder == null) {
-                    var dict = {};
-                    self._levelsByCoordSetIdOrderedByOrder = dict;
-
-                    var ordered = dictValuesFromObject(self._levelsById).sort(comp);
-
-                    for (var i = 0; i < ordered.length; i++) {
-                        var level = ordered[i];
-
-                        if (dict[level.coordSetId] == null)
-                            dict[level.coordSetId] = [];
-
-                        dict[level.coordSetId].push(level);
-                    }
-                }
-
-                return self._levelsByCoordSetIdOrderedByOrder[coordSetId];
-            };
+    layersOrderedByOrder() {
 
 
-            PeekModelGridLookupStore.prototype.linkDispLookups = function (disp) {
-                var self = this;
+        function comp(o1, o2) {
+            return o1.order - o2.order;
+        }
 
-                if (disp.le != null) {
-                    disp.level = self._levelsById[disp.le];
-                    if (disp.level == null) return null;
-                }
+        // Lazy instantiation
+        if (!this.isReady())
+            return [];
 
-                if (disp.la != null) {
-                    disp.layer = self._layersById[disp.la];
-                    if (disp.layer == null) return null;
-                }
+        if (this._layersOrderedByOrder == null)
+            this._layersOrderedByOrder = dictValuesFromObject(this._layersById).sort(comp);
 
-                if (disp.fs != null) {
-                    disp.textStyle = self._textStyleById[disp.fs];
-                    if (disp.textStyle == null) return null;
-                }
+        return this._layersOrderedByOrder;
+    };
 
-                if (disp.c != null) {
-                    disp.color = self._colorsById[disp.c];
-                    if (disp.color == null) return null;
-                }
+    levelsOrderedByOrder(coordSetId) {
 
-                if (disp.lc != null) {
-                    disp.lineColor = self._colorsById[disp.lc];
-                    if (disp.lineColor == null) return null;
-                }
+        function comp(o1, o2) {
+            return o1.order - o2.order;
+        }
 
-                if (disp.fc != null) {
-                    disp.fillColor = self._colorsById[disp.fc];
-                    if (disp.fillColor == null) return null;
-                }
+        if (!this.isReady())
+            return [];
 
-                if (disp.ls != null) {
-                    disp.lineStyle = self._lineStyleById[disp.ls];
-                    if (disp.lineStyle == null) return null;
-                }
+        // Lazy instantiation
+        if (this._levelsByCoordSetIdOrderedByOrder == null) {
+            let dict = {};
+            this._levelsByCoordSetIdOrderedByOrder = dict;
 
-                return disp;
-            };
+            let ordered = dictValuesFromObject(this._levelsById).sort(comp);
+
+            for (let i = 0; i < ordered.length; i++) {
+                let level = ordered[i];
+
+                if (dict[level.coordSetId] == null)
+                    dict[level.coordSetId] = [];
+
+                dict[level.coordSetId].push(level);
+            }
+        }
+
+        return this._levelsByCoordSetIdOrderedByOrder[coordSetId];
+    };
+
+
+    linkDispLookups(disp) {
+
+        if (disp.le != null) {
+            disp.level = this._levelsById[disp.le];
+            if (disp.level == null) return null;
+        }
+
+        if (disp.la != null) {
+            disp.layer = this._layersById[disp.la];
+            if (disp.layer == null) return null;
+        }
+
+        if (disp.fs != null) {
+            disp.textStyle = this._textStyleById[disp.fs];
+            if (disp.textStyle == null) return null;
+        }
+
+        if (disp.c != null) {
+            disp.color = this._colorsById[disp.c];
+            if (disp.color == null) return null;
+        }
+
+        if (disp.lc != null) {
+            disp.lineColor = this._colorsById[disp.lc];
+            if (disp.lineColor == null) return null;
+        }
+
+        if (disp.fc != null) {
+            disp.fillColor = this._colorsById[disp.fc];
+            if (disp.fillColor == null) return null;
+        }
+
+        if (disp.ls != null) {
+            disp.lineStyle = this._lineStyleById[disp.ls];
+            if (disp.lineStyle == null) return null;
+        }
+
+        return disp;
+    };
 
 
 // ============================================================================
 // Create manage model single instance
 
-            return PeekModelGridLookupStore;
-        }
-)
-;
+}

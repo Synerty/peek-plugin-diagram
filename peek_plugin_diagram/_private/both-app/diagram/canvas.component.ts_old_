@@ -15,8 +15,8 @@
 define("PeekCanvasMod", [
             // Named Dependencies
             "PeekCanvasModel",
-            "PeekCanvasMouse",
-            "PeekCanvasMouseSelectDelegate",
+            "PeekCanvasInput",
+            "PeekCanvasInputSelectDelegate",
             "PeekDispRefData",
             "PeekDispRenderFactory",
             "PeekCanvasRenderer",
@@ -25,13 +25,13 @@ define("PeekCanvasMod", [
             "angular", "jquery",
             "PeekModelGridDataManager",
             "PeekCanvasBounds",
-            "PeekCanvasMouseDelegate",
+            "PeekCanvasInputDelegate",
             "PeekSplashScreenModalMod",
             "PeekPopupMenuModalMod"
         ],
         function (PeekCanvasModel,
-                  PeekCanvasMouse,
-                  PeekCanvasMouseSelectDelegate,
+                  PeekCanvasInput,
+                  PeekCanvasInputSelectDelegate,
                   PeekDispRefData,
                   PeekDispRenderFactory,
                   PeekCanvasRenderer,
@@ -60,7 +60,7 @@ define("PeekCanvasMod", [
                     self.dispDelegate = new PeekDispRenderFactory($scope, self.config, self.dispRefData);
 
                     // The user interaction handler.
-                    self.mouse = new PeekCanvasMouse($scope, self.config,
+                    self.mouse = new PeekCanvasInput($scope, self.config,
                             self.model, self.dispDelegate);
 
                     // The canvas renderer

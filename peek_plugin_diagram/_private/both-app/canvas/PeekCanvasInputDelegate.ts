@@ -14,13 +14,18 @@ export class MousePos {
     y: number = 0;
 }
 
+export function disableContextMenu(event) {
+    event.preventDefault();
+    return false;
+}
+
 /*
  * This class manages the currently selected tool
  * 
  */
-export abstract class PeekCanvasMouseDelegate {
+export abstract class PeekCanvasInputDelegate {
 
-    _canvasMouse = null;
+    _CanvasInput = null;
 
     _lastMousePos: LastMousePos = new LastMousePos();
 

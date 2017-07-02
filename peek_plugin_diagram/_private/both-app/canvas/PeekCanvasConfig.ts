@@ -1,14 +1,15 @@
+import {Subject} from "rxjs";
+import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate";
+import {PanI, ZoomI} from "./PeekInterfaces";
+
+
 /**
  * Peek Canvas Data
  *
  * This class is responsible for storing all the data required for the canvas.
  * This includes storing referecnes to Model objects, and settings for this canvas
  */
-
-
 export class PeekCanvasConfig {
-
-    private _scope: any;
 
     controller = {
         updateInterval: 400,
@@ -18,7 +19,7 @@ export class PeekCanvasConfig {
     };
 
     renderer = {
-        invalidate: false, // Set this to true to cause the renderer to redraw
+        invalidate: new Subject<void>(), // Set this to true to cause the renderer to redraw
         drawInterval: 60,
         backgroundColor: 'black',
         selection: {
@@ -39,11 +40,11 @@ export class PeekCanvasConfig {
     };
 
     canvas = {
+        zoomChange: new Subject<number>(),
+        panChange: new Subject<PanI>(),
         pan: {
             x: 238255,
             y: 124655
-            // x: 303419,
-            // y: 152139
         },
         zoom: 0.5,
 
@@ -52,7 +53,7 @@ export class PeekCanvasConfig {
     };
 
     mouse = {
-        currentDelegateName: PeekCanvasMouseSelectDelegate.NAME,
+        currentDelegateName: PeekCanvasInputSelectDelegate.TOOL_NAME,
         phUpDownZoomFactor: 20.0,
         currentPosition: {x: 0, y: 0},
         selecting: {
@@ -73,18 +74,19 @@ export class PeekCanvasConfig {
     // Debug data
     debug = {};
 
-    constructor($scope: any) {
-        this._scope = $scope;
-
-
-        if ($scope.initZoom != null) {
-            this.canvas.zoom = parseFloat($scope.initZoom);
-        }
-
-    }
 
     invalidate() {
-        this.renderer.invalidate = true;
-        this._scope.$apply();
+        this.renderer.invalidate.next();
     };
+
+    updatePan(newPan: PanI) {
+        this.canvas.pan = newPan;
+        this.canvas.panChange.next(newPan);
+    }
+
+    updateZoom(newZoom: number) {
+        this.canvas.zoom = newZoom;
+        this.canvas.zoomChange.next(newZoom);
+
+    }
 }

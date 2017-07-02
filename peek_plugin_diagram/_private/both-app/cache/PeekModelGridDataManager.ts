@@ -1,8 +1,10 @@
-/**
- * Created by Jarrod Chesney on 13/03/16.
- */
-
-'use strict';
+import {Injectable} from "@angular/core";
+import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import {VortexService, extend} from "@synerty/vortexjs";
+import {GridUpdateEventI, PeekModelGridDataStore} from "./PeekModelGridDataStore";
+import {PeekModelGridLookupStore} from "./PeekModelGridLookupStore";
+import Subject from "rxjs";
+import {dictKeysFromObject, dictSetFromArray, dictValuesFromObject} from "../DiagramUtil";
 
 
 /** Peek Model Cache Class
@@ -16,91 +18,88 @@
  * this class updates the cache then sends the update to the canvas instance.
  *
  */
-define('PeekModelGridDataManager', [
-            // Named Dependencies
-            "PeekModelGridLookupStore", "PeekModelGridDataStore",
-            "PayloadEndpoint", "Payload",
-            // Unnamed Dependencies
-            "Vortex", "jquery"
-        ],
-        function (PeekModelGridLookupStore, PeekModelGridDataStore,
-                  PayloadEndpoint, Payload) {
-            function PeekModelGridDataManager() {
-                var self = this;
+@Injectable()
+export class PeekModelGridDataManager {
+    _gridLookupStore:PeekModelGridLookupStore;
+    _gridDataStore:PeekModelGridDataStore;
 
-                // Create/store references to the data stores
-                self._gridLookupStore = new PeekModelGridLookupStore();
-                self._gridDataStore = new PeekModelGridDataStore(self._gridLookupStore);
+        // Variables required to determine when we need to inform the
+        // server of view changes.
+        _viewingGridKeysByCanvasId = {};
 
-                // Variables required to determine when we need to inform the
-                // server of view changes.
-                self._viewingGridKeysByCanvasId = {};
 
-                // Callbacks for the canvas to receive updates from the server
-                self.gridUpdatesNotify = self._gridDataStore._gridUpdatesNofity;
+    gridUpdatesNotify : Subject<GridUpdateEventI>;
 
-                // Copy over some methods
-                self.loadGridKeys = bind(self._gridDataStore,
-                        self._gridDataStore.loadGridKeys);
+    constructor(private balloonMsg: Ng2BalloonMsgService,
+                private vortexService:VortexService) {
 
-                // Copy over some accessors
-                self.levelsOrderedByOrder = bind(self._gridLookupStore,
-                        self._gridLookupStore.levelsOrderedByOrder);
+        // Create/store references to the data stores
+        this._gridLookupStore = new PeekModelGridLookupStore(
+            balloonMsg, vortexService
+        );
+        this._gridDataStore = new PeekModelGridDataStore(
+            balloonMsg, vortexService, this._gridLookupStore,
+        );
 
-                self.layersOrderedByOrder = bind(self._gridLookupStore,
-                        self._gridLookupStore.layersOrderedByOrder);
 
-                // Initiliase this class
-                self._init();
-            }
+        // Observable for the canvas to receive updates from the server
+        this.gridUpdatesNotify = this._gridDataStore._gridUpdatesNofity;
+
+        // Initialise this class
+        this._init();
+    }
 
 // ============================================================================
 // Init
 
-            PeekModelGridDataManager.prototype.isReady = function () {
-                var self = this;
-                return (self._gridLookupStore.isReady()
-                && self._gridDataStore.isReady());
-            };
+    isReady() {
+        return (this._gridLookupStore.isReady()
+        && this._gridDataStore.isReady());
+    };
 
 // ============================================================================
 // Accessors for common lookup data
 
-            PeekModelGridDataManager.prototype._init = function () {
-                var self = this;
+    _init() {
 
-            };
+    };
 
+
+// ============================================================================
+// Pass through some methods
+loadGridKeys(requestedGridKeys:string[]) {
+    this._gridDataStore.loadGridKeys(requestedGridKeys);
+}
+
+
+// ============================================================================
+// Pass through some accessors
+levelsOrderedByOrder() {
+    this._gridLookupStore.layersOrderedByOrder();
+}
 
 // ============================================================================
 // Canvas viewing area changed
 
-            PeekModelGridDataManager.prototype.canvasViewChanged
-                    = function (canvasId, gridKeys) {
-                var self = this;
+    canvasViewChanged(canvasId, gridKeys) {
+        this._viewingGridKeysByCanvasId[canvasId] = gridKeys;
 
+        let setOfGridKeys = {};
+        let listOfGridKeys = dictValuesFromObject(this._viewingGridKeysByCanvasId);
+        for (let i = 0; i < listOfGridKeys.length; i++) {
+            extend(setOfGridKeys, dictSetFromArray(listOfGridKeys[i]));
+        }
 
-                self._viewingGridKeysByCanvasId[canvasId] = gridKeys;
-
-                var setOfGridKeys = {};
-                var listOfGridKeys = dictValuesFromObject(self._viewingGridKeysByCanvasId);
-                for (var i = 0; i < listOfGridKeys.length; i++) {
-                    $.extend(setOfGridKeys, dictSetFromArray(listOfGridKeys[i]));
-                }
-
-                var filt = {
-                    gridKeys: dictKeysFromObject(setOfGridKeys),
-                    'key': "repo.client.grid.observe"
-                };
-                vortexSendFilt(filt);
-            };
+        let filt = {
+            gridKeys: dictKeysFromObject(setOfGridKeys),
+            'key': "repo.client.grid.observe"
+        };
+        this.vortexService.sendFilt(filt);
+    };
 
 
 // ============================================================================
 // Create manage model single instance
 
-            return new PeekModelGridDataManager();
-        }
-)
-;
+}
 

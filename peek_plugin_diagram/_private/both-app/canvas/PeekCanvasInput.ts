@@ -1,19 +1,26 @@
 // ============================================================================
 // Editor Ui Mouse
 
+
+
+
 /*
  * This class manages the currently selected tool
  * 
  */
-export class PeekCanvasMouse {
+import {PeekCanvasConfig} from "./PeekCanvasConfig";
+import {PeekCanvasModel} from "./PeekCanvasModel";
+export class PeekCanvasInput {
     config = null;
     model = null;
     dispDelegate = null;
-    _delegate = null;
+    _delegate :PeekCanvasInput= null;
 
     canvas = null;
 
-    constructor(private config, private model, private dispDelegate) {
+    constructor(private config:PeekCanvasConfig,
+                private model:PeekCanvasModel,
+                private dispDelegate:) {
         this.delegateFinished();
     }
 
@@ -26,11 +33,6 @@ export class PeekCanvasMouse {
         this.config.mouse.currentDelegateName = this._delegate.NAME;
     };
 
-    applyUpdates() {
-
-        this.config.renderer.invalidate = true;
-        this.scope.$apply();
-    };
 
 // Creates an object with x and y defined, set to the mouse position relative to
 // the state's canvas
@@ -38,9 +40,9 @@ export class PeekCanvasMouse {
 // padding and borders
     delegateFinished() {
 
-        let PeekCanvasMouseSelectDelegate =
-            requirejs("PeekCanvasMouseSelectDelegate");
-        this.setDelegate(PeekCanvasMouseSelectDelegate);
+        let PeekCanvasInputSelectDelegate =
+            require("PeekCanvasInputSelectDelegate")["PeekCanvasInputSelectDelegate"];
+        this.setDelegate(PeekCanvasInputSelectDelegate);
     };
 
 // Creates an object with x and y defined, set to the mouse position relative to

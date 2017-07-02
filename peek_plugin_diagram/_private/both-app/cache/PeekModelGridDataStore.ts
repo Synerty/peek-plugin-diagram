@@ -1,9 +1,90 @@
-/**
- * Created by Jarrod Chesney on 13/03/16.
+import {Injectable} from "@angular/core";
+import {
+    ComponentLifecycleEventEmitter,
+    extend,
+    IPayloadFilt,
+    PayloadEndpoint,
+    VortexService
+} from "@synerty/vortexjs";
+import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import {Subject} from "rxjs";
+import {PeekModelNoopDb} from "./PeekModelNoopDb";
+import {PeekModelWebSqlDb} from "./PeekModelWebSqlDb";
+import {PeekModelIndexedDb} from "./PeekModelIndexedDb";
+import {dateStr, dictKeysFromObject, dictSetFromArray, assert, bind} from "../DiagramUtil";
+import {PeekModelGridLookupStore} from "./PeekModelGridLookupStore";
+import {GridKeyIndexCompiledTuple} from "../tuples/GridKeyIndexCompiledTuple";
+
+/** Peek Canvas Model Grid
+ *
+ * This class represents a constructed grid of data, ready for use by a canvas model
+ *
  */
+export class PeekCanvasModelGrid {
+    gridKey = null;
+    lastUpdate = null;
+    loadedFromServerDate = new Date();
+    disps = [];
+    gridKey = null;
 
-'use strict';
+    constructor(serverCompiledGridOrGridKey: string | GridKeyIndexCompiledTuple,
+                lookupStore: PeekModelGridLookupStore | null = null) {
 
+        // initialise for empty grid keys
+        if (typeof serverCompiledGridOrGridKey === "string") {
+            this.gridKey = serverCompiledGridOrGridKey;
+            return;
+        }
+
+        let serverCompiledGrid = <GridKeyIndexCompiledTuple>serverCompiledGridOrGridKey;
+        assert(lookupStore != null, "lookupStore can not be null");
+
+        this.gridKey = serverCompiledGrid.gridKey;
+        this.lastUpdate = serverCompiledGrid.lastUpdate;
+        this.loadedFromServerDate = new Date();
+
+        this.disps = [];
+        let disps = [];
+
+        if (serverCompiledGrid.blobData != null
+            && serverCompiledGrid.blobData.length != 0) {
+            let pako = require("pako");
+            try {
+                let dispJsonStr = pako.inflate(serverCompiledGrid.blobData, {to: 'string'});
+                disps = JSON.parse(dispJsonStr);
+            } catch (e) {
+                console.error(e.message);
+            }
+        }
+
+        // Resolve the lookups
+        for (let j = 0; j < disps.length; j++) {
+            let disp = disps[j];
+            if (disp.id == null) {
+                // This mitigates an old condition caused by the grid compiler
+                // including dips that had not yet had json assigned.
+                continue;
+            }
+            if (lookupStore.linkDispLookups(disp) != null) {
+                this.disps.push(disp);
+            }
+        }
+    }
+
+    hasData() {
+        return !(this.lastUpdate == null && this.disps.length == 0);
+    }
+}
+
+/** Grid Update Event
+ *
+ * This is the interface of the data emitted when grid updates are received by the server
+ *
+ */
+export interface GridUpdateEventI {
+    modelGrids: PeekCanvasModelGrid[];
+    fromServer: boolean;
+}
 
 /** Peek Model Cache Class
  *
@@ -16,307 +97,245 @@
  * this class updates the cache then sends the update to the canvas instance.
  *
  */
-define('PeekModelGridDataStore', [
-            // Named Dependencies
-            "PeekModelWebSqlDb", "PeekModelIndexedDb", "PeekModelNoopDb",
-            "PayloadEndpoint", "Payload",
-            // Unnamed Dependencies
-            "Vortex", "jquery",
-            // Require the Browser Cache storage classes
-            "PeekModelGridKey"
-        ],
-        function (PeekModelWebSqlDb, PeekModelIndexedDb, PeekModelNoopDb,
-                  PayloadEndpoint, Payload) {
-            function PeekModelGridDataStore(gridLookupStore) {
-                var self = this;
+@Injectable()
+export class PeekModelGridDataStore extends ComponentLifecycleEventEmitter {
 
-                self._gridLookupStore = gridLookupStore;
-                self._gridBuffer = {}; // Store grids from the server by gridKey.
+    _gridDataStore;
 
-                var providers = [PeekModelWebSqlDb,
-                    PeekModelIndexedDb];
+    // Store grids from the server by gridKey.
+    _gridBuffer = {};
 
-                for (var i = 0; i < providers.length; i++) {
-                    var SqlDb = providers[i];
-                    try {
-                        self._gridDataStore = new SqlDb();
-                        break;
-                    } catch (e) {
-                        console.log("ERROR LOADING" + SqlDb);
-                        console.log(e);
-                    }
-                }
+    _gridUpdatesNofity = new Subject<GridUpdateEventI>();
 
-                if (self._gridDataStore) {
-                    logInfo("Using " + self._gridDataStore.name + " Client Caching");
-                } else {
-                    self._gridDataStore = new PeekModelNoopDb();
-                    logWarning("Client caching not supported, we'll work with out it.");
-                }
-
-                self._gridUpdatesNofity = $.Callbacks('unique');
+    _modelServerListenFilt: IPayloadFilt;
+    _modelServerEndpoint: PayloadEndpoint;
 
 
-                self._modelServerListenFilt = {key: "repo.client.grid.update_check"};
-                self._modelServerEndpoint = new PayloadEndpoint(self._modelServerListenFilt,
-                        bind(self, self._processServerPayload));
+    constructor(private balloonMsg: Ng2BalloonMsgService,
+                private vortexService: VortexService,
+                private gridLookupStore: PeekModelGridLookupStore) {
+        super();
 
-                self._init();
+        let providers = [PeekModelWebSqlDb, PeekModelIndexedDb];
 
-
+        for (let i = 0; i < providers.length; i++) {
+            let SqlDb = providers[i];
+            try {
+                this._gridDataStore = new SqlDb(balloonMsg, vortexService);
+                break;
+            } catch (e) {
+                console.log("ERROR LOADING" + SqlDb);
+                console.log(e);
             }
+        }
+
+        if (this._gridDataStore) {
+            this.balloonMsg.showInfo("Using " + this._gridDataStore.name + " Client Caching");
+        } else {
+            this._gridDataStore = new PeekModelNoopDb();
+            this.balloonMsg.showWarning("Client caching not supported, we'll work with out it.");
+        }
+
+        this._modelServerListenFilt = {key: "repo.client.grid.update_check"};
+        this._modelServerEndpoint = this.vortexService.createEndpointObservable(
+            this, this._modelServerListenFilt
+        ).subscribe(p => this._processServerPayload(p));
+
+        this._init();
+
+
+    }
 
 // ============================================================================
 // Init
 
-            PeekModelGridDataStore.prototype.isReady = function () {
-                var self = this;
-                return true;
-            };
+    isReady() {
+        return true;
+    };
 
 // ============================================================================
 // Init the class
 
-            PeekModelGridDataStore.prototype._init = function () {
-                var self = this;
+    _init() {
 
-            };
+
+    };
 
 
 // ============================================================================
 // Handlers for display data
 
-            /** Load grid keys
-             *
-             * @param gridKeys : The new grid keys to load
-             */
-            PeekModelGridDataStore.prototype.loadGridKeys = function (requestedGridKeys) {
-                var self = this;
-
-                // Delay the loading if the cache is not yet initiailised
-                if (self._gridDataStore == null || !self._gridDataStore.isReady()) {
-                    console.log(dateStr() + "Cache: Delaying call loadFromDispCache, things arn't ready yet");
-                    setTimeout(function () {
-                        self.loadGridKeys(requestedGridKeys);
-                    }, 5);
-                    return;
-                }
-
-                // LOAD FROM MEMCACHE FIRST
-                var gridKeysNotInMemory = [];
-                var modelGrids = [];
-
-                var requestServerUpdatesFilt = $.extend(
-                        {
-                            grids: []
-                        },
-                        self._modelServerListenFilt
-                );
+    /** Load grid keys
+     *
+     * @param requestedGridKeys : The new grid keys to load
+     */
+    loadGridKeys(requestedGridKeys: string[]) {
 
 
-                // Merge in the buffered responses with the server updates.
-                for (var i = 0; i < requestedGridKeys.length; i++) {
-                    var requestedGridKey = requestedGridKeys[i];
+        // Delay the loading if the cache is not yet initiailised
+        if (this._gridDataStore == null || !this._gridDataStore.isReady()) {
+            console.log(dateStr() + "Cache: Delaying call loadFromDispCache, things arn't ready yet");
+            setTimeout(function () {
+                this.loadGridKeys(requestedGridKeys);
+            }, 5);
+            return;
+        }
 
-                    var modelGridFromMemCache = self._gridBuffer[requestedGridKey];
+        // LOAD FROM MEMCACHE FIRST
+        let gridKeysNotInMemory = [];
+        let modelGrids = [];
 
-                    if (modelGridFromMemCache) {
-                        modelGrids.push(modelGridFromMemCache);
-
-                        // Add to our list of server update checks
-                        requestServerUpdatesFilt.grids.push({
-                            gridKey: modelGridFromMemCache.gridKey,
-                            lastUpdate: modelGridFromMemCache.lastUpdate
-                        });
-
-                    } else {
-                        gridKeysNotInMemory.push(requestedGridKey);
-
-                    }
-                }
-
-                // Ask the indexeddb about the remainder
-                self._gridDataStore.loadFromDispCache(
-                        gridKeysNotInMemory, bind(self, self._processCachedLoadedGrids));
-
-                // Give the grid updates from memory to the canvas(es)
-                self._gridUpdatesNofity.fire(modelGrids, false);
-
-                if (requestServerUpdatesFilt.grids.length) {
-                    // Ask the server for updates for the grids we just got from memory
-                    console.log(dateStr() + "Cache.loadGridKeys: Requesting grids from" +
-                            " server : " + requestServerUpdatesFilt.grids);
-                    vortexSendFilt(requestServerUpdatesFilt);
-                }
-
-            };
+        let requestServerUpdatesFilt = extend(
+            {
+                grids: []
+            },
+            this._modelServerListenFilt
+        );
 
 
-            PeekModelGridDataStore.prototype._processServerPayload = function (payload) {
-                var self = this;
+        // Merge in the buffered responses with the server updates.
+        for (let i = 0; i < requestedGridKeys.length; i++) {
+            let requestedGridKey = requestedGridKeys[i];
 
-                if (payload.result) {
-                    logError(dateStr() + "GridDataStore: Grid update failed : " + payload.result);
-                    return;
-                }
+            let modelGridFromMemCache = this._gridBuffer[requestedGridKey];
 
-                var compiledGrids = payload.tuples;
-                var requestedGridKeys = {};
+            if (modelGridFromMemCache) {
+                modelGrids.push(modelGridFromMemCache);
 
-                // Grid updates for observed grids won't have grid keys.
-                if (payload.filt.gridKeys != null)
-                    requestedGridKeys = dictSetFromArray(payload.filt.gridKeys);
+                // Add to our list of server update checks
+                requestServerUpdatesFilt.grids.push({
+                    gridKey: modelGridFromMemCache.gridKey,
+                    lastUpdate: modelGridFromMemCache.lastUpdate
+                });
 
-                // List of modelGrids to sent to canvas
-                var modelGrids = [];
+            } else {
+                gridKeysNotInMemory.push(requestedGridKey);
 
-                // Overwrite with all the new ones
-                for (var i = 0; i < compiledGrids.length; i++) {
-                    var compiledGrid = compiledGrids[i];
+            }
+        }
 
-                    var modelGrid = new PeekCanvasModelGrid(self._gridLookupStore, compiledGrid);
-                    self._gridBuffer[modelGrid.gridKey] = modelGrid;
-                    modelGrids.push(modelGrid);
-                    delete requestedGridKeys[modelGrid.gridKey]
+        // Ask the indexeddb about the remainder
+        this._gridDataStore.loadFromDispCache(
+            gridKeysNotInMemory, bind(self, this._processCachedLoadedGrids));
 
-                }
+        // Give the grid updates from memory to the canvas(es)
+        this._gridUpdatesNofity.next({modelGrids: modelGrids, fromServer: false});
 
-                // If the keys arn't in the server, then they don't exist
-                requestedGridKeys = dictKeysFromObject(requestedGridKeys);
-                for (var i = 0; i < requestedGridKeys.length; i++) {
-                    var requestedGridKey = requestedGridKeys[i];
+        if (requestServerUpdatesFilt.grids.length) {
+            // Ask the server for updates for the grids we just got from memory
+            console.log(dateStr() + "Cache.loadGridKeys: Requesting grids from" +
+                " server : " + requestServerUpdatesFilt.grids);
+            this.vortexService.sendFilt(requestServerUpdatesFilt);
+        }
 
-                    // Create the empty model grid.
-                    var modelGrid = new PeekCanvasModelGrid(requestedGridKey);
-                    self._gridBuffer[modelGrid.gridKey] = modelGrid;
-                    modelGrids.push(modelGrid);
-                }
-
-                // Inform the canvas(es) that we have grid updates
-                self._gridUpdatesNofity.fire(modelGrids, true);
-
-                // Update the index db
-                self._gridDataStore.updateDispCache(compiledGrids);
-
-                console.log(dateStr() + "Cache: Loaded " + compiledGrids.length
-                        + " compiled grids from server - " + requestedGridKeys);
-            };
+    };
 
 
-            PeekModelGridDataStore.prototype._processCachedLoadedGrids = function (requestedGridKeys, compiledGrids) {
-                var self = this;
-
-                // Filt to ask the server for updates
-                var filt = $.extend({
-                            grids: []
-                        },
-                        self._modelServerListenFilt);
-
-                var gridKeysLoadedFromCache = {};
-
-                // Overwrite with all the new ones
-                var modelGrids = [];
-                for (var i = 0; i < compiledGrids.length; i++) {
-                    var compiledGrid = compiledGrids[i];
-
-                    // Server update request
-                    filt.grids.push({
-                        gridKey: compiledGrid.gridKey,
-                        lastUpdate: compiledGrid.lastUpdate
-                    });
-                    gridKeysLoadedFromCache[compiledGrid.gridKey] = true;
-
-                    // Load disps and buffer in memory
-                    var modelGrid = new PeekCanvasModelGrid(self._gridLookupStore, compiledGrid);
-                    self._gridBuffer[modelGrid.gridKey] = modelGrid;
-                    modelGrids.push(modelGrid);
-                }
-
-                // Inform the canvas(es) that we have grid updates
-                self._gridUpdatesNofity.fire(modelGrids, false);
+    _processServerPayload(payload) {
 
 
-                // The grids not in the cache
-                for (var i = 0; i < requestedGridKeys.length; i++) {
-                    var gridKey = requestedGridKeys[i];
-                    if (gridKeysLoadedFromCache[gridKey] == true) {
-                        continue;
-                    }
+        if (payload.result) {
+            this.balloonMsg.showError(dateStr() + "GridDataStore: Grid update failed : " + payload.result);
+            return;
+        }
 
-                    filt.grids.push({
-                        gridKey: gridKey,
-                        lastUpdate: ''
-                    });
-                }
+        let compiledGrids = payload.tuples;
+        let requestedGridKeysSet = {};
 
-                if (filt.grids.length) {
-                    console.log(dateStr() + "Cache: Requesting grids from server : " + requestedGridKeys);
-                    vortexSendFilt(filt);
-                }
+        // Grid updates for observed grids won't have grid keys.
+        if (payload.filt.gridKeys != null)
+            requestedGridKeysSet = dictSetFromArray(payload.filt.gridKeys);
 
-            };
+        // List of modelGrids to sent to canvas
+        let modelGrids = [];
+
+        // Overwrite with all the new ones
+        for (let i = 0; i < compiledGrids.length; i++) {
+            let compiledGrid = compiledGrids[i];
+
+            let modelGrid = new PeekCanvasModelGrid(compiledGrid, this.gridLookupStore);
+            this._gridBuffer[modelGrid.gridKey] = modelGrid;
+            modelGrids.push(modelGrid);
+            delete requestedGridKeysSet[modelGrid.gridKey]
+
+        }
+
+        // If the keys arn't in the server, then they don't exist
+        let requestedGridKeysArray = dictKeysFromObject(requestedGridKeysSet);
+        for (let i = 0; i < requestedGridKeysArray.length; i++) {
+            let requestedGridKey = requestedGridKeysArray[i];
+
+            // Create the empty model grid.
+            let modelGrid = new PeekCanvasModelGrid(requestedGridKey);
+            this._gridBuffer[modelGrid.gridKey] = modelGrid;
+            modelGrids.push(modelGrid);
+        }
+
+        // Inform the canvas(es) that we have grid updates
+        this._gridUpdatesNofity.next({modelGrids: modelGrids, fromServer: true});
+
+        // Update the index db
+        this._gridDataStore.updateDispCache(compiledGrids);
+
+        console.log(dateStr() + "Cache: Loaded " + compiledGrids.length
+            + " compiled grids from server - " + requestedGridKeysArray);
+    };
 
 
-// -------------------------------------------------------------------------------------
-// MODEL GRID
-// -------------------------------------------------------------------------------------
+    _processCachedLoadedGrids(requestedGridKeys: string[],
+                              compiledGrids: GridKeyIndexCompiledTuple[]) {
 
-            function PeekCanvasModelGrid(lookupStore, serverCompiledGrid) {
-                var self = this;
-                self.gridKey = null;
-                self.lastUpdate = null;
-                self.loadedFromServerDate = new Date();
-                self.disps = [];
 
-                // initialise for empty grid keys
-                if (typeof lookupStore == "string") {
-                    var gridKey = lookupStore;
-                    self.gridKey = gridKey;
-                    return;
-                }
+        // Filt to ask the server for updates
+        let filt = extend({
+                grids: []
+            },
+            this._modelServerListenFilt);
 
-                self.gridKey = serverCompiledGrid.gridKey;
-                self.lastUpdate = serverCompiledGrid.lastUpdate;
-                self.loadedFromServerDate = new Date();
+        let gridKeysLoadedFromCache = {};
 
-                self.disps = [];
-                var disps = [];
+        // Overwrite with all the new ones
+        let modelGrids = [];
+        for (let i = 0; i < compiledGrids.length; i++) {
+            let compiledGrid = compiledGrids[i];
 
-                if (serverCompiledGrid.blobData != null
-                && serverCompiledGrid.blobData.length != 0) {
-                    var pako = requirejs("pako");
-                    try {
-                        var dispJsonStr = pako.inflate(serverCompiledGrid.blobData, {to: 'string'});
-                        disps = JSON.parse(dispJsonStr);
-                    } catch (e) {
-                        console.error(e.message);
-                    }
-                }
+            // Server update request
+            filt.grids.push({
+                gridKey: compiledGrid.gridKey,
+                lastUpdate: compiledGrid.lastUpdate
+            });
+            gridKeysLoadedFromCache[compiledGrid.gridKey] = true;
 
-                // Resolve the lookups
-                for (var j = 0; j < disps.length; j++) {
-                    var disp = disps[j];
-                    if (disp.id == null) {
-                        // This mitigates an old condition caused by the grid compiler
-                        // including dips that had not yet had json assigned.
-                        continue;
-                    }
-                    if (lookupStore.linkDispLookups(disp) != null) {
-                        self.disps.push(disp);
-                    }
-                }
+            // Load disps and buffer in memory
+            let modelGrid = new PeekCanvasModelGrid(compiledGrid, this.gridLookupStore);
+            this._gridBuffer[modelGrid.gridKey] = modelGrid;
+            modelGrids.push(modelGrid);
+        }
+
+        // Inform the canvas(es) that we have grid updates
+        this._gridUpdatesNofity.next({modelGrids: modelGrids, fromServer: false});
+
+
+        // The grids not in the cache
+        for (let i = 0; i < requestedGridKeys.length; i++) {
+            let gridKey = requestedGridKeys[i];
+            if (gridKeysLoadedFromCache[gridKey] == true) {
+                continue;
             }
 
-            PeekCanvasModelGrid.prototype.hasData = function () {
-                var self = this;
-                return !(self.lastUpdate == null && self.disps.length == 0);
-            };
-
-// ============================================================================
-// Create Grid Data
-
-            return PeekModelGridDataStore;
+            filt.grids.push({
+                gridKey: gridKey,
+                lastUpdate: ''
+            });
         }
-)
-;
+
+        if (filt.grids.length) {
+            console.log(dateStr() + "Cache: Requesting grids from server : " + requestedGridKeys);
+            this.vortexService.sendFilt(filt);
+        }
+
+    };
+
+
+}
 
