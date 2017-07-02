@@ -1,119 +1,133 @@
 // ============================================================================
 // Editor Ui Mouse
 
+export class LastMousePos {
+
+    x: number = 0;
+    y: number = 0;
+    clientX: number = 0;
+    clientY: number = 0;
+}
+
+export class MousePos {
+    x: number = 0;
+    y: number = 0;
+}
+
 /*
  * This class manages the currently selected tool
  * 
  */
-define("PeekCanvasMouseDelegate", [], function () {
+export abstract class PeekCanvasMouseDelegate {
 
-            function PeekCanvasMouseDelegate() {
-                this._canvasMouse = null;
-            }
+    _canvasMouse = null;
 
-            /** The distance to move before its a drag * */
-            PeekCanvasMouseDelegate.DRAG_START_THRESHOLD = 5;
+    _lastMousePos: LastMousePos = new LastMousePos();
 
-            /** The time it takes to do a click, VS a click that moved slighltly * */
-            PeekCanvasMouseDelegate.DRAG_TIME_THRESHOLD = 200;
+    /** The distance to move before its a drag * */
+    readonly DRAG_START_THRESHOLD = 5;
 
-            PeekCanvasMouseDelegate.prototype._hasPassedDragThreshold = function (m1, m2) {
-                var d = false;
-                // Time has passed
-                d |= ((m2.time.getTime() - m1.time.getTime()) > PeekCanvasMouseDelegate.DRAG_TIME_THRESHOLD);
-                // Mouse has moved
-                d |= (Math.abs(m1.x - m2.x) > PeekCanvasMouseDelegate.DRAG_START_THRESHOLD);
-                d |= (Math.abs(m1.y - m2.y) > PeekCanvasMouseDelegate.DRAG_START_THRESHOLD);
+    /** The time it takes to do a click, VS a click that moved slighltly * */
+    readonly DRAG_TIME_THRESHOLD = 200;
 
-                return d;
-            };
+    constructor(private NAME:string) {
+    }
 
-            PeekCanvasMouseDelegate.prototype.keyDown = function (event) {
-            };
+    _hasPassedDragThreshold(m1, m2) {
+        let d = false;
+        // Time has passed
+        d |= ((m2.time.getTime() - m1.time.getTime()) > this.DRAG_TIME_THRESHOLD);
+        // Mouse has moved
+        d |= (Math.abs(m1.x - m2.x) > this.DRAG_START_THRESHOLD);
+        d |= (Math.abs(m1.y - m2.y) > this.DRAG_START_THRESHOLD);
 
-            PeekCanvasMouseDelegate.prototype.keyPress = function (event) {
-            };
+        return d;
+    };
 
-            PeekCanvasMouseDelegate.prototype.keyUp = function (event) {
-            };
+    keyDown(event) {
+    };
 
-            PeekCanvasMouseDelegate.prototype.mouseSelectStart = function (event, mouse) {
-            };
+    keyPress(event) {
+    };
 
-            PeekCanvasMouseDelegate.prototype.mouseDown = function (event, mouse) {
-            };
+    keyUp(event) {
+    };
 
-            PeekCanvasMouseDelegate.prototype.mouseMove = function (event, mouse) {
-            };
+    mouseSelectStart(event, mouse) {
+    };
 
-            PeekCanvasMouseDelegate.prototype.mouseUp = function (event, mouse) {
-            };
+    mouseDown(event, mouse) {
+    };
 
-            PeekCanvasMouseDelegate.prototype.mouseDoubleClick = function (event, mouse) {
-            };
+    mouseMove(event, mouse) {
+    };
 
-            PeekCanvasMouseDelegate.prototype.mouseWheel = function (event) {
-            };
+    mouseUp(event, mouse) {
+    };
 
-            PeekCanvasMouseDelegate.prototype.touchStart = function (event, mouse) {
-            };
+    mouseDoubleClick(event, mouse) {
+    };
 
-            PeekCanvasMouseDelegate.prototype.touchMove = function (event, mouse) {
-            };
+    mouseWheel(event, mouse) {
+    };
 
-            PeekCanvasMouseDelegate.prototype.touchEnd = function (event, mouse) {
-            };
+    touchStart(event, mouse) {
+    };
 
-            PeekCanvasMouseDelegate.prototype.delegateWillBeTornDown = function () {
-            };
+    touchMove(event, mouse) {
+    };
 
-            PeekCanvasMouseDelegate.prototype.draw = function (ctx) {
-            };
+    touchEnd(event, mouse) {
+    };
 
-            /**
-             * Set Last Mouse Pos
-             *
-             * Sets the last mouse pos depending on the snap
-             *
-             * @param the
-             *            current mouse object
-             * @return An object containing the delta
-             */
-            PeekCanvasMouseDelegate.prototype._setLastMousePos = function (mouse) {
+    delegateWillBeTornDown() {
+    };
 
-                var dx = mouse.x - this._lastMousePos.x;
-                var dy = mouse.y - this._lastMousePos.y;
-                var dClientX = mouse.clientX - this._lastMousePos.clientX;
-                var dClientY = mouse.clientY - this._lastMousePos.clientY;
+    draw(ctx) {
+    };
 
-                //if (editorUi.grid.snapping()) {
-                //	var snapSize = editorUi.grid.snapSize();
-                //	dx = Coord.snap(dx, snapSize);
-                //	dy = Coord.snap(dy, snapSize);
-                //}
+    /**
+     * Set Last Mouse Pos
+     *
+     * Sets the last mouse pos depending on the snap
+     *
+     * @param the
+     *            current mouse object
+     * @return An object containing the delta
+     */
+    _setLastMousePos(mouse) {
 
-                this._lastMousePos.x += dx;
-                this._lastMousePos.y += dy;
-                this._lastMousePos.clientX += dClientX;
-                this._lastMousePos.clientY += dClientY;
+        let dx = mouse.x - this._lastMousePos.x;
+        let dy = mouse.y - this._lastMousePos.y;
+        let dClientX = mouse.clientX - this._lastMousePos.clientX;
+        let dClientY = mouse.clientY - this._lastMousePos.clientY;
 
-                return {
-                    dx: dx,
-                    dy: dy,
-                    dClientX: dClientX,
-                    dClientY: dClientY
-                };
-            };
+        //if (editorUi.grid.snapping()) {
+        //	let snapSize = editorUi.grid.snapSize();
+        //	dx = Coord.snap(dx, snapSize);
+        //	dy = Coord.snap(dy, snapSize);
+        //}
 
-            PeekCanvasMouseDelegate.prototype.newObjectLayer = function () {
-                var selectedLayers = editorLayer.selectedLayers();
-                if (selectedLayers.length)
-                    return selectedLayers[selectedLayers.length - 1].id;
+        this._lastMousePos.x += dx;
+        this._lastMousePos.y += dy;
+        this._lastMousePos.clientX += dClientX;
+        this._lastMousePos.clientY += dClientY;
 
-                return editorLayer.lastLayer().id;
+        return {
+            dx: dx,
+            dy: dy,
+            dClientX: dClientX,
+            dClientY: dClientY
+        };
+    };
 
-            };
+    newObjectLayer() {
+        let selectedLayers = editorLayer.selectedLayers();
+        if (selectedLayers.length)
+            return selectedLayers[selectedLayers.length - 1].id;
 
-            return PeekCanvasMouseDelegate;
-        }
-);
+        return editorLayer.lastLayer().id;
+
+    };
+
+}

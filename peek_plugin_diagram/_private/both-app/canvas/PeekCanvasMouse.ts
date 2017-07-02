@@ -5,258 +5,248 @@
  * This class manages the currently selected tool
  * 
  */
-define("PeekCanvasMouse", [
-            // Named Dependencies
-            // Unnamed Dependencies
-        ],
-        function () {
-            function PeekCanvasMouse($scope, config, model, dispDelegate) {
-                var self = this;
-                self.scope = $scope;
-                self.config = config;
-                self.model = model;
-                self.dispDelegate = dispDelegate;
+export class PeekCanvasMouse {
+    config = null;
+    model = null;
+    dispDelegate = null;
+    _delegate = null;
 
-                self._delegate = null;
-                self.delegateFinished();
-            }
+    canvas = null;
+
+    constructor(private config, private model, private dispDelegate) {
+        this.delegateFinished();
+    }
 
 
-            PeekCanvasMouse.prototype.setDelegate = function (Delegate) {
-                var self = this;
+    setDelegate(Delegate) {
+        if (this._delegate)
+            this._delegate.delegateWillBeTornDown();
 
-                if (self._delegate)
-                    self._delegate.delegateWillBeTornDown();
+        this._delegate = new Delegate(this, this.config, this.model, this.dispDelegate);
+        this.config.mouse.currentDelegateName = this._delegate.NAME;
+    };
 
+    applyUpdates() {
 
-                self._delegate = new Delegate(this, self.config, self.model, self.dispDelegate);
-                self.config.mouse.currentDelegateName = self._delegate.NAME;
-            };
-
-            PeekCanvasMouse.prototype.applyUpdates = function () {
-                var self = this;
-                self.config.renderer.invalidate = true;
-                self.scope.$apply();
-            };
+        this.config.renderer.invalidate = true;
+        this.scope.$apply();
+    };
 
 // Creates an object with x and y defined, set to the mouse position relative to
 // the state's canvas
 // If you wanna be super-correct this can be tricky, we have to worry about
 // padding and borders
-            PeekCanvasMouse.prototype.delegateFinished = function () {
-                var self = this;
-                var PeekCanvasMouseSelectDelegate =
-                        requirejs("PeekCanvasMouseSelectDelegate");
-                self.setDelegate(PeekCanvasMouseSelectDelegate);
-            };
+    delegateFinished() {
+
+        let PeekCanvasMouseSelectDelegate =
+            requirejs("PeekCanvasMouseSelectDelegate");
+        this.setDelegate(PeekCanvasMouseSelectDelegate);
+    };
 
 // Creates an object with x and y defined, set to the mouse position relative to
 // the state's canvas
 // If you wanna be super-correct this can be tricky, we have to worry about
 // padding and borders
-            PeekCanvasMouse.prototype._getMouse = function (e) {
-                var self = this;
+    _getMouse(e) {
 
-                var element = self.canvas;
-                var offsetX = 0;
-                var offsetY = 0;
+        let element = this.canvas;
+        let offsetX = 0;
+        let offsetY = 0;
 
-                // Compute the total offset
-                if (element.offsetParent !== undefined) {
-                    do {
-                        offsetX += element.offsetLeft;
-                        offsetY += element.offsetTop;
-                    } while ((element = element.offsetParent));
-                }
-
-                // Add padding and border style widths to offset
-                // Also add the <html> offsets in case there's a position:fixed bar
-                offsetX += self.stylePaddingLeft + self.styleBorderLeft
-                        + self.htmlLeft + self.width / 2;
-                offsetY += self.stylePaddingTop + self.styleBorderTop
-                        + self.htmlTop + self.height / 2;
-
-                var pageX = e.pageX;
-                var pageY = e.pageY;
-
-                if (pageX == null) {
-                    if (event.changedTouches != null && event.changedTouches.length >= 0) {
-                        var touch = event.changedTouches[0];
-                        pageX = touch.pageX;
-                        pageY = touch.pageY;
-                    } else {
-                        logWarning("Failed to determine pan coordinates");
-                    }
-                }
-
-                var mx = pageX - offsetX;
-                var my = pageY - offsetY;
-
-                var clientX = mx;
-                var clientY = my;
-
-                // Apply canvas scale and pan
-                var zoom = self.config.canvas.zoom;
-                var pan = self.config.canvas.pan;
-                mx = mx / zoom + pan.x;
-                my = my / zoom + pan.y;
-
-                if (isNaN(mx))
-                    console.log("mx IS NaN");
-
-
-                self.config.mouse.currentPosition = {x: mx, y: my};
-
-                // We return a simple javascript object (a hash) with x and y defined
-                return {
-                    x: mx,
-                    y: my,
-                    clientX: clientX,
-                    clientY: clientY,
-                    time: new Date()
-                };
-            };
-
-            PeekCanvasMouse.prototype.setCanvas = function (canvas) {
-                var self = this;
-
-                self.canvas = canvas;
-
-                canvas.addEventListener('keydown', function (e) {
-                    self._delegate.keyDown(e);
-                    self.scope.$apply();
-                }, true);
-
-                canvas.addEventListener('keypress', function (e) {
-                    self._delegate.keyPress(e);
-                    self.scope.$apply();
-                }, true);
-
-                canvas.addEventListener('keyup', function (e) {
-                    self._delegate.keyUp(e);
-                    self.scope.$apply();
-                }, true);
-
-                canvas.addEventListener('mousedown', function (e) {
-                    if (!e instanceof MouseEvent) return;
-                    self._delegate.mouseDown(e, self._getMouse(e));
-                    self.scope.$apply();
-                }, true);
-
-                canvas.addEventListener('mousemove', function (e) {
-                    if (!e instanceof MouseEvent) return;
-                    self._delegate.mouseMove(e, self._getMouse(e));
-                    self.scope.$apply();
-                }, true);
-
-                canvas.addEventListener('mouseup', function (e) {
-                    if (!e instanceof MouseEvent) return;
-                    self._delegate.mouseUp(e, self._getMouse(e));
-                    self.scope.$apply();
-                }, true);
-
-                canvas.addEventListener('mousewheel', function (e) {
-                    if (!e instanceof MouseEvent) return;
-                    self._delegate.mouseWheel(e, self._getMouse(e));
-                    self.scope.$apply();
-                    e.preventDefault();
-                    return false;
-                }, true);
-
-                canvas.addEventListener('dblclick', function (e) {
-                    if (!e instanceof MouseEvent) return;
-                    self._delegate.mouseDoubleClick(e, self._getMouse(e));
-                    self.scope.$apply();
-                }, true);
-
-                canvas.addEventListener('selectstart', function (e) {
-                    //this_._delegate.mouseSelectStart(e, this_._getMouse(e));
-                    e.preventDefault();
-                    return false;
-                }, true);
-
-                canvas.addEventListener('contextmenu', disableContextMenu, true);
-
-                canvas.addEventListener('touchstart', function (e) {
-                    if (!e instanceof MouseEvent) return;
-                    self._delegate.touchStart(e, self._getMouse(e));
-                    self.scope.$apply();
-                }, true);
-
-                canvas.addEventListener('touchmove', function (e) {
-                    if (!e instanceof MouseEvent) return;
-                    self._delegate.touchMove(e, self._getMouse(e));
-                    self.scope.$apply();
-                }, true);
-
-                canvas.addEventListener('touchend', function (e) {
-                    if (!e instanceof MouseEvent) return;
-                    self._delegate.touchEnd(e, self._getMouse(e));
-                    self.scope.$apply();
-                }, true);
-
-                // Watch the size of the canvas, update if it changes
-                self.scope.$watch(function () {
-                    var jq = $(self.canvas);
-                    var offset = jq.offset();
-                    return jq.width().toString()
-                            + "x" + jq.height().toString()
-                            + "x" + offset.left.toString()
-                            + "x" + offset.top.toString()
-                            ;
-
-                }, function () {
-                    self.updateCanvasSize();
-                });
-            };
-
-            PeekCanvasMouse.prototype.updateCanvasSize = function () {
-                var self = this;
-                var jqCanvas = $(self.canvas);
-
-
-                self.width = jqCanvas.width();
-                self.height = jqCanvas.height();
-
-
-                // This complicates things a little but but fixes mouse co-ordinate
-                // problems
-                // when there's a border or padding. See getMouse for more detail
-                self.stylePaddingLeft = parseInt(jqCanvas.css('padding-left')) || 0;
-                self.stylePaddingTop = parseInt(jqCanvas.css('padding-top')) || 0;
-                self.styleBorderLeft = parseInt(jqCanvas.css('border-left-width')) || 0;
-                self.styleBorderTop = parseInt(jqCanvas.css('border-top-width')) || 0;
-
-                //if (document.defaultView && document.defaultView.getComputedStyle) {
-                //    self.stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(
-                //                    self.canvas, null)['paddingLeft'], 10) || 0;
-                //    self.stylePaddingTop = parseInt(document.defaultView.getComputedStyle(
-                //                    self.canvas, null)['paddingTop'], 10) || 0;
-                //    self.styleBorderLeft = parseInt(document.defaultView.getComputedStyle(
-                //                    self.canvas, null)['borderLeftWidth'], 10) || 0;
-                //    self.styleBorderTop = parseInt(document.defaultView.getComputedStyle(
-                //                    self.canvas, null)['borderTopWidth'], 10) || 0;
-                //}
-
-                // Some pages have fixed-position bars (like the stumbleupon bar) at the
-                // top or left of the page
-                // They will mess up mouse coordinates and this fixes that
-                var html = document.body.parentNode;
-                self.htmlTop = html.offsetTop;
-                self.htmlLeft = html.offsetLeft;
-
-            };
-
-            /**
-             * Draw Called by the renderer during a redraw.
-             */
-            PeekCanvasMouse.prototype.draw = function (ctx) {
-                var self = this;
-
-                if (self._delegate)
-                    self._delegate.draw(ctx);
-            };
-
-            return PeekCanvasMouse;
+        // Compute the total offset
+        if (element.offsetParent !== undefined) {
+            do {
+                offsetX += element.offsetLeft;
+                offsetY += element.offsetTop;
+            } while ((element = element.offsetParent));
         }
-);
+
+        // Add padding and border style widths to offset
+        // Also add the <html> offsets in case there's a position:fixed bar
+        offsetX += this.stylePaddingLeft + this.styleBorderLeft
+            + this.htmlLeft + this.width / 2;
+        offsetY += this.stylePaddingTop + this.styleBorderTop
+            + this.htmlTop + this.height / 2;
+
+        let pageX = e.pageX;
+        let pageY = e.pageY;
+
+        if (pageX == null) {
+            if (event.changedTouches != null && event.changedTouches.length >= 0) {
+                let touch = event.changedTouches[0];
+                pageX = touch.pageX;
+                pageY = touch.pageY;
+            } else {
+                logWarning("Failed to determine pan coordinates");
+            }
+        }
+
+        let mx = pageX - offsetX;
+        let my = pageY - offsetY;
+
+        let clientX = mx;
+        let clientY = my;
+
+        // Apply canvas scale and pan
+        let zoom = this.config.canvas.zoom;
+        let pan = this.config.canvas.pan;
+        mx = mx / zoom + pan.x;
+        my = my / zoom + pan.y;
+
+        if (isNaN(mx))
+            console.log("mx IS NaN");
+
+
+        this.config.mouse.currentPosition = {x: mx, y: my};
+
+        // We return a simple javascript object (a hash) with x and y defined
+        return {
+            x: mx,
+            y: my,
+            clientX: clientX,
+            clientY: clientY,
+            time: new Date()
+        };
+    };
+
+    setCanvas(canvas) {
+
+
+        this.canvas = canvas;
+
+        canvas.addEventListener('keydown', function (e) {
+            this._delegate.keyDown(e);
+            this.scope.$apply();
+        }, true);
+
+        canvas.addEventListener('keypress', function (e) {
+            this._delegate.keyPress(e);
+            this.scope.$apply();
+        }, true);
+
+        canvas.addEventListener('keyup', function (e) {
+            this._delegate.keyUp(e);
+            this.scope.$apply();
+        }, true);
+
+        canvas.addEventListener('mousedown', function (e) {
+            if (!e instanceof MouseEvent) return;
+            this._delegate.mouseDown(e, this._getMouse(e));
+            this.scope.$apply();
+        }, true);
+
+        canvas.addEventListener('mousemove', function (e) {
+            if (!e instanceof MouseEvent) return;
+            this._delegate.mouseMove(e, this._getMouse(e));
+            this.scope.$apply();
+        }, true);
+
+        canvas.addEventListener('mouseup', function (e) {
+            if (!e instanceof MouseEvent) return;
+            this._delegate.mouseUp(e, this._getMouse(e));
+            this.scope.$apply();
+        }, true);
+
+        canvas.addEventListener('mousewheel', function (e) {
+            if (!e instanceof MouseEvent) return;
+            this._delegate.mouseWheel(e, this._getMouse(e));
+            this.scope.$apply();
+            e.preventDefault();
+            return false;
+        }, true);
+
+        canvas.addEventListener('dblclick', function (e) {
+            if (!e instanceof MouseEvent) return;
+            this._delegate.mouseDoubleClick(e, this._getMouse(e));
+            this.scope.$apply();
+        }, true);
+
+        canvas.addEventListener('selectstart', function (e) {
+            //this_._delegate.mouseSelectStart(e, this_._getMouse(e));
+            e.preventDefault();
+            return false;
+        }, true);
+
+        canvas.addEventListener('contextmenu', disableContextMenu, true);
+
+        canvas.addEventListener('touchstart', function (e) {
+            if (!e instanceof MouseEvent) return;
+            this._delegate.touchStart(e, this._getMouse(e));
+            this.scope.$apply();
+        }, true);
+
+        canvas.addEventListener('touchmove', function (e) {
+            if (!e instanceof MouseEvent) return;
+            this._delegate.touchMove(e, this._getMouse(e));
+            this.scope.$apply();
+        }, true);
+
+        canvas.addEventListener('touchend', function (e) {
+            if (!e instanceof MouseEvent) return;
+            this._delegate.touchEnd(e, this._getMouse(e));
+            this.scope.$apply();
+        }, true);
+
+        // Watch the size of the canvas, update if it changes
+        this.scope.$watch(function () {
+            let jq = $(this.canvas);
+            let offset = jq.offset();
+            return jq.width().toString()
+                + "x" + jq.height().toString()
+                + "x" + offset.left.toString()
+                + "x" + offset.top.toString()
+                ;
+
+        }, function () {
+            this.updateCanvasSize();
+        });
+    };
+
+    updateCanvasSize() {
+
+        let jqCanvas = $(this.canvas);
+
+
+        this.width = jqCanvas.width();
+        this.height = jqCanvas.height();
+
+
+        // This complicates things a little but but fixes mouse co-ordinate
+        // problems
+        // when there's a border or padding. See getMouse for more detail
+        this.stylePaddingLeft = parseInt(jqCanvas.css('padding-left')) || 0;
+        this.stylePaddingTop = parseInt(jqCanvas.css('padding-top')) || 0;
+        this.styleBorderLeft = parseInt(jqCanvas.css('border-left-width')) || 0;
+        this.styleBorderTop = parseInt(jqCanvas.css('border-top-width')) || 0;
+
+        //if (document.defaultView && document.defaultView.getComputedStyle) {
+        //    this.stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(
+        //                    this.canvas, null)['paddingLeft'], 10) || 0;
+        //    this.stylePaddingTop = parseInt(document.defaultView.getComputedStyle(
+        //                    this.canvas, null)['paddingTop'], 10) || 0;
+        //    this.styleBorderLeft = parseInt(document.defaultView.getComputedStyle(
+        //                    this.canvas, null)['borderLeftWidth'], 10) || 0;
+        //    this.styleBorderTop = parseInt(document.defaultView.getComputedStyle(
+        //                    this.canvas, null)['borderTopWidth'], 10) || 0;
+        //}
+
+        // Some pages have fixed-position bars (like the stumbleupon bar) at the
+        // top or left of the page
+        // They will mess up mouse coordinates and this fixes that
+        let html = document.body.parentNode;
+        this.htmlTop = html.offsetTop;
+        this.htmlLeft = html.offsetLeft;
+
+    };
+
+    /**
+     * Draw Called by the renderer during a redraw.
+     */
+    draw(ctx) {
+
+
+        if (this._delegate)
+            this._delegate.draw(ctx);
+    };
+
+}

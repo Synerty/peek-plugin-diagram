@@ -1,3 +1,5 @@
+import {Injector} from "@angular/core";
+
 /**
  * Peek Canvas Model
  *
@@ -6,417 +8,410 @@
  *
  */
 
-define("PeekCanvasModel", [
-            // Named Depencencies
-            "PayloadEndpoint",
-            "PeekModelGridDataManager"
-            // Unnamed Dependencies
-        ], function (PayloadEndpoint, gridDataManager) {
-            function PeekCanvasModel($scope, config, $uibModal) {
-                var self = this;
+@Injector()
+export class PeekCanvasModel {
 
-                self._scope = $scope;
-                self._config = config;
-                self._$uibModal = $uibModal;
+    _coordSetId = null;
 
-                self._coordSetId = null;
+    // The currently selected coords
+    _selection = [];
 
-                // The currently selected coords
-                self._selection = [];
+    // Objects to be drawn on the display
+    _visableDisps = [];
 
-                // Objects to be drawn on the display
-                self._visableDisps = [];
+    // Store grids from the server by gridKey.
+    _bufferedGridsByGridKey = {};
 
-                // Store grids from the server by gridKey.
-                self._bufferedGridsByGridKey = {};
+    // Grid Key storage holders
+    _viewingGridKeyDict = {};
+    _loadedGridKeyDict = {};
+    _outstandingRequestedGridKeys = {};
 
-                // Grid Key storage holders
-                self._viewingGridKeyDict = {};
-                self._loadedGridKeyDict = {};
-                self._outstandingRequestedGridKeys = {};
+    // Create a commonly used closure
+    _receiveGridClosure = null;
 
-                // Create a commonly used closure
-                self._receiveGridClosure = bind(self, self._receiveGrid);
+    constructor(private config, private $uibModal) {
 
-            }
+
+        // Create a commonly used closure
+        this._receiveGridClosure = (canvasModelGrids, fromServer) => {
+            this._receiveGrid(canvasModelGrids, fromServer);
+        };
+
+    }
 
 
 // -------------------------------------------------------------------------------------
 // init
 // -------------------------------------------------------------------------------------
-            PeekCanvasModel.prototype.init = function () {
-                var self = this;
+    init() {
 
-                self.needsUpdate = false;
 
-                // Start the draw timer.
-                setInterval(bind(self, self._requestDispUpdate),
-                        self._config.controller.updateInterval);
+        this.needsUpdate = false;
 
-                // Subscribe to grid updates, when the data store gets and update
-                // from the server, we will
+        // Start the draw timer.
+        setInterval(bind(self, this._requestDispUpdate),
+            this._config.controller.updateInterval);
 
-                gridDataManager.gridUpdatesNotify.add(self._receiveGridClosure);
-                self._scope.$on("$destroy", function () {
-                    gridDataManager.gridUpdatesNotify.remove(self._receiveGridClosure);
-                });
+        // Subscribe to grid updates, when the data store gets and update
+        // from the server, we will
 
-                // Watch for changes to the config that effect us
-                self._scope.$watch(function () {
-                    return self._config.controller.coordSet;
-                }, function (coordSet) {
-                    if (coordSet == null) {
-                        self._config.canvas.pan.x = 0.0;
-                        self._config.canvas.pan.y = 0.0;
-                        self._config.canvas.zoom = 1.0;
-                        self._coordSetId = null;
+        gridDataManager.gridUpdatesNotify.add(this._receiveGridClosure);
+        this._scope.$on("$destroy", function () {
+            gridDataManager.gridUpdatesNotify.remove(this._receiveGridClosure);
+        });
 
-                    } else {
-                        self._config.canvas.pan.x = coordSet.initialPanX;
-                        self._config.canvas.pan.y = coordSet.initialPanY;
-                        self._config.canvas.zoom = coordSet.initialZoom;
-                        self._coordSetId = coordSet.id;
-                    }
+        // Watch for changes to the config that effect us
+        this._scope.$watch(function () {
+            return this._config.controller.coordSet;
+        }, function (coordSet) {
+            if (coordSet == null) {
+                this._config.canvas.pan.x = 0.0;
+                this._config.canvas.pan.y = 0.0;
+                this._config.canvas.zoom = 1.0;
+                this._coordSetId = null;
 
-                    self.reset();
-                    self.needsUpdate = true;
-                });
+            } else {
+                this._config.canvas.pan.x = coordSet.initialPanX;
+                this._config.canvas.pan.y = coordSet.initialPanY;
+                this._config.canvas.zoom = coordSet.initialZoom;
+                this._coordSetId = coordSet.id;
+            }
 
-                // Watch the canvas settings, if they change then request and update from
-                // the cache
-                self._scope.$watch(function () {
-                    return JSON.stringify(self._config.canvas.window);
-                }, function () {
-                    self.needsUpdate = true;
-                });
+            this.reset();
+            this.needsUpdate = true;
+        });
 
-            };
+        // Watch the canvas settings, if they change then request and update from
+        // the cache
+        this._scope.$watch(function () {
+            return JSON.stringify(this._config.canvas.window);
+        }, function () {
+            this.needsUpdate = true;
+        });
+
+    };
 
 
 // -------------------------------------------------------------------------------------
 // reset
 // -------------------------------------------------------------------------------------
-            PeekCanvasModel.prototype.reset = function () {
-                var self = this;
+    reset() {
 
-                self.needsUpdate = false;
-                self.isUpdating = false;
 
-                self._selection = []; // The currently selected coords
+        this.needsUpdate = false;
+        this.isUpdating = false;
 
-                self._visableDisps = []; // Objects to be drawn on the display
-                self._gridBuffer = {}; // Store grids from the server by gridKey.
+        this._selection = []; // The currently selected coords
 
-                // These are being used as sets, The values are just = true
-                self._viewingGridKeyDict = {};
-                self._loadedGridKeyDict = {};
-                self._outstandingRequestedGridKeys = {};
-            };
+        this._visableDisps = []; // Objects to be drawn on the display
+        this._gridBuffer = {}; // Store grids from the server by gridKey.
+
+        // These are being used as sets, The values are just = true
+        this._viewingGridKeyDict = {};
+        this._loadedGridKeyDict = {};
+        this._outstandingRequestedGridKeys = {};
+    };
 
 
 // -------------------------------------------------------------------------------------
 // Request Display Updates
 // -------------------------------------------------------------------------------------
-            PeekCanvasModel.prototype._requestDispUpdate = function () {
-                var self = this;
-
-                if (self._coordSetId == null)
-                    return;
-
-                if (!self.needsUpdate)
-                    return;
-                self.needsUpdate = false;
-
-                if (!gridDataManager.isReady())
-                    return;
-
-                var area = self._config.canvas.window;
-                var zoom = self._config.canvas.zoom;
-
-                var viewingGridKeys = gridKeysForArea(self._coordSetId, area, zoom);
-
-                // If there is no change, then do nothing
-                if (viewingGridKeys.join() == dictKeysFromObject(self._viewingGridKeyDict).join())
-                    return;
-
-                // Notify the grid manager that the view has changed
-                gridDataManager.canvasViewChanged(
-                        self._config.controller.uniquFiltId,
-                        viewingGridKeys);
-
-                self._viewingGridKeyDict = dictSetFromArray(viewingGridKeys);
+    private _requestDispUpdate() {
 
 
-                var loadedGridKeys = dictKeysFromObject(self._bufferedGridsByGridKey);
+        if (this._coordSetId == null)
+            return;
 
-                var gridKeysToRemove = loadedGridKeys.diff(viewingGridKeys);
-                var gridKeysToGet = viewingGridKeys.diff(loadedGridKeys);
+        if (!this.needsUpdate)
+            return;
+        this.needsUpdate = false;
 
-                // // Remove is called first, request immediatly populates from mem cache
-                // self._removeGrids(gridKeysToRemove);
-                self._requestGrids(gridKeysToGet);
+        if (!gridDataManager.isReady())
+            return;
 
-                self._config.model.gridsWaitingForData =
-                        dictKeysFromObject(self._outstandingRequestedGridKeys).length;
+        let area = this._config.canvas.window;
+        let zoom = this._config.canvas.zoom;
 
-                self._compileDisps();
-            };
+        let viewingGridKeys = gridKeysForArea(this._coordSetId, area, zoom);
+
+        // If there is no change, then do nothing
+        if (viewingGridKeys.join() == dictKeysFromObject(this._viewingGridKeyDict).join())
+            return;
+
+        // Notify the grid manager that the view has changed
+        gridDataManager.canvasViewChanged(
+            this._config.controller.uniquFiltId,
+            viewingGridKeys);
+
+        this._viewingGridKeyDict = dictSetFromArray(viewingGridKeys);
 
 
-// -------------------------------------------------------------------------------------
-// Request grids
-// -------------------------------------------------------------------------------------
+        let loadedGridKeys = dictKeysFromObject(this._bufferedGridsByGridKey);
 
-            PeekCanvasModel.prototype._removeGrids = function (gridKeysToRemove) {
-                var self = this;
+        let gridKeysToRemove = loadedGridKeys.diff(viewingGridKeys);
+        let gridKeysToGet = viewingGridKeys.diff(loadedGridKeys);
 
-                if (gridKeysToRemove.length == 0)
-                    return;
+        // // Remove is called first, request immediatly populates from mem cache
+        // this._removeGrids(gridKeysToRemove);
+        this._requestGrids(gridKeysToGet);
 
-                for (var i = 0; i < gridKeysToRemove.length; i++) {
-                    var gridKey = gridKeysToRemove[i];
-                    if (self._bufferedGridsByGridKey[gridKey] != null) {
-                        delete self._bufferedGridsByGridKey[gridKey];
-                    }
-                }
+        this._config.model.gridsWaitingForData =
+            dictKeysFromObject(this._outstandingRequestedGridKeys).length;
 
-            };
+        this._compileDisps();
+    };
 
 
 // -------------------------------------------------------------------------------------
 // Request grids
 // -------------------------------------------------------------------------------------
 
-            PeekCanvasModel.prototype._requestGrids = function (gridKeysToGet) {
-                var self = this;
+    private _removeGrids(gridKeysToRemove) {
 
-                if (gridKeysToGet.length == 0)
-                    return;
 
-                // Some grid keys that we don't have yet might be in the process of being
-                // requested
+        if (gridKeysToRemove.length == 0)
+            return;
 
-                var unrequestedGridKeys = [];
-                for (var i = 0; i < gridKeysToGet.length; i++) {
-                    var gridKey = gridKeysToGet[i];
-                    if (self._outstandingRequestedGridKeys[gridKey] != true) {
-                        self._outstandingRequestedGridKeys[gridKey] = true;
-                        unrequestedGridKeys.push(gridKey);
-                    }
-                }
+        for (let i = 0; i < gridKeysToRemove.length; i++) {
+            let gridKey = gridKeysToRemove[i];
+            if (this._bufferedGridsByGridKey[gridKey] != null) {
+                delete this._bufferedGridsByGridKey[gridKey];
+            }
+        }
 
-                if (unrequestedGridKeys.length == 0)
-                    return;
+    };
 
-                console.log(dateStr() + "Model: Requesting " + unrequestedGridKeys);
 
-                // We want the grid keys sent back so we know the full grids we're loading
-                gridDataManager.loadGridKeys(unrequestedGridKeys);
+// -------------------------------------------------------------------------------------
+// Request grids
+// -------------------------------------------------------------------------------------
 
-            };
+    private _requestGrids(gridKeysToGet) {
+
+
+        if (gridKeysToGet.length == 0)
+            return;
+
+        // Some grid keys that we don't have yet might be in the process of being
+        // requested
+
+        let unrequestedGridKeys = [];
+        for (let i = 0; i < gridKeysToGet.length; i++) {
+            let gridKey = gridKeysToGet[i];
+            if (this._outstandingRequestedGridKeys[gridKey] != true) {
+                this._outstandingRequestedGridKeys[gridKey] = true;
+                unrequestedGridKeys.push(gridKey);
+            }
+        }
+
+        if (unrequestedGridKeys.length == 0)
+            return;
+
+        console.log(dateStr() + "Model: Requesting " + unrequestedGridKeys);
+
+        // We want the grid keys sent back so we know the full grids we're loading
+        gridDataManager.loadGridKeys(unrequestedGridKeys);
+
+    };
 
 // -------------------------------------------------------------------------------------
 // Process Display Updates
 // -------------------------------------------------------------------------------------
-            /** Receive Grid
-             *
-             * NOTE: The grid data is not received in order,
-             * and sometimes the ModelGrids don't have data when no
-             * update from the server is requird.
-             *
-             * @param canvasModelGrids
-             * @param fromServer
-             * @private
-             */
-            PeekCanvasModel.prototype._receiveGrid = function (canvasModelGrids, fromServer) {
-                var self = this;
+    /** Receive Grid
+     *
+     * NOTE: The grid data is not received in order,
+     * and sometimes the ModelGrids don't have data when no
+     * update from the server is requird.
+     *
+     * @param canvasModelGrids
+     * @param fromServer
+     * @private
+     */
+    private _receiveGrid(canvasModelGrids, fromServer) {
 
-                // Overwrite with all the new ones
-                for (var i = 0; i < canvasModelGrids.length; i++) {
-                    var modelGrid = canvasModelGrids[i];
 
-                    if (fromServer) {
-                        self._loadedGridKeyDict[modelGrid.gridKey] = true;
-                        delete self._outstandingRequestedGridKeys[modelGrid.gridKey];
-                    }
+        // Overwrite with all the new ones
+        for (let i = 0; i < canvasModelGrids.length; i++) {
+            let modelGrid = canvasModelGrids[i];
 
-                    if (!modelGrid.hasData())
-                        continue;
+            if (fromServer) {
+                this._loadedGridKeyDict[modelGrid.gridKey] = true;
+                delete this._outstandingRequestedGridKeys[modelGrid.gridKey];
+            }
 
-                    // If we're not viewing this grid any more, discard the data.
-                    if (self._viewingGridKeyDict[modelGrid.gridKey] !== true)
-                        continue;
+            if (!modelGrid.hasData())
+                continue;
 
-                    self._bufferedGridsByGridKey[modelGrid.gridKey] = modelGrid;
-                }
+            // If we're not viewing this grid any more, discard the data.
+            if (this._viewingGridKeyDict[modelGrid.gridKey] !== true)
+                continue;
 
-                // Updte the grids waiting for data count
-                self._config.model.gridsWaitingForData =
-                        dictKeysFromObject(self._outstandingRequestedGridKeys).length;
+            this._bufferedGridsByGridKey[modelGrid.gridKey] = modelGrid;
+        }
 
-                // This has it's own timing log
-                self._compileDisps();
-            };
+        // Updte the grids waiting for data count
+        this._config.model.gridsWaitingForData =
+            dictKeysFromObject(this._outstandingRequestedGridKeys).length;
+
+        // This has it's own timing log
+        this._compileDisps();
+    };
 
 // -------------------------------------------------------------------------------------
 // Display Items
 // -------------------------------------------------------------------------------------
 
-            PeekCanvasModel.prototype.viewableDisps = function () {
-                var self = this;
+    viewableDisps() {
 
-                return self._visableDisps;
-            };
 
-            PeekCanvasModel.prototype.selectableDisps = function () {
-                var self = this;
+        return this._visableDisps;
+    };
 
-                return self.viewableDisps().filter(function (disp) {
-                    return disp._tt == 'DA' || disp._tt == 'DPL';
-                });
-            };
+    selectableDisps() {
 
-            PeekCanvasModel.prototype.selectedDisps = function () {
-                var self = this;
 
-                return self._selection;
-            };
+        return this.viewableDisps().filter(function (disp) {
+            return disp._tt == 'DA' || disp._tt == 'DPL';
+        });
+    };
 
-            PeekCanvasModel.prototype._compileDisps = function () {
-                var self = this;
+    selectedDisps() {
 
-                if (self._coordSetId == null)
-                    return;
 
-                var startTime = new Date();
+        return this._selection;
+    };
 
-                var levelsOrderedByOrder = gridDataManager.levelsOrderedByOrder(self._coordSetId);
-                var layersOrderedByOrder = gridDataManager.layersOrderedByOrder();
+    private _compileDisps() {
 
-                var zoom = self._config.canvas.zoom;
 
-                var dispIndexByGridKey = {};
+        if (this._coordSetId == null)
+            return;
 
-                var disps = [];
-                var dispIdsAdded = {};
+        let startTime = new Date();
 
-                var viewableGrids = dictKeysFromObject(self._viewingGridKeyDict);
+        let levelsOrderedByOrder = gridDataManager.levelsOrderedByOrder(this._coordSetId);
+        let layersOrderedByOrder = gridDataManager.layersOrderedByOrder();
 
-                for (var levelIndex = 0; levelIndex < levelsOrderedByOrder.length; levelIndex++) {
-                    var level = levelsOrderedByOrder[levelIndex];
+        let zoom = this._config.canvas.zoom;
 
-                    // If it's not in the zoom area, continue
-                    if (!(level.minZoom <= zoom && zoom < level.maxZoom))
+        let dispIndexByGridKey = {};
+
+        let disps = [];
+        let dispIdsAdded = {};
+
+        let viewableGrids = dictKeysFromObject(this._viewingGridKeyDict);
+
+        for (let levelIndex = 0; levelIndex < levelsOrderedByOrder.length; levelIndex++) {
+            let level = levelsOrderedByOrder[levelIndex];
+
+            // If it's not in the zoom area, continue
+            if (!(level.minZoom <= zoom && zoom < level.maxZoom))
+                continue;
+
+            for (let layerIndex = 0; layerIndex < layersOrderedByOrder.length; layerIndex++) {
+                let layer = layersOrderedByOrder[layerIndex];
+
+                // If it's not visible (enabled), continue
+                if (!layer.visible)
+                    continue;
+
+                for (let gridKeyIndex = 0; gridKeyIndex < viewableGrids.length; gridKeyIndex++) {
+                    let gridKey = viewableGrids[gridKeyIndex];
+                    let grid = this._bufferedGridsByGridKey[gridKey];
+
+                    if (grid == null)
                         continue;
 
-                    for (var layerIndex = 0; layerIndex < layersOrderedByOrder.length; layerIndex++) {
-                        var layer = layersOrderedByOrder[layerIndex];
+                    // If this is the first iteration, initialise to 0
+                    let nextIndex = dispIndexByGridKey[gridKey];
+                    if (nextIndex == null)
+                        nextIndex = 0;
 
-                        // If it's not visible (enabled), continue
-                        if (!layer.visible)
+                    // If we've processed all the disps in this grid, continue to next
+                    if (nextIndex >= grid.disps.length)
+                        continue;
+
+                    for (; nextIndex < grid.disps.length; nextIndex++) {
+                        let disp = grid.disps[nextIndex];
+
+                        // // Level first, as per the sortDisps function
+                        if (disp.level.order < level.order)
                             continue;
 
-                        for (var gridKeyIndex = 0; gridKeyIndex < viewableGrids.length; gridKeyIndex++) {
-                            var gridKey = viewableGrids[gridKeyIndex];
-                            var grid = self._bufferedGridsByGridKey[gridKey];
+                        if (level.order < disp.level.order)
+                            break;
 
-                            if (grid == null)
-                                continue;
+                        // Then Layer
+                        if (disp.layer.order < layer.order)
+                            continue;
 
-                            // If this is the first iteration, initialise to 0
-                            var nextIndex = dispIndexByGridKey[gridKey];
-                            if (nextIndex == null)
-                                nextIndex = 0;
+                        if (layer.order < disp.layer.order)
+                            break;
 
-                            // If we've processed all the disps in this grid, continue to next
-                            if (nextIndex >= grid.disps.length)
-                                continue;
+                        if (dispIdsAdded[disp.id] === true)
+                            continue;
 
-                            for (; nextIndex < grid.disps.length; nextIndex++) {
-                                var disp = grid.disps[nextIndex];
-
-                                // // Level first, as per the sortDisps function
-                                if (disp.level.order < level.order)
-                                    continue;
-
-                                if (level.order < disp.level.order)
-                                    break;
-
-                                // Then Layer
-                                if (disp.layer.order < layer.order)
-                                    continue;
-
-                                if (layer.order < disp.layer.order)
-                                    break;
-
-                                if (dispIdsAdded[disp.id] === true)
-                                    continue;
-
-                                disps.push(disp);
-                                dispIdsAdded[disp.id] = true;
-                            }
-
-                            dispIndexByGridKey[gridKey] = nextIndex;
-                        }
+                        disps.push(disp);
+                        dispIdsAdded[disp.id] = true;
                     }
+
+                    dispIndexByGridKey[gridKey] = nextIndex;
                 }
+            }
+        }
 
-                self._visableDisps = disps;
-                self._config.model.dispOnScreen = disps.length;
-                self._config.invalidate();
+        this._visableDisps = disps;
+        this._config.model.dispOnScreen = disps.length;
+        this._config.invalidate();
 
-                var timeTaken = new Date() - startTime;
+        let timeTaken = new Date() - startTime;
 
-                console.log(dateStr() + "Model: compileDisps"
-                        + " took " + timeTaken + "ms"
-                        + " for " + disps.length + " disps"
-                        + " and " + viewableGrids.length + " grids");
-            };
+        console.log(dateStr() + "Model: compileDisps"
+            + " took " + timeTaken + "ms"
+            + " for " + disps.length + " disps"
+            + " and " + viewableGrids.length + " grids");
+    };
 
 
-            PeekCanvasModel.prototype.addSelection = function (objectOrArray) {
-                var self = this;
+    addSelection(objectOrArray) {
 
-                self._selection = self._selection.add(objectOrArray);
-                self._config.renderer.invalidate = true;
 
-                // HACK, HACK, HACK!!!! ZebBen Menu
-                if (self._selection.length >= 1 && self._selection[0]._tt == 'DA') {
-                    var dispAction = self._selection[0];
+        this._selection = this._selection.add(objectOrArray);
+        this._config.renderer.invalidate = true;
 
-                    if (dispAction.d.action != null
-                            && dispAction.d.action.indexOf('Popup Menu') != -1) {
-                        displayCanvasPopupMenu(self._scope, self._$uibModal, dispAction);
-                    }
-                }
-            };
+        // HACK, HACK, HACK!!!! ZebBen Menu
+        if (this._selection.length >= 1 && this._selection[0]._tt == 'DA') {
+            let dispAction = this._selection[0];
 
-            PeekCanvasModel.prototype.removeSelection = function (objectOrArray) {
-                var self = this;
+            if (dispAction.d.action != null
+                && dispAction.d.action.indexOf('Popup Menu') != -1) {
+                displayCanvasPopupMenu(this._scope, this._$uibModal, dispAction);
+            }
+        }
+    };
 
-                self._selection = self._selection.remove(objectOrArray);
-                self._config.renderer.invalidate = true;
-            };
+    removeSelection(objectOrArray) {
 
-            PeekCanvasModel.prototype.clearSelection = function () {
-                var self = this;
 
-                self._selection = [];
-                self._config.renderer.invalidate = true;
-            };
+        this._selection = this._selection.remove(objectOrArray);
+        this._config.renderer.invalidate = true;
+    };
+
+    clearSelection() {
+
+
+        this._selection = [];
+        this._config.renderer.invalidate = true;
+    };
 
 // -------------------------------------------------------------------------------------
 // LAYERS
 // -------------------------------------------------------------------------------------
 
-            PeekCanvasModel.prototype.layers = function () {
-                var self = this;
-
-                return self._layers;
-            };
+    layers() {
+        return this._layers;
+    };
 
 
-            return PeekCanvasModel;
-        }
-)
-;
+}

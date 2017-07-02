@@ -1,12 +1,16 @@
-/**
- * Created by peek on 27/05/15.
- */
 
-/**
- * Created by peek_server on 27/05/15.
- */
 
-'use strict';
+            export function makeCanvasFiltId() {
+                let text = "";
+                let possible = "abcdefghijklmnopqrstuvwxyz";
+
+                for (let i = 0; i < 10; i++)
+                    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+                return text;
+            }
+
+
 
 define("PeekCanvasMod", [
             // Named Dependencies
@@ -14,7 +18,7 @@ define("PeekCanvasMod", [
             "PeekCanvasMouse",
             "PeekCanvasMouseSelectDelegate",
             "PeekDispRefData",
-            "PeekDispDelegate",
+            "PeekDispRenderFactory",
             "PeekCanvasRenderer",
             "PeekCanvasConfig",
             // Unnamed Dependencies
@@ -29,7 +33,7 @@ define("PeekCanvasMod", [
                   PeekCanvasMouse,
                   PeekCanvasMouseSelectDelegate,
                   PeekDispRefData,
-                  PeekDispDelegate,
+                  PeekDispRenderFactory,
                   PeekCanvasRenderer,
                   PeekCanvasConfig) {
 // -------------------------- Placeholder Module -----------------------
@@ -53,7 +57,7 @@ define("PeekCanvasMod", [
                     self.dispRefData = new PeekDispRefData($scope, self.config);
 
                     // The display renderer delegates
-                    self.dispDelegate = new PeekDispDelegate($scope, self.config, self.dispRefData);
+                    self.dispDelegate = new PeekDispRenderFactory($scope, self.config, self.dispRefData);
 
                     // The user interaction handler.
                     self.mouse = new PeekCanvasMouse($scope, self.config,
@@ -104,59 +108,7 @@ define("PeekCanvasMod", [
             ]);
 
 
-            function makeCanvasFiltId() {
-                var text = "";
-                var possible = "abcdefghijklmnopqrstuvwxyz";
 
-                for (var i = 0; i < 10; i++)
-                    text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-                return text;
-            }
-
-            var nextCanvasId = 0;
-
-            peekModelCanvasMod.directive('peekCanvas', function () {
-                return {
-                    restrict: 'E',
-                    //scope: {},
-                    controller: 'PeekCanvasCtrl',
-                    controllerAs: 'canvasC',
-                    templateUrl: '/view/PeekCanvas.html',
-                    link: function ($scope, $elem, attrs) {
-                        var id = 'canvas.' + nextCanvasId.toString();
-                        nextCanvasId += 1;
-
-                        var jqCanvas = angular.element($elem).find('canvas').attr('id', id);
-                        $scope.canvasId = id;
-
-                        $scope.initPan = attrs['pan'];
-                        $scope.initZoom = attrs['zoom'];
-                        $scope.initFilt = attrs['filt'];
-
-                    }
-
-                };
-            });
-
-
-            peekModelCanvasMod.directive('autoCanvasPanelSize', function () {
-                return function ($scope, $element, attrs) {
-                    var canvasElement = $(angular.element($element));
-                    $("body").css("overflow", "hidden");
-
-                    function delta() {
-                        return $(window).height();
-                    }
-
-                    function updateHeight(newVal) {
-                        canvasElement.css("height", newVal + "px");
-                        canvasElement.css("width", "100%");
-                    }
-
-                    $scope.$watch(delta, updateHeight);
-                };
-            });
 
         }
 );

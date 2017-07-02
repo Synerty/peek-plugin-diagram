@@ -1,48 +1,39 @@
+import {PeekCanvasConfig} from "./PeekCanvasConfig";
 /** Peek Canvas Coord Tuple
  *
  * This class is an extension of the Coord Tuple, that allows it to be rendered by the
  * canvas.
  */
 
-define("PeekDispRefData", [
-            // Named Dependencies
-            // Unnamed Dependencies
-        ],
-        function () {
-            // ============================================================================
-            // PeekDispRefData
-            // ============================================================================
-            function PeekDispRefData($scope, config) {
-                var self = this;
+export class PeekDispRefData {
+    // ============================================================================
+    // PeekDispRefData
+    // ============================================================================
+    constructor(private config: PeekCanvasConfig) {
+    }
 
-                self._scope = $scope;
-                self._config = config;
-            }
-
-            PeekDispRefData.prototype.textStyleForId = function (textStyleId) {
-                return peekModelCache.textStyleForId(textStyleId);
-            };
+    textStyleForId(textStyleId) {
+        return peekModelCache.textStyleForId(textStyleId);
+    };
 
 
-            PeekDispRefData.prototype.colorForId = function (colorId) {
-                return peekModelCache.colorForId(colorId);
-            };
+    colorForId(colorId) {
+        return peekModelCache.colorForId(colorId);
+    };
 
 
-            PeekDispRefData.prototype.layerForId = function (layerId) {
-                return peekModelCache.layerForId(layerId);
-            };
+    layerForId(layerId) {
+        return peekModelCache.layerForId(layerId);
+    };
 
 
-            PeekDispRefData.prototype.levelForId = function (levelId) {
-                return peekModelCache.levelForId(levelId);
-            };
+    levelForId(levelId) {
+        return peekModelCache.levelForId(levelId);
+    };
 
 
-            PeekDispRefData.prototype.lineStyleForId = function (lineStyleId) {
-                return peekModelCache.lineStyleForId(lineStyleId);
-            };
+    lineStyleForId(lineStyleId) {
+        return peekModelCache.lineStyleForId(lineStyleId);
+    };
 
-            return PeekDispRefData;
-        }
-);
+}

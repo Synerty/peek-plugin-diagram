@@ -1,206 +1,204 @@
+import {EventEmitter} from "@angular/core";
+import {PeekCanvasConfig} from "./PeekCanvasConfig";
+import {PeekCanvasModel} from "./PeekCanvasModel";
+
+export class PeekCanvasPan {
+        
+                    x: 0.0;
+                    y: 0.0;
+}
+
 /**
  * Editor Renderer This class is responsible for rendering the editor model
  */
-define("PeekCanvasRenderer", [
-            // Named Dependencies
-            // Unnamed Dependencies
-            "PeekCanvasExtensions"
-        ],
-        function () {
-            function PeekCanvasRenderer($scope, config, model, dispDelegate) {
-                var self = this;
+class PeekCanvasRenderer {
+    
+                canvas = null;
+                isValid = false;
 
-                self.scope = $scope;
-                self.config = config;
-                self.model = model;
-                self.dispDelegate = dispDelegate;
+                drawEvent = new EventEmitter<null>();
 
-                self.canvas = null;
-                self.isValid = false;
+                _zoom = 1.0;
+                _pan = new PeekCanvasPan();
 
-                self.drawEvent = $.Callbacks();
+    
+            constructor(private config:PeekCanvasConfig, private model:PeekCanvasModel, private dispDelegate:PeekDispRenderFactory) {
+                
 
-                self._zoom = 1.0;
-                self._pan = {
-                    x: 0.0,
-                    y: 0.0
-                };
-
-                self.scope = $scope;
-                self.config = config
 
             }
 
-            PeekCanvasRenderer.prototype.invalidate = function () {
-                var self = this;
-                self.isValid = false;
+            invalidate () {
+                
+                this.isValid = false;
             };
 
-            PeekCanvasRenderer.prototype.setCanvas = function (canvas) {
-                var self = this;
-                self.canvas = canvas;
-                self._init();
+            setCanvas (canvas) {
+                
+                this.canvas = canvas;
+                this._init();
             };
 
-            PeekCanvasRenderer.prototype._init = function () {
-                var self = this;
+            _init () {
+                
 
                 // Start the draw timer.
-                setInterval(bind(self, self.draw), self.config.renderer.drawInterval);
+                setInterval(() => this.draw(), this.config.renderer.drawInterval);
 
                 // ------------------------------------------
                 // Watch zoom
-                //self.zoom(self.config.canvas.zoom / self._zoom);
+                //this.zoom(this.config.canvas.zoom / this._zoom);
 
-                self.scope.$watch(function () {
-                    return self.config.canvas.zoom;
+                // TODO, Change these to observables, based on the "config" service
+                this.scope.$watch(function () {
+                    return this.config.canvas.zoom;
                 }, function (newVal) {
-                    if (newVal == self._zoom)
+                    if (newVal == this._zoom)
                         return;
-                    self.zoom(newVal / self._zoom);
+                    this.zoom(newVal / this._zoom);
                 });
 
                 // ------------------------------------------
                 // Apply pan
-                //self.pan();
+                //this.pan();
 
-                self.scope.$watch(function () {
-                    var p = self.config.canvas.pan;
+                this.scope.$watch(function () {
+                    let p = this.config.canvas.pan;
                     return {x: p.x, y: p.y};
-                }, bind(self, self.pan), true);
+                }, () => this.pan(), true);
 
                 // ------------------------------------------
                 // Watch for canvas size changes
-                self.scope.$watch(function () {
-                    return {h: self.canvas.clientHeight, w: self.canvas.clientWidth};
-                }, bind(self, self.resizeCanvas), true);
+                this.scope.$watch(function () {
+                    return {h: this.canvas.clientHeight, w: this.canvas.clientWidth};
+                }, () =>  this.resizeCanvas(), true);
 
                 // ------------------------------------------
                 // Watch for invalidates
-                self.scope.$watch(function () {
-                    return self.config.renderer.invalidate;
+                this.scope.$watch(function () {
+                    return this.config.renderer.invalidate;
                 }, function (invalidate) {
-                    if (self.config.renderer.invalidate == false)
+                    if (this.config.renderer.invalidate == false)
                         return;
-                    self.invalidate();
-                    self.config.renderer.invalidate = false;
+                    this.invalidate();
+                    this.config.renderer.invalidate = false;
                 });
 
             };
 
-            PeekCanvasRenderer.prototype.currentViewArea = function () {
-                var self = this;
+            currentViewArea () {
+                
 
-                var size = {
-                    w: self.canvas.clientWidth / self._zoom,
-                    h: self.canvas.clientHeight / self._zoom
+                let size = {
+                    w: this.canvas.clientWidth / this._zoom,
+                    h: this.canvas.clientHeight / this._zoom
                 };
 
                 return {
-                    x: self._pan.x - size.w / 2,
-                    y: self._pan.y - size.h / 2,
+                    x: this._pan.x - size.w / 2,
+                    y: this._pan.y - size.h / 2,
                     w: size.w,
                     h: size.h
                 }
             };
 
-            PeekCanvasRenderer.prototype.resizeCanvas = function () {
-                var self = this;
+            resizeCanvas () {
+                
 
                 // Update the size of the canvas
-                self.canvas.height = self.canvas.clientHeight;
-                self.canvas.width = self.canvas.clientWidth;
-                self.invalidate();
+                this.canvas.height = this.canvas.clientHeight;
+                this.canvas.width = this.canvas.clientWidth;
+                this.invalidate();
             };
 
-            PeekCanvasRenderer.prototype.zoom = function (multiplier) {
-                var self = this;
-                var ctx = self.canvas.getContext('2d');
+            zoom (multiplier) {
+                
+                let ctx = this.canvas.getContext('2d');
 
-                if (self._zoom * multiplier < self.config.canvas.minZoom) {
+                if (this._zoom * multiplier < this.config.canvas.minZoom) {
                     // MIN ZOOM
-                    multiplier = self.config.canvas.minZoom / self._zoom;
+                    multiplier = this.config.canvas.minZoom / this._zoom;
 
 
-                } else if (self._zoom * multiplier > self.config.canvas.maxZoom) {
+                } else if (this._zoom * multiplier > this.config.canvas.maxZoom) {
                     // MAX ZOOM
-                    multiplier = self.config.canvas.maxZoom / self._zoom;
+                    multiplier = this.config.canvas.maxZoom / this._zoom;
 
                 }
 
-                self._zoom *= multiplier;
-                self.config.canvas.zoom = self._zoom;
+                this._zoom *= multiplier;
+                this.config.canvas.zoom = this._zoom;
 
-                self.config.canvas.window = self.currentViewArea();
+                this.config.canvas.window = this.currentViewArea();
 
-                self.invalidate();
+                this.invalidate();
 
             };
 
-            PeekCanvasRenderer.prototype.pan = function () {
-                var self = this;
+            pan () {
+                
 
-                var pan = self.config.canvas.pan;
+                let pan = this.config.canvas.pan;
 
-                self._pan.x = pan.x;
-                self._pan.y = pan.y;
+                this._pan.x = pan.x;
+                this._pan.y = pan.y;
 
-                self.config.canvas.window = self.currentViewArea();
+                this.config.canvas.window = this.currentViewArea();
 
-                self.invalidate();
+                this.invalidate();
             };
 
 // While draw is called as often as the INTERVAL variable demands,
 // It only ever does something if the canvas gets invalidated by our code
-            PeekCanvasRenderer.prototype.draw = function () {
-                var self = this;
+            draw () {
+                
 
                 // if our state is invalid, redraw and validate!
-                if (self.isValid)
+                if (this.isValid)
                     return;
 
-                self.isValid = true;
+                this.isValid = true;
 
-                var ctx = self.canvas.getContext('2d');
+                let ctx = this.canvas.getContext('2d');
 
-                var dispObjs = self.model.viewableDisps();
-                var selectedCoords = self.model.selectedDisps();
+                let dispObjs = this.model.viewableDisps();
+                let selectedCoords = this.model.selectedDisps();
 
                 // Clear canvas
-                var w = self.canvas.width / self._zoom;
-                var h = self.canvas.height / self._zoom;
+                let w = this.canvas.width / this._zoom;
+                let h = this.canvas.height / this._zoom;
 
                 ctx.save();
 
-                ctx.translate(self.canvas.width / 2.0, self.canvas.height / 2.0);
-                ctx.scale(self._zoom, self._zoom);
-                ctx.translate(-self._pan.x, -self._pan.y);
+                ctx.translate(this.canvas.width / 2.0, this.canvas.height / 2.0);
+                ctx.scale(this._zoom, this._zoom);
+                ctx.translate(-this._pan.x, -this._pan.y);
 
-                ctx.fillStyle = self.config.renderer.backgroundColor;
-                ctx.fillRect(self._pan.x - w, self._pan.y - h, w * 2, h * 2);
+                ctx.fillStyle = this.config.renderer.backgroundColor;
+                ctx.fillRect(this._pan.x - w, this._pan.y - h, w * 2, h * 2);
 
                 // ** Add stuff you want drawn in the background all the time here **
-                self._drawGrid(ctx);
+                this._drawGrid(ctx);
 
                 // draw all shapes, counting backwards for correct rendering
-                // for (var i = dispObjs.length - 1; i != -1; i--) {
+                // for (let i = dispObjs.length - 1; i != -1; i--) {
 
                 // draw all shapes, counting forwards for correct order or rendering
-                for (var i = 0; i < dispObjs.length; i++) {
-                    var dispObj = dispObjs[i];
-                    self.dispDelegate.draw(dispObj, ctx, self._zoom, self._pan);
+                for (let i = 0; i < dispObjs.length; i++) {
+                    let dispObj = dispObjs[i];
+                    this.dispDelegate.draw(dispObj, ctx, this._zoom, this._pan);
                 }
 
                 // draw selection
                 // right now this is just a stroke along the edge of the selected Shape
-                for (var i = 0; i < selectedCoords.length; i++) {
-                    var dispObj = selectedCoords[i];
-                    self.dispDelegate.drawSelected(dispObj, ctx, self._zoom, self._pan);
+                for (let i = 0; i < selectedCoords.length; i++) {
+                    let dispObj = selectedCoords[i];
+                    this.dispDelegate.drawSelected(dispObj, ctx, this._zoom, this._pan);
                 }
 
                 // ** Add stuff you want drawn on top all the time here **
                 // Tell the canvas mouse handler to draw what ever its got going on.
-                self.drawEvent.fire(ctx);
+                this.drawEvent.fire(ctx);
 
                 ctx.restore();
             };
@@ -208,43 +206,43 @@ define("PeekCanvasRenderer", [
             /**
              * Draw Selection Box Draws a selection box on the canvas
              */
-            PeekCanvasRenderer.prototype._drawGrid = function (ctx) {
-                var self = this;
+            _drawGrid (ctx) {
+                
 
-                if (!self.config.renderer.grid.show)
+                if (!this.config.renderer.grid.show)
                     return;
 
-                var area = self.config.canvas.window;
-                var zoom = self.config.canvas.zoom;
+                let area = this.config.canvas.window;
+                let zoom = this.config.canvas.zoom;
 
-                var unscale = 1.0 / zoom;
+                let unscale = 1.0 / zoom;
 
-                var gridSize = gridSizeForZoom(zoom);
+                let gridSize = gridSizeForZoom(zoom);
 
-                var minX = area.x;
-                var minY = area.y;
-                var maxX = area.x + area.w;
-                var maxY = area.y + area.h;
+                let minX = area.x;
+                let minY = area.y;
+                let maxX = area.x + area.w;
+                let maxY = area.y + area.h;
 
 
                 // Round the X min/max
-                var minGridX = parseInt(minX / gridSize.xGrid);
-                var maxGridX = parseInt(maxX / gridSize.xGrid) + 1;
+                let minGridX = parseInt(minX / gridSize.xGrid);
+                let maxGridX = parseInt(maxX / gridSize.xGrid) + 1;
 
                 // Round the Y min/max
-                var minGridY = parseInt(minY / gridSize.yGrid);
-                var maxGridY = parseInt(maxY / gridSize.yGrid) + 1;
+                let minGridY = parseInt(minY / gridSize.yGrid);
+                let maxGridY = parseInt(maxY / gridSize.yGrid) + 1;
 
-                ctx.lineWidth = self.config.renderer.grid.lineWidth / self._zoom;
-                ctx.strokeStyle = self.config.renderer.grid.color;
+                ctx.lineWidth = this.config.renderer.grid.lineWidth / this._zoom;
+                ctx.strokeStyle = this.config.renderer.grid.color;
 
-                ctx.fillStyle = self.config.renderer.grid.color;
+                ctx.fillStyle = this.config.renderer.grid.color;
                 ctx.textAlign = 'start';
                 ctx.textBaseline = 'top';
-                ctx.font = self.config.renderer.grid.font;
+                ctx.font = this.config.renderer.grid.font;
 
                 // Draw the vertical lines
-                for (var x = minGridX; x < maxGridX; x++) {
+                for (let x = minGridX; x < maxGridX; x++) {
                     ctx.beginPath();
                     ctx.moveTo(x * gridSize.xGrid, minY);
                     ctx.lineTo(x * gridSize.xGrid, maxY);
@@ -252,7 +250,7 @@ define("PeekCanvasRenderer", [
                 }
 
                 // Draw the horizontal lines
-                for (var y = minGridY; y < maxGridY; y++) {
+                for (let y = minGridY; y < maxGridY; y++) {
                     ctx.beginPath();
                     ctx.moveTo(minX, y * gridSize.yGrid);
                     ctx.lineTo(maxX, y * gridSize.yGrid);
@@ -260,9 +258,9 @@ define("PeekCanvasRenderer", [
                 }
 
                 // Draw the vertical lines
-                for (var x = minGridX; x < maxGridX; x++) {
-                    for (var y = minGridY; y < maxGridY; y++) {
-                        var text = x.toString() + "x" + y.toString();
+                for (let x = minGridX; x < maxGridX; x++) {
+                    for (let y = minGridY; y < maxGridY; y++) {
+                        let text = x.toString() + "x" + y.toString();
 
                         // draw fixed size font
                         ctx.save();
@@ -279,11 +277,9 @@ define("PeekCanvasRenderer", [
             /**
              * Return the size of the canvas
              */
-            PeekCanvasRenderer.prototype.canvasInnerBounds = function () {
-                var c = this._canvas;
-                return new Bounds(0, 0, c.width, c.height);
+            canvasInnerBounds () {
+                let c = this.canvas;
+                return new PeekCanvasBounds(0, 0, c.width, c.height);
             };
 
-            return PeekCanvasRenderer;
         }
-);

@@ -3,7 +3,7 @@ import {NgModule} from "@angular/core";
 import {Routes} from "@angular/router";
 
 // Import a small abstraction library to switch between nativescript and web
-import {PeekModuleFactory} from "@synerty/peek-mobile-util/index.web";
+import {PeekModuleFactory} from "@synerty/peek-util/index.web";
 
 // Import the default route component
 import {DiagramComponent} from "./diagram.component";
@@ -27,7 +27,6 @@ import {
 } from "@synerty/vortexjs";
 
 // Import the names we need for the
-
 import {StringIntComponent} from "./string-int/string-int.component";
 
 import {
@@ -47,6 +46,10 @@ import {
     diagramActionProcessorName
 } from "@peek/peek_plugin_diagram/_private";
 
+
+// Import global modules, for example, the canvas extensions.
+import "./canvas/PeekCanvasExtensions";
+import {DisplayCanvasSplashScreen} from "./splash/diagram-splash-screen.service";
 
 export function tupleActionPushNameServiceFactory() {
     return new TupleActionPushNameService(
@@ -100,6 +103,7 @@ export const pluginRoutes: Routes = [
             provide: TupleDataObservableNameService,
             useFactory: tupleDataObservableNameServiceFactory
         },
+        DisplayCanvasSplashScreen
     ],
     declarations: [DiagramComponent, StringIntComponent]
 })
