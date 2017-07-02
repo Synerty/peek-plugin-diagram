@@ -1,3 +1,6 @@
+from txhttputil.util.ModuleUtil import filterModules
+
+
 def loadPublicTuples():
     """ Load Public Tuples
 
@@ -7,5 +10,11 @@ def loadPublicTuples():
 
     """
 
-    from . import DoSomethingTuple
-    DoSomethingTuple.__unused = False
+    for mod in filterModules(__name__, __file__):
+        __import__(mod, locals(), globals())
+
+    from .lookups import loadLookupTuples
+    loadLookupTuples()
+
+    from .shapes import loadShapeTuples
+    loadShapeTuples()

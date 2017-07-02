@@ -1,6 +1,6 @@
 from peek_plugin_diagram._private.server.controller.MainController import MainController
 from peek_plugin_diagram.server.DiagramApiABC import DiagramApiABC
-from peek_plugin_diagram.tuples.DoSomethingTuple import DoSomethingTuple
+from peek_plugin_diagram.tuples.lookups.ImportDispColorTuple import DoSomethingTuple
 
 
 class DiagramApi(DiagramApiABC):

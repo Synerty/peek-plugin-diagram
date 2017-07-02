@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-from peek_plugin_diagram.tuples.DoSomethingTuple import DoSomethingTuple
+from peek_plugin_diagram.tuples.lookups.ImportDispColorTuple import DoSomethingTuple
 
 
 class DiagramApiABC(metaclass=ABCMeta):
