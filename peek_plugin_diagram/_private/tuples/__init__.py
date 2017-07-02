@@ -1,3 +1,6 @@
+from txhttputil.util.ModuleUtil import filterModules
+
+
 def loadPrivateTuples():
     """ Load Private Tuples
 
@@ -6,11 +9,5 @@ def loadPrivateTuples():
     serialised data.
 
     """
-    from . import DiagramTuple
-    DiagramTuple.__unused = False
-
-    from . import AddIntValueActionTuple
-    AddIntValueActionTuple.__unused = False
-
-    from . import StringCapToggleActionTuple
-    StringCapToggleActionTuple.__unused = False
+    for mod in filterModules(__name__, __file__):
+        __import__(mod, locals(), globals())

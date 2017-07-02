@@ -12,9 +12,10 @@
         "server",
         "storage",
         "admin",
+        "worker",
         "client",
-        "mobile",
-        "agent"
+        "desktop",
+        "mobile"
     ],
     "server": {
     },
@@ -27,7 +28,7 @@
         "appModule": "diagram.module#DiagramModule",
         "moduleDir": "plugin-module",
     },
-    "client": {
+    "worker": {
     },
     "mobile": {
         "showHomeLink": true,

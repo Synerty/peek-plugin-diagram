@@ -56,7 +56,7 @@ class GridKeyIndex(Tuple, Base, BaseMixin):
 
 
 class DispIndexerQueue(Base, BaseMixin):
-    __tablename__ = 'DispIndexerQueue'
+    __tablename__ = 'DispCompilerQueue'
 
     id = Column(Integer, primary_key=True, nullable=False)
     dispId = Column(Integer, primary_key=True)
