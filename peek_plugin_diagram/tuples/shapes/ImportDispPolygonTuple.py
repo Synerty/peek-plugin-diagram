@@ -9,13 +9,13 @@ from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
 
 
 @addTupleType
-class ImportDispEllipseTuple(Tuple):
-    """ Imported Display Ellipse
+class ImportDispPolygonTuple(Tuple):
+    """ Imported Display Polygon
 
-    This tuple is used by other plugins to load colours into the diagram.
+    This tuple is used by other plugins to load polygons into the diagram.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispEllipseTuple'
+    __tupleType__ = diagramTuplePrefix + 'ImportDispPolygonTuple'
 
     levelHash: str = TupleField()
     layerHash: str = TupleField()
@@ -26,12 +26,6 @@ class ImportDispEllipseTuple(Tuple):
     fillColorHash: Optional[str] = TupleField()
 
     geom: GeomT = TupleField()
-
-    xRadius: float = TupleField()
-    yRadius: float = TupleField()
-
-    startAngle: int = TupleField()
-    endAngle: int = TupleField()
 
     #: The unique hash of this display object
     importHash: str = TupleField()

@@ -10,7 +10,8 @@
  *  Synerty Pty Ltd
  *
 """
-from Base import Base, BaseMixin
+from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
+from .DeclarativeBase import DeclarativeBase
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
@@ -20,13 +21,13 @@ from sqlalchemy.sql.schema import Index
 from sqlalchemy.sql.sqltypes import Boolean
 from sqlalchemy.types import Float
 
-from txhttputil import addTupleType, Tuple, TupleField
+from vortex.Tuple import addTupleType, Tuple, TupleField
 
 
 @addTupleType
-class ModelSet(Tuple, Base, BaseMixin):
+class ModelSet(Tuple, DeclarativeBase):
     __tablename__ = 'ModelSet'
-    __tupleType__ = 'model.modelset'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String, nullable=False)
@@ -40,11 +41,11 @@ class ModelSet(Tuple, Base, BaseMixin):
 
 
 @addTupleType
-class ModelCoordSet(Tuple, Base, BaseMixin):
+class ModelCoordSet(Tuple, DeclarativeBase):
     ''' Coordinate Sets
     '''
     __tablename__ = 'ModelCoordSet'
-    __tupleType__ = 'model.coordset'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String, nullable=False)
@@ -75,11 +76,11 @@ class ModelCoordSet(Tuple, Base, BaseMixin):
 
 
 @addTupleType
-class ModelNodeType(Tuple, Base, BaseMixin):
+class ModelNodeType(Tuple, DeclarativeBase):
     ''' Node Types
     '''
     __tablename__ = 'ModelNodeType'
-    __tupleType__ = 'model.nodetype'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String, nullable=False)
@@ -95,11 +96,11 @@ class ModelNodeType(Tuple, Base, BaseMixin):
 
 
 @addTupleType
-class ModelNode(Tuple, Base, BaseMixin):
+class ModelNode(Tuple, DeclarativeBase):
     ''' Connection Types
     '''
     __tablename__ = 'ModelNode'
-    __tupleType__ = 'model.node'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     uiData = TupleField(defaultValue={})
 
@@ -133,11 +134,11 @@ class ModelNode(Tuple, Base, BaseMixin):
 
 
 @addTupleType
-class ModelConnType(Tuple, Base, BaseMixin):
+class ModelConnType(Tuple, DeclarativeBase):
     ''' Connection Types
     '''
     __tablename__ = 'ModelConnType'
-    __tupleType__ = 'model.conntype'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String, nullable=False)
@@ -153,11 +154,11 @@ class ModelConnType(Tuple, Base, BaseMixin):
 
 
 @addTupleType
-class ModelConn(Tuple, Base, BaseMixin):
+class ModelConn(Tuple, DeclarativeBase):
     ''' Connection Types
     '''
     __tablename__ = 'ModelConn'
-    __tupleType__ = 'model.conn'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     uiData = TupleField(defaultValue={})
 

@@ -12,7 +12,8 @@
 """
 import logging
 
-from Base import Base, BaseMixin
+from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
+from .DeclarativeBase import DeclarativeBase
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
@@ -21,7 +22,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm.mapper import reconstructor
 from sqlalchemy.sql.schema import Index
 
-from txhttputil import Tuple, addTupleType, JSON_EXCLUDE
+from vortex.Tuple import Tuple, addTupleType, JSON_EXCLUDE
 from .Display import DispBase
 from .ModelSet import ModelCoordSet, ModelSet
 
@@ -29,10 +30,10 @@ logger = logging.getLogger(__name__)
 
 
 @addTupleType
-class LiveDbKey(Tuple, Base, BaseMixin):
-    __tupleType__ = 'c.s.p.live.key'
+class LiveDbKey(Tuple, DeclarativeBase):
     __tupleTypeShort__ = 'LDK'
     __tablename__ = 'LiveDbKey'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     NUMBER_VALUE = 0
     STRING_VALUE = 1
@@ -88,10 +89,10 @@ LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR = {'colorId': LiveDbKey.COLOR,
 
 
 @addTupleType
-class LiveDbDispLink(Tuple, Base, BaseMixin):
-    __tupleType__ = 'c.s.p.live.disp_link'
+class LiveDbDispLink(Tuple, DeclarativeBase):
     __tupleTypeShort__ = 'LDL'
     __tablename__ = 'LiveDbDispLink'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, nullable=False, doc=JSON_EXCLUDE)
 

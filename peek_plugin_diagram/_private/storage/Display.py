@@ -10,8 +10,8 @@
  *  Synerty Pty Ltd
  *
 """
-
-from Base import Base, BaseMixin
+from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
+from .DeclarativeBase import DeclarativeBase
 from geoalchemy2.types import Geometry
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
@@ -22,7 +22,7 @@ from sqlalchemy.orm.mapper import reconstructor
 from sqlalchemy.sql.schema import Index
 from sqlalchemy.sql.sqltypes import Float, DateTime
 
-from txhttputil import Tuple, addTupleType, TupleField, JSON_EXCLUDE
+from vortex.Tuple import Tuple, addTupleType, TupleField, JSON_EXCLUDE
 from .ModelSet import ModelCoordSet, ModelSet
 
 DISP_SHORT_ATTR_NAME_MAP = {'colorId': 'c',
@@ -36,10 +36,10 @@ DISP_SHORT_ATTR_NAME_MAP = {'colorId': 'c',
 
 
 @addTupleType
-class DispLayer(Tuple, Base, BaseMixin):
-    __tupleType__ = 'c.s.p.disp.layer'
-    __tupleTypeShort__ = 'DLA'
+class DispLayer(Tuple, DeclarativeBase):
     __tablename__ = 'DispLayer'
+    __tupleTypeShort__ = 'DLA'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String, nullable=False)
@@ -59,10 +59,10 @@ class DispLayer(Tuple, Base, BaseMixin):
 
 
 @addTupleType
-class DispLevel(Tuple, Base, BaseMixin):
-    __tupleType__ = 'c.s.p.disp.level'
-    __tupleTypeShort__ = 'DLE'
+class DispLevel(Tuple, DeclarativeBase):
     __tablename__ = 'DispLevel'
+    __tupleTypeShort__ = 'DLE'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String, nullable=False)
@@ -82,10 +82,10 @@ class DispLevel(Tuple, Base, BaseMixin):
 
 
 @addTupleType
-class DispTextStyle(Tuple, Base, BaseMixin):
-    __tupleType__ = 'c.s.p.disp.textstyle'
+class DispTextStyle(Tuple, DeclarativeBase):
     __tupleTypeShort__ = 'DTS'
     __tablename__ = 'DispTextStyle'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String, nullable=False)
@@ -108,10 +108,10 @@ class DispTextStyle(Tuple, Base, BaseMixin):
 
 
 @addTupleType
-class DispLineStyle(Tuple, Base, BaseMixin):
-    __tupleType__ = 'c.s.p.disp.linestyle'
+class DispLineStyle(Tuple, DeclarativeBase):
     __tupleTypeShort__ = 'DLS'
     __tablename__ = 'DispLineStyle'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String, nullable=False)
@@ -136,10 +136,10 @@ class DispLineStyle(Tuple, Base, BaseMixin):
 
 
 @addTupleType
-class DispColor(Tuple, Base, BaseMixin):
-    __tupleType__ = 'c.s.p.disp.colour'
+class DispColor(Tuple, DeclarativeBase):
     __tupleTypeShort__ = 'DC'
     __tablename__ = 'DispColor'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, nullable=False)
     name = Column(String, doc=JSON_EXCLUDE, nullable=False)
@@ -159,7 +159,7 @@ class DispColor(Tuple, Base, BaseMixin):
     )
 
 
-class DispBase(Tuple, Base, BaseMixin):
+class DispBase(Tuple, DeclarativeBase):
     __tablename__ = 'DispBase'
 
     # Types
@@ -218,8 +218,9 @@ class DispBase(Tuple, Base, BaseMixin):
 @addTupleType
 class DispText(DispBase):
     __tablename__ = 'DispText'
-    __tupleType__ = 'c.s.p.disp.text'
     __tupleTypeShort__ = 'DT'
+    __tupleType__ = diagramTuplePrefix + __tablename__
+
     RENDERABLE_TYPE = DispBase.TEXT
 
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
@@ -251,8 +252,8 @@ class DispText(DispBase):
 @addTupleType
 class DispPolygon(DispBase):
     __tablename__ = 'DispPolygon'
-    __tupleType__ = 'c.s.p.disp.polygon'
     __tupleTypeShort__ = 'DPG'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.POLYGON
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
@@ -294,8 +295,8 @@ class DispPolygon(DispBase):
 @addTupleType
 class DispPolyline(DispBase):
     __tablename__ = 'DispPolyline'
-    __tupleType__ = 'c.s.p.disp.polyline'
     __tupleTypeShort__ = 'DPL'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.POLYLINE
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
@@ -324,8 +325,8 @@ class DispPolyline(DispBase):
 @addTupleType
 class DispEllipse(DispBase):
     __tablename__ = 'DispEllipse'
-    __tupleType__ = 'c.s.p.disp.ellipse'
     __tupleTypeShort__ = 'DE'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.ELLIPSE
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
@@ -364,8 +365,8 @@ class DispEllipse(DispBase):
 @addTupleType
 class DispAction(DispPolygon):
     __tablename__ = 'DispAction'
-    __tupleType__ = 'c.s.p.disp.action'
     __tupleTypeShort__ = 'DA'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.ACTION
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
@@ -377,10 +378,22 @@ class DispAction(DispPolygon):
 
 
 @addTupleType
+class DispGroupItem(Tuple, DeclarativeBase):
+    __tablename__ = 'DispGroupItem'  # Must differ from class name
+    __tupleTypeShort__ = 'DGI'
+    __tupleType__ = diagramTuplePrefix + __tablename__
+
+    groupId = Column(Integer, ForeignKey('DispGroup.id', ondelete='CASCADE'),
+                     primary_key=True, nullable=False)
+    itemId = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE'),
+                    primary_key=True, nullable=False)
+
+
+@addTupleType
 class DispGroup(DispBase):
     __tablename__ = 'DispGroup'
-    __tupleType__ = 'c.s.p.disp.group'
     __tupleTypeShort__ = 'DG'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.GROUP
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
@@ -390,7 +403,7 @@ class DispGroup(DispBase):
 
     name = Column(String, doc=JSON_EXCLUDE, nullable=False, unique=True)
 
-    items = relationship("DispBase", secondary='DispGroupItem')
+    items = relationship(DispBase, secondary=DispGroupItem.__table__)
 
     itemsUi = TupleField(defaultValue={})
 
@@ -400,22 +413,10 @@ class DispGroup(DispBase):
 
 
 @addTupleType
-class DispGroupItemAssoc(Tuple, Base, BaseMixin):
-    __tablename__ = 'DispGroupItem'  # Must differ from class name
-    __tupleType__ = 'c.s.p.disp.group.item'
-    __tupleTypeShort__ = 'DGI'
-
-    groupId = Column(Integer, ForeignKey('DispGroup.id', ondelete='CASCADE'),
-                     primary_key=True, nullable=False)
-    itemId = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE'),
-                    primary_key=True, nullable=False)
-
-
-@addTupleType
 class DispGroupPointer(DispBase):
     __tablename__ = 'DispGroupPointer'
-    __tupleType__ = 'c.s.p.disp.group.pointer'
     __tupleTypeShort__ = 'DGP'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.GROUP_PTR
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
@@ -444,8 +445,8 @@ class DispGroupPointerNode(DispGroupPointer):
     ''' Node Coordinates
     '''
     __tablename__ = 'DispGroupPointerNode'
-    __tupleType__ = 'disp.group.pointer.node'
     __tupleTypeShort__ = 'DGPN'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.GROUP_PTR_NODE
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
@@ -467,8 +468,8 @@ class DispPolylineConn(DispPolyline):
     ''' Node Coordinates
     '''
     __tablename__ = 'DispPolylineConn'
-    __tupleType__ = 'disp.polyline.conn'
     __tupleTypeShort__ = 'DPLC'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.POLYLINE_CONN
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}

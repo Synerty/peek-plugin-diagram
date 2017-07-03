@@ -3,8 +3,6 @@ from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.PluginNames import diagramObservableName
 
-from .tuple_providers.StringIntTupleProvider import StringIntTupleProvider
-from peek_plugin_diagram._private.storage.StringIntTuple import StringIntTuple
 
 
 def makeTupleDataObservableHandler(ormSessionCreator):
@@ -23,6 +21,6 @@ def makeTupleDataObservableHandler(ormSessionCreator):
                 additionalFilt=diagramFilt)
 
     # Register TupleProviders here
-    tupleObservable.addTupleProvider(StringIntTuple.tupleName(),
-                                     StringIntTupleProvider(ormSessionCreator))
+    # tupleObservable.addTupleProvider(StringIntTuple.tupleName(),
+    #                                  StringIntTupleProvider(ormSessionCreator))
     return tupleObservable

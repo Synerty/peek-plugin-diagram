@@ -21,5 +21,4 @@ def loadStorageTuples():
     for mod in filterModules(__package__, __file__):
         if mod.startswith("Declaratrive"):
             continue
-        print("LOADING %s" % mod)
         __import__(mod, locals(), globals())

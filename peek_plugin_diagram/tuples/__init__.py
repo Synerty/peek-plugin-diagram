@@ -18,3 +18,6 @@ def loadPublicTuples():
 
     from .shapes import loadShapeTuples
     loadShapeTuples()
+
+    from .model import loadModelTuples
+    loadModelTuples()

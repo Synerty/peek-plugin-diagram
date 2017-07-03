@@ -1,10 +1,10 @@
 import logging
 
-from peek_plugin_diagram._private.PluginNames import diagramFilt
-from peek_plugin_diagram._private.storage.StringIntTuple import StringIntTuple
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
 from vortex.sqla_orm.OrmCrudHandler import OrmCrudHandler, OrmCrudHandlerExtension
+
+from peek_plugin_diagram._private.PluginNames import diagramFilt
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +25,7 @@ class __ExtUpdateObservable(OrmCrudHandlerExtension):
     it then notifies the observer.
 
     """
+
     def __init__(self, tupleDataObserver: TupleDataObservableHandler):
         self._tupleDataObserver = tupleDataObserver
 

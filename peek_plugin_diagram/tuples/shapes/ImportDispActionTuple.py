@@ -9,19 +9,19 @@ from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
 
 
 @addTupleType
-class ImportDispEllipseTuple(Tuple):
-    """ Imported Display Ellipse
+class ImportDispActionTuple(Tuple):
+    """ Imported Display Action
 
-    This tuple is used by other plugins to load colours into the diagram.
+    An action inherits a polygon. It's a clickable shape.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispEllipseTuple'
+    __tupleType__ = diagramTuplePrefix + 'ImportDispActionTuple'
 
     levelHash: str = TupleField()
     layerHash: str = TupleField()
 
     lineWidth: int = TupleField()
-    lineStyleHash: str = TupleField()
+    lineStyleHash: Optional[str] = TupleField()
     lineColorHash: Optional[str] = TupleField()
     fillColorHash: Optional[str] = TupleField()
 
@@ -33,14 +33,11 @@ class ImportDispEllipseTuple(Tuple):
     startAngle: int = TupleField()
     endAngle: int = TupleField()
 
-    #: The unique hash of this display object
     importHash: str = TupleField()
-
-    #: The unique hash for all the display items imported in a group with this one.
-    #: for example, a page or tile reference.
-    importGroupHash: str = TupleField()
-
     modelSetName: str = TupleField()
     coordSetName: str = TupleField()
+
+    #:  Additional data for this object
+    props: dict = TupleField()
 
     liveDbDispLinks: List[ImportLiveDbDispLinkTuple] = TupleField()

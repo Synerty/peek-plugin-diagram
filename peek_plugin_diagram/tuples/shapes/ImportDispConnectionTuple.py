@@ -9,13 +9,14 @@ from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
 
 
 @addTupleType
-class ImportDispEllipseTuple(Tuple):
-    """ Imported Display Ellipse
+class ImportDispConnectionTuple(Tuple):
+    """ Imported Display Connection
 
-    This tuple is used by other plugins to load colours into the diagram.
+    This tuple is used by other plugins to load connectors into the diagram.
+    Connectors inherit Polylines.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispEllipseTuple'
+    __tupleType__ = diagramTuplePrefix + 'ImportDispConnectionTuple'
 
     levelHash: str = TupleField()
     layerHash: str = TupleField()
@@ -23,15 +24,8 @@ class ImportDispEllipseTuple(Tuple):
     lineWidth: int = TupleField()
     lineStyleHash: str = TupleField()
     lineColorHash: Optional[str] = TupleField()
-    fillColorHash: Optional[str] = TupleField()
 
     geom: GeomT = TupleField()
-
-    xRadius: float = TupleField()
-    yRadius: float = TupleField()
-
-    startAngle: int = TupleField()
-    endAngle: int = TupleField()
 
     #: The unique hash of this display object
     importHash: str = TupleField()
@@ -42,5 +36,8 @@ class ImportDispEllipseTuple(Tuple):
 
     modelSetName: str = TupleField()
     coordSetName: str = TupleField()
+
+    #:  Additional data for this object
+    props: dict = TupleField()
 
     liveDbDispLinks: List[ImportLiveDbDispLinkTuple] = TupleField()

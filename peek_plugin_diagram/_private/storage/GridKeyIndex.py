@@ -12,9 +12,10 @@
 """
 import logging
 
-from peek.core.orm.Base import Base, BaseMixin
-from peek.core.orm.Display import DispBase
-from peek.core.orm.ModelSet import ModelCoordSet
+from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
+from .DeclarativeBase import DeclarativeBase
+from .Display import DispBase
+from .ModelSet import ModelCoordSet
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
@@ -23,15 +24,15 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Index
 from sqlalchemy.sql.sqltypes import DateTime
 
-from txhttputil import Tuple, addTupleType
+from vortex.Tuple import Tuple, addTupleType
 
 logger = logging.getLogger(__name__)
 
 
 @addTupleType
-class GridKeyIndex(Tuple, Base, BaseMixin):
-    __tupleType__ = 'c.s.p.disp.grid.index'
+class GridKeyIndex(Tuple, DeclarativeBase):
     __tablename__ = 'GridKeyIndex'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     gridKey = Column(String, primary_key=True)
     dispId = Column(Integer,
@@ -55,7 +56,7 @@ class GridKeyIndex(Tuple, Base, BaseMixin):
     )
 
 
-class DispIndexerQueue(Base, BaseMixin):
+class DispIndexerQueue(DeclarativeBase):
     __tablename__ = 'DispCompilerQueue'
 
     id = Column(Integer, primary_key=True, nullable=False)
@@ -63,9 +64,9 @@ class DispIndexerQueue(Base, BaseMixin):
 
 
 @addTupleType
-class GridKeyIndexCompiled(Tuple, Base, BaseMixin):
-    __tupleType__ = 'c.s.p.disp.grid.index.update'
+class GridKeyIndexCompiled(Tuple, DeclarativeBase):
     __tablename__ = 'GridKeyIndexCompiled'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     gridKey = Column(String, primary_key=True)
     blobData = Column(BYTEA, nullable=False)
@@ -83,9 +84,9 @@ class GridKeyIndexCompiled(Tuple, Base, BaseMixin):
 
 
 @addTupleType
-class GridKeyCompilerQueue(Tuple, Base, BaseMixin):
-    __tupleType__ = 'c.s.p.disp.grid.index.compiler.queue'
+class GridKeyCompilerQueue(Tuple, DeclarativeBase):
     __tablename__ = 'GridKeyCompilerQueue'
+    __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, nullable=False)
 
