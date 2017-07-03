@@ -1,24 +1,37 @@
+from typing import List
+
+from twisted.internet.defer import Deferred
+
+from peek_plugin_diagram._private.server.controller.DispImportController import \
+    DispImportController
+from peek_plugin_diagram._private.server.controller.LookupImportController import \
+    LookupImportController
 from peek_plugin_diagram._private.server.controller.MainController import MainController
 from peek_plugin_diagram.server.DiagramApiABC import DiagramApiABC
 
 
 class DiagramApi(DiagramApiABC):
-    def __init__(self, mainController: MainController):
+    def __init__(self, mainController: MainController,
+                 dispImportController: DispImportController,
+                 lookupImportController: LookupImportController):
         self._mainController = mainController
-
-    def doSomethingGood(self, somethingsDescription: str)  :
-        """ Do Something Good
-
-        Add a new task to the users device.
-
-        :param somethingsDescription: An arbitrary string
-
-        """
-
-        # Here we could pass on the request to the self._mainController if we wanted.
-        # EG self._mainController.somethingCalled(somethingsDescription)
-
-
+        self._dispImportController = dispImportController
+        self._lookupImportController = lookupImportController
 
     def shutdown(self):
         pass
+
+    def importDisps(self, modelSetName: str,
+                    coordSetName: str,
+                    importGroupHash: str,
+                    disps: List) -> Deferred:
+        return self._dispImportController.importDisps(
+            modelSetName, coordSetName,
+            importGroupHash, disps
+        )
+
+    def importLookups(self, modelSetName: str, coordSetName: str,
+                      lookupTupleType: str, lookupTuples: List) -> Deferred:
+        return self._lookupImportController.importLookups(
+            modelSetName, coordSetName, lookupTupleType, lookupTuples
+        )

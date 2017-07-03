@@ -7,6 +7,10 @@ from peek_plugin_base.server.PluginServerStorageEntryHookABC import \
 from peek_plugin_base.server.PluginServerWorkerEntryHookABC import \
     PluginServerWorkerEntryHookABC
 
+from peek_plugin_diagram._private.server.controller.DispImportController import \
+    DispImportController
+from peek_plugin_diagram._private.server.controller.LookupImportController import \
+    LookupImportController
 from peek_plugin_diagram._private.storage import DeclarativeBase
 from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
 from peek_plugin_diagram._private.tuples import loadPrivateTuples
@@ -67,12 +71,24 @@ class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC,
         mainController = MainController(
             dbSessionCreator=self.dbSessionCreator,
             tupleObservable=tupleObservable)
-
         self._loadedObjects.append(mainController)
         self._loadedObjects.append(makeTupleActionProcessorHandler(mainController))
 
+        dispImportController = DispImportController(
+            dbSessionCreator=self.dbSessionCreator
+        )
+        self._loadedObjects.append(dispImportController)
+
+        lookupImportController = LookupImportController(
+            dbSessionCreator=self.dbSessionCreator
+        )
+        self._loadedObjects.append(lookupImportController)
+
+
         # Initialise the API object that will be shared with other plugins
-        self._api = DiagramApi(mainController)
+        self._api = DiagramApi(mainController,
+                               dispImportController,
+                               lookupImportController)
         self._loadedObjects.append(self._api)
 
         logger.debug("Started")
