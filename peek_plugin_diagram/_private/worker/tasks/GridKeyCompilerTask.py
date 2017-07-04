@@ -1,25 +1,24 @@
 import logging
 import zlib
 from _collections import defaultdict
-from collections import namedtuple
 from datetime import datetime
 
-from peek_plugin_base.worker import CeleryDbConn
-from vortex.Payload import Payload
-
-from peek_plugin_diagram._private.storage.Display import DispLevel, DispBase, DispLayer
-from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled, GridKeyCompilerQueue, \
-    GridKeyIndex
+from collections import namedtuple
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.sql.sqltypes import String
 from txcelery.defer import CeleryClient
-from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 
+from peek_plugin_base.worker import CeleryDbConn
+from peek_plugin_diagram._private.storage.Display import DispLevel, DispBase, DispLayer
+from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled, \
+    GridKeyCompilerQueue, \
+    GridKeyIndex
+from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
+from vortex.Payload import Payload
 
 logger = logging.getLogger(__name__)
 
 DispData = namedtuple('DispData', ['json', 'id', 'levelOrder', 'layerOrder'])
-
 
 
 class GridKeyQueueCompilerTask:
@@ -129,7 +128,6 @@ class GridKeyQueueCompilerTask:
 
 
 gridKeyQueueCompilerTask = GridKeyQueueCompilerTask()
-
 
 
 @CeleryClient

@@ -2,6 +2,9 @@ import logging
 from datetime import datetime
 
 from peek_plugin_diagram._private.server.queue.DispCompilerQueue import DispCompilerQueue
+from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex
+from peek_plugin_diagram._private.storage.LiveDb import LiveDbDispLink, LiveDbKey
+from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 from vortex.DeferUtil import deferToThreadWrapWithLogger
 
 logger = logging.getLogger(__name__)
@@ -36,7 +39,7 @@ class LiveDbController(object):
 
     @property
     def statusNameValues(self):
-        ip = vortexClientIpPort(self._pofAgentVortexUuid)
+        ip = "TODO" # vortexClientIpPort(self._pofAgentVortexUuid)
         self._status.agentStatus = ("Connected from %s" % ip
                                     if ip else
                                     "No Agent Connected")
@@ -51,21 +54,30 @@ class LiveDbController(object):
 
     @deferToThreadWrapWithLogger(logger)
     def setWatchedGridKeys(self, gridKeys):
-        session = getNovaOrmSession()
-        liveDbKeyIds = [t[0] for t in
-                        session.query(LiveDbDispLink.liveDbKeyId)
-                            .join(GridKeyIndex,
-                                  GridKeyIndex.dispId == LiveDbDispLink.dispId)
-                            .filter(GridKeyIndex.gridKey.in_(gridKeys))
-                            .yield_per(1000)
-                            .distinct()]
-        session.close()
+        session = self._dbSessionCreator()
+        try:
+            liveDbKeyIds = [t[0] for t in
+                            session.query(LiveDbDispLink.liveDbKeyId)
+                                .join(GridKeyIndex,
+                                      GridKeyIndex.dispId == LiveDbDispLink.dispId)
+                                .filter(GridKeyIndex.gridKey.in_(gridKeys))
+                                .yield_per(1000)
+                                .distinct()]
+        finally:
+            session.close()
 
         self._status.monitorStatus = "Monitoring %s keys" % len(liveDbKeyIds)
 
         # Mark the end of chunks.
-        from peek.api.agent.livedb.AgentLiveDbHandler import agentLiveDbHandler
-        agentLiveDbHandler.sendMonitorIds(liveDbKeyIds, self._pofAgentVortexUuid)
+        logger.debug("TODO: These need to be sent via a subject on the DiagramAPI")
+        # from peek.api.agent.livedb.AgentLiveDbHandler import agentLiveDbHandler
+        # agentLiveDbHandler.sendMonitorIds(liveDbKeyIds, self._pofAgentVortexUuid)
+
+    def agentDownloadComplete(self, payload, vortexUuid):
+        # if vortexUuid == self._pofAgentVortexUuid:
+        #     return
+
+        self._status.downloadStatus = "Download complete"
 
     @deferToThreadWrapWithLogger(logger)
     def addOrUpdateAgent(self, vortexUuid):
@@ -78,43 +90,6 @@ class LiveDbController(object):
 
         self._sendKeysToAgents()
 
-    def agentDownloadComplete(self, payload, vortexUuid):
-        # if vortexUuid == self._pofAgentVortexUuid:
-        #     return
-
-        self._status.downloadStatus = "Download complete"
-
-    def _yieldKeyChunks(self, keyIds):
-        if keyIds == []:
-            return
-
-        session = getNovaOrmSession()
-        qry = (session.query(LiveDbKey)
-               .order_by(LiveDbKey.id)
-               .yield_per(self.AGENT_KEY_SEND_CHUNK))
-
-        # you can't have filter limit/offset at the same time
-        if keyIds is not None:
-            qry = qry.filter(LiveDbKey.id.in_(keyIds))
-
-        offset = 0
-        while True:
-            self._status.downloadStatus = "Sending chunk %s to %s" % (
-                offset, self.AGENT_KEY_SEND_CHUNK + offset)
-
-            qry = (qry
-                   .offset(offset)
-                   .limit(self.AGENT_KEY_SEND_CHUNK))
-
-            liveKeyIds = [o.tupleToSmallJsonDict() for o in qry]
-            if not liveKeyIds:
-                break
-
-            yield liveKeyIds
-            offset += self.AGENT_KEY_SEND_CHUNK
-
-        session.close()
-
     def _sendKeysToAgents(self, keyIds=None):
         if not self._pofAgentVortexUuid:
             return
@@ -126,6 +101,39 @@ class LiveDbController(object):
 
         # Mark the end of chunks.
         agentLiveDbHandler.sendDb([], self._pofAgentVortexUuid)
+
+    def _yieldKeyChunks(self, keyIds):
+        if keyIds == []:
+            return
+
+        session = self._dbSessionCreator()
+        try:
+            qry = (session.query(LiveDbKey)
+                   .order_by(LiveDbKey.id)
+                   .yield_per(self.AGENT_KEY_SEND_CHUNK))
+
+            # you can't have filter limit/offset at the same time
+            if keyIds is not None:
+                qry = qry.filter(LiveDbKey.id.in_(keyIds))
+
+            offset = 0
+            while True:
+                self._status.downloadStatus = "Sending chunk %s to %s" % (
+                    offset, self.AGENT_KEY_SEND_CHUNK + offset)
+
+                qry = (qry
+                       .offset(offset)
+                       .limit(self.AGENT_KEY_SEND_CHUNK))
+
+                liveKeyIds = [o.tupleToSmallJsonDict() for o in qry]
+                if not liveKeyIds:
+                    break
+
+                yield liveKeyIds
+                offset += self.AGENT_KEY_SEND_CHUNK
+
+        finally:
+            session.close()
 
     @deferToThreadWrapWithLogger(logger)
     def processValueUpdates(self, liveDbKeysJson):

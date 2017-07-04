@@ -3,9 +3,12 @@ from datetime import datetime
 
 from sqlalchemy.sql.expression import asc
 from twisted.internet import task
+from twisted.internet.defer import inlineCallbacks
 
 from peek_plugin_diagram._private.server.queue.GridKeyCompilerQueue import \
     GridKeyCompilerQueue
+from peek_plugin_diagram._private.storage.GridKeyIndex import \
+    DispIndexerQueue as DispIndexerQueueTable
 from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
 
 logger = logging.getLogger(__name__)
@@ -70,34 +73,38 @@ class DispCompilerQueue:
     def shutdown(self):
         self.stop()
 
-    @deferToThreadWrapWithLogger(logger)
+    @inlineCallbacks
     def _poll(self):
 
+        queueItems = yield self._grabQueueChunk()
+
+        if not queueItems:
+            return
+
+        self._lastQueueId = queueItems[-1].id
+        queueDispIds = list(set([o.dispId for o in queueItems]))
+
+        from peek_plugin_diagram._private.worker.tasks.DispCompilerTask import \
+            compileDisps
+
+        # deferLater, to make it call in the main thread.
+        d = compileDisps.delay(self._lastQueueId, queueDispIds)
+        d.addCallback(self._callback, datetime.utcnow(), queueDispIds)
+        d.addErrback(vortexLogFailure, logger, consumeError=True)
+
+    @deferToThreadWrapWithLogger(logger)
+    def _grabQueueChunk(self):
         session = self._ormSessionCreator()
         try:
-            queueItems = (session.query(DispCompilerQueue)
-                          .filter(DispCompilerQueue.id > self._lastQueueId)
-                          .order_by(asc(DispCompilerQueue.id))
+            queueItems = (session.query(DispIndexerQueueTable)
+                          .filter(DispIndexerQueueTable.id > self._lastQueueId)
+                          .order_by(asc(DispIndexerQueueTable.id))
                           .yield_per(self.FETCH_SIZE)
                           .limit(self.FETCH_SIZE)
                           .all())
 
             session.expunge_all()
-            session.close()
-
-            if not queueItems:
-                return
-
-            self._lastQueueId = queueItems[-1].id
-            queueDispIds = list(set([o.dispId for o in queueItems]))
-
-            from proj.DispQueueIndexerTask import compileDisps
-
-            # deferLater, to make it call in the main thread.
-            d = compileDisps.delay(self._lastQueueId, queueDispIds)
-            d.addCallback(self._callback, datetime.utcnow(), queueDispIds)
-            d.addErrback(vortexLogFailure, logger, consumeError=True)
-
+            return queueItems
         finally:
             session.close()
 
@@ -105,17 +112,15 @@ class DispCompilerQueue:
     def _callback(self, arg, startTime, queueDispIds):
         print(datetime.utcnow() - startTime)
 
-        session = self._ormSessionCreator()
+        ormSession = self._ormSessionCreator()
         try:
-            session = getNovaOrmSession()
-            (session.query(DispCompilerQueue)
-             .filter(DispCompilerQueue.id.in_(queueDispIds))
+            (ormSession.query(DispIndexerQueueTable)
+             .filter(DispIndexerQueueTable.id.in_(queueDispIds))
              .delete(synchronize_session=False)
              )
 
         finally:
-            session.close()
-
+            ormSession.close()
 
     def queueDisps(self, dispIds, conn=None):
         if not dispIds:
@@ -125,5 +130,13 @@ class DispCompilerQueue:
         for dispId in dispIds:
             inserts.append(dict(dispId=dispId))
 
-        conn = conn if conn else SqlaConn.dbEngine
-        conn.execute(DispCompilerQueue.__table__.insert(), inserts)
+        if conn:
+            conn.execute(DispIndexerQueueTable.__table__.insert(), inserts)
+
+        else:
+            ormSession = self._ormSessionCreator()
+            try:
+                ormSession.execute(DispIndexerQueueTable.__table__.insert(), inserts)
+                ormSession.commit()
+            finally:
+                ormSession.close()

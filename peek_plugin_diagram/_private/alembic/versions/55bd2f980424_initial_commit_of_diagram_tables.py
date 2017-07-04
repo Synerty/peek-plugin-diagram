@@ -2,17 +2,19 @@
 
 Peek Plugin Database Migration Script
 
-Revision ID: dc661567b4d1
+Revision ID: 55bd2f980424
 Revises: 
-Create Date: 2017-07-03 12:45:50.255394
+Create Date: 2017-07-04 22:29:34.598155
 
 """
 
 # revision identifiers, used by Alembic.
-revision = 'dc661567b4d1'
+revision = '55bd2f980424'
 down_revision = None
 branch_labels = None
 depends_on = None
+
+from sqlalchemy.schema import Sequence, CreateSequence
 
 from alembic import op
 import sqlalchemy as sa
@@ -101,8 +103,11 @@ def upgrade():
     )
     op.create_index('idx_DispTextStyle_importHash', 'DispTextStyle', ['importHash'], unique=True, schema='pl_diagram')
     op.create_index('idx_DispTextStyle_modelSetId', 'DispTextStyle', ['modelSetId'], unique=False, schema='pl_diagram')
+
+    op.execute(CreateSequence(Sequence('LiveDbKey_id_seq',  schema='pl_diagram')))
+
     op.create_table('LiveDbKey',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), server_default=sa.text('nextval(\'pl_diagram."LiveDbKey_id_seq"\')'), nullable=False),
     sa.Column('modelSetId', sa.Integer(), nullable=False),
     sa.Column('liveDbKey', sa.String(), nullable=False),
     sa.Column('value', sa.String(), nullable=True),
@@ -218,8 +223,11 @@ def upgrade():
     op.create_index('idxNodeImportId2', 'ModelNode', ['importId2'], unique=False, schema='pl_diagram')
     op.create_index('idxNodeModelSetId', 'ModelNode', ['modelSetId'], unique=False, schema='pl_diagram')
     op.create_index('idxNodeTypeId', 'ModelNode', ['typeId'], unique=False, schema='pl_diagram')
+
+    op.execute(CreateSequence(Sequence('DispBase_id_seq',  schema='pl_diagram')))
+
     op.create_table('DispBase',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), server_default=sa.text('nextval(\'pl_diagram."DispBase_id_seq"\')'), nullable=False),
     sa.Column('type', sa.Integer(), nullable=False),
     sa.Column('coordSetId', sa.Integer(), nullable=False),
     sa.Column('layerId', sa.Integer(), nullable=True),
@@ -359,8 +367,11 @@ def upgrade():
     op.create_index('idx_GridKeyIndex_dispId', 'GridKeyIndex', ['dispId'], unique=False, schema='pl_diagram')
     op.create_index('idx_GridKeyIndex_gridKey', 'GridKeyIndex', ['gridKey'], unique=False, schema='pl_diagram')
     op.create_index('idx_GridKeyIndex_importGroupHash', 'GridKeyIndex', ['importGroupHash'], unique=False, schema='pl_diagram')
+
+    op.execute(CreateSequence(Sequence('LiveDbDispLink_id_seq',  schema='pl_diagram')))
+
     op.create_table('LiveDbDispLink',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), server_default=sa.text('nextval(\'pl_diagram."LiveDbDispLink_id_seq"\')'), nullable=False),
     sa.Column('coordSetId', sa.Integer(), nullable=False),
     sa.Column('dispId', sa.Integer(), nullable=False),
     sa.Column('dispAttrName', sa.String(), nullable=False),

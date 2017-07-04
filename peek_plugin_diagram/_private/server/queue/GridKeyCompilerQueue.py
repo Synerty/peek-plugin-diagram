@@ -2,6 +2,10 @@ import logging
 from datetime import datetime
 
 from twisted.internet import task
+from twisted.internet.defer import inlineCallbacks
+
+from peek_plugin_diagram._private.storage.GridKeyIndex import \
+    GridKeyCompilerQueue as GridKeyCompilerQueueTable
 from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
 from vortex.Payload import Payload
 
@@ -16,6 +20,7 @@ class GridKeyCompilerQueue:
     1) Query for queue
     2) Process queue
     3) Delete from queue
+
     """
 
     FETCH_SIZE = 15
@@ -64,36 +69,41 @@ class GridKeyCompilerQueue:
     def shutdown(self):
         self.stop()
 
-    @deferToThreadWrapWithLogger(logger)
+    @inlineCallbacks
     def _poll(self):
 
+        queueItems = yield self._grabQueueChunk()
+        if not queueItems:
+            return
+
+        self._lastQueueId = queueItems[-1].id
+
+        from peek_plugin_diagram._private.worker.tasks.GridKeyCompilerTask import compileGrids
+
+        # deferLater, to make it call in the main thread.
+        d = compileGrids.delay(
+            Payload(tuples=queueItems).toVortexMsg(compressionLevel=0)
+        )
+        d.addCallback(self._callback, datetime.utcnow())
+        d.addErrback(vortexLogFailure, logger, consumeError=True)
+
+    @deferToThreadWrapWithLogger(logger)
+    def _grabQueueChunk(self):
         session = self._ormSessionCreator()
         try:
+            qry = (session.query(GridKeyCompilerQueueTable)
+                   .filter(GridKeyCompilerQueueTable.id > self._lastQueueId)
+                   .yield_per(self.FETCH_SIZE)
+                   .limit(self.FETCH_SIZE))
 
-            while True:
-                qry = (session.query(GridKeyCompilerQueue)
-                       .filter(GridKeyCompilerQueue.id > self._lastQueueId)
-                       .yield_per(self.FETCH_SIZE)
-                       .limit(self.FETCH_SIZE))
+            queueItems = qry.all()
+            session.expunge_all()
+            return queueItems
 
-                queueItems = qry.all()
-
-                if not queueItems:
-                    break
-
-                self._lastQueueId = queueItems[-1].id
-
-                from proj.GridKeyQueueCompilerTask import compileGrids
-
-                # deferLater, to make it call in the main thread.
-                d = compileGrids.delay(
-                    Payload(tuples=queueItems).toVortexMsg(compressionLevel=0)
-                )
-                d.addCallback(self._callback, datetime.utcnow())
-            d.addErrback(vortexLogFailure, logger, consumeError=True)
         finally:
             session.close()
 
     def _callback(self, arg, startTime):
-        print(datetime.utcnow() - startTime)
+        logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
+
 

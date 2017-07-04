@@ -10,8 +10,6 @@
  *  Synerty Pty Ltd
  *
 """
-from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from .DeclarativeBase import DeclarativeBase
 from geoalchemy2.types import Geometry
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
@@ -19,10 +17,12 @@ from sqlalchemy import Integer, String, Boolean
 from sqlalchemy.dialects.postgresql.json import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.mapper import reconstructor
-from sqlalchemy.sql.schema import Index
+from sqlalchemy.sql.schema import Index, Sequence
 from sqlalchemy.sql.sqltypes import Float, DateTime
 
+from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from vortex.Tuple import Tuple, addTupleType, TupleField, JSON_EXCLUDE
+from .DeclarativeBase import DeclarativeBase
 from .ModelSet import ModelCoordSet, ModelSet
 
 DISP_SHORT_ATTR_NAME_MAP = {'colorId': 'c',
@@ -174,7 +174,10 @@ class DispBase(Tuple, DeclarativeBase):
     POLYLINE_CONN = 52
     ELLIPSE = 60
 
-    id = Column(Integer, primary_key=True, nullable=False)
+    id_seq = Sequence('DispBase_id_seq', metadata=DeclarativeBase.metadata)
+    id = Column(Integer, id_seq, server_default=id_seq.next_value(),
+                primary_key=True, nullable=False)
+
     type = Column(Integer, doc=JSON_EXCLUDE, nullable=False)
 
     coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),

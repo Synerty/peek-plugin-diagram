@@ -1,6 +1,7 @@
 import logging
 
 from celery import Celery
+from twisted.internet.defer import inlineCallbacks
 
 from peek_plugin_base.server.PluginServerEntryHookABC import PluginServerEntryHookABC
 from peek_plugin_base.server.PluginServerStorageEntryHookABC import \
@@ -62,11 +63,12 @@ class ServerEntryHook(PluginServerEntryHookABC,
     def dbMetadata(self):
         return DeclarativeBase.metadata
 
+    @inlineCallbacks
     def start(self):
         """ Start
 
         This will be called when the plugin is loaded, just after the db is migrated.
-        Place any custom initialiastion steps here.
+        Place any custom initialisation steps here.
 
         """
 
@@ -104,13 +106,15 @@ class ServerEntryHook(PluginServerEntryHookABC,
 
         # Create the Live DB Controller
         liveDbController = LiveDbController(
-            dbSessionCreator=self.dbSessionCreator
+            dbSessionCreator=self.dbSessionCreator,
+            dispCompilerQueue=dispCompilerQueue
         )
         self._loadedObjects.append(liveDbController)
 
         # Create the Live DB Import Controller
         liveDbImportController = LiveDbImportController(
-            dbSessionCreator=self.dbSessionCreator
+            dbSessionCreator=self.dbSessionCreator,
+            getPgSequenceGenerator=self.getPgSequenceGenerator
         )
         self._loadedObjects.append(liveDbImportController)
 
@@ -136,6 +140,10 @@ class ServerEntryHook(PluginServerEntryHookABC,
             mainController, dispImportController, lookupImportController
         )
         self._loadedObjects.append(self._api)
+
+        yield dispCompilerQueue.start()
+        yield gridKeyCompilerQueue.start()
+
 
         logger.debug("Started")
 

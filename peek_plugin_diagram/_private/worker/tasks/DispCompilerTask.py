@@ -1,23 +1,26 @@
 import logging
 import math
 from _collections import defaultdict
-from collections import namedtuple
 from datetime import datetime
 
+from collections import namedtuple
 from geoalchemy2.shape import to_shape
-from vortex.SerialiseUtil import convertFromShape
-
-from peek_plugin_diagram._private.storage.Display import DispBase, DispText
-from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, DispIndexerQueue
-from peek_plugin_diagram._private.storage.LiveDb import LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR, LiveDbKey
-from peek_plugin_diagram._private.GridKeyUtil import GRID_SIZES, makeGridKey
-from peek_plugin_base.worker import CeleryDbConn
 from shapely.geometry.point import Point
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.sql.selectable import Select
 from txcelery.defer import CeleryClient
 
+from peek_plugin_base.worker import CeleryDbConn
+from peek_plugin_diagram._private.GridKeyUtil import GRID_SIZES, makeGridKey
+from peek_plugin_diagram._private.storage.Display import DispBase, DispText
+from peek_plugin_diagram._private.storage.GridKeyIndex import \
+    GridKeyCompilerQueue as GridKeyCompilerQueueTable
+from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
+    DispIndexerQueue
+from peek_plugin_diagram._private.storage.LiveDb import \
+    LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR, LiveDbKey
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
+from vortex.SerialiseUtil import convertFromShape
 
 logger = logging.getLogger(__name__)
 
@@ -43,54 +46,53 @@ class DispCompilerTask:
 
         session = CeleryDbConn.getDbSession()
         conn = CeleryDbConn.getDbEngine()
-
-        dispBaseTable = DispBase.__table__
-        queueTable = DispIndexerQueue.__table__
-        gridTable = GridKeyIndex.__table__
-
-        # -----
-        # Begin the DISP merge from live data
-        dispsQry = (session.query(DispBase)
-                    .options(subqueryload(DispBase.liveDbLinks)
-                             .subqueryload("liveDbKey"),
-                             subqueryload(DispBase.level))
-                    .filter(DispBase.id.in_(queueDispIds)))
-
-        # print dispsQry
-
-        dispsAll = dispsQry.all()
-
-        logger.debug("Loaded %s disp objects in %s",
-                     len(dispsAll), (datetime.utcnow() - startTime))
-
-        # List of type CoordSetIdGridKeyTuple
-        gridCompiledQueueItems = set()
-
-        # GridKeyIndexes to insert
-        gridKeyIndexesByDispId = defaultdict(list)
-
-        for disp in dispsQry:
-            # Apply live db links
-            self._mergeInLiveDbValues(disp)
-
-            # Deflate to json
-            disp.dispJson = disp.tupleToSmallJsonDict()
-
-            for gridKey in self.makeGridKeys(disp):
-                gridCompiledQueueItems.add(
-                    CoordSetIdGridKeyTuple(coordSetId=disp.coordSetId,
-                                           gridKey=gridKey))
-
-                gridKeyIndexesByDispId[disp.id].append(
-                    dict(dispId=disp.id,
-                         coordSetId=disp.coordSetId,
-                         gridKey=gridKey,
-                         importGroupHash=disp.importGroupHash))
-
-        logger.debug("Updated %s disp objects in %s",
-                     len(dispsAll), (datetime.utcnow() - startTime))
-
         try:
+
+            dispBaseTable = DispBase.__table__
+            queueTable = DispIndexerQueue.__table__
+            gridTable = GridKeyIndex.__table__
+
+            # -----
+            # Begin the DISP merge from live data
+            dispsQry = (session.query(DispBase)
+                        .options(subqueryload(DispBase.liveDbLinks)
+                                 .subqueryload("liveDbKey"),
+                                 subqueryload(DispBase.level))
+                        .filter(DispBase.id.in_(queueDispIds)))
+
+            # print dispsQry
+
+            dispsAll = dispsQry.all()
+
+            logger.debug("Loaded %s disp objects in %s",
+                         len(dispsAll), (datetime.utcnow() - startTime))
+
+            # List of type CoordSetIdGridKeyTuple
+            gridCompiledQueueItems = set()
+
+            # GridKeyIndexes to insert
+            gridKeyIndexesByDispId = defaultdict(list)
+
+            for disp in dispsQry:
+                # Apply live db links
+                self._mergeInLiveDbValues(disp)
+
+                # Deflate to json
+                disp.dispJson = disp.tupleToSmallJsonDict()
+
+                for gridKey in self.makeGridKeys(disp):
+                    gridCompiledQueueItems.add(dict(coordSetId=disp.coordSetId,
+                                                    gridKey=gridKey))
+
+                    gridKeyIndexesByDispId[disp.id].append(
+                        dict(dispId=disp.id,
+                             coordSetId=disp.coordSetId,
+                             gridKey=gridKey,
+                             importGroupHash=disp.importGroupHash))
+
+            logger.debug("Updated %s disp objects in %s",
+                         len(dispsAll), (datetime.utcnow() - startTime))
+
             session.commit()
             logger.debug("Committed %s disp objects in %s",
                          len(dispsAll), (datetime.utcnow() - startTime))
@@ -98,6 +100,7 @@ class DispCompilerTask:
         except Exception as e:
             session.rollback()
             logger.critical(e)
+            raise
 
         finally:
             session.close()
@@ -106,24 +109,24 @@ class DispCompilerTask:
         # Begin the GridKeyIndex updates
 
         transaction = conn.begin()
-        lockedDispIds = conn.execute(Select(
-            whereclause=dispBaseTable.c.id.in_(queueDispIds),
-            columns=[dispBaseTable.c.id],
-            for_update=True))
-
-        # Ensure that the Disps exist, otherwise we get an integrity error.
-        gridKeyIndexes = []
-        for dispId, in lockedDispIds:
-            gridKeyIndexes.extend(gridKeyIndexesByDispId[dispId])
-
-        conn.execute(gridTable.delete(gridTable.c.dispId.in_(queueDispIds)))
-        if gridKeyIndexes:
-            conn.execute(gridTable.insert(), gridKeyIndexes)
-        conn.execute(queueTable.delete(queueTable.c.id <= lastQueueId))
-
-        gridKeyQueueCompiler.queueGrids(gridCompiledQueueItems, conn)
-
         try:
+            lockedDispIds = conn.execute(Select(
+                whereclause=dispBaseTable.c.id.in_(queueDispIds),
+                columns=[dispBaseTable.c.id],
+                for_update=True))
+
+            # Ensure that the Disps exist, otherwise we get an integrity error.
+            gridKeyIndexes = []
+            for dispId, in lockedDispIds:
+                gridKeyIndexes.extend(gridKeyIndexesByDispId[dispId])
+
+            conn.execute(gridTable.delete(gridTable.c.dispId.in_(queueDispIds)))
+            if gridKeyIndexes:
+                conn.execute(gridTable.insert(), gridKeyIndexes)
+            conn.execute(queueTable.delete(queueTable.c.id <= lastQueueId))
+
+            conn.execute(GridKeyCompilerQueueTable.__table__.insert(), gridCompiledQueueItems)
+
             transaction.commit()
             logger.debug("Committed %s GridKeyIndex in %s",
                          len(gridKeyIndexes), (datetime.utcnow() - startTime))
@@ -209,7 +212,7 @@ class DispCompilerTask:
         for gridSize in list(GRID_SIZES.values()):
             # CHECK Declutter
             if 0.0 > (min(gridSize.max, (disp.level.maxZoom - 0.00001))
-                        - max(gridSize.min, disp.level.minZoom)):
+                          - max(gridSize.min, disp.level.minZoom)):
                 continue
 
             # If this is just a point shape/geom, then add it and continue
@@ -251,6 +254,7 @@ class DispCompilerTask:
 
 
 dispQueueCompilerTask = DispCompilerTask()
+
 
 @CeleryClient
 @celeryApp.task

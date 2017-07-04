@@ -1,12 +1,12 @@
 import logging
 from datetime import datetime
 
-from peek.core.orm import getNovaOrmSession, getPgSequenceGenerator, SynSqlaConn
-from peek.core.orm.LiveDb import LiveDbDispLink, LiveDbKey, \
-    LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR
-from peek.core.orm.ModelSet import ModelCoordSet
 
-from txhttputil import deferToThreadWrap
+from peek_plugin_diagram._private.storage.LiveDb import LiveDbDispLink, LiveDbKey, \
+    LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR
+from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
+
+from vortex.DeferUtil import deferToThreadWrapWithLogger
 
 logger = logging.getLogger(__name__)
 
@@ -15,10 +15,11 @@ class LiveDbImportController:
     """ LiveDB Import Controller
     """
 
-    def __init__(self, dbSessionCreator):
+    def __init__(self, dbSessionCreator, getPgSequenceGenerator):
         self._dbSessionCreator = dbSessionCreator
+        self._getPgSequenceGenerator = getPgSequenceGenerator
 
-    @deferToThreadWrap
+    @deferToThreadWrapWithLogger(logger)
     def importDispLiveDbDispLinks(self, coordSetId, importGroupHash, disps):
         """ Import Disps
 
@@ -31,94 +32,91 @@ class LiveDbImportController:
         :param disps:
         :return:
         """
-        session = getNovaOrmSession()
-        engine = SynSqlaConn.dbEngine
 
         startTime = datetime.utcnow()
 
-        (session.query(LiveDbDispLink)
-         .filter(LiveDbDispLink.importGroupHash == importGroupHash)
-         .delete())
-        session.commit()
-
-        if not disps:
-            session.close()
-            return
-
-        coordSet = (session.query(ModelCoordSet)
-                    .filter(ModelCoordSet.id == coordSetId).one())
-
-        newDispLinkCount = 0
-        liveDbKeys = []
-        for disp in disps:
-            for dispLink in disp.importLiveDbDispLinks:
-                newDispLinkCount += 1
-                liveDbKeys.append(dispLink.importKeyHash)
-
-        if not liveDbKeys:
-            liveDbKeyIdsByAgentKey = {}
-
-        else:
-            qry = (session
-                   .query(LiveDbKey.id, LiveDbKey.liveDbKey)
-                   .filter(LiveDbKey.modelSetId == coordSet.modelSetId)
-                   .filter(LiveDbKey.liveDbKey.in_(liveDbKeys)))
-
-            liveDbKeyIdsByAgentKey = {i[1]: i[0] for i in qry}
-
-        newLiveDbKeyCount = len(liveDbKeys) - len(liveDbKeyIdsByAgentKey)
-
-        dispLinkIdGen = getPgSequenceGenerator(LiveDbDispLink, newDispLinkCount, session)
-        liveDbKeyIdGen = getPgSequenceGenerator(LiveDbKey, newLiveDbKeyCount, session)
-
-        dispLinkInserts = []
-        liveDbKeyInserts = []
-        newLiveDbIds = []
-
-        for disp in disps:
-            for dispLink in disp.importLiveDbDispLinks:
-                dispLink.id = next(dispLinkIdGen)
-                dispLink.coordSetId = coordSet.id
-                dispLink.dispId = disp.id
-
-                liveDbKeyId = self.getOrCreateLiveDbKeyId(coordSet.modelSetId,
-                                                          disp,
-                                                          dispLink,
-                                                          liveDbKeyIdGen,
-                                                          liveDbKeyIdsByAgentKey,
-                                                          liveDbKeyInserts,
-                                                          newLiveDbIds)
-
-                dispLink.liveDbKeyId = liveDbKeyId
-                dispLinkInserts.append(dispLink.tupleToSqlaBulkInsertDict())
-
-        session.close()
-
-        conn = engine.connect()
-        transaction = conn.begin()
-
-        if liveDbKeyInserts:
-            logger.info("Inserting %s LiveDbKey(s)", len(liveDbKeyInserts))
-            conn.execute(LiveDbKey.__table__.insert(), liveDbKeyInserts)
-
-        if dispLinkInserts:
-            logger.info("Inserting %s LiveDbDispLink(s)", len(dispLinkInserts))
-            conn.execute(LiveDbDispLink.__table__.insert(), dispLinkInserts)
-
+        ormSession = self._dbSessionCreator()
         try:
-            transaction.commit()
+
+            (ormSession.query(LiveDbDispLink)
+             .filter(LiveDbDispLink.importGroupHash == importGroupHash)
+             .delete())
+            ormSession.commit()
+
+            if not disps:
+                return
+
+            coordSet = (ormSession.query(ModelCoordSet)
+                        .filter(ModelCoordSet.id == coordSetId).one())
+
+            newDispLinkCount = 0
+            liveDbKeys = []
+            for disp in disps:
+                for dispLink in disp.importLiveDbDispLinks:
+                    newDispLinkCount += 1
+                    liveDbKeys.append(dispLink.importKeyHash)
+
+            if not liveDbKeys:
+                liveDbKeyIdsByAgentKey = {}
+
+            else:
+                qry = (ormSession
+                       .query(LiveDbKey.id, LiveDbKey.liveDbKey)
+                       .filter(LiveDbKey.modelSetId == coordSet.modelSetId)
+                       .filter(LiveDbKey.liveDbKey.in_(liveDbKeys)))
+
+                liveDbKeyIdsByAgentKey = {i[1]: i[0] for i in qry}
+
+            newLiveDbKeyCount = len(liveDbKeys) - len(liveDbKeyIdsByAgentKey)
+
+            dispLinkIdGen = self._getPgSequenceGenerator(LiveDbDispLink, newDispLinkCount, ormSession)
+            liveDbKeyIdGen = self._getPgSequenceGenerator(LiveDbKey, newLiveDbKeyCount, ormSession)
+
+            dispLinkInserts = []
+            liveDbKeyInserts = []
+            newLiveDbIds = []
+
+            for disp in disps:
+                for dispLink in disp.importLiveDbDispLinks:
+                    dispLink.id = next(dispLinkIdGen)
+                    dispLink.coordSetId = coordSet.id
+                    dispLink.dispId = disp.id
+
+                    liveDbKeyId = self.getOrCreateLiveDbKeyId(coordSet.modelSetId,
+                                                              disp,
+                                                              dispLink,
+                                                              liveDbKeyIdGen,
+                                                              liveDbKeyIdsByAgentKey,
+                                                              liveDbKeyInserts,
+                                                              newLiveDbIds)
+
+                    dispLink.liveDbKeyId = liveDbKeyId
+                    dispLinkInserts.append(dispLink.tupleToSqlaBulkInsertDict())
+
+
+            if liveDbKeyInserts:
+                logger.info("Inserting %s LiveDbKey(s)", len(liveDbKeyInserts))
+                ormSession.execute(LiveDbKey.__table__.insert(), liveDbKeyInserts)
+
+            if dispLinkInserts:
+                logger.info("Inserting %s LiveDbDispLink(s)", len(dispLinkInserts))
+                ormSession.execute(LiveDbDispLink.__table__.insert(), dispLinkInserts)
+
+            ormSession.commit()
+
             logger.info("Comitted %s LiveDbKeys and %s LiveDbDispLinks in %s",
                         len(liveDbKeyInserts), len(dispLinkInserts),
                         (datetime.utcnow() - startTime))
-            conn.close()
 
             return newLiveDbIds
 
         except Exception as e:
-            transaction.rollback()
+            ormSession.rollback()
             logger.critical(e)
-            conn.close()
             raise
+
+        finally:
+            ormSession.close()
 
     def getOrCreateLiveDbKeyId(self, modelSetId, disp, dispLink, liveDbKeyIdGen,
                                liveDbKeyIdsByAgentKey, liveDbKeyInserts, newLiveDbIds):
@@ -131,7 +129,7 @@ class LiveDbImportController:
 
         dataType = LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR[dispLink.dispAttrName]
 
-        # The value present in the disp obect is already converted/translated
+        # The value present in the disp object is already converted/translated
         convertedValue = getattr(disp, dispLink.dispAttrName, None)
         value = getattr(disp, dispLink.dispAttrName + 'Before', None)
 

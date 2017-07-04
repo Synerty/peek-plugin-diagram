@@ -12,17 +12,17 @@
 """
 import logging
 
-from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from .DeclarativeBase import DeclarativeBase
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
 from sqlalchemy.dialects.postgresql.json import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.mapper import reconstructor
-from sqlalchemy.sql.schema import Index
+from sqlalchemy.sql.schema import Index, Sequence
 
+from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from vortex.Tuple import Tuple, addTupleType, JSON_EXCLUDE
+from .DeclarativeBase import DeclarativeBase
 from .Display import DispBase
 from .ModelSet import ModelCoordSet, ModelSet
 
@@ -42,7 +42,9 @@ class LiveDbKey(Tuple, DeclarativeBase):
     LINE_STYLE = 4
     GROUP_PTR = 5
 
-    id = Column(Integer, primary_key=True, nullable=False, doc="id")
+    id_seq = Sequence('LiveDbKey_id_seq', metadata=DeclarativeBase.metadata)
+    id = Column(Integer, id_seq, server_default=id_seq.next_value(),
+                primary_key=True, nullable=False, doc="id")
 
     modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),
                         doc=JSON_EXCLUDE, nullable=False)
@@ -94,7 +96,9 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
     __tablename__ = 'LiveDbDispLink'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id = Column(Integer, primary_key=True, nullable=False, doc=JSON_EXCLUDE)
+    id_seq = Sequence('LiveDbDispLink_id_seq', metadata=DeclarativeBase.metadata)
+    id = Column(Integer, id_seq, server_default=id_seq.next_value(),
+                primary_key=True, nullable=False, doc=JSON_EXCLUDE)
 
     coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
                         doc=JSON_EXCLUDE, nullable=False)
