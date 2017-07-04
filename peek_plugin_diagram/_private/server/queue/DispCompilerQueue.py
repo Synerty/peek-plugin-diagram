@@ -3,6 +3,9 @@ from datetime import datetime
 
 from sqlalchemy.sql.expression import asc
 from twisted.internet import task
+
+from peek_plugin_diagram._private.server.queue.GridKeyCompilerQueue import \
+    GridKeyCompilerQueue
 from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
 
 logger = logging.getLogger(__name__)
@@ -21,8 +24,11 @@ class DispCompilerQueue:
     FETCH_SIZE = 500
     PERIOD = 0.200
 
-    def __init__(self, ormSessionCreator):
+    def __init__(self, ormSessionCreator, gridKeyCompilerQueue: GridKeyCompilerQueue):
+
         self._ormSessionCreator = ormSessionCreator
+        self._gridKeyCompilerQueue = gridKeyCompilerQueue
+
         self._pollLoopingCall = task.LoopingCall(self._poll)
         self._status = False
         self._lastQueueId = 0
@@ -60,6 +66,9 @@ class DispCompilerQueue:
 
     def stop(self):
         self._pollLoopingCall.stop()
+
+    def shutdown(self):
+        self.stop()
 
     @deferToThreadWrapWithLogger(logger)
     def _poll(self):
@@ -108,15 +117,13 @@ class DispCompilerQueue:
             session.close()
 
 
-    # def queueDisps(self, dispIds, conn=None):
-    #     if not dispIds:
-    #         return
-    #
-    #     inserts = []
-    #     for dispId in dispIds:
-    #         inserts.append(dict(dispId=dispId))
-    #
-    #     conn = conn if conn else SqlaConn.dbEngine
-    #     conn.execute(DispCompilerQueue.__table__.insert(), inserts)
+    def queueDisps(self, dispIds, conn=None):
+        if not dispIds:
+            return
 
+        inserts = []
+        for dispId in dispIds:
+            inserts.append(dict(dispId=dispId))
 
+        conn = conn if conn else SqlaConn.dbEngine
+        conn.execute(DispCompilerQueue.__table__.insert(), inserts)

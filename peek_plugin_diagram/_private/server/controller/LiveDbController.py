@@ -1,14 +1,8 @@
 import logging
 from datetime import datetime
 
-from peek.core.orm import getNovaOrmSession, SynSqlaConn
-from peek.core.orm.GridKeyIndex import GridKeyIndex
-from peek.core.orm.LiveDb import LiveDbDispLink, LiveDbKey
-from peek.core.orm.ModelSet import ModelCoordSet
-from peek.core.queue_processesors.DispQueueIndexer import dispQueueCompiler
-
-from txhttputil import deferToThreadWrap
-from txhttputil import vortexClientIpPort
+from peek_plugin_diagram._private.server.queue.DispCompilerQueue import DispCompilerQueue
+from vortex.DeferUtil import deferToThreadWrapWithLogger
 
 logger = logging.getLogger(__name__)
 
@@ -27,19 +21,15 @@ class LiveDbStatus(object):
                 ]
 
 
-class LiveDb(object):
+class LiveDbController(object):
     # Singleton
-    _instance = None
 
     AGENT_KEY_SEND_CHUNK = 5000
 
-    def __new__(cls):
-        if not cls._instance:
-            cls._instance = super(LiveDb, cls).__new__(cls)
-            cls._instance.__singleton_init__()
-        return cls._instance
+    def __init__(self, dbSessionCreator, dispCompilerQueue: DispCompilerQueue):
+        self._dbSessionCreator = dbSessionCreator
+        self._dispCompilerQueue = dispCompilerQueue
 
-    def __singleton_init__(self):
         # self._agents = []
         self._status = LiveDbStatus()
         self._pofAgentVortexUuid = None
@@ -59,7 +49,7 @@ class LiveDb(object):
 
         self._sendKeysToAgents(keyIds)
 
-    @deferToThreadWrap
+    @deferToThreadWrapWithLogger(logger)
     def setWatchedGridKeys(self, gridKeys):
         session = getNovaOrmSession()
         liveDbKeyIds = [t[0] for t in
@@ -77,7 +67,7 @@ class LiveDb(object):
         from peek.api.agent.livedb.AgentLiveDbHandler import agentLiveDbHandler
         agentLiveDbHandler.sendMonitorIds(liveDbKeyIds, self._pofAgentVortexUuid)
 
-    @deferToThreadWrap
+    @deferToThreadWrapWithLogger(logger)
     def addOrUpdateAgent(self, vortexUuid):
         if vortexUuid == self._pofAgentVortexUuid:
             return
@@ -137,7 +127,7 @@ class LiveDb(object):
         # Mark the end of chunks.
         agentLiveDbHandler.sendDb([], self._pofAgentVortexUuid)
 
-    @deferToThreadWrap
+    @deferToThreadWrapWithLogger(logger)
     def processValueUpdates(self, liveDbKeysJson):
         if not liveDbKeysJson:
             return
@@ -188,7 +178,7 @@ class LiveDb(object):
                          .where(LiveDbKey.id == liveDbKeyId)
                          .values(value=value, convertedValue=convertedValue))
 
-        dispQueueCompiler.queueDisps(dispIdsToCompile, conn)
+        self._dispCompilerQueue.queueDisps(dispIdsToCompile, conn)
 
         try:
             transaction.commit()
@@ -202,6 +192,3 @@ class LiveDb(object):
             logger.critical(e)
 
         conn.close()
-
-
-liveDb = LiveDb()

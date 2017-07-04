@@ -1,10 +1,12 @@
 import logging
 
-from peek.core.orm import getNovaOrmSession
-from peek.core.orm.Display import DispTextStyle, DispLineStyle, DispColor, DispLevel, \
-    DispLayer, DispGroupPointer
-from peek.core.orm.LiveDb import LiveDbKey
-from peek.core.orm.ModelSet import ModelCoordSet
+from twisted.internet.defer import inlineCallbacks, returnValue
+
+from peek_plugin_diagram._private.storage.Display import DispTextStyle, DispLineStyle, \
+    DispColor, DispLevel, DispLayer, DispGroupPointer
+from peek_plugin_diagram._private.storage.LiveDb import LiveDbKey
+from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
+from vortex.DeferUtil import deferToThreadWrapWithLogger
 
 NO_SYMBOL = "NO_SYMBOL"
 
@@ -15,26 +17,34 @@ logger = logging.getLogger(__name__)
 
 
 class DispLookupDataCache(object):
-    # Singleton
-    _instance = None
-
     AGENT_KEY_SEND_CHUNK = 500
 
-    def __new__(cls):
-        if not cls._instance:
-            cls._instance = super(DispLookupDataCache, cls).__new__(cls)
-            cls._instance.__singleton_init__()
-
-        return cls._instance
-
-    def __singleton_init__(self):
+    def __init__(self, dbSessionCreator):
+        self._dbSessionCreator = dbSessionCreator
         self._handlersByCoordSetId = {}
 
-    def getHandler(self, coordSetId):
+    @inlineCallbacks
+    def convertLookups(self, coordSetId, disp) -> None:
+        handler = yield self.__getHandler(coordSetId)
+        handler.convertLookups(disp)
+
+    @inlineCallbacks
+    def liveDbValueTranslate(self, coordSetId, dataType, value):
+        handler = yield self.__getHandler(coordSetId)
+        val = handler._liveDbTranslators[dataType](value)
+
+        if handler._isExpired:
+            self.refreshAll()
+
+        returnValue(val)
+
+    @inlineCallbacks
+    def __getHandler(self, coordSetId):
         if coordSetId in self._handlersByCoordSetId:
             return self._handlersByCoordSetId[coordSetId]
 
-        newHandler = _DispLookupDataCacheHandler(coordSetId)
+        newHandler = _DispLookupDataCacheHandler(self._dbSessionCreator, coordSetId)
+        yield newHandler.load(self._dbSessionCreator)
         self._handlersByCoordSetId[coordSetId] = newHandler
         return newHandler
 
@@ -43,78 +53,89 @@ class DispLookupDataCache(object):
             handler.setExpired()
         self._handlersByCoordSetId = {}
 
-
-dispLookupDataCache = DispLookupDataCache()
+    def shutdown(self):
+        pass
 
 
 class _DispLookupDataCacheHandler(object):
-    def __init__(self, coordSetId):
+    def __init__(self, dbSessionCreator, coordSetId):
+        self._dbSessionCreator = dbSessionCreator
         self._coordSetId = coordSetId
         self._expired = False
 
-        session = getNovaOrmSession()
+    @deferToThreadWrapWithLogger(logger)
+    def load(self):
+        ormSession = self._dbSessionCreator()
+        try:
+            self._modelSetId = (None if self._coordSetId is None else
+                                ormSession
+                                .query(ModelCoordSet)
+                                .filter(ModelCoordSet.id == self._coordSetId)
+                                .one().modelSetId)
 
-        self._modelSetId = (None if self._coordSetId is None else
-                            session
-                            .query(ModelCoordSet)
-                            .filter(ModelCoordSet.id == self._coordSetId)
-                            .one().modelSetId)
+            # dressingCoordSet = getOrCreateCoordSet(session,
+            #                                        modelSetName,
+            #                                        DRESSING_COORD_SET_NAME)
 
-        # dressingCoordSet = getOrCreateCoordSet(session,
-        #                                        modelSetName,
-        #                                        DRESSING_COORD_SET_NAME)
+            self._textStyleIdByImportHash = {str(s.importHash): s.id
+                                             for s in ormSession.query(DispTextStyle)}
 
-        self._textStyleIdByImportHash = {str(s.importHash): s.id
-                                         for s in session.query(DispTextStyle)}
+            # self._textStyleByEnmacFontIndex = {str(s.importHash): s
+            #                                    for s in session.query(DispTextStyle)}
 
-        # self._textStyleByEnmacFontIndex = {str(s.importHash): s
-        #                                    for s in session.query(DispTextStyle)}
+            self._lineStyleIdByImportHash = {s.importHash: s.id
+                                             for s in ormSession.query(DispLineStyle)}
 
-        self._lineStyleIdByImportHash = {s.importHash: s.id
-                                         for s in session.query(DispLineStyle)}
+            self._colorIdByImportHash = {s.importHash: s.id
+                                         for s in ormSession.query(DispColor)}
 
-        self._colorIdByImportHash = {s.importHash: s.id
-                                     for s in session.query(DispColor)}
+            qry = (
+                ormSession.query(DispLevel)
+                    .filter(DispLevel.coordSetId == self._coordSetId)
+            )
 
-        qry = session.query(DispLevel).filter(DispLevel.coordSetId == coordSetId)
-        self._levelByImportHash = {s.importHash.split(':')[1]: s.id for s in qry}
-        self._levelById = {s.id: s for s in qry}
+            self._levelByImportHash = {s.importHash.split(':')[1]: s.id for s in qry}
+            self._levelById = {s.id: s for s in qry}
 
-        self._layerByImportHash = {s.importHash: s.id
-                                   for s in session.query(DispLayer)}
+            self._layerByImportHash = {s.importHash: s.id
+                                       for s in ormSession.query(DispLayer)}
 
-        # self.emptyDressingId = None
-        # qry = (session.query(DispGroup)
-        #        .filter(DispGroup.coordSetId == dressingCoordSet.id)
-        #        .filter(DispGroup.name == NO_SYMBOL))
-        #
-        # if qry.count():
-        #     self.emptyDressingId = qry.one().id
-        #
-        # else:
-        #     emptyDressing = DispGroup()
-        #     emptyDressing.coordSetId = dressingCoordSet.id
-        #     emptyDressing.name = NO_SYMBOL
-        #     session.add(emptyDressing)
-        #     session.commit()
-        #     self.emptyDressingId = qry.one().id
+            # self.emptyDressingId = None
+            # qry = (session.query(DispGroup)
+            #        .filter(DispGroup.coordSetId == dressingCoordSet.id)
+            #        .filter(DispGroup.name == NO_SYMBOL))
+            #
+            # if qry.count():
+            #     self.emptyDressingId = qry.one().id
+            #
+            # else:
+            #     emptyDressing = DispGroup()
+            #     emptyDressing.coordSetId = dressingCoordSet.id
+            #     emptyDressing.name = NO_SYMBOL
+            #     session.add(emptyDressing)
+            #     session.commit()
+            #     self.emptyDressingId = qry.one().id
 
-        session.expunge_all()
-        session.close()
+            ormSession.expunge_all()
 
-        self._liveDbTranslators = {LiveDbKey.COLOR: self._liveDbValueTranslateColorId,
-                                   LiveDbKey.LINE_STYLE: self._liveDbValueTranslateLineStyleId,
-                                   LiveDbKey.LINE_WIDTH: self._liveDbValueTranslateLineWidth,
-                                   LiveDbKey.STRING_VALUE: self._liveDbValueTranslateText,
-                                   LiveDbKey.NUMBER_VALUE: self._liveDbValueTranslateNumber,
-                                   LiveDbKey.GROUP_PTR: self._liveDbValueTranslateGroupId,
-                                   }
+            self._liveDbTranslators = {LiveDbKey.COLOR: self._liveDbValueTranslateColorId,
+                                       LiveDbKey.LINE_STYLE: self._liveDbValueTranslateLineStyleId,
+                                       LiveDbKey.LINE_WIDTH: self._liveDbValueTranslateLineWidth,
+                                       LiveDbKey.STRING_VALUE: self._liveDbValueTranslateText,
+                                       LiveDbKey.NUMBER_VALUE: self._liveDbValueTranslateNumber,
+                                       LiveDbKey.GROUP_PTR: self._liveDbValueTranslateGroupId,
+                                       }
+        finally:
+            ormSession.close()
+
     def setExpired(self):
         self._expired = True
 
+    @deferToThreadWrapWithLogger(logger)
     def convertLookups(self, disp):
         if self._expired:
-            return dispLookupDataCache.getHandler(self._coordSetId).convertLookups(disp)
+            raise Exception("Do not keep references to _DispLookupDataCacheHandler")
+        # return dispLookupDataCache.getHandler(self._coordSetId).convertLookups(disp)
 
         for attrName in ['lineColorId', 'fillColorId', 'colorId']:
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
@@ -161,16 +182,19 @@ class _DispLookupDataCacheHandler(object):
         textStyle.name = "Peek Created %s" % importHash
         textStyle.importHash = importHash
 
-        session = getNovaOrmSession()
-        session.add(textStyle)
-        session.commit()
-        newId = textStyle.id
-        session.expunge_all()
-        session.close()
+        ormSession = self._dbSessionCreator()
+        try:
+            ormSession.add(textStyle)
+            ormSession.commit()
+            newId = textStyle.id
+            ormSession.expunge_all()
+
+        finally:
+            ormSession.close()
 
         self._textStyleIdByImportHash[importHash] = newId
 
-        dispLookupDataCache.refreshAll()
+        self.setExpired()
 
         return newId
 
@@ -191,16 +215,18 @@ class _DispLookupDataCacheHandler(object):
         newLine.winStyle = 1
         newLine.importHash = importHash
 
-        session = getNovaOrmSession()
-        session.add(newLine)
-        session.commit()
-        newId = newLine.id
-        session.expunge_all()
-        session.close()
+        ormSession = self._dbSessionCreator()
+        try:
+            ormSession.add(newLine)
+            ormSession.commit()
+            newId = newLine.id
+            ormSession.expunge_all()
+        finally:
+            ormSession.close()
 
         self._lineStyleIdByImportHash[importHash] = newId
 
-        dispLookupDataCache.refreshAll()
+        self.setExpired()
 
         return newId
 
@@ -221,16 +247,18 @@ class _DispLookupDataCacheHandler(object):
         newColor.color = "#ffffff"
         newColor.importHash = importHash
 
-        session = getNovaOrmSession()
-        session.add(newColor)
-        session.commit()
-        newId = newColor.id
-        session.expunge_all()
-        session.close()
+        ormSession = self._dbSessionCreator()
+        try:
+            ormSession.add(newColor)
+            ormSession.commit()
+            newId = newColor.id
+            ormSession.expunge_all()
+        finally:
+            ormSession.close()
 
         self._colorIdByImportHash[importHash] = newId
 
-        dispLookupDataCache.refreshAll()
+        self.setExpired()
 
         return newId
 
@@ -250,16 +278,18 @@ class _DispLookupDataCacheHandler(object):
         newLevel.minZoom = 0
         newLevel.maxZoom = 10000
 
-        session = getNovaOrmSession()
-        session.add(newLevel)
-        session.commit()
-        newId = newLevel.id
-        session.expunge_all()
-        session.close()
+        ormSession = self._dbSessionCreator()
+        try:
+            ormSession.add(newLevel)
+            ormSession.commit()
+            newId = newLevel.id
+            ormSession.expunge_all()
+        except:
+            ormSession.close()
 
         self._levelByImportHash[importHash] = newId
 
-        dispLookupDataCache.refreshAll()
+        self.setExpired()
 
         return newId
 
@@ -278,26 +308,20 @@ class _DispLookupDataCacheHandler(object):
         newLayer.order = importHash if defaultOrder is None else defaultOrder
         newLayer.importHash = importHash
 
-        session = getNovaOrmSession()
-        session.add(newLayer)
-        session.commit()
-        newId = newLayer.id
-        session.expunge_all()
-        session.close()
+        ormSession = self._dbSessionCreator()
+        try:
+            ormSession.add(newLayer)
+            ormSession.commit()
+            newId = newLayer.id
+            ormSession.expunge_all()
+        finally:
+            ormSession.close()
 
         self._layerByImportHash[importHash] = newId
 
-        dispLookupDataCache.refreshAll()
+        self.setExpired()
 
         return newId
-
-    def liveDbValueTranslate(self, dataType, value):
-        if self._expired:
-            return (dispLookupDataCache
-                    .getHandler(self._coordSetId)
-                    .liveDbValueTranslate(dataType, value))
-
-        return self._liveDbTranslators[dataType](value)
 
     # ---------------------------------------------------------------
     # Live DB Value Translations

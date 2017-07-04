@@ -11,12 +11,12 @@ from txhttputil import deferToThreadWrap
 logger = logging.getLogger(__name__)
 
 
-class AgentImportDispLiveDbLinks:
-    """ Agent Import Display
+class LiveDbImportController:
+    """ LiveDB Import Controller
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, dbSessionCreator):
+        self._dbSessionCreator = dbSessionCreator
 
     @deferToThreadWrap
     def importDispLiveDbDispLinks(self, coordSetId, importGroupHash, disps):
@@ -26,9 +26,9 @@ class AgentImportDispLiveDbLinks:
 
         2) Drop all disps with matching importGroupHash
 
-        :param coordSet:
+        :param coordSetId:
         :param importGroupHash:
-        :param dispLinks:
+        :param disps:
         :return:
         """
         session = getNovaOrmSession()

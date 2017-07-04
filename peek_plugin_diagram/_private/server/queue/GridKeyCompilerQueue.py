@@ -61,6 +61,9 @@ class GridKeyCompilerQueue:
     def stop(self):
         self._pollLoopingCall.stop()
 
+    def shutdown(self):
+        self.stop()
+
     @deferToThreadWrapWithLogger(logger)
     def _poll(self):
 
