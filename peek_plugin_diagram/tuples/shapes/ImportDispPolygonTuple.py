@@ -25,6 +25,13 @@ class ImportDispPolygonTuple(Tuple):
     lineColorHash: Optional[str] = TupleField()
     fillColorHash: Optional[str] = TupleField()
 
+    FILL_TOP_TO_BOTTOM = 0
+    FILL_BOTTOM_TO_TOP = 1
+    FILL_RIGHT_TO_LEFT = 2
+    FILL_LEFT_TO_RIGHT = 3
+    fillDirection: int = TupleField()
+    fillPercent: int = TupleField()
+
     geom: GeomT = TupleField()
 
     #: The unique hash of this display object
