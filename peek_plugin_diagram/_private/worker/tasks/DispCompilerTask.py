@@ -2,6 +2,7 @@ import logging
 import math
 from _collections import defaultdict
 from datetime import datetime
+from typing import List
 
 from collections import namedtuple
 from geoalchemy2.shape import to_shape
@@ -19,8 +20,10 @@ from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
     DispIndexerQueue
 from peek_plugin_diagram._private.storage.LiveDbDispLink import \
     LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR
+from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
+from peek_plugin_livedb.worker.WorkerApi import WorkerApi
 from vortex.SerialiseUtil import convertFromShape
 
 logger = logging.getLogger(__name__)
@@ -39,51 +42,70 @@ class DispCompilerTask:
     3) Delete from queue
     """
 
-    def compileDisps(self, lastQueueId, queueDispIds):
+    def compileDisps(self, lastQueueId: int, queueDispIds: List[int]):
 
         startTime = datetime.utcnow()
 
         # from proj.DbConnection import Session, dbEngine
 
-        session = CeleryDbConn.getDbSession()
-        conn = CeleryDbConn.getDbEngine()
+        ormSession = CeleryDbConn.getDbSession()
+        conn = CeleryDbConn.getDbEngine().connect()
         try:
 
             dispBaseTable = DispBase.__table__
             queueTable = DispIndexerQueue.__table__
             gridTable = GridKeyIndex.__table__
 
+            # Get Model Set Name Map
+            modelSetNameByCoordId = {o[0]: o[1] for o in
+                                     ormSession.query(ModelCoordSet.id,
+                                                      ModelSet.name).all()}
+
             # -----
             # Begin the DISP merge from live data
-            dispsQry = (session.query(DispBase)
-                        .options(subqueryload(DispBase.liveDbLinks)
-                                 .subqueryload("liveDbKey"),
+            dispsQry = (ormSession.query(DispBase)
+                        .options(subqueryload(DispBase.liveDbLinks),
                                  subqueryload(DispBase.level))
                         .filter(DispBase.id.in_(queueDispIds)))
 
             # print dispsQry
-
             dispsAll = dispsQry.all()
+
+            liveDbKeysByModelSetName = defaultdict(list)
+            for disp in dispsQry:
+                # Add a reference to the model set name for convininece
+                disp.modelSetName = modelSetNameByCoordId[disp.coordSetId]
+                liveDbKeysByModelSetName[disp.modelSetName].extend(
+                    [dl.liveDbKey for dl in disp.liveDbLinks]
+                )
+
+            liveDbItemByModelSetNameByKey = {}
+            for modelSetName, liveDbKeys in liveDbKeysByModelSetName.items():
+                liveDbItemByModelSetNameByKey[modelSetName] = {
+                    i.key: i for i in
+                    WorkerApi.getLiveDbDisplayValues(ormSession, modelSetName, liveDbKeys)
+                }
 
             logger.debug("Loaded %s disp objects in %s",
                          len(dispsAll), (datetime.utcnow() - startTime))
 
             # List of type CoordSetIdGridKeyTuple
-            gridCompiledQueueItems = set()
+            gridCompiledQueueItems = []
 
             # GridKeyIndexes to insert
             gridKeyIndexesByDispId = defaultdict(list)
 
             for disp in dispsQry:
+                liveDbItemByKey = liveDbItemByModelSetNameByKey[disp.modelSetName]
                 # Apply live db links
-                self._mergeInLiveDbValues(disp)
+                self._mergeInLiveDbValues(disp, liveDbItemByKey)
 
                 # Deflate to json
                 disp.dispJson = disp.tupleToSmallJsonDict()
 
                 for gridKey in self.makeGridKeys(disp):
-                    gridCompiledQueueItems.add(dict(coordSetId=disp.coordSetId,
-                                                    gridKey=gridKey))
+                    gridCompiledQueueItems.append(dict(coordSetId=disp.coordSetId,
+                                                       gridKey=gridKey))
 
                     gridKeyIndexesByDispId[disp.id].append(
                         dict(dispId=disp.id,
@@ -94,17 +116,17 @@ class DispCompilerTask:
             logger.debug("Updated %s disp objects in %s",
                          len(dispsAll), (datetime.utcnow() - startTime))
 
-            session.commit()
+            ormSession.commit()
             logger.debug("Committed %s disp objects in %s",
                          len(dispsAll), (datetime.utcnow() - startTime))
 
         except Exception as e:
-            session.rollback()
-            logger.critical(e)
+            ormSession.rollback()
+            logger.exception(e)
             raise
 
         finally:
-            session.close()
+            ormSession.close()
 
         # -----
         # Begin the GridKeyIndex updates
@@ -126,7 +148,9 @@ class DispCompilerTask:
                 conn.execute(gridTable.insert(), gridKeyIndexes)
             conn.execute(queueTable.delete(queueTable.c.id <= lastQueueId))
 
-            conn.execute(GridKeyCompilerQueueTable.__table__.insert(), gridCompiledQueueItems)
+            if gridCompiledQueueItems:
+                conn.execute(GridKeyCompilerQueueTable.__table__.insert(),
+                             gridCompiledQueueItems)
 
             transaction.commit()
             logger.debug("Committed %s GridKeyIndex in %s",
@@ -134,20 +158,22 @@ class DispCompilerTask:
 
         except Exception as e:
             transaction.rollback()
-            logger.critical(e)
+            logger.exception(e)
 
         finally:
             conn.close()
 
-    def _mergeInLiveDbValues(self, disp):
+    def _mergeInLiveDbValues(self, disp, liveDbItemByKey):
         for dispLink in disp.liveDbLinks:
-            self._mergeInLiveDbValue(disp, dispLink)
+            liveDbItem = liveDbItemByKey.get(dispLink.liveDbKey)
+            if liveDbItem:
+                self._mergeInLiveDbValue(disp, dispLink, liveDbItem)
 
-    def _mergeInLiveDbValue(self, disp, dispLink, value=None):
+    def _mergeInLiveDbValue(self, disp, dispLink, liveDbItem, value=None):
         # This allows us to change the value and use recursion a little
         # (Value is converted to different data types and recursively called, see below)
         if value is None:
-            value = dispLink.liveDbKey.convertedValue
+            value = liveDbItem.displayValue
 
         # At least for colors :
         # If the color vale is None, set the attribute to None as well
@@ -170,22 +196,26 @@ class DispCompilerTask:
                     # Lazy format type detection
                     try:
                         if "number is required" in message:
-                            return self._mergeInLiveDbValue(disp, dispLink, int(value))
+                            return self._mergeInLiveDbValue(
+                                disp, dispLink, liveDbItem, int(value))
 
                         if "invalid literal for int" in message:
-                            return self._mergeInLiveDbValue(disp, dispLink, int(value))
+                            return self._mergeInLiveDbValue(
+                                disp, dispLink, liveDbItem, int(value))
 
                         if "float is required" in message:
-                            return self._mergeInLiveDbValue(disp, dispLink, float(value))
+                            return self._mergeInLiveDbValue(
+                                disp, dispLink, liveDbItem, float(value))
 
                         if "could not convert string to float" in message:
-                            return self._mergeInLiveDbValue(disp, dispLink, float(value))
+                            return self._mergeInLiveDbValue(
+                                disp, dispLink, liveDbItem, float(value))
 
                     except ValueError as e:
                         # We can't convert the value to int/float
                         # Ignore the formatting, it will come good when the value does
                         logger.debug("Failed to format |%s| value |%s| to |%s|",
-                                     dispLink.liveDbKey.liveDbKey, value, disp.textFormat)
+                                     liveDbItem.key, value, disp.textFormat)
                         disp.text = ""
 
                     logger.warn("DispText %s textFormat=|%s| failed with %s",

@@ -93,6 +93,6 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
     )
 
     @reconstructor
-    def __init__(self):
-        Tuple.__init__(self)
+    def __init__(self, **kwargs):
+        Tuple.__init__(self, **kwargs)
         self.props = {}

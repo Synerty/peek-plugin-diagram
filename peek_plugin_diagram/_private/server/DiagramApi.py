@@ -8,14 +8,14 @@ from peek_plugin_diagram._private.server.controller.DispImportController import 
     DispImportController
 from peek_plugin_diagram._private.server.controller.LookupImportController import \
     LookupImportController
-from peek_plugin_diagram._private.server.controller.MainController import MainController
+from peek_plugin_diagram._private.server.controller.StatusController import StatusController
 from peek_plugin_diagram.server.DiagramApiABC import DiagramApiABC
 
 logger = logging.getLogger(__name__)
 
 
 class DiagramApi(DiagramApiABC):
-    def __init__(self, mainController: MainController,
+    def __init__(self, mainController: StatusController,
                  dispImportController: DispImportController,
                  lookupImportController: LookupImportController):
         self._mainController = mainController
@@ -35,6 +35,7 @@ class DiagramApi(DiagramApiABC):
 
         if not disps:
             return defer.succeed(True)
+
 
         return self._dispImportController.importDisps(
             modelSetName, coordSetName,

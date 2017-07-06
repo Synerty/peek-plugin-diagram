@@ -207,7 +207,7 @@ class DispBase(Tuple, DeclarativeBase):
 
     __table_args__ = (
         Index("idx_Disp_importGroupHash", importGroupHash, unique=False),
-        Index("idx_Disp_importHash", importHash, unique=True),
+        # Index("idx_Disp_importHash", importHash, unique=True),
         Index("idx_Disp_importUpdateDate", importUpdateDate, unique=False),
 
         Index("idx_Disp_layerId", layerId, unique=False),
@@ -239,7 +239,7 @@ class DispText(DispBase):
     text = Column(String, doc='te', nullable=False, server_default="new text label")
     textFormat = Column(String, doc=JSON_EXCLUDE, nullable=True)
 
-    geom = Column(Geometry(geometry_type="POINT"), doc='g')
+    geom = Column(Geometry(geometry_type="POINT"), nullable=False, doc='g')
 
     colorId = Column(Integer, ForeignKey('DispColor.id', ondelete='CASCADE'), doc='c')
     color = relationship(DispColor)
@@ -269,7 +269,7 @@ class DispPolygon(DispBase):
     cornerRadius = Column(Float, doc='cr', nullable=False, server_default='0')
     lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
 
-    geom = Column(Geometry(geometry_type="POLYGON"), doc='g')
+    geom = Column(Geometry(geometry_type="POLYGON"), nullable=False, doc='g')
 
     fillColorId = Column(Integer, ForeignKey('DispColor.id', ondelete='CASCADE'),
                          doc='fc')
@@ -311,7 +311,7 @@ class DispPolyline(DispBase):
 
     lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
 
-    geom = Column(Geometry(geometry_type="LINESTRING"), doc='g')
+    geom = Column(Geometry(geometry_type="LINESTRING"), nullable=False, doc='g')
 
     lineColorId = Column(Integer, ForeignKey('DispColor.id', ondelete='CASCADE'),
                          doc='lc')
@@ -346,7 +346,7 @@ class DispEllipse(DispBase):
     endAngle = Column(Float, doc='ea', nullable=False, server_default='360')
     lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
 
-    geom = Column(Geometry(geometry_type="POINT"), doc='g')
+    geom = Column(Geometry(geometry_type="POINT"), nullable=False, doc='g')
 
     fillColorId = Column(Integer, ForeignKey('DispColor.id', ondelete='CASCADE'),
                          doc='fc')
@@ -389,9 +389,9 @@ class DispGroupItem(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     groupId = Column(Integer, ForeignKey('DispGroup.id', ondelete='CASCADE'),
-                     primary_key=True, autoincrement=True)
+                     primary_key=True, nullable=False)
     itemId = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE'),
-                    primary_key=True, autoincrement=True)
+                    primary_key=True, nullable=False)
 
 
 @addTupleType
@@ -434,7 +434,7 @@ class DispGroupPointer(DispBase):
     verticalScale = Column(Float, doc='vs', nullable=False, server_default='1.0')
     horizontalScale = Column(Float, doc='hs', nullable=False, server_default='1.0')
 
-    geom = Column(Geometry(geometry_type="POINT"), doc='g')
+    geom = Column(Geometry(geometry_type="POINT"), nullable=False, doc='g')
 
     groupId = Column(Integer, ForeignKey('DispGroup.id', ondelete='CASCADE'),
                      doc='gid', nullable=False)

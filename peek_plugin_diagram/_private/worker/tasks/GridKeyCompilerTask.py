@@ -2,6 +2,7 @@ import logging
 import zlib
 from _collections import defaultdict
 from datetime import datetime
+from functools import cmp_to_key
 
 from collections import namedtuple
 from sqlalchemy.sql.expression import cast
@@ -42,7 +43,7 @@ class GridKeyQueueCompilerTask:
         startTime = datetime.utcnow()
 
         session = CeleryDbConn.getDbSession()
-        conn = CeleryDbConn.getDbEngine()
+        conn = CeleryDbConn.getDbEngine().connect()
         transaction = conn.begin()
 
         logger.debug("Staring compile of %s queueItems in %s",
@@ -116,11 +117,12 @@ class GridKeyQueueCompilerTask:
 
         for gridKey, dispDatas in list(dispsByGridKeys.items()):
             dispsDumpedJson = [d.json
-                               for d in sorted(dispDatas, cmp=self._dispBaseSortCmp)
+                               for d in sorted(dispDatas,
+                                               key=cmp_to_key(self._dispBaseSortCmp))
                                if d.json]
 
             dispsDumpedJson = '[' + ','.join(dispsDumpedJson) + ']'
-            blobData = zlib.compress(dispsDumpedJson, 9)
+            blobData = zlib.compress(dispsDumpedJson.encode(), 9)
 
             dispsByGridKeys[gridKey] = blobData
 
@@ -132,9 +134,9 @@ gridKeyQueueCompilerTask = GridKeyQueueCompilerTask()
 
 @CeleryClient
 @celeryApp.task(bind=True)
-def compileGrids(self, queueItemsVortexMsg):
-    queueItems = Payload().fromVortexMsg(queueItemsVortexMsg).tuples
+def compileGrids(self, queueItemsPayloadJson):
+    queueItems = Payload()._fromJson(queueItemsPayloadJson).tuples
     try:
         gridKeyQueueCompilerTask.compileGrid(queueItems)
     except Exception as e:
-        raise self.retry(exc=e, countdown=2)
+        raise self.retry(exc=e, countdown=5)

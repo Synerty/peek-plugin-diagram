@@ -5,8 +5,8 @@ from sqlalchemy.sql.expression import asc
 from twisted.internet import task
 from twisted.internet.defer import inlineCallbacks
 
-from peek_plugin_diagram._private.server.queue.GridKeyCompilerQueue import \
-    GridKeyCompilerQueue
+from peek_plugin_diagram._private.server.controller.StatusController import \
+    StatusController
 from peek_plugin_diagram._private.storage.GridKeyIndex import \
     DispIndexerQueue as DispIndexerQueueTable
 from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
@@ -27,45 +27,27 @@ class DispCompilerQueue:
     FETCH_SIZE = 500
     PERIOD = 0.200
 
-    def __init__(self, ormSessionCreator, gridKeyCompilerQueue: GridKeyCompilerQueue):
-
+    def __init__(self, ormSessionCreator, statusController: StatusController):
         self._ormSessionCreator = ormSessionCreator
-        self._gridKeyCompilerQueue = gridKeyCompilerQueue
+        self._statusController: StatusController = statusController
 
         self._pollLoopingCall = task.LoopingCall(self._poll)
-        self._status = False
         self._lastQueueId = 0
+        self._queueCount = 0
 
-    def status(self):
-        """ Status
-        @:return Either True for running, False or Str for error
-        """
-        return self._status
-
-    def statusText(self):
-        """ Status Text
-        @:return A description of the status
-        """
-        if self._status:
-            return "Running"
-
-        if not self._status:
-            return "Stopped"
-
-        # Exception
-        return "Stopped with error\n" + str(self._status)
-
-    def _errback(self, failure):
-        self._status = failure.value
-
-    def _callback(self, _):
-        self._status = False
 
     def start(self):
-        self._status = True
-        d = self._pollLoopingCall.start(self.PERIOD)
-        d.addCallbacks(self._callback, self._errback)
-        return d
+        self._statusController.setDisplayCompilerStatus(True, self._queueCount)
+        d = self._pollLoopingCall.start(self.PERIOD, now=False)
+        d.addCallbacks(self._timerCallback, self._timerErrback)
+
+    def _timerErrback(self, failure):
+        vortexLogFailure(failure, logger)
+        self._statusController.setDisplayCompilerStatus(False, self._queueCount)
+        self._statusController.setDisplayCompilerError(str(failure.value))
+
+    def _timerCallback(self, _):
+        self._statusController.setDisplayCompilerStatus(False, self._queueCount)
 
     def stop(self):
         self._pollLoopingCall.stop()
@@ -89,8 +71,8 @@ class DispCompilerQueue:
 
         # deferLater, to make it call in the main thread.
         d = compileDisps.delay(self._lastQueueId, queueDispIds)
-        d.addCallback(self._callback, datetime.utcnow(), queueDispIds)
-        d.addErrback(vortexLogFailure, logger, consumeError=True)
+        d.addCallback(self._pollCallback, datetime.utcnow(), queueDispIds)
+        d.addErrback(self._pollErrback, datetime.utcnow())
 
     @deferToThreadWrapWithLogger(logger)
     def _grabQueueChunk(self):
@@ -109,8 +91,9 @@ class DispCompilerQueue:
             session.close()
 
     @deferToThreadWrapWithLogger(logger)
-    def _callback(self, arg, startTime, queueDispIds):
+    def _pollCallback(self, arg, startTime, queueDispIds):
         print(datetime.utcnow() - startTime)
+        self._statusController.addToDisplayCompilerTotal(len(queueDispIds))
 
         ormSession = self._ormSessionCreator()
         try:
@@ -122,7 +105,13 @@ class DispCompilerQueue:
         finally:
             ormSession.close()
 
-    def queueDisps(self, dispIds, conn=None):
+    def _pollErrback(self, failure, startTime):
+        logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
+        self._statusController.setDisplayCompilerError(str(failure.value))
+        vortexLogFailure(failure, logger)
+
+    @deferToThreadWrapWithLogger(logger)
+    def queueDisps(self, dispIds):
         if not dispIds:
             return
 
@@ -130,13 +119,9 @@ class DispCompilerQueue:
         for dispId in dispIds:
             inserts.append(dict(dispId=dispId))
 
-        if conn:
-            conn.execute(DispIndexerQueueTable.__table__.insert(), inserts)
-
-        else:
-            ormSession = self._ormSessionCreator()
-            try:
-                ormSession.execute(DispIndexerQueueTable.__table__.insert(), inserts)
-                ormSession.commit()
-            finally:
-                ormSession.close()
+        ormSession = self._ormSessionCreator()
+        try:
+            ormSession.execute(DispIndexerQueueTable.__table__.insert(), inserts)
+            ormSession.commit()
+        finally:
+            ormSession.close()

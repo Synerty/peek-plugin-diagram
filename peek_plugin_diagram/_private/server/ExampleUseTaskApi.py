@@ -5,13 +5,13 @@ from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
 from peek_plugin_active_task.server.ActiveTaskApiABC import ActiveTaskApiABC, NewTask
-from peek_plugin_diagram._private.server.controller.MainController import MainController
+from peek_plugin_diagram._private.server.controller.StatusController import StatusController
 
 logger = logging.getLogger(__name__)
 
 
 class ExampleUseTaskApi:
-    def __init__(self, mainController: MainController, activeTaskApi: ActiveTaskApiABC):
+    def __init__(self, mainController: StatusController, activeTaskApi: ActiveTaskApiABC):
         self._mainController = mainController
         self._activeTaskApi = activeTaskApi
 

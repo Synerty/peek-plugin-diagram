@@ -78,13 +78,10 @@ class GridKeyIndex(Tuple, DeclarativeBase):
                         nullable=False)
     coordSet = relationship(ModelCoordSet)
 
-    importGroupHash = Column(String)
-
     __table_args__ = (
         Index("idx_GridKeyIndex_gridKey", gridKey, unique=False),
         Index("idx_GridKeyIndex_dispId", dispId, unique=False),
         Index("idx_GridKeyIndex_coordSetId", coordSetId, unique=False),
-        Index("idx_GridKeyIndex_importGroupHash", importGroupHash, unique=False),
     )
 
 

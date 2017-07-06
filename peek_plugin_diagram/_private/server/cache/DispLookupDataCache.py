@@ -18,6 +18,10 @@ DRESSING_COORD_SET_NAME = "dressings"
 logger = logging.getLogger(__name__)
 
 
+class CacheExpiredException(Exception):
+    pass
+
+
 class DispLookupDataCache(object):
     AGENT_KEY_SEND_CHUNK = 500
 
@@ -28,31 +32,37 @@ class DispLookupDataCache(object):
     @inlineCallbacks
     def convertLookups(self, coordSetId, disp) -> None:
         handler = yield self.__getHandler(coordSetId)
-        handler.convertLookups(disp)
+        for _ in range(10):  # 10 retries
+            try:
+                yield handler.convertLookups(disp)
+                if handler._expired: self.refreshAll()
+                return
+            except CacheExpiredException:
+                if handler._expired: self.refreshAll()
+                handler = yield self.__getHandler(coordSetId)
+
+        raise CacheExpiredException("The cache is expiring too quickly to use")
 
     @inlineCallbacks
     def liveDbValueTranslate(self, coordSetId, dataType, value):
         handler = yield self.__getHandler(coordSetId)
-        val = handler._liveDbTranslators[dataType](value)
+        val = yield handler._liveDbTranslators[dataType](value)
 
-        if handler._isExpired:
-            self.refreshAll()
+        if handler._expired: self.refreshAll()
 
         returnValue(val)
 
     @inlineCallbacks
     def __getHandler(self, coordSetId):
         if coordSetId in self._handlersByCoordSetId:
-            return self._handlersByCoordSetId[coordSetId]
+            returnValue(self._handlersByCoordSetId[coordSetId])
 
         newHandler = _DispLookupDataCacheHandler(self._dbSessionCreator, coordSetId)
         yield newHandler.load()
         self._handlersByCoordSetId[coordSetId] = newHandler
-        return newHandler
+        returnValue(newHandler)
 
     def refreshAll(self):
-        for handler in list(self._handlersByCoordSetId.values()):
-            handler.setExpired()
         self._handlersByCoordSetId = {}
 
     def shutdown(self):
@@ -137,8 +147,8 @@ class _DispLookupDataCacheHandler(object):
     @deferToThreadWrapWithLogger(logger)
     def convertLookups(self, disp):
         if self._expired:
-            raise Exception("Do not keep references to _DispLookupDataCacheHandler")
-        # return dispLookupDataCache.getHandler(self._coordSetId).convertLookups(disp)
+            raise CacheExpiredException(
+                "Do not keep references to _DispLookupDataCacheHandler")
 
         T = ImportLiveDbDispLinkTuple
 
@@ -156,7 +166,7 @@ class _DispLookupDataCacheHandler(object):
             setattr(disp, attrName,
                     self._getLineStyleId(getattr(disp, attrName)))
 
-        for attrName in (T.DISP_ATTR_TEXT,):
+        for attrName in (T.DISP_ATTR_TEXT_STYLE,):
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
             setattr(disp, attrName,
@@ -292,7 +302,6 @@ class _DispLookupDataCacheHandler(object):
         except:
             ormSession.close()
 
-
     def _getLayerId(self, importHash, defaultOrder=None):
         importHash = str(importHash)
 
@@ -320,7 +329,6 @@ class _DispLookupDataCacheHandler(object):
             return newId
         finally:
             ormSession.close()
-
 
     # ---------------------------------------------------------------
     # Live DB Value Translations

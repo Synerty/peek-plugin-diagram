@@ -1,11 +1,11 @@
 from typing import Optional, List
 
-from vortex.Tuple import Tuple, addTupleType, TupleField
+from geoalchemy2 import WKBElement
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from peek_plugin_diagram.tuples.ImportTypes import GeomT
 from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
     ImportLiveDbDispLinkTuple
+from vortex.Tuple import Tuple, addTupleType, TupleField
 
 
 @addTupleType
@@ -32,7 +32,7 @@ class ImportDispPolygonTuple(Tuple):
     fillDirection: int = TupleField()
     fillPercent: int = TupleField()
 
-    geom: GeomT = TupleField()
+    geom: WKBElement = TupleField()
 
     #: The unique hash of this display object
     importHash: str = TupleField()

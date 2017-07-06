@@ -28,7 +28,7 @@ from .DiagramApi import DiagramApi
 from .TupleActionProcessor import makeTupleActionProcessorHandler
 from .TupleDataObservable import makeTupleDataObservableHandler
 from .admin_backend import makeAdminBackendHandlers
-from .controller.MainController import MainController
+from .controller.StatusController import StatusController
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +62,6 @@ class ServerEntryHook(PluginServerEntryHookABC,
     def dbMetadata(self):
         return DeclarativeBase.metadata
 
-    @inlineCallbacks
     def start(self):
         """ Start
 
@@ -71,37 +70,40 @@ class ServerEntryHook(PluginServerEntryHookABC,
 
         """
 
+        # create the Status Controller
+        statusController = StatusController()
+        self._loadedObjects.append(statusController)
+
         # Create the GRID KEY queue
-        gridKeyCompilerQueue = GridKeyCompilerQueue(self.dbSessionCreator)
+        gridKeyCompilerQueue = GridKeyCompilerQueue(
+            self.dbSessionCreator, statusController
+        )
         self._loadedObjects.append(gridKeyCompilerQueue)
 
         # Create the DISP queue
         dispCompilerQueue = DispCompilerQueue(
-            self.dbSessionCreator, gridKeyCompilerQueue
+            self.dbSessionCreator, statusController
         )
         self._loadedObjects.append(dispCompilerQueue)
 
-        # Create the LOOKUP cachec
+        # Create the LOOKUP cache
         dispLookupCache = DispLookupDataCache(self.dbSessionCreator)
         self._loadedObjects.append(dispLookupCache)
 
+        # Create the Action Processor
+        self._loadedObjects.append(makeTupleActionProcessorHandler(statusController))
+
         # Create the Tuple Observer
-        tupleObservable = makeTupleDataObservableHandler(self.dbSessionCreator)
+        tupleObservable = makeTupleDataObservableHandler(statusController)
         self._loadedObjects.append(tupleObservable)
+
+        # Tell the status controller about the Tuple Observable
+        statusController.setTupleObservable(tupleObservable)
 
         # Initialise the handlers for the admin interface
         self._loadedObjects.extend(
             makeAdminBackendHandlers(tupleObservable, self.dbSessionCreator)
         )
-
-        # create the Main Controller
-        mainController = MainController(
-            dbSessionCreator=self.dbSessionCreator,
-            tupleObservable=tupleObservable)
-        self._loadedObjects.append(mainController)
-
-        # Create the Action Processor
-        self._loadedObjects.append(makeTupleActionProcessorHandler(mainController))
 
         # Create the import lookup controller
         lookupImportController = LookupImportController(
@@ -125,7 +127,7 @@ class ServerEntryHook(PluginServerEntryHookABC,
         dispImportController = DispImportController(
             dbSessionCreator=self.dbSessionCreator,
             getPgSequenceGenerator=self.getPgSequenceGenerator,
-            liveDbImportController=dispLinkImportController,
+            dispLinkImportController=dispLinkImportController,
             dispCompilerQueue=dispCompilerQueue,
             dispLookupCache=dispLookupCache
         )
@@ -133,12 +135,12 @@ class ServerEntryHook(PluginServerEntryHookABC,
 
         # Initialise the API object that will be shared with other plugins
         self._api = DiagramApi(
-            mainController, dispImportController, lookupImportController
+            statusController, dispImportController, lookupImportController
         )
         self._loadedObjects.append(self._api)
 
-        yield dispCompilerQueue.start()
-        yield gridKeyCompilerQueue.start()
+        dispCompilerQueue.start()
+        gridKeyCompilerQueue.start()
 
         logger.debug("Started")
 

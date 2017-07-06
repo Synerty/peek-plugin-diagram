@@ -2,9 +2,6 @@ import logging
 from datetime import datetime
 from typing import List
 
-import shapely
-from base64 import b64decode
-from geoalchemy2.shape import from_shape
 from twisted.internet.defer import inlineCallbacks, returnValue
 
 from peek_plugin_diagram._private.server.cache.DispLookupDataCache import \
@@ -53,18 +50,18 @@ IMPORT_FIELD_NAME_MAP = {
 class DispImportController:
     def __init__(self, dbSessionCreator,
                  getPgSequenceGenerator,
-                 liveDbImportController: DispLinkImportController,
+                 dispLinkImportController: DispLinkImportController,
                  dispCompilerQueue: DispCompilerQueue,
                  dispLookupCache: DispLookupDataCache):
 
         self._dbSessionCreator = dbSessionCreator
         self._getPgSequenceGenerator = getPgSequenceGenerator
-        self._liveDbImportController = liveDbImportController
+        self._dispLinkImportController = dispLinkImportController
         self._dispCompilerQueue = dispCompilerQueue
         self._dispLookupCache = dispLookupCache
 
     def shutdown(self):
-        self._liveDbImportController = None
+        self._dispLinkImportController = None
 
     @inlineCallbacks
     def importDisps(self, modelSetName: str, coordSetName: str,
@@ -72,18 +69,15 @@ class DispImportController:
 
         coordSet = yield self._loadCoordSet(modelSetName, coordSetName)
 
-        dispIdsToCompile, importDispLinks = yield self._linkDisps(
+        dispIdsToCompile, importDispLinks = yield self._importDisps(
             modelSetName, coordSet, importGroupHash, disps
         )
 
-        self._liveDbImportController.importDispLiveDbDispLinks(
-            coordSet, importGroupHash, importDispLinks
+        yield self._dispLinkImportController.importDispLiveDbDispLinks(
+            modelSetName, coordSet, importGroupHash, importDispLinks
         )
         logger.debug("Queueing disp grids for %s", coordSetName)
-        self._dispCompilerQueue.queueDisps(dispIdsToCompile)
-
-        # Don't return the deferred, we don't want PayloadIO to report how long this takes
-        # return d
+        yield self._dispCompilerQueue.queueDisps(dispIdsToCompile)
 
     @deferToThreadWrapWithLogger(logger)
     def _loadCoordSet(self, modelSetName, coordSetName):
@@ -97,8 +91,8 @@ class DispImportController:
             ormSession.close()
 
     @inlineCallbacks
-    def _linkDisps(self, modelSetName: str, coordSet: ModelCoordSet,
-                   importGroupHash: str, disps):
+    def _importDisps(self, modelSetName: str, coordSet: ModelCoordSet,
+                     importGroupHash: str, importDisps):
         """ Link Disps
 
         1) Use the AgentImportDispGridLookup to convert lookups from importHash
@@ -109,46 +103,40 @@ class DispImportController:
 
         """
 
-        dispIdGen = yield self._getPgSequenceGenerator(DispBase, len(disps))
+        dispIdGen = yield self._getPgSequenceGenerator(DispBase, len(importDisps))
 
         dispIdsToCompile = []
         importDispLinks = []
+        ormDisps = []
 
-        for importDisp in disps:
-            disp = self._convertImportTuple(importDisp)
+        for importDisp in importDisps:
+            ormDisp = self._convertImportTuple(importDisp)
+            ormDisps.append(ormDisp)
 
             # Preallocate the IDs for performance on PostGreSQL
-            if dispIdGen is not None:
-                disp.id = next(dispIdGen)
+            ormDisp.id = next(dispIdGen)
+            dispIdsToCompile.append(ormDisp.id)
 
-            disp.coordSetId = coordSet.id
-            disp.dispJson = {}
+            ormDisp.coordSetId = coordSet.id
+            ormDisp.dispJson = {}
 
             # Add some interim data to the import display link, so it can be created
             for importDispLink in importDisp.liveDbDispLinks:
                 attrName = importDispLink.dispAttrName
-                importDispLink.liveDbRawValue = getattr(disp, attrName)
-                importDispLink.dispId = disp.id
+                importDispLink.liveDbRawValue = getattr(ormDisp, attrName)
+                importDispLink.dispId = ormDisp.id
                 importDispLinks.append(importDispLink)
 
             # Convert the values of the liveDb attributes
-            yield self._dispLookupCache.convertLookups(coordSet.id, disp)
+            yield self._dispLookupCache.convertLookups(coordSet.id, ormDisp)
 
             # Add the after translate value, this is the Display Value
             for importDispLink in importDisp.liveDbDispLinks:
                 attrName = importDispLink.dispAttrName
-                importDispLink.liveDbDisplayValue = getattr(disp, attrName)
-
-            # Convert the WKBElement from dumped shape
-            geomWkbData = from_shape(shapely.wkb.loads(b64decode(disp.geom)))
-            disp.geom = geomWkbData.desc
-            disp.geomWkbData = geomWkbData
-
-            if dispIdGen is not None:
-                dispIdsToCompile.append(disp.id)
+                importDispLink.liveDbDisplayValue = getattr(ormDisp, attrName)
 
         dispIdsToCompile = yield self._bulkLoadDisps(
-            coordSet, importGroupHash, disps, dispIdsToCompile
+            coordSet, importGroupHash, ormDisps, dispIdsToCompile
         )
 
         returnValue((dispIdsToCompile, importDispLinks))
@@ -173,7 +161,7 @@ class DispImportController:
                 for disp in disps:
                     if not hasattr(disp, 'geom'):
                         continue
-                    point = convertFromWkbElement(disp.geomWkbData)[0]
+                    point = convertFromWkbElement(disp.geom)[0]
                     coordSet.initialPanX = point['x']
                     coordSet.initialPanY = point['y']
                     coordSet.initialZoom = 0.05
@@ -183,6 +171,10 @@ class DispImportController:
                          len(disps), (datetime.utcnow() - startTime))
 
             ormSession.commit()
+
+            # Make this change, it's required to store the WKBElements
+            for disp in disps:
+                disp.geom = disp.geom.desc
 
             with ormSession.begin(subtransactions=True):
                 ormSession.bulk_save_objects(disps, update_changed_only=False)
@@ -208,10 +200,11 @@ class DispImportController:
 
     def _convertImportTuple(self, importDisp):
         if not importDisp.tupleType() in IMPORT_TUPLE_MAP:
-            raise Exception("Import Tuple %s is not a valid type"
-                            % importDisp.tupleType())
+            raise Exception(
+                "Import Tuple %s is not a valid type" % importDisp.tupleType()
+            )
 
-        disp = IMPORT_TUPLE_MAP[importDisp.tupleType()]
+        disp = IMPORT_TUPLE_MAP[importDisp.tupleType()]()
 
         for importFieldName in importDisp.tupleFieldNames():
             # Convert the field name if it exists

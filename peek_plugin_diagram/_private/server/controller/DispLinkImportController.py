@@ -30,7 +30,8 @@ class DispLinkImportController:
         pass
 
     @inlineCallbacks
-    def importDispLiveDbDispLinks(self, coordSet: ModelCoordSet,
+    def importDispLiveDbDispLinks(self, modelSetName: str,
+                                  coordSet: ModelCoordSet,
                                   importGroupHash: str,
                                   importDispLinks: List[ImportLiveDbDispLinkTuple]):
 
@@ -42,7 +43,9 @@ class DispLinkImportController:
             coordSet, importGroupHash, importDispLinks, dispLinkIdIterator
         )
 
-        yield self._liveDbWriteApi.importLiveDbItems(liveDbItemsToImport)
+        if liveDbItemsToImport:
+            yield self._liveDbWriteApi.importLiveDbItems(modelSetName,
+                                                     liveDbItemsToImport)
 
     @deferToThreadWrapWithLogger(logger)
     def _importDispLinks(self, coordSet: ModelCoordSet,
@@ -83,7 +86,7 @@ class DispLinkImportController:
                 dispLink.id = next(dispLinkIdIterator)
 
                 liveDbItem = self._makeImportLiveDbItem(
-                    dispLink, liveDbItemsToImportByKey
+                    importDispLink, liveDbItemsToImportByKey
                 )
 
                 dispLink.liveDbKey = liveDbItem.key
@@ -122,24 +125,23 @@ class DispLinkImportController:
             props=importDispLink.props
         )
 
-    def _makeImportLiveDbItem(self,
-                              dispLink: ImportLiveDbDispLinkTuple,
+    def _makeImportLiveDbItem(self, importDispLink: ImportLiveDbDispLinkTuple,
                               liveDbItemsToImportByKey: Dict):
 
-        if dispLink.liveDbKey in liveDbItemsToImportByKey:
-            return liveDbItemsToImportByKey[dispLink.liveDbKey]
+        if importDispLink.liveDbKey in liveDbItemsToImportByKey:
+            return liveDbItemsToImportByKey[importDispLink.liveDbKey]
 
-        dataType = LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR[dispLink.dispAttrName]
+        dataType = LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR[importDispLink.dispAttrName]
 
         # These are not defined on the tuple, they are added in DispImportController
-        rawValue = dispLink.liveDbRawValue
-        displayValue = dispLink.liveDbDisplayValue
+        rawValue = importDispLink.liveDbRawValue
+        displayValue = importDispLink.liveDbDisplayValue
 
         newLiveDbKey = ImportLiveDbItemTuple(dataType=dataType,
                                              rawValue=rawValue,
                                              displayValue=displayValue,
-                                             key=dispLink.liveDbKey)
+                                             key=importDispLink.liveDbKey)
 
-        liveDbItemsToImportByKey[dispLink.liveDbKey] = newLiveDbKey
+        liveDbItemsToImportByKey[importDispLink.liveDbKey] = newLiveDbKey
 
         return newLiveDbKey

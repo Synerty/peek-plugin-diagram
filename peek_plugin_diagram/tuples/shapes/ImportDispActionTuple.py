@@ -1,11 +1,11 @@
 from typing import Optional, List
 
-from vortex.Tuple import Tuple, addTupleType, TupleField
+from geoalchemy2 import WKBElement
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from peek_plugin_diagram.tuples.ImportTypes import GeomT
 from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
     ImportLiveDbDispLinkTuple
+from vortex.Tuple import Tuple, addTupleType, TupleField
 
 
 @addTupleType
@@ -16,7 +16,7 @@ class ImportDispActionTuple(Tuple):
 
     """
     __tupleType__ = diagramTuplePrefix + 'ImportDispActionTuple'
-
+    
     levelHash: str = TupleField()
     layerHash: str = TupleField()
 
@@ -25,7 +25,7 @@ class ImportDispActionTuple(Tuple):
     lineColorHash: Optional[str] = TupleField()
     fillColorHash: Optional[str] = TupleField()
 
-    geom: GeomT = TupleField()
+    geom: WKBElement = TupleField()
 
     xRadius: float = TupleField()
     yRadius: float = TupleField()
@@ -40,4 +40,4 @@ class ImportDispActionTuple(Tuple):
     #:  Additional data for this object
     props: dict = TupleField()
 
-    liveDbDispLinks: List[ImportLiveDbDispLinkTuple] = TupleField()
+    liveDbDispLinks: List[ImportLiveDbDispLinkTuple] = TupleField([])
