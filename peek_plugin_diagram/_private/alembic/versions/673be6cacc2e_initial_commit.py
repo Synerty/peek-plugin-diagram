@@ -1,15 +1,15 @@
-"""Initial commit of diagram tables
+"""initial commit
 
 Peek Plugin Database Migration Script
 
-Revision ID: 55bd2f980424
+Revision ID: 673be6cacc2e
 Revises: 
-Create Date: 2017-07-04 22:29:34.598155
+Create Date: 2017-07-05 22:24:00.119087
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '55bd2f980424'
+revision = '673be6cacc2e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -104,24 +104,6 @@ def upgrade():
     op.create_index('idx_DispTextStyle_importHash', 'DispTextStyle', ['importHash'], unique=True, schema='pl_diagram')
     op.create_index('idx_DispTextStyle_modelSetId', 'DispTextStyle', ['modelSetId'], unique=False, schema='pl_diagram')
 
-    op.execute(CreateSequence(Sequence('LiveDbKey_id_seq',  schema='pl_diagram')))
-
-    op.create_table('LiveDbKey',
-    sa.Column('id', sa.Integer(), server_default=sa.text('nextval(\'pl_diagram."LiveDbKey_id_seq"\')'), nullable=False),
-    sa.Column('modelSetId', sa.Integer(), nullable=False),
-    sa.Column('liveDbKey', sa.String(), nullable=False),
-    sa.Column('value', sa.String(), nullable=True),
-    sa.Column('convertedValue', sa.String(), nullable=True),
-    sa.Column('dataType', sa.Integer(), nullable=True),
-    sa.Column('props', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
-    sa.Column('importHash', sa.String(), nullable=True),
-    sa.ForeignKeyConstraint(['modelSetId'], ['pl_diagram.ModelSet.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id'),
-    schema='pl_diagram'
-    )
-    op.create_index('idx_LiveDbDKey_importHash', 'LiveDbKey', ['importHash'], unique=False, schema='pl_diagram')
-    op.create_index('idx_LiveDbDKey_liveDbKey', 'LiveDbKey', ['liveDbKey'], unique=False, schema='pl_diagram')
-    op.create_index('idx_LiveDbDKey_modelSetId', 'LiveDbKey', ['modelSetId'], unique=False, schema='pl_diagram')
     op.create_table('ModelConnType',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
@@ -368,21 +350,22 @@ def upgrade():
     op.create_index('idx_GridKeyIndex_gridKey', 'GridKeyIndex', ['gridKey'], unique=False, schema='pl_diagram')
     op.create_index('idx_GridKeyIndex_importGroupHash', 'GridKeyIndex', ['importGroupHash'], unique=False, schema='pl_diagram')
 
+
     op.execute(CreateSequence(Sequence('LiveDbDispLink_id_seq',  schema='pl_diagram')))
+
 
     op.create_table('LiveDbDispLink',
     sa.Column('id', sa.Integer(), server_default=sa.text('nextval(\'pl_diagram."LiveDbDispLink_id_seq"\')'), nullable=False),
     sa.Column('coordSetId', sa.Integer(), nullable=False),
     sa.Column('dispId', sa.Integer(), nullable=False),
     sa.Column('dispAttrName', sa.String(), nullable=False),
-    sa.Column('liveDbKeyId', sa.Integer(), nullable=False),
+    sa.Column('liveDbKey', sa.String(length=30), nullable=False),
     sa.Column('importKeyHash', sa.String(), nullable=True),
     sa.Column('importGroupHash', sa.String(), nullable=True),
     sa.Column('importDispHash', sa.String(), nullable=True),
     sa.Column('props', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
     sa.ForeignKeyConstraint(['coordSetId'], ['pl_diagram.ModelCoordSet.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['dispId'], ['pl_diagram.DispBase.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['liveDbKeyId'], ['pl_diagram.LiveDbKey.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     schema='pl_diagram'
     )
@@ -391,8 +374,8 @@ def upgrade():
     op.create_index('idx_LiveDbDLink_dispId', 'LiveDbDispLink', ['dispId'], unique=False, schema='pl_diagram')
     op.create_index('idx_LiveDbDLink_dispId_attr', 'LiveDbDispLink', ['dispId', 'dispAttrName'], unique=True, schema='pl_diagram')
     op.create_index('idx_LiveDbDLink_importGroupHash', 'LiveDbDispLink', ['importGroupHash'], unique=False, schema='pl_diagram')
-    op.create_index('idx_LiveDbDLink_liveDbUpdate', 'LiveDbDispLink', ['dispId', 'liveDbKeyId'], unique=False, schema='pl_diagram')
-    op.create_index('idx_LiveDbDLink_liveKeyId', 'LiveDbDispLink', ['liveDbKeyId'], unique=False, schema='pl_diagram')
+    op.create_index('idx_LiveDbDLink_liveDbUpdate', 'LiveDbDispLink', ['dispId', 'liveDbKey'], unique=False, schema='pl_diagram')
+    op.create_index('idx_LiveDbDLink_liveKeyId', 'LiveDbDispLink', ['liveDbKey'], unique=False, schema='pl_diagram')
     op.create_table('DispAction',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('data', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
@@ -519,10 +502,6 @@ def downgrade():
     op.drop_table('ModelCoordSet', schema='pl_diagram')
     op.drop_index('idxConnTypeModelSetId', table_name='ModelConnType', schema='pl_diagram')
     op.drop_table('ModelConnType', schema='pl_diagram')
-    op.drop_index('idx_LiveDbDKey_modelSetId', table_name='LiveDbKey', schema='pl_diagram')
-    op.drop_index('idx_LiveDbDKey_liveDbKey', table_name='LiveDbKey', schema='pl_diagram')
-    op.drop_index('idx_LiveDbDKey_importHash', table_name='LiveDbKey', schema='pl_diagram')
-    op.drop_table('LiveDbKey', schema='pl_diagram')
     op.drop_index('idx_DispTextStyle_modelSetId', table_name='DispTextStyle', schema='pl_diagram')
     op.drop_index('idx_DispTextStyle_importHash', table_name='DispTextStyle', schema='pl_diagram')
     op.drop_table('DispTextStyle', schema='pl_diagram')

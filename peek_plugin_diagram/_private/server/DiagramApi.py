@@ -29,12 +29,17 @@ class DiagramApi(DiagramApiABC):
                     coordSetName: str,
                     importGroupHash: str,
                     disps: List) -> Deferred:
-        logger.warning("importDisp doesn't do anything at this point")
-        return defer.succeed(True)
-        # return self._dispImportController.importDisps(
-        #     modelSetName, coordSetName,
-        #     importGroupHash, disps
-        # )
+
+        if disps is None:
+            raise Exception("Disps must be an interable")
+
+        if not disps:
+            return defer.succeed(True)
+
+        return self._dispImportController.importDisps(
+            modelSetName, coordSetName,
+            importGroupHash, disps
+        )
 
     def importLookups(self, modelSetName: str, coordSetName: str,
                       lookupTupleType: str, lookupTuples: List) -> Deferred:

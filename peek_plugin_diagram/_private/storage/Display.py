@@ -174,7 +174,9 @@ class DispBase(Tuple, DeclarativeBase):
     POLYLINE_CONN = 52
     ELLIPSE = 60
 
-    id_seq = Sequence('DispBase_id_seq', metadata=DeclarativeBase.metadata)
+    id_seq = Sequence('DispBase_id_seq',
+                      metadata=DeclarativeBase.metadata,
+                      schema=DeclarativeBase.metadata.schema)
     id = Column(Integer, id_seq, server_default=id_seq.next_value(),
                 primary_key=True, nullable=False)
 

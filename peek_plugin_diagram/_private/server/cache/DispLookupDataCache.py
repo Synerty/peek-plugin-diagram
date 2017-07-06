@@ -4,8 +4,10 @@ from twisted.internet.defer import inlineCallbacks, returnValue
 
 from peek_plugin_diagram._private.storage.Display import DispTextStyle, DispLineStyle, \
     DispColor, DispLevel, DispLayer, DispGroupPointer
-from peek_plugin_diagram._private.storage.LiveDb import LiveDbKey
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
+from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
+    ImportLiveDbDispLinkTuple
+from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
 from vortex.DeferUtil import deferToThreadWrapWithLogger
 
 NO_SYMBOL = "NO_SYMBOL"
@@ -44,7 +46,7 @@ class DispLookupDataCache(object):
             return self._handlersByCoordSetId[coordSetId]
 
         newHandler = _DispLookupDataCacheHandler(self._dbSessionCreator, coordSetId)
-        yield newHandler.load(self._dbSessionCreator)
+        yield newHandler.load()
         self._handlersByCoordSetId[coordSetId] = newHandler
         return newHandler
 
@@ -118,13 +120,14 @@ class _DispLookupDataCacheHandler(object):
 
             ormSession.expunge_all()
 
-            self._liveDbTranslators = {LiveDbKey.COLOR: self._liveDbValueTranslateColorId,
-                                       LiveDbKey.LINE_STYLE: self._liveDbValueTranslateLineStyleId,
-                                       LiveDbKey.LINE_WIDTH: self._liveDbValueTranslateLineWidth,
-                                       LiveDbKey.STRING_VALUE: self._liveDbValueTranslateText,
-                                       LiveDbKey.NUMBER_VALUE: self._liveDbValueTranslateNumber,
-                                       LiveDbKey.GROUP_PTR: self._liveDbValueTranslateGroupId,
-                                       }
+            self._liveDbTranslators = {
+                ImportLiveDbItemTuple.DATA_TYPE_COLOR: self._liveDbValueTranslateColorId,
+                ImportLiveDbItemTuple.DATA_TYPE_LINE_STYLE: self._liveDbValueTranslateLineStyleId,
+                ImportLiveDbItemTuple.DATA_TYPE_LINE_WIDTH: self._liveDbValueTranslateLineWidth,
+                ImportLiveDbItemTuple.DATA_TYPE_STRING_VALUE: self._liveDbValueTranslateText,
+                ImportLiveDbItemTuple.DATA_TYPE_NUMBER_VALUE: self._liveDbValueTranslateNumber,
+                ImportLiveDbItemTuple.DATA_TYPE_GROUP_PTR: self._liveDbValueTranslateGroupId,
+            }
         finally:
             ormSession.close()
 
@@ -137,19 +140,23 @@ class _DispLookupDataCacheHandler(object):
             raise Exception("Do not keep references to _DispLookupDataCacheHandler")
         # return dispLookupDataCache.getHandler(self._coordSetId).convertLookups(disp)
 
-        for attrName in ['lineColorId', 'fillColorId', 'colorId']:
+        T = ImportLiveDbDispLinkTuple
+
+        colourFields = {T.DISP_ATTR_FILL_COLOR, T.DISP_ATTR_LINE_COLOR, T.DISP_ATTR_COLOR}
+
+        for attrName in colourFields:
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
             setattr(disp, attrName,
                     self._getColourId(getattr(disp, attrName)))
 
-        for attrName in ['lineStyleId']:
+        for attrName in (T.DISP_ATTR_LINE_STYLE,):
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
             setattr(disp, attrName,
                     self._getLineStyleId(getattr(disp, attrName)))
 
-        for attrName in ['textStyleId']:
+        for attrName in (T.DISP_ATTR_TEXT,):
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
             setattr(disp, attrName,
@@ -189,14 +196,12 @@ class _DispLookupDataCacheHandler(object):
             newId = textStyle.id
             ormSession.expunge_all()
 
+            self._textStyleIdByImportHash[importHash] = newId
+            self.setExpired()
+            return newId
+
         finally:
             ormSession.close()
-
-        self._textStyleIdByImportHash[importHash] = newId
-
-        self.setExpired()
-
-        return newId
 
     def _getLineStyleId(self, importHash):
         importHash = str(importHash)
@@ -221,14 +226,12 @@ class _DispLookupDataCacheHandler(object):
             ormSession.commit()
             newId = newLine.id
             ormSession.expunge_all()
+
+            self._lineStyleIdByImportHash[importHash] = newId
+            self.setExpired()
+            return newId
         finally:
             ormSession.close()
-
-        self._lineStyleIdByImportHash[importHash] = newId
-
-        self.setExpired()
-
-        return newId
 
     def _getColourId(self, importHash):
         if importHash is None:
@@ -253,14 +256,12 @@ class _DispLookupDataCacheHandler(object):
             ormSession.commit()
             newId = newColor.id
             ormSession.expunge_all()
+
+            self._colorIdByImportHash[importHash] = newId
+            self.setExpired()
+            return newId
         finally:
             ormSession.close()
-
-        self._colorIdByImportHash[importHash] = newId
-
-        self.setExpired()
-
-        return newId
 
     def _getLevelId(self, importHash, defaultOrder=None):
         importHash = str(importHash)
@@ -284,14 +285,13 @@ class _DispLookupDataCacheHandler(object):
             ormSession.commit()
             newId = newLevel.id
             ormSession.expunge_all()
+
+            self._levelByImportHash[importHash] = newId
+            self.setExpired()
+            return newId
         except:
             ormSession.close()
 
-        self._levelByImportHash[importHash] = newId
-
-        self.setExpired()
-
-        return newId
 
     def _getLayerId(self, importHash, defaultOrder=None):
         importHash = str(importHash)
@@ -314,14 +314,13 @@ class _DispLookupDataCacheHandler(object):
             ormSession.commit()
             newId = newLayer.id
             ormSession.expunge_all()
+
+            self._layerByImportHash[importHash] = newId
+            self.setExpired()
+            return newId
         finally:
             ormSession.close()
 
-        self._layerByImportHash[importHash] = newId
-
-        self.setExpired()
-
-        return newId
 
     # ---------------------------------------------------------------
     # Live DB Value Translations

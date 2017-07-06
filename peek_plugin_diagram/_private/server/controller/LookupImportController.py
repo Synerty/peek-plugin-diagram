@@ -2,8 +2,10 @@ import logging
 from typing import List, Optional
 
 from twisted.internet import defer
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import inlineCallbacks, returnValue
 
+from peek_plugin_diagram._private.server.cache.DispLookupDataCache import \
+    DispLookupDataCache
 from peek_plugin_diagram._private.storage.Display import DispColor, DispLayer, DispLevel, \
     DispLineStyle, DispTextStyle
 from peek_plugin_diagram._private.storage.ModelSet import getOrCreateModelSet, \
@@ -29,8 +31,9 @@ IMPORT_TUPLE_MAP = {
 
 
 class LookupImportController:
-    def __init__(self, dbSessionCreator):
+    def __init__(self, dbSessionCreator, dispLookupCache:DispLookupDataCache):
         self._dbSessionCreator = dbSessionCreator
+        self._dispLookupCache = dispLookupCache
 
     def shutdown(self):
         pass
@@ -43,11 +46,9 @@ class LookupImportController:
         yield self._importInThread(modelSetName, coordSetName,
                                        lookupTupleType, lookupTuples)
 
-        logger.debug("TODO TODO TODO TODO TODO, dispLookupDataCache.refreshAll()")
-        # from peek.core.data_cache.DispLookupDataCache import dispLookupDataCache
-        # dispLookupDataCache.refreshAll()
+        self._dispLookupCache.refreshAll()
 
-        return defer.succeed(True)
+        returnValue(True)
 
     @deferToThreadWrapWithLogger(logger)
     def _importInThread(self, modelSetName, coordSetName, tupleType, tuples):

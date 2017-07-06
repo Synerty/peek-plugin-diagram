@@ -17,9 +17,10 @@ from peek_plugin_diagram._private.storage.GridKeyIndex import \
     GridKeyCompilerQueue as GridKeyCompilerQueueTable
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
     DispIndexerQueue
-from peek_plugin_diagram._private.storage.LiveDb import \
-    LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR, LiveDbKey
+from peek_plugin_diagram._private.storage.LiveDbDispLink import \
+    LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
+from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
 from vortex.SerialiseUtil import convertFromShape
 
 logger = logging.getLogger(__name__)
@@ -153,7 +154,7 @@ class DispCompilerTask:
         # At this stage we don't expect other data types to be None
         if value is None:
             keyType = LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR[dispLink.dispAttrName]
-            assert keyType == LiveDbKey.COLOR
+            assert keyType == ImportLiveDbItemTuple.DATA_TYPE_COLOR
             setattr(disp, dispLink.dispAttrName, None)
             return
 

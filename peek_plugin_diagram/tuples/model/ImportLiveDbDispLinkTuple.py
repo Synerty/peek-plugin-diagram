@@ -1,6 +1,5 @@
-from vortex.Tuple import Tuple, addTupleType, TupleField
-
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
+from vortex.Tuple import Tuple, addTupleType, TupleField
 
 
 @addTupleType
@@ -12,6 +11,15 @@ class ImportLiveDbDispLinkTuple(Tuple):
 
     """
     __tupleType__ = diagramTuplePrefix + 'ImportLiveDbDispLinkTuple'
+
+    DISP_ATTR_FILL_COLOR = 'fillColorId'
+    DISP_ATTR_LINE_COLOR = 'lineColorId'
+    DISP_ATTR_COLOR = 'colorId'
+    DISP_ATTR_LINE_STYLE = 'lineStyleId'
+    DISP_ATTR_LINE_WIDTH = 'lineWidth'
+    DISP_ATTR_TEXT = 'text'
+    DISP_ATTR_TEXT_STYLE = 'textStyleId'
+    DISP_ATTR_FILL_PERCENT = 'fillPercent'
 
     #:  The attribute name of the display object that this live db key updates
     dispAttrName: str = TupleField()

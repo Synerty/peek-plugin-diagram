@@ -12,10 +12,8 @@ from peek_plugin_diagram._private.server.cache.DispLookupDataCache import \
     DispLookupDataCache
 from peek_plugin_diagram._private.server.controller.DispImportController import \
     DispImportController
-from peek_plugin_diagram._private.server.controller.LiveDbController import \
-    LiveDbController
-from peek_plugin_diagram._private.server.controller.LiveDbImportController import \
-    LiveDbImportController
+from peek_plugin_diagram._private.server.controller.DispLinkImportController import \
+    DispLinkImportController
 from peek_plugin_diagram._private.server.controller.LookupImportController import \
     LookupImportController
 from peek_plugin_diagram._private.server.queue.DispCompilerQueue import DispCompilerQueue
@@ -25,6 +23,7 @@ from peek_plugin_diagram._private.storage import DeclarativeBase
 from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
 from peek_plugin_diagram._private.tuples import loadPrivateTuples
 from peek_plugin_diagram.tuples import loadPublicTuples
+from peek_plugin_livedb.server.LiveDBApiABC import LiveDBApiABC
 from .DiagramApi import DiagramApi
 from .TupleActionProcessor import makeTupleActionProcessorHandler
 from .TupleDataObservable import makeTupleDataObservableHandler
@@ -104,36 +103,33 @@ class ServerEntryHook(PluginServerEntryHookABC,
         # Create the Action Processor
         self._loadedObjects.append(makeTupleActionProcessorHandler(mainController))
 
-        # Create the Live DB Controller
-        liveDbController = LiveDbController(
+        # Create the import lookup controller
+        lookupImportController = LookupImportController(
             dbSessionCreator=self.dbSessionCreator,
-            dispCompilerQueue=dispCompilerQueue
+            dispLookupCache=dispLookupCache
         )
-        self._loadedObjects.append(liveDbController)
+        self._loadedObjects.append(lookupImportController)
+
+        # Create the Live DB Controller
+        liveDbApi: LiveDBApiABC = self.platform.getOtherPluginApi("peek_plugin_livedb")
 
         # Create the Live DB Import Controller
-        liveDbImportController = LiveDbImportController(
+        dispLinkImportController = DispLinkImportController(
             dbSessionCreator=self.dbSessionCreator,
-            getPgSequenceGenerator=self.getPgSequenceGenerator
+            getPgSequenceGenerator=self.getPgSequenceGenerator,
+            liveDbWriteApi=liveDbApi.writeApi
         )
-        self._loadedObjects.append(liveDbImportController)
+        self._loadedObjects.append(dispLinkImportController)
 
         # Create the display object Import Controller
         dispImportController = DispImportController(
             dbSessionCreator=self.dbSessionCreator,
             getPgSequenceGenerator=self.getPgSequenceGenerator,
-            liveDbImportController=liveDbImportController,
-            liveDbController=liveDbController,
+            liveDbImportController=dispLinkImportController,
             dispCompilerQueue=dispCompilerQueue,
             dispLookupCache=dispLookupCache
         )
         self._loadedObjects.append(dispImportController)
-
-        # Create the import lookup controller
-        lookupImportController = LookupImportController(
-            dbSessionCreator=self.dbSessionCreator
-        )
-        self._loadedObjects.append(lookupImportController)
 
         # Initialise the API object that will be shared with other plugins
         self._api = DiagramApi(
@@ -143,7 +139,6 @@ class ServerEntryHook(PluginServerEntryHookABC,
 
         yield dispCompilerQueue.start()
         yield gridKeyCompilerQueue.start()
-
 
         logger.debug("Started")
 
