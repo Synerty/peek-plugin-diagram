@@ -51,7 +51,7 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
                       metadata=DeclarativeBase.metadata,
                       schema=DeclarativeBase.metadata.schema)
     id = Column(Integer, id_seq, server_default=id_seq.next_value(),
-                primary_key=True, nullable=False)
+                primary_key=True, autoincrement=True)
 
     coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
                         doc=JSON_EXCLUDE, nullable=False)

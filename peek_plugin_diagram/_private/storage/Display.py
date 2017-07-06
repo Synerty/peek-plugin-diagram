@@ -41,7 +41,7 @@ class DispLayer(Tuple, DeclarativeBase):
     __tupleTypeShort__ = 'DLA'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     order = Column(Integer, nullable=False, server_default='0')
     selectable = Column(Boolean, nullable=False, server_default='false')
@@ -64,7 +64,7 @@ class DispLevel(Tuple, DeclarativeBase):
     __tupleTypeShort__ = 'DLE'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     order = Column(Integer, nullable=False, server_default='0')
     minZoom = Column(Float)
@@ -87,7 +87,7 @@ class DispTextStyle(Tuple, DeclarativeBase):
     __tablename__ = 'DispTextStyle'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     fontName = Column(String, nullable=False, server_default="GillSans")
     fontSize = Column(Integer, nullable=False, server_default='9')
@@ -113,7 +113,7 @@ class DispLineStyle(Tuple, DeclarativeBase):
     __tablename__ = 'DispLineStyle'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     backgroundFillDashSpace = Column(Boolean, nullable=False, server_default='false')
     capStyle = Column(String, nullable=False)
@@ -141,7 +141,7 @@ class DispColor(Tuple, DeclarativeBase):
     __tablename__ = 'DispColor'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, doc=JSON_EXCLUDE, nullable=False)
     color = Column(String, server_default='orange')
     altColor = Column(String)
@@ -178,7 +178,7 @@ class DispBase(Tuple, DeclarativeBase):
                       metadata=DeclarativeBase.metadata,
                       schema=DeclarativeBase.metadata.schema)
     id = Column(Integer, id_seq, server_default=id_seq.next_value(),
-                primary_key=True, nullable=False)
+                primary_key=True, autoincrement=True)
 
     type = Column(Integer, doc=JSON_EXCLUDE, nullable=False)
 
@@ -231,7 +231,7 @@ class DispText(DispBase):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, nullable=False)
+                , primary_key=True, autoincrement=True)
 
     verticalAlign = Column(Integer, doc='va', nullable=False, server_default='-1')
     horizontalAlign = Column(Integer, doc='ha', nullable=False, server_default='0')
@@ -264,7 +264,7 @@ class DispPolygon(DispBase):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, nullable=False)
+                , primary_key=True, autoincrement=True)
 
     cornerRadius = Column(Float, doc='cr', nullable=False, server_default='0')
     lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
@@ -307,7 +307,7 @@ class DispPolyline(DispBase):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, nullable=False)
+                , primary_key=True, autoincrement=True)
 
     lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
 
@@ -337,7 +337,7 @@ class DispEllipse(DispBase):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, nullable=False)
+                , primary_key=True, autoincrement=True)
 
     xRadius = Column(Float, doc='xr', nullable=False, server_default='10.0')
     yRadius = Column(Float, doc='yr', nullable=False, server_default='10.0')
@@ -377,7 +377,7 @@ class DispAction(DispPolygon):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispPolygon.id', ondelete='CASCADE')
-                , primary_key=True, nullable=False)
+                , primary_key=True, autoincrement=True)
 
     data = Column(JSONB, doc='d')
 
@@ -389,9 +389,9 @@ class DispGroupItem(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     groupId = Column(Integer, ForeignKey('DispGroup.id', ondelete='CASCADE'),
-                     primary_key=True, nullable=False)
+                     primary_key=True, autoincrement=True)
     itemId = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE'),
-                    primary_key=True, nullable=False)
+                    primary_key=True, autoincrement=True)
 
 
 @addTupleType
@@ -404,7 +404,7 @@ class DispGroup(DispBase):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, nullable=False)
+                , primary_key=True, autoincrement=True)
 
     name = Column(String, doc=JSON_EXCLUDE, nullable=False, unique=True)
 
@@ -427,7 +427,7 @@ class DispGroupPointer(DispBase):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, nullable=False)
+                , primary_key=True, autoincrement=True)
 
     rotation = Column(Integer, doc='r', server_default='0', nullable=False)
 
@@ -457,7 +457,7 @@ class DispGroupPointerNode(DispGroupPointer):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispGroupPointer.id', ondelete='CASCADE')
-                , primary_key=True, nullable=False)
+                , primary_key=True, autoincrement=True)
 
     nodeId = Column(Integer, ForeignKey('ModelNode.id', ondelete='CASCADE'),
                     nullable=False)
@@ -480,7 +480,7 @@ class DispPolylineConn(DispPolyline):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispPolyline.id', ondelete='CASCADE')
-                , primary_key=True, nullable=False)
+                , primary_key=True, autoincrement=True)
 
     connId = Column(Integer, ForeignKey('ModelConn.id', ondelete='CASCADE'),
                     nullable=False)

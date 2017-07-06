@@ -29,7 +29,7 @@ class ModelSet(Tuple, DeclarativeBase):
     __tablename__ = 'ModelSet'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     comment = Column(String)
 
@@ -47,7 +47,7 @@ class ModelCoordSet(Tuple, DeclarativeBase):
     __tablename__ = 'ModelCoordSet'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     initialPanX = Column(Float, nullable=False, server_default="0")
     initialPanY = Column(Float, nullable=False, server_default="0")
@@ -82,7 +82,7 @@ class ModelNodeType(Tuple, DeclarativeBase):
     __tablename__ = 'ModelNodeType'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     comment = Column(String)
 
@@ -104,7 +104,7 @@ class ModelNode(Tuple, DeclarativeBase):
 
     uiData = TupleField(defaultValue={})
 
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     props = Column(JSONB)
 
     modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),
@@ -140,7 +140,7 @@ class ModelConnType(Tuple, DeclarativeBase):
     __tablename__ = 'ModelConnType'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     comment = Column(String)
 
@@ -162,7 +162,7 @@ class ModelConn(Tuple, DeclarativeBase):
 
     uiData = TupleField(defaultValue={})
 
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     props = Column(JSONB)
 
     modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),
