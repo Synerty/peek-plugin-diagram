@@ -1,0 +1,56 @@
+<div class="container">
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <!-- Home Tab -->
+        <li role="presentation" class="active">
+            <a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a>
+        </li>
+        <!-- Status Tab -->
+        <li role="presentation">
+            <a href="#loaderStatus" aria-controls="loaderStatus" role="tab"
+               data-toggle="tab">Status</a>
+        </li>
+        <!-- Edit Settings Tab -->
+        <li role="presentation">
+            <a href="#editSetting" aria-controls="editSetting" role="tab"
+               data-toggle="tab">Edit Settings</a>
+        </li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <!-- Home Tab -->
+        <div role="tabpanel" class="tab-pane active" id="home">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h1 class="text-center">Peek Diagram</h1>
+                    <p>This plugin provides a diagram with the following support :</p>
+                    <ul>
+                        <li>Zoom and Pan</li>
+                        <li>Multiple Model Sets</li>
+                        <li>Multiple within a model set</li>
+                        <li>Integrations with other plugins for user click actions and
+                            menus
+                        </li>
+                        <li>A loader API, allowing other plugins to load and kind of
+                            diagram
+                        </li>
+                        <li>Integration with Peek Plugin LiveDB to dynamically update the
+                            views
+                        </li>
+                        <li>Integration with Peek Plugin Node Graph (TODO)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Status Tab -->
+        <div role="tabpanel" class="tab-pane" id="loaderStatus">
+            <pl-diagram-status></pl-diagram-status>
+        </div>
+        <!-- Edit Settings Tab -->
+        <div role="tabpanel" class="tab-pane" id="editSetting">
+            <pl-diagram-edit-setting></pl-diagram-edit-setting>
+        </div>
+
+    </div>
+</div>

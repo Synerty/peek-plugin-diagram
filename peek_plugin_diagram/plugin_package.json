@@ -1,0 +1,52 @@
+{
+    "plugin": {
+        "title": "Diagram Plugin",
+        "packageName": "peek_plugin_diagram",
+    "version":"0.0.1",
+        "buildNumber": "#PLUGIN_BUILD#",
+        "buildDate": "#BUILD_DATE#",
+        "creator": "Synerty Pty Ltd",
+        "website": "www.synerty.com"
+    },
+    "requiresServices": [
+        "agent",
+        "server",
+        "storage",
+        "admin",
+        "worker",
+        "client",
+        "desktop",
+        "mobile"
+    ],
+    "server": {
+    },
+    "storage": {
+        "alembicDir": "_private/alembic"
+    },
+    "admin": {
+        "showHomeLink": true,
+        "appDir": "_private/admin-app",
+        "appModule": "diagram.module#DiagramModule",
+        "moduleDir": "plugin-module",
+    },
+    "worker": {
+    },
+    "mobile": {
+        "showHomeLink": true,
+        "appDir": "_private/both-app",
+        "appModule": "diagram.module#DiagramModule",
+        "assetDir": "_private/both-assets",
+        "icon": "/assets/peek_plugin_diagram/icon.png",
+        "moduleDir": "plugin-module"
+    },
+    "agent": {
+    },
+    "desktop": {
+        "showHomeLink": true,
+        "appDir": "_private/both-app",
+        "appModule": "diagram.module#DiagramModule",
+        "assetDir": "_private/both-assets",
+        "icon": "/assets/peek_plugin_diagram/icon.png",
+        "moduleDir": "plugin-module"
+    }
+}

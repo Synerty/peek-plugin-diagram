@@ -1,0 +1,76 @@
+<div ng-controller="peekDxfViewerToolbarCtrl as toolbarC" auto-list-panel-height>
+
+
+    <div class="btn-group">
+        <button class="btn btn-default" ng-click="extractModel()">Extract</button>
+        <button class="btn btn-default" ng-click="applyModelRules()">Apply Rules</button>
+        <button class="btn btn-default" ng-click="reloadModel()">Reload</button>
+    </div>
+
+
+    <div class="btn-group">
+        <label class="btn btn-default" ng-model="currentView" btn-radio="DXF_VIEW"
+               uncheckable>Dxf</label>
+        <label class="btn btn-default" ng-model="currentView" btn-radio="MODEL_VIEW"
+               uncheckable>Model</label>
+    </div>
+
+    <div ng-controller="peekDxfViewerModelTraceCtrl" class="btn-group">
+        <button class="btn btn-default"
+                ng-class="{'btn-success':traceStatus}"
+                ng-click="trace()">Trace
+        </button>
+    </div>
+
+    Create Cable
+    <div ng-controller="peekDxfViewerModelCableCtrl" class="btn-group">
+        <!--
+        <button class="btn btn-default"
+                ng-class="{'btn-danger':creatingCable==connLineOh1ph}"
+                ng-click="createCable(connLineOh1ph)">OH 1PH
+        </button>
+        <button class="btn btn-default"
+                ng-class="{'btn-danger':creatingCable==connLineOh2ph}"
+                ng-click="createCable(connLineOh2ph)">OH 2PH
+        </button>
+        -->
+        <button class="btn btn-default"
+                ng-class="{'btn-danger':creatingCable==connLineOh3ph}"
+                ng-click="createCable(connLineOh3ph)">OH 3PH
+        </button>
+        <button class="btn btn-default"
+                ng-class="{'btn-danger':creatingCable==connLineUg}"
+                ng-click="createCable(connLineUg)">UG
+        </button>
+    </div>
+
+    Create Node
+    <div ng-controller="peekDxfViewerModelNodeCtrl" class="btn-group">
+        <button class="btn btn-default"
+                ng-class="{'btn-danger':creatingNode==feederDiagramJoin}"
+                ng-click="createNode(feederDiagramJoin)">Page Join
+        </button>
+        <button class="btn btn-default"
+                ng-class="{'btn-danger':creatingNode==ohJoin}"
+                ng-click="createNode(ohJoin)">OH Join
+        </button>
+        <button class="btn btn-default"
+                ng-class="{'btn-danger':creatingNode==ugJoin}"
+                ng-click="createNode(ugJoin)">UG Join
+        </button>
+    </div>
+
+    <div class="btn-group" ng-controller="PeekDxfViewerToolboxZoomCtrl as zoomC">
+        Pan={{pan.x | number:2}},{{pan.y | number:2}}, Zoom={{zoom | number:2}}
+        <select ng-model="zoomSelectVal"
+                ng-options="o for o in zoomOptions"
+                ng-change="zoomC.updateZoom()">
+        </select>
+    </div>
+
+    <input type="text"
+           ng-model="nodeSearch"
+           ng-change="searchForNode()"
+           placeholder="Highlight Nodes">
+
+</div>

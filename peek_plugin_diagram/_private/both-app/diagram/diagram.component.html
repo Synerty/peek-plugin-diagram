@@ -1,0 +1,15 @@
+<div>
+    <p class="canvas-status-bar">
+
+        <span ng-show="canvasC.config.model.gridsWaitingForData">
+            {{canvasC.config.model.gridsWaitingForData}} Grids Loading, </span>
+
+        {{canvasC.config.mouse.currentPosition.x | number : 0}}x{{canvasC.config.mouse.currentPosition.y | number:0}},
+        X{{canvasC.config.canvas.zoom | number : 2}},
+        {{canvasC.config.model.dispOnScreen}} Items</p>
+
+
+    <canvas #canvas width="300" height="3000" auto-canvas-panel-size>
+        Sorry, your browser doesn't support the &lt;canvas&gt; element.
+    </canvas>
+</div>
