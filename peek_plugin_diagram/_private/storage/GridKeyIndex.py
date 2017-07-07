@@ -1,30 +1,18 @@
-""" 
- * orm.GridKeyIndex.py
- *
- *  Copyright Synerty Pty Ltd 2011
- *
- *  This software is proprietary, you are not free to copy
- *  or redistribute this code in any format.
- *
- *  All rights to this software are reserved by 
- *  Synerty Pty Ltd
- *
-"""
 import logging
 
-from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from .DeclarativeBase import DeclarativeBase
-from .Display import DispBase
-from .ModelSet import ModelCoordSet
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
-from sqlalchemy.dialects.postgresql.base import BYTEA
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Index, Sequence
 from sqlalchemy.sql.sqltypes import DateTime
 
+from peek_plugin_base.storage.TypeDecorators import PeekLargeBinary
+from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from vortex.Tuple import Tuple, addTupleType
+from .DeclarativeBase import DeclarativeBase
+from .Display import DispBase
+from .ModelSet import ModelCoordSet
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +27,7 @@ class DispIndexerQueue(DeclarativeBase):
     id = Column(Integer, id_seq, server_default=id_seq.next_value(),
                 primary_key=True, autoincrement=True)
     dispId = Column(Integer, primary_key=True)
+
 
 @addTupleType
 class GridKeyCompilerQueue(Tuple, DeclarativeBase):
@@ -85,14 +74,13 @@ class GridKeyIndex(Tuple, DeclarativeBase):
     )
 
 
-
 @addTupleType
 class GridKeyIndexCompiled(Tuple, DeclarativeBase):
     __tablename__ = 'GridKeyIndexCompiled'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     gridKey = Column(String, primary_key=True)
-    blobData = Column(BYTEA, nullable=False)
+    blobData = Column(PeekLargeBinary, nullable=False)
     lastUpdate = Column(DateTime, nullable=False)
 
     coordSetId = Column(Integer,

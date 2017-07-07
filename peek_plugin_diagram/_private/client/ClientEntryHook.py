@@ -1,14 +1,20 @@
 import logging
 
+from twisted.internet.defer import inlineCallbacks
+
 from peek_plugin_base.client.PluginClientEntryHookABC import PluginClientEntryHookABC
+from peek_plugin_diagram._private.client.TupleDataObservable import \
+    makeClientTupleDataObservableHandler
+from peek_plugin_diagram._private.client.controller.GridCacheController import \
+    GridCacheController
+from peek_plugin_diagram._private.client.handlers.GridCacheHandler import GridCacheHandler
 
-from .DeviceTupleDataObservableProxy import makeDeviceTupleDataObservableProxy
-
+from peek_plugin_diagram._private.client.controller.LookupCacheController import \
+    LookupCacheController
+from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
 from peek_plugin_diagram._private.tuples import loadPrivateTuples
 from peek_plugin_diagram.tuples import loadPublicTuples
-
-from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
-
+from .DeviceTupleDataObservableProxy import makeDeviceTupleDataObservableProxy
 from .DeviceTupleProcessorActionProxy import makeTupleActionProcessorProxy
 
 logger = logging.getLogger(__name__)
@@ -38,6 +44,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
 
         logger.debug("Loaded")
 
+    @inlineCallbacks
     def start(self):
         """ Load
 
@@ -49,6 +56,27 @@ class ClientEntryHook(PluginClientEntryHookABC):
         self._loadedObjects.append(makeTupleActionProcessorProxy())
 
         self._loadedObjects.append(makeDeviceTupleDataObservableProxy())
+
+        gridCacheController = GridCacheController(self.platform.serviceId)
+        self._loadedObjects.append(gridCacheController)
+
+        # This is the custom handler for the client
+        gridCacheHandler = GridCacheHandler(gridCacheController)
+        self._loadedObjects.append(gridCacheHandler)
+
+        gridCacheController.setGridCacheHandler(gridCacheHandler)
+
+        lookupCacheController = LookupCacheController()
+        self._loadedObjects.append(lookupCacheController)
+
+        # Create the Tuple Observer
+        tupleObservable = makeClientTupleDataObservableHandler(lookupCacheController)
+        self._loadedObjects.append(tupleObservable)
+
+        lookupCacheController.setTupleObserable(tupleObservable)
+
+        yield gridCacheController.start()
+        yield lookupCacheController.start()
 
         logger.debug("Started")
 

@@ -1,7 +1,6 @@
 import logging
 
 from celery import Celery
-from twisted.internet.defer import inlineCallbacks
 
 from peek_plugin_base.server.PluginServerEntryHookABC import PluginServerEntryHookABC
 from peek_plugin_base.server.PluginServerStorageEntryHookABC import \
@@ -10,10 +9,13 @@ from peek_plugin_base.server.PluginServerWorkerEntryHookABC import \
     PluginServerWorkerEntryHookABC
 from peek_plugin_diagram._private.server.cache.DispLookupDataCache import \
     DispLookupDataCache
+from peek_plugin_diagram._private.server.client_handlers.RpcForClient import RpcForClient
 from peek_plugin_diagram._private.server.controller.DispImportController import \
     DispImportController
 from peek_plugin_diagram._private.server.controller.DispLinkImportController import \
     DispLinkImportController
+from peek_plugin_diagram._private.server.controller.LiveDbWatchController import \
+    LiveDbWatchController
 from peek_plugin_diagram._private.server.controller.LookupImportController import \
     LookupImportController
 from peek_plugin_diagram._private.server.queue.DispCompilerQueue import DispCompilerQueue
@@ -27,7 +29,7 @@ from peek_plugin_livedb.server.LiveDBApiABC import LiveDBApiABC
 from .DiagramApi import DiagramApi
 from .TupleActionProcessor import makeTupleActionProcessorHandler
 from .TupleDataObservable import makeTupleDataObservableHandler
-from .admin_backend import makeAdminBackendHandlers
+from .admin_handlers import makeAdminBackendHandlers
 from .controller.StatusController import StatusController
 
 logger = logging.getLogger(__name__)
@@ -114,6 +116,18 @@ class ServerEntryHook(PluginServerEntryHookABC,
 
         # Create the Live DB Controller
         liveDbApi: LiveDBApiABC = self.platform.getOtherPluginApi("peek_plugin_livedb")
+
+        # Create the Watch Grid Controller
+        liveDbWatchController = LiveDbWatchController(liveDbWriteApi=liveDbApi.writeApi,
+                                                      dbSessionCreator=self.dbSessionCreator)
+        self._loadedObjects.append(liveDbWatchController)
+
+        # Create the API for the client
+        self._loadedObjects.extend(
+            RpcForClient(liveDbWatchController=liveDbWatchController,
+                         dbSessionCreator=self.dbSessionCreator)
+            .makeHandlers()
+        )
 
         # Create the Live DB Import Controller
         dispLinkImportController = DispLinkImportController(

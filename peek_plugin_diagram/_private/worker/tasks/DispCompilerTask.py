@@ -148,6 +148,7 @@ class DispCompilerTask:
                 conn.execute(gridTable.insert(), gridKeyIndexes)
             conn.execute(queueTable.delete(queueTable.c.id <= lastQueueId))
 
+            # Directly insert into the Grid compiler queue.
             if gridCompiledQueueItems:
                 conn.execute(GridKeyCompilerQueueTable.__table__.insert(),
                              gridCompiledQueueItems)

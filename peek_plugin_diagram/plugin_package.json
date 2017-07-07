@@ -33,15 +33,20 @@
     },
     "mobile": {
         "showHomeLink": true,
-        "appDir": "_private/mobile-app",
+        "appDir": "_private/both-app",
         "appModule": "diagram.module#DiagramModule",
-        "assetDir": "_private/mobile-assets",
+        "assetDir": "_private/both-assets",
         "icon": "/assets/peek_plugin_diagram/icon.png",
         "moduleDir": "plugin-module"
     },
     "agent": {
     },
     "desktop": {
+        "showHomeLink": true,
+        "appDir": "_private/both-app",
+        "appModule": "diagram.module#DiagramModule",
+        "assetDir": "_private/both-assets",
+        "icon": "/assets/peek_plugin_diagram/icon.png",
         "moduleDir": "plugin-module"
     }
 }

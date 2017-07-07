@@ -1,16 +1,19 @@
+from typing import List
+
 from collections import defaultdict
 from copy import copy
-from datetime import datetime
-
-from peek.core.orm.GridKeyIndex import GridKeyIndexCompiled
-from peek.core.orm.ModelSet import ModelCoordSet
 from twisted.internet.defer import DeferredList
 from twisted.internet.threads import deferToThread
 from twisted.python.failure import Failure
 
-from txhttputil import Payload
-from txhttputil import PayloadEndpoint
-from txhttputil import vortexSendVortexMsg, vortexSendPayload
+from peek_plugin_diagram._private.PluginNames import diagramFilt
+from peek_plugin_diagram._private.client.controller.GridCacheController import \
+    GridCacheController
+from peek_plugin_diagram._private.server.client_handlers.RpcForClient import RpcForClient
+from vortex.DeferUtil import vortexLogFailure
+from vortex.Payload import Payload
+from vortex.PayloadEndpoint import PayloadEndpoint
+from vortex.VortexFactory import VortexFactory
 
 __author__ = 'peek_server'
 '''
@@ -19,69 +22,44 @@ Created on 09/07/2014
 @author: synerty
 '''
 
-from peek.core.orm import getNovaOrmSession
-
 import logging
 
 logger = logging.getLogger(__name__)
 
 clientGridUpdateCheckFilt = {'key': "repo.client.grid.update_check"}
+clientGridUpdateCheckFilt.update(diagramFilt)
+
 clientGridObserveFilt = {'key': "repo.client.grid.observe"}
-serverAddNewGridFilt = {'key': "repo.server.add_new_grid"}
+clientGridObserveFilt.update(diagramFilt)
 
 
 # ModelSet HANDLER
-class ClientGridHandler(object):
-    def __init__(self):
-        ''' Create Model Hanlder
+class GridCacheHandler(object):
+    def __init__(self, gridCacheController: GridCacheController):
+        """ App Grid Handler
 
-        This handler will perform send a list of tuples built by buildModel
+        This class handles the custom needs of the desktop/mobile apps observing grids.
 
-        '''
+        """
+        self._gridCacheController = gridCacheController
 
-        self._epUpdateCheck = PayloadEndpoint(clientGridUpdateCheckFilt,
-                                              self._processUpdate)
+        self._epUpdateCheck = PayloadEndpoint(
+            clientGridUpdateCheckFilt, self._processUpdate
+        )
 
-        self._epObserve = PayloadEndpoint(clientGridObserveFilt,
-                                          self._processObserve)
-
-        self._epNewGrid = PayloadEndpoint(serverAddNewGridFilt,
-                                          self._processNewGrids)
+        self._epObserve = PayloadEndpoint(
+            clientGridObserveFilt, self._processObserve
+        )
 
         self._observedGridKeysByVortexUuid = defaultdict(list)
         self._observedVortexUuidsByGridKey = defaultdict(list)
-        self._gridCache = {}
-        self._cachedGridCoordSetIds = set()
 
-    def start(self):
-        self.reload()
+    def shutdown(self):
+        self._epUpdateCheck.shutdown()
+        self._epUpdateCheck = None
 
-    def reload(self):
-        startTime = datetime.utcnow()
-        logger.info("Caching compiled grids")
-        session = getNovaOrmSession()
-
-        enabledCoordSetIds = set([o[0] for o in session
-                                 .query(ModelCoordSet.id)
-                                 .filter(ModelCoordSet.enabled == True)
-                                 .all()])
-
-        if self._cachedGridCoordSetIds == enabledCoordSetIds:
-            logger.info("Caching update is not required")
-            return
-
-        qry = (session
-               .query(GridKeyIndexCompiled)
-               .filter(GridKeyIndexCompiled.coordSetId.in_(enabledCoordSetIds))
-               .yield_per(1000))
-
-        self._gridCache = {g.gridKey: g for g in qry}
-        session.expunge_all()
-        session.close()
-
-        self._cachedGridCoordSetIds = enabledCoordSetIds
-
-        logger.info("Caching completed in %s", datetime.utcnow() - startTime)
+        self._epObserve.shutdown()
+        self._epObserve = None
 
     def _processObserve(self, payload, vortexUuid, **kwargs):
         self._observedGridKeysByVortexUuid[vortexUuid] = payload.filt["gridKeys"]
@@ -92,30 +70,36 @@ class ClientGridHandler(object):
             for gridKey in gridKeys:
                 self._observedVortexUuidsByGridKey[gridKey].append(vortexUuid)
 
-        from peek.core.live_db.LiveDb import liveDb
-        liveDb.setWatchedGridKeys(list(self._observedVortexUuidsByGridKey))
+        d = RpcForClient.updateClientWatchedGrids(
+            list(self._observedVortexUuidsByGridKey)
+        )
+        d.addErrback(vortexLogFailure, logger, consumeError=False)
 
-    def _processNewGrids(self, payload, *args, **kwargs):
-        self.addCacheNewGrids(payload.tuples)
-
-    def addCacheNewGrids(self, gridKeyIndexCompileds):
+    def notifyOfGridUpdate(self, gridKeys: List[str]):
         payloadsByVortexUuid = defaultdict(Payload)
 
-        for compiledGrid in gridKeyIndexCompileds:
-            if not compiledGrid.coordSetId in self._cachedGridCoordSetIds:
-                continue
+        for gridKey in gridKeys:
 
-            self._gridCache[compiledGrid.gridKey] = compiledGrid
-            vortexUuids = self._observedVortexUuidsByGridKey.get(compiledGrid.gridKey, [])
+            gridTuple = self._gridCacheController.grid(gridKey)
+            vortexUuids = self._observedVortexUuidsByGridKey.get(gridKey, [])
 
             # Queue up the required client notifications
             for vortexUuid in vortexUuids:
-                payloadsByVortexUuid[vortexUuid].tuples.append(compiledGrid)
+                payloadsByVortexUuid[vortexUuid].tuples.append(gridTuple)
 
         # Send the updates to the clients
+        dl = []
         for vortexUuid, payload in list(payloadsByVortexUuid.items()):
             payload.filt = clientGridUpdateCheckFilt
-            vortexSendPayload(payload, vortexUuid=vortexUuid)
+
+            # Serliase in thread, and then send.
+            d = payload.toVortexMsgDefer()
+            d.addCallback(VortexFactory.sendVortexMsg, destVortexUuid=vortexUuid)
+            dl.append(d)
+
+        # Log the errors, otherwise we don't care about them
+        dl = DeferredList(dl, fireOnOneErrback=True)
+        dl.addErrback(vortexLogFailure, logger, consumeError=True)
 
     def _processUpdate(self, payload, vortexUuid, session, **kwargs):
 
@@ -129,21 +113,24 @@ class ClientGridHandler(object):
         filt = copy(clientGridUpdateCheckFilt)
 
         def sendBad(failure):
-            vortexSendPayload(Payload(result=str(failure.value)), vortexUuid)
+            VortexFactory.sendVortexMsg(
+                Payload(result=str(failure.value)).toVortexMsg(),
+                destVortexUuid=vortexUuid
+            )
             return failure
 
         try:
 
-            grids = payloadFilt['grids']
+            gridKeys = payloadFilt['grids']
 
-            if not grids:
+            if not gridKeys:
                 logger.debug("There are no grids requested for update, exiting")
 
             deferreds = []
             index = 0
             chunkSize = 10
             while True:
-                gridKeysChunk = grids[index:index + chunkSize]
+                gridKeysChunk = gridKeys[index:index + chunkSize]
                 if not gridKeysChunk:
                     break
 
@@ -161,7 +148,10 @@ class ClientGridHandler(object):
 
     def _query(self, filt, clientGrids, vortexUuid):
         payload = self.queryForPayload(filt, clientGrids)
-        vortexSendVortexMsg(payload.toVortexMsg(), vortexUuid=vortexUuid)
+        VortexFactory.sendVortexMsg(
+            payload.toVortexMsg(),
+            destVortexUuid=vortexUuid
+        )
 
     def queryForPayload(self, filt, clientGrids):
         """ Query for Payload
@@ -181,7 +171,7 @@ class ClientGridHandler(object):
 
         for key, cDate in list(clientLastUpdateByGridKey.items()):
 
-            gridCompiled = self._gridCache.get(key)
+            gridCompiled = self._gridCacheController.grid(key)
 
             if not gridCompiled:
                 missingGridKeys.append(key)
@@ -211,6 +201,3 @@ class ClientGridHandler(object):
                         len(gridsToSend), len(missingGridKeys)))
 
         return payload
-
-
-clientGridHandler = ClientGridHandler()
