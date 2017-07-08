@@ -8,73 +8,15 @@ import {
 } from "@synerty/vortexjs";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 import {Subject} from "rxjs";
-import {PeekModelNoopDb} from "./PeekModelNoopDb";
-import {PeekModelWebSqlDb} from "./PeekModelWebSqlDb";
-import {PeekModelIndexedDb} from "./PeekModelIndexedDb";
+import {NoopDb} from "./NoopDb";
+import {WebSqlDb} from "./WebSqlDb";
+import {IndexedDb} from "./IndexedDb";
 import {dateStr, dictKeysFromObject, dictSetFromArray, assert, bind} from "../DiagramUtil";
-import {PeekModelGridLookupStore} from "./PeekModelGridLookupStore";
-import {GridKeyIndexCompiledTuple} from "../tuples/GridKeyIndexCompiledTuple";
+import {LookupCache} from "./LookupCache";
+import {GridTuple} from "../tuples/GridTuple";
+import {LinkedGrid} from "./PeekCanvasModelGrid";
 
-/** Peek Canvas Model Grid
- *
- * This class represents a constructed grid of data, ready for use by a canvas model
- *
- */
-export class PeekCanvasModelGrid {
-    gridKey = null;
-    lastUpdate = null;
-    loadedFromServerDate = new Date();
-    disps = [];
-    gridKey = null;
 
-    constructor(serverCompiledGridOrGridKey: string | GridKeyIndexCompiledTuple,
-                lookupStore: PeekModelGridLookupStore | null = null) {
-
-        // initialise for empty grid keys
-        if (typeof serverCompiledGridOrGridKey === "string") {
-            this.gridKey = serverCompiledGridOrGridKey;
-            return;
-        }
-
-        let serverCompiledGrid = <GridKeyIndexCompiledTuple>serverCompiledGridOrGridKey;
-        assert(lookupStore != null, "lookupStore can not be null");
-
-        this.gridKey = serverCompiledGrid.gridKey;
-        this.lastUpdate = serverCompiledGrid.lastUpdate;
-        this.loadedFromServerDate = new Date();
-
-        this.disps = [];
-        let disps = [];
-
-        if (serverCompiledGrid.blobData != null
-            && serverCompiledGrid.blobData.length != 0) {
-            let pako = require("pako");
-            try {
-                let dispJsonStr = pako.inflate(serverCompiledGrid.blobData, {to: 'string'});
-                disps = JSON.parse(dispJsonStr);
-            } catch (e) {
-                console.error(e.message);
-            }
-        }
-
-        // Resolve the lookups
-        for (let j = 0; j < disps.length; j++) {
-            let disp = disps[j];
-            if (disp.id == null) {
-                // This mitigates an old condition caused by the grid compiler
-                // including dips that had not yet had json assigned.
-                continue;
-            }
-            if (lookupStore.linkDispLookups(disp) != null) {
-                this.disps.push(disp);
-            }
-        }
-    }
-
-    hasData() {
-        return !(this.lastUpdate == null && this.disps.length == 0);
-    }
-}
 
 /** Grid Update Event
  *
@@ -82,7 +24,7 @@ export class PeekCanvasModelGrid {
  *
  */
 export interface GridUpdateEventI {
-    modelGrids: PeekCanvasModelGrid[];
+    modelGrids: LinkedGrid[];
     fromServer: boolean;
 }
 
@@ -98,7 +40,7 @@ export interface GridUpdateEventI {
  *
  */
 @Injectable()
-export class PeekModelGridDataStore extends ComponentLifecycleEventEmitter {
+export class GridDataStore extends ComponentLifecycleEventEmitter {
 
     _gridDataStore;
 
@@ -113,10 +55,10 @@ export class PeekModelGridDataStore extends ComponentLifecycleEventEmitter {
 
     constructor(private balloonMsg: Ng2BalloonMsgService,
                 private vortexService: VortexService,
-                private gridLookupStore: PeekModelGridLookupStore) {
+                private gridLookupStore: LookupCache) {
         super();
 
-        let providers = [PeekModelWebSqlDb, PeekModelIndexedDb];
+        let providers = [WebSqlDb, IndexedDb];
 
         for (let i = 0; i < providers.length; i++) {
             let SqlDb = providers[i];
@@ -132,7 +74,7 @@ export class PeekModelGridDataStore extends ComponentLifecycleEventEmitter {
         if (this._gridDataStore) {
             this.balloonMsg.showInfo("Using " + this._gridDataStore.name + " Client Caching");
         } else {
-            this._gridDataStore = new PeekModelNoopDb();
+            this._gridDataStore = new NoopDb();
             this.balloonMsg.showWarning("Client caching not supported, we'll work with out it.");
         }
 
@@ -253,7 +195,7 @@ export class PeekModelGridDataStore extends ComponentLifecycleEventEmitter {
         for (let i = 0; i < compiledGrids.length; i++) {
             let compiledGrid = compiledGrids[i];
 
-            let modelGrid = new PeekCanvasModelGrid(compiledGrid, this.gridLookupStore);
+            let modelGrid = new LinkedGrid(compiledGrid, this.gridLookupStore);
             this._gridBuffer[modelGrid.gridKey] = modelGrid;
             modelGrids.push(modelGrid);
             delete requestedGridKeysSet[modelGrid.gridKey]
@@ -266,7 +208,7 @@ export class PeekModelGridDataStore extends ComponentLifecycleEventEmitter {
             let requestedGridKey = requestedGridKeysArray[i];
 
             // Create the empty model grid.
-            let modelGrid = new PeekCanvasModelGrid(requestedGridKey);
+            let modelGrid = new LinkedGrid(requestedGridKey);
             this._gridBuffer[modelGrid.gridKey] = modelGrid;
             modelGrids.push(modelGrid);
         }
@@ -283,7 +225,7 @@ export class PeekModelGridDataStore extends ComponentLifecycleEventEmitter {
 
 
     _processCachedLoadedGrids(requestedGridKeys: string[],
-                              compiledGrids: GridKeyIndexCompiledTuple[]) {
+                              compiledGrids: GridTuple[]) {
 
 
         // Filt to ask the server for updates
@@ -307,7 +249,7 @@ export class PeekModelGridDataStore extends ComponentLifecycleEventEmitter {
             gridKeysLoadedFromCache[compiledGrid.gridKey] = true;
 
             // Load disps and buffer in memory
-            let modelGrid = new PeekCanvasModelGrid(compiledGrid, this.gridLookupStore);
+            let modelGrid = new LinkedGrid(compiledGrid, this.gridLookupStore);
             this._gridBuffer[modelGrid.gridKey] = modelGrid;
             modelGrids.push(modelGrid);
         }

@@ -8,7 +8,7 @@
 define([
             // Named Depencencies
             "AngFormLoadController",
-            "PeekModelGridDataManager",
+            "GridDataManager",
             // Unnamed Dependencies
             "angular"
         ],
@@ -18,7 +18,7 @@ define([
             var peekModelNavbarLayerMenuMod = angular.module('peekModelNavbarLayerMenuMod', []);
 
 // ------ PlaceholderCtrl
-            peekModelNavbarLayerMenuMod.controller('PeekModelNavbarLayerMenuCtrl', [
+            peekModelNavbarLayerMenuMod.controller('NavbarLayerMenuCtrl', [
                 '$scope',
                 function ($scope) {
                     var self = this;
@@ -44,9 +44,9 @@ define([
             peekModelNavbarLayerMenuMod.directive('peekModelNavbarLayerMenu', function () {
                 return {
                     restrict: 'E',
-                    templateUrl: '/view/PeekModelNavbarLayerMenu.html',
+                    templateUrl: '/view/NavbarLayerMenu.html',
                     replace: true,
-                    controller: 'PeekModelNavbarLayerMenuCtrl',
+                    controller: 'NavbarLayerMenuCtrl',
                     controllerAs: 'layerMenuC'
                 };
             });

@@ -7,7 +7,7 @@ import {dictValuesFromObject} from "../DiagramUtil";
  * This class is responsible for storing the lookup data from the server
  *
  */
-export class PeekModelGridLookupStore {
+export class LookupCache {
     private _lookupLoadCount = 0;
     private _lookupTargetCount = 5;
 
@@ -39,6 +39,7 @@ export class PeekModelGridLookupStore {
 // Accessors for common lookup data
 
     _init() {
+
 
 
         let makeEndpoint = (key, lookupName, callback = null) => {

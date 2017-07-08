@@ -1,8 +1,8 @@
 import {Injectable} from "@angular/core";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 import {VortexService, extend} from "@synerty/vortexjs";
-import {GridUpdateEventI, PeekModelGridDataStore} from "./PeekModelGridDataStore";
-import {PeekModelGridLookupStore} from "./PeekModelGridLookupStore";
+import {GridUpdateEventI, GridDataStore} from "./GridDataStore";
+import {LookupCache} from "./GridLookupStore";
 import Subject from "rxjs";
 import {dictKeysFromObject, dictSetFromArray, dictValuesFromObject} from "../DiagramUtil";
 
@@ -19,9 +19,9 @@ import {dictKeysFromObject, dictSetFromArray, dictValuesFromObject} from "../Dia
  *
  */
 @Injectable()
-export class PeekModelGridDataManager {
-    _gridLookupStore:PeekModelGridLookupStore;
-    _gridDataStore:PeekModelGridDataStore;
+export class GridCache {
+    _gridLookupStore:LookupCache;
+    _gridDataStore:GridDataStore;
 
         // Variables required to determine when we need to inform the
         // server of view changes.
@@ -34,10 +34,10 @@ export class PeekModelGridDataManager {
                 private vortexService:VortexService) {
 
         // Create/store references to the data stores
-        this._gridLookupStore = new PeekModelGridLookupStore(
+        this._gridLookupStore = new LookupCache(
             balloonMsg, vortexService
         );
-        this._gridDataStore = new PeekModelGridDataStore(
+        this._gridDataStore = new GridDataStore(
             balloonMsg, vortexService, this._gridLookupStore,
         );
 

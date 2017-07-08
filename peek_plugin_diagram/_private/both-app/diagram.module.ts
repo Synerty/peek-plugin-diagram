@@ -1,56 +1,33 @@
 import {CommonModule} from "@angular/common";
 import {NgModule} from "@angular/core";
 import {Routes} from "@angular/router";
-
 // Import a small abstraction library to switch between nativescript and web
 import {PeekModuleFactory} from "@synerty/peek-util/index.web";
-
 // Import the default route component
 import {DiagramComponent} from "./diagram.component";
-
-// Import the required classes from VortexJS
-import {
-    TupleOfflineStorageNameService,
-    TupleOfflineStorageService
-} from "@synerty/vortexjs";
-
-// Import the names we need for the
-import {
-    diagramTupleOfflineServiceName
-} from "@peek/peek_plugin_diagram/_private/PluginNames";
-
-// Import the required classes from VortexJS
-import {
-    TupleDataObservableNameService,
-    TupleDataObserverService,
-    TupleDataOfflineObserverService
-} from "@synerty/vortexjs";
-
-// Import the names we need for the
-import {StringIntComponent} from "./string-int/string-int.component";
-
-import {
-    diagramObservableName,
-    diagramFilt
-} from "@peek/peek_plugin_diagram/_private/PluginNames";
-
 // Import the required classes from VortexJS
 import {
     TupleActionPushNameService,
     TupleActionPushOfflineService,
-    TupleActionPushService
+    TupleActionPushService,
+    TupleDataObservableNameService,
+    TupleDataObserverService,
+    TupleDataOfflineObserverService,
+    TupleOfflineStorageNameService,
+    TupleOfflineStorageService
 } from "@synerty/vortexjs";
-
 // Import the names we need for the
 import {
-    diagramActionProcessorName
-} from "@peek/peek_plugin_diagram/_private";
-
-
+    diagramActionProcessorName,
+    diagramFilt,
+    diagramObservableName,
+    diagramTupleOfflineServiceName
+} from "@peek/peek_plugin_diagram/_private/PluginNames";
 // Import global modules, for example, the canvas extensions.
 import "./canvas/PeekCanvasExtensions";
-import {DisplayCanvasSplashScreen} from "./splash/diagram-splash-screen.service";
-import {PeekModelDataGridManager} from "./cache/PeekModelDataGridManager";
+import {DisplayCanvasSplashScreen} from "./loading-splash/loading-splash.service";
+import {GridCache} from "./cache/GridCache";
+import {DiagramClientTupleOfflineObservable} from "./DiagramClientTupleOfflineObservable";
 
 export function tupleActionPushNameServiceFactory() {
     return new TupleActionPushNameService(
@@ -68,10 +45,10 @@ export function tupleOfflineStorageNameServiceFactory() {
 
 // Define the child routes for this plugin
 export const pluginRoutes: Routes = [
-    {
-        path: 'stringint',
-        component: StringIntComponent
-    },
+    // {
+    //     path: 'diagram',
+    //     component: StringIntComponent
+    // },
     {
         path: '',
         pathMatch: 'full',
@@ -104,11 +81,12 @@ export const pluginRoutes: Routes = [
             provide: TupleDataObservableNameService,
             useFactory: tupleDataObservableNameServiceFactory
         },
+        DiagramClientTupleOfflineObservable,
         DisplayCanvasSplashScreen,
-        PeekModelDataGridManager
+        GridCache
 
     ],
-    declarations: [DiagramComponent, StringIntComponent]
+    declarations: [DiagramComponent]
 })
 export class DiagramModule {
 }

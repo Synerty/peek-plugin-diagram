@@ -1,5 +1,5 @@
 import {addTupleType, Tuple} from "@synerty/vortexjs";
-import {diagramTuplePrefix} from "../PluginNames";
+import {diagramTuplePrefix} from "../../../plugin-module/_private/PluginNames";
 
 
 @addTupleType

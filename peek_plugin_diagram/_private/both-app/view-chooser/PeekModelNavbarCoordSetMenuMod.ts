@@ -17,7 +17,7 @@ define( [
             var peekModelNavbarCoordSetMenuMod = angular.module('peekModelNavbarCoordSetMenuMod', []);
 
 // ------ PlaceholderCtrl
-            peekModelNavbarCoordSetMenuMod.controller('PeekModelNavbarCoordSetMenuCtrl', [
+            peekModelNavbarCoordSetMenuMod.controller('NavbarCoordSetMenuCtrl', [
                 '$scope',
                 function ($scope) {
                     var self = this;
@@ -56,9 +56,9 @@ define( [
             peekModelNavbarCoordSetMenuMod.directive('peekModelNavbarCoordSetMenu', function () {
                 return {
                     restrict: 'E',
-                    templateUrl: '/view/PeekModelNavbarCoordSetMenu.html',
+                    templateUrl: '/view/NavbarCoordSetMenu.html',
                     replace: true,
-                    controller: 'PeekModelNavbarCoordSetMenuCtrl',
+                    controller: 'NavbarCoordSetMenuCtrl',
                     controllerAs: 'navigationMenuC'
                 };
             });

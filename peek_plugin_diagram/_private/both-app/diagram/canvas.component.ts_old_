@@ -23,7 +23,7 @@ define("PeekCanvasMod", [
             "PeekCanvasConfig",
             // Unnamed Dependencies
             "angular", "jquery",
-            "PeekModelGridDataManager",
+            "GridDataManager",
             "PeekCanvasBounds",
             "PeekCanvasInputDelegate",
             "PeekSplashScreenModalMod",
