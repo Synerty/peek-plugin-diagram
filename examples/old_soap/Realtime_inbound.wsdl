@@ -1,0 +1,617 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="Realtime" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="Realtime" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="Realtime">
+      <s:element name="FetchScalarValue">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="FetchScalarValueStc" type="tns:FetchScalarValueStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="FetchScalarValueStc">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Address" type="tns:RtdbAddressStc" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="RtdbAddressStc">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="AttributeName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ComponentAlias" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="FetchScalarValueResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="FetchScalarValueResponseStc" type="tns:FetchScalarValueResponseStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="FetchScalarValueResponseStc">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ErrorMsg" nillable="true" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Scalar" type="tns:ScalarNullableStc" />
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ScalarNullableStc">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Quality" nillable="true" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="Timestamp" nillable="true" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="Value" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="FetchScalarValues">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="FetchScalarValuesStc" type="tns:FetchScalarValuesStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="FetchScalarValuesStc">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Address" type="tns:RtdbAddressStc" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="FetchScalarValuesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="FetchScalarValuesResponseStc" type="tns:FetchScalarValuesResponseStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="FetchScalarValuesResponseStc">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ErrorMsg" nillable="true" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Result" type="tns:FetchScalarValueResultStc" />
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="FetchScalarValueResultStc">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Address" type="tns:RtdbAddressStc" />
+          <s:element minOccurs="1" maxOccurs="1" name="Scalar" type="tns:ScalarNullableStc" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateScalarValue">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateScalarValueStc" type="tns:UpdateScalarValueStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateScalarValueStc">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Address" type="tns:RtdbAddressStc" />
+          <s:element minOccurs="1" maxOccurs="1" name="Scalar" type="tns:ScalarStc" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ScalarStc">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Quality" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="Timestamp" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateScalarValueResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateScalarValueResponseStc" type="tns:UpdateScalarValueResponseStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateScalarValueResponseStc">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ErrorMsg" nillable="true" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateScalarValues">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateScalarValuesStc" type="tns:UpdateScalarValuesStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateScalarValuesStc">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Update" type="tns:UpdateScalarValueRequestStc" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UpdateScalarValueRequestStc">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Address" type="tns:RtdbAddressStc" />
+          <s:element minOccurs="1" maxOccurs="1" name="Scalar" type="tns:ScalarStc" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateScalarValuesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateScalarValuesResponseStc" type="tns:UpdateScalarValuesResponseStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateScalarValuesResponseStc">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ErrorMsg" nillable="true" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Result" type="tns:UpdateScalarValueResultStc" />
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UpdateScalarValueResultStc">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Address" type="tns:RtdbAddressStc" />
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="AddTag">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="AddTagStc" type="tns:AddTagStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="AddTagStc">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="AssociatedObjectReference" nillable="true" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Comment" nillable="true" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ComponentAlias" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="OperatorName" nillable="true" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="TagType" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="Timestamp" nillable="true" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="AddTagResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="AddTagResponseStc" type="tns:AddTagResponseStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="AddTagResponseStc">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMsg" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateTag">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateTagStc" type="tns:UpdateTagStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateTagStc">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="AssociatedObjectReference" nillable="true" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Comment" nillable="true" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ComponentAlias" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="OperatorName" nillable="true" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="TagType" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="Timestamp" nillable="true" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateTagResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateTagResponseStc" type="tns:UpdateTagResponseStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateTagResponseStc">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMsg" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeleteTag">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DeleteTagStc" type="tns:DeleteTagStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeleteTagStc">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="AssociatedObjectReference" nillable="true" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Comment" nillable="true" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ComponentAlias" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="OperatorName" nillable="true" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="TagType" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeleteTagResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DeleteTagResponseStc" type="tns:DeleteTagResponseStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeleteTagResponseStc">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMsg" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="AddTags">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="AddTagsStc" type="tns:AddTagsStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="AddTagsStc">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Tag" type="tns:AddTagStc" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="AddTagsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="AddTagsResponseStc" type="tns:AddTagsResponseStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="AddTagsResponseStc">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMsg" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="WarnLog" type="tns:WarnLogStc" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WarnLogStc">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="unbounded" name="Msg" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateTags">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateTagsStc" type="tns:UpdateTagsStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateTagsStc">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Tag" type="tns:UpdateTagStc" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateTagsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateTagsResponseStc" type="tns:UpdateTagsResponseStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UpdateTagsResponseStc">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMsg" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="WarnLog" type="tns:WarnLogStc" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeleteTags">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DeleteTagsStc" type="tns:DeleteTagsStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeleteTagsStc">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Tag" type="tns:DeleteTagStc" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeleteTagsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DeleteTagsResponseStc" type="tns:DeleteTagsResponseStc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeleteTagsResponseStc">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMsg" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="WarnLog" type="tns:WarnLogStc" />
+        </s:sequence>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="FetchScalarValueSoapIn">
+    <wsdl:part name="parameters" element="tns:FetchScalarValue" />
+  </wsdl:message>
+  <wsdl:message name="FetchScalarValueSoapOut">
+    <wsdl:part name="parameters" element="tns:FetchScalarValueResponse" />
+  </wsdl:message>
+  <wsdl:message name="FetchScalarValuesSoapIn">
+    <wsdl:part name="parameters" element="tns:FetchScalarValues" />
+  </wsdl:message>
+  <wsdl:message name="FetchScalarValuesSoapOut">
+    <wsdl:part name="parameters" element="tns:FetchScalarValuesResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateScalarValueSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateScalarValue" />
+  </wsdl:message>
+  <wsdl:message name="UpdateScalarValueSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateScalarValueResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateScalarValuesSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateScalarValues" />
+  </wsdl:message>
+  <wsdl:message name="UpdateScalarValuesSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateScalarValuesResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddTagSoapIn">
+    <wsdl:part name="parameters" element="tns:AddTag" />
+  </wsdl:message>
+  <wsdl:message name="AddTagSoapOut">
+    <wsdl:part name="parameters" element="tns:AddTagResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTagSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateTag" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTagSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateTagResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTagSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteTag" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTagSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteTagResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddTagsSoapIn">
+    <wsdl:part name="parameters" element="tns:AddTags" />
+  </wsdl:message>
+  <wsdl:message name="AddTagsSoapOut">
+    <wsdl:part name="parameters" element="tns:AddTagsResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTagsSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateTags" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTagsSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateTagsResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTagsSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteTags" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTagsSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteTagsResponse" />
+  </wsdl:message>
+  <wsdl:portType name="RealtimeSoap">
+    <wsdl:operation name="FetchScalarValue">
+      <wsdl:input message="tns:FetchScalarValueSoapIn" />
+      <wsdl:output message="tns:FetchScalarValueSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FetchScalarValues">
+      <wsdl:input message="tns:FetchScalarValuesSoapIn" />
+      <wsdl:output message="tns:FetchScalarValuesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateScalarValue">
+      <wsdl:input message="tns:UpdateScalarValueSoapIn" />
+      <wsdl:output message="tns:UpdateScalarValueSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateScalarValues">
+      <wsdl:input message="tns:UpdateScalarValuesSoapIn" />
+      <wsdl:output message="tns:UpdateScalarValuesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddTag">
+      <wsdl:input message="tns:AddTagSoapIn" />
+      <wsdl:output message="tns:AddTagSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTag">
+      <wsdl:input message="tns:UpdateTagSoapIn" />
+      <wsdl:output message="tns:UpdateTagSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTag">
+      <wsdl:input message="tns:DeleteTagSoapIn" />
+      <wsdl:output message="tns:DeleteTagSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddTags">
+      <wsdl:input message="tns:AddTagsSoapIn" />
+      <wsdl:output message="tns:AddTagsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTags">
+      <wsdl:input message="tns:UpdateTagsSoapIn" />
+      <wsdl:output message="tns:UpdateTagsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTags">
+      <wsdl:input message="tns:DeleteTagsSoapIn" />
+      <wsdl:output message="tns:DeleteTagsSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="RealtimeSoap" type="tns:RealtimeSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="FetchScalarValue">
+      <soap:operation soapAction="Realtime/FetchScalarValue" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FetchScalarValues">
+      <soap:operation soapAction="Realtime/FetchScalarValues" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateScalarValue">
+      <soap:operation soapAction="Realtime/UpdateScalarValue" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateScalarValues">
+      <soap:operation soapAction="Realtime/UpdateScalarValues" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddTag">
+      <soap:operation soapAction="Realtime/AddTag" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTag">
+      <soap:operation soapAction="Realtime/UpdateTag" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTag">
+      <soap:operation soapAction="Realtime/DeleteTag" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddTags">
+      <soap:operation soapAction="Realtime/AddTags" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTags">
+      <soap:operation soapAction="Realtime/UpdateTags" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTags">
+      <soap:operation soapAction="Realtime/DeleteTags" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="RealtimeSoap12" type="tns:RealtimeSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="FetchScalarValue">
+      <soap12:operation soapAction="Realtime/FetchScalarValue" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FetchScalarValues">
+      <soap12:operation soapAction="Realtime/FetchScalarValues" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateScalarValue">
+      <soap12:operation soapAction="Realtime/UpdateScalarValue" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateScalarValues">
+      <soap12:operation soapAction="Realtime/UpdateScalarValues" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddTag">
+      <soap12:operation soapAction="Realtime/AddTag" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTag">
+      <soap12:operation soapAction="Realtime/UpdateTag" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTag">
+      <soap12:operation soapAction="Realtime/DeleteTag" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddTags">
+      <soap12:operation soapAction="Realtime/AddTags" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTags">
+      <soap12:operation soapAction="Realtime/UpdateTags" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTags">
+      <soap12:operation soapAction="Realtime/DeleteTags" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Realtime">
+    <wsdl:port name="RealtimeSoap" binding="tns:RealtimeSoap">
+      <soap:address location="http://localhost/SOAPInBound/Realtime.asmx" />
+    </wsdl:port>
+    <wsdl:port name="RealtimeSoap12" binding="tns:RealtimeSoap12">
+      <soap12:address location="http://localhost/SOAPInBound/Realtime.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

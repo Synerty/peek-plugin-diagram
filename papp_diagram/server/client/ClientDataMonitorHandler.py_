@@ -1,0 +1,85 @@
+from collections import namedtuple, defaultdict
+from copy import copy
+from datetime import datetime
+
+from peek.api.DataMonitorTuples import DataMonitorResponseTuple
+from rapui.vortex.PayloadEndpoint import PayloadEndpoint
+from twisted.internet.defer import DeferredList
+from twisted.internet.threads import deferToThread
+from twisted.python.failure import Failure
+
+from peek.core.orm.GridKeyIndex import GridKeyIndexCompiled
+from rapui.vortex.Payload import Payload
+from rapui.vortex.VortexService import vortexSendVortexMsg, vortexSendPayload
+
+__author__ = 'peek'
+'''
+Created on 09/07/2014
+
+@author: synerty
+'''
+
+from peek.core.orm import getNovaOrmSession
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+# =============================================================================
+# Decorator and providers list
+
+CLIENT_DATA_PROVIDERS = {}
+
+if not CLIENT_DATA_PROVIDERS:
+    CLIENT_DATA_PROVIDERS = {}
+
+
+def addClientDataProvider(dataType):
+    def decorator(Provider):
+        CLIENT_DATA_PROVIDERS[dataType] = Provider
+        return Provider
+
+    return decorator
+
+
+class ClientDataProvider(object):
+    def _monitoredDataChanged(self, instance, data):
+        raise NotImplementedError
+
+
+# =============================================================================
+# Data Monitor Handler
+clientDataMonitorRequestFilt = {'key': "client.data.monitor.request"}
+clientDataMonitorResponseFilt = {'key': "client.data.monitor.request"}
+
+
+class ClientDataMonitorHandler(object):
+    def __init__(self):
+        self._ep = PayloadEndpoint(clientDataMonitorRequestFilt, self._process)
+
+        # We need to track, the vortex, dataType, instance and dataKey
+        self._vortexUuidsByDataKeyByInstanceByDataType = {}
+
+        # TODO, Periodocally clean out this based on expired vortexes
+
+    def _process(self, payload, vortexUuid, session, **kwargs):
+
+    def sendDataResponse(self, dataType, instance, dataByDataKeys):
+        vortexUuidsByDataKeyByInstance = (self._vortexUuidsByDataKeyByInstanceByDataType
+                                         .get(dataType, {}))
+
+        vortexUuidsByDataKey = (vortexUuidsByDataKeyByInstance.get(instance, {}))
+        
+        payloadsByVortexUuid = defaultdict(Payload)
+
+        for dataKey in dataByDataKeys:
+            vortexUuids = vortexUuidsByDataKey.get(dataKey, [])
+            if not vortexUuids:
+                continue
+                
+            for vortexUuid in vortexUuids:
+                payload = payloadsByVortexUuid[vortexUuid]
+                payload.ch
+
+
+peekDispHandler = ClientDataMonitorHandler(dispFilt)

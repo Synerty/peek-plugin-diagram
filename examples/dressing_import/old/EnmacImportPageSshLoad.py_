@@ -1,0 +1,238 @@
+import logging
+
+from twisted.python.failure import Failure
+
+__author__ = 'peek'
+
+from tempfile import NamedTemporaryFile
+
+from twisted.internet.defer import Deferred
+from twisted.internet import defer, protocol, reactor
+from twisted.conch.ssh import transport, userauth, connection, common, channel
+
+USER = 'enmac'  # replace this with a valid username
+
+logger = logging.getLogger(__name__)
+
+
+class SimpleTransport(transport.SSHClientTransport):
+    resultDeferred = None
+    password = None
+
+    def verifyHostKey(self, hostKey, fingerprint):
+        logger.debug('host key fingerprint: %s' % fingerprint)
+        return defer.succeed(1)
+
+    def connectionSecure(self):
+        self.requestService(
+            SimpleUserAuth(USER, self.password, SimpleConnection(self.resultDeferred)))
+
+
+class SimpleUserAuth(userauth.SSHUserAuthClient):
+    preferredOrder = ['password']
+
+    def __init__(self, user, password, connection):
+        userauth.SSHUserAuthClient.__init__(self, user, connection)
+        self.password = password
+
+    def getPassword(self):
+        return defer.succeed(self.password)
+
+        # def getGenericAnswers(self, name, instruction, questions):
+        #     print name
+        #     print instruction
+        #     answers = []
+        #     for prompt, echo in questions:
+        #         if echo:
+        #             answer = raw_input(prompt)
+        #         else:
+        #             answer = getpass.getpass(prompt)
+        #         answers.append(answer)
+        #     return defer.succeed(answers)
+        #
+        # def getPublicKey(self):
+        #     path = os.path.expanduser('~/.ssh/id_dsa')
+        #     # this works with rsa too
+        #     # just change the name here and in getPrivateKey
+        #     if not os.path.exists(path) or self.lastPublicKey:
+        #         # the file doesn't exist, or we've tried a public key
+        #         return
+        #     return keys.Key.fromFile(filename=path+'.pub').blob()
+        #
+        # def getPrivateKey(self):
+        #     path = os.path.expanduser('~/.ssh/id_dsa')
+        #     return defer.succeed(keys.Key.fromFile(path).keyObject)
+
+
+class SimpleConnection(connection.SSHConnection):
+    def __init__(self, resultDeferred):
+        self.resultDeferred = resultDeferred
+        connection.SSHConnection.__init__(self)
+
+    def serviceStarted(self):
+        self.openChannel(PPrimChannel(self, self.resultDeferred))
+
+
+class PPrimChannel(channel.SSHChannel):
+    name = 'session'
+
+    def __init__(self, connection, resultDeferred):
+        self.resultDeferred = resultDeferred
+        self.outFile = NamedTemporaryFile()
+        self.errFile = NamedTemporaryFile()
+        self.stderrReceived = False
+        channel.SSHChannel.__init__(self, 2 ** 16, 2 ** 15, connection)
+
+    def openFailed(self, reason):
+        self.resultDeferred.errback(reason)
+
+    def channelOpen(self, ignoredData):
+        logger.info("Connection succeded, sending command")
+        d = self.conn.sendRequest(self, 'exec', common.NS('bash -l'), wantReply=1)
+        d.addCallback(self._cbRequest)
+
+    def _cbRequest(self, ignored):
+        '''
+        :param ignored:
+        :return:
+
+            symbol_centre_x  218908.000000
+            symbol_centre_y  153802.000000
+            hot_spot.llx             218907.000000
+            hot_spot.lly             153803.000000
+            hot_spot.urx             218909.000000
+            hot_spot.ury             153805.000000
+            hot_spot.hot_spot_action 1 (Popup Menu + Dressing)
+            hot_spot.hot_spot_id     D0003de18HOT
+            hot_spot.component_id    D0005d9afCOMP
+
+        '''
+        logger.info("sending script")
+        scriptPprim = """source ~/.profile
+
+        set -o nounset
+        set -o errexit
+
+        cd /tmp
+        [ -d primdump ] && rm -rf primdump
+
+        mkdir /tmp/primdump
+        cd /tmp/primdump
+
+        function dumpPage() {
+            outFile=`echo $1 | sed 's,/,.,g'`
+            pprim -t 3 $1 | grep -v -F -- '----------' >> $outFile
+        }
+
+        for world in sub_trans_world dist_world
+        do
+            for f in `find /datafiles/pages/$world -regextype sed -regex ".*/[0-9]\{8\}"`
+            do
+                dumpPage $f &
+                while [ `jobs | wc -l` -gt 60 ]
+                do
+                    sleep 0.1s
+                done
+            done
+        done
+
+        echo "Waiting for jobs to finish"
+        while [ `jobs | wc -l` -ne 0 ]
+        do
+            jobs
+            sleep 5s
+        done
+
+        """
+
+        scriptPrint = """cd /tmp/primdump
+
+        echo "Printing files"
+        for f in *
+        do
+            if [ -s $f ]
+            then
+                echo "FILE=$f"
+                cat $f
+            fi
+        done
+
+        """
+
+        self.write(scriptPprim)
+        self.write(scriptPrint)
+        self.conn.sendEOF(self)
+
+    def dataReceived(self, data):
+        self.outFile.write(data)
+
+    def extReceived(self, dataType, data):
+        """
+        Called when we receive extended data (usually standard error).
+
+        @type dataType: C{int}
+        @type data:     C{str}
+        """
+        self.errFile.write(data)
+
+    def closed(self):
+        self.outFile.seek(0)
+        self.errFile.seek(0)
+
+        errLines = []
+        for line in self.errFile:
+            if not 'stty' in line:
+                errLines.append(line)
+
+        logger.info("PPrim Complete")
+        self.loseConnection()
+        if errLines:
+            msg = '\n'.join(errLines)
+            self.resultDeferred.errback(Failure(Exception(msg)))
+        else:
+            self.resultDeferred.callback(self.outFile)
+
+
+def getPPrimOutput(host, password_):
+    d = Deferred()
+
+    class Transport(SimpleTransport):
+        resultDeferred = d
+        password = password_
+
+    client = protocol.ClientCreator(reactor, Transport)
+    client.connectTCP(host, 22)
+    return d
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
+
+
+    def good(namedTempFile):
+        print "GOOD"
+        with open('/tmp/out', 'w') as f:
+            f.write(namedTempFile.read())
+        return namedTempFile
+
+
+    def bad(failure):
+        print "BAD"
+        logger.error(failure.value.message)
+        return failure
+
+
+    def finish(something):
+        reactor.stop()
+        exit(0)
+
+
+    from peek_agent_pof.imp_display import ENMAC_HOST, ENMAC_OS_PASSWORD
+
+    d = getPPrimOutput(ENMAC_HOST, ENMAC_OS_PASSWORD)
+
+    d.addCallback(good)
+    d.addErrback(bad)
+    d.addBoth(finish)
+
+    reactor.run()

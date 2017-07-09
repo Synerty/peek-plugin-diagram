@@ -1,0 +1,308 @@
+   <div>
+
+
+        <div id="toolboxPanel">
+            <input onclick="editorUi.tool.selectSelector()" type="submit" id="tbSelect" value="Select"
+                   onmouseover="this.style.cursor='hand'" class="selected" style="cursor: pointer;">
+            <input onclick="editorUi.tool.selectText()" type="submit" id="tbText" value="Text"
+                   onmouseover="this.style.cursor='hand'" class="" style="cursor: pointer;">
+            <input onclick="editorUi.tool.selectRectangle()" type="submit" id="tbRectangle" value="Rectangle"
+                   onmouseover="this.style.cursor='hand'" class="">
+            <input onclick="editorUi.tool.selectPoly()" type="submit" id="tbPoly" value="Poly / Line"
+                   onmouseover="this.style.cursor='hand'" class="" style="cursor: pointer;">
+            <input onclick="editorUi.tool.selectOval()" type="submit" id="tbOval" value="Oval"
+                   onmouseover="this.style.cursor='hand'" class="" style="cursor: pointer;">
+            <input onclick="editorUi.tool.selectImage()" type="submit" id="tbImage" value="Image"
+                   onmouseover="this.style.cursor='hand'" class="" style="cursor: pointer;">
+            <!-- <input type="submit" value="Spline" onClick="parent.location='cmdlink'"
+                onMouseOver="this.style.cursor='hand'" /&gt; -->
+
+            <span class="toolboxDivider"></span>
+            Grid :
+            <input style="width:40px;" onchange="editorUi.grid.changed()" type="text" id="tbGridSize" value="16">
+            Show Grid :
+            <input type="checkbox" onchange="editorUi.grid.changed()" checked="true" id="tbGridShow">
+            Snap Size:
+            <input style="width:40px;" onchange="editorUi.grid.changed()" type="text" id="tbGridSnapSize" value="4">
+            Snapping :
+            <input type="checkbox" onchange="editorUi.grid.changed()" checked="true" id="tbGridSnapping">
+
+
+        </div>
+
+        <div id="selectorPanel">
+            <div class="pageGroupListArea">
+                Page Groups
+                <select bodyload="editorUi.pageGroups.setElement(document.getElementById('0'));document.getElementById('0').getValue=SelectTagValueGetter;"
+                        onchange="getElem('0').uiobjValueChanged = true;" id="0"
+                        onclick="editorUi.pageGroups.itemSelected(event)" class="pageGroupList">
+                    <option value="1">Base Type 1</option>
+                    <option value="2">type 2</option>
+                </select>
+
+                <div class="pageGroupAddDel">
+                    <input value="+" type="submit" onmouseover="this.style.cursor='hand'"
+                           onclick="editorUi.pageGroups.addClicked()">
+                    <input value="-" type="submit" onmouseover="this.style.cursor='hand'"
+                           onclick="editorUi.pageGroups.delClicked()">
+                    <input value="Edit" type="submit" onmouseover="this.style.cursor='hand'"
+                           onclick="editorUi.pageGroups.editClicked()">
+                </div>
+            </div>
+
+            <hr>
+            <div class="pageListArea">
+                Pages
+                <select bodyload="editorUi.pages.setElement(document.getElementById('1'));document.getElementById('1').getValue=SelectTagValueGetter;"
+                        class="pageList" onclick="editorUi.pages.itemSelected(event)"
+                        onchange="getElem('1').uiobjValueChanged = true;" id="1" size="10">
+                    <option value="7">Alarm Status</option>
+                    <option value="8">Production Statistics</option>
+                    <option value="9">Pump Control</option>
+                    <option value="10">Valve Control</option>
+                    <option value="11">Vertical Free Flow</option>
+                    <option value="13">Site Overview</option>
+                </select>
+
+                <div class="pageAddDel">
+                    <input value="+" type="submit" onmouseover="this.style.cursor='hand'"
+                           onclick="editorUi.pages.addClicked()">
+                    <input value="-" type="submit" onmouseover="this.style.cursor='hand'"
+                           onclick="editorUi.pages.delClicked()">
+                    <input value="Edit" type="submit" onmouseover="this.style.cursor='hand'"
+                           onclick="editorUi.pages.editClicked()">
+                </div>
+
+                <br>
+                Page Properties
+
+                <br>
+                Swipe Left :
+                <select id="pagePropSwipeLeft" class="pageList">
+                    <option value="null"></option>
+                    <option value="7">Alarm Status</option>
+                    <option value="8">Production Statistics</option>
+                    <option value="9">Pump Control</option>
+                    <option value="10">Valve Control</option>
+                    <option value="11">Vertical Free Flow</option>
+                    <option value="13">Site Overview</option>
+                </select>
+                <br>
+
+                Swipe Right :
+                <select id="pagePropSwipeRight" class="pageList">
+                    <option value="null"></option>
+                    <option value="7">Alarm Status</option>
+                    <option value="8">Production Statistics</option>
+                    <option value="9">Pump Control</option>
+                    <option value="10">Valve Control</option>
+                    <option value="11">Vertical Free Flow</option>
+                    <option value="13">Site Overview</option>
+                </select>
+                <br>
+
+                <input value="Save" type="submit" onmouseover="this.style.cursor='hand'"
+                       onclick="editorUi.pages.propSaveClicked()">
+
+            </div>
+            <hr>
+
+            <div id="layerDynListBox">
+                <select oncontextmenu="disableContextMenu(event)" multiple="1"
+                        id="2" class="dynListBoxList"
+                        size="10">
+
+                    <option value="1">Background 1</option>
+                    <option value="2">Foreground</option>
+                    <option value="3">Background 2</option>
+                    <option value="4">Guidelines</option>
+                </select>
+
+                <div class="dynListBoxListButtons">
+                    <input class="dynListBoxListAdd" value="+" onmouseover="this.style.cursor='hand'">
+                    <input class="dynListBoxListDel" value="-" onmouseover="this.style.cursor='hand'">
+                    <input class="dynListBoxListEdit" value="Edit" onmouseover="this.style.cursor='hand'">
+                </div>
+            </div>
+        </div>
+
+        <div id="inspectorPanel" class="configSection">
+
+            <div id="50" style="display: block;">
+                <select oncontextmenu="disableContextMenu(event)" multiple="1"
+                        id="51" onchange="getElem('50').manager.itemSelected();" class="dynListBoxList" size="10">
+
+                    <option value="909">Text : 324x 212y 176.4921875w 16h
+                        Separator
+                    </option>
+                    <option value="910">Text : 324x 244y 271.6796875w 16h
+                        Down Hole
+                    </option>
+                </select>
+
+                <div class="dynListBoxListButtons">
+
+
+                </div>
+            </div>
+            <!-- Selected items list, for when more than one item is selected -->
+
+            <div id="inspectorOuter" class="configSection" style="display: none;">
+                <!-- The controls to add an addin -->
+                <span class="configTitle"> Addin :</span>
+                <select onchange="getElem('49').uiobjValueChanged = true;" id="49">
+                    <option></option>
+                    <option value="0">Goto Page</option>
+                    <option value="5">Telemetered Analog Control</option>
+                    <option value="1">Telemetered Analog Indication</option>
+                    <option value="4">Telemetered Digital Control</option>
+                    <option value="3">Telemetered Digital Indication</option>
+                    <option value="2">Generic Command</option>
+                </select>
+                <input type="submit" id="48" value="Add"
+                       onmouseover="this.style.cursor='hand'">
+                <input type="submit" onclick="editorInspector.deleteAddinsClicked()" value="Delete Addins">
+                <br>
+                <!-- The inspector panel, where real inspecting is done -->
+                <input onclick="editorInspector.saveClicked()" type="submit" id="inspectorPanelSubmit" value="Save"
+                       onmouseover="this.style.cursor='hand'">
+                <input onclick="editorInspector.revertClicked()" type="submit" id="inspectorPanelRevert" value="Revert"
+                       onmouseover="this.style.cursor='hand'" style="cursor: pointer;">
+                <br>
+
+                <div id="inspectorPanelInner" class="configSection" style="">
+                    <div bodyload="LoaderSubmitterData.create('78').addFilter({ id : '909', objectType : 'renderable' })"></div>
+                    <div class="inspector">
+
+                        <span class="configTitle"> Renderable:</span>
+
+                        <div id="78"></div>
+                        <br>
+
+                        <div class="configEntry">
+		<span class="entry entryInfo">
+			Layer:
+		</span>
+                            <select>
+                                <option value="1">1 : Background 1</option>
+                                <option value="2">3 : Foreground</option>
+                                <option value="3">2 : Background 2</option>
+                                <option value="4">0 : Guidelines</option>
+                            </select>
+                        </div>
+                        <div class="configEntry">
+		<span class="entry entryInfo">
+			Z Order:
+		</span>
+                            <input
+                                    type="text" id="77" style="">
+                        </div>
+                    </div>
+                    <div></div>
+                    <div class="inspector">
+
+                        <span class="configTitle"> Rectangle</span>
+                        <br>
+
+                        <div id="52"></div>
+
+                        <div class="configEntry">
+		<span class="entry entryInfo">
+			Left:
+		</span>
+                            <input value="" class="entry entryData"
+                                   type="text" id="53" style="">
+                        </div>
+                        <div class="configEntry">
+		<span class="entry entryInfo">
+			Top:
+		</span>
+                            <input value="" class="entry entryData"
+                                   type="text" id="54" style="">
+                        </div>
+                        <div class="configEntry">
+		<span class="entry entryInfo">
+			Horizontal Alignment:
+		</span>
+                            <select id="55" class="entry entryData"
+                                    style="">
+                                <option value="-1">Left</option>
+                                <option value="0">Center</option>
+                                <option value="1">Right</option>
+                            </select>
+                        </div>
+                        <div class="configEntry">
+		<span class="entry entryInfo">
+			Vertical Alignment:
+		</span>
+                            <select id="56" class="entry entryData"
+                                    style="">
+                                <option value="-1">Top</option>
+                                <option value="0">Center</option>
+                                <option value="1">Bottom</option>
+                            </select>
+                        </div>
+                        <div class="configEntry">
+		<span class="entry entryInfo">
+			Rotation:
+		</span>
+                            <input value="" class="entry entryData"
+                                   type="text" id="57" style="">
+                        </div>
+                        <div class="configEntry">
+		<span class="entry entryInfo">
+			Text:
+		</span>
+                            <input value="" class="entry entryData"
+                                   type="text" id="58" style="">
+                        </div>
+                        <div class="configEntry">
+		<span class="entry entryInfo">
+			Font Name:
+		</span>
+                            <input value="" class="entry entryData"
+                                   type="text" id="59" style="">
+                        </div>
+                        <div class="configEntry">
+		<span class="entry entryInfo">
+			Font Size:
+		</span>
+                            <input value="" class="entry entryData"
+                                   type="text" id="60" style="">
+                        </div>
+                        <div class="configEntry">
+		<span class="entry entryInfo">
+			Font Style:
+		</span>
+                            <input value="" class="entry entryData"
+                                   type="text" id="61" style="">
+                        </div>
+                        <div class="configEntry">
+		<span class="entry entryInfo">
+			Fill Color:
+		</span>
+                            <input value="" class="entry entryData"
+                                   type="text" id="62" style="">
+                        </div>
+                        <div class="configEntry">
+		<span class="entry entryInfo">
+			Line Color:
+		</span>
+                            <input value="" class="entry entryData"
+                                   type="text" id="63" style="">
+                        </div>
+                        <div class="configEntry">
+		<span class="entry entryInfo">
+			Line Size:
+		</span>
+                            <input value="" class="entry entryData"
+                                   type="text" id="64" style="">
+                        </div>
+                        <p></p>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>

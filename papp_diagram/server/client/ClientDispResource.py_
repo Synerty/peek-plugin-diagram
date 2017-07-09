@@ -1,0 +1,90 @@
+""" 
+ * view.common.uiobj.Style.py
+ *
+ *  Copyright Synerty Pty Ltd 2013
+ *
+ *  This software is proprietary, you are not free to copy
+ *  or redistribute this code in any format.
+ *
+ *  All rights to this software are reserved by 
+ *  Synerty Pty Ltd
+ *
+"""
+import json
+import logging
+from base64 import b64decode
+from datetime import datetime
+
+from rapui.site.ResourceUtil import BasicResource, addResourceCreator
+from twisted.internet.threads import deferToThread
+from twisted.web.server import NOT_DONE_YET
+
+logger = logging.getLogger(__name__)
+
+
+class PeekDispGridKeyResource(BasicResource):
+    isLeaf = True
+    isGzipped = True
+
+    def render_GET(self, request):
+        request.responseHeaders.setRawHeaders('content-type', ['application/json'])
+
+        startTime = datetime.utcnow()
+
+        class ConnectionStatus:
+            lost = False
+
+        def convertToJson(payload):
+            # We only respond if there are grid updates
+            if payload.filt['gridKeys']:
+                payload.tuples = [cg.tupleToSmallJsonDict() for cg in payload.tuples]
+                j = json.dumps(payload.toJsonDict())
+                logger.debug("json size is %s", len(j))
+                return j
+            else:
+                return json.dumps({})
+
+        def send(payloadJson):
+            if ConnectionStatus.lost:
+                return
+            request.write(payloadJson)
+            request.finish()
+
+        def bad(failure):
+            if not ConnectionStatus.lost:
+                request.write(json.dumps({'error': str(failure.value.message)}))
+                request.finish()
+            logger.error(failure.value)
+            return failure
+
+        filt = json.loads(b64decode(request.args['encodedFilt'][0]))
+        coordSetId = filt['coordSetId']
+        grids = filt['grids']
+        del filt['grids']
+
+        from peek.api.client.ClientGridHandler import peekDispHandler
+        d = deferToThread(peekDispHandler.queryForPayload, filt, coordSetId, grids)
+
+        d.addErrback(bad)
+        d.addCallback(lambda p: deferToThread(convertToJson, p))
+        d.addCallback(send)
+
+        def closedError(failure):
+            ConnectionStatus.lost = True
+            logger.error("closedError : %s" % failure.value)
+
+        def closedOk(data):
+            logger.debug("Request closed ok. Total time is %s"
+                         % (datetime.utcnow() - startTime))
+
+        request.notifyFinish().addCallbacks(closedOk, closedError)
+
+        return NOT_DONE_YET
+
+    def render_POST(self, request):
+        raise Exception("Peek model updates are not implemented yet")
+
+
+@addResourceCreator('/peek.disp.gridKey.json')
+def createPeekDispGridKeyResource(userAccess):
+    return PeekDispGridKeyResource(userAccess)
