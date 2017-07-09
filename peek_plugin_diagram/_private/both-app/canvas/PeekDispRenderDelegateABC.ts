@@ -3,7 +3,7 @@ import {PeekCanvasConfig} from "./PeekCanvasConfig";
 
 export abstract class PeekDispRenderDelegateABC {
 
-    constructor(protected config: PeekCanvasConfig, protected refData: PeekDispRefData) {
+    constructor(protected config: PeekCanvasConfig) {
 
     }
 

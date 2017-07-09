@@ -42,22 +42,5 @@ export class NavbarCtrl extends ComponentLifecycleEventEmitter implements OnInit
                 || $location.path().startsWith(path);
         };
 
-        // self.cacheAll = function () {
-        //     this.vortexService.sendFilt({'key': "c.s.p.model.disp.cache_all"});
-        // };
-
-        new PayloadEndpoint({'key': "c.s.p.model.disp.cache_all.progress"},
-            function (payload) {
-                if (payload.result.finished == true) {
-                    logSuccess(payload.result.message);
-
-                } else if (payload.result.error == true) {
-                    this.balloonMsg.showError(payload.result.message);
-
-                } else {
-                    logInfo(payload.result.message);
-                }
-            }, $scope);
-
     }
 }

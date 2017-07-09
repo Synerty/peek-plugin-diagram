@@ -4,8 +4,8 @@ import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC";
 
 export class PeekDispRenderDelegateAction extends PeekDispRenderDelegateABC{
 
-    constructor( config: PeekCanvasConfig,  refData: PeekDispRefData) {
-        super(config, refData);
+    constructor( config: PeekCanvasConfig) {
+        super(config);
 
     }
 

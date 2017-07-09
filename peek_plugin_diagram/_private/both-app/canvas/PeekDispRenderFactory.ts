@@ -7,18 +7,18 @@ import {PeekDispRenderDelegateGroupPtr} from "./PeekDispRenderDelegateGroupPtr";
 export class PeekDispRenderFactory {
     private _delegatesByType: {};
 
-    constructor($scope, config, refData) {
+    constructor($scope, config) {
 
 
         // this._scope = $scope;
         // this._config = config;
         // this._refData = refData;
 
-        let polyDelegate = new PeekDispRenderDelegatePoly(config, refData);
-        let textDelegate = new PeekDispRenderDelegateText(config, refData);
-        let ellipseDelegate = new PeekDispRenderDelegateEllipse(config, refData);
-        let actionDelegate = new PeekDispRenderDelegateAction(config, refData);
-        let groupPtrDelegate = new PeekDispRenderDelegateGroupPtr(this, config, refData);
+        let polyDelegate = new PeekDispRenderDelegatePoly(config);
+        let textDelegate = new PeekDispRenderDelegateText(config);
+        let ellipseDelegate = new PeekDispRenderDelegateEllipse(config);
+        let actionDelegate = new PeekDispRenderDelegateAction(config);
+        let groupPtrDelegate = new PeekDispRenderDelegateGroupPtr(config, this);
 
         this._delegatesByType = {
             'DT': textDelegate,

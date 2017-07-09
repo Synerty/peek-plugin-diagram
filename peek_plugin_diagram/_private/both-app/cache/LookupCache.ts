@@ -1,14 +1,20 @@
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
-import {PayloadEndpoint, VortexService} from "@synerty/vortexjs";
-import {dictValuesFromObject} from "../DiagramUtil";
+import {TupleSelector} from "@synerty/vortexjs";
+import {dictKeysFromObject, dictValuesFromObject} from "../DiagramUtil";
+import {DiagramClientTupleOfflineObservable} from "../DiagramClientTupleOfflineObservable";
+import {DispLevel} from "../tuples/DispLevel";
+import {DispLayer} from "../tuples/DispLayer";
+import {DispColor} from "../tuples/DispColor";
+import {DispTextStyle} from "../tuples/DispTextStyle";
+import {DispLineStyle} from "../tuples/DispLineStyle";
 
-/** Peek Model Grid Lookup Store
+/** Lookup Store
  *
  * This class is responsible for storing the lookup data from the server
  *
  */
 export class LookupCache {
-    private _lookupLoadCount = 0;
+    private loadedCounter = {};
     private _lookupTargetCount = 5;
 
     private _levelsById = {};
@@ -16,13 +22,15 @@ export class LookupCache {
     private _colorsById = {};
     private _textStyleById = {};
     private _lineStyleById = {};
-    private _dispGroupById = {}; // NOT USED UET
+    private _dispGroupById = {}; // NOT USED YET
 
     private _levelsByCoordSetIdOrderedByOrder = null;
     private _layersOrderedByOrder = null;
 
-    constructor(private balloonMsg: Ng2BalloonMsgService,
-                private vortexService: VortexService) {
+    private subscriptions = [];
+
+
+    constructor(private clientTupleObservable: DiagramClientTupleOfflineObservable) {
 
         this._init();
 
@@ -32,49 +40,51 @@ export class LookupCache {
 // Init
 
     isReady() {
-        return (this._lookupTargetCount <= this._lookupLoadCount);
+        let loadedCount = dictKeysFromObject(this.loadedCounter).length;
+        return (this._lookupTargetCount <= loadedCount);
+    };
+
+// ============================================================================
+// Init
+
+    shutdown() {
+        for (let sub of this.subscriptions) {
+            sub.unsubscribe();
+        }
+        this.subscriptions = [];
     };
 
 // ============================================================================
 // Accessors for common lookup data
 
-    _init() {
+    private _init() {
 
+        let sub = (lookupAttr, tupleName, callback = null) => {
+            this.subscriptions.push(
+                this.clientTupleObservable.subscribeToTupleSelector(
+                    new TupleSelector(tupleName, {})
+                ).subscribe((tuples: any[]) => {
+                    this.loadedCounter[lookupAttr] = true;
+                    this[lookupAttr] = {};
 
-
-        let makeEndpoint = (key, lookupName, callback = null) => {
-            // Send after vortex is initiaised
-            this.vortexService.sendFilt({'key': key});
-
-            return new PayloadEndpoint({'key': key},
-                (payload) => {
-                    if (payload.result) {
-                        this.balloonMsg.showError(payload.result);
-                        return false;
+                    for (let i = 0; i < tuples.length; i++) {
+                        let item = tuples[i];
+                        this[lookupAttr][item.id] = item;
                     }
 
-                    this[lookupName] = {};
-                    for (let i = 0; i < payload.tuples.length; i++) {
-                        let item = payload.tuples[i];
-                        this[lookupName][item.id] = item;
-                    }
-
-                    if (callback != null)
+                    if (callback != null) {
                         callback();
-
-                    this._lookupLoadCount++;
-                });
+                    }
+                })
+            );
         };
 
-        let levelEndpoint = makeEndpoint("c.s.p.model.disp.level", "_levelsById");
-        let layerEndpoint = makeEndpoint("c.s.p.model.disp.layer", "_layersById");
-        let colorEndpoint = makeEndpoint("c.s.p.model.disp.color", "_colorsById",
-            () => this._validateColors());
-        let textStyleEndpoint = makeEndpoint("c.s.p.model.disp.text_style", "_textStyleById");
-        let lineStyleEndpoint = makeEndpoint("c.s.p.model.disp.line_style", "_lineStyleById");
+        sub("_levelsById", DispLevel.tupleName);
+        sub("_layersById", DispLayer.tupleName);
+        sub("_colorsById", DispColor.tupleName, () => this._validateColors());
+        sub("_textStyleById", DispTextStyle.tupleName);
+        sub("_lineStyleById", DispLineStyle.tupleName);
 
-
-        // this.loadFromDispCache(DRESSING_COORD_SET_ID, ["dressings"], "from_cache");
     };
 
 
@@ -150,10 +160,6 @@ export class LookupCache {
     dispGroupForId(dispGroupId) {
 
         return this._dispGroupById[dispGroupId];
-    };
-
-    _sortDictValuesByOrder(thingsById) {
-
     };
 
     layersOrderedByOrder() {

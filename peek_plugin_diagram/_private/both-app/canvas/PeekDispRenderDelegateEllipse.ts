@@ -5,8 +5,8 @@ import {PeekDispEllipse} from "./PeekDispEllipse";
 
 export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
 
-    constructor(config: PeekCanvasConfig, refData: PeekDispRefData) {
-        super(config, refData);
+    constructor(config: PeekCanvasConfig) {
+        super(config);
 
     }
 

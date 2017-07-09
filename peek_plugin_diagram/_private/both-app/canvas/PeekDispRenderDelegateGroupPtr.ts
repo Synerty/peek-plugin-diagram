@@ -5,8 +5,8 @@ import {PeekDispRenderFactory} from "./PeekDispRenderFactory";
 
 export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 
-    constructor(config: PeekCanvasConfig, refData: PeekDispRefData, private renderFactory/*: PeekDispRenderFactory*/) {
-        super(config, refData);
+    constructor(config: PeekCanvasConfig, private renderFactory/*: PeekDispRenderFactory*/) {
+        super(config);
 
     }
 

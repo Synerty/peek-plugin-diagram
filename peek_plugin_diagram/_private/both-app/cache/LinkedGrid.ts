@@ -1,23 +1,9 @@
-import {Injectable} from "@angular/core";
-import {
-    ComponentLifecycleEventEmitter,
-    extend,
-    IPayloadFilt,
-    PayloadEndpoint,
-    VortexService
-} from "@synerty/vortexjs";
-import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
-import {Subject} from "rxjs";
-import {NoopDb} from "./NoopDb";
-import {WebSqlDb} from "./WebSqlDb";
-import {IndexedDb} from "./IndexedDb";
-import {dateStr, dictKeysFromObject, dictSetFromArray, assert, bind} from "../DiagramUtil";
-import {GridLookupCache} from "./GridLookupStore";
+import {assert} from "../DiagramUtil";
 import {GridTuple} from "../tuples/GridTuple";
+import {LookupCache} from "./LookupCache";
 
 
-
-/** Peek Canvas Model Grid
+/** Linked Grid
  *
  * This class represents a constructed grid of data, ready for use by a canvas model
  *
@@ -29,8 +15,8 @@ export class LinkedGrid {
     disps = [];
     gridKey = null;
 
-    constructor(serverCompiledGridOrGridKey: string | GridKeyIndexCompiledTuple,
-                lookupStore: GridLookupCache | null = null) {
+    constructor(serverCompiledGridOrGridKey: string | GridTuple,
+                lookupStore: LookupCache | null = null) {
 
         // initialise for empty grid keys
         if (typeof serverCompiledGridOrGridKey === "string") {
@@ -38,7 +24,7 @@ export class LinkedGrid {
             return;
         }
 
-        let serverCompiledGrid = <GridKeyIndexCompiledTuple>serverCompiledGridOrGridKey;
+        let serverCompiledGrid = <GridTuple>serverCompiledGridOrGridKey;
         assert(lookupStore != null, "lookupStore can not be null");
 
         this.gridKey = serverCompiledGrid.gridKey;

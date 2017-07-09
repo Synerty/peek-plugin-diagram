@@ -26,11 +26,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-clientGridUpdateCheckFilt = {'key': "repo.client.grid.update_check"}
-clientGridUpdateCheckFilt.update(diagramFilt)
+clientGridUpdateFromServerFilt = {'key': "query.grids"}
+clientGridUpdateFromServerFilt.update(diagramFilt)
 
-clientGridObserveFilt = {'key': "repo.client.grid.observe"}
-clientGridObserveFilt.update(diagramFilt)
+clientGridWatchUpdateFromDeviceFilt = {'key': "clientGridWatchUpdateFromDevice"}
+clientGridWatchUpdateFromDeviceFilt.update(diagramFilt)
 
 
 # ModelSet HANDLER
@@ -44,11 +44,11 @@ class GridCacheHandler(object):
         self._gridCacheController = gridCacheController
 
         self._epUpdateCheck = PayloadEndpoint(
-            clientGridUpdateCheckFilt, self._processUpdate
+            clientGridUpdateFromServerFilt, self._processUpdate
         )
 
         self._epObserve = PayloadEndpoint(
-            clientGridObserveFilt, self._processObserve
+            clientGridWatchUpdateFromDeviceFilt, self._processObserve
         )
 
         self._observedGridKeysByVortexUuid = defaultdict(list)
@@ -90,7 +90,7 @@ class GridCacheHandler(object):
         # Send the updates to the clients
         dl = []
         for vortexUuid, payload in list(payloadsByVortexUuid.items()):
-            payload.filt = clientGridUpdateCheckFilt
+            payload.filt = clientGridUpdateFromServerFilt
 
             # Serliase in thread, and then send.
             d = payload.toVortexMsgDefer()
@@ -110,7 +110,7 @@ class GridCacheHandler(object):
 
     def sendModelUpdate(self, vortexUuid=None, payloadFilt=None, **kwargs):
         # Prefer reply filt, if not combine our accpt filt with the filt we were sent
-        filt = copy(clientGridUpdateCheckFilt)
+        filt = copy(clientGridUpdateFromServerFilt)
 
         def sendBad(failure):
             VortexFactory.sendVortexMsg(
