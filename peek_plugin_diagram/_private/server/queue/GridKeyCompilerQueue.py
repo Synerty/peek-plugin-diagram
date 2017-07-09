@@ -1,9 +1,12 @@
 import logging
 from datetime import datetime
+from typing import List
 
 from twisted.internet import task
 from twisted.internet.defer import inlineCallbacks
 
+from peek_plugin_diagram._private.server.controller.ClientUpdateController import \
+    ClientUpdateController
 from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
 from peek_plugin_diagram._private.storage.GridKeyIndex import \
@@ -28,12 +31,15 @@ class GridKeyCompilerQueue:
     FETCH_SIZE = 15
     PERIOD = 0.200
 
-    def __init__(self, ormSessionCreator, statusController: StatusController):
+    def __init__(self, ormSessionCreator,
+                 statusController: StatusController,
+                 clientUpdateController: ClientUpdateController):
         self._ormSessionCreator = ormSessionCreator
         self._statusController: StatusController = statusController
+        self._clientUpdateController: ClientUpdateController = clientUpdateController
 
         self._pollLoopingCall = task.LoopingCall(self._poll)
-        self._lastQueueId = 0
+        self._lastQueueId = -1
         self._queueCount = 0
 
     def start(self):
@@ -64,7 +70,8 @@ class GridKeyCompilerQueue:
 
         self._lastQueueId = queueItems[-1].id
 
-        from peek_plugin_diagram._private.worker.tasks.GridKeyCompilerTask import compileGrids
+        from peek_plugin_diagram._private.worker.tasks.GridKeyCompilerTask import \
+            compileGrids
 
         # deferLater, to make it call in the main thread.
         d = compileGrids.delay(Payload(tuples=queueItems)._toJson())
@@ -87,13 +94,12 @@ class GridKeyCompilerQueue:
         finally:
             session.close()
 
-    def _pollCallback(self, arg, startTime, processedCount):
+    def _pollCallback(self, gridKeys: List[str], startTime, processedCount):
         logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
+        self._clientUpdateController.sendGrids(gridKeys)
         self._statusController.addToGridCompilerTotal(processedCount)
 
     def _pollErrback(self, failure, startTime):
         logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
         self._statusController.setGridCompilerError(str(failure.value))
         vortexLogFailure(failure, logger)
-
-

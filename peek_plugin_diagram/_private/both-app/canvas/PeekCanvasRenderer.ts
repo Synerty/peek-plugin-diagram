@@ -1,11 +1,15 @@
 import {EventEmitter} from "@angular/core";
 import {PeekCanvasConfig} from "./PeekCanvasConfig";
 import {PeekCanvasModel} from "./PeekCanvasModel";
+import {PeekDispRenderFactory} from "./PeekDispRenderFactory";
+import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import {PanI} from "./PeekInterfaces";
+import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {gridSizeForZoom} from "../cache/GridKeyUtil";
 
-export class PeekCanvasPan {
-
-    x: 0.0;
-    y: 0.0;
+export class PeekCanvasPan implements PanI {
+    x: number = 0.0;
+    y: number = 0.0;
 }
 
 /**
@@ -13,104 +17,94 @@ export class PeekCanvasPan {
  */
 class PeekCanvasRenderer {
 
-    canvas = null;
+    canvas: any = null;
     isValid = false;
 
-    drawEvent = new EventEmitter<null>();
+    drawEvent = new EventEmitter<any>();
 
     _zoom = 1.0;
     _pan = new PeekCanvasPan();
 
 
-    constructor(private config: PeekCanvasConfig, private model: PeekCanvasModel, private dispDelegate: PeekDispRenderFactory) {
+    constructor(private config: PeekCanvasConfig,
+                private model: PeekCanvasModel,
+                private dispDelegate: PeekDispRenderFactory,
+                private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
 
 
     }
 
-    invalidate() {
-
+    private invalidate() {
         this.isValid = false;
     };
 
     setCanvas(canvas) {
-
         this.canvas = canvas;
         this._init();
     };
 
-    _init() {
-
-
+    private _init() {
         // Start the draw timer.
         setInterval(() => this.draw(), this.config.renderer.drawInterval);
 
         // ------------------------------------------
         // Watch zoom
-        //this.zoom(this.config.canvas.zoom / this._zoom);
 
-        // TODO, Change these to observables, based on the "config" service
-        this.scope.$watch(function () {
-            return this.config.canvas.zoom;
-        }, function (newVal) {
-            if (newVal == this._zoom)
-                return;
-            this.zoom(newVal / this._zoom);
-        });
+        this.config.canvas.zoomChange
+            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .subscribe((newVal) => {
+                if (newVal == this._zoom)
+                    return;
+                this.zoom(newVal / this._zoom);
+            });
 
         // ------------------------------------------
         // Apply pan
-        //this.pan();
 
-        this.scope.$watch(function () {
-            let p = this.config.canvas.pan;
-            return {x: p.x, y: p.y};
-        }, () => this.pan(), true);
+        this.config.canvas.panChange
+            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .subscribe((newVal) => this.pan());
 
         // ------------------------------------------
         // Watch for canvas size changes
-        this.scope.$watch(function () {
-            return {h: this.canvas.clientHeight, w: this.canvas.clientWidth};
-        }, () => this.resizeCanvas(), true);
+
+        this.config.canvas.windowChange
+            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .subscribe((newVal) => this.resizeCanvas());
 
         // ------------------------------------------
         // Watch for invalidates
-        this.scope.$watch(function () {
-            return this.config.renderer.invalidate;
-        }, function (invalidate) {
-            if (this.config.renderer.invalidate == false)
-                return;
-            this.invalidate();
-            this.config.renderer.invalidate = false;
-        });
+
+        this.config.renderer.invalidate
+            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .subscribe((newVal) => {
+                this.invalidate();
+            });
 
     };
 
-    currentViewArea() {
-
-
+    private currentViewArea() {
         let size = {
             w: this.canvas.clientWidth / this._zoom,
             h: this.canvas.clientHeight / this._zoom
         };
 
-        return {
-            x: this._pan.x - size.w / 2,
-            y: this._pan.y - size.h / 2,
-            w: size.w,
-            h: size.h
-        }
-    };
+        return new PeekCanvasBounds(
+            this._pan.x - size.w / 2,
+            this._pan.y - size.h / 2,
+            size.w,
+            size.h
+        );
+    }
 
-    resizeCanvas() {
-
-
+    private resizeCanvas() {
         // Update the size of the canvas
         this.canvas.height = this.canvas.clientHeight;
         this.canvas.width = this.canvas.clientWidth;
         this.invalidate();
-    };
+    }
 
-    zoom(multiplier) {
+    private zoom(multiplier) {
 
         let ctx = this.canvas.getContext('2d');
 
@@ -128,13 +122,13 @@ class PeekCanvasRenderer {
         this._zoom *= multiplier;
         this.config.canvas.zoom = this._zoom;
 
-        this.config.canvas.window = this.currentViewArea();
+        this.config.updateCanvasWindow(this.currentViewArea());
 
         this.invalidate();
 
-    };
+    }
 
-    pan() {
+    private pan() {
 
 
         let pan = this.config.canvas.pan;
@@ -142,14 +136,14 @@ class PeekCanvasRenderer {
         this._pan.x = pan.x;
         this._pan.y = pan.y;
 
-        this.config.canvas.window = this.currentViewArea();
+        this.config.updateCanvasWindow(this.currentViewArea());
 
         this.invalidate();
-    };
+    }
 
 // While draw is called as often as the INTERVAL variable demands,
 // It only ever does something if the canvas gets invalidated by our code
-    draw() {
+    private draw() {
 
 
         // if our state is invalid, redraw and validate!
@@ -197,15 +191,20 @@ class PeekCanvasRenderer {
 
         // ** Add stuff you want drawn on top all the time here **
         // Tell the canvas mouse handler to draw what ever its got going on.
-        this.drawEvent.fire(ctx);
+        this.drawEvent.emit(ctx);
 
         ctx.restore();
-    };
+    }
 
     /**
      * Draw Selection Box Draws a selection box on the canvas
      */
-    _drawGrid(ctx) {
+    private _drawGrid(ctx) {
+
+        // Avoid Typescript complaining about parseInt
+        function trunc(num: any): number {
+            return parseInt(num);
+        }
 
 
         if (!this.config.renderer.grid.show)
@@ -225,12 +224,12 @@ class PeekCanvasRenderer {
 
 
         // Round the X min/max
-        let minGridX = parseInt(minX / gridSize.xGrid);
-        let maxGridX = parseInt(maxX / gridSize.xGrid) + 1;
+        let minGridX = trunc(minX / gridSize.xGrid);
+        let maxGridX = trunc(maxX / gridSize.xGrid) + 1;
 
         // Round the Y min/max
-        let minGridY = parseInt(minY / gridSize.yGrid);
-        let maxGridY = parseInt(maxY / gridSize.yGrid) + 1;
+        let minGridY = trunc(minY / gridSize.yGrid);
+        let maxGridY = trunc(maxY / gridSize.yGrid) + 1;
 
         ctx.lineWidth = this.config.renderer.grid.lineWidth / this._zoom;
         ctx.strokeStyle = this.config.renderer.grid.color;
@@ -271,14 +270,14 @@ class PeekCanvasRenderer {
         }
 
 
-    };
+    }
 
     /**
      * Return the size of the canvas
      */
-    canvasInnerBounds() {
+    private canvasInnerBounds() {
         let c = this.canvas;
         return new PeekCanvasBounds(0, 0, c.width, c.height);
-    };
+    }
 
 }

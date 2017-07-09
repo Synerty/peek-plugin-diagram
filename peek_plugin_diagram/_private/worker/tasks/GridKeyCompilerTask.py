@@ -2,6 +2,8 @@ import logging
 import zlib
 from _collections import defaultdict
 from datetime import datetime
+from typing import List
+
 from functools import cmp_to_key
 
 from collections import namedtuple
@@ -88,6 +90,8 @@ class GridKeyQueueCompilerTask:
         conn.close()
         session.close()
 
+        return gridKeys
+
     def _dispBaseSortCmp(self, dispData1, dispData2):
         levelDiff = dispData1.levelOrder - dispData2.levelOrder
         if levelDiff != 0:
@@ -134,9 +138,15 @@ gridKeyQueueCompilerTask = GridKeyQueueCompilerTask()
 
 @CeleryClient
 @celeryApp.task(bind=True)
-def compileGrids(self, queueItemsPayloadJson):
+def compileGrids(self, queueItemsPayloadJson) -> List[str]:
+    """ Compile Grids Task
+
+    :param self: A celery reference to this task
+    :param queueItemsPayloadJson: An encoded payload containing the queue tuples.
+    :returns: A list of grid keys that have been updated.
+    """
     queueItems = Payload()._fromJson(queueItemsPayloadJson).tuples
     try:
-        gridKeyQueueCompilerTask.compileGrid(queueItems)
+        return gridKeyQueueCompilerTask.compileGrid(queueItems)
     except Exception as e:
         raise self.retry(exc=e, countdown=5)

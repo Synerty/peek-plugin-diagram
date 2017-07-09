@@ -1,7 +1,6 @@
-import {PeekDispRefData} from "./PeekDispRefData";
 import {PeekCanvasConfig} from "./PeekCanvasConfig";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC";
-import {PeekDispEllipse} from "./PeekDispEllipse";
+import {DispEllipse} from "../tuples/shapes/DispEllipse";
 
 export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
 
@@ -11,24 +10,25 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
     }
 
 
-    draw(dispEllipse: PeekDispEllipse, ctx, zoom: number) {
+    draw(disp, ctx, zoom: number) {
 
-        let fillColor = dispEllipse.fillColor;
-        let lineColor = dispEllipse.lineColor;
+        let fillColor = DispEllipse.fillColor(disp);
+        let lineColor = DispEllipse.lineColor(disp);
 
         // Null colors are also not drawn
         fillColor = (fillColor && fillColor.color) ? fillColor : null;
         lineColor = (lineColor && lineColor.color) ? lineColor : null;
 
-        let xRadius = dispEllipse.xr;
-        let yRadius = dispEllipse.yr;
-        let rotationRadian = dispEllipse.r / 180.0 * Math.PI;
-        let startAngle = dispEllipse.sa;
-        let endAngle = dispEllipse.ea;
-        let lineWidth = dispEllipse.w;
+        let xRadius = DispEllipse.xRadius(disp);
+        let yRadius = DispEllipse.yRadius(disp);
+        let rotationRadian = DispEllipse.rotation(disp) / 180.0 * Math.PI;
+        let startAngle = DispEllipse.startAngle(disp);
+        let endAngle = DispEllipse.endAngle(disp);
+        let lineWidth = DispEllipse.lineWidth(disp);
 
-        let x = dispEllipse.g[0].x; // get details of point
-        let y = dispEllipse.g[0].y;
+
+        let x = DispEllipse.centerPoint(disp)[0]; // get details of point
+        let y = DispEllipse.centerPoint(disp)[1];
 
         let yScale = yRadius / xRadius;
 

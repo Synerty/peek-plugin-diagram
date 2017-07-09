@@ -25,7 +25,7 @@ import {
 } from "@peek/peek_plugin_diagram/_private/PluginNames";
 // Import global modules, for example, the canvas extensions.
 import "./canvas/PeekCanvasExtensions";
-import {DisplayCanvasSplashScreen} from "./loading-splash/loading-splash.service";
+// import {DisplayCanvasSplashScreen} from "./loading-splash/loading-splash.service";
 import {GridCache} from "./cache/GridCache";
 import {DiagramClientTupleOfflineObservable} from "./DiagramClientTupleOfflineObservable";
 
@@ -82,7 +82,7 @@ export const pluginRoutes: Routes = [
             useFactory: tupleDataObservableNameServiceFactory
         },
         DiagramClientTupleOfflineObservable,
-        DisplayCanvasSplashScreen,
+        // DisplayCanvasSplashScreen,
         GridCache
 
     ],

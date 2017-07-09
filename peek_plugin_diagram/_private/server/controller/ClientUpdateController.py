@@ -4,6 +4,8 @@ from typing import List
 from twisted.internet.defer import Deferred
 
 from peek_plugin_base.PeekVortexUtil import peekClientName
+from peek_plugin_diagram._private.client.controller.GridCacheController import \
+    clientGridUpdateFromServerFilt
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
 from peek_plugin_diagram._private.tuples.GridTuple import GridTuple
 from vortex.DeferUtil import vortexLogFailure, deferToThreadWrapWithLogger
@@ -11,8 +13,6 @@ from vortex.Payload import Payload
 from vortex.VortexFactory import VortexFactory
 
 logger = logging.getLogger(__name__)
-
-clientGrid
 
 
 class ClientUpdateController:
@@ -48,7 +48,7 @@ class ClientUpdateController:
         d.addErrback(vortexLogFailure, logger, consumeError=True)
 
     @deferToThreadWrapWithLogger(logger)
-    def _serialiseGrids(self, filt, gridKeys) -> bytes:
+    def _serialiseGrids(self, gridKeys) -> bytes:
         session = self._dbSessionCreator()
         try:
             ormGrids = (session.query(GridKeyIndexCompiled)
@@ -63,7 +63,8 @@ class ClientUpdateController:
                               lastUpdate=ormGrid.lastUpdate)
                 )
 
-            return Payload(filt=filt, tuples=gridTuples).toVortexMsg()
+            return Payload(filt=clientGridUpdateFromServerFilt,
+                           tuples=gridTuples).toVortexMsg()
 
         finally:
             session.close()

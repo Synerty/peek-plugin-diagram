@@ -10,6 +10,8 @@ from peek_plugin_base.server.PluginServerWorkerEntryHookABC import \
 from peek_plugin_diagram._private.server.cache.DispLookupDataCache import \
     DispLookupDataCache
 from peek_plugin_diagram._private.server.client_handlers.RpcForClient import RpcForClient
+from peek_plugin_diagram._private.server.controller.ClientUpdateController import \
+    ClientUpdateController
 from peek_plugin_diagram._private.server.controller.DispImportController import \
     DispImportController
 from peek_plugin_diagram._private.server.controller.DispLinkImportController import \
@@ -73,12 +75,16 @@ class ServerEntryHook(PluginServerEntryHookABC,
         """
 
         # create the Status Controller
+        clientUpdateController = ClientUpdateController(self.dbSessionCreator)
+        self._loadedObjects.append(clientUpdateController)
+
+        # create the Status Controller
         statusController = StatusController()
         self._loadedObjects.append(statusController)
 
         # Create the GRID KEY queue
         gridKeyCompilerQueue = GridKeyCompilerQueue(
-            self.dbSessionCreator, statusController
+            self.dbSessionCreator, statusController, clientUpdateController
         )
         self._loadedObjects.append(gridKeyCompilerQueue)
 

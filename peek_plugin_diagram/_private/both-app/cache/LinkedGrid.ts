@@ -13,7 +13,6 @@ export class LinkedGrid {
     lastUpdate = null;
     loadedFromServerDate = new Date();
     disps = [];
-    gridKey = null;
 
     constructor(serverCompiledGridOrGridKey: string | GridTuple,
                 lookupStore: LookupCache | null = null) {

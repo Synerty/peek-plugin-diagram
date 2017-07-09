@@ -1,4 +1,3 @@
-import {PeekDispRefData} from "./PeekDispRefData";
 import {PeekCanvasConfig} from "./PeekCanvasConfig";
 
 export abstract class PeekDispRenderDelegateABC {

@@ -35,16 +35,16 @@ export abstract class PeekCanvasInputDelegate {
     /** The time it takes to do a click, VS a click that moved slighltly * */
     readonly DRAG_TIME_THRESHOLD = 200;
 
-    constructor(private NAME:string) {
+    constructor(public NAME:string) {
     }
 
     _hasPassedDragThreshold(m1, m2) {
         let d = false;
         // Time has passed
-        d |= ((m2.time.getTime() - m1.time.getTime()) > this.DRAG_TIME_THRESHOLD);
+        d = d || ((m2.time.getTime() - m1.time.getTime()) > this.DRAG_TIME_THRESHOLD);
         // Mouse has moved
-        d |= (Math.abs(m1.x - m2.x) > this.DRAG_START_THRESHOLD);
-        d |= (Math.abs(m1.y - m2.y) > this.DRAG_START_THRESHOLD);
+        d = d || (Math.abs(m1.x - m2.x) > this.DRAG_START_THRESHOLD);
+        d = d || (Math.abs(m1.y - m2.y) > this.DRAG_START_THRESHOLD);
 
         return d;
     };
@@ -85,7 +85,7 @@ export abstract class PeekCanvasInputDelegate {
     touchEnd(event, mouse) {
     };
 
-    delegateWillBeTornDown() {
+    shutdown() {
     };
 
     draw(ctx) {
@@ -126,6 +126,7 @@ export abstract class PeekCanvasInputDelegate {
         };
     };
 
+    /*
     newObjectLayer() {
         let selectedLayers = editorLayer.selectedLayers();
         if (selectedLayers.length)
@@ -134,5 +135,6 @@ export abstract class PeekCanvasInputDelegate {
         return editorLayer.lastLayer().id;
 
     };
+    */
 
 }

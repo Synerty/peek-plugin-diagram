@@ -47,17 +47,21 @@ export function gridSizeForZoom(zoom: number): GridSizeI {
  */
 export function gridKeysForArea(coordSetId: number,
                                 area: PeekCanvasBounds,
-                                zoom: number): GridSizeI[] {
+                                zoom: number): string[] {
+
+    function trunc(num:any) {
+        return parseInt(num);
+    }
 
     let gridSize = gridSizeForZoom(zoom);
 
     // Round the X min/max
-    let minGridX = parseInt(area.x / gridSize.xGrid);
-    let maxGridX = parseInt((area.x + area.w) / gridSize.xGrid) + 1;
+    let minGridX = trunc(area.x / gridSize.xGrid);
+    let maxGridX = trunc((area.x + area.w) / gridSize.xGrid) + 1;
 
     // Round the Y min/max
-    let minGridY = parseInt(area.y / gridSize.yGrid);
-    let maxGridY = parseInt((area.y + area.h) / gridSize.yGrid) + 1;
+    let minGridY = trunc(area.y / gridSize.yGrid);
+    let maxGridY = trunc((area.y + area.h) / gridSize.yGrid) + 1;
 
     // Iterate through and create the grids.
     let gridKeys = [];

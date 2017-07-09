@@ -1,18 +1,19 @@
-import {PeekDispRefData} from "./PeekDispRefData";
 import {PeekCanvasConfig} from "./PeekCanvasConfig";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC";
-import {PeekDispRenderFactory} from "./PeekDispRenderFactory";
+import {DispGroupCache} from "../cache/DispGroupCache";
 
 export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 
-    constructor(config: PeekCanvasConfig, private renderFactory/*: PeekDispRenderFactory*/) {
+    constructor(config: PeekCanvasConfig,
+                private renderFactory/*: PeekDispRenderFactory*/,
+    private dispGroupCache:DispGroupCache) {
         super(config);
 
     }
 
     draw(dispGroupPtr, ctx, zoom, pan) {
 
-        let dispGroup = peekModelCache.dispGroupForId(dispGroupPtr.gid);
+        let dispGroup = this.dispGroupCache.dispGroupForId(dispGroupPtr.gid);
 
         if (dispGroup == null)
             return;
@@ -29,8 +30,8 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
         ctx.scale(verticalScale, horizontalScale);
 
         // Draw the items for the group we point to
-        for (let i = 0; i < dispGroup.items.length; i++) {
-            let dispItem = dispGroup.items[i];
+        for (let i = 0; i < dispGroup.length; i++) {
+            let dispItem = dispGroup[i];
             this.renderFactory.draw(dispItem, ctx, zoom, pan);
         }
 

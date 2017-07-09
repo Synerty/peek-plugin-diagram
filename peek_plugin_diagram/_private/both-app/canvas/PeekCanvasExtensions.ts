@@ -7,7 +7,7 @@
 
 interface CanvasRenderingContext2D {
     roundRect  (x: number, y: number, w: number, h: number, r: number);
-    dashedLine  (x1: number, y1: number, x2: number, y2: number, dashLen: number = 2);
+    dashedLine  (x1: number, y1: number, x2: number, y2: number, dashLen: number);
     dashedRect (x: number, y: number, w: number, h: number, dashLen: number);
 }
 

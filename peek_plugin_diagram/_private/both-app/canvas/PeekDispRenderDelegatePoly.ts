@@ -1,6 +1,8 @@
-import {PeekDispRefData} from "./PeekDispRefData";
 import {PeekCanvasConfig} from "./PeekCanvasConfig";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC";
+import {DispPolygon} from "../tuples/shapes/DispPolygon";
+import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
+import {PeekCanvasBounds} from "./PeekCanvasBounds";
 
 export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
@@ -10,7 +12,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     }
 
 
-    _drawLine(ctx, point1, point2, lineStyle, zoom) {
+    private _drawLine(ctx, point1, point2, lineStyle, zoom) {
         let x1 = point1.x;
         let y1 = point1.y;
         let x2 = point2.x;
@@ -41,36 +43,36 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         ctx[q % 2 == 0 ? 'moveTo' : 'lineTo'](x2, y2);
     };
 
-    draw(dispPoly, ctx, zoom, pan) {
+    draw(disp, ctx, zoom, pan) {
+        let isPolygon = DispFactory.type(disp) == DispType.polygon;
 
-
-        let isPolygon = dispPoly._tt == 'DPG';
-
-        let fillColor = isPolygon ? dispPoly.fillColor : null;
-        let lineColor = dispPoly.lineColor;
-        let lineStyle = dispPoly.lineStyle;
+        let fillColor = isPolygon ? DispPolygon.fillColor(disp) : null;
+        let lineColor = DispPolygon.lineColor(disp);
+        let lineStyle = DispPolygon.lineStyle(disp);
 
         // Null colors are also not drawn
         fillColor = (fillColor && fillColor.color) ? fillColor : null;
         lineColor = (lineColor && lineColor.color) ? lineColor : null;
 
-        let fillDirection = dispPoly.fd;
-        let fillPercentage = dispPoly.fp;
+        let fillDirection = DispPolygon.fillDirection(disp);
+        let fillPercentage = DispPolygon.fillPercent(disp);
+        
+        let points = DispPolygon.geom(disp);
 
-        let firstPoint = dispPoly.g[0]; // get details of point
+        let firstPoint = points[0]; // get details of point
 
         // Fill the background first, if required
         if (lineStyle.backgroundFillDashSpace) {
             ctx.beginPath();
             ctx.moveTo(firstPoint.x, firstPoint.y);
 
-            for (let i = 1; i < dispPoly.g.length; ++i) {
-                let point = dispPoly.g[i];
+            for (let i = 1; i < points.length; ++i) {
+                let point = points[i];
                 ctx.lineTo(point.x, point.y);
             }
 
-            ctx.strokeStyle = this, _config.renderer.backgroundColor;
-            ctx.lineWidth = dispPoly.w / zoom;
+            ctx.strokeStyle = this.config.renderer.backgroundColor;
+            ctx.lineWidth = DispPolygon.lineWidth(disp) / zoom;
             ctx.stroke();
         }
 
@@ -78,11 +80,11 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         ctx.moveTo(firstPoint.x, firstPoint.y);
 
         let lastPoint = firstPoint;
-        for (let i = 1; i < dispPoly.g.length; ++i) {
-            let point = dispPoly.g[i];
+        for (let i = 1; i < points.length; ++i) {
+            let point = points[i];
 
             // Draw the segment
-            this, _drawLine(ctx, lastPoint, point, lineStyle, zoom);
+            this. _drawLine(ctx, lastPoint, point, lineStyle, zoom);
             lastPoint = point;
 
         }
@@ -92,14 +94,14 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
         if (lineColor) {
             ctx.strokeStyle = lineColor.color;
-            ctx.lineWidth = dispPoly.w / zoom;
+            ctx.lineWidth = DispPolygon.lineWidth(disp) / zoom;
             ctx.stroke();
         }
 
         if (fillColor) {
             if (isPolygon && fillDirection != null && fillPercentage != null) {
-                this, _drawSquarePercentFill(ctx,
-                    PeekCanvasBounds.fromGeom(dispPoly.g),
+                this._drawSquarePercentFill(ctx,
+                    PeekCanvasBounds.fromGeom(points),
                     fillColor, fillDirection, fillPercentage
                 );
             } else {
@@ -110,7 +112,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
     };
 
-    _drawSquarePercentFill(ctx, bounds,
+    private _drawSquarePercentFill(ctx, bounds,
                            fillColor,
                            fillDirection,
                            fillPercentage) {
@@ -141,14 +143,10 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
 
     }
-    ;
 
     drawSelected(dispPoly, ctx, zoom, pan) {
         let self = this;
-        let selectionConfig = this, _config
-    .
-        renderer.selection;
-
+        let selectionConfig = this.config.renderer.selection;
         // DRAW THE SELECTED BOX
         let bounds = dispPoly.bounds;
 
@@ -165,11 +163,13 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         ctx.strokeStyle = selectionConfig.color;
         ctx.lineWidth = selectionConfig.width / zoom;
         ctx.stroke();
-    };
+    }
 
     contains(dispPoly, x, y, margin) {
-        let self = this;
         return false;
+    }
+
+    contains_old(dispPoly, x, y, margin) {
 
         if (!dispPoly.bounds.contains(x, y, margin))
             return false;
@@ -281,11 +281,11 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
         return false;
 
-    };
+    }
 
     withIn(dispPoly, x, y, w, h) {
         return false;
-    };
+    }
 
     handles(dispPoly) {
         return [];
@@ -339,18 +339,18 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
          //}
 
 
-         let firstXy = {x: this,left, y: this,top};
-         addHandle(firstXy, this,points[0].coord(self));
+         let firstXy = {x: this.left, y: this.top};
+         addHandle(firstXy, this.points[0].coord(self));
 
          let lastXy = firstXy;
-         for (let i = 0; i < this,points.length; ++i) {
-         let thisXy = this,points[i].coord(self);
+         for (let i = 0; i < this.points.length; ++i) {
+         let thisXy = this.points[i].coord(self);
          let refXy = lastXy;
-         if (i + 1 < this,points.length) {
-         let nextXy = this,points[i + 1].coord(self);
+         if (i + 1 < this.points.length) {
+         let nextXy = this.points[i + 1].coord(self);
 
          //let angle = findAngle(lastXy, thisXy, nextXy);
-         //refXy = rotatePoint({x:lastXy.x - this,left, y:lastXy.y - this,top}, angle / 2);
+         //refXy = rotatePoint({x:lastXy.x - this.left, y:lastXy.y - this.top}, angle / 2);
 
          refXy.x = (lastXy.x + nextXy.x) / 2;
          refXy.y = (lastXy.y + nextXy.y) / 2;
@@ -360,13 +360,12 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
          return result;
          */
-    };
+    }
 
     deltaMove(dispPoly, dx, dy) {
-    };
+    }
 
     area(dispPoly) {
-        let self = this;
         return 0;
-    };
+    }
 }

@@ -1,10 +1,9 @@
-import {PeekDispRefData} from "./PeekDispRefData";
 import {PeekCanvasConfig} from "./PeekCanvasConfig";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC";
 
 export class PeekDispRenderDelegateAction extends PeekDispRenderDelegateABC{
 
-    constructor( config: PeekCanvasConfig) {
+    constructor(config: PeekCanvasConfig) {
         super(config);
 
     }
@@ -73,7 +72,8 @@ export class PeekDispRenderDelegateAction extends PeekDispRenderDelegateABC{
     drawSelected(actObj, ctx, zoom, pan) {
 
 
-        let selectionConfig = this._config.renderer.selection;
+
+        let selectionConfig = this.config.renderer.selection;
 
         // DRAW THE SELECTED BOX
         let bounds = actObj.bounds;

@@ -1,6 +1,10 @@
-import {PeekDispRefData} from "./PeekDispRefData";
 import {PeekCanvasConfig} from "./PeekCanvasConfig";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC";
+import {
+    DispText, TextHorizontalAlign,
+    TextVerticalAlign
+} from "../tuples/shapes/DispText";
+import {pointToPixel} from "../DiagramUtil";
 
 export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 
@@ -9,15 +13,15 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 
     }
 
-    draw(dispText, ctx, zoom, pan) {
+    draw(disp, ctx, zoom, pan) {
 
         // Give meaning to our short names
-        let rotationRadian = dispText.r / 180.0 * Math.PI;
+        let rotationRadian = DispText.rotation(disp) / 180.0 * Math.PI;
 
-        let point = dispText.g[0]; // get details of point
+        let point = DispText.centerPoint(disp); // get details of point
 
-        let fontStyle = dispText.textStyle;
-        let fillColor = dispText.color;
+        let fontStyle = DispText.textStyle(disp);
+        let fillColor = DispText.color(disp);
 
         // Null colors are also not drawn
         fillColor = (fillColor && fillColor.color) ? fillColor : null;
@@ -32,20 +36,23 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
         let lineHeight = pointToPixel(fontSize);
 
         let textAlign = null;
-        if (dispText.ha == -1)
+        let horizontalAlignEnum = DispText.horizontalAlign(disp);
+        if (horizontalAlignEnum == TextHorizontalAlign.left)
             textAlign = 'start';
-        else if (dispText.ha == 0)
+        else if (horizontalAlignEnum == TextHorizontalAlign.center)
             textAlign = 'center';
-        else if (dispText.ha == 1)
+        else if (horizontalAlignEnum == TextHorizontalAlign.right)
             textAlign = 'end';
 
         let textBaseline = null;
-        if (dispText.va == -1)
+        let verticalAlignEnum = DispText.verticalAlign(disp);
+        if (verticalAlignEnum == TextVerticalAlign.top)
             textBaseline = 'top';
-        else if (dispText.va == 0)
+        else if (verticalAlignEnum == TextVerticalAlign.center)
             textBaseline = 'middle';
-        else if (dispText.va == 1)
+        else if (verticalAlignEnum == TextVerticalAlign.bottom)
             textBaseline = 'bottom';
+
 
         // save state
         ctx.save();
@@ -61,7 +68,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
             ctx.scale(unscale, unscale);
         }
 
-        let lines = dispText.te.split("\n");
+        let lines = DispText.text(disp).split("\n");
         for (let lineIndex = 0; lineIndex < lines.length; ++lineIndex) {
             let line = lines[lineIndex];
             let yOffset = lineHeight * lineIndex;
@@ -118,7 +125,6 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
     };
 
     area(dispText) {
-        let self = this;
         return 0;
     };
 

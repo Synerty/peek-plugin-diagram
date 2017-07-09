@@ -112,7 +112,7 @@ export class PeekCanvasBounds {
 
     isEqual(other) {
 
-        if (!other instanceof PeekCanvasBounds)
+        if (!(other instanceof PeekCanvasBounds))
             return false;
 
         return (this.x === other.x) //

@@ -301,8 +301,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         if (this._state == this.STATE_NONE)
             return;
 
-        this._passedDragThreshold |= this._hasPassedDragThreshold(
-            this._startMousePos, mouse);
+        this._passedDragThreshold = this._passedDragThreshold
+            || this._hasPassedDragThreshold(this._startMousePos, mouse);
 
         // State conversion upon dragging
         if (this._state == this.STATE_SELECTING && this._passedDragThreshold) {
@@ -389,7 +389,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
         }
 
-        this.canvasInput.applyUpdates();
+        this.config.invalidate()
     };
 
     touchEnd(event, mouse) {
@@ -434,7 +434,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         }
 
         this._reset();
-        this.canvasInput.applyUpdates();
+        this.config.invalidate()
     };
 
     mouseDoubleClick(event, mouse) {
@@ -469,9 +469,9 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                 let w = this._lastMousePos.x - this._startMousePos.x;
                 let h = this._lastMousePos.y - this._startMousePos.y;
 
-                ctx.strokeStyle = this.config.mouse.selection.color;
-                ctx.lineWidth = this.config.mouse.selection.width / zoom;
-                ctx.dashedRect(x, y, w, h, this.config.mouse.selection.dashLen / zoom);
+                ctx.strokeStyle = this.config.mouse.selecting.color;
+                ctx.lineWidth = this.config.mouse.selecting.width / zoom;
+                ctx.dashedRect(x, y, w, h, this.config.mouse.selecting.dashLen / zoom);
                 ctx.stroke();
                 break;
 
@@ -486,7 +486,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         let margin = this.config.mouse.selecting.margin;//* this.config.canvas.zoom;
 
         let coords = this.model.selectableDisps();
-        let hits = coords.filter(function (i) {
+        let hits = coords.filter( (i) => {
             return this.dispDelegate.contains(i, mouse.x, mouse.y, margin);
         }, this);
 
@@ -508,7 +508,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
         let b = PeekCanvasBounds.fromGeom([mouse1, mouse2]);
 
-        return coords.filter(function (i) {
+        return coords.filter( (i) => {
             return this.dispDelegate.withIn(i, b.x, b.y, b.w, b.h);
         });
     };
@@ -523,7 +523,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         let masterCoord = hits[hits.length - 1];
         let coords = this.model.selectableDisps();
 
-        return coords.filter(function (i) {
+        return coords.filter( (i) => {
             return this.dispDelegate.similarTo(i, masterCoord);
         });
     };

@@ -1,12 +1,11 @@
-import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 import {TupleSelector} from "@synerty/vortexjs";
 import {dictKeysFromObject, dictValuesFromObject} from "../DiagramUtil";
 import {DiagramClientTupleOfflineObservable} from "../DiagramClientTupleOfflineObservable";
-import {DispLevel} from "../tuples/DispLevel";
-import {DispLayer} from "../tuples/DispLayer";
-import {DispColor} from "../tuples/DispColor";
-import {DispTextStyle} from "../tuples/DispTextStyle";
-import {DispLineStyle} from "../tuples/DispLineStyle";
+import {DispLevel} from "../tuples/lookups/DispLevel";
+import {DispLayer} from "../tuples/lookups/DispLayer";
+import {DispColor} from "../tuples/lookups/DispColor";
+import {DispTextStyle} from "../tuples/lookups/DispTextStyle";
+import {DispLineStyle} from "../tuples/lookups/DispLineStyle";
 
 /** Lookup Store
  *
@@ -24,8 +23,8 @@ export class LookupCache {
     private _lineStyleById = {};
     private _dispGroupById = {}; // NOT USED YET
 
-    private _levelsByCoordSetIdOrderedByOrder = null;
-    private _layersOrderedByOrder = null;
+    private _levelsByCoordSetIdOrderedByOrder = {};
+    private _layersOrderedByOrder = [];
 
     private subscriptions = [];
 
@@ -79,8 +78,8 @@ export class LookupCache {
             );
         };
 
-        sub("_levelsById", DispLevel.tupleName);
-        sub("_layersById", DispLayer.tupleName);
+        sub("_levelsById", DispLevel.tupleName, () => this.createLevelsOrderedByOrder());
+        sub("_layersById", DispLayer.tupleName, () => this.createLayersOrderedByOrder());
         sub("_colorsById", DispColor.tupleName, () => this._validateColors());
         sub("_textStyleById", DispTextStyle.tupleName);
         sub("_lineStyleById", DispLineStyle.tupleName);
@@ -162,88 +161,74 @@ export class LookupCache {
         return this._dispGroupById[dispGroupId];
     };
 
-    layersOrderedByOrder() {
 
-
-        function comp(o1, o2) {
-            return o1.order - o2.order;
-        }
-
-        // Lazy instantiation
-        if (!this.isReady())
-            return [];
-
-        if (this._layersOrderedByOrder == null)
-            this._layersOrderedByOrder = dictValuesFromObject(this._layersById).sort(comp);
-
+    layersOrderedByOrder(): DispLayer[] {
         return this._layersOrderedByOrder;
-    };
+    }
 
-    levelsOrderedByOrder(coordSetId) {
+    levelsOrderedByOrder(coordSetId: number): DispLevel[] {
+        let result = this._levelsByCoordSetIdOrderedByOrder[coordSetId];
+        return result == null ? [] : result;
+    }
 
-        function comp(o1, o2) {
-            return o1.order - o2.order;
+    private createLayersOrderedByOrder() {
+        this._layersOrderedByOrder = dictValuesFromObject(this._layersById)
+            .sort((o1, o2) => o1.order - o2.order);
+    }
+
+    private createLevelsOrderedByOrder() {
+        let dict = {};
+        this._levelsByCoordSetIdOrderedByOrder = dict;
+
+        let ordered = dictValuesFromObject(this._levelsById)
+            .sort((o1, o2) => o1.order - o2.order);
+
+        for (let i = 0; i < ordered.length; i++) {
+            let level = ordered[i];
+
+            if (dict[level.coordSetId] == null)
+                dict[level.coordSetId] = [];
+
+            dict[level.coordSetId].push(level);
         }
-
-        if (!this.isReady())
-            return [];
-
-        // Lazy instantiation
-        if (this._levelsByCoordSetIdOrderedByOrder == null) {
-            let dict = {};
-            this._levelsByCoordSetIdOrderedByOrder = dict;
-
-            let ordered = dictValuesFromObject(this._levelsById).sort(comp);
-
-            for (let i = 0; i < ordered.length; i++) {
-                let level = ordered[i];
-
-                if (dict[level.coordSetId] == null)
-                    dict[level.coordSetId] = [];
-
-                dict[level.coordSetId].push(level);
-            }
-        }
-
-        return this._levelsByCoordSetIdOrderedByOrder[coordSetId];
     };
 
 
     linkDispLookups(disp) {
 
         if (disp.le != null) {
-            disp.level = this._levelsById[disp.le];
-            if (disp.level == null) return null;
+            disp.lel = this._levelsById[disp.le];
+            if (disp.lel == null) return null;
         }
 
         if (disp.la != null) {
-            disp.layer = this._layersById[disp.la];
-            if (disp.layer == null) return null;
+            disp.lal = this._layersById[disp.la];
+            if (disp.lal == null) return null;
         }
 
         if (disp.fs != null) {
-            disp.textStyle = this._textStyleById[disp.fs];
-            if (disp.textStyle == null) return null;
+            disp.fsl = this._textStyleById[disp.fs];
+            if (disp.fsl == null) return null;
         }
 
         if (disp.c != null) {
-            disp.color = this._colorsById[disp.c];
-            if (disp.color == null) return null;
+            disp.cl = this._colorsById[disp.c];
+            if (disp.cl == null) return null;
         }
 
         if (disp.lc != null) {
-            disp.lineColor = this._colorsById[disp.lc];
-            if (disp.lineColor == null) return null;
+            disp.lcl = this._colorsById[disp.lc];
+            if (disp.lcl == null) return null;
         }
 
         if (disp.fc != null) {
-            disp.fillColor = this._colorsById[disp.fc];
-            if (disp.fillColor == null) return null;
+            disp.fcl = this._colorsById[disp.fc];
+            if (disp.fcl == null) return null;
         }
 
         if (disp.ls != null) {
-            disp.lineStyle = this._lineStyleById[disp.ls];
-            if (disp.lineStyle == null) return null;
+            disp.lsl = this._lineStyleById[disp.ls];
+            if (disp.lsl == null) return null;
         }
 
         return disp;

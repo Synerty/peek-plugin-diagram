@@ -67,7 +67,7 @@ class Cache {
     }
 
     get(gridKey: string): null | LinkedGrid {
-        if (!)
+        if (!this.has(gridKey))
             return null;
         return this.cache[gridKey];
     }
@@ -126,8 +126,7 @@ export class GridCache {
             .subscribe((payload: Payload) => this.processGridsFromServer(payload));
     }
 
-    get
-    observable(): Subject<LinkedGrid> {
+    get observable(): Subject<LinkedGrid> {
         return this.updatesObservable;
     }
 
@@ -142,7 +141,7 @@ export class GridCache {
 
         // Get the grids and notify the observer
         for (let linkedGrid of dictValuesFromObject(latestCache))
-            this.observable.next(linkedGrid);
+            this.updatesObservable.next(linkedGrid);
 
 
         // This is the list of grids we don't have in the cache and we should
@@ -220,8 +219,9 @@ export class GridCache {
 
     //
     private sendWatchedGridsToServer(updateTimeByGridKey: { [gridKey: string]: Date }) {
-        let payload = Payload(clientGridWatchUpdateFromDeviceFilt);
-        payload.tuples = <any[]>updateTimeByGridKey;
+        let payload = new Payload(clientGridWatchUpdateFromDeviceFilt);
+        let tupleAny: any = updateTimeByGridKey;
+        payload.tuples = tupleAny;
         this.vortexService.sendPayload(payload);
     }
 
@@ -242,34 +242,36 @@ export class GridCache {
      *
      */
     private queryStorageGrids(gridKeys: string[]): Promise<GridTuple[]> {
-        let tx = this.storage.transaction(false);
+        let retPromise: any = this.storage.transaction(false)
+            .then((tx) => {
+                let promises = [];
+                //noinspection JSMismatchedCollectionQueryUpdate
+                let gridTuples: GridTuple[];
 
-        let promises = [];
-        //noinspection JSMismatchedCollectionQueryUpdate
-        let gridTuples: GridTuple[];
+                for (let gridKey of gridKeys) {
+                    promises.push(
+                        tx.loadTuples(new GridKeyTupleSelector(gridKey))
+                            .then((grids: GridTuple[]) => {
+                                // Length should be 0 or 1
+                                if (!grids.length)
+                                    return;
+                                gridTuples.push(grids[0]);
+                                this.processGridUpdates(grids);
+                            })
+                    );
+                }
 
-        for (let gridKey of gridKeys) {
-            promises.push(
-                tx.loadTuples(new GridKeyTupleSelector(gridKey))
-                    .then((grids: GridTuple[]) => {
-                        // Length should be 0 or 1
-                        if (!grids.length)
-                            return;
-                        gridTuples.push(grids[0]);
-                        this.processGridUpdates(grids);
+                return Promise.all(promises)
+                    .then(() => {
+                        // Asynchronously close the transaction
+                        tx.close()
+                            .catch(e => console.log(`GridCache.queryStorageGrids commit:${e}`));
+                        // Return the grid tuples.
+                        return gridTuples;
                     })
-            );
-        }
-
-        return Promise.all(promises)
-            .then(() => {
-                // Asynchronously close the transaction
-                tx.close()
-                    .catch(e => console.log(`GridCache.queryStorageGrids commit:${e}`));
-                // Return the grid tuples.
-                return gridTuples;
-            })
-            .catch(e => console.log(`GridCache.queryStorageGrids: ${e}`));
+                    .catch(e => console.log(`GridCache.queryStorageGrids: ${e}`));
+            });
+        return retPromise;
 
     }
 
@@ -307,19 +309,22 @@ export class GridCache {
      * This is called with grids from the server, store them for later.
      */
     private storeGridTuples(gridTuples: GridTuple[]): Promise<void> {
-        let tx = this.storage.transaction(true);
+        let retPromise: any = this.storage.transaction(true)
+            .then((tx) => {
 
-        let promises = [];
+                let promises = [];
 
-        for (let gridTuple of gridTuples) {
-            promises.push(
-                tx.storeTuples(new GridKeyTupleSelector(gridTuple.gridKey), [gridTuple])
-            );
-        }
+                for (let gridTuple of gridTuples) {
+                    promises.push(
+                        tx.saveTuples(new GridKeyTupleSelector(gridTuple.gridKey), [gridTuple])
+                    );
+                }
 
-        return Promise.all(promises)
-            .then(() => tx.close())
-            .catch(e => console.log(`GridCache.storeGridTuples: ${e}`));
+                return Promise.all(promises)
+                    .then(() => tx.close())
+                    .catch(e => console.log(`GridCache.storeGridTuples: ${e}`));
+            });
+        return retPromise;
     }
 
 }

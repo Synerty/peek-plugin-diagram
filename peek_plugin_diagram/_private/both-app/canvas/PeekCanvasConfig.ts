@@ -1,6 +1,8 @@
 import {Subject} from "rxjs";
 import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate";
-import {PanI, ZoomI} from "./PeekInterfaces";
+import {PanI} from "./PeekInterfaces";
+import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {ModelCoordSet} from "../tuples/model/ModelCoordSet";
 
 
 /**
@@ -10,11 +12,13 @@ import {PanI, ZoomI} from "./PeekInterfaces";
  * This includes storing referecnes to Model objects, and settings for this canvas
  */
 export class PeekCanvasConfig {
+    private static canvasIdCounter = 0;
+
+    canvasId: number;
 
     controller = {
         updateInterval: 400,
-        dispUpdateProcessChunkSize: 10000000,
-        uniquFiltId: null,
+        coordSetChange : new Subject<ModelCoordSet>(),
         coordSet: null
     };
 
@@ -40,6 +44,8 @@ export class PeekCanvasConfig {
     };
 
     canvas = {
+        windowChange:new Subject<PeekCanvasBounds>(),
+        window:new PeekCanvasBounds(),
         zoomChange: new Subject<number>(),
         panChange: new Subject<PanI>(),
         pan: {
@@ -53,7 +59,7 @@ export class PeekCanvasConfig {
     };
 
     mouse = {
-        currentDelegateName: PeekCanvasInputSelectDelegate.TOOL_NAME,
+        currentDelegateName: null,
         phUpDownZoomFactor: 20.0,
         currentPosition: {x: 0, y: 0},
         selecting: {
@@ -75,6 +81,11 @@ export class PeekCanvasConfig {
     debug = {};
 
 
+    constructor() {
+        this.canvasId = PeekCanvasConfig.canvasIdCounter++;
+    }
+
+
     invalidate() {
         this.renderer.invalidate.next();
     };
@@ -87,6 +98,15 @@ export class PeekCanvasConfig {
     updateZoom(newZoom: number) {
         this.canvas.zoom = newZoom;
         this.canvas.zoomChange.next(newZoom);
+    }
 
+    updateCanvasWindow(newBounds:PeekCanvasBounds) {
+        this.canvas.window = newBounds;
+        this.canvas.windowChange.next(newBounds);
+    }
+
+    updateCoordSet(newCoordSet:ModelCoordSet) {
+        this.controller.coordSet = newCoordSet;
+        this.controller.coordSetChange.next(newCoordSet);
     }
 }

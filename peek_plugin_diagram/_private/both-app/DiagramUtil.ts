@@ -119,3 +119,13 @@ export function assert(exp, message): void {
     console.trace();
     throw new AssertException(message);
 }
+
+
+// ----------------------------------------------------------------------------
+export function pointToPixel(point: number): number {
+    return (point * 96 / 72);
+}
+
+export function pixelToPoint(pixel: number): number {
+    return (pixel * 72 / 96);
+}

@@ -4,21 +4,21 @@ import {PeekDispRenderDelegateText} from "./PeekDispRenderDelegateText";
 import {PeekDispRenderDelegateEllipse} from "./PeekDispRenderDelegateEllipse";
 import {PeekDispRenderDelegateAction} from "./PeekDispRenderDelegateAction";
 import {PeekDispRenderDelegateGroupPtr} from "./PeekDispRenderDelegateGroupPtr";
+import {DispGroupCache} from "../cache/DispGroupCache";
+import {PeekCanvasConfig} from "./PeekCanvasConfig";
 export class PeekDispRenderFactory {
     private _delegatesByType: {};
 
-    constructor($scope, config) {
+    constructor(config: PeekCanvasConfig, dispGroupCache: DispGroupCache) {
 
-
-        // this._scope = $scope;
-        // this._config = config;
-        // this._refData = refData;
 
         let polyDelegate = new PeekDispRenderDelegatePoly(config);
         let textDelegate = new PeekDispRenderDelegateText(config);
         let ellipseDelegate = new PeekDispRenderDelegateEllipse(config);
         let actionDelegate = new PeekDispRenderDelegateAction(config);
-        let groupPtrDelegate = new PeekDispRenderDelegateGroupPtr(config, this);
+        let groupPtrDelegate = new PeekDispRenderDelegateGroupPtr(
+            config, this, dispGroupCache
+        );
 
         this._delegatesByType = {
             'DT': textDelegate,
@@ -84,7 +84,7 @@ export class PeekDispRenderFactory {
         return this._delegatesByType[dispObj._tt].area(dispObj);
     };
 
-    selectionPriotity(dispObj1, dispObj2) {
+    selectionPriotityCompare(dispObj1, dispObj2) {
 
         if (dispObj1._tt == 'DA' && dispObj2._tt != 'DA')
             return -1;
