@@ -102,7 +102,9 @@ class ServerEntryHook(PluginServerEntryHookABC,
         self._loadedObjects.append(makeTupleActionProcessorHandler(statusController))
 
         # Create the Tuple Observer
-        tupleObservable = makeTupleDataObservableHandler(statusController)
+        tupleObservable = makeTupleDataObservableHandler(
+            self.dbSessionCreator, statusController
+        )
         self._loadedObjects.append(tupleObservable)
 
         # Tell the status controller about the Tuple Observable

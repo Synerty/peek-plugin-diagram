@@ -1,0 +1,14 @@
+.canvas-status-bar {
+    z-index: 3;
+    position: absolute;
+    margin: 0 auto;
+    color: grey;
+    top: 50px;
+    right: 10px;
+}
+
+canvas {
+    top: 50px;
+    width: 100%;
+    z-index: 1;
+}

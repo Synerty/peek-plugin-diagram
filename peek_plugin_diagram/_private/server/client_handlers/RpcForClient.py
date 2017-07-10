@@ -28,7 +28,6 @@ class RpcForClient:
         """
 
         yield self.loadGrids.start(funcSelf=self)
-        yield self.loadLookups.start(funcSelf=self)
         yield self.updateClientWatchedGrids.start(funcSelf=self)
         logger.debug("RPCs started")
 
@@ -62,25 +61,7 @@ class RpcForClient:
         finally:
             session.close()
 
-    # -------------
-    @vortexRPC(peekServerName, acceptOnlyFromVortex=peekClientName,
-               additionalFilt=diagramFilt, deferToThread=True)
-    def loadLookups(self, lookupTupleName: str) -> List[Tuple]:
-        """ Get App Server Setting
 
-        This method is used to load the settings that the agent will connect to the
-        server with.
-
-        """
-        Lookup = TUPLE_TYPES_BY_NAME[lookupTupleName]
-        session = self._dbSessionCreator()
-        try:
-            all = session.query(Lookup).all()
-            session.expunge_all()
-            return all
-
-        finally:
-            session.close()
 
     # -------------
     @vortexRPC(peekServerName, acceptOnlyFromVortex=peekClientName,

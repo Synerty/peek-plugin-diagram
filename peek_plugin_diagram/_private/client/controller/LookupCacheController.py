@@ -7,9 +7,9 @@ from peek_plugin_diagram._private.server.client_handlers.RpcForClient import Rpc
 from peek_plugin_diagram._private.storage.Display import DispLevel, DispTextStyle, \
     DispLayer, DispColor, DispLineStyle
 from vortex.Payload import Payload
-from vortex.PayloadEndpoint import PayloadEndpoint
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
+from vortex.handler.TupleDataObserverClient import TupleDataObserverClient
 
 lookupCachePayloadFilt = dict(key="client.lookup.update")
 lookupCachePayloadFilt.update(diagramFilt)
@@ -28,30 +28,37 @@ class LookupCacheController:
     _lineStyleLookups: List[DispLineStyle] = None
     _textStyleLookups: List[DispTextStyle] = None
 
-    def __init__(self):
+    def __init__(self, tupleObserver: TupleDataObserverClient):
+        self._tupleObserver = tupleObserver
         self._tupleObservable = None
-        self._gridCache = {}
-
-        self._lookupEndpoint = None
 
     def setTupleObserable(self, tupleObservable: TupleDataObservableHandler):
         self._tupleObservable = tupleObservable
 
-    @inlineCallbacks
     def start(self):
-        self._lookupEndpoint = PayloadEndpoint(lookupCachePayloadFilt,
-                                               self._processPayload)
+        (self._tupleObserver
+         .subscribeToTupleSelector(TupleSelector(DispLevel.tupleName(), {}))
+         .subscribe(self._processNewTuples))
 
-        self._levelLookups = yield RpcForClient.loadLookups(DispLevel.tupleName())
-        self._layerLookups = yield RpcForClient.loadLookups(DispLayer.tupleName())
-        self._colorLookups = yield RpcForClient.loadLookups(DispColor.tupleName())
-        self._lineStyleLookups = yield RpcForClient.loadLookups(DispLineStyle.tupleName())
-        self._textStyleLookups = yield RpcForClient.loadLookups(DispTextStyle.tupleName())
+        (self._tupleObserver
+         .subscribeToTupleSelector(TupleSelector(DispLayer.tupleName(), {}))
+         .subscribe(self._processNewTuples))
+
+        (self._tupleObserver
+         .subscribeToTupleSelector(TupleSelector(DispColor.tupleName(), {}))
+         .subscribe(self._processNewTuples))
+
+        (self._tupleObserver
+         .subscribeToTupleSelector(TupleSelector(DispLineStyle.tupleName(), {}))
+         .subscribe(self._processNewTuples))
+
+        (self._tupleObserver
+         .subscribeToTupleSelector(TupleSelector(DispTextStyle.tupleName(), {}))
+         .subscribe(self._processNewTuples))
 
     def shutdown(self):
         self._tupleObservable = None
-        self._lookupEndpoint.shutdown()
-        self._lookupEndpoint = None
+        self._tupleObserver = None
 
         self._levelLookups = []
         self._layerLookups = []
@@ -59,8 +66,7 @@ class LookupCacheController:
         self._lineStyleLookups = []
         self._textStyleLookups = []
 
-    def _processPayload(self, payload: Payload, **kwargs):
-        lookupTuples = payload.tuples
+    def _processNewTuples(self, lookupTuples):
 
         if not lookupTuples:
             return

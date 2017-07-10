@@ -117,6 +117,8 @@ export class GridCache {
         this.storage = storageFactory.create(
             new TupleOfflineStorageNameService(gridCacheStorageName)
         );
+        this.storage.open()
+            .catch(e => console.log(`Failed to open grid cache db ${e}`));
 
 
         // Services don't have destructors, I'm not sure how to unsubscribe.
@@ -124,6 +126,10 @@ export class GridCache {
             new ComponentLifecycleEventEmitter(),
             clientGridWatchUpdateFromDeviceFilt)
             .subscribe((payload: Payload) => this.processGridsFromServer(payload));
+    }
+
+    isReady(): boolean {
+        return this.storage.isOpen();
     }
 
     get observable(): Subject<LinkedGrid> {
@@ -246,7 +252,7 @@ export class GridCache {
             .then((tx) => {
                 let promises = [];
                 //noinspection JSMismatchedCollectionQueryUpdate
-                let gridTuples: GridTuple[];
+                let gridTuples: GridTuple[] = [];
 
                 for (let gridKey of gridKeys) {
                     promises.push(
@@ -268,8 +274,7 @@ export class GridCache {
                             .catch(e => console.log(`GridCache.queryStorageGrids commit:${e}`));
                         // Return the grid tuples.
                         return gridTuples;
-                    })
-                    .catch(e => console.log(`GridCache.queryStorageGrids: ${e}`));
+                    });
             });
         return retPromise;
 

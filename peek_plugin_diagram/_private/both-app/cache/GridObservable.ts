@@ -26,6 +26,10 @@ export class GridObservable {
 
     }
 
+    isReady(): boolean {
+        return this.gridCache.isReady();
+    }
+
     /** Ubsubscribe Canvas.
      *
      * The canvas component must call this to tear down and release resources used
@@ -43,7 +47,7 @@ export class GridObservable {
 
     observableForCanvas(canvasId: number): Subject<LinkedGrid> {
         // Each canvas should only request the subject once
-        assert(this.subjectByCanvasId.hasOwnProperty(canvasId),
+        assert(!this.subjectByCanvasId.hasOwnProperty(canvasId),
             `Canvas ${canvasId} has already requested a subhect`);
 
         this.subjectByCanvasId[canvasId] = new Subject<LinkedGrid>();

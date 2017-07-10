@@ -1,3 +1,4 @@
+import {Injectable} from "@angular/core";
 import {TupleSelector} from "@synerty/vortexjs";
 import {dictKeysFromObject, dictValuesFromObject} from "../DiagramUtil";
 import {DiagramClientTupleOfflineObservable} from "../DiagramClientTupleOfflineObservable";
@@ -7,11 +8,14 @@ import {DispColor} from "../tuples/lookups/DispColor";
 import {DispTextStyle} from "../tuples/lookups/DispTextStyle";
 import {DispLineStyle} from "../tuples/lookups/DispLineStyle";
 
-/** Lookup Store
+/** Lookup Cache
  *
  * This class is responsible for storing the lookup data from the server
  *
+ * Typically there will be only a few hundred of these.
+ *
  */
+@Injectable()
 export class LookupCache {
     private loadedCounter = {};
     private _lookupTargetCount = 5;
@@ -21,7 +25,6 @@ export class LookupCache {
     private _colorsById = {};
     private _textStyleById = {};
     private _lineStyleById = {};
-    private _dispGroupById = {}; // NOT USED YET
 
     private _levelsByCoordSetIdOrderedByOrder = {};
     private _layersOrderedByOrder = [];
@@ -30,33 +33,6 @@ export class LookupCache {
 
 
     constructor(private clientTupleObservable: DiagramClientTupleOfflineObservable) {
-
-        this._init();
-
-    }
-
-// ============================================================================
-// Init
-
-    isReady() {
-        let loadedCount = dictKeysFromObject(this.loadedCounter).length;
-        return (this._lookupTargetCount <= loadedCount);
-    };
-
-// ============================================================================
-// Init
-
-    shutdown() {
-        for (let sub of this.subscriptions) {
-            sub.unsubscribe();
-        }
-        this.subscriptions = [];
-    };
-
-// ============================================================================
-// Accessors for common lookup data
-
-    private _init() {
 
         let sub = (lookupAttr, tupleName, callback = null) => {
             this.subscriptions.push(
@@ -83,6 +59,31 @@ export class LookupCache {
         sub("_colorsById", DispColor.tupleName, () => this._validateColors());
         sub("_textStyleById", DispTextStyle.tupleName);
         sub("_lineStyleById", DispLineStyle.tupleName);
+
+    }
+
+// ============================================================================
+// Init
+
+    isReady() {
+        let loadedCount = dictKeysFromObject(this.loadedCounter).length;
+        return (this._lookupTargetCount <= loadedCount);
+    };
+
+// ============================================================================
+// Init
+
+    shutdown() {
+        for (let sub of this.subscriptions) {
+            sub.unsubscribe();
+        }
+        this.subscriptions = [];
+    };
+
+// ============================================================================
+// Accessors for common lookup data
+
+    private _init() {
 
     };
 
@@ -154,11 +155,6 @@ export class LookupCache {
     lineStyleForId(lineStyleId) {
 
         return this._lineStyleById[lineStyleId];
-    };
-
-    dispGroupForId(dispGroupId) {
-
-        return this._dispGroupById[dispGroupId];
     };
 
 

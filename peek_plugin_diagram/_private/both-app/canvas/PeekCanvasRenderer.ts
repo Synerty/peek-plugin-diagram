@@ -1,4 +1,3 @@
-import {EventEmitter} from "@angular/core";
 import {PeekCanvasConfig} from "./PeekCanvasConfig";
 import {PeekCanvasModel} from "./PeekCanvasModel";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory";
@@ -6,6 +5,7 @@ import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PanI} from "./PeekInterfaces";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {gridSizeForZoom} from "../cache/GridKeyUtil";
+import {Subject} from "rxjs/Subject";
 
 export class PeekCanvasPan implements PanI {
     x: number = 0.0;
@@ -15,15 +15,15 @@ export class PeekCanvasPan implements PanI {
 /**
  * Editor Renderer This class is responsible for rendering the editor model
  */
-class PeekCanvasRenderer {
+export class PeekCanvasRenderer {
 
-    canvas: any = null;
-    isValid = false;
+    private canvas: any = null;
+    private isValid = false;
 
-    drawEvent = new EventEmitter<any>();
+    drawEvent = new Subject<any>();
 
-    _zoom = 1.0;
-    _pan = new PeekCanvasPan();
+    private _zoom = 1.0;
+    private _pan = new PeekCanvasPan();
 
 
     constructor(private config: PeekCanvasConfig,
@@ -191,7 +191,7 @@ class PeekCanvasRenderer {
 
         // ** Add stuff you want drawn on top all the time here **
         // Tell the canvas mouse handler to draw what ever its got going on.
-        this.drawEvent.emit(ctx);
+        this.drawEvent.next(ctx);
 
         ctx.restore();
     }

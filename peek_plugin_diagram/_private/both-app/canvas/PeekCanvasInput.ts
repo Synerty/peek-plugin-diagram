@@ -6,6 +6,7 @@ import {PeekDispRenderFactory} from "./PeekDispRenderFactory";
 import {disableContextMenu, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate";
 
 
 /** Peek Canvas Input
@@ -55,8 +56,8 @@ export class PeekCanvasInput {
 // padding and borders
     delegateFinished() {
 
-        let PeekCanvasInputSelectDelegate =
-            require("PeekCanvasInputSelectDelegate")["PeekCanvasInputSelectDelegate"];
+        // let PeekCanvasInputSelectDelegate =
+        //     require("PeekCanvasInputSelectDelegate")["PeekCanvasInputSelectDelegate"];
         this.setDelegate(PeekCanvasInputSelectDelegate);
     };
 
@@ -131,40 +132,40 @@ export class PeekCanvasInput {
 
         this.canvas = canvas;
 
-        canvas.addEventListener('keydown', function (e) {
+        canvas.addEventListener('keydown', (e) => {
             this._delegate.keyDown(e);
 
         }, true);
 
-        canvas.addEventListener('keypress', function (e) {
+        canvas.addEventListener('keypress', (e) => {
             this._delegate.keyPress(e);
 
         }, true);
 
-        canvas.addEventListener('keyup', function (e) {
+        canvas.addEventListener('keyup', (e) => {
             this._delegate.keyUp(e);
 
         }, true);
 
-        canvas.addEventListener('mousedown', function (e) {
+        canvas.addEventListener('mousedown', (e) => {
             if (!(e instanceof MouseEvent)) return;
             this._delegate.mouseDown(e, this._getMouse(e));
 
         }, true);
 
-        canvas.addEventListener('mousemove', function (e) {
+        canvas.addEventListener('mousemove', (e) => {
             if (!(e instanceof MouseEvent)) return;
             this._delegate.mouseMove(e, this._getMouse(e));
 
         }, true);
 
-        canvas.addEventListener('mouseup', function (e) {
+        canvas.addEventListener('mouseup', (e) => {
             if (!(e instanceof MouseEvent)) return;
             this._delegate.mouseUp(e, this._getMouse(e));
 
         }, true);
 
-        canvas.addEventListener('mousewheel', function (e) {
+        canvas.addEventListener('mousewheel', (e) => {
             if (!(e instanceof MouseEvent)) return;
             this._delegate.mouseWheel(e, this._getMouse(e));
 
@@ -172,13 +173,13 @@ export class PeekCanvasInput {
             return false;
         }, true);
 
-        canvas.addEventListener('dblclick', function (e) {
+        canvas.addEventListener('dblclick', (e) => {
             if (!(e instanceof MouseEvent)) return;
             this._delegate.mouseDoubleClick(e, this._getMouse(e));
 
         }, true);
 
-        canvas.addEventListener('selectstart', function (e) {
+        canvas.addEventListener('selectstart', (e) => {
             //this_._delegate.mouseSelectStart(e, this_._getMouse(e));
             e.preventDefault();
             return false;
@@ -186,19 +187,19 @@ export class PeekCanvasInput {
 
         canvas.addEventListener('contextmenu', disableContextMenu, true);
 
-        canvas.addEventListener('touchstart', function (e) {
+        canvas.addEventListener('touchstart', (e) => {
             if (!(e instanceof MouseEvent)) return;
             this._delegate.touchStart(e, this._getMouse(e));
 
         }, true);
 
-        canvas.addEventListener('touchmove', function (e) {
+        canvas.addEventListener('touchmove', (e) => {
             if (!(e instanceof MouseEvent)) return;
             this._delegate.touchMove(e, this._getMouse(e));
 
         }, true);
 
-        canvas.addEventListener('touchend', function (e) {
+        canvas.addEventListener('touchend', (e) => {
             if (!(e instanceof MouseEvent)) return;
             this._delegate.touchEnd(e, this._getMouse(e));
 

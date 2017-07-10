@@ -26,8 +26,13 @@ import {
 // Import global modules, for example, the canvas extensions.
 import "./canvas/PeekCanvasExtensions";
 // import {DisplayCanvasSplashScreen} from "./loading-splash/loading-splash.service";
-import {GridCache} from "./cache/GridCache";
 import {DiagramClientTupleOfflineObservable} from "./DiagramClientTupleOfflineObservable";
+import {GridCache} from "./cache/GridCache";
+import {GridObservable} from "./cache/GridObservable";
+import {LookupCache} from "./cache/LookupCache";
+import {DispGroupCache} from "./cache/DispGroupCache";
+import {CoordSetCache} from "./cache/CoordSetCache";
+import {CanvasComponent} from "./canvas-component/canvas-component";
 
 export function tupleActionPushNameServiceFactory() {
     return new TupleActionPushNameService(
@@ -83,10 +88,14 @@ export const pluginRoutes: Routes = [
         },
         DiagramClientTupleOfflineObservable,
         // DisplayCanvasSplashScreen,
-        GridCache
+        GridCache,
+        LookupCache,
+        CoordSetCache,
+        DispGroupCache,
+        GridObservable
 
     ],
-    declarations: [DiagramComponent]
+    declarations: [DiagramComponent, CanvasComponent]
 })
 export class DiagramModule {
 }
