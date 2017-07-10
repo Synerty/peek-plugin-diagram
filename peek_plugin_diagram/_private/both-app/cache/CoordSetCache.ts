@@ -17,34 +17,10 @@ export class CoordSetCache {
     private _coordSetById = {};
 
     private subscriptions = [];
+    private _isReady: boolean = false;
 
 
     constructor(private clientTupleObservable: DiagramClientTupleOfflineObservable) {
-
-
-    }
-
-// ============================================================================
-// Init
-
-    isReady() {
-        return dictKeysFromObject(this._coordSetById).length != 0;
-    };
-
-// ============================================================================
-// Init
-
-    shutdown() {
-        for (let sub of this.subscriptions) {
-            sub.unsubscribe();
-        }
-        this.subscriptions = [];
-    };
-
-// ============================================================================
-// Accessors for common lookup data
-
-    private _init() {
 
         this.subscriptions.push(
             this.clientTupleObservable.subscribeToTupleSelector(
@@ -59,8 +35,26 @@ export class CoordSetCache {
             })
         );
 
+    }
+
+    shutdown() {
+        for (let sub of this.subscriptions) {
+            sub.unsubscribe();
+        }
+        this.subscriptions = [];
     };
 
+    isReady() {
+        // isReady is used in a doCheck loop, so make if fast once it's true
+        if (this._isReady)
+            return true;
+
+        if (dictKeysFromObject(this._coordSetById).length == 0)
+            return false;
+
+        this._isReady = true;
+        return true;
+    };
 
     coordSetForId(coordSetId) {
 

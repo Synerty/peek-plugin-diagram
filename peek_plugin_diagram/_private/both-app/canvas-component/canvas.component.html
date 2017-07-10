@@ -1,14 +1,7 @@
 <div>
-    <p class="canvas-status-bar">
+    <p class="canvas-status-bar ">{{mouseInfo()}}</p>
 
-        <!--
-        <span ng-show="config.model.gridsWaitingForData">
-            {{config.model.gridsWaitingForData}} Grids Loading, </span> -->
-
-        {{mouseInfo()}}</p>
-
-
-    <canvas #canvas width="300" height="3000" >
+    <canvas #canvas class="canvas " >
         Sorry, your browser doesn't support the &lt;canvas&gt; element.
     </canvas>
 </div>

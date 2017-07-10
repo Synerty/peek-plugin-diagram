@@ -127,8 +127,8 @@ export class PeekCanvasBounds {
     };
 
     toString() {
-        return this.x + "x," + this.y + "y," + this.w + "w," + this.h + "h,"
-    };
+        return `${this.x}x,${this.y}y,${this.w}w,${this.h}h`;
+    }
 }
 
             

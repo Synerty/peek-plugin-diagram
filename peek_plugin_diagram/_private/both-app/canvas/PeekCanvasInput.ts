@@ -31,8 +31,6 @@ export class PeekCanvasInput {
     private htmlTop: number = 0;
     private htmlLeft: number = 0;
 
-    private lastCanvasSize: string = "";
-
     constructor(private config: PeekCanvasConfig,
                 private model: PeekCanvasModel,
                 private dispDelegate: PeekDispRenderFactory,
@@ -106,8 +104,8 @@ export class PeekCanvasInput {
         let clientY = my;
 
         // Apply canvas scale and pan
-        let zoom = this.config.canvas.zoom;
-        let pan = this.config.canvas.pan;
+        let zoom = this.config.viewPort.zoom;
+        let pan = this.config.viewPort.pan;
         mx = mx / zoom + pan.x;
         my = my / zoom + pan.y;
 
@@ -205,23 +203,9 @@ export class PeekCanvasInput {
 
         }, true);
 
-        // This is different to the this.config.canvas.window
-        // A) This one is the offsets of the canvas from the total page
-        // B) the config.canvas.window is the renderers concept of a viewport
-        this.lifecycleEventEmitter.doCheckEvent.subscribe(() => {
-            let jq = $(this.canvas);
-            let offset = jq.offset();
-            let thisCanvasSize = jq.width().toString()
-                + "x" + jq.height().toString()
-                + "x" + offset.left.toString()
-                + "x" + offset.top.toString();
-
-            if (this.lastCanvasSize == thisCanvasSize)
-                return;
-
-            this.lastCanvasSize = thisCanvasSize;
-            this.updateCanvasSize();
-        });
+        this.config.canvas.windowChange
+            .takeUntil(this.lifecycleEventEmitter.doCheckEvent)
+            .subscribe(() => this.updateCanvasSize());
 
     };
 

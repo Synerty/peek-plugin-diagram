@@ -12,7 +12,8 @@ import {
     TupleSelector,
     TupleStorageFactoryService,
     TupleStorageServiceABC,
-    VortexService
+    VortexService,
+    VortexStatusService
 } from "@synerty/vortexjs";
 import {diagramFilt, gridCacheStorageName} from "@peek/peek_plugin_diagram/_private";
 
@@ -109,10 +110,17 @@ export class GridCache {
     private cacheQueue: Cache[] = [];
     private MAX_CACHE = 20;
 
+    // The last set of keys requested from the GridObserver
+    private lastWatchedGridKeys: string[] = [];
+
     private storage: TupleStorageServiceABC;
+
+    // TODO, There appears to be no way to tear down a service
+    private lifecycleEmitter = new ComponentLifecycleEventEmitter();
 
     constructor(private lookupCache: LookupCache,
                 private vortexService: VortexService,
+                private vortexStatusService: VortexStatusService,
                 storageFactory: TupleStorageFactoryService) {
         this.storage = storageFactory.create(
             new TupleOfflineStorageNameService(gridCacheStorageName)
@@ -123,9 +131,15 @@ export class GridCache {
 
         // Services don't have destructors, I'm not sure how to unsubscribe.
         this.vortexService.createEndpointObservable(
-            new ComponentLifecycleEventEmitter(),
+            this.lifecycleEmitter,
             clientGridWatchUpdateFromDeviceFilt)
             .subscribe((payload: Payload) => this.processGridsFromServer(payload));
+
+        // If the vortex service comes back online, update the watch grids.
+        this.vortexStatusService.isOnline
+            .filter(isOnline => isOnline == true)
+            .takeUntil(this.lifecycleEmitter.doCheckEvent)
+            .subscribe(() => this.updateWatchedGrids(this.lastWatchedGridKeys));
     }
 
     isReady(): boolean {
@@ -141,6 +155,7 @@ export class GridCache {
      * Change the list of grids that the GridObserver is interested in.
      */
     updateWatchedGrids(gridKeys: string[]): void {
+        this.lastWatchedGridKeys = gridKeys;
 
         // Rotate the grid cache
         let latestCache = this.rotateCache(gridKeys);
@@ -172,6 +187,7 @@ export class GridCache {
                 // we can send to the server.
                 for (let gridTuple of gridTuples)
                     updateTimeByGridKey[gridTuple.gridKey] = gridTuple.lastUpdate;
+
                 this.sendWatchedGridsToServer(updateTimeByGridKey);
             });
 
@@ -225,9 +241,12 @@ export class GridCache {
 
     //
     private sendWatchedGridsToServer(updateTimeByGridKey: { [gridKey: string]: Date }) {
+        // There is no point talking to the server if it's offline
+        if (!this.vortexStatusService.snapshot.isOnline)
+            return;
+
         let payload = new Payload(clientGridWatchUpdateFromDeviceFilt);
-        let tupleAny: any = updateTimeByGridKey;
-        payload.tuples = tupleAny;
+        payload.tuples = [updateTimeByGridKey];
         this.vortexService.sendPayload(payload);
     }
 

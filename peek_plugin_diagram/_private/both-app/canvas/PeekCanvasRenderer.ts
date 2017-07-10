@@ -50,7 +50,7 @@ export class PeekCanvasRenderer {
         // ------------------------------------------
         // Watch zoom
 
-        this.config.canvas.zoomChange
+        this.config.viewPort.zoomChange
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
             .subscribe((newVal) => {
                 if (newVal == this._zoom)
@@ -61,7 +61,7 @@ export class PeekCanvasRenderer {
         // ------------------------------------------
         // Apply pan
 
-        this.config.canvas.panChange
+        this.config.viewPort.panChange
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
             .subscribe((newVal) => this.pan());
 
@@ -70,14 +70,14 @@ export class PeekCanvasRenderer {
 
         this.config.canvas.windowChange
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
-            .subscribe((newVal) => this.resizeCanvas());
+            .subscribe((newVal) => this.invalidate());
 
         // ------------------------------------------
         // Watch for invalidates
 
         this.config.renderer.invalidate
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
-            .subscribe((newVal) => {
+            .subscribe(() => {
                 this.invalidate();
             });
 
@@ -97,46 +97,34 @@ export class PeekCanvasRenderer {
         );
     }
 
-    private resizeCanvas() {
-        // Update the size of the canvas
-        this.canvas.height = this.canvas.clientHeight;
-        this.canvas.width = this.canvas.clientWidth;
-        this.invalidate();
-    }
-
     private zoom(multiplier) {
 
-        let ctx = this.canvas.getContext('2d');
-
-        if (this._zoom * multiplier < this.config.canvas.minZoom) {
+        if (this._zoom * multiplier < this.config.viewPort.minZoom) {
             // MIN ZOOM
-            multiplier = this.config.canvas.minZoom / this._zoom;
+            multiplier = this.config.viewPort.minZoom / this._zoom;
 
 
-        } else if (this._zoom * multiplier > this.config.canvas.maxZoom) {
+        } else if (this._zoom * multiplier > this.config.viewPort.maxZoom) {
             // MAX ZOOM
-            multiplier = this.config.canvas.maxZoom / this._zoom;
+            multiplier = this.config.viewPort.maxZoom / this._zoom;
 
         }
 
         this._zoom *= multiplier;
-        this.config.canvas.zoom = this._zoom;
+        this.config.viewPort.zoom = this._zoom;
 
-        this.config.updateCanvasWindow(this.currentViewArea());
+        this.config.updateViewPortWindow(this.currentViewArea());
 
         this.invalidate();
-
     }
 
     private pan() {
-
-
-        let pan = this.config.canvas.pan;
+        let pan = this.config.viewPort.pan;
 
         this._pan.x = pan.x;
         this._pan.y = pan.y;
 
-        this.config.updateCanvasWindow(this.currentViewArea());
+        this.config.updateViewPortWindow(this.currentViewArea());
 
         this.invalidate();
     }
@@ -144,7 +132,6 @@ export class PeekCanvasRenderer {
 // While draw is called as often as the INTERVAL variable demands,
 // It only ever does something if the canvas gets invalidated by our code
     private draw() {
-
 
         // if our state is invalid, redraw and validate!
         if (this.isValid)
@@ -210,8 +197,8 @@ export class PeekCanvasRenderer {
         if (!this.config.renderer.grid.show)
             return;
 
-        let area = this.config.canvas.window;
-        let zoom = this.config.canvas.zoom;
+        let area = this.config.viewPort.window;
+        let zoom = this.config.viewPort.zoom;
 
         let unscale = 1.0 / zoom;
 

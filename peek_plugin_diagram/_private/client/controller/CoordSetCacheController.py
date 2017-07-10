@@ -1,5 +1,6 @@
 from typing import List, Iterable
 
+from copy import copy
 from twisted.internet.defer import inlineCallbacks
 
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
@@ -47,5 +48,5 @@ class CoordSetCacheController:
         )
 
     @property
-    def coordSets(self) -> Iterable[ModelCoordSet]:
-        return iter(self._coordSetCache)
+    def coordSets(self) -> List[ModelCoordSet]:
+        return copy(self._coordSetCache)

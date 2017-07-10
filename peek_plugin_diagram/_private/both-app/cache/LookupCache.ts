@@ -31,6 +31,8 @@ export class LookupCache {
 
     private subscriptions = [];
 
+    private _isReady: boolean = false;
+
 
     constructor(private clientTupleObservable: DiagramClientTupleOfflineObservable) {
 
@@ -62,16 +64,18 @@ export class LookupCache {
 
     }
 
-// ============================================================================
-// Init
-
     isReady() {
-        let loadedCount = dictKeysFromObject(this.loadedCounter).length;
-        return (this._lookupTargetCount <= loadedCount);
-    };
+        // isReady is used in a doCheck loop, so make if fast once it's true
+        if (this._isReady)
+            return true;
 
-// ============================================================================
-// Init
+        let loadedCount = dictKeysFromObject(this.loadedCounter, true).length;
+        if (this._lookupTargetCount != loadedCount)
+            return false;
+
+        this._isReady = true;
+        return true;
+    };
 
     shutdown() {
         for (let sub of this.subscriptions) {
@@ -79,14 +83,6 @@ export class LookupCache {
         }
         this.subscriptions = [];
     };
-
-// ============================================================================
-// Accessors for common lookup data
-
-    private _init() {
-
-    };
-
 
 // ============================================================================
 // Load Callbacks

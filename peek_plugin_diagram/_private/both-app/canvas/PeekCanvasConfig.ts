@@ -1,5 +1,4 @@
 import {Subject} from "rxjs";
-import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate";
 import {PanI} from "./PeekInterfaces";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {ModelCoordSet} from "../tuples/model/ModelCoordSet";
@@ -18,7 +17,7 @@ export class PeekCanvasConfig {
 
     controller = {
         updateInterval: 400,
-        coordSetChange : new Subject<ModelCoordSet>(),
+        coordSetChange: new Subject<ModelCoordSet>(),
         coordSet: null
     };
 
@@ -43,9 +42,9 @@ export class PeekCanvasConfig {
         }
     };
 
-    canvas = {
-        windowChange:new Subject<PeekCanvasBounds>(),
-        window:new PeekCanvasBounds(),
+    viewPort = {
+        windowChange: new Subject<PeekCanvasBounds>(),
+        window: new PeekCanvasBounds(),
         zoomChange: new Subject<number>(),
         panChange: new Subject<PanI>(),
         pan: {
@@ -56,6 +55,11 @@ export class PeekCanvasConfig {
 
         minZoom: 0.01,
         maxZoom: 10
+    };
+
+    canvas = {
+        windowChange: new Subject<PeekCanvasBounds>(),
+        window: new PeekCanvasBounds()
     };
 
     mouse = {
@@ -90,22 +94,27 @@ export class PeekCanvasConfig {
         this.renderer.invalidate.next();
     };
 
-    updatePan(newPan: PanI) {
-        this.canvas.pan = newPan;
-        this.canvas.panChange.next(newPan);
+    updateViewPortPan(newPan: PanI) {
+        this.viewPort.pan = newPan;
+        this.viewPort.panChange.next(newPan);
     }
 
-    updateZoom(newZoom: number) {
-        this.canvas.zoom = newZoom;
-        this.canvas.zoomChange.next(newZoom);
+    updateViewPortZoom(newZoom: number) {
+        this.viewPort.zoom = newZoom;
+        this.viewPort.zoomChange.next(newZoom);
     }
 
-    updateCanvasWindow(newBounds:PeekCanvasBounds) {
+    updateViewPortWindow(newBounds: PeekCanvasBounds) {
+        this.viewPort.window = newBounds;
+        this.viewPort.windowChange.next(newBounds);
+    }
+
+    updateCanvasWindow(newBounds: PeekCanvasBounds) {
         this.canvas.window = newBounds;
         this.canvas.windowChange.next(newBounds);
     }
 
-    updateCoordSet(newCoordSet:ModelCoordSet) {
+    updateCoordSet(newCoordSet: ModelCoordSet) {
         this.controller.coordSet = newCoordSet;
         this.controller.coordSetChange.next(newCoordSet);
     }

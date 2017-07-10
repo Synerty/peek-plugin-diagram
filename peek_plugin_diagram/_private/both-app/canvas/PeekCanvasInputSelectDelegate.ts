@@ -86,14 +86,14 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             // this.model.clearSelection();
 
         } else if (event.keyCode == 33) { // Page UP
-            let zoom = this.config.canvas.zoom;
+            let zoom = this.config.viewPort.zoom;
             zoom *= (1.0 + phUpDownZoomFactor / 100.0);
-            this.config.updateZoom(zoom);
+            this.config.updateViewPortZoom(zoom);
 
         } else if (event.keyCode == 34) { // Page Down
-            let zoom = this.config.canvas.zoom;
+            let zoom = this.config.viewPort.zoom;
             zoom *= (1.0 - phUpDownZoomFactor / 100.0);
-            this.config.updateZoom(zoom);
+            this.config.updateViewPortZoom(zoom);
 
             // } else if (event.keyCode == 67) { // the letter c
             //     updateSelectedCoordNodesClosedState(true);
@@ -162,7 +162,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             }
         }
 
-        let margin = this.config.mouse.selecting.margin;// * this.config.canvas.zoom;
+        let margin = this.config.mouse.selecting.margin;// * this.config.viewPort.zoom;
 
         for (let i = selectedDisps.length - 1; i >= 0; i--) {
             let r = selectedDisps[i];
@@ -254,7 +254,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     _zoomPan(clientX, clientY, delta) {
 
-
         if (!delta) {
             return;
         }
@@ -262,8 +261,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         delta = delta * -1; // Correct the zooming to match google maps, etc
 
         // begin
-        let zoom = this.config.canvas.zoom;
-        let pan = this.config.canvas.pan;
+        let zoom = this.config.viewPort.zoom;
+        let pan = this.config.viewPort.pan;
 
         // Capture the initial canvas relative position
         let panStart = {
@@ -275,8 +274,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         zoom *= (1.0 + delta / 100.0);
 
         // If the zoom won't apply just exit
-        if (!(this.config.canvas.minZoom < zoom
-            && zoom < this.config.canvas.maxZoom)) {
+        if (!(this.config.viewPort.minZoom < zoom
+            && zoom < this.config.viewPort.maxZoom)) {
             return;
         }
 
@@ -290,13 +289,12 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             x: pan.x + (panStart.x - panEnd.x),
             y: pan.y + (panStart.y - panEnd.y)
         };
-        this.config.updatePan(newPan);
-        this.config.updateZoom(zoom);
+        this.config.updateViewPortPan(newPan);
+        this.config.updateViewPortZoom(zoom);
 
     };
 
     mouseMove(event, mouse) {
-
 
         if (this._state == this.STATE_NONE)
             return;
@@ -325,12 +323,12 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                 let delta = this._setLastMousePos(mouse);
                 // Dragging the mouse left makes a negative delta, we increase X
                 // Dragging the mouse up makes a negative delta, we increase Y
-                let oldPan = this.config.canvas.pan;
+                let oldPan = this.config.viewPort.pan;
                 let newPan = {
-                    x: oldPan.x - delta.dClientX / this.config.canvas.zoom,
-                    y: oldPan.y - delta.dClientY / this.config.canvas.zoom
+                    x: oldPan.x - delta.dClientX / this.config.viewPort.zoom,
+                    y: oldPan.y - delta.dClientY / this.config.viewPort.zoom
                 };
-                this.config.updatePan(newPan);
+                this.config.updateViewPortPan(newPan);
                 break;
             }
 
@@ -463,7 +461,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
         switch (this._state) {
             case this.STATE_DRAG_SELECTING:
-                let zoom = this.config.canvas.zoom;
+                let zoom = this.config.viewPort.zoom;
                 let x = this._startMousePos.x;
                 let y = this._startMousePos.y;
                 let w = this._lastMousePos.x - this._startMousePos.x;
@@ -483,7 +481,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     _selectByPoint(mouse) {
 
 
-        let margin = this.config.mouse.selecting.margin;//* this.config.canvas.zoom;
+        let margin = this.config.mouse.selecting.margin;//* this.config.viewPort.zoom;
 
         let coords = this.model.selectableDisps();
         let hits = coords.filter( (i) => {

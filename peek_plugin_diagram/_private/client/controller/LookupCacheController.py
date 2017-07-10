@@ -1,12 +1,10 @@
-from typing import List, Iterable
+from typing import List
 
-from twisted.internet.defer import inlineCallbacks
+from copy import copy
 
 from peek_plugin_diagram._private.PluginNames import diagramFilt
-from peek_plugin_diagram._private.server.client_handlers.RpcForClient import RpcForClient
 from peek_plugin_diagram._private.storage.Display import DispLevel, DispTextStyle, \
     DispLayer, DispColor, DispLineStyle
-from vortex.Payload import Payload
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
 from vortex.handler.TupleDataObserverClient import TupleDataObserverClient
@@ -37,23 +35,23 @@ class LookupCacheController:
 
     def start(self):
         (self._tupleObserver
-         .subscribeToTupleSelector(TupleSelector(DispLevel.tupleName(), {}))
+         .subscribeToTupleSelector(TupleSelector(DispLevel.tupleType(), {}))
          .subscribe(self._processNewTuples))
 
         (self._tupleObserver
-         .subscribeToTupleSelector(TupleSelector(DispLayer.tupleName(), {}))
+         .subscribeToTupleSelector(TupleSelector(DispLayer.tupleType(), {}))
          .subscribe(self._processNewTuples))
 
         (self._tupleObserver
-         .subscribeToTupleSelector(TupleSelector(DispColor.tupleName(), {}))
+         .subscribeToTupleSelector(TupleSelector(DispColor.tupleType(), {}))
          .subscribe(self._processNewTuples))
 
         (self._tupleObserver
-         .subscribeToTupleSelector(TupleSelector(DispLineStyle.tupleName(), {}))
+         .subscribeToTupleSelector(TupleSelector(DispLineStyle.tupleType(), {}))
          .subscribe(self._processNewTuples))
 
         (self._tupleObserver
-         .subscribeToTupleSelector(TupleSelector(DispTextStyle.tupleName(), {}))
+         .subscribeToTupleSelector(TupleSelector(DispTextStyle.tupleType(), {}))
          .subscribe(self._processNewTuples))
 
     def shutdown(self):
@@ -78,39 +76,37 @@ class LookupCacheController:
         elif DispLayer.isSameTupleType(firstTuple):
             self._layerLookups = lookupTuples
 
-        elif DispLayer.isSameTupleType(firstTuple):
+        elif DispColor.isSameTupleType(firstTuple):
             self._colorLookups = lookupTuples
 
-        elif DispLayer.isSameTupleType(firstTuple):
+        elif DispLineStyle.isSameTupleType(firstTuple):
             self._lineStyleLookups = lookupTuples
 
-        elif DispLayer.isSameTupleType(firstTuple):
+        elif DispTextStyle.isSameTupleType(firstTuple):
             self._textStyleLookups = lookupTuples
 
         else:
             raise NotImplementedError(
-                "Cache not implemented for %s" % firstTuple.tupleName())
+                "Cache not implemented for %s" % firstTuple.tupleType())
 
         self._tupleObservable.notifyOfTupleUpdate(
-            TupleSelector(firstTuple.tupleName(), {})
+            TupleSelector(firstTuple.tupleType(), {})
         )
 
-    def lookups(self, lookupTupleType) -> Iterable:
-        if DispLevel.tupleName() == lookupTupleType:
-            return iter(self._levelLookups)
+    def lookups(self, lookupTupleType) -> List:
+        if DispLevel.tupleType() == lookupTupleType:
+            return copy(self._levelLookups)
 
-        elif DispLayer.tupleName() == lookupTupleType:
-            return iter(self._layerLookups)
+        if DispLayer.tupleType() == lookupTupleType:
+            return copy(self._layerLookups)
 
-        elif DispLayer.tupleName() == lookupTupleType:
-            return iter(self._colorLookups)
+        if DispColor.tupleType() == lookupTupleType:
+            return copy(self._colorLookups)
 
-        elif DispLayer.tupleName() == lookupTupleType:
-            return iter(self._lineStyleLookups)
+        if DispLineStyle.tupleType() == lookupTupleType:
+            return copy(self._lineStyleLookups)
 
-        elif DispLayer.tupleName() == lookupTupleType:
-            return iter(self._textStyleLookups)
+        if DispTextStyle.tupleType() == lookupTupleType:
+            return copy(self._textStyleLookups)
 
-        else:
-            raise NotImplementedError(
-                "Cache not implemented for %s" % lookupTupleType.tupleName())
+        raise NotImplementedError("Cache not implemented for %s" % lookupTupleType)

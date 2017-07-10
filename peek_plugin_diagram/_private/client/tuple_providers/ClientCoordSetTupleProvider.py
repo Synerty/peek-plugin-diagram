@@ -19,5 +19,4 @@ class ClientCoordSetTupleProvider(TuplesProviderABC):
     def makeVortexMsg(self, filt: dict,
                       tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
         tuples = self._coordSetCacheController.coordSets
-
-        return Payload(filt, tuples=[tuples]).toVortexMsgDefer()
+        return Payload(filt, tuples=tuples).toVortexMsgDefer()

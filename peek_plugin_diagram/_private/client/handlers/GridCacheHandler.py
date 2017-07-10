@@ -108,8 +108,8 @@ class GridCacheHandler(object):
                         vortexUuid: str,
                         sendResponse: SendVortexMsgResponseCallable,
                         **kwargs):
-        lastUpdateByGridKey: DeviceGridT = payload.tuples
-        gridKeys = list(lastUpdateByGridKey.values())
+        lastUpdateByGridKey: DeviceGridT = payload.tuples[0]
+        gridKeys = list(lastUpdateByGridKey.keys())
 
         self._observedGridKeysByVortexUuid[vortexUuid] = gridKeys
         self._rebuildStructs()
@@ -119,19 +119,19 @@ class GridCacheHandler(object):
                              sendResponse)
 
     def _rebuildStructs(self):
-        startKeys = set(self._observedVortexUuidsByGridKey)
-
         # Rebuild the other reverse lookup
-        self._observedVortexUuidsByGridKey = defaultdict(list)
+        newDict = defaultdict(list)
 
         for vortexUuid, gridKeys in list(self._observedGridKeysByVortexUuid.items()):
             for gridKey in gridKeys:
-                self._observedVortexUuidsByGridKey[gridKey].append(vortexUuid)
+                newDict[gridKey].append(vortexUuid)
 
-        endKeys = set(self._observedVortexUuidsByGridKey)
+        keysChanged = set(self._observedVortexUuidsByGridKey) != set(newDict)
+
+        self._observedVortexUuidsByGridKey = newDict
 
         # Notify the server that this client service is watching different grids.
-        if startKeys != endKeys:
+        if keysChanged:
             d = RpcForClient.updateClientWatchedGrids(
                 list(self._observedVortexUuidsByGridKey)
             )
@@ -159,7 +159,7 @@ class GridCacheHandler(object):
         gridTuplesToSend = []
 
         # Check and send any updates
-        for gridKey, lastUpdate in lastUpdateByGridKey:
+        for gridKey, lastUpdate in lastUpdateByGridKey.items():
             # NOTE: lastUpdate can be null.
             gridTuple = self._gridCacheController.grid(gridKey)
 

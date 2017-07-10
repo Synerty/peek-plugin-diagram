@@ -13,6 +13,8 @@ import {LookupCache} from "../cache/LookupCache";
 import {DispGroupCache} from "../cache/DispGroupCache";
 import {CoordSetCache} from "../cache/CoordSetCache";
 
+import * as $ from "jquery";
+import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 
 @Component({
     selector: 'pl-diagram-canvas',
@@ -22,10 +24,15 @@ import {CoordSetCache} from "../cache/CoordSetCache";
 })
 export class CanvasComponent extends ComponentLifecycleEventEmitter {
     // https://stackoverflow.com/questions/32693061/angular-2-typescript-get-hold-of-an-element-in-the-template
-    @ViewChild('canvas') canvas;
+    @ViewChild('canvas') canvasView;
+    private canvas: any = null;
 
     @Input("coordSetId") coordSetId: number;
+
+    // DoCheck last value variables
     private lastCoordSetId: number | null = null;
+    private lastCanvasSize: string = "";
+    private lastWindowHeight: number = 0;
 
     config: PeekCanvasConfig;
 
@@ -79,6 +86,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 if (this.coordSetId == null)
                     return;
 
+                this.lastCoordSetId = this.coordSetId;
+
                 let coordSet = this.coordSetCache.coordSetForId(this.coordSetId);
                 this.config.updateCoordSet(coordSet);
                 this.titleService.setTitle(`Viewing ${coordSet.name}`);
@@ -86,22 +95,67 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     }
 
-    isReady() : boolean {
+    isReady(): boolean {
         return this.coordSetCache.isReady()
-        && this.gridObservable.isReady()
-        && this.lookupCache.isReady();
+            && this.gridObservable.isReady()
+            && this.lookupCache.isReady();
 
     }
 
     ngOnInit() {
-        this.input.setCanvas(this.canvas.nativeElement);
-        this.renderer.setCanvas(this.canvas.nativeElement);
+        this.canvas = this.canvasView.nativeElement;
+
+        this.input.setCanvas(this.canvas);
+        this.renderer.setCanvas(this.canvas);
+
+        let jqCanvas = $(this.canvas);
+
+        $("body").css("overflow", "hidden");
+
+        // Update the canvas height
+        this.doCheckEvent
+            .takeUntil(this.onDestroyEvent)
+            .subscribe(() => {
+                let height = $(window).height();
+
+                if (this.lastWindowHeight == height)
+                    return;
+
+                this.lastWindowHeight = height;
+
+
+                let newHeight = height - jqCanvas.offset().top;
+
+                jqCanvas.css("height", `${newHeight}px`);
+                jqCanvas.css("width", "100%");
+            });
+
+        // Watch the canvas window size
+        this.doCheckEvent
+            .takeUntil(this.onDestroyEvent)
+            .subscribe(() => {
+                let offset = jqCanvas.offset();
+                let bounds = new PeekCanvasBounds(
+                    jqCanvas.width(), jqCanvas.height(), offset.left, offset.top
+                );
+                let thisCanvasSize = bounds.toString();
+
+                if (this.lastCanvasSize == thisCanvasSize)
+                    return;
+
+                this.lastCanvasSize = thisCanvasSize;
+
+                this.canvas.height = this.canvas.clientHeight;
+                this.canvas.width = this.canvas.clientWidth;
+
+                this.config.updateCanvasWindow(bounds);
+            });
     }
 
     mouseInfo(): string {
         let x = this.config.mouse.currentPosition.x.toFixed(2);
         let y = this.config.mouse.currentPosition.y.toFixed(2);
-        let zoom = this.config.canvas.zoom.toFixed(2);
+        let zoom = this.config.viewPort.zoom.toFixed(2);
         return `${x}x${y}X${zoom}, ${this.config.model.dispOnScreen} Items`;
     }
 

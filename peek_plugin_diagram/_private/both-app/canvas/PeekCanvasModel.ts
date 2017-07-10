@@ -75,15 +75,15 @@ export class PeekCanvasModel {
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
             .subscribe((coordSet) => {
                 if (coordSet == null) {
-                    this.config.updatePan({x: 0, y: 0});
-                    this.config.updateZoom(1.0);
+                    this.config.updateViewPortPan({x: 0, y: 0});
+                    this.config.updateViewPortZoom(1.0);
                     this._coordSetId = null;
 
                 } else {
-                    this.config.updatePan(
+                    this.config.updateViewPortPan(
                         {x: coordSet.initialPanX, y: coordSet.initialPanY}
                     );
-                    this.config.updateZoom(coordSet.initialZoom);
+                    this.config.updateViewPortZoom(coordSet.initialZoom);
                     this._coordSetId = coordSet.id;
                 }
 
@@ -93,7 +93,7 @@ export class PeekCanvasModel {
 
         // Watch the canvas settings, if they change then request and update from
         // the cache
-        this.config.canvas.windowChange
+        this.config.viewPort.windowChange
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
             .subscribe(() => this.needsUpdate = true);
 
@@ -133,8 +133,8 @@ export class PeekCanvasModel {
         if (!this.lookupCache.isReady())
             return;
 
-        let area = this.config.canvas.window;
-        let zoom = this.config.canvas.zoom;
+        let area = this.config.viewPort.window;
+        let zoom = this.config.viewPort.zoom;
 
         let viewingGridKeys = gridKeysForArea(this._coordSetId, area, zoom);
 
@@ -151,13 +151,12 @@ export class PeekCanvasModel {
             if (!this._viewingGridKeysDict.hasOwnProperty(gridKey)) {
                 delete this._gridBuffer[gridKey];
             }
-
-            // Notify the grid manager that the view has changed
-            this.gridObservable.updateDiagramWatchedGrids(
-                this.config.canvasId, viewingGridKeys
-            );
-
         }
+
+        // Notify the grid manager that the view has changed
+        this.gridObservable.updateDiagramWatchedGrids(
+            this.config.canvasId, viewingGridKeys
+        );
     }
 
 
@@ -222,7 +221,7 @@ export class PeekCanvasModel {
         let levelsOrderedByOrder = this.lookupCache.levelsOrderedByOrder(this._coordSetId);
         let layersOrderedByOrder = this.lookupCache.layersOrderedByOrder();
 
-        let zoom = this.config.canvas.zoom;
+        let zoom = this.config.viewPort.zoom;
 
         let dispIndexByGridKey = {};
 

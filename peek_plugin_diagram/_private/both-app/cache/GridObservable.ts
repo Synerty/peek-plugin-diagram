@@ -2,7 +2,11 @@ import {Injectable} from "@angular/core";
 import {GridCache} from "./GridCache";
 import {LinkedGrid} from "./LinkedGrid";
 import {Subject} from "rxjs/Subject";
-import {assert, dictKeysFromObject} from "../DiagramUtil";
+import {
+    assert, dictKeysFromObject, dictSetFromArray,
+    dictValuesFromObject
+} from "../DiagramUtil";
+import {extend} from "@synerty/vortexjs";
 
 /** Grid Observable
  *
@@ -17,6 +21,8 @@ export class GridObservable {
     private gridKeysByCanvasId: { [canvasId: number]: string[] } = {};
     private canvasIdsByGidKey: { [gridKey: string]: number[] } = {};
 
+    private lastObservedKeysStr = "";
+
     constructor(private gridCache: GridCache) {
 
         // This is a global service, there is no point at which this will unsubscribe
@@ -30,7 +36,7 @@ export class GridObservable {
         return this.gridCache.isReady();
     }
 
-    /** Ubsubscribe Canvas.
+    /** Unsubscribe Canvas.
      *
      * The canvas component must call this to tear down and release resources used
      * for it.
@@ -57,6 +63,7 @@ export class GridObservable {
 
     updateDiagramWatchedGrids(canvasId: number, gridKeys: string[]): void {
         this.gridKeysByCanvasId[canvasId] = gridKeys;
+        this.rebuildReverseLookup();
         this.updateGridCacheWatchedKeys();
     }
 
@@ -74,7 +81,39 @@ export class GridObservable {
     }
 
     private updateGridCacheWatchedKeys() {
-        this.gridCache.updateWatchedGrids(dictKeysFromObject(this.canvasIdsByGidKey));
+        let uniqueKeysList = dictKeysFromObject( this.canvasIdsByGidKey).sort();
+        let uniqueKeysStr = uniqueKeysList.join(',');
+
+        if (this.lastObservedKeysStr == uniqueKeysStr)
+            return;
+
+        this.lastObservedKeysStr = uniqueKeysStr;
+        this.gridCache.updateWatchedGrids(uniqueKeysList);
+    }
+
+    private rebuildReverseLookup() {
+        let newDict = {};
+
+        // Iterate through the canvasIds
+        for (let canvasId of dictKeysFromObject(this.gridKeysByCanvasId)) {
+            let gridKeys = this.gridKeysByCanvasId[canvasId];
+
+            // Iterate through the gridKeys
+            for (let gridKey of gridKeys) {
+                // Get the existing array or create one
+                let array: any[] = null;
+                if (newDict.hasOwnProperty(gridKey)) {
+                    array = newDict[gridKey];
+                } else {
+                    newDict[gridKey] = array = [];
+                }
+                // Add the item to the array
+                array.push(canvasId);
+            }
+        }
+
+        // Assign the recompiled value back to the class variable
+        this.canvasIdsByGidKey = newDict;
     }
 
 }
