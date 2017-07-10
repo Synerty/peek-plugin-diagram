@@ -264,6 +264,9 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         let zoom = this.config.viewPort.zoom;
         let pan = this.config.viewPort.pan;
 
+        // The PAN is always dead center of the view port.
+        // The clientX/clientY are screen pixels relative to the center of the canvas
+
         // Capture the initial canvas relative position
         let panStart = {
             x: clientX / zoom + pan.x,
@@ -289,9 +292,9 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             x: pan.x + (panStart.x - panEnd.x),
             y: pan.y + (panStart.y - panEnd.y)
         };
+
         this.config.updateViewPortPan(newPan);
         this.config.updateViewPortZoom(zoom);
-
     };
 
     mouseMove(event, mouse) {
@@ -500,8 +503,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     };
 
     _selectByBox(mouse1, mouse2) {
-
-
         let coords = this.model.selectableDisps();
 
         let b = PeekCanvasBounds.fromGeom([mouse1, mouse2]);

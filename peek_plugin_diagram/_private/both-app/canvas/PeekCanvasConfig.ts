@@ -65,7 +65,8 @@ export class PeekCanvasConfig {
     mouse = {
         currentDelegateName: null,
         phUpDownZoomFactor: 20.0,
-        currentPosition: {x: 0, y: 0},
+        currentViewPortPosition: {x: 0, y: 0},
+        currentCanvasPosition: {x: 0, y: 0},
         selecting: {
             color: '#3399FF',
             width: 2,

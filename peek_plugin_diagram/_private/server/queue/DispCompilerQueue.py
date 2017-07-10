@@ -79,8 +79,8 @@ class DispCompilerQueue:
         session = self._ormSessionCreator()
         try:
             queueItems = (session.query(DispIndexerQueueTable)
-                          .filter(DispIndexerQueueTable.id > self._lastQueueId)
                           .order_by(asc(DispIndexerQueueTable.id))
+                          .filter(DispIndexerQueueTable.id > self._lastQueueId)
                           .yield_per(self.FETCH_SIZE)
                           .limit(self.FETCH_SIZE)
                           .all())

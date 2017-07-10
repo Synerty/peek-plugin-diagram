@@ -1,9 +1,6 @@
 import {assert} from "../DiagramUtil";
 import {GridTuple} from "../tuples/GridTuple";
 import {LookupCache} from "./LookupCache";
-
-let pako = require("pako");
-
 /** Linked Grid
  *
  * This class represents a constructed grid of data, ready for use by a canvas model
@@ -34,11 +31,10 @@ export class LinkedGrid {
         this.disps = [];
         let disps = [];
 
-        if (serverCompiledGrid.blobData != null
-            && serverCompiledGrid.blobData.length != 0) {
+        if (serverCompiledGrid.dispJsonStr != null
+            && serverCompiledGrid.dispJsonStr.length != 0) {
             try {
-                let dispJsonStr = pako.inflate(serverCompiledGrid.blobData, {to: 'string'});
-                disps = JSON.parse(dispJsonStr);
+                disps = JSON.parse(serverCompiledGrid.dispJsonStr);
             } catch (e) {
                 console.error(e.toString());
             }

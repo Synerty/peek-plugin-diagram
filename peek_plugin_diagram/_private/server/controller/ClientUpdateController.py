@@ -33,6 +33,9 @@ class ClientUpdateController:
     def __init__(self, dbSessionCreator):
         self._dbSessionCreator = dbSessionCreator
 
+    def shutdown(self):
+        pass
+
     def sendGrids(self, gridKeys: List[str]) -> None:
         """ Send Grids
 

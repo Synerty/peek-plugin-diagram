@@ -136,7 +136,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
             .subscribe(() => {
                 let offset = jqCanvas.offset();
                 let bounds = new PeekCanvasBounds(
-                    jqCanvas.width(), jqCanvas.height(), offset.left, offset.top
+                    offset.left, offset.top, jqCanvas.width(), jqCanvas.height()
                 );
                 let thisCanvasSize = bounds.toString();
 
@@ -153,8 +153,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     }
 
     mouseInfo(): string {
-        let x = this.config.mouse.currentPosition.x.toFixed(2);
-        let y = this.config.mouse.currentPosition.y.toFixed(2);
+        let x = this.config.mouse.currentViewPortPosition.x.toFixed(2);
+        let y = this.config.mouse.currentViewPortPosition.y.toFixed(2);
         let zoom = this.config.viewPort.zoom.toFixed(2);
         return `${x}x${y}X${zoom}, ${this.config.model.dispOnScreen} Items`;
     }

@@ -90,7 +90,7 @@ class DispCompilerTask:
                          len(dispsAll), (datetime.utcnow() - startTime))
 
             # List of type CoordSetIdGridKeyTuple
-            gridCompiledQueueItems = []
+            gridCompiledQueueItems = set()
 
             # GridKeyIndexes to insert
             gridKeyIndexesByDispId = defaultdict(list)
@@ -104,8 +104,10 @@ class DispCompilerTask:
                 disp.dispJson = disp.tupleToSmallJsonDict()
 
                 for gridKey in self.makeGridKeys(disp):
-                    gridCompiledQueueItems.append(dict(coordSetId=disp.coordSetId,
-                                                       gridKey=gridKey))
+                    gridCompiledQueueItems.add(
+                        CoordSetIdGridKeyTuple(coordSetId=disp.coordSetId,
+                                               gridKey=gridKey)
+                    )
 
                     gridKeyIndexesByDispId[disp.id].append(
                         dict(dispId=disp.id,
@@ -150,8 +152,11 @@ class DispCompilerTask:
 
             # Directly insert into the Grid compiler queue.
             if gridCompiledQueueItems:
-                conn.execute(GridKeyCompilerQueueTable.__table__.insert(),
-                             gridCompiledQueueItems)
+                conn.execute(
+                    GridKeyCompilerQueueTable.__table__.insert(),
+                    [dict(coordSetId=i.coordSetId, gridKey=i.gridKey)
+                     for i in gridCompiledQueueItems]
+                )
 
             transaction.commit()
             logger.debug("Committed %s GridKeyIndex in %s",

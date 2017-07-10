@@ -19,17 +19,11 @@ export class PeekCanvasInput {
 
     private canvas = null;
 
-    // Canvas size calculations
-    private width: number = 0;
-    private height: number = 0;
-
-    private stylePaddingLeft: number = 0;
-    private stylePaddingTop: number = 0;
-    private styleBorderLeft: number = 0;
-    private styleBorderTop: number = 0;
-
-    private htmlTop: number = 0;
-    private htmlLeft: number = 0;
+    // These offsets are calculated on the size and position of the canvas in the HTML
+    // page. When added to the mouse event coordinates, they convert the mouse event
+    // coordinates to be relative to the center of the canvas.
+    private mouseOffsetX: number = 0;
+    private mouseOffsetY: number = 0;
 
     constructor(private config: PeekCanvasConfig,
                 private model: PeekCanvasModel,
@@ -48,10 +42,6 @@ export class PeekCanvasInput {
     };
 
 
-// Creates an object with x and y defined, set to the mouse position relative to
-// the state's canvas
-// If you wanna be super-correct this can be tricky, we have to worry about
-// padding and borders
     delegateFinished() {
 
         // let PeekCanvasInputSelectDelegate =
@@ -61,28 +51,10 @@ export class PeekCanvasInput {
 
 // Creates an object with x and y defined, set to the mouse position relative to
 // the state's canvas
-// If you wanna be super-correct this can be tricky, we have to worry about
+// If you want to be super-correct this can be tricky, we have to worry about
 // padding and borders
     _getMouse(e) {
 
-        let element: any = this.canvas;
-        let offsetX = 0;
-        let offsetY = 0;
-
-        // Compute the total offset
-        if (element.offsetParent !== undefined) {
-            do {
-                offsetX += element.offsetLeft;
-                offsetY += element.offsetTop;
-            } while ((element = element.offsetParent));
-        }
-
-        // Add padding and border style widths to offset
-        // Also add the <html> offsets in case there's a position:fixed bar
-        offsetX += this.stylePaddingLeft + this.styleBorderLeft
-            + this.htmlLeft + this.width / 2;
-        offsetY += this.stylePaddingTop + this.styleBorderTop
-            + this.htmlTop + this.height / 2;
 
         let pageX = e.pageX;
         let pageY = e.pageY;
@@ -97,8 +69,8 @@ export class PeekCanvasInput {
             }
         }
 
-        let mx = pageX - offsetX;
-        let my = pageY - offsetY;
+        let mx = pageX - this.mouseOffsetX;
+        let my = pageY - this.mouseOffsetY;
 
         let clientX = mx;
         let clientY = my;
@@ -113,7 +85,8 @@ export class PeekCanvasInput {
             console.log("mx IS NaN");
 
 
-        this.config.mouse.currentPosition = {x: mx, y: my};
+        this.config.mouse.currentViewPortPosition = {x: mx, y: my};
+        this.config.mouse.currentCanvasPosition = {x: clientX, y: clientY};
 
         // We return a simple javascript object (a hash) with x and y defined
         return {
@@ -204,32 +177,49 @@ export class PeekCanvasInput {
         }, true);
 
         this.config.canvas.windowChange
-            .takeUntil(this.lifecycleEventEmitter.doCheckEvent)
+            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
             .subscribe(() => this.updateCanvasSize());
 
     };
 
-    updateCanvasSize() {
+    private updateCanvasSize() {
 
         let jqCanvas = $(this.canvas);
+        let element: any = this.canvas;
 
-        this.width = jqCanvas.width();
-        this.height = jqCanvas.height();
+        let width = jqCanvas.width();
+        let height = jqCanvas.height();
 
         // This complicates things a little but but fixes mouse co-ordinate
         // problems
         // when there's a border or padding. See getMouse for more detail
-        this.stylePaddingLeft = parseInt(jqCanvas.css('padding-left')) || 0;
-        this.stylePaddingTop = parseInt(jqCanvas.css('padding-top')) || 0;
-        this.styleBorderLeft = parseInt(jqCanvas.css('border-left-width')) || 0;
-        this.styleBorderTop = parseInt(jqCanvas.css('border-top-width')) || 0;
+        let stylePaddingLeft = parseInt(jqCanvas.css('padding-left')) || 0;
+        let stylePaddingTop = parseInt(jqCanvas.css('padding-top')) || 0;
+        let styleBorderLeft = parseInt(jqCanvas.css('border-left-width')) || 0;
+        let styleBorderTop = parseInt(jqCanvas.css('border-top-width')) || 0;
 
         // Some pages have fixed-position bars (like the stumbleupon bar) at the
         // top or left of the page
         // They will mess up mouse coordinates and this fixes that
         let html: any = document.body.parentNode;
-        this.htmlTop = html.offsetTop;
-        this.htmlLeft = html.offsetLeft;
+        let htmlTop = html.offsetTop;
+        let htmlLeft = html.offsetLeft;
+
+        this.mouseOffsetX = 0;
+        this.mouseOffsetY = 0;
+
+        // Compute the total offset
+        if (element.offsetParent != null) {
+            do {
+                this.mouseOffsetX += element.offsetLeft;
+                this.mouseOffsetY += element.offsetTop;
+            } while ((element = element.offsetParent));
+        }
+
+        // Add padding and border style widths to offset
+        // Also add the <html> offsets in case there's a position:fixed bar
+        this.mouseOffsetX += stylePaddingLeft + styleBorderLeft + htmlLeft + width / 2;
+        this.mouseOffsetY += stylePaddingTop + styleBorderTop + htmlTop + height / 2;
 
     };
 
@@ -237,8 +227,6 @@ export class PeekCanvasInput {
      * Draw Called by the renderer during a redraw.
      */
     draw(ctx) {
-
-
         if (this._delegate)
             this._delegate.draw(ctx);
     };

@@ -45,6 +45,9 @@ export class PeekCanvasModel {
     // Does the model need an update?
     needsUpdate = false;
 
+    // Does the display array need recompiling?
+    needsCompiling = false;
+
     // Is the model currently updating
     isUpdating = false;
 
@@ -55,8 +58,12 @@ export class PeekCanvasModel {
 
         this.needsUpdate = false;
 
+        // Start the gridKey checker timer.
+        setInterval(() => this._checkGridKeysForArea(),
+            this.config.controller.updateInterval);
+
         // Start the draw timer.
-        setInterval(() => this._requestDispUpdate(),
+        setInterval(() => this._compileDisps(),
             this.config.controller.updateInterval);
 
         // Subscribe to grid updates, when the data store gets and update
@@ -122,7 +129,7 @@ export class PeekCanvasModel {
 // -------------------------------------------------------------------------------------
 // Request Display Updates
 // -------------------------------------------------------------------------------------
-    private _requestDispUpdate() {
+    private _checkGridKeysForArea() {
         if (this._coordSetId == null)
             return;
 
@@ -177,6 +184,7 @@ export class PeekCanvasModel {
 
         // Overwrite with all the new ones
         for (let linkedGrid of linkedGrids) {
+            console.log(`PeekCanvasModel: Received grid ${linkedGrid.gridKey},  ${linkedGrid.lastUpdate}`);
 
             if (!linkedGrid.hasData())
                 continue;
@@ -185,11 +193,16 @@ export class PeekCanvasModel {
             if (!this._viewingGridKeysDict.hasOwnProperty(linkedGrid.gridKey))
                 continue;
 
+            // If it's not an update, also ignore it.
+            let currentGrid = this._gridBuffer[linkedGrid.gridKey];
+            if (currentGrid != null && currentGrid.lastUpdate == linkedGrid.lastUpdate)
+                continue;
+
+            console.log(`PeekCanvasModel: Applying grid ${linkedGrid.gridKey},  ${linkedGrid.lastUpdate}`);
             this._gridBuffer[linkedGrid.gridKey] = linkedGrid;
+            this.needsCompiling = true;
         }
 
-        // This has it's own timing log
-        this._compileDisps();
     }
 
 
@@ -213,6 +226,10 @@ export class PeekCanvasModel {
     }
 
     private _compileDisps() {
+        if (!this.needsCompiling)
+            return;
+
+        this.needsCompiling = false;
 
         if (this._coordSetId == null)
             return;

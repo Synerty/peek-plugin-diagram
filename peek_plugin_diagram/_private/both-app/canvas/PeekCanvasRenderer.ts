@@ -36,12 +36,12 @@ export class PeekCanvasRenderer {
 
     private invalidate() {
         this.isValid = false;
-    };
+    }
 
     setCanvas(canvas) {
         this.canvas = canvas;
         this._init();
-    };
+    }
 
     private _init() {
         // Start the draw timer.
@@ -63,25 +63,23 @@ export class PeekCanvasRenderer {
 
         this.config.viewPort.panChange
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
-            .subscribe((newVal) => this.pan());
+            .subscribe(() => this.pan());
 
         // ------------------------------------------
         // Watch for canvas size changes
 
         this.config.canvas.windowChange
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
-            .subscribe((newVal) => this.invalidate());
+            .subscribe(() => this.invalidate());
 
         // ------------------------------------------
         // Watch for invalidates
 
         this.config.renderer.invalidate
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
-            .subscribe(() => {
-                this.invalidate();
-            });
+            .subscribe(() => this.invalidate());
 
-    };
+    }
 
     private currentViewArea() {
         let size = {
@@ -192,7 +190,6 @@ export class PeekCanvasRenderer {
         function trunc(num: any): number {
             return parseInt(num);
         }
-
 
         if (!this.config.renderer.grid.show)
             return;

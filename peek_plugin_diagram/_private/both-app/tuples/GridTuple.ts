@@ -7,8 +7,14 @@ export class GridTuple extends Tuple {
     public static readonly tupleName = diagramTuplePrefix + "GridTuple";
 
     gridKey: string;
-    blobData: string;
+    // The compressed (deflated) json string.
+    blobData: string | null;
     lastUpdate: Date;
+
+    // This is populated when the grid gets to the client.
+    // This way, when the grid is stored in tuple storage, there only needs to be one
+    // string inflate (decompress)
+    dispJsonStr: string | null;
 
     constructor() {
         super(GridTuple.tupleName)

@@ -91,7 +91,7 @@ class GridCacheHandler(object):
         # Send the updates to the clients
         dl = []
         for vortexUuid, payload in list(payloadsByVortexUuid.items()):
-            payload.filt = clientGridUpdateFromServerFilt
+            payload.filt = clientGridWatchUpdateFromDeviceFilt
 
             # Serliase in thread, and then send.
             d = payload.toVortexMsgDefer()

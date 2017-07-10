@@ -149,4 +149,4 @@ def compileGrids(self, queueItemsPayloadJson) -> List[str]:
     try:
         return gridKeyQueueCompilerTask.compileGrid(queueItems)
     except Exception as e:
-        raise self.retry(exc=e, countdown=5)
+        raise self.retry(exc=e, countdown=10)

@@ -17,8 +17,11 @@ import {
 } from "@synerty/vortexjs";
 import {diagramFilt, gridCacheStorageName} from "@peek/peek_plugin_diagram/_private";
 
-import * as moment from "moment";
 import {dictValuesFromObject} from "../DiagramUtil";
+import * as moment from "moment";
+
+let pako = require("pako");
+
 
 // ----------------------------------------------------------------------------
 
@@ -256,6 +259,17 @@ export class GridCache {
      */
     private processGridsFromServer(payload: Payload) {
         let gridTuples: GridTuple[] = <GridTuple[]>payload.tuples;
+
+        // Decompress the grid data.
+        for (let gridTuple of gridTuples) {
+            try {
+                gridTuple.dispJsonStr = pako.inflate(gridTuple.blobData, {to: 'string'});
+            } catch (e) {
+                console.error(e.toString());
+            }
+            gridTuple.blobData = null;
+        }
+
         this.processGridUpdates(gridTuples);
         this.storeGridTuples(gridTuples);
     }

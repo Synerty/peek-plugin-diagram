@@ -27,14 +27,13 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
         let lineWidth = DispEllipse.lineWidth(disp);
 
 
-        let x = DispEllipse.centerPoint(disp)[0]; // get details of point
-        let y = DispEllipse.centerPoint(disp)[1];
+        let point = DispEllipse.centerPoint(disp); // get details of point
 
         let yScale = yRadius / xRadius;
 
         // save state
         ctx.save();
-        ctx.translate(x, y);
+        ctx.translate(point.x, point.y);
         ctx.scale(1, yScale);
         ctx.rotate(rotationRadian);
 

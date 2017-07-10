@@ -48,6 +48,7 @@ export class GridObservable {
          */
         delete this.gridKeysByCanvasId[canvasId];
         delete this.subjectByCanvasId[canvasId];
+        this.rebuildReverseLookup();
         this.updateGridCacheWatchedKeys();
     }
 

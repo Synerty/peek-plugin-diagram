@@ -26,6 +26,9 @@ class LiveDbWatchController:
         self._liveDbWriteApi = liveDbWriteApi
         self._dbSessionCreator = dbSessionCreator
 
+    def shutdown(self):
+        pass
+
     def updateClientWatchedGrids(self, clientId: str, gridKeys: List[str]) -> Deferred:
         """ Update Client Watched Grids
 

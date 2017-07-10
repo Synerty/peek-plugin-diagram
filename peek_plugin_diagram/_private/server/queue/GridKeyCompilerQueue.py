@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from typing import List
 
+from sqlalchemy import asc
 from twisted.internet import task
 from twisted.internet.defer import inlineCallbacks
 
@@ -83,6 +84,7 @@ class GridKeyCompilerQueue:
         session = self._ormSessionCreator()
         try:
             qry = (session.query(GridKeyCompilerQueueTable)
+                   .order_by(asc(GridKeyCompilerQueueTable.id))
                    .filter(GridKeyCompilerQueueTable.id > self._lastQueueId)
                    .yield_per(self.FETCH_SIZE)
                    .limit(self.FETCH_SIZE))

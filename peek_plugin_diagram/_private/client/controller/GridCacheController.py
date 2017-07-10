@@ -48,7 +48,7 @@ class GridCacheController:
         self._gridEndpoint = PayloadEndpoint(clientGridUpdateFromServerFilt,
                                              self._processGridPayload)
 
-        self._coordSetEndpoint = PayloadEndpoint(clientGridUpdateFromServerFilt,
+        self._coordSetEndpoint = PayloadEndpoint(clientCoordSetUpdateFromServerFilt,
                                                  self._processCoordSetPayload)
 
         yield self.reloadCache()
@@ -89,7 +89,7 @@ class GridCacheController:
 
         for t in gridTuples:
             if (not t.gridKey in self._gridCache or
-                        self._gridCache[t.gridKey].updateDate < t.updateDate):
+                        self._gridCache[t.gridKey].lastUpdate != t.lastUpdate):
                 self._gridCache[t.gridKey] = t
                 gridKeyUpdates.append(t.gridKey)
 
