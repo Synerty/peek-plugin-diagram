@@ -2,6 +2,7 @@ import {assert} from "../DiagramUtil";
 import {GridTuple} from "../tuples/GridTuple";
 import {LookupCache} from "./LookupCache";
 
+let pako = require("pako");
 
 /** Linked Grid
  *
@@ -35,12 +36,11 @@ export class LinkedGrid {
 
         if (serverCompiledGrid.blobData != null
             && serverCompiledGrid.blobData.length != 0) {
-            let pako = require("pako");
             try {
                 let dispJsonStr = pako.inflate(serverCompiledGrid.blobData, {to: 'string'});
                 disps = JSON.parse(dispJsonStr);
             } catch (e) {
-                console.error(e.message);
+                console.error(e.toString());
             }
         }
 

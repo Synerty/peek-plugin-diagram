@@ -16,11 +16,9 @@ class ServerLookupTupleProvider(TuplesProviderABC):
     @deferToThreadWrap
     def makeVortexMsg(self, filt: dict,
                       tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
-        lookupTupleName = tupleSelector.selector["lookupTupleName"]
-
         session = self._ormSessionCreator()
         try:
-            Lookup = TUPLE_TYPES_BY_NAME[lookupTupleName]
+            Lookup = TUPLE_TYPES_BY_NAME[tupleSelector.name]
             all = session.query(Lookup).all()
             return Payload(filt, tuples=all).toVortexMsg()
 

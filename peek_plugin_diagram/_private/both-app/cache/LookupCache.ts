@@ -41,6 +41,9 @@ export class LookupCache {
                 this.clientTupleObservable.subscribeToTupleSelector(
                     new TupleSelector(tupleName, {})
                 ).subscribe((tuples: any[]) => {
+                    if (!tuples.length)
+                        return;
+
                     this.loadedCounter[lookupAttr] = true;
                     this[lookupAttr] = {};
 

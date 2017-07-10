@@ -128,7 +128,6 @@ export class GridCache {
         this.storage.open()
             .catch(e => console.log(`Failed to open grid cache db ${e}`));
 
-
         // Services don't have destructors, I'm not sure how to unsubscribe.
         this.vortexService.createEndpointObservable(
             this.lifecycleEmitter,

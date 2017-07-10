@@ -2,6 +2,9 @@ from typing import List
 
 import logging
 
+from twisted.internet import defer
+from twisted.internet.defer import Deferred
+
 from peek_plugin_livedb.server.LiveDBWriteApiABC import LiveDBWriteApiABC
 from vortex.DeferUtil import deferToThreadWrapWithLogger
 
@@ -23,7 +26,7 @@ class LiveDbWatchController:
         self._liveDbWriteApi = liveDbWriteApi
         self._dbSessionCreator = dbSessionCreator
 
-    def updateClientWatchedGrids(self, clientId: str, gridKeys: List[str]) -> None:
+    def updateClientWatchedGrids(self, clientId: str, gridKeys: List[str]) -> Deferred:
         """ Update Client Watched Grids
 
         Tell the server that these grids are currently being watched by users.
@@ -33,6 +36,9 @@ class LiveDbWatchController:
         :returns: Nothing
         """
         logger.debug("TODO TODO TODO TODO  Notify the livedb to prioritise the keys")
+        # d = self._liveDbWatchController.updateClientWatchedGrids(clientId, gridKeys)
+        # d.addErrback(vortexLogFailure, logger, consumeError=True)
+        return defer.succeed(True)
 
 
     @deferToThreadWrapWithLogger(logger)

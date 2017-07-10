@@ -75,6 +75,6 @@ class RpcForClient:
         :param gridKeys: A list of grid keys that this client is observing.
         :returns: Nothing
         """
-        #
+
         d = self._liveDbWatchController.updateClientWatchedGrids(clientId, gridKeys)
-        d.assErrback(vortexLogFailure, logger, consumeError=True)
+        d.addErrback(vortexLogFailure, logger, consumeError=True)

@@ -8,6 +8,7 @@ import {LookupCache} from "../cache/LookupCache";
 import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
 import {DispLevel} from "../tuples/lookups/DispLevel";
 import {DispLayer} from "../tuples/lookups/DispLayer";
+import {DispBase} from "../tuples/shapes/DispBase";
 // import 'rxjs/add/operator/takeUntil';
 
 function now(): any {
@@ -264,17 +265,17 @@ export class PeekCanvasModel {
                         let disp = grid.disps[nextIndex];
 
                         // // Level first, as per the sortDisps function
-                        if (disp.level.order < level.order)
+                        if (DispBase.level(disp).order < level.order)
                             continue;
 
-                        if (level.order < disp.level.order)
+                        if (level.order < DispBase.level(disp).order)
                             break;
 
                         // Then Layer
-                        if (disp.layer.order < layer.order)
+                        if (DispBase.layer(disp).order < layer.order)
                             continue;
 
-                        if (layer.order < disp.layer.order)
+                        if (layer.order < DispBase.layer(disp).order)
                             break;
 
                         if (dispIdsAdded[disp.id] === true)

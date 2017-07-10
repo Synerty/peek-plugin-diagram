@@ -26,13 +26,14 @@ DeviceGridT = Dict[str, datetime]
 
 # ModelSet HANDLER
 class GridCacheHandler(object):
-    def __init__(self, gridCacheController: GridCacheController):
+    def __init__(self, gridCacheController: GridCacheController, clientId: str):
         """ App Grid Handler
 
         This class handles the custom needs of the desktop/mobile apps observing grids.
 
         """
         self._gridCacheController = gridCacheController
+        self._clientId = clientId
 
         self._epObserve = PayloadEndpoint(
             clientGridWatchUpdateFromDeviceFilt, self._processObserve
@@ -108,6 +109,7 @@ class GridCacheHandler(object):
                         vortexUuid: str,
                         sendResponse: SendVortexMsgResponseCallable,
                         **kwargs):
+
         lastUpdateByGridKey: DeviceGridT = payload.tuples[0]
         gridKeys = list(lastUpdateByGridKey.keys())
 
@@ -118,7 +120,13 @@ class GridCacheHandler(object):
                              lastUpdateByGridKey,
                              sendResponse)
 
-    def _rebuildStructs(self):
+    def _rebuildStructs(self) -> None:
+        """ Rebuild Structs
+
+        Rebuild the reverse index of uuids by grid key.
+
+        :returns: None
+        """
         # Rebuild the other reverse lookup
         newDict = defaultdict(list)
 
@@ -133,7 +141,8 @@ class GridCacheHandler(object):
         # Notify the server that this client service is watching different grids.
         if keysChanged:
             d = RpcForClient.updateClientWatchedGrids(
-                list(self._observedVortexUuidsByGridKey)
+                clientId=self._clientId,
+                gridKeys=list(self._observedVortexUuidsByGridKey)
             )
             d.addErrback(vortexLogFailure, logger, consumeError=False)
 
@@ -162,10 +171,17 @@ class GridCacheHandler(object):
         for gridKey, lastUpdate in lastUpdateByGridKey.items():
             # NOTE: lastUpdate can be null.
             gridTuple = self._gridCacheController.grid(gridKey)
+            if not gridTuple:
+                logger.debug("Grid %s is not in the cache" % gridKey)
+                continue
+            logger.debug("We have grid %s from the cache" % gridKey)
 
             # We are king, If it's it's not our version, it's the wrong version ;-)
             if gridTuple.lastUpdate != lastUpdate:
                 gridTuplesToSend.append(gridTuple)
+
+        if not gridTuplesToSend:
+            return
 
         d: Deferred = Payload(filt=filt, tuples=gridTuplesToSend).toVortexMsgDefer()
         d.addCallback(sendResponse)

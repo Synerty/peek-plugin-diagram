@@ -69,28 +69,28 @@ class LookupCacheController:
         if not lookupTuples:
             return
 
-        firstTuple = lookupTuples[0].tupleType()
-        if DispLevel.isSameTupleType(firstTuple):
+        firstTupleType = lookupTuples[0].tupleType()
+        if DispLevel.tupleType() == firstTupleType:
             self._levelLookups = lookupTuples
 
-        elif DispLayer.isSameTupleType(firstTuple):
+        elif DispLayer.tupleType() == firstTupleType:
             self._layerLookups = lookupTuples
 
-        elif DispColor.isSameTupleType(firstTuple):
+        elif DispColor.tupleType() == firstTupleType:
             self._colorLookups = lookupTuples
 
-        elif DispLineStyle.isSameTupleType(firstTuple):
+        elif DispLineStyle.tupleType() == firstTupleType:
             self._lineStyleLookups = lookupTuples
 
-        elif DispTextStyle.isSameTupleType(firstTuple):
+        elif DispTextStyle.tupleType() == firstTupleType:
             self._textStyleLookups = lookupTuples
 
         else:
             raise NotImplementedError(
-                "Cache not implemented for %s" % firstTuple.tupleType())
+                "Cache not implemented for %s" % firstTupleType)
 
         self._tupleObservable.notifyOfTupleUpdate(
-            TupleSelector(firstTuple.tupleType(), {})
+            TupleSelector(firstTupleType, {})
         )
 
     def lookups(self, lookupTupleType) -> List:

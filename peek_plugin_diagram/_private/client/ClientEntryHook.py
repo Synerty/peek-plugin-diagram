@@ -69,10 +69,11 @@ class ClientEntryHook(PluginClientEntryHookABC):
 
         # Provide the devices access to the servers observable
         self._loadedObjects.append(
-            TupleDataObservableProxyHandler(observableName=diagramObservableName,
-                                            proxyToVortexName=peekServerName,
-                                            additionalFilt=diagramFilt,
-                                            observerName="Proxy to devices")
+            TupleDataObservableProxyHandler(
+                observableName=diagramObservableName,
+                proxyToVortexName=peekServerName,
+                additionalFilt=diagramFilt,
+                observerName="Proxy to devices")
         )
 
         #: This is an observer for us (the client) to use to observe data
@@ -89,7 +90,10 @@ class ClientEntryHook(PluginClientEntryHookABC):
         self._loadedObjects.append(gridCacheController)
 
         # This is the custom handler for the client
-        gridCacheHandler = GridCacheHandler(gridCacheController)
+        gridCacheHandler = GridCacheHandler(
+            gridCacheController=gridCacheController,
+            clientId=self.platform.serviceId
+        )
         self._loadedObjects.append(gridCacheHandler)
 
         gridCacheController.setGridCacheHandler(gridCacheHandler)
