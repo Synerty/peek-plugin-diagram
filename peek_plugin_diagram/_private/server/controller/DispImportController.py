@@ -41,6 +41,7 @@ IMPORT_FIELD_NAME_MAP = {
     'levelHash': 'levelId',
     'layerHash': 'layerId',
     'lineStyleHash': 'lineStyleId',
+    'colorHash': 'colorId',
     'fillColorHash': 'fillColorId',
     'lineColorHash': 'lineColorId',
     'textStyleHash': 'textStyleId'

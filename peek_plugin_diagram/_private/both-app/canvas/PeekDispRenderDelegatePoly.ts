@@ -93,7 +93,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             ctx.closePath();
 
         if (lineColor) {
-            ctx.strokeStyle = "green";
+            ctx.strokeStyle = lineColor.color;
             ctx.lineWidth = DispPolygon.lineWidth(disp) / zoom;
             ctx.stroke();
         }

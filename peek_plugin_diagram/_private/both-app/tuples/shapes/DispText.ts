@@ -5,14 +5,14 @@ import {DispColor} from "../lookups/DispColor";
 export enum TextVerticalAlign {
     top = -1,
     center = 0,
-    bottom = -1
+    bottom = 1
 }
 
 
 export enum TextHorizontalAlign {
     left = -1,
     center = 0,
-    right = -1
+    right = 1
 }
 
 export class DispText extends DispBase {
