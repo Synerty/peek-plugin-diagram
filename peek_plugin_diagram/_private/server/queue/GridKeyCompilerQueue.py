@@ -6,8 +6,8 @@ from sqlalchemy import asc
 from twisted.internet import task
 from twisted.internet.defer import inlineCallbacks
 
-from peek_plugin_diagram._private.server.controller.ClientUpdateController import \
-    ClientUpdateController
+from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import \
+    ClientGridUpdateHandler
 from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
 from peek_plugin_diagram._private.storage.GridKeyIndex import \
@@ -34,10 +34,10 @@ class GridKeyCompilerQueue:
 
     def __init__(self, ormSessionCreator,
                  statusController: StatusController,
-                 clientUpdateController: ClientUpdateController):
+                 clientGridUpdateHandler: ClientGridUpdateHandler):
         self._ormSessionCreator = ormSessionCreator
         self._statusController: StatusController = statusController
-        self._clientUpdateController: ClientUpdateController = clientUpdateController
+        self._clientGridUpdateHandler: ClientGridUpdateHandler = clientGridUpdateHandler
 
         self._pollLoopingCall = task.LoopingCall(self._poll)
         self._lastQueueId = -1
@@ -98,7 +98,7 @@ class GridKeyCompilerQueue:
 
     def _pollCallback(self, gridKeys: List[str], startTime, processedCount):
         logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
-        self._clientUpdateController.sendGrids(gridKeys)
+        self._clientGridUpdateHandler.sendGrids(gridKeys)
         self._statusController.addToGridCompilerTotal(processedCount)
 
     def _pollErrback(self, failure, startTime):

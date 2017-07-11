@@ -15,7 +15,7 @@ from vortex.VortexFactory import VortexFactory
 logger = logging.getLogger(__name__)
 
 
-class ClientUpdateController:
+class ClientGridUpdateHandler:
     """ Client Update Controller
 
     This controller handles sending updates the the client.

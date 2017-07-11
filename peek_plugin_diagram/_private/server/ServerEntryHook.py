@@ -9,9 +9,9 @@ from peek_plugin_base.server.PluginServerWorkerEntryHookABC import \
     PluginServerWorkerEntryHookABC
 from peek_plugin_diagram._private.server.cache.DispLookupDataCache import \
     DispLookupDataCache
+from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import \
+    ClientGridUpdateHandler
 from peek_plugin_diagram._private.server.client_handlers.RpcForClient import RpcForClient
-from peek_plugin_diagram._private.server.controller.ClientUpdateController import \
-    ClientUpdateController
 from peek_plugin_diagram._private.server.controller.DispImportController import \
     DispImportController
 from peek_plugin_diagram._private.server.controller.DispLinkImportController import \
@@ -75,8 +75,8 @@ class ServerEntryHook(PluginServerEntryHookABC,
         """
 
         # create the Status Controller
-        clientUpdateController = ClientUpdateController(self.dbSessionCreator)
-        self._loadedObjects.append(clientUpdateController)
+        clientGridUpdateHandler = ClientGridUpdateHandler(self.dbSessionCreator)
+        self._loadedObjects.append(clientGridUpdateHandler)
 
         # create the Status Controller
         statusController = StatusController()
@@ -84,7 +84,7 @@ class ServerEntryHook(PluginServerEntryHookABC,
 
         # Create the GRID KEY queue
         gridKeyCompilerQueue = GridKeyCompilerQueue(
-            self.dbSessionCreator, statusController, clientUpdateController
+            self.dbSessionCreator, statusController, clientGridUpdateHandler
         )
         self._loadedObjects.append(gridKeyCompilerQueue)
 
@@ -126,15 +126,19 @@ class ServerEntryHook(PluginServerEntryHookABC,
         liveDbApi: LiveDBApiABC = self.platform.getOtherPluginApi("peek_plugin_livedb")
 
         # Create the Watch Grid Controller
-        liveDbWatchController = LiveDbWatchController(liveDbWriteApi=liveDbApi.writeApi,
-                                                      dbSessionCreator=self.dbSessionCreator)
+        liveDbWatchController = LiveDbWatchController(
+            liveDbWriteApi=liveDbApi.writeApi,
+            liveDbReadApi=liveDbApi.readApi,
+            dispLookupCache=lookupImportController,
+            dbSessionCreator=self.dbSessionCreator
+        )
         self._loadedObjects.append(liveDbWatchController)
 
         # Create the API for the client
         self._loadedObjects.extend(
             RpcForClient(liveDbWatchController=liveDbWatchController,
                          dbSessionCreator=self.dbSessionCreator)
-            .makeHandlers()
+                .makeHandlers()
         )
 
         # Create the Live DB Import Controller
