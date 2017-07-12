@@ -129,7 +129,7 @@ class ServerEntryHook(PluginServerEntryHookABC,
         liveDbWatchController = LiveDbWatchController(
             liveDbWriteApi=liveDbApi.writeApi,
             liveDbReadApi=liveDbApi.readApi,
-            dispLookupCache=lookupImportController,
+            dispLookupCache=dispLookupCache,
             dbSessionCreator=self.dbSessionCreator
         )
         self._loadedObjects.append(liveDbWatchController)

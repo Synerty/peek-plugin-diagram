@@ -209,7 +209,15 @@ class DispCompilerTask:
                             return self._mergeInLiveDbValue(
                                 disp, dispLink, liveDbItem, int(value))
 
+                        if "an integer is required, not str" in message:
+                            return self._mergeInLiveDbValue(
+                                disp, dispLink, liveDbItem, int(value))
+
                         if "float is required" in message:
+                            return self._mergeInLiveDbValue(
+                                disp, dispLink, liveDbItem, float(value))
+
+                        if "must be real number, not str" in message:
                             return self._mergeInLiveDbValue(
                                 disp, dispLink, liveDbItem, float(value))
 

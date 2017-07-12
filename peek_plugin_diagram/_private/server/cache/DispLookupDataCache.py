@@ -50,7 +50,7 @@ class DispLookupDataCache(object):
 
         if handler._expired: self.refreshAll()
 
-        returnValue(val)
+        return val
 
     @inlineCallbacks
     def __getHandler(self, coordSetId):

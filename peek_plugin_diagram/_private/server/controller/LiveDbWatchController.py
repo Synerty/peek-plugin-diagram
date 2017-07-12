@@ -1,6 +1,7 @@
 import logging
 from typing import List, Dict
 
+from sqlalchemy import select, insert
 from twisted.internet.defer import Deferred, inlineCallbacks
 
 from peek_plugin_diagram._private.server.cache.DispLookupDataCache import \
@@ -13,7 +14,8 @@ from peek_plugin_livedb.server.LiveDBWriteApiABC import LiveDBWriteApiABC
 from peek_plugin_livedb.tuples.LiveDbDisplayValueUpdateTuple import \
     LiveDbDisplayValueUpdateTuple
 from peek_plugin_livedb.tuples.LiveDbRawValueUpdateTuple import LiveDbRawValueUpdateTuple
-from vortex.DeferUtil import deferToThreadWrapWithLogger
+from vortex.DeferUtil import deferToThreadWrapWithLogger, \
+    vortexInlineCallbacksLogAndConsumeFailure
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +94,7 @@ class LiveDbWatchController:
         finally:
             session.close()
 
-    @inlineCallbacks
+    @vortexInlineCallbacksLogAndConsumeFailure(logger)
     def processLiveDbRawValueUpdates(self, updates: List[LiveDbRawValueUpdateTuple]):
         keys = [u.key for u in updates]
 
@@ -141,7 +143,7 @@ class LiveDbWatchController:
         finally:
             session.close()
 
-    @deferToThreadWrapWithLogger(logger)
+    @deferToThreadWrapWithLogger(logger, consumeError=True)
     def processLiveDbDisplayValueUpdates(self,
                                          updates: List[LiveDbDisplayValueUpdateTuple]):
 
@@ -152,10 +154,12 @@ class LiveDbWatchController:
         session = self._dbSessionCreator()
         try:
             updatedKeys = [u.key for u in updates]
-            stmt = (linkTable.select([linkTable.c.dispId])
+            stmt = (select([linkTable.c.dispId])
                     .where(linkTable.c.liveDbKey.in_(updatedKeys)))
 
-            session.execute(queueTable.insert([queueTable.c.dispId]).values(stmt))
+            ins = queueTable.insert().from_select(['dispId'], stmt)
+            session.execute(ins)
+            session.commit()
 
         finally:
             session.close()
