@@ -68,16 +68,17 @@ class GridKeyIndexCompiled(Tuple, DeclarativeBase):
     __tablename__ = 'GridKeyIndexCompiled'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    gridKey = Column(String(30), primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    gridKey = Column(String(30))
     blobData = Column(PeekLargeBinary, nullable=False)
     lastUpdate = Column(DateTime, nullable=False)
 
     coordSetId = Column(Integer,
-                        ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
-                        primary_key=True)
+                        ForeignKey('ModelCoordSet.id', ondelete='CASCADE'))
     coordSet = relationship(ModelCoordSet)
 
     __table_args__ = (
-        Index("idx_GKIndexUpdate_gridKey", gridKey, lastUpdate, unique=False),
         Index("idx_GKIndexUpdate_coordSetId", coordSetId, unique=False),
+        Index("idx_GKIndexUpdate_gridKey", gridKey, unique=True),
     )

@@ -10,8 +10,6 @@
  *  Synerty Pty Ltd
  *
 """
-from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from .DeclarativeBase import DeclarativeBase
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
@@ -20,7 +18,9 @@ from sqlalchemy.sql.schema import Index
 from sqlalchemy.sql.sqltypes import Boolean
 from sqlalchemy.types import Float
 
+from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from vortex.Tuple import addTupleType, Tuple, TupleField
+from .DeclarativeBase import DeclarativeBase
 
 
 @addTupleType
@@ -29,7 +29,7 @@ class ModelSet(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(50), nullable=False, unique=True)
+    name = Column(String(50), nullable=False)
     comment = Column(String)
 
     coordSets = relationship('ModelCoordSet')
@@ -37,6 +37,10 @@ class ModelSet(Tuple, DeclarativeBase):
     connTypes = relationship('ModelConnType')
 
     uiData = TupleField()
+
+    __table_args__ = (
+        Index("idx_ModelSet_name", name, unique=True),
+    )
 
 
 @addTupleType
