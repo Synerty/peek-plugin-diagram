@@ -68,6 +68,7 @@ if [ -n "${PIPY_ALIAS}" ]; then
     python setup.py sdist upload -r $PYPI_PUBLISH
 else
     echo "Not publishing to any pypi indexes"
+    python setup.py sdist
 fi
 
 #------------------------------------------------------------------------------
