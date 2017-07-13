@@ -111,7 +111,7 @@ export class GridCache {
     // We will cache the last 20 sets of watched grids in these caches
     // Over 20, will just fall out of scope and be garbage collected
     private cacheQueue: Cache[] = [];
-    private MAX_CACHE = 20;
+    private MAX_CACHE = 50;
 
     // The last set of keys requested from the GridObserver
     private lastWatchedGridKeys: string[] = [];

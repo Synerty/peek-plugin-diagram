@@ -25,6 +25,7 @@ from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
 from peek_plugin_diagram.tuples.shapes.ImportDispTextTuple import ImportDispTextTuple
 from vortex.DeferUtil import deferToThreadWrapWithLogger
 from vortex.SerialiseUtil import convertFromWkbElement
+from peek_plugin_diagram._private.worker.tasks.DispImportTask import bulkLoadDispsTask
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +78,7 @@ class DispImportController:
         yield self._dispLinkImportController.importDispLiveDbDispLinks(
             modelSetName, coordSet, importGroupHash, importDispLinks
         )
+
         logger.debug("Queueing disp grids for %s", coordSetName)
         yield self._dispCompilerQueue.queueDisps(dispIdsToCompile)
 
@@ -124,8 +126,8 @@ class DispImportController:
             # Add some interim data to the import display link, so it can be created
             for importDispLink in importDisp.liveDbDispLinks:
                 attrName = importDispLink.dispAttrName
-                importDispLink.liveDbRawValue = getattr(ormDisp, attrName)
-                importDispLink.dispId = ormDisp.id
+                importDispLink.internalRawValue = getattr(ormDisp, attrName)
+                importDispLink.internalDispId = ormDisp.id
                 importDispLinks.append(importDispLink)
 
             # Convert the values of the liveDb attributes
@@ -134,70 +136,14 @@ class DispImportController:
             # Add the after translate value, this is the Display Value
             for importDispLink in importDisp.liveDbDispLinks:
                 attrName = importDispLink.dispAttrName
-                importDispLink.liveDbDisplayValue = getattr(ormDisp, attrName)
+                importDispLink.internalDisplayValue = getattr(ormDisp, attrName)
 
-        dispIdsToCompile = yield self._bulkLoadDisps(
+        dispIdsToCompile = yield bulkLoadDispsTask.delay(
             coordSet, importGroupHash, ormDisps, dispIdsToCompile
         )
 
-        returnValue((dispIdsToCompile, importDispLinks))
+        return dispIdsToCompile, importDispLinks
 
-    @deferToThreadWrapWithLogger(logger)
-    def _bulkLoadDisps(self, coordSet, importGroupHash, disps, dispIdsToCompile):
-
-        startTime = datetime.utcnow()
-        logger.debug("Loaded lookups in %s", (datetime.utcnow() - startTime))
-
-        ormSession = self._dbSessionCreator()
-        try:
-
-            (ormSession.query(DispBase)
-             .filter(DispBase.importGroupHash == importGroupHash)
-             .delete())
-
-            # Initialise the ModelCoordSet initial position if it's not set
-            if (not coordSet.initialPanX
-                and not coordSet.initialPanY
-                and not coordSet.initialZoom):
-                for disp in disps:
-                    if not hasattr(disp, 'geom'):
-                        continue
-                    point = convertFromWkbElement(disp.geom)[0]
-                    coordSet.initialPanX = point['x']
-                    coordSet.initialPanY = point['y']
-                    coordSet.initialZoom = 0.05
-                    break
-
-            logger.debug("Finised setting %s Disp attributes in %s",
-                         len(disps), (datetime.utcnow() - startTime))
-
-            ormSession.commit()
-
-            # Make this change, it's required to store the WKBElements
-            for disp in disps:
-                disp.geom = disp.geom.desc
-
-            with ormSession.begin(subtransactions=True):
-                ormSession.bulk_save_objects(disps, update_changed_only=False)
-            ormSession.commit()
-
-            logger.debug("Finished inserting %s Disps in %s",
-                         len(disps), (datetime.utcnow() - startTime))
-
-            if not dispIdsToCompile:
-                dispIdsToCompile = [o[0] for o in ormSession.query(DispBase.id)
-                    .filter(DispBase.importGroupHash == importGroupHash)
-                    .all()]
-
-            return dispIdsToCompile
-
-        except Exception as e:
-            logger.exception(e)
-            ormSession.rollback()
-            raise
-
-        finally:
-            ormSession.close()
 
     def _convertImportTuple(self, importDisp):
         if not importDisp.tupleType() in IMPORT_TUPLE_MAP:

@@ -71,7 +71,7 @@ class DispCompilerQueue:
 
         # deferLater, to make it call in the main thread.
         d = compileDisps.delay(self._lastQueueId, queueDispIds)
-        d.addCallback(self._pollCallback, datetime.utcnow(), queueDispIds)
+        d.addCallback(self._pollCallback, datetime.utcnow())
         d.addErrback(self._pollErrback, datetime.utcnow())
 
     @deferToThreadWrapWithLogger(logger)
@@ -91,19 +91,8 @@ class DispCompilerQueue:
             session.close()
 
     @deferToThreadWrapWithLogger(logger)
-    def _pollCallback(self, arg, startTime, queueDispIds):
-        print(datetime.utcnow() - startTime)
-        self._statusController.addToDisplayCompilerTotal(len(queueDispIds))
-
-        ormSession = self._ormSessionCreator()
-        try:
-            (ormSession.query(DispIndexerQueueTable)
-             .filter(DispIndexerQueueTable.id.in_(queueDispIds))
-             .delete(synchronize_session=False)
-             )
-
-        finally:
-            ormSession.close()
+    def _pollCallback(self, arg, startTime):
+        logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
 
     def _pollErrback(self, failure, startTime):
         logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))

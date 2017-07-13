@@ -3,7 +3,7 @@ import logging
 from peek_plugin_base.worker.PluginWorkerEntryHookABC import PluginWorkerEntryHookABC
 
 from peek_plugin_diagram._private.worker.tasks import GridKeyCompilerTask, \
-    DispCompilerTask
+    DispCompilerTask, DispImportTask, DispLinkImportTask
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,9 @@ class WorkerEntryHook(PluginWorkerEntryHookABC):
     @property
     def celeryAppIncludes(self):
         return [GridKeyCompilerTask.__name__,
-                DispCompilerTask.__name__]
+                GridKeyCompilerTask.__name__,
+                DispLinkImportTask.__name__,
+                DispImportTask.__name__]
 
     @property
     def celeryApp(self):

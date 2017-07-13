@@ -42,3 +42,12 @@ class ImportLiveDbDispLinkTuple(Tuple):
 
     #:  Additional data for this object
     props: dict = TupleField()
+
+    #: This is used internally for the import, DO NOT USE
+    internalDispId: int = TupleField()
+
+    #: This is used internally for the import, DO NOT USE
+    internalRawValue: str = TupleField()
+
+    #: This is used internally for the import, DO NOT USE
+    internalDisplayValue: str = TupleField()

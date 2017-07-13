@@ -130,7 +130,7 @@ class GridCacheHandler(object):
         # Rebuild the other reverse lookup
         newDict = defaultdict(list)
 
-        for vortexUuid, gridKeys in list(self._observedGridKeysByVortexUuid.items()):
+        for vortexUuid, gridKeys in self._observedGridKeysByVortexUuid.items():
             for gridKey in gridKeys:
                 newDict[gridKey].append(vortexUuid)
 
@@ -174,11 +174,15 @@ class GridCacheHandler(object):
             if not gridTuple:
                 logger.debug("Grid %s is not in the cache" % gridKey)
                 continue
-            logger.debug("We have grid %s from the cache" % gridKey)
 
             # We are king, If it's it's not our version, it's the wrong version ;-)
-            if gridTuple.lastUpdate != lastUpdate:
+            logger.debug("%s, %s,  %s", gridTuple.lastUpdate == lastUpdate,
+                         gridTuple.lastUpdate , lastUpdate)
+            if gridTuple.lastUpdate == lastUpdate:
+                logger.debug("Grid %s matches the cache" % gridKey)
+            else:
                 gridTuplesToSend.append(gridTuple)
+                logger.debug("Sending grid %s from the cache" % gridKey)
 
         if not gridTuplesToSend:
             return

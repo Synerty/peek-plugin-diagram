@@ -93,6 +93,8 @@ class GridCacheController:
                 self._gridCache[t.gridKey] = t
                 gridKeyUpdates.append(t.gridKey)
 
+        logger.debug("Received grid updates from server, %s", gridKeyUpdates)
+
         self._gridCacheHandler.notifyOfGridUpdate(gridKeyUpdates)
 
     def grid(self, gridKey) -> GridTuple:

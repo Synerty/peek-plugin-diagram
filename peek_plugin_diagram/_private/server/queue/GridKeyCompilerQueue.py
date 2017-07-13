@@ -75,7 +75,7 @@ class GridKeyCompilerQueue:
             compileGrids
 
         # deferLater, to make it call in the main thread.
-        d = compileGrids.delay(Payload(tuples=queueItems)._toJson())
+        d = compileGrids.delay(queueItems)
         d.addCallback(self._pollCallback, datetime.utcnow(), len(queueItems))
         d.addErrback(self._pollErrback, datetime.utcnow())
 
