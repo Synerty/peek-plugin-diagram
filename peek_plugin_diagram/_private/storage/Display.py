@@ -14,7 +14,6 @@ from geoalchemy2.types import Geometry
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String, Boolean
-from sqlalchemy.dialects.postgresql.json import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.mapper import reconstructor
 from sqlalchemy.sql.schema import Index, Sequence
@@ -42,7 +41,7 @@ class DispLayer(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
+    name = Column(String(50), nullable=False)
     order = Column(Integer, nullable=False, server_default='0')
     selectable = Column(Boolean, nullable=False, server_default='false')
     visible = Column(Boolean, nullable=False, server_default='true')
@@ -51,7 +50,7 @@ class DispLayer(Tuple, DeclarativeBase):
                         nullable=False)
     modelSet = relationship(ModelSet)
 
-    importHash = Column(String, doc=JSON_EXCLUDE)
+    importHash = Column(String(100), doc=JSON_EXCLUDE)
 
     __table_args__ = (
         Index("idx_DispLayer_modelSetId", modelSetId, unique=False),
@@ -65,7 +64,7 @@ class DispLevel(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
+    name = Column(String(50), nullable=False)
     order = Column(Integer, nullable=False, server_default='0')
     minZoom = Column(Float)
     maxZoom = Column(Float)
@@ -74,7 +73,7 @@ class DispLevel(Tuple, DeclarativeBase):
                         nullable=False)
     coordSet = relationship(ModelCoordSet)
 
-    importHash = Column(String, doc=JSON_EXCLUDE)
+    importHash = Column(String(100), doc=JSON_EXCLUDE)
 
     __table_args__ = (
         Index("idx_DispLevel_coordSetId", coordSetId, unique=False),
@@ -88,8 +87,8 @@ class DispTextStyle(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
-    fontName = Column(String, nullable=False, server_default="GillSans")
+    name = Column(String(50), nullable=False)
+    fontName = Column(String(30), nullable=False, server_default="GillSans")
     fontSize = Column(Integer, nullable=False, server_default='9')
     fontStyle = Column(String)
     scalable = Column(Boolean, nullable=False, server_default="true")
@@ -99,7 +98,7 @@ class DispTextStyle(Tuple, DeclarativeBase):
                         doc=JSON_EXCLUDE, nullable=False)
     modelSet = relationship(ModelSet)
 
-    importHash = Column(String, doc=JSON_EXCLUDE)
+    importHash = Column(String(100), doc=JSON_EXCLUDE)
 
     __table_args__ = (
         Index("idx_DispTextStyle_modelSetId", modelSetId, unique=False),
@@ -114,11 +113,11 @@ class DispLineStyle(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
+    name = Column(String(50), nullable=False)
     backgroundFillDashSpace = Column(Boolean, nullable=False, server_default='false')
-    capStyle = Column(String, nullable=False)
-    joinStyle = Column(String, nullable=False)
-    dashPattern = Column(JSONB)
+    capStyle = Column(String(15), nullable=False)
+    joinStyle = Column(String(15), nullable=False)
+    dashPattern = Column(String(50))
     startArrowSize = Column(Integer)
     endArrowSize = Column(Integer)
     winStyle = Column(Integer, nullable=False)
@@ -127,7 +126,7 @@ class DispLineStyle(Tuple, DeclarativeBase):
                         doc=JSON_EXCLUDE, nullable=False)
     modelSet = relationship(ModelSet)
 
-    importHash = Column(String, doc=JSON_EXCLUDE)
+    importHash = Column(String(100), doc=JSON_EXCLUDE)
 
     __table_args__ = (
         Index("idx_DispLineStyle_modelSetId", modelSetId, unique=False),
@@ -142,16 +141,16 @@ class DispColor(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, doc=JSON_EXCLUDE, nullable=False)
-    color = Column(String, server_default='orange')
-    altColor = Column(String)
+    name = Column(String(50), doc=JSON_EXCLUDE, nullable=False)
+    color = Column(String(20), server_default='orange')
+    altColor = Column(String(20))
     swapPeriod = Column(Float)
 
     modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),
                         doc=JSON_EXCLUDE, nullable=False)
     modelSet = relationship(ModelSet)
 
-    importHash = Column(String, doc=JSON_EXCLUDE)
+    importHash = Column(String(100), doc=JSON_EXCLUDE)
 
     __table_args__ = (
         Index("idx_DispColor_modelSetId", modelSetId, unique=False),
@@ -193,11 +192,11 @@ class DispBase(Tuple, DeclarativeBase):
     levelId = Column(Integer, ForeignKey('DispLevel.id', ondelete='CASCADE'), doc='le')
     level = relationship(DispLevel)
 
-    dispJson = Column(JSONB, nullable=False, doc=JSON_EXCLUDE)
+    dispJson = Column(String(500), doc=JSON_EXCLUDE)
 
     importUpdateDate = Column(DateTime, doc=JSON_EXCLUDE)
-    importHash = Column(String, doc=JSON_EXCLUDE)
-    importGroupHash = Column(String, doc=JSON_EXCLUDE)
+    importHash = Column(String(100), doc=JSON_EXCLUDE)
+    importGroupHash = Column(String(100), doc=JSON_EXCLUDE)
     importLiveDbDispLinks = TupleField([])
 
     liveDbLinks = relationship("LiveDbDispLink")
@@ -236,8 +235,8 @@ class DispText(DispBase):
     verticalAlign = Column(Integer, doc='va', nullable=False, server_default='-1')
     horizontalAlign = Column(Integer, doc='ha', nullable=False, server_default='0')
     rotation = Column(Float, doc='r', nullable=False, server_default='0')
-    text = Column(String, doc='te', nullable=False, server_default="new text label")
-    textFormat = Column(String, doc=JSON_EXCLUDE, nullable=True)
+    text = Column(String(1000), doc='te', nullable=False, server_default="new text label")
+    textFormat = Column(String(1000), doc=JSON_EXCLUDE, nullable=True)
 
     geom = Column(Geometry(geometry_type="POINT"), nullable=False, doc='g')
 
@@ -379,7 +378,7 @@ class DispAction(DispPolygon):
     id = Column(Integer, ForeignKey('DispPolygon.id', ondelete='CASCADE')
                 , primary_key=True, autoincrement=True)
 
-    data = Column(JSONB, doc='d')
+    propsJson = Column(String(500), doc='pr')
 
 
 @addTupleType
@@ -406,7 +405,7 @@ class DispGroup(DispBase):
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
                 , primary_key=True, autoincrement=True)
 
-    name = Column(String, doc=JSON_EXCLUDE, nullable=False, unique=True)
+    name = Column(String(50), doc=JSON_EXCLUDE, nullable=False, unique=True)
 
     items = relationship(DispBase, secondary=DispGroupItem.__table__)
 
@@ -486,7 +485,7 @@ class DispPolylineConn(DispPolyline):
                     nullable=False)
     conn = relationship('ModelConn')
 
-    data = Column(JSONB, doc='d')
+    propsJson = Column(String(500), doc='pr')
 
     __table_args__ = (
         Index("idxConnCoordConnId", connId, unique=False),

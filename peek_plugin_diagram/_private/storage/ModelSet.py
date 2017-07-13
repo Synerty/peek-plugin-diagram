@@ -15,7 +15,6 @@ from .DeclarativeBase import DeclarativeBase
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
-from sqlalchemy.dialects.postgresql.json import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Index
 from sqlalchemy.sql.sqltypes import Boolean
@@ -30,7 +29,7 @@ class ModelSet(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
+    name = Column(String(50), nullable=False)
     comment = Column(String)
 
     coordSets = relationship('ModelCoordSet')
@@ -48,7 +47,7 @@ class ModelCoordSet(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
+    name = Column(String(50), nullable=False)
     initialPanX = Column(Float, nullable=False, server_default="0")
     initialPanY = Column(Float, nullable=False, server_default="0")
     initialZoom = Column(Float, nullable=False, server_default="0")
@@ -83,7 +82,7 @@ class ModelNodeType(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
+    name = Column(String(50), nullable=False)
     comment = Column(String)
 
     modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),
@@ -105,7 +104,7 @@ class ModelNode(Tuple, DeclarativeBase):
     uiData = TupleField(defaultValue={})
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    props = Column(JSONB)
+    propsJson = Column(String(500), doc='pr')
 
     modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),
                         nullable=False)
@@ -141,7 +140,7 @@ class ModelConnType(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
+    name = Column(String(50), nullable=False)
     comment = Column(String)
 
     modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),
@@ -163,7 +162,7 @@ class ModelConn(Tuple, DeclarativeBase):
     uiData = TupleField(defaultValue={})
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    props = Column(JSONB)
+    propsJson = Column(String(500), doc='pr')
 
     modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),
                         nullable=False)

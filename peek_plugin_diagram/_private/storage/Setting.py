@@ -138,7 +138,7 @@ class SettingProperty(PolymorphicVerticalProperty, Tuple, DeclarativeBase):
     # add information about storage for different types
     # in the info dictionary of Columns
     int_value = Column(Integer, info={'type': (int, 'integer')})
-    char_value = Column(String, info={'type': (str, 'string')})
+    char_value = Column(String(7500), info={'type': (str, 'string')})
     boolean_value = Column(Boolean, info={'type': (bool, 'boolean')})
 
     def __init__(self, key=None, value=None):
@@ -158,7 +158,7 @@ class Setting(ProxiedDictMixin, Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String)
+    name = Column(String(50))
 
     properties = relationship("SettingProperty",
                               collection_class=attribute_mapped_collection('key'))
@@ -213,15 +213,15 @@ class PropertyKey(object):
 def _getSetting(ormSession, name, propertyDict, key=None, value=None):
     all = ormSession.query(Setting).filter(Setting.name == name).all()
 
+    needsCommit = False
+
     if all:
         setting = all[0]
         ormSession.expire(setting)
     else:
         setting = Setting(name)
         ormSession.add(setting)
-        ormSession.commit()
-
-    needsCommit = False
+        needsCommit = True
 
     for prop in list(propertyDict.values()):
         if not prop.name in setting:

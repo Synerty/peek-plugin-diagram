@@ -15,7 +15,6 @@ import logging
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
-from sqlalchemy.dialects.postgresql.json import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.mapper import reconstructor
 from sqlalchemy.sql.schema import Index, Sequence
@@ -65,7 +64,7 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
     # dispTableName = Column(String, nullable=False)
 
     # comment="The attribute of the disp item to update"
-    dispAttrName = Column(String, nullable=False)
+    dispAttrName = Column(String(20), nullable=False)
 
     liveDbKey = Column(String(30), nullable=False)
 
@@ -76,7 +75,7 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
     importDispHash = Column(String)
 
     # Store custom props for this link
-    props = Column(JSONB, doc="p")
+    props = Column(String(500), doc="p")
 
     __table_args__ = (
         Index("idx_LiveDbDLink_DispKeyHash",

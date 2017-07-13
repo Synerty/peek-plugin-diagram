@@ -40,7 +40,7 @@ class GridKeyCompilerQueue(Tuple, DeclarativeBase):
     id = Column(Integer, id_seq, server_default=id_seq.next_value(),
                 primary_key=True, autoincrement=True)
 
-    gridKey = Column(String, primary_key=True)
+    gridKey = Column(String(30), primary_key=True)
     coordSetId = Column(Integer,
                         ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
                         primary_key=True)
@@ -55,7 +55,7 @@ class GridKeyIndex(Tuple, DeclarativeBase):
     __tablename__ = 'GridKeyIndex'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    gridKey = Column(String, primary_key=True)
+    gridKey = Column(String(30), primary_key=True)
     dispId = Column(Integer,
                     ForeignKey('DispBase.id', ondelete='CASCADE'),
                     primary_key=True)
@@ -79,7 +79,7 @@ class GridKeyIndexCompiled(Tuple, DeclarativeBase):
     __tablename__ = 'GridKeyIndexCompiled'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    gridKey = Column(String, primary_key=True)
+    gridKey = Column(String(30), primary_key=True)
     blobData = Column(PeekLargeBinary, nullable=False)
     lastUpdate = Column(DateTime, nullable=False)
 

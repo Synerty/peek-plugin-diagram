@@ -1,15 +1,15 @@
-"""initial commit
+"""Initial
 
 Peek Plugin Database Migration Script
 
-Revision ID: 225ea0bc2ba2
+Revision ID: ed03b98d8c95
 Revises: 
-Create Date: 2017-07-06 12:23:57.662765
+Create Date: 2017-07-13 16:22:24.497773
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '225ea0bc2ba2'
+revision = 'ed03b98d8c95'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -19,7 +19,7 @@ from sqlalchemy.schema import Sequence, CreateSequence, DropSequence
 from alembic import op
 import sqlalchemy as sa
 import geoalchemy2
-from sqlalchemy.dialects import postgresql
+
 
 def upgrade():
 
@@ -37,25 +37,25 @@ def upgrade():
     )
     op.create_table('ModelSet',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(), nullable=False),
+    sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('comment', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     schema='pl_diagram'
     )
     op.create_table('Setting',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(), nullable=True),
+    sa.Column('name', sa.String(length=50), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     schema='pl_diagram'
     )
     op.create_table('DispColor',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(), nullable=False),
-    sa.Column('color', sa.String(), server_default='orange', nullable=True),
-    sa.Column('altColor', sa.String(), nullable=True),
+    sa.Column('name', sa.String(length=50), nullable=False),
+    sa.Column('color', sa.String(length=20), server_default='orange', nullable=True),
+    sa.Column('altColor', sa.String(length=20), nullable=True),
     sa.Column('swapPeriod', sa.Float(), nullable=True),
     sa.Column('modelSetId', sa.Integer(), nullable=False),
-    sa.Column('importHash', sa.String(), nullable=True),
+    sa.Column('importHash', sa.String(length=100), nullable=True),
     sa.ForeignKeyConstraint(['modelSetId'], ['pl_diagram.ModelSet.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     schema='pl_diagram'
@@ -64,12 +64,12 @@ def upgrade():
     op.create_index('idx_DispColor_modelSetId', 'DispColor', ['modelSetId'], unique=False, schema='pl_diagram')
     op.create_table('DispLayer',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(), nullable=False),
+    sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('order', sa.Integer(), server_default='0', nullable=False),
     sa.Column('selectable', sa.Boolean(), server_default='false', nullable=False),
     sa.Column('visible', sa.Boolean(), server_default='true', nullable=False),
     sa.Column('modelSetId', sa.Integer(), nullable=False),
-    sa.Column('importHash', sa.String(), nullable=True),
+    sa.Column('importHash', sa.String(length=100), nullable=True),
     sa.ForeignKeyConstraint(['modelSetId'], ['pl_diagram.ModelSet.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     schema='pl_diagram'
@@ -77,16 +77,16 @@ def upgrade():
     op.create_index('idx_DispLayer_modelSetId', 'DispLayer', ['modelSetId'], unique=False, schema='pl_diagram')
     op.create_table('DispLineStyle',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(), nullable=False),
+    sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('backgroundFillDashSpace', sa.Boolean(), server_default='false', nullable=False),
-    sa.Column('capStyle', sa.String(), nullable=False),
-    sa.Column('joinStyle', sa.String(), nullable=False),
-    sa.Column('dashPattern', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+    sa.Column('capStyle', sa.String(length=15), nullable=False),
+    sa.Column('joinStyle', sa.String(length=15), nullable=False),
+    sa.Column('dashPattern', sa.String(length=50), nullable=True),
     sa.Column('startArrowSize', sa.Integer(), nullable=True),
     sa.Column('endArrowSize', sa.Integer(), nullable=True),
     sa.Column('winStyle', sa.Integer(), nullable=False),
     sa.Column('modelSetId', sa.Integer(), nullable=False),
-    sa.Column('importHash', sa.String(), nullable=True),
+    sa.Column('importHash', sa.String(length=100), nullable=True),
     sa.ForeignKeyConstraint(['modelSetId'], ['pl_diagram.ModelSet.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     schema='pl_diagram'
@@ -95,14 +95,14 @@ def upgrade():
     op.create_index('idx_DispLineStyle_modelSetId', 'DispLineStyle', ['modelSetId'], unique=False, schema='pl_diagram')
     op.create_table('DispTextStyle',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(), nullable=False),
-    sa.Column('fontName', sa.String(), server_default='GillSans', nullable=False),
+    sa.Column('name', sa.String(length=50), nullable=False),
+    sa.Column('fontName', sa.String(length=30), server_default='GillSans', nullable=False),
     sa.Column('fontSize', sa.Integer(), server_default='9', nullable=False),
     sa.Column('fontStyle', sa.String(), nullable=True),
     sa.Column('scalable', sa.Boolean(), server_default='true', nullable=False),
     sa.Column('scaleFactor', sa.Integer(), server_default='1', nullable=False),
     sa.Column('modelSetId', sa.Integer(), nullable=False),
-    sa.Column('importHash', sa.String(), nullable=True),
+    sa.Column('importHash', sa.String(length=100), nullable=True),
     sa.ForeignKeyConstraint(['modelSetId'], ['pl_diagram.ModelSet.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     schema='pl_diagram'
@@ -111,7 +111,7 @@ def upgrade():
     op.create_index('idx_DispTextStyle_modelSetId', 'DispTextStyle', ['modelSetId'], unique=False, schema='pl_diagram')
     op.create_table('ModelConnType',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(), nullable=False),
+    sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('comment', sa.String(), nullable=True),
     sa.Column('modelSetId', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['modelSetId'], ['pl_diagram.ModelSet.id'], ondelete='CASCADE'),
@@ -121,7 +121,7 @@ def upgrade():
     op.create_index('idxConnTypeModelSetId', 'ModelConnType', ['modelSetId'], unique=False, schema='pl_diagram')
     op.create_table('ModelCoordSet',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(), nullable=False),
+    sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('initialPanX', sa.Float(), server_default='0', nullable=False),
     sa.Column('initialPanY', sa.Float(), server_default='0', nullable=False),
     sa.Column('initialZoom', sa.Float(), server_default='0', nullable=False),
@@ -140,7 +140,7 @@ def upgrade():
     op.create_index('idxCoordSetModelName', 'ModelCoordSet', ['modelSetId', 'name'], unique=True, schema='pl_diagram')
     op.create_table('ModelNodeType',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(), nullable=False),
+    sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('comment', sa.String(), nullable=True),
     sa.Column('modelSetId', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['modelSetId'], ['pl_diagram.ModelSet.id'], ondelete='CASCADE'),
@@ -154,7 +154,7 @@ def upgrade():
     sa.Column('key', sa.String(length=50), nullable=False),
     sa.Column('type', sa.String(length=16), nullable=True),
     sa.Column('int_value', sa.Integer(), nullable=True),
-    sa.Column('char_value', sa.String(), nullable=True),
+    sa.Column('char_value', sa.String(length=7500), nullable=True),
     sa.Column('boolean_value', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['settingId'], ['pl_diagram.Setting.id'], ),
     sa.PrimaryKeyConstraint('id'),
@@ -163,12 +163,12 @@ def upgrade():
     op.create_index('idx_SettingProperty_settingId', 'SettingProperty', ['settingId'], unique=False, schema='pl_diagram')
     op.create_table('DispLevel',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(), nullable=False),
+    sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('order', sa.Integer(), server_default='0', nullable=False),
     sa.Column('minZoom', sa.Float(), nullable=True),
     sa.Column('maxZoom', sa.Float(), nullable=True),
     sa.Column('coordSetId', sa.Integer(), nullable=False),
-    sa.Column('importHash', sa.String(), nullable=True),
+    sa.Column('importHash', sa.String(length=100), nullable=True),
     sa.ForeignKeyConstraint(['coordSetId'], ['pl_diagram.ModelCoordSet.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     schema='pl_diagram'
@@ -176,7 +176,7 @@ def upgrade():
     op.create_index('idx_DispLevel_coordSetId', 'DispLevel', ['coordSetId'], unique=False, schema='pl_diagram')
     op.create_table('GridKeyCompilerQueue',
     sa.Column('id', sa.Integer(), server_default=sa.text('nextval(\'pl_diagram."GridKeyCompilerQueue_id_seq"\')'), nullable=False),
-    sa.Column('gridKey', sa.String(), nullable=False),
+    sa.Column('gridKey', sa.String(length=30), nullable=False),
     sa.Column('coordSetId', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['coordSetId'], ['pl_diagram.ModelCoordSet.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id', 'gridKey', 'coordSetId'),
@@ -184,8 +184,8 @@ def upgrade():
     )
     op.create_index('idx_GKCompQueue_coordSetId_gridKey', 'GridKeyCompilerQueue', ['coordSetId', 'gridKey'], unique=False, schema='pl_diagram')
     op.create_table('GridKeyIndexCompiled',
-    sa.Column('gridKey', sa.String(), nullable=False),
-    sa.Column('blobData', postgresql.BYTEA(), nullable=False),
+    sa.Column('gridKey', sa.String(length=30), nullable=False),
+    sa.Column('blobData', peek_plugin_base.storage.TypeDecorators.PeekLargeBinary(), nullable=False),
     sa.Column('lastUpdate', sa.DateTime(), nullable=False),
     sa.Column('coordSetId', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['coordSetId'], ['pl_diagram.ModelCoordSet.id'], ondelete='CASCADE'),
@@ -196,7 +196,7 @@ def upgrade():
     op.create_index('idx_GKIndexUpdate_gridKey', 'GridKeyIndexCompiled', ['gridKey', 'lastUpdate'], unique=False, schema='pl_diagram')
     op.create_table('ModelNode',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('props', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+    sa.Column('propsJson', sa.String(length=500), nullable=True),
     sa.Column('modelSetId', sa.Integer(), nullable=False),
     sa.Column('importId1', sa.Integer(), nullable=True),
     sa.Column('importId2', sa.String(), nullable=True),
@@ -216,10 +216,10 @@ def upgrade():
     sa.Column('coordSetId', sa.Integer(), nullable=False),
     sa.Column('layerId', sa.Integer(), nullable=True),
     sa.Column('levelId', sa.Integer(), nullable=True),
-    sa.Column('dispJson', postgresql.JSONB(astext_type=sa.Text()), nullable=False),
+    sa.Column('dispJson', sa.String(length=500), nullable=True),
     sa.Column('importUpdateDate', sa.DateTime(), nullable=True),
-    sa.Column('importHash', sa.String(), nullable=True),
-    sa.Column('importGroupHash', sa.String(), nullable=True),
+    sa.Column('importHash', sa.String(length=100), nullable=True),
+    sa.Column('importGroupHash', sa.String(length=100), nullable=True),
     sa.ForeignKeyConstraint(['coordSetId'], ['pl_diagram.ModelCoordSet.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['layerId'], ['pl_diagram.DispLayer.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['levelId'], ['pl_diagram.DispLevel.id'], ondelete='CASCADE'),
@@ -228,13 +228,12 @@ def upgrade():
     )
     op.create_index('idx_Disp_coordSetId_', 'DispBase', ['coordSetId'], unique=False, schema='pl_diagram')
     op.create_index('idx_Disp_importGroupHash', 'DispBase', ['importGroupHash'], unique=False, schema='pl_diagram')
-    op.create_index('idx_Disp_importHash', 'DispBase', ['importHash'], unique=True, schema='pl_diagram')
     op.create_index('idx_Disp_importUpdateDate', 'DispBase', ['importUpdateDate'], unique=False, schema='pl_diagram')
     op.create_index('idx_Disp_layerId', 'DispBase', ['layerId'], unique=False, schema='pl_diagram')
     op.create_index('idx_Disp_levelId', 'DispBase', ['levelId'], unique=False, schema='pl_diagram')
     op.create_table('ModelConn',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('props', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+    sa.Column('propsJson', sa.String(length=500), nullable=True),
     sa.Column('modelSetId', sa.Integer(), nullable=False),
     sa.Column('importId1', sa.Integer(), nullable=True),
     sa.Column('importId2', sa.String(), nullable=True),
@@ -263,7 +262,7 @@ def upgrade():
     sa.Column('startAngle', sa.Float(), server_default='0', nullable=False),
     sa.Column('endAngle', sa.Float(), server_default='360', nullable=False),
     sa.Column('lineWidth', sa.Integer(), server_default='2', nullable=False),
-    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='POINT'), nullable=True),
+    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='POINT'), nullable=False),
     sa.Column('fillColorId', sa.Integer(), nullable=True),
     sa.Column('lineColorId', sa.Integer(), nullable=True),
     sa.Column('lineStyleId', sa.Integer(), nullable=True),
@@ -279,7 +278,7 @@ def upgrade():
     op.create_index('idx_DispEllipse_lineStyleId', 'DispEllipse', ['lineStyleId'], unique=False, schema='pl_diagram')
     op.create_table('DispGroup',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(), nullable=False),
+    sa.Column('name', sa.String(length=50), nullable=False),
     sa.ForeignKeyConstraint(['id'], ['pl_diagram.DispBase.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name'),
@@ -289,7 +288,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('cornerRadius', sa.Float(), server_default='0', nullable=False),
     sa.Column('lineWidth', sa.Integer(), server_default='2', nullable=False),
-    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='POLYGON'), nullable=True),
+    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='POLYGON'), nullable=False),
     sa.Column('fillColorId', sa.Integer(), nullable=True),
     sa.Column('fillDirection', sa.Integer(), nullable=True),
     sa.Column('fillPercent', sa.Float(), nullable=True),
@@ -308,7 +307,7 @@ def upgrade():
     op.create_table('DispPolyline',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('lineWidth', sa.Integer(), server_default='2', nullable=False),
-    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='LINESTRING'), nullable=True),
+    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='LINESTRING'), nullable=False),
     sa.Column('lineColorId', sa.Integer(), nullable=True),
     sa.Column('lineStyleId', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['id'], ['pl_diagram.DispBase.id'], ondelete='CASCADE'),
@@ -324,9 +323,9 @@ def upgrade():
     sa.Column('verticalAlign', sa.Integer(), server_default='-1', nullable=False),
     sa.Column('horizontalAlign', sa.Integer(), server_default='0', nullable=False),
     sa.Column('rotation', sa.Float(), server_default='0', nullable=False),
-    sa.Column('text', sa.String(), server_default='new text label', nullable=False),
-    sa.Column('textFormat', sa.String(), nullable=True),
-    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='POINT'), nullable=True),
+    sa.Column('text', sa.String(length=1000), server_default='new text label', nullable=False),
+    sa.Column('textFormat', sa.String(length=1000), nullable=True),
+    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='POINT'), nullable=False),
     sa.Column('colorId', sa.Integer(), nullable=True),
     sa.Column('textStyleId', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['colorId'], ['pl_diagram.DispColor.id'], ondelete='CASCADE'),
@@ -338,10 +337,9 @@ def upgrade():
     op.create_index('idx_DispText_colorId', 'DispText', ['colorId'], unique=False, schema='pl_diagram')
     op.create_index('idx_DispText_styleId', 'DispText', ['textStyleId'], unique=False, schema='pl_diagram')
     op.create_table('GridKeyIndex',
-    sa.Column('gridKey', sa.String(), nullable=False),
+    sa.Column('gridKey', sa.String(length=30), nullable=False),
     sa.Column('dispId', sa.Integer(), nullable=False),
     sa.Column('coordSetId', sa.Integer(), nullable=False),
-    sa.Column('importGroupHash', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['coordSetId'], ['pl_diagram.ModelCoordSet.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['dispId'], ['pl_diagram.DispBase.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('gridKey', 'dispId'),
@@ -350,17 +348,16 @@ def upgrade():
     op.create_index('idx_GridKeyIndex_coordSetId', 'GridKeyIndex', ['coordSetId'], unique=False, schema='pl_diagram')
     op.create_index('idx_GridKeyIndex_dispId', 'GridKeyIndex', ['dispId'], unique=False, schema='pl_diagram')
     op.create_index('idx_GridKeyIndex_gridKey', 'GridKeyIndex', ['gridKey'], unique=False, schema='pl_diagram')
-    op.create_index('idx_GridKeyIndex_importGroupHash', 'GridKeyIndex', ['importGroupHash'], unique=False, schema='pl_diagram')
     op.create_table('LiveDbDispLink',
     sa.Column('id', sa.Integer(), server_default=sa.text('nextval(\'pl_diagram."LiveDbDispLink_id_seq"\')'), nullable=False),
     sa.Column('coordSetId', sa.Integer(), nullable=False),
     sa.Column('dispId', sa.Integer(), nullable=False),
-    sa.Column('dispAttrName', sa.String(), nullable=False),
+    sa.Column('dispAttrName', sa.String(length=20), nullable=False),
     sa.Column('liveDbKey', sa.String(length=30), nullable=False),
     sa.Column('importKeyHash', sa.String(), nullable=True),
     sa.Column('importGroupHash', sa.String(), nullable=True),
     sa.Column('importDispHash', sa.String(), nullable=True),
-    sa.Column('props', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+    sa.Column('props', sa.String(length=500), nullable=True),
     sa.ForeignKeyConstraint(['coordSetId'], ['pl_diagram.ModelCoordSet.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['dispId'], ['pl_diagram.DispBase.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
@@ -375,7 +372,7 @@ def upgrade():
     op.create_index('idx_LiveDbDLink_liveKeyId', 'LiveDbDispLink', ['liveDbKey'], unique=False, schema='pl_diagram')
     op.create_table('DispAction',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('data', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+    sa.Column('propsJson', sa.String(length=500), nullable=True),
     sa.ForeignKeyConstraint(['id'], ['pl_diagram.DispPolygon.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     schema='pl_diagram'
@@ -393,7 +390,7 @@ def upgrade():
     sa.Column('rotation', sa.Integer(), server_default='0', nullable=False),
     sa.Column('verticalScale', sa.Float(), server_default='1.0', nullable=False),
     sa.Column('horizontalScale', sa.Float(), server_default='1.0', nullable=False),
-    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='POINT'), nullable=True),
+    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='POINT'), nullable=False),
     sa.Column('groupId', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['groupId'], ['pl_diagram.DispGroup.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['id'], ['pl_diagram.DispBase.id'], ondelete='CASCADE'),
@@ -404,7 +401,7 @@ def upgrade():
     op.create_table('DispPolylineConn',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('connId', sa.Integer(), nullable=False),
-    sa.Column('data', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+    sa.Column('propsJson', sa.String(length=500), nullable=True),
     sa.ForeignKeyConstraint(['connId'], ['pl_diagram.ModelConn.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['id'], ['pl_diagram.DispPolyline.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
@@ -441,7 +438,6 @@ def downgrade():
     op.drop_index('idx_LiveDbDLink_coordSetId', table_name='LiveDbDispLink', schema='pl_diagram')
     op.drop_index('idx_LiveDbDLink_DispKeyHash', table_name='LiveDbDispLink', schema='pl_diagram')
     op.drop_table('LiveDbDispLink', schema='pl_diagram')
-    op.drop_index('idx_GridKeyIndex_importGroupHash', table_name='GridKeyIndex', schema='pl_diagram')
     op.drop_index('idx_GridKeyIndex_gridKey', table_name='GridKeyIndex', schema='pl_diagram')
     op.drop_index('idx_GridKeyIndex_dispId', table_name='GridKeyIndex', schema='pl_diagram')
     op.drop_index('idx_GridKeyIndex_coordSetId', table_name='GridKeyIndex', schema='pl_diagram')
@@ -472,7 +468,6 @@ def downgrade():
     op.drop_index('idx_Disp_levelId', table_name='DispBase', schema='pl_diagram')
     op.drop_index('idx_Disp_layerId', table_name='DispBase', schema='pl_diagram')
     op.drop_index('idx_Disp_importUpdateDate', table_name='DispBase', schema='pl_diagram')
-    op.drop_index('idx_Disp_importHash', table_name='DispBase', schema='pl_diagram')
     op.drop_index('idx_Disp_importGroupHash', table_name='DispBase', schema='pl_diagram')
     op.drop_index('idx_Disp_coordSetId_', table_name='DispBase', schema='pl_diagram')
     op.drop_table('DispBase', schema='pl_diagram')
