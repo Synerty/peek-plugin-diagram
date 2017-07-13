@@ -3,8 +3,10 @@ from datetime import datetime
 from typing import List
 
 from collections import namedtuple
+from txcelery.defer import CeleryClient
+
 from peek_plugin_base.worker import CeleryDbConn
-from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
+from peek_plugin_diagram._private.storage.ModelSet import ModelSet
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks.LiveDbDisplayValueConverter import \
     LiveDbDisplayValueConverter
@@ -12,7 +14,6 @@ from peek_plugin_livedb.tuples.LiveDbDisplayValueUpdateTuple import \
     LiveDbDisplayValueUpdateTuple
 from peek_plugin_livedb.tuples.LiveDbRawValueUpdateTuple import LiveDbRawValueUpdateTuple
 from peek_plugin_livedb.worker.WorkerApi import WorkerApi
-from txcelery.defer import CeleryClient
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +34,10 @@ def convertLiveDbDisplayValuesTask(modelSetName: str,
             ormSession, modelSetName, keys
         )
 
-        modelSetId = (ormSession.query(ModelCoordSet.modelSetId)
-                      .filter(ModelCoordSet.name == modelSetName)
+        modelSetId = (ormSession.query(ModelSet.id)
+                      .filter(ModelSet.name == modelSetName)
                       .one()
-                      .modelSetId)
+                      .id)
 
         translater = LiveDbDisplayValueConverter.create(
             ormSession, modelSetId

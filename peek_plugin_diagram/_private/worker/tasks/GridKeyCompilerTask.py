@@ -6,8 +6,6 @@ from typing import List
 
 from collections import namedtuple
 from functools import cmp_to_key
-from sqlalchemy.sql.expression import cast
-from sqlalchemy.sql.sqltypes import String
 from txcelery.defer import DeferrableTask
 
 from peek_plugin_base.worker import CeleryDbConn
@@ -66,13 +64,13 @@ def compileGrids(self, queueItems) -> List[str]:
 
         inserts = []
         for gridKey, blobData in list(dispData.items()):
-            inserts.append(GridKeyIndexCompiled(coordSetId=coordSetIdByGridKey[gridKey],
-                                                gridKey=gridKey,
-                                                lastUpdate=lastUpdate,
-                                                blobData=blobData))
+            inserts.append(dict(coordSetId=coordSetIdByGridKey[gridKey],
+                                gridKey=gridKey,
+                                lastUpdate=lastUpdate,
+                                blobData=blobData))
+
         if inserts:
-            conn.execute(gridTable.insert(),
-                         [i.tupleToSqlaBulkInsertDict() for i in inserts])
+            conn.execute(gridTable.insert(), inserts)
 
         logger.debug("Compiled %s gridKeys, %s missing, in %s",
                      len(inserts),
@@ -92,7 +90,7 @@ def compileGrids(self, queueItems) -> List[str]:
 
     except Exception as e:
         transaction.rollback()
-        logger.warning(e) # Just a warning, it will retry
+        logger.warning(e)  # Just a warning, it will retry
         raise self.retry(exc=e, countdown=10)
 
     finally:
@@ -113,7 +111,7 @@ def _dispBaseSortCmp(dispData1, dispData2):
 
 
 def _qryDispData(session, gridKeys):
-    indexQry = (session.query(GridKeyIndex.gridKey,DispBase.dispJson,
+    indexQry = (session.query(GridKeyIndex.gridKey, DispBase.dispJson,
                               DispBase.id,
                               DispLevel.order, DispLayer.order)
                 .join(DispBase, DispBase.id == GridKeyIndex.dispId)

@@ -44,6 +44,7 @@ class RpcForClient:
         try:
             ormGrids = (session
                         .query(GridKeyIndexCompiled)
+                        .order_by(GridKeyIndexCompiled.id)
                         .offset(offset)
                         .limit(count)
                         .yield_per(200))

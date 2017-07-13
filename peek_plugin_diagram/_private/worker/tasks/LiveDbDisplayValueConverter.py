@@ -20,7 +20,6 @@ class LiveDbDisplayValueConverter:
     _getColourId = None
     _getLineStyleId = None
 
-    @deferToThreadWrapWithLogger(logger)
     @staticmethod
     def create(ormSession, modelSetId: int) -> "LiveDbDisplayValueConverter":
         self = LiveDbDisplayValueConverter()
@@ -44,7 +43,7 @@ class LiveDbDisplayValueConverter:
         return self
 
     def translate(self, dataType, rawValue):
-        return self._liveDbTranslators[dataType](rawValue)
+        return self._liveDbTranslators[dataType](self, rawValue)
 
     @staticmethod
     def _loadLookupByModelSet(ormSession, modelSetId: int, table) -> Dict[
