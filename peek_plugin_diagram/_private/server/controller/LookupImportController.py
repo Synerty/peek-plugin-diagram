@@ -1,11 +1,6 @@
 import logging
 from typing import List, Optional
 
-from twisted.internet import defer
-from twisted.internet.defer import inlineCallbacks, returnValue
-
-from peek_plugin_diagram._private.server.cache.DispLookupDataCache import \
-    DispLookupDataCache
 from peek_plugin_diagram._private.storage.Display import DispColor, DispLayer, DispLevel, \
     DispLineStyle, DispTextStyle
 from peek_plugin_diagram._private.storage.ModelSet import getOrCreateModelSet, \
@@ -17,6 +12,7 @@ from peek_plugin_diagram.tuples.lookups.ImportDispLineStyleTuple import \
     ImportDispLineStyleTuple
 from peek_plugin_diagram.tuples.lookups.ImportDispTextStyleTuple import \
     ImportDispTextStyleTuple
+from twisted.internet.defer import inlineCallbacks, returnValue
 from vortex.DeferUtil import deferToThreadWrapWithLogger
 
 logger = logging.getLogger(__name__)
@@ -31,9 +27,8 @@ IMPORT_TUPLE_MAP = {
 
 
 class LookupImportController:
-    def __init__(self, dbSessionCreator, dispLookupCache:DispLookupDataCache):
+    def __init__(self, dbSessionCreator):
         self._dbSessionCreator = dbSessionCreator
-        self._dispLookupCache = dispLookupCache
 
     def shutdown(self):
         pass
@@ -42,11 +37,10 @@ class LookupImportController:
     def importLookups(self, modelSetName: str, coordSetName: Optional[str],
                       lookupTupleType: str, lookupTuples: List):
 
-
         yield self._importInThread(modelSetName, coordSetName,
-                                       lookupTupleType, lookupTuples)
+                                   lookupTupleType, lookupTuples)
 
-        self._dispLookupCache.refreshAll()
+        logger.debug("TODO, Notify the observable")
 
         returnValue(True)
 
@@ -107,7 +101,7 @@ class LookupImportController:
                     newTuple = LookupType()
 
                     for fieldName in lookup.tupleFieldNames():
-                        setattr(newTuple, fieldName,  getattr(lookup, fieldName))
+                        setattr(newTuple, fieldName, getattr(lookup, fieldName))
 
                     updateFks(newTuple)
                     ormSession.add(newTuple)

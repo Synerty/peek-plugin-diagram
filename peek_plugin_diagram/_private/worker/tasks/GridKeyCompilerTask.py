@@ -113,8 +113,7 @@ def _dispBaseSortCmp(dispData1, dispData2):
 
 
 def _qryDispData(session, gridKeys):
-    indexQry = (session.query(GridKeyIndex.gridKey,
-                              cast(DispBase.dispJson, String),
+    indexQry = (session.query(GridKeyIndex.gridKey,DispBase.dispJson,
                               DispBase.id,
                               DispLevel.order, DispLayer.order)
                 .join(DispBase, DispBase.id == GridKeyIndex.dispId)

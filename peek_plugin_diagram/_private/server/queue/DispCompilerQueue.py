@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from typing import List
 
 from sqlalchemy.sql.expression import asc
 from twisted.internet import task
@@ -101,14 +102,20 @@ class DispCompilerQueue:
 
     @deferToThreadWrapWithLogger(logger)
     def queueDisps(self, dispIds):
-        if not dispIds:
+        return self.queueDispIdsToCompile(dispIds, self._ormSessionCreator)
+
+    @staticmethod
+    def queueDispIdsToCompile(dispIdsToCompile: List[int], ormSessionCreator):
+        if not dispIdsToCompile:
             return
 
+        logger.debug("Queueing %s disps for compile", len(dispIdsToCompile))
+
         inserts = []
-        for dispId in dispIds:
+        for dispId in dispIdsToCompile:
             inserts.append(dict(dispId=dispId))
 
-        ormSession = self._ormSessionCreator()
+        ormSession = ormSessionCreator()
         try:
             ormSession.execute(DispIndexerQueueTable.__table__.insert(), inserts)
             ormSession.commit()

@@ -1,21 +1,16 @@
 import logging
 
 from celery import Celery
-
 from peek_plugin_base.server.PluginServerEntryHookABC import PluginServerEntryHookABC
 from peek_plugin_base.server.PluginServerStorageEntryHookABC import \
     PluginServerStorageEntryHookABC
 from peek_plugin_base.server.PluginServerWorkerEntryHookABC import \
     PluginServerWorkerEntryHookABC
-from peek_plugin_diagram._private.server.cache.DispLookupDataCache import \
-    DispLookupDataCache
 from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import \
     ClientGridUpdateHandler
 from peek_plugin_diagram._private.server.client_handlers.RpcForClient import RpcForClient
 from peek_plugin_diagram._private.server.controller.DispImportController import \
     DispImportController
-from peek_plugin_diagram._private.server.controller.DispLinkImportController import \
-    DispLinkImportController
 from peek_plugin_diagram._private.server.controller.LiveDbWatchController import \
     LiveDbWatchController
 from peek_plugin_diagram._private.server.controller.LookupImportController import \
@@ -28,6 +23,7 @@ from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTupl
 from peek_plugin_diagram._private.tuples import loadPrivateTuples
 from peek_plugin_diagram.tuples import loadPublicTuples
 from peek_plugin_livedb.server.LiveDBApiABC import LiveDBApiABC
+
 from .DiagramApi import DiagramApi
 from .TupleActionProcessor import makeTupleActionProcessorHandler
 from .TupleDataObservable import makeTupleDataObservableHandler
@@ -94,10 +90,6 @@ class ServerEntryHook(PluginServerEntryHookABC,
         )
         self._loadedObjects.append(dispCompilerQueue)
 
-        # Create the LOOKUP cache
-        dispLookupCache = DispLookupDataCache(self.dbSessionCreator)
-        self._loadedObjects.append(dispLookupCache)
-
         # Create the Action Processor
         self._loadedObjects.append(makeTupleActionProcessorHandler(statusController))
 
@@ -117,8 +109,7 @@ class ServerEntryHook(PluginServerEntryHookABC,
 
         # Create the import lookup controller
         lookupImportController = LookupImportController(
-            dbSessionCreator=self.dbSessionCreator,
-            dispLookupCache=dispLookupCache
+            dbSessionCreator=self.dbSessionCreator
         )
         self._loadedObjects.append(lookupImportController)
 
@@ -129,7 +120,6 @@ class ServerEntryHook(PluginServerEntryHookABC,
         liveDbWatchController = LiveDbWatchController(
             liveDbWriteApi=liveDbApi.writeApi,
             liveDbReadApi=liveDbApi.readApi,
-            dispLookupCache=dispLookupCache,
             dbSessionCreator=self.dbSessionCreator
         )
         self._loadedObjects.append(liveDbWatchController)
@@ -141,22 +131,8 @@ class ServerEntryHook(PluginServerEntryHookABC,
                 .makeHandlers()
         )
 
-        # Create the Live DB Import Controller
-        dispLinkImportController = DispLinkImportController(
-            dbSessionCreator=self.dbSessionCreator,
-            getPgSequenceGenerator=self.getPgSequenceGenerator,
-            liveDbWriteApi=liveDbApi.writeApi
-        )
-        self._loadedObjects.append(dispLinkImportController)
-
         # Create the display object Import Controller
-        dispImportController = DispImportController(
-            dbSessionCreator=self.dbSessionCreator,
-            getPgSequenceGenerator=self.getPgSequenceGenerator,
-            dispLinkImportController=dispLinkImportController,
-            dispCompilerQueue=dispCompilerQueue,
-            dispLookupCache=dispLookupCache
-        )
+        dispImportController = DispImportController(liveDbWriteApi=liveDbApi.writeApi)
         self._loadedObjects.append(dispImportController)
 
         # Initialise the API object that will be shared with other plugins

@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import datetime
 from typing import List, Dict
@@ -17,18 +18,16 @@ from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTupl
 logger = logging.getLogger(__name__)
 
 
-@DeferrableTask
-@celeryApp.task(bind=True)
-def importDispLinksTask(self, coordSet: ModelCoordSet,
+def importDispLinks(coordSet: ModelCoordSet,
                         importGroupHash: str,
-                        importDispLinks: List[ImportLiveDbDispLinkTuple]):
+                        importDispLinks: List[ImportLiveDbDispLinkTuple]
+                    ) -> List[ImportLiveDbItemTuple]:
     """ Import Disps Links
 
     1) Drop all disps with matching importGroupHash
 
     2) set the  coordSetId
 
-    :param self: Celery reference to this task
     :param coordSet:
     :param importGroupHash:
     :param importDispLinks: An array of import LiveDB Disp Links to import
@@ -48,7 +47,7 @@ def importDispLinksTask(self, coordSet: ModelCoordSet,
 
 
         if not importDispLinks:
-            return
+            return []
 
         liveDbItemsToImportByKey = {}
 
@@ -77,11 +76,6 @@ def importDispLinksTask(self, coordSet: ModelCoordSet,
 
         return list(liveDbItemsToImportByKey.values())
 
-    except Exception as e:
-        logger.exception(e)
-        ormSession.rollback()
-        raise self.retry(exc=e, countdown=3)
-
     finally:
         ormSession.close()
 
@@ -95,7 +89,7 @@ def _convertImportDispLinkTuple(coordSet: ModelCoordSet,
         dispAttrName=importDispLink.dispAttrName,
         liveDbKey=importDispLink.liveDbKey,
         importGroupHash=importDispLink.importGroupHash,
-        props=importDispLink.props
+        propsJson=json.dumps(importDispLink.props)
     )
 
 

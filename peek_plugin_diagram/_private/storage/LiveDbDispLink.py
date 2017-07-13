@@ -75,7 +75,7 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
     importDispHash = Column(String)
 
     # Store custom props for this link
-    props = Column(String(500), doc="p")
+    propsJson = Column(String(500))
 
     __table_args__ = (
         Index("idx_LiveDbDLink_DispKeyHash",
@@ -90,8 +90,3 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
         Index("idx_LiveDbDLink_liveDbUpdate", dispId, liveDbKey,
               unique=False),
     )
-
-    @reconstructor
-    def __init__(self, **kwargs):
-        Tuple.__init__(self, **kwargs)
-        self.props = {}

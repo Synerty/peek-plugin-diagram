@@ -192,7 +192,7 @@ class DispBase(Tuple, DeclarativeBase):
     levelId = Column(Integer, ForeignKey('DispLevel.id', ondelete='CASCADE'), doc='le')
     level = relationship(DispLevel)
 
-    dispJson = Column(String(500), doc=JSON_EXCLUDE)
+    dispJson = Column(String(2000), doc=JSON_EXCLUDE)
 
     importUpdateDate = Column(DateTime, doc=JSON_EXCLUDE)
     importHash = Column(String(100), doc=JSON_EXCLUDE)
@@ -214,9 +214,6 @@ class DispBase(Tuple, DeclarativeBase):
         Index("idx_Disp_coordSetId_", coordSetId, unique=False),
     )
 
-    @reconstructor
-    def __init__(self):
-        Tuple.__init__(self)
 
 
 @addTupleType
