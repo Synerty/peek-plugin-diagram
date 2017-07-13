@@ -1,18 +1,7 @@
-"""
- * orm.LiveDb.py
- *
- *  Copyright Synerty Pty Ltd 2011
- *
- *  This software is proprietary, you are not free to copy
- *  or redistribute this code in any format.
- *
- *  All rights to this software are reserved by 
- *  Synerty Pty Ltd
- *
-"""
+
 import logging
 
-from sqlalchemy import Column
+from sqlalchemy import Column, text
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import relationship
@@ -50,10 +39,9 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
                       metadata=DeclarativeBase.metadata,
                       schema=DeclarativeBase.metadata.schema)
     id = Column(Integer, id_seq, server_default=id_seq.next_value(),
-                primary_key=True, autoincrement=True)
+                primary_key=True, autoincrement=False)
 
-    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
-                        doc=JSON_EXCLUDE, nullable=False)
+    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id'), nullable=False)
     coordSet = relationship(ModelCoordSet)
 
     dispId = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE'),
@@ -68,18 +56,18 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
 
     liveDbKey = Column(String(30), nullable=False)
 
-    importKeyHash = Column(String)
+    importKeyHash = Column(String(100))
 
-    importGroupHash = Column(String)
+    importGroupHash = Column(String(100))
 
-    importDispHash = Column(String)
+    importDispHash = Column(String(100))
 
     # Store custom props for this link
     propsJson = Column(String(500))
 
     __table_args__ = (
         Index("idx_LiveDbDLink_DispKeyHash",
-              importKeyHash, importDispHash, dispAttrName, unique=True),
+              importKeyHash, importDispHash, dispAttrName, unique=False),
         Index("idx_LiveDbDLink_importGroupHash", importGroupHash, unique=False),
         Index("idx_LiveDbDLink_coordSetId", coordSetId, unique=False),
         Index("idx_LiveDbDLink_dispId", dispId, unique=False),

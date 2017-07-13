@@ -3,9 +3,9 @@ import logging
 import math
 from _collections import defaultdict
 from datetime import datetime
+from typing import Dict, List
 
 from collections import namedtuple
-from geoalchemy2.shape import to_shape
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.GridKeyUtil import GRID_SIZES, makeGridKey
 from peek_plugin_diagram._private.storage.Display import DispBase, DispText
@@ -21,11 +21,9 @@ from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSe
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
 from peek_plugin_livedb.worker.WorkerApi import WorkerApi
-from shapely.geometry.point import Point
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.sql.selectable import Select
 from txcelery.defer import CeleryClient
-from vortex.SerialiseUtil import convertFromShape
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +90,9 @@ def compileDisps(lastQueueId, queueDispIds):
             _mergeInLiveDbValues(disp, liveDbItemByKey)
 
             # Deflate to json
-            disp.dispJson = json.dumps(disp.tupleToSmallJsonDict())
+            jsonDict = disp.tupleToSmallJsonDict()
+            jsonDict["g"] = json.loads(disp.geomJson)
+            disp.dispJson = json.dumps(jsonDict)
 
             for gridKey in makeGridKeys(disp):
                 gridCompiledQueueItems.add(
@@ -238,20 +238,19 @@ def _mergeInLiveDbValue(disp, dispLink, liveDbItem, value=None):
             logger.warn("DispText %s textFormat=|%s| failed with %s",
                         disp.id, disp.textFormat, message)
 
-
     # ----------------------------
     # All others
     setattr(disp, dispLink.dispAttrName, value)
 
 
 def makeGridKeys(disp):
-    if not hasattr(disp, "geom"):
+    if not hasattr(disp, "geomJson"):
         return []
 
-    if disp.geom is None:
+    if disp.geomJson is None:
         logger.critical(disp)
 
-    shape = to_shape(disp.geom)
+    points = json.loads(disp.geomJson)
 
     gridKeys = []
     for gridSize in list(GRID_SIZES.values()):
@@ -261,9 +260,7 @@ def makeGridKeys(disp):
             continue
 
         # If this is just a point shape/geom, then add it and continue
-        if isinstance(shape, Point):
-            points = convertFromShape(shape)
-            assert len(points) == 1, "This condition is only for a single point"
+        if len(points) == 1:
             point = points[0]
             gridKeys.append(makeGridKey(disp.coordSetId,
                                         gridSize,
@@ -273,8 +270,10 @@ def makeGridKeys(disp):
 
         # Else, All other shapes
 
+
+
         # Get the bounding box
-        minx, miny, maxx, maxy = shape.bounds
+        minx, miny, maxx, maxy = _calcBounds(points)
 
         # If the size is too small to see at the max zoom, then skip it
         size = math.hypot(maxx - minx, maxy - miny)
@@ -296,3 +295,26 @@ def makeGridKeys(disp):
                 gridKeys.append(makeGridKey(disp.coordSetId, gridSize, gridX, gridY))
 
     return gridKeys
+
+
+def _calcBounds(points: List[Dict[str, float]]):
+    minx = None
+    maxx = None
+    miny = None
+    maxy = None
+
+    for point in points:
+        x, y = point["x"], point["y"]
+        if minx is None or x < minx:
+            minx = x
+
+        if maxx is None or maxx < x:
+            maxx = x
+
+        if miny is None or y < miny:
+            miny = y
+
+        if maxy is None or maxy < y:
+            maxy = y
+
+    return minx, miny, maxx, maxy

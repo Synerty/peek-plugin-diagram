@@ -20,12 +20,7 @@ logger = logging.getLogger(__name__)
 class DispIndexerQueue(DeclarativeBase):
     __tablename__ = 'DispCompilerQueue'
 
-    id_seq = Sequence('DispCompilerQueue_id_seq',
-                      metadata=DeclarativeBase.metadata,
-                      schema=DeclarativeBase.metadata.schema)
-
-    id = Column(Integer, id_seq, server_default=id_seq.next_value(),
-                primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     dispId = Column(Integer, primary_key=True)
 
 
@@ -34,11 +29,7 @@ class GridKeyCompilerQueue(Tuple, DeclarativeBase):
     __tablename__ = 'GridKeyCompilerQueue'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id_seq = Sequence('GridKeyCompilerQueue_id_seq',
-                      metadata=DeclarativeBase.metadata,
-                      schema=DeclarativeBase.metadata.schema)
-    id = Column(Integer, id_seq, server_default=id_seq.next_value(),
-                primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
 
     gridKey = Column(String(30), primary_key=True)
     coordSetId = Column(Integer,
@@ -62,9 +53,7 @@ class GridKeyIndex(Tuple, DeclarativeBase):
 
     disp = relationship(DispBase)
 
-    coordSetId = Column(Integer,
-                        ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
-                        nullable=False)
+    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id'), nullable=False)
     coordSet = relationship(ModelCoordSet)
 
     __table_args__ = (

@@ -29,7 +29,7 @@ class ModelSet(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(50), nullable=False)
+    name = Column(String(50), nullable=False, unique=True)
     comment = Column(String)
 
     coordSets = relationship('ModelCoordSet')
@@ -56,7 +56,7 @@ class ModelCoordSet(Tuple, DeclarativeBase):
     comment = Column(String)
 
     importId1 = Column(Integer)
-    importId2 = Column(String)
+    importId2 = Column(String(100))
 
     modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),
                         nullable=False)
@@ -67,8 +67,8 @@ class ModelCoordSet(Tuple, DeclarativeBase):
 
     __table_args__ = (
         Index("idxCoordSetModelName", modelSetId, name, unique=True),
-        Index("idxCoordSetImportId1", importId1, unique=True),
-        Index("idxCoordSetImportId2", importId2, unique=True),
+        Index("idxCoordSetImportId1", importId1, unique=False),
+        Index("idxCoordSetImportId2", importId2, unique=False),
 
         Index("idxCoordModelSetId", modelSetId, unique=False),
     )
@@ -111,9 +111,9 @@ class ModelNode(Tuple, DeclarativeBase):
     modelSet = relationship(ModelSet, lazy='subquery')
 
     importId1 = Column(Integer)
-    importId2 = Column(String)
+    importId2 = Column(String(100))
 
-    typeId = Column(Integer, ForeignKey('ModelNodeType.id', ondelete='CASCADE'),
+    typeId = Column(Integer, ForeignKey('ModelNodeType.id'),
                     nullable=False)
     type = relationship(ModelNodeType, lazy='subquery')
 
@@ -169,17 +169,17 @@ class ModelConn(Tuple, DeclarativeBase):
     modelSet = relationship(ModelSet, lazy='subquery')
 
     importId1 = Column(Integer)
-    importId2 = Column(String)
+    importId2 = Column(String(100))
 
-    typeId = Column(Integer, ForeignKey('ModelConnType.id', ondelete='CASCADE'),
+    typeId = Column(Integer, ForeignKey('ModelConnType.id'),
                     nullable=False)
     type = relationship(ModelConnType)
 
-    srcId = Column(Integer, ForeignKey('ModelNode.id', ondelete='CASCADE'),
+    srcId = Column(Integer, ForeignKey('ModelNode.id'),
                    nullable=False)
     src = relationship(ModelNode, lazy='subquery', foreign_keys=srcId)
 
-    dstId = Column(Integer, ForeignKey('ModelNode.id', ondelete='CASCADE'),
+    dstId = Column(Integer, ForeignKey('ModelNode.id'),
                    nullable=False)
     dst = relationship(ModelNode, lazy='subquery', foreign_keys=dstId)
 

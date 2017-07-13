@@ -81,6 +81,7 @@ def importDispsTask(self, modelSetName: str, coordSetName: str,
         return liveDbImportTuples
 
     except Exception as e:
+        # logger.exception(e)
         logger.info("Retrying import displays, %s", e)
         raise self.retry(exc=e, countdown=3)
 
@@ -161,7 +162,11 @@ def _convertImportTuple(importDisp):
 
     for importFieldName in importDisp.tupleFieldNames():
         if importFieldName == "props":
-            importDisp.propsJson = json.dumps(importDisp.props)
+            disp.propsJson = json.dumps(importDisp.props)
+            continue
+
+        if importFieldName == "geom":
+            disp.geomJson = json.dumps(convertFromWkbElement(importDisp.geom))
             continue
 
         # Convert the field name if it exists
@@ -201,19 +206,17 @@ def _bulkLoadDispsTask(coordSet, importGroupHash, disps, dispIdsToCompile):
             and not coordSet.initialPanY
             and not coordSet.initialZoom):
             for disp in disps:
-                if not hasattr(disp, 'geom'):
+                if not hasattr(disp, 'geomJson'):
                     continue
-                point = convertFromWkbElement(disp.geom)[0]
+                point = json.loads(disp.geomJson)[0]
                 coordSet.initialPanX = point['x']
                 coordSet.initialPanY = point['y']
                 coordSet.initialZoom = 0.05
+                ormSession.merge(coordSet)
                 break
 
-        ormSession.commit()
 
-        # Make this change, it's required to store the WKBElements
-        for disp in disps:
-            disp.geom = disp.geom.desc
+        ormSession.commit()
 
         with ormSession.begin(subtransactions=True):
             ormSession.bulk_save_objects(disps, update_changed_only=False)

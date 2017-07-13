@@ -10,8 +10,7 @@
  *  Synerty Pty Ltd
  *
 """
-from geoalchemy2.types import Geometry
-from sqlalchemy import Column
+from sqlalchemy import Column, text
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String, Boolean
 from sqlalchemy.orm import relationship
@@ -90,7 +89,7 @@ class DispTextStyle(Tuple, DeclarativeBase):
     name = Column(String(50), nullable=False)
     fontName = Column(String(30), nullable=False, server_default="GillSans")
     fontSize = Column(Integer, nullable=False, server_default='9')
-    fontStyle = Column(String)
+    fontStyle = Column(String(30))
     scalable = Column(Boolean, nullable=False, server_default="true")
     scaleFactor = Column(Integer, nullable=False, server_default="1")
 
@@ -177,7 +176,7 @@ class DispBase(Tuple, DeclarativeBase):
                       metadata=DeclarativeBase.metadata,
                       schema=DeclarativeBase.metadata.schema)
     id = Column(Integer, id_seq, server_default=id_seq.next_value(),
-                primary_key=True, autoincrement=True)
+                primary_key=True, autoincrement=False)
 
     type = Column(Integer, doc=JSON_EXCLUDE, nullable=False)
 
@@ -186,10 +185,10 @@ class DispBase(Tuple, DeclarativeBase):
                         nullable=False)
     coordSet = relationship(ModelCoordSet)
 
-    layerId = Column(Integer, ForeignKey('DispLayer.id', ondelete='CASCADE'), doc='la')
+    layerId = Column(Integer, ForeignKey('DispLayer.id'), doc='la')
     layer = relationship(DispLayer)
 
-    levelId = Column(Integer, ForeignKey('DispLevel.id', ondelete='CASCADE'), doc='le')
+    levelId = Column(Integer, ForeignKey('DispLevel.id'), doc='le')
     level = relationship(DispLevel)
 
     dispJson = Column(String(2000), doc=JSON_EXCLUDE)
@@ -227,7 +226,7 @@ class DispText(DispBase):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=True)
+                , primary_key=True, autoincrement=False)
 
     verticalAlign = Column(Integer, doc='va', nullable=False, server_default='-1')
     horizontalAlign = Column(Integer, doc='ha', nullable=False, server_default='0')
@@ -235,13 +234,12 @@ class DispText(DispBase):
     text = Column(String(1000), doc='te', nullable=False, server_default="new text label")
     textFormat = Column(String(1000), doc=JSON_EXCLUDE, nullable=True)
 
-    geom = Column(Geometry(geometry_type="POINT"), nullable=False, doc='g')
+    geomJson = Column(String(2000), nullable=False, doc='g')
 
-    colorId = Column(Integer, ForeignKey('DispColor.id', ondelete='CASCADE'), doc='c')
+    colorId = Column(Integer, ForeignKey('DispColor.id'), doc='c')
     color = relationship(DispColor)
 
-    textStyleId = Column(Integer, ForeignKey('DispTextStyle.id', ondelete='CASCADE'),
-                         doc='fs')
+    textStyleId = Column(Integer, ForeignKey('DispTextStyle.id'), doc='fs')
     textStyle = relationship(DispTextStyle)
 
     __table_args__ = (
@@ -260,15 +258,14 @@ class DispPolygon(DispBase):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=True)
+                , primary_key=True, autoincrement=False)
 
     cornerRadius = Column(Float, doc='cr', nullable=False, server_default='0')
     lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
 
-    geom = Column(Geometry(geometry_type="POLYGON"), nullable=False, doc='g')
+    geomJson = Column(String(2000), nullable=False, doc='g')
 
-    fillColorId = Column(Integer, ForeignKey('DispColor.id', ondelete='CASCADE'),
-                         doc='fc')
+    fillColorId = Column(Integer, ForeignKey('DispColor.id'), doc='fc')
     fillColor = relationship(DispColor, foreign_keys=fillColorId)
 
     FILL_TOP_TO_BOTTOM = 0
@@ -278,11 +275,10 @@ class DispPolygon(DispBase):
     fillDirection = Column(Integer, doc='fd')
     fillPercent = Column(Float, doc='fp')
 
-    lineColorId = Column(Integer, ForeignKey('DispColor.id', ondelete='CASCADE'),
-                         doc='lc')
+    lineColorId = Column(Integer, ForeignKey('DispColor.id'), doc='lc')
     lineColor = relationship(DispColor, foreign_keys=lineColorId)
 
-    lineStyleId = Column(Integer, ForeignKey('DispLineStyle.id', ondelete='CASCADE'),
+    lineStyleId = Column(Integer, ForeignKey('DispLineStyle.id'),
                          doc='ls')
     lineStyle = relationship(DispLineStyle)
 
@@ -303,18 +299,16 @@ class DispPolyline(DispBase):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=True)
+                , primary_key=True, autoincrement=False)
 
     lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
 
-    geom = Column(Geometry(geometry_type="LINESTRING"), nullable=False, doc='g')
+    geomJson = Column(String(2000), nullable=False, doc='g')
 
-    lineColorId = Column(Integer, ForeignKey('DispColor.id', ondelete='CASCADE'),
-                         doc='lc')
+    lineColorId = Column(Integer, ForeignKey('DispColor.id'), doc='lc')
     lineColor = relationship(DispColor, foreign_keys=lineColorId)
 
-    lineStyleId = Column(Integer, ForeignKey('DispLineStyle.id', ondelete='CASCADE'),
-                         doc='ls')
+    lineStyleId = Column(Integer, ForeignKey('DispLineStyle.id'), doc='ls')
     lineStyle = relationship(DispLineStyle)
 
     __table_args__ = (
@@ -333,7 +327,7 @@ class DispEllipse(DispBase):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=True)
+                , primary_key=True, autoincrement=False)
 
     xRadius = Column(Float, doc='xr', nullable=False, server_default='10.0')
     yRadius = Column(Float, doc='yr', nullable=False, server_default='10.0')
@@ -342,17 +336,15 @@ class DispEllipse(DispBase):
     endAngle = Column(Float, doc='ea', nullable=False, server_default='360')
     lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
 
-    geom = Column(Geometry(geometry_type="POINT"), nullable=False, doc='g')
+    geomJson = Column(String(2000), nullable=False, doc='g')
 
-    fillColorId = Column(Integer, ForeignKey('DispColor.id', ondelete='CASCADE'),
-                         doc='fc')
+    fillColorId = Column(Integer, ForeignKey('DispColor.id'), doc='fc')
     fillColor = relationship(DispColor, foreign_keys=fillColorId)
 
-    lineColorId = Column(Integer, ForeignKey('DispColor.id', ondelete='CASCADE'),
-                         doc='lc')
+    lineColorId = Column(Integer, ForeignKey('DispColor.id'), doc='lc')
     lineColor = relationship(DispColor, foreign_keys=lineColorId)
 
-    lineStyleId = Column(Integer, ForeignKey('DispLineStyle.id', ondelete='CASCADE'),
+    lineStyleId = Column(Integer, ForeignKey('DispLineStyle.id'),
                          doc='ls')
     lineStyle = relationship(DispLineStyle)
 
@@ -373,7 +365,7 @@ class DispAction(DispPolygon):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispPolygon.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=True)
+                , primary_key=True, autoincrement=False)
 
     propsJson = Column(String(500), doc='pr')
 
@@ -386,7 +378,7 @@ class DispGroupItem(Tuple, DeclarativeBase):
 
     groupId = Column(Integer, ForeignKey('DispGroup.id', ondelete='CASCADE'),
                      primary_key=True, nullable=False)
-    itemId = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE'),
+    itemId = Column(Integer, ForeignKey('DispBase.id'),
                     primary_key=True, nullable=False)
 
 
@@ -400,7 +392,7 @@ class DispGroup(DispBase):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=True)
+                , primary_key=True, autoincrement=False)
 
     name = Column(String(50), doc=JSON_EXCLUDE, nullable=False, unique=True)
 
@@ -423,16 +415,16 @@ class DispGroupPointer(DispBase):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=True)
+                , primary_key=True, autoincrement=False)
 
     rotation = Column(Integer, doc='r', server_default='0', nullable=False)
 
     verticalScale = Column(Float, doc='vs', nullable=False, server_default='1.0')
     horizontalScale = Column(Float, doc='hs', nullable=False, server_default='1.0')
 
-    geom = Column(Geometry(geometry_type="POINT"), nullable=False, doc='g')
+    geomJson = Column(String(2000), nullable=False, doc='g')
 
-    groupId = Column(Integer, ForeignKey('DispGroup.id', ondelete='CASCADE'),
+    groupId = Column(Integer, ForeignKey('DispGroup.id'),
                      doc='gid', nullable=False)
     group = relationship(DispGroup, foreign_keys=[groupId])
 
@@ -453,10 +445,9 @@ class DispGroupPointerNode(DispGroupPointer):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispGroupPointer.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=True)
+                , primary_key=True, autoincrement=False)
 
-    nodeId = Column(Integer, ForeignKey('ModelNode.id', ondelete='CASCADE'),
-                    nullable=False)
+    nodeId = Column(Integer, ForeignKey('ModelNode.id'), nullable=False)
     node = relationship('ModelNode')
 
     __table_args__ = (
@@ -476,10 +467,9 @@ class DispPolylineConn(DispPolyline):
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispPolyline.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=True)
+                , primary_key=True, autoincrement=False)
 
-    connId = Column(Integer, ForeignKey('ModelConn.id', ondelete='CASCADE'),
-                    nullable=False)
+    connId = Column(Integer, ForeignKey('ModelConn.id'), nullable=False)
     conn = relationship('ModelConn')
 
     propsJson = Column(String(500), doc='pr')
