@@ -17,8 +17,8 @@ layerTable = DispLayer.__table__
 
 
 class LiveDbDisplayValueConverter:
-    _getColourId = None
-    _getLineStyleId = None
+    _colorIdByImportHash = None
+    _lineStyleIdByImportHash = None
 
     @staticmethod
     def create(ormSession, modelSetId: int) -> "LiveDbDisplayValueConverter":
@@ -55,10 +55,10 @@ class LiveDbDisplayValueConverter:
         return dict(resultSet.fetchall())
 
     def _liveDbValueTranslateColorId(self, value):
-        return self._getColourId(importHash=value)
+        return self._colorIdByImportHash.get(value)
 
     def _liveDbValueTranslateLineStyleId(self, value):
-        return self._getLineStyleId(importHash=value)
+        return self._lineStyleIdByImportHash.get(value)
 
     def _liveDbValueTranslateLineWidth(self, value):
         return value
