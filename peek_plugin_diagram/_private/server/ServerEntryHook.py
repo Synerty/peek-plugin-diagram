@@ -15,9 +15,9 @@ from peek_plugin_diagram._private.server.controller.LiveDbWatchController import
     LiveDbWatchController
 from peek_plugin_diagram._private.server.controller.LookupImportController import \
     LookupImportController
-from peek_plugin_diagram._private.server.queue.DispCompilerQueue import DispCompilerQueue
-from peek_plugin_diagram._private.server.queue.GridKeyCompilerQueue import \
-    GridKeyCompilerQueue
+from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import DispCompilerQueueController
+from peek_plugin_diagram._private.server.controller.GridKeyCompilerQueueController import \
+    GridKeyCompilerQueueController
 from peek_plugin_diagram._private.storage import DeclarativeBase
 from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
 from peek_plugin_diagram._private.tuples import loadPrivateTuples
@@ -79,16 +79,16 @@ class ServerEntryHook(PluginServerEntryHookABC,
         self._loadedObjects.append(statusController)
 
         # Create the GRID KEY queue
-        gridKeyCompilerQueue = GridKeyCompilerQueue(
+        gridKeyCompilerQueueController = GridKeyCompilerQueueController(
             self.dbSessionCreator, statusController, clientGridUpdateHandler
         )
-        self._loadedObjects.append(gridKeyCompilerQueue)
+        self._loadedObjects.append(gridKeyCompilerQueueController)
 
         # Create the DISP queue
-        dispCompilerQueue = DispCompilerQueue(
+        dispCompilerQueueController = DispCompilerQueueController(
             self.dbSessionCreator, statusController
         )
-        self._loadedObjects.append(dispCompilerQueue)
+        self._loadedObjects.append(dispCompilerQueueController)
 
         # Create the Action Processor
         self._loadedObjects.append(makeTupleActionProcessorHandler(statusController))
@@ -141,8 +141,8 @@ class ServerEntryHook(PluginServerEntryHookABC,
         )
         self._loadedObjects.append(self._api)
 
-        dispCompilerQueue.start()
-        gridKeyCompilerQueue.start()
+        dispCompilerQueueController.start()
+        gridKeyCompilerQueueController.start()
 
         logger.debug("Started")
 

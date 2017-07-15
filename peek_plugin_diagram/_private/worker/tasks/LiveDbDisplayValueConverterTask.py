@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List
 
 from collections import namedtuple
-from txcelery.defer import CeleryClient
+from txcelery.defer import  DeferrableTask
 
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
@@ -21,7 +21,7 @@ CoordSetIdGridKeyTuple = namedtuple("CoordSetIdGridKeyTuple", ["coordSetId", "gr
 DispData = namedtuple('DispData', ['json', 'levelOrder', 'layerOrder'])
 
 
-@CeleryClient
+@DeferrableTask
 @celeryApp.task
 def convertLiveDbDisplayValuesTask(modelSetName: str,
                                    rawUpdates: List[LiveDbRawValueUpdateTuple]):

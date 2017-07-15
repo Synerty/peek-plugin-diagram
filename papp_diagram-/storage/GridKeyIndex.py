@@ -85,7 +85,7 @@ class GridKeyIndexCompiled(Tuple, Base, BaseMixin):
 @addTupleType
 class GridKeyCompilerQueue(Tuple, Base, BaseMixin):
     __tupleType__ = 'c.s.p.disp.grid.index.compiler.queue'
-    __tablename__ = 'GridKeyCompilerQueue'
+    __tablename__ = 'GridKeyCompilerQueueController'
 
     id = Column(Integer, primary_key=True, nullable=False)
 

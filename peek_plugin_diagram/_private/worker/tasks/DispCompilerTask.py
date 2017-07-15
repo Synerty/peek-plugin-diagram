@@ -6,6 +6,10 @@ from datetime import datetime
 from typing import Dict, List
 
 from collections import namedtuple
+from sqlalchemy.orm import subqueryload
+from sqlalchemy.sql.selectable import Select
+from txcelery.defer import CeleryClient
+
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.GridKeyUtil import GRID_SIZES, makeGridKey
 from peek_plugin_diagram._private.storage.Display import DispBase, DispText
@@ -21,9 +25,6 @@ from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSe
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
 from peek_plugin_livedb.worker.WorkerApi import WorkerApi
-from sqlalchemy.orm import subqueryload
-from sqlalchemy.sql.selectable import Select
-from txcelery.defer import CeleryClient
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ DispData = namedtuple('DispData', ['json', 'levelOrder', 'layerOrder'])
 
 
 @CeleryClient
-@celeryApp.task
+@celeryApp.task()
 def compileDisps(lastQueueId, queueDispIds):
     startTime = datetime.utcnow()
 
@@ -191,56 +192,66 @@ def _mergeInLiveDbValue(disp, dispLink, liveDbItem, value=None):
         return
 
     # ----------------------------
+    # Not text
+    if not (isinstance(disp, DispText) and dispLink.dispAttrName == "text"):
+        setattr(disp, dispLink.dispAttrName, value)
+        return
+
+        # ----------------------------
     # Special case for Text
-    if isinstance(disp, DispText) and dispLink.dispAttrName == "text":
-        if not disp.textFormat:
-            disp.text = value
-            return
 
+    # If there is no format, then just use the value
+    if not disp.textFormat:
+        disp.text = value
+        return
+
+    _applyTextFormat(disp, dispLink, liveDbItem, value)
+
+
+def _applyTextFormat(disp, dispLink, liveDbItem, value):
+    # If there is a format, then convert it.
+    try:
+        disp.text = (disp.textFormat % value)
+
+    except TypeError as e:
+        message = str(e)
+        # Lazy format type detection
         try:
-            disp.text = (disp.textFormat % value)
+            if "number is required" in message:
+                return _applyTextFormat(
+                    disp, dispLink, liveDbItem, int(value))
 
-        except TypeError as e:
-            message = str(e)
-            # Lazy format type detection
-            try:
-                if "number is required" in message:
-                    return _mergeInLiveDbValue(
-                        disp, dispLink, liveDbItem, int(value))
+            if "invalid literal for int" in message:
+                return _applyTextFormat(
+                    disp, dispLink, liveDbItem, int(value))
 
-                if "invalid literal for int" in message:
-                    return _mergeInLiveDbValue(
-                        disp, dispLink, liveDbItem, int(value))
+            if "an integer is required, not str" in message:
+                return _applyTextFormat(
+                    disp, dispLink, liveDbItem, int(value))
 
-                if "an integer is required, not str" in message:
-                    return _mergeInLiveDbValue(
-                        disp, dispLink, liveDbItem, int(value))
+            if "float is required" in message:
+                return _applyTextFormat(
+                    disp, dispLink, liveDbItem, float(value))
 
-                if "float is required" in message:
-                    return _mergeInLiveDbValue(
-                        disp, dispLink, liveDbItem, float(value))
+            if "must be real number, not str" in message:
+                return _applyTextFormat(
+                    disp, dispLink, liveDbItem, float(value))
 
-                if "must be real number, not str" in message:
-                    return _mergeInLiveDbValue(
-                        disp, dispLink, liveDbItem, float(value))
+            if "could not convert string to float" in message:
+                return _applyTextFormat(
+                    disp, dispLink, liveDbItem, float(value))
 
-                if "could not convert string to float" in message:
-                    return _mergeInLiveDbValue(
-                        disp, dispLink, liveDbItem, float(value))
+        except ValueError as e:
+            # We can't convert the value to int/float
+            # Ignore the formatting, it will come good when the value does
+            logger.debug("Failed to format |%s| value |%s| to |%s|",
+                         liveDbItem.key, value, disp.textFormat)
+            disp.text = ""
 
-            except ValueError as e:
-                # We can't convert the value to int/float
-                # Ignore the formatting, it will come good when the value does
-                logger.debug("Failed to format |%s| value |%s| to |%s|",
-                             liveDbItem.key, value, disp.textFormat)
-                disp.text = ""
+        logger.warn("DispText %s textFormat=|%s| value=|%s| failed with %s\n"
+                    "This can occur if the LiveDbItem.rawValue has not yet been updated",
+                    disp.id, disp.textFormat, value, message)
 
-            logger.warn("DispText %s textFormat=|%s| failed with %s",
-                        disp.id, disp.textFormat, message)
-
-    # ----------------------------
-    # All others
-    setattr(disp, dispLink.dispAttrName, value)
 
 
 def makeGridKeys(disp):

@@ -4,7 +4,7 @@ from datetime import datetime
 
 import shapely
 from geoalchemy2.shape import from_shape
-from peek.core.orm import getNovaOrmSession, getPgSequenceGenerator
+from peek.core.orm import getNovaOrmSession, prefetchDeclarativeIds
 from peek.core.orm.Display import DispBase
 from peek.core.orm.ModelSet import getOrCreateCoordSet
 from twisted.internet.defer import inlineCallbacks, returnValue
@@ -40,7 +40,7 @@ class AgentImportDispGrid:
 
         dispIdsToCompile = []
 
-        dispIdGen = getPgSequenceGenerator(DispBase, len(disps), session)
+        dispIdGen = prefetchDeclarativeIds(DispBase, len(disps), session)
         session.commit()
         session.close()
 

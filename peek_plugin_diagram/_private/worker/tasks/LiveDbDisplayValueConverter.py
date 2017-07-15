@@ -46,8 +46,7 @@ class LiveDbDisplayValueConverter:
         return self._liveDbTranslators[dataType](self, rawValue)
 
     @staticmethod
-    def _loadLookupByModelSet(ormSession, modelSetId: int, table) -> Dict[
-        str, int]:
+    def _loadLookupByModelSet(ormSession, modelSetId: int, table) -> Dict[str, int]:
         resultSet = ormSession.execute(
             select([table.c.importHash, table.c.id])
                 .where(table.c.modelSetId == modelSetId))

@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from peek.core.orm import getNovaOrmSession, getPgSequenceGenerator, SynSqlaConn
+from peek.core.orm import getNovaOrmSession, prefetchDeclarativeIds, SynSqlaConn
 from peek.core.orm.LiveDb import LiveDbDispLink, LiveDbKey, \
     LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR
 from peek.core.orm.ModelSet import ModelCoordSet
@@ -68,8 +68,8 @@ class AgentImportDispLiveDbLinks:
 
         newLiveDbKeyCount = len(liveDbKeys) - len(liveDbKeyIdsByAgentKey)
 
-        dispLinkIdGen = getPgSequenceGenerator(LiveDbDispLink, newDispLinkCount, session)
-        liveDbKeyIdGen = getPgSequenceGenerator(LiveDbKey, newLiveDbKeyCount, session)
+        dispLinkIdGen = prefetchDeclarativeIds(LiveDbDispLink, newDispLinkCount, session)
+        liveDbKeyIdGen = prefetchDeclarativeIds(LiveDbKey, newLiveDbKeyCount, session)
 
         dispLinkInserts = []
         liveDbKeyInserts = []

@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List
 
 from peek_plugin_base.worker import CeleryDbConn
-from peek_plugin_diagram._private.server.queue.DispCompilerQueue import DispCompilerQueue
+from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import DispCompilerQueueController
 from peek_plugin_diagram._private.storage.Display import DispBase, DispAction, \
     DispEllipse, DispPolylineConn, DispPolygon, DispText, DispPolyline
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, \
@@ -74,7 +74,7 @@ def importDispsTask(self, modelSetName: str, coordSetName: str,
             coordSet, importGroupHash, dispLinkImportTuples
         )
 
-        DispCompilerQueue.queueDispIdsToCompile(
+        DispCompilerQueueController.queueDispIdsToCompile(
             dispIdsToCompile, CeleryDbConn.getDbSession
         )
 
@@ -166,7 +166,10 @@ def _convertImportTuple(importDisp):
             continue
 
         if importFieldName == "geom":
-            disp.geomJson = json.dumps(convertFromWkbElement(importDisp.geom))
+            disp.geomJson = importDisp.geom
+
+            # Moved to server, due to celery 3 pickle problem
+            # disp.geomJson = json.dumps(convertFromWkbElement(importDisp.geom))
             continue
 
         # Convert the field name if it exists

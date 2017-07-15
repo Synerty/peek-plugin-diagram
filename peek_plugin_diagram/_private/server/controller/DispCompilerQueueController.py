@@ -15,7 +15,7 @@ from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
 logger = logging.getLogger(__name__)
 
 
-class DispCompilerQueue:
+class DispCompilerQueueController:
     """ Grid Compiler
 
     Compile the disp items into the grid data
@@ -72,8 +72,8 @@ class DispCompilerQueue:
 
         # deferLater, to make it call in the main thread.
         d = compileDisps.delay(self._lastQueueId, queueDispIds)
-        d.addCallback(self._pollCallback, datetime.utcnow())
-        d.addErrback(self._pollErrback, datetime.utcnow())
+        d.addCallback(self._pollCallback, datetime.utcnow(), len(queueItems))
+        d.addErrback(self._pollErrback, datetime.utcnow(), len(queueItems))
 
     @deferToThreadWrapWithLogger(logger)
     def _grabQueueChunk(self):
@@ -92,11 +92,11 @@ class DispCompilerQueue:
             session.close()
 
     @deferToThreadWrapWithLogger(logger)
-    def _pollCallback(self, arg, startTime):
-        logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
+    def _pollCallback(self, arg, startTime, dispCount):
+        logger.debug("%s Disps, Time Taken = %s" % (dispCount, datetime.utcnow() - startTime))
 
-    def _pollErrback(self, failure, startTime):
-        logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
+    def _pollErrback(self, failure, startTime, dispCount):
+        logger.debug("%s Disps, Time Taken = %s" % (dispCount, datetime.utcnow() - startTime))
         self._statusController.setDisplayCompilerError(str(failure.value))
         vortexLogFailure(failure, logger)
 

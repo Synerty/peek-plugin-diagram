@@ -2,23 +2,21 @@ import logging
 from datetime import datetime
 from typing import List
 
-from sqlalchemy import asc
-from twisted.internet import task
-from twisted.internet.defer import inlineCallbacks
-
 from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import \
     ClientGridUpdateHandler
 from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
 from peek_plugin_diagram._private.storage.GridKeyIndex import \
-    GridKeyCompilerQueue as GridKeyCompilerQueueTable
+    GridKeyCompilerQueue
+from sqlalchemy import asc
+from twisted.internet import task
+from twisted.internet.defer import inlineCallbacks
 from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
-from vortex.Payload import Payload
 
 logger = logging.getLogger(__name__)
 
 
-class GridKeyCompilerQueue:
+class GridKeyCompilerQueueController:
     """ Grid Compiler
 
     Compile the disp items into the grid data
@@ -83,9 +81,9 @@ class GridKeyCompilerQueue:
     def _grabQueueChunk(self):
         session = self._ormSessionCreator()
         try:
-            qry = (session.query(GridKeyCompilerQueueTable)
-                   .order_by(asc(GridKeyCompilerQueueTable.id))
-                   .filter(GridKeyCompilerQueueTable.id > self._lastQueueId)
+            qry = (session.query(GridKeyCompilerQueue)
+                   .order_by(asc(GridKeyCompilerQueue.id))
+                   .filter(GridKeyCompilerQueue.id > self._lastQueueId)
                    .yield_per(self.FETCH_SIZE)
                    .limit(self.FETCH_SIZE))
 
