@@ -14,10 +14,6 @@ from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.GridKeyUtil import GRID_SIZES, makeGridKey
 from peek_plugin_diagram._private.storage.Display import DispBase, DispText, \
     DispTextStyle, DispEllipse
-from peek_plugin_diagram._private.storage.GridKeyIndex import \
-    DispIndexerQueue as DispIndexerQueueTable
-from peek_plugin_diagram._private.storage.GridKeyIndex import \
-    GridKeyCompilerQueue as GridKeyCompilerQueueTable
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
     DispIndexerQueue
 from peek_plugin_diagram._private.storage.LiveDbDispLink import \
@@ -37,14 +33,14 @@ SMALLEST_TEXT_SIZE = 6.0  # No one will be reading fonts this small
 
 
 @DeferrableTask
-@celeryApp.task()
-def compileDisps(lastQueueId, queueDispIds):
+@celeryApp.task(bind=True)
+def compileDisps(self, queueIds, dispIds):
     startTime = datetime.utcnow()
 
     dispBaseTable = DispBase.__table__
     gridQueueTable = DispIndexerQueue.__table__
     gridTable = GridKeyIndex.__table__
-    dispQueueTable = DispIndexerQueueTable.__table__
+    dispQueueTable = DispIndexerQueue.__table__
 
     ormSession = CeleryDbConn.getDbSession()
     conn = CeleryDbConn.getDbEngine().connect()
@@ -63,7 +59,7 @@ def compileDisps(lastQueueId, queueDispIds):
         dispsQry = (ormSession.query(DispBase)
                     .options(subqueryload(DispBase.liveDbLinks),
                              subqueryload(DispBase.level))
-                    .filter(DispBase.id.in_(queueDispIds)))
+                    .filter(DispBase.id.in_(dispIds)))
 
         # print dispsQry
         dispsAll = dispsQry.all()
@@ -127,8 +123,8 @@ def compileDisps(lastQueueId, queueDispIds):
 
     except Exception as e:
         ormSession.rollback()
-        logger.exception(e)
-        raise
+        logger.warning(e)
+        raise self.retry(exc=e, countdown=10)
 
     finally:
         ormSession.close()
@@ -139,7 +135,7 @@ def compileDisps(lastQueueId, queueDispIds):
     transaction = conn.begin()
     try:
         lockedDispIds = conn.execute(Select(
-            whereclause=dispBaseTable.c.id.in_(queueDispIds),
+            whereclause=dispBaseTable.c.id.in_(dispIds),
             columns=[dispBaseTable.c.id],
             for_update=True))
 
@@ -148,16 +144,15 @@ def compileDisps(lastQueueId, queueDispIds):
         for dispId, in lockedDispIds:
             gridKeyIndexes.extend(gridKeyIndexesByDispId[dispId])
 
-        conn.execute(gridTable.delete(gridTable.c.dispId.in_(queueDispIds)))
+        conn.execute(gridTable.delete(gridTable.c.dispId.in_(dispIds)))
         if gridKeyIndexes:
             conn.execute(gridTable.insert(), gridKeyIndexes)
-        conn.execute(gridQueueTable.delete(gridQueueTable.c.id <= lastQueueId))
 
         # ---------------
         # Directly insert into the Grid compiler queue.
         if gridCompiledQueueItems:
             conn.execute(
-                GridKeyCompilerQueueTable.__table__.insert(),
+                gridQueueTable.insert(),
                 [dict(coordSetId=i.coordSetId, gridKey=i.gridKey)
                  for i in gridCompiledQueueItems]
             )
@@ -165,7 +160,7 @@ def compileDisps(lastQueueId, queueDispIds):
         # ---------------
         # Finally, delete the disp queue items
 
-        conn.execute(dispQueueTable.delete(dispQueueTable.c.id.in_(queueDispIds)))
+        conn.execute(dispQueueTable.delete(dispQueueTable.c.id.in_(queueIds)))
 
         transaction.commit()
         logger.debug("Committed %s GridKeyIndex in %s",
@@ -173,8 +168,8 @@ def compileDisps(lastQueueId, queueDispIds):
 
     except Exception as e:
         transaction.rollback()
-        logger.exception(e)
-        raise
+        logger.warning(e)
+        raise self.retry(exc=e, countdown=10)
 
     finally:
         conn.close()

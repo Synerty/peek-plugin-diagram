@@ -99,9 +99,9 @@ class GridKeyCompilerQueueController:
             if not queueItems:
                 return
 
-            (session.query(GridKeyCompilerQueue)
-             .filter(GridKeyCompilerQueue.id <= queueItems[-1].id)
-             .delete(synchronize_session=False))
+            # (session.query(GridKeyCompilerQueue)
+            #  .filter(GridKeyCompilerQueue.id <= queueItems[-1].id)
+            #  .delete(synchronize_session=False))
 
             return queueItems
 

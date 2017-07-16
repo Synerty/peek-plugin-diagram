@@ -65,13 +65,14 @@ class DispCompilerQueueController:
             return
 
         self._lastQueueId = queueItems[-1].id
-        queueDispIds = list(set([o.dispId for o in queueItems]))
+        queueIds = list(set([o.id for o in queueItems]))
+        dispIds = list(set([o.dispId for o in queueItems]))
 
         from peek_plugin_diagram._private.worker.tasks.DispCompilerTask import \
             compileDisps
 
         # deferLater, to make it call in the main thread.
-        d = compileDisps.delay(self._lastQueueId, queueDispIds)
+        d = compileDisps.delay(queueIds, dispIds)
         d.addCallback(self._pollCallback, datetime.utcnow(), len(queueItems))
         d.addErrback(self._pollErrback, datetime.utcnow(), len(queueItems))
 
