@@ -73,7 +73,7 @@ class GridKeyCompilerQueueController:
         self._lastQueueId = queueItems[-1].id
 
         itemsByGridKey = {i.id: i for i in queueItems}
-        queueItems = list(queueItems.values())
+        queueItems = list(itemsByGridKey.values())
 
         for start in range(0, len(itemsByGridKey), self.FETCH_SIZE):
             items = queueItems[start: start + self.FETCH_SIZE]
