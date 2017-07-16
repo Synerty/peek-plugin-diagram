@@ -66,8 +66,8 @@ def importDispsTask(self, modelSetName: str, coordSetName: str,
             coordSet, importGroupHash, disps
         )
 
-        dispIdsToCompile = _bulkLoadDispsTask(
-            coordSet, importGroupHash, ormDisps, dispIdsToCompile
+        _bulkLoadDispsTask(
+            coordSet, importGroupHash, ormDisps
         )
 
         liveDbImportTuples = importDispLinks(
@@ -180,7 +180,7 @@ def _convertImportTuple(importDisp):
     return disp
 
 
-def _bulkLoadDispsTask(coordSet, importGroupHash, disps, dispIdsToCompile):
+def _bulkLoadDispsTask(coordSet, importGroupHash, disps):
     """ Import Disps Links
 
     1) Drop all disps with matching importGroupHash
@@ -190,7 +190,6 @@ def _bulkLoadDispsTask(coordSet, importGroupHash, disps, dispIdsToCompile):
     :param coordSet:
     :param importGroupHash:
     :param disps: An array of disp objects to import
-    :param dispIdsToCompile: An array of import LiveDB Disp Links to import
     :return:
     """
 
@@ -221,22 +220,13 @@ def _bulkLoadDispsTask(coordSet, importGroupHash, disps, dispIdsToCompile):
 
         ormSession.commit()
 
-        with ormSession.begin(subtransactions=True):
-            ormSession.bulk_save_objects(disps, update_changed_only=False)
+        # with ormSession.begin(subtransactions=True):
+        ormSession.bulk_save_objects(disps, update_changed_only=False)
+
         ormSession.commit()
 
         logger.info("Inserted %s Disps in %s",
                     len(disps), (datetime.utcnow() - startTime))
-
-        if not dispIdsToCompile:
-            result = ormSession.execute(
-                select([dispTable.c.id])
-                    .where(dispTable.c.importGroupHash == importGroupHash)
-            )
-
-            dispIdsToCompile = [o[0] for o in result.fetchall()]
-
-        return dispIdsToCompile
 
     finally:
         ormSession.close()
