@@ -8,11 +8,12 @@ from typing import Dict, List
 from collections import namedtuple
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.sql.selectable import Select
-from txcelery.defer import CeleryClient
+from txcelery.defer import DeferrableTask
 
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.GridKeyUtil import GRID_SIZES, makeGridKey
-from peek_plugin_diagram._private.storage.Display import DispBase, DispText
+from peek_plugin_diagram._private.storage.Display import DispBase, DispText, \
+    DispTextStyle, DispEllipse
 from peek_plugin_diagram._private.storage.GridKeyIndex import \
     DispIndexerQueue as DispIndexerQueueTable
 from peek_plugin_diagram._private.storage.GridKeyIndex import \
@@ -31,8 +32,11 @@ logger = logging.getLogger(__name__)
 CoordSetIdGridKeyTuple = namedtuple("CoordSetIdGridKeyTuple", ["coordSetId", "gridKey"])
 DispData = namedtuple('DispData', ['json', 'levelOrder', 'layerOrder'])
 
+SMALLEST_SHAPE_SIZE = 2.0
+SMALLEST_TEXT_SIZE = 6.0  # No one will be reading fonts this small
 
-@CeleryClient
+
+@DeferrableTask
 @celeryApp.task()
 def compileDisps(lastQueueId, queueDispIds):
     startTime = datetime.utcnow()
@@ -50,6 +54,9 @@ def compileDisps(lastQueueId, queueDispIds):
         modelSetNameByCoordId = {o[0]: o[1] for o in
                                  ormSession.query(ModelCoordSet.id,
                                                   ModelSet.name).all()}
+
+        # Get Model Set Name Map
+        textStyleById = {ts.id: ts for ts in ormSession.query(DispTextStyle).all()}
 
         # -----
         # Begin the DISP merge from live data
@@ -90,12 +97,16 @@ def compileDisps(lastQueueId, queueDispIds):
             # Apply live db links
             _mergeInLiveDbValues(disp, liveDbItemByKey)
 
+            # If this is a text disp, and there is no text, don't include it
+            if isinstance(disp, DispText) and not disp.text:
+                continue
+
             # Deflate to json
             jsonDict = disp.tupleToSmallJsonDict()
             jsonDict["g"] = json.loads(disp.geomJson)
             disp.dispJson = json.dumps(jsonDict)
 
-            for gridKey in makeGridKeys(disp):
+            for gridKey in makeGridKeys(disp, textStyleById):
                 gridCompiledQueueItems.add(
                     CoordSetIdGridKeyTuple(coordSetId=disp.coordSetId,
                                            gridKey=gridKey)
@@ -253,8 +264,7 @@ def _applyTextFormat(disp, dispLink, liveDbItem, value):
                     disp.id, disp.textFormat, value, message)
 
 
-
-def makeGridKeys(disp):
+def makeGridKeys(disp, textStyleById: Dict[int, DispTextStyle]):
     if not hasattr(disp, "geomJson"):
         return []
 
@@ -270,26 +280,42 @@ def makeGridKeys(disp):
                       - max(gridSize.min, disp.level.minZoom)):
             continue
 
+        if (isinstance(disp, DispText)
+            and _isTextTooSmall(disp, gridSize, textStyleById)):
+            continue
+
         # If this is just a point shape/geom, then add it and continue
-        if len(points) == 1:
+        if isinstance(disp, DispEllipse):
+            minx, miny, maxx, maxy = _calcEllipseBounds(disp, points[0])
+
+        elif len(points) == 1:
             point = points[0]
+
+            # This should be a text
+            if not isinstance(disp, DispText):
+                logger.debug("TODO Determine size for disp type %s", disp.tupleType())
+
+            # Texts on the boundaries of grids could be a problem
+            # They will seem them if the pan over just a little.
             gridKeys.append(makeGridKey(disp.coordSetId,
                                         gridSize,
                                         int(point['x'] / gridSize.xGrid),
                                         int(point['y'] / gridSize.yGrid)))
             continue
 
+        else:
+            minx, miny, maxx, maxy = _calcBounds(points)
+
         # Else, All other shapes
 
 
 
         # Get the bounding box
-        minx, miny, maxx, maxy = _calcBounds(points)
 
         # If the size is too small to see at the max zoom, then skip it
         size = math.hypot(maxx - minx, maxy - miny)
         largestSize = size * gridSize.max
-        if largestSize < 2.0:
+        if largestSize < SMALLEST_SHAPE_SIZE:
             continue
 
         # Round the grid X min/max
@@ -306,6 +332,55 @@ def makeGridKeys(disp):
                 gridKeys.append(makeGridKey(disp.coordSetId, gridSize, gridX, gridY))
 
     return gridKeys
+
+
+def _pointToPixel(point: float) -> float:
+    return point * 96 / 72
+
+
+def _isTextTooSmall(disp, gridSize,
+                    textStyleById: Dict[int, DispTextStyle]) -> bool:
+    """ Is Text Too Small
+
+    This method calculates the size that the text will appear on the diagram at max zoom
+    for the provided gird.
+
+    We'll only work this out based on the height
+
+    NOTE: This must match how it's rendered PeekDispRenderDelegateText.ts
+    """
+
+    fontStyle = textStyleById[disp.textStyleId]
+
+    fontSize = fontStyle.fontSize * fontStyle.scaleFactor
+
+    lineHeight = _pointToPixel(fontSize)
+
+    if fontStyle.scalable:
+        largestSize = lineHeight * gridSize.max
+    else:
+        largestSize = lineHeight
+
+    return largestSize < SMALLEST_TEXT_SIZE
+
+
+def _calcEllipseBounds(disp, point):
+    """ Calculate the bounds of an ellipse
+
+    """
+    # NOTE: To do this accurately we should look at the start and end angles.
+    # in the interest simplicity we're not going to.
+    # We'll potentially include SMALLEST_SHAPE_SIZE / 2 as well, no big deal.
+
+    x, y = point["x"], point["y"]
+
+    minx = x - disp.xRadius
+    maxx = x + disp.xRadius
+
+    miny = y - disp.yRadius
+    maxy = y + disp.yRadius
+
+    return minx, miny, maxx, maxy
 
 
 def _calcBounds(points: List[Dict[str, float]]):

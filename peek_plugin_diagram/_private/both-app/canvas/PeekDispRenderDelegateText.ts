@@ -13,6 +13,11 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 
     }
 
+    /** Draw
+     *
+     * NOTE: The way the text is scaled and drawn must match _calcTextSize(..)
+     * in python module DispCompilerTask.py
+     */
     draw(disp, ctx, zoom, pan) {
 
         // Give meaning to our short names
