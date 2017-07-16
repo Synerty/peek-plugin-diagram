@@ -15,7 +15,7 @@ from peek_plugin_diagram._private.GridKeyUtil import GRID_SIZES, makeGridKey
 from peek_plugin_diagram._private.storage.Display import DispBase, DispText, \
     DispTextStyle, DispEllipse
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
-    DispIndexerQueue
+    DispIndexerQueue, GridKeyCompilerQueue
 from peek_plugin_diagram._private.storage.LiveDbDispLink import \
     LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
@@ -38,7 +38,7 @@ def compileDisps(self, queueIds, dispIds):
     startTime = datetime.utcnow()
 
     dispBaseTable = DispBase.__table__
-    gridQueueTable = DispIndexerQueue.__table__
+    gridQueueTable = GridKeyCompilerQueue.__table__
     gridTable = GridKeyIndex.__table__
     dispQueueTable = DispIndexerQueue.__table__
 
@@ -123,6 +123,7 @@ def compileDisps(self, queueIds, dispIds):
 
     except Exception as e:
         ormSession.rollback()
+        # logger.exception(e)
         logger.warning(e)
         raise self.retry(exc=e, countdown=10)
 
@@ -168,6 +169,7 @@ def compileDisps(self, queueIds, dispIds):
 
     except Exception as e:
         transaction.rollback()
+        # logger.exception(e)
         logger.warning(e)
         raise self.retry(exc=e, countdown=10)
 

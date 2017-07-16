@@ -65,7 +65,7 @@ class DispCompilerQueueController:
             return
 
         self._lastQueueId = queueItems[-1].id
-        queueIds = list(set([o.id for o in queueItems]))
+        queueIds = [o.id for o in queueItems]
         dispIds = list(set([o.dispId for o in queueItems]))
 
         from peek_plugin_diagram._private.worker.tasks.DispCompilerTask import \
