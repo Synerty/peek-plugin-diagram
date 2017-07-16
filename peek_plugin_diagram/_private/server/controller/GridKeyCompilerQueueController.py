@@ -2,15 +2,16 @@ import logging
 from datetime import datetime
 from typing import List
 
+from sqlalchemy import asc
+from twisted.internet import task
+from twisted.internet.defer import inlineCallbacks
+
 from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import \
     ClientGridUpdateHandler
 from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
 from peek_plugin_diagram._private.storage.GridKeyIndex import \
     GridKeyCompilerQueue
-from sqlalchemy import asc
-from twisted.internet import task
-from twisted.internet.defer import inlineCallbacks
 from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
 
 logger = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ class GridKeyCompilerQueueController:
 
     """
 
-    FETCH_SIZE = 15
+    FETCH_SIZE = 5
     PERIOD = 0.200
 
     def __init__(self, ormSessionCreator,
@@ -62,6 +63,8 @@ class GridKeyCompilerQueueController:
 
     @inlineCallbacks
     def _poll(self):
+        from peek_plugin_diagram._private.worker.tasks.GridKeyCompilerTask import \
+            compileGrids
 
         queueItems = yield self._grabQueueChunk()
         if not queueItems:
@@ -69,13 +72,15 @@ class GridKeyCompilerQueueController:
 
         self._lastQueueId = queueItems[-1].id
 
-        from peek_plugin_diagram._private.worker.tasks.GridKeyCompilerTask import \
-            compileGrids
+        itemsByGridKey = {i.id: i for i in queueItems}
+        queueItems = list(queueItems.values())
 
-        # deferLater, to make it call in the main thread.
-        d = compileGrids.delay(queueItems)
-        d.addCallback(self._pollCallback, datetime.utcnow(), len(queueItems))
-        d.addErrback(self._pollErrback, datetime.utcnow())
+        for start in range(0, len(itemsByGridKey), self.FETCH_SIZE):
+            items = queueItems[start: start + self.FETCH_SIZE]
+
+            d = compileGrids.delay(items)
+            d.addCallback(self._pollCallback, datetime.utcnow(), len(items))
+            d.addErrback(self._pollErrback, datetime.utcnow())
 
     @deferToThreadWrapWithLogger(logger)
     def _grabQueueChunk(self):
@@ -84,11 +89,20 @@ class GridKeyCompilerQueueController:
             qry = (session.query(GridKeyCompilerQueue)
                    .order_by(asc(GridKeyCompilerQueue.id))
                    .filter(GridKeyCompilerQueue.id > self._lastQueueId)
-                   .yield_per(self.FETCH_SIZE)
-                   .limit(self.FETCH_SIZE))
+                   # .yield_per(self.FETCH_SIZE)
+                   # .limit(self.FETCH_SIZE)
+                   )
 
             queueItems = qry.all()
             session.expunge_all()
+
+            if not queueItems:
+                return
+
+            (session.query(GridKeyCompilerQueue)
+             .filter(GridKeyCompilerQueue.id <= queueItems[-1].id)
+             .delete(synchronize_session=False))
+
             return queueItems
 
         finally:
