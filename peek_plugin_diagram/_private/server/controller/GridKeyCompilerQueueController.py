@@ -70,17 +70,28 @@ class GridKeyCompilerQueueController:
         if not queueItems:
             return
 
+        # Set the watermark
         self._lastQueueId = queueItems[-1].id
 
-        itemsByGridKey = {i.id: i for i in queueItems}
+        queueIdsToDelete = []
+
+        itemsByGridKey = {}
+        for i in queueItems:
+            if i.gridKey in itemsByGridKey:
+                queueIdsToDelete.append(i.id)
+            else:
+                itemsByGridKey[i.gridKey] = i
+                
         queueItems = list(itemsByGridKey.values())
 
-        for start in range(0, len(itemsByGridKey), self.FETCH_SIZE):
+        for start in range(0, len(queueItems), self.FETCH_SIZE):
             items = queueItems[start: start + self.FETCH_SIZE]
 
             d = compileGrids.delay(items)
             d.addCallback(self._pollCallback, datetime.utcnow(), len(items))
             d.addErrback(self._pollErrback, datetime.utcnow())
+
+        yield self._deleteDuplicateQueueItems(queueIdsToDelete)
 
     @deferToThreadWrapWithLogger(logger)
     def _grabQueueChunk(self):
@@ -91,20 +102,24 @@ class GridKeyCompilerQueueController:
                    .filter(GridKeyCompilerQueue.id > self._lastQueueId)
                    # .yield_per(self.FETCH_SIZE)
                    # .limit(self.FETCH_SIZE)
-                   )
+                 )
 
             queueItems = qry.all()
             session.expunge_all()
 
-            if not queueItems:
-                return
-
-            # (session.query(GridKeyCompilerQueue)
-            #  .filter(GridKeyCompilerQueue.id <= queueItems[-1].id)
-            #  .delete(synchronize_session=False))
-
             return queueItems
 
+        finally:
+            session.close()
+
+    @deferToThreadWrapWithLogger(logger)
+    def _deleteDuplicateQueueItems(self, itemIds):
+        session = self._ormSessionCreator()
+        try:
+            (session.query(GridKeyCompilerQueue)
+             .filter(GridKeyCompilerQueue.id.in_(itemIds))
+             .delete(synchronize_session=False))
+            session.commit()
         finally:
             session.close()
 
