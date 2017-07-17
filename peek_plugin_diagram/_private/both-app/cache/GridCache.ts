@@ -173,7 +173,7 @@ export class GridCache {
 
         // Create the grid list for the server, we include the dates so it doesn't
         // send us stuff we already have.
-        let updateTimeByGridKey: { [gridKey: string]: Date } = {};
+        let updateTimeByGridKey: { [gridKey: string]: string } = {};
         for (let gridKey of gridKeys) {
             let grid = latestCache.get(gridKey);
             updateTimeByGridKey[gridKey] = grid == null ? null : grid.lastUpdate;
@@ -242,7 +242,7 @@ export class GridCache {
 
 
     //
-    private sendWatchedGridsToServer(updateTimeByGridKey: { [gridKey: string]: Date }) {
+    private sendWatchedGridsToServer(updateTimeByGridKey: { [gridKey: string]: string }) {
         // There is no point talking to the server if it's offline
         if (!this.vortexStatusService.snapshot.isOnline)
             return;
