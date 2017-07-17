@@ -6,14 +6,16 @@ from typing import List
 
 from collections import namedtuple
 from functools import cmp_to_key
-from txcelery.defer import DeferrableTask
 
+from peek_plugin_base.storage.StorageUtil import makeCoreValuesSubqueryCondition, \
+    makeOrmValuesSubqueryCondition
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.storage.Display import DispLevel, DispBase, DispLayer
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled, \
     GridKeyCompilerQueue, \
     GridKeyIndex
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
+from txcelery.defer import DeferrableTask
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +50,8 @@ def compileGrids(self, queueItems) -> List[str]:
     startTime = datetime.utcnow()
 
     session = CeleryDbConn.getDbSession()
-    conn = CeleryDbConn.getDbEngine().connect()
+    engine = CeleryDbConn.getDbEngine()
+    conn = engine.connect()
     transaction = conn.begin()
     try:
 
@@ -58,7 +61,9 @@ def compileGrids(self, queueItems) -> List[str]:
         total = 0
         dispData = _qryDispData(session, gridKeys)
 
-        conn.execute(gridTable.delete(gridTable.c.gridKey.in_(gridKeys)))
+        conn.execute(gridTable.delete(
+            makeCoreValuesSubqueryCondition(engine, gridTable.c.gridKey, gridKeys)
+        ))
         transaction.commit()
         transaction = conn.begin()
 
@@ -78,9 +83,10 @@ def compileGrids(self, queueItems) -> List[str]:
 
         total += len(inserts)
 
-        conn.execute(
-            queueTable.delete(queueTable.c.id.in_([o.id for o in queueItems]))
-        )
+        queueItemIds = [o.id for o in queueItems]
+        conn.execute(queueTable.delete(
+            makeCoreValuesSubqueryCondition(engine, queueTable.c.id, queueItemIds)
+        ))
 
         transaction.commit()
         logger.debug("Compiled and Comitted %s GridKeyIndexCompileds in %s",
@@ -111,14 +117,17 @@ def _dispBaseSortCmp(dispData1, dispData2):
 
 
 def _qryDispData(session, gridKeys):
-    indexQry = (session.query(GridKeyIndex.gridKey, DispBase.dispJson,
-                              DispBase.id,
-                              DispLevel.order, DispLayer.order)
-                .join(DispBase, DispBase.id == GridKeyIndex.dispId)
-                .join(DispLevel)
-                .join(DispLayer)
-                .filter(GridKeyIndex.gridKey.in_(gridKeys))
-                )
+    indexQry = (
+        session.query(GridKeyIndex.gridKey, DispBase.dispJson,
+                      DispBase.id,
+                      DispLevel.order, DispLayer.order)
+            .join(DispBase, DispBase.id == GridKeyIndex.dispId)
+            .join(DispLevel)
+            .join(DispLayer)
+            .filter(makeOrmValuesSubqueryCondition(
+            session, GridKeyIndex.gridKey, gridKeys
+        ))
+    )
 
     dispsByGridKeys = defaultdict(list)
 

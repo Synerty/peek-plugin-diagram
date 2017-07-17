@@ -4,13 +4,14 @@ from typing import List
 from twisted.internet.defer import Deferred
 
 from peek_plugin_base.PeekVortexUtil import peekClientName
+from peek_plugin_base.storage.StorageUtil import makeOrmValuesSubqueryCondition
 from peek_plugin_diagram._private.client.controller.GridCacheController import \
     clientGridUpdateFromServerFilt
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
 from peek_plugin_diagram._private.tuples.GridTuple import GridTuple
 from vortex.DeferUtil import vortexLogFailure, deferToThreadWrapWithLogger
 from vortex.Payload import Payload
-from vortex.VortexFactory import VortexFactory
+from vortex.VortexFactory import VortexFactory, NoVortexException
 
 logger = logging.getLogger(__name__)
 
@@ -48,14 +49,24 @@ class ClientGridUpdateHandler:
 
         d: Deferred = self._serialiseGrids(gridKeys)
         d.addCallback(VortexFactory.sendVortexMsg, destVortexName=peekClientName)
-        d.addErrback(vortexLogFailure, logger, consumeError=True)
+        d.addErrback(self._sendGridsErrback)
+
+    def _sendGridsErrback(self, failure, gridKeys):
+
+        if failure.check(NoVortexException):
+            logger.debug("No clients are online to send the grid to, %s", gridKeys)
+            return
+
+        vortexLogFailure(failure, logger)
 
     @deferToThreadWrapWithLogger(logger)
     def _serialiseGrids(self, gridKeys) -> bytes:
         session = self._dbSessionCreator()
         try:
             ormGrids = (session.query(GridKeyIndexCompiled)
-                        .filter(GridKeyIndexCompiled.gridKey.in_(gridKeys))
+                        .filter(makeOrmValuesSubqueryCondition(
+                session, GridKeyIndexCompiled.gridKey, gridKeys
+            ))
                         .yield_per(200))
 
             gridTuples: List[GridTuple] = []

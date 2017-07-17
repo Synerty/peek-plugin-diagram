@@ -1,6 +1,11 @@
 import logging
 from typing import List
 
+from sqlalchemy import select
+from twisted.internet.defer import Deferred, inlineCallbacks
+
+from peek_plugin_base.storage.StorageUtil import makeOrmValuesSubqueryCondition, \
+    makeCoreValuesSubqueryCondition
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
     DispIndexerQueue
 from peek_plugin_diagram._private.storage.LiveDbDispLink import LiveDbDispLink
@@ -11,8 +16,6 @@ from peek_plugin_livedb.server.LiveDBWriteApiABC import LiveDBWriteApiABC
 from peek_plugin_livedb.tuples.LiveDbDisplayValueUpdateTuple import \
     LiveDbDisplayValueUpdateTuple
 from peek_plugin_livedb.tuples.LiveDbRawValueUpdateTuple import LiveDbRawValueUpdateTuple
-from sqlalchemy import select
-from twisted.internet.defer import Deferred, inlineCallbacks
 from vortex.DeferUtil import deferToThreadWrapWithLogger, \
     vortexInlineCallbacksLogAndConsumeFailure
 
@@ -92,7 +95,9 @@ class LiveDbWatchController:
                     session.query(LiveDbDispLink.liveDbKey)
                         .join(GridKeyIndex,
                               GridKeyIndex.dispId == LiveDbDispLink.dispId)
-                        .filter(GridKeyIndex.gridKey.in_(gridKeys))
+                        .filter(makeOrmValuesSubqueryCondition(
+                        session, GridKeyIndex.gridKey, gridKeys
+                    ))
                         .yield_per(1000)
                         .distinct()]
         finally:
@@ -110,7 +115,10 @@ class LiveDbWatchController:
         try:
             updatedKeys = [u.key for u in updates]
             stmt = (select([linkTable.c.dispId])
-                    .where(linkTable.c.liveDbKey.in_(updatedKeys)))
+                .where(makeCoreValuesSubqueryCondition(
+                session.bind, linkTable.c.liveDbKey, updatedKeys
+            ))
+            )
 
             ins = queueTable.insert().from_select(['dispId'], stmt)
             session.execute(ins)

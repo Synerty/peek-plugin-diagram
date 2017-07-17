@@ -6,6 +6,7 @@ from sqlalchemy import asc
 from twisted.internet import task
 from twisted.internet.defer import inlineCallbacks
 
+from peek_plugin_base.storage.StorageUtil import makeCoreValuesSubqueryCondition
 from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import \
     ClientGridUpdateHandler
 from peek_plugin_diagram._private.server.controller.StatusController import \
@@ -31,6 +32,9 @@ class GridKeyCompilerQueueController:
 
     FETCH_SIZE = 5
     PERIOD = 0.200
+
+    QUEUE_MAX = 30
+    QUEUE_MIN = 5
 
     def __init__(self, ormSessionCreator,
                  statusController: StatusController,
@@ -67,32 +71,48 @@ class GridKeyCompilerQueueController:
         from peek_plugin_diagram._private.worker.tasks.GridKeyCompilerTask import \
             compileGrids
 
+        # We queue the grids in bursts, reducing the work we have to do.
+        if self._queueCount > self.QUEUE_MIN:
+            return
+
+        # Check for queued items
         queueItems = yield self._grabQueueChunk()
         if not queueItems:
             return
 
+        # De duplicated queued grid keys
+        # This is the reason why we don't just queue all the celery tasks in one go.
+        # If we keep them in the DB queue, we can remove the duplicates
+        # and there are lots of them
+        queueIdsToDelete = []
+
+        gridKeySet = set()
+        for i in queueItems:
+            if i.gridKey in gridKeySet:
+                queueIdsToDelete.append(i.id)
+            else:
+                gridKeySet.add(i.gridKey)
+
+        if queueIdsToDelete:
+            # Delete the duplicates and requery for our new list
+            yield self._deleteDuplicateQueueItems(queueIdsToDelete)
+            queueItems = yield self._grabQueueChunk()
+
         # Set the watermark
         self._lastQueueId = queueItems[-1].id
 
-        queueIdsToDelete = []
-
-        itemsByGridKey = {}
-        for i in queueItems:
-            if i.gridKey in itemsByGridKey:
-                queueIdsToDelete.append(i.id)
-            else:
-                itemsByGridKey[i.gridKey] = i
-
-        queueItems = list(itemsByGridKey.values())
-
+        # Send the tasks to the peek worker
         for start in range(0, len(queueItems), self.FETCH_SIZE):
+
             items = queueItems[start: start + self.FETCH_SIZE]
 
             d = compileGrids.delay(items)
             d.addCallback(self._pollCallback, datetime.utcnow(), len(items))
             d.addErrback(self._pollErrback, datetime.utcnow())
 
-        yield self._deleteDuplicateQueueItems(queueIdsToDelete)
+            self._queueCount += 1
+            if self._queueCount >= self.QUEUE_MAX:
+                break
 
     @deferToThreadWrapWithLogger(logger)
     def _grabQueueChunk(self):
@@ -116,26 +136,30 @@ class GridKeyCompilerQueueController:
     @deferToThreadWrapWithLogger(logger)
     def _deleteDuplicateQueueItems(self, itemIds):
         session = self._ormSessionCreator()
+        table = GridKeyCompilerQueue.__table__
         try:
-            (session.query(GridKeyCompilerQueue)
-             .filter(GridKeyCompilerQueue.id.in_(itemIds))
-             .delete(synchronize_session=False))
+            SIZE = 1000
+            for start in range(0, len(itemIds), SIZE):
+                chunkIds = itemIds[start: start + SIZE]
+
+                session.execute(table.delete(makeCoreValuesSubqueryCondition(
+                    session.bind, table.c.id, chunkIds
+                )))
+
             session.commit()
         finally:
             session.close()
 
     def _pollCallback(self, gridKeys: List[str], startTime, processedCount):
+        self._queueCount -= 1
         logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
         self._clientGridUpdateHandler.sendGrids(gridKeys)
         self._statusController.addToGridCompilerTotal(processedCount)
+        self._statusController.setGridCompilerStatus(True, self._queueCount)
 
     def _pollErrback(self, failure, startTime):
+        self._queueCount -= 1
         self._statusController.setGridCompilerError(str(failure.value))
-
-        if failure.check(NoVortexException):
-            logger.debug("Time Taken = %s, No clients are online to send the grid to"
-                         , (datetime.utcnow() - startTime))
-            return
-
+        self._statusController.setGridCompilerStatus(True, self._queueCount)
         logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
         vortexLogFailure(failure, logger)

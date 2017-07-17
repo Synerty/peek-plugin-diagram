@@ -8,8 +8,9 @@ from typing import Dict, List
 from collections import namedtuple
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.sql.selectable import Select
-from txcelery.defer import DeferrableTask
 
+from peek_plugin_base.storage.StorageUtil import makeCoreValuesSubqueryCondition, \
+    makeOrmValuesSubqueryCondition
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.GridKeyUtil import GRID_SIZES, makeGridKey
 from peek_plugin_diagram._private.storage.Display import DispBase, DispText, \
@@ -22,6 +23,7 @@ from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSe
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
 from peek_plugin_livedb.worker.WorkerApi import WorkerApi
+from txcelery.defer import DeferrableTask
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +45,8 @@ def compileDisps(self, queueIds, dispIds):
     dispQueueTable = DispIndexerQueue.__table__
 
     ormSession = CeleryDbConn.getDbSession()
-    conn = CeleryDbConn.getDbEngine().connect()
+    engine = CeleryDbConn.getDbEngine()
+    conn = engine.connect()
     try:
 
         # Get Model Set Name Map
@@ -57,9 +60,10 @@ def compileDisps(self, queueIds, dispIds):
         # -----
         # Begin the DISP merge from live data
         dispsQry = (ormSession.query(DispBase)
-                    .options(subqueryload(DispBase.liveDbLinks),
-                             subqueryload(DispBase.level))
-                    .filter(DispBase.id.in_(dispIds)))
+            .options(subqueryload(DispBase.liveDbLinks),
+                     subqueryload(DispBase.level))
+            .filter(makeOrmValuesSubqueryCondition(ormSession, DispBase.id, dispIds))
+        )
 
         # print dispsQry
         dispsAll = dispsQry.all()
@@ -136,7 +140,8 @@ def compileDisps(self, queueIds, dispIds):
     transaction = conn.begin()
     try:
         lockedDispIds = conn.execute(Select(
-            whereclause=dispBaseTable.c.id.in_(dispIds),
+            whereclause=
+            makeCoreValuesSubqueryCondition(engine, dispBaseTable.c.id, dispIds),
             columns=[dispBaseTable.c.id],
             for_update=True))
 
@@ -145,7 +150,9 @@ def compileDisps(self, queueIds, dispIds):
         for dispId, in lockedDispIds:
             gridKeyIndexes.extend(gridKeyIndexesByDispId[dispId])
 
-        conn.execute(gridTable.delete(gridTable.c.dispId.in_(dispIds)))
+        conn.execute(gridTable.delete(
+            makeCoreValuesSubqueryCondition(engine, gridTable.c.dispId, dispIds)
+        ))
         if gridKeyIndexes:
             conn.execute(gridTable.insert(), gridKeyIndexes)
 
@@ -161,7 +168,9 @@ def compileDisps(self, queueIds, dispIds):
         # ---------------
         # Finally, delete the disp queue items
 
-        conn.execute(dispQueueTable.delete(dispQueueTable.c.id.in_(queueIds)))
+        conn.execute(dispQueueTable.delete(
+            makeCoreValuesSubqueryCondition(engine, dispQueueTable.c.id, queueIds)
+        ))
 
         transaction.commit()
         logger.debug("Committed %s GridKeyIndex in %s",
