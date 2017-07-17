@@ -94,10 +94,15 @@ class DispCompilerQueueController:
 
     @deferToThreadWrapWithLogger(logger)
     def _pollCallback(self, arg, startTime, dispCount):
+        self._queueCount -= 1
         logger.debug("%s Disps, Time Taken = %s" % (dispCount, datetime.utcnow() - startTime))
+        self._statusController.setDisplayCompilerStatus(False, self._queueCount)
+        self._statusController.addToDisplayCompilerTotal(self.FETCH_SIZE)
 
     def _pollErrback(self, failure, startTime, dispCount):
+        self._queueCount -= 1
         logger.debug("%s Disps, Time Taken = %s" % (dispCount, datetime.utcnow() - startTime))
+        self._statusController.setDisplayCompilerStatus(False, self._queueCount)
         self._statusController.setDisplayCompilerError(str(failure.value))
         vortexLogFailure(failure, logger)
 

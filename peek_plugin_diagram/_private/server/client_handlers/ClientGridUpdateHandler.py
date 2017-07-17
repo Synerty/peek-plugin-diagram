@@ -49,7 +49,7 @@ class ClientGridUpdateHandler:
 
         d: Deferred = self._serialiseGrids(gridKeys)
         d.addCallback(VortexFactory.sendVortexMsg, destVortexName=peekClientName)
-        d.addErrback(self._sendGridsErrback)
+        d.addErrback(self._sendGridsErrback, gridKeys)
 
     def _sendGridsErrback(self, failure, gridKeys):
 

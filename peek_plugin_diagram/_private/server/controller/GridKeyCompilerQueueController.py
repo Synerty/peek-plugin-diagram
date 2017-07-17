@@ -98,13 +98,13 @@ class GridKeyCompilerQueueController:
             yield self._deleteDuplicateQueueItems(queueIdsToDelete)
             queueItems = yield self._grabQueueChunk()
 
-        # Set the watermark
-        self._lastQueueId = queueItems[-1].id
-
         # Send the tasks to the peek worker
         for start in range(0, len(queueItems), self.FETCH_SIZE):
 
             items = queueItems[start: start + self.FETCH_SIZE]
+
+            # Set the watermark
+            self._lastQueueId = items[-1].id
 
             d = compileGrids.delay(items)
             d.addCallback(self._pollCallback, datetime.utcnow(), len(items))
@@ -121,7 +121,7 @@ class GridKeyCompilerQueueController:
             qry = (session.query(GridKeyCompilerQueue)
                    .order_by(asc(GridKeyCompilerQueue.id))
                    .filter(GridKeyCompilerQueue.id > self._lastQueueId)
-                   # .yield_per(self.FETCH_SIZE)
+                   .yield_per(500)
                    # .limit(self.FETCH_SIZE)
                    )
 
