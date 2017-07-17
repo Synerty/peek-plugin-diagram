@@ -155,7 +155,7 @@ class LookupHashConverter:
         newLevel.coordSetId = self._coordSetId
         newLevel.name = "Peek Created %s" % importHash
         newLevel.order = importHash if defaultOrder is None else defaultOrder
-        newLevel.importHash = "%s:%s" % (self._coordSetId, importHash)
+        newLevel.importHash = importHash
         newLevel.minZoom = 0
         newLevel.maxZoom = 10000
 
