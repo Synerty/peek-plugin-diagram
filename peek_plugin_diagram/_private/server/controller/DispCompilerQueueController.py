@@ -76,6 +76,9 @@ class DispCompilerQueueController:
         d.addCallback(self._pollCallback, datetime.utcnow(), len(queueItems))
         d.addErrback(self._pollErrback, datetime.utcnow(), len(queueItems))
 
+        self._queueCount += 1
+        self._statusController.setDisplayCompilerStatus(True, self._queueCount)
+
     @deferToThreadWrapWithLogger(logger)
     def _grabQueueChunk(self):
         session = self._ormSessionCreator()
@@ -96,13 +99,13 @@ class DispCompilerQueueController:
     def _pollCallback(self, arg, startTime, dispCount):
         self._queueCount -= 1
         logger.debug("%s Disps, Time Taken = %s" % (dispCount, datetime.utcnow() - startTime))
-        self._statusController.setDisplayCompilerStatus(False, self._queueCount)
+        self._statusController.setDisplayCompilerStatus(True, self._queueCount)
         self._statusController.addToDisplayCompilerTotal(self.FETCH_SIZE)
 
     def _pollErrback(self, failure, startTime, dispCount):
         self._queueCount -= 1
         logger.debug("%s Disps, Time Taken = %s" % (dispCount, datetime.utcnow() - startTime))
-        self._statusController.setDisplayCompilerStatus(False, self._queueCount)
+        self._statusController.setDisplayCompilerStatus(True, self._queueCount)
         self._statusController.setDisplayCompilerError(str(failure.value))
         vortexLogFailure(failure, logger)
 
