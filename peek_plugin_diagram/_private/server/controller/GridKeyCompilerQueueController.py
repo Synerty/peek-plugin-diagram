@@ -13,6 +13,7 @@ from peek_plugin_diagram._private.server.controller.StatusController import \
 from peek_plugin_diagram._private.storage.GridKeyIndex import \
     GridKeyCompilerQueue
 from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
+from vortex.VortexFactory import NoVortexException
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +82,7 @@ class GridKeyCompilerQueueController:
                 queueIdsToDelete.append(i.id)
             else:
                 itemsByGridKey[i.gridKey] = i
-                
+
         queueItems = list(itemsByGridKey.values())
 
         for start in range(0, len(queueItems), self.FETCH_SIZE):
@@ -102,7 +103,7 @@ class GridKeyCompilerQueueController:
                    .filter(GridKeyCompilerQueue.id > self._lastQueueId)
                    # .yield_per(self.FETCH_SIZE)
                    # .limit(self.FETCH_SIZE)
-                 )
+                   )
 
             queueItems = qry.all()
             session.expunge_all()
@@ -129,6 +130,12 @@ class GridKeyCompilerQueueController:
         self._statusController.addToGridCompilerTotal(processedCount)
 
     def _pollErrback(self, failure, startTime):
-        logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
         self._statusController.setGridCompilerError(str(failure.value))
+
+        if failure.check(NoVortexException):
+            logger.debug("Time Taken = %s, No clients are online to send the grid to"
+                         , (datetime.utcnow() - startTime))
+            return
+
+        logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
         vortexLogFailure(failure, logger)
