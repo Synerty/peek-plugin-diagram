@@ -203,7 +203,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False, autoincrement=True),
     sa.Column('gridKey', sa.String(length=30), nullable=False),
     sa.Column('blobData', sa.LargeBinary(), nullable=False),
-    sa.Column('lastUpdate', sa.DateTime(), nullable=False),
+    sa.Column('lastUpdate', sa.String(length=50), nullable=False),
     sa.Column('coordSetId', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['coordSetId'], ['pl_diagram.ModelCoordSet.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),

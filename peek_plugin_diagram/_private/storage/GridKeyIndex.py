@@ -72,7 +72,7 @@ class GridKeyIndexCompiled(Tuple, DeclarativeBase):
 
     gridKey = Column(String(30))
     blobData = Column(PeekLargeBinary, nullable=False)
-    lastUpdate = Column(DateTime, nullable=False)
+    lastUpdate = Column(String(50), nullable=False)
 
     coordSetId = Column(Integer,
                         ForeignKey('ModelCoordSet.id', ondelete='CASCADE'))

@@ -9,7 +9,7 @@ export class GridTuple extends Tuple {
     gridKey: string;
     // The compressed (deflated) json string.
     blobData: string | null;
-    lastUpdate: Date;
+    lastUpdate: string;
 
     // This is populated when the grid gets to the client.
     // This way, when the grid is stored in tuple storage, there only needs to be one
