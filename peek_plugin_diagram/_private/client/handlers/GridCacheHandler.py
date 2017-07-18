@@ -86,6 +86,8 @@ class GridCacheHandler(object):
 
             # Queue up the required client notifications
             for vortexUuid in vortexUuids:
+                logger.debug("Sending unsolicited grid %s to vortex %s",
+                             gridKey, vortexUuid)
                 payloadsByVortexUuid[vortexUuid].tuples.append(gridTuple)
 
         # Send the updates to the clients

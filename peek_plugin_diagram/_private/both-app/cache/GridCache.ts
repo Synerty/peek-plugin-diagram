@@ -140,7 +140,7 @@ export class GridCache {
         // If the vortex service comes back online, update the watch grids.
         this.vortexStatusService.isOnline
             .filter(isOnline => isOnline == true)
-            .takeUntil(this.lifecycleEmitter.doCheckEvent)
+            .takeUntil(this.lifecycleEmitter.onDestroyEvent)
             .subscribe(() => this.updateWatchedGrids(this.lastWatchedGridKeys));
     }
 
@@ -262,6 +262,7 @@ export class GridCache {
 
         // Decompress the grid data.
         for (let gridTuple of gridTuples) {
+            console.log(`Received grid update ${gridTuple.gridKey} from server`);
             try {
                 gridTuple.dispJsonStr = pako.inflate(gridTuple.blobData, {to: 'string'});
             } catch (e) {
@@ -323,12 +324,13 @@ export class GridCache {
 
             // If the cache is newer, ignore the update
             // This really shouldn't happen.
-            if (cachedLinkedGrid != null
-                && moment(cachedLinkedGrid.lastUpdate).isBefore(gridTuple.lastUpdate)) {
-                continue
+            if (cachedLinkedGrid != null) {
+                let cacheGridDate = moment(cachedLinkedGrid.lastUpdate);
+                let newGridDate = moment(gridTuple.lastUpdate);
+                if (newGridDate.isBefore(cacheGridDate)) {
+                    continue
+                }
             }
-
-            // Else
 
             // 1) Link the grid
             let linkedGrid = new LinkedGrid(gridTuple, this.lookupCache);

@@ -45,7 +45,7 @@ def compileGrids(self, queueItems) -> List[str]:
 
     queueTable = GridKeyCompilerQueue.__table__
     gridTable = GridKeyIndexCompiled.__table__
-    lastUpdate = datetime.utcnow()
+    lastUpdate = datetime.utcnow().isoformat()
 
     startTime = datetime.utcnow()
 
