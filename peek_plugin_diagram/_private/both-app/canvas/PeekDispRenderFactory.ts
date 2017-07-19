@@ -6,6 +6,7 @@ import {PeekDispRenderDelegateAction} from "./PeekDispRenderDelegateAction";
 import {PeekDispRenderDelegateGroupPtr} from "./PeekDispRenderDelegateGroupPtr";
 import {DispGroupCache} from "../cache/DispGroupCache";
 import {PeekCanvasConfig} from "./PeekCanvasConfig";
+import {DispBase} from "../tuples/shapes/DispBase";
 export class PeekDispRenderFactory {
     private _delegatesByType: {};
 
@@ -40,6 +41,9 @@ export class PeekDispRenderFactory {
 
 
     draw(dispObj, ctx, zoom, pan) {
+        let level = DispBase.level(dispObj);
+        if (!(level.minZoom <= zoom && zoom <= level.maxZoom))
+            return;
 
         if (this._delegatesByType[dispObj._tt] == null)
             console.log(dispObj._tt);

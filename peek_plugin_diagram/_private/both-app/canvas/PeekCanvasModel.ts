@@ -252,8 +252,9 @@ export class PeekCanvasModel {
             let level: DispLevel = <DispLevel> levelsOrderedByOrder[levelIndex];
 
             // If it's not in the zoom area, continue
-            if (!(level.minZoom <= zoom && zoom < level.maxZoom))
-                continue;
+            // THIS is moved to the RendererFactor.draw method
+            //if (!(level.minZoom <= zoom && zoom < level.maxZoom))
+            //    continue;
 
             for (let layerIndex = 0; layerIndex < layersOrderedByOrder.length; layerIndex++) {
                 let layer: DispLayer = <DispLayer> layersOrderedByOrder[layerIndex];
