@@ -19,7 +19,9 @@ export class DiagramComponent {
         let host = this.enrolmentService.serverHost;
         let port = this.enrolmentService.serverHttpPort;
 
-        return `${protocol}://${host}:${port}/${diagramBaseUrl}`;
+        let url =  `${protocol}://${host}:${port}/${diagramBaseUrl}`;
+        console.log(`Sending WebView to ${url}`);
+        return url;
     }
 
 }

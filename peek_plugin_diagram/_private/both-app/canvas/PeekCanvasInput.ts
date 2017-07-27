@@ -159,20 +159,23 @@ export class PeekCanvasInput {
         canvas.addEventListener('contextmenu', disableContextMenu, true);
 
         canvas.addEventListener('touchstart', (e) => {
-            if (!(e instanceof MouseEvent)) return;
+            if (!(e instanceof TouchEvent)) return;
             this._delegate.touchStart(e, this._getMouse(e));
+            disableContextMenu(e);
 
         }, true);
 
         canvas.addEventListener('touchmove', (e) => {
-            if (!(e instanceof MouseEvent)) return;
+            if (!(e instanceof TouchEvent)) return;
             this._delegate.touchMove(e, this._getMouse(e));
+            disableContextMenu(e);
 
         }, true);
 
         canvas.addEventListener('touchend', (e) => {
-            if (!(e instanceof MouseEvent)) return;
+            if (!(e instanceof TouchEvent)) return;
             this._delegate.touchEnd(e, this._getMouse(e));
+            disableContextMenu(e);
 
         }, true);
 

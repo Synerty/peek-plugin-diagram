@@ -76,13 +76,13 @@ export abstract class PeekCanvasInputDelegate {
     mouseWheel(event, mouse) {
     };
 
-    touchStart(event, mouse) {
+    touchStart(event:TouchEvent, mouse) {
     };
 
-    touchMove(event, mouse) {
+    touchMove(event:TouchEvent, mouse) {
     };
 
-    touchEnd(event, mouse) {
+    touchEnd(event:TouchEvent, mouse) {
     };
 
     shutdown() {

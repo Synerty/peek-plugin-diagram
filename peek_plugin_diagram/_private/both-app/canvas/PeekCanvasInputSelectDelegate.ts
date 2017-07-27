@@ -116,7 +116,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 // mouse) {
 // };
 
-    touchStart(event, mouse) {
+    touchStart(event:TouchEvent, mouse) {
 
 
         if (event.targetTouches.length == 2) {
@@ -204,7 +204,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     };
 
-    touchMove(event, mouse) {
+    touchMove(event:TouchEvent, mouse) {
 
         if (this._state == this.STATE_CANVAS_ZOOMING) {
             this._touchZoom(event, mouse);
@@ -393,11 +393,10 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this.config.invalidate()
     };
 
-    touchEnd(event, mouse) {
-
+    touchEnd(event:TouchEvent, mouse) {
         this.mouseUp(event, mouse);
 
-    };
+    }
 
     mouseUp(event, mouse) {
 
