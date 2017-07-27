@@ -2,7 +2,7 @@
     "plugin": {
         "title": "Network Diagram",
         "packageName": "peek_plugin_diagram",
-    "version":"0.6.3.2",
+    "version":"0.6.4",
         "buildNumber": "#PLUGIN_BUILD#",
         "buildDate": "#BUILD_DATE#",
         "creator": "Synerty Pty Ltd",
