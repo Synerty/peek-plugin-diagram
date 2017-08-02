@@ -1,0 +1,7 @@
+{
+  "/vortex": {
+    "target": "http://localhost:8000/vortex",
+    "secure": false,
+    "logLevel": "debug"
+  }
+}

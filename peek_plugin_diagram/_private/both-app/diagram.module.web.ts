@@ -72,7 +72,9 @@ export const pluginRoutes: Routes = [
         PeekModuleFactory.RouterModule.forChild(pluginRoutes),
         ...PeekModuleFactory.FormsModules,
     ],
-    exports: [],
+    exports: [
+        CanvasComponent
+    ],
     providers: [
         TupleActionPushOfflineService, TupleActionPushService, {
             provide: TupleActionPushNameService,

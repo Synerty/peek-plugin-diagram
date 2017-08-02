@@ -1,0 +1,1 @@
+../../../both-app/DiagramUtil.ts

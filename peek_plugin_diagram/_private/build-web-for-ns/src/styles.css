@@ -1,0 +1,14 @@
+
+p {
+    display: block;
+    -webkit-margin-before: 0px;
+    -webkit-margin-after: 0px;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+}
+body {
+    display: block;
+    margin: 0px;
+    font-size: 12pt;
+    font-family: arial;
+}
