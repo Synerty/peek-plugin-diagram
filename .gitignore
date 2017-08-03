@@ -9,6 +9,8 @@ node_modules
 *.js
 *.js.map
 
+!peek_plugin_diagram/_private/web-dist/*
+
 # Distribution / packaging
 .Python
 env/

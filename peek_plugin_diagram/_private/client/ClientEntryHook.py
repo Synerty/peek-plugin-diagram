@@ -1,6 +1,8 @@
 import logging
 
+from os import path as osp
 from twisted.internet.defer import inlineCallbacks
+from txhttputil.site.FileUnderlayResource import FileUnderlayResource
 
 from peek_plugin_base.PeekVortexUtil import peekServerName
 from peek_plugin_base.client.PluginClientEntryHookABC import PluginClientEntryHookABC
@@ -118,6 +120,15 @@ class ClientEntryHook(PluginClientEntryHookABC):
         yield gridCacheController.start()
         lookupCacheController.start()
         coordSetCacheController.start()
+
+
+        # Add in the HTTP resource that allows images to be downloaded
+        resource = FileUnderlayResource()
+        distDir = osp.join(osp.dirname(osp.dirname(__file__)), "web-dist")
+        resource.addFileSystemRoot(distDir)
+        resource.enableSinglePageApplication()
+
+        self.platform.addMobileResource(b'web_dist', resource)
 
         logger.debug("Started")
 
