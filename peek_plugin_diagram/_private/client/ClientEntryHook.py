@@ -124,7 +124,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
 
         # Add in the HTTP resource that allows images to be downloaded
         resource = FileUnderlayResource()
-        distDir = osp.join(osp.dirname(osp.dirname(__file__)), "web-dist")
+        distDir = osp.join(osp.dirname(osp.dirname(__file__)), "dist-web")
         resource.addFileSystemRoot(distDir)
         resource.enableSinglePageApplication()
 
