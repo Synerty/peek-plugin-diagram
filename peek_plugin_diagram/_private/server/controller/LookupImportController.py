@@ -1,6 +1,8 @@
 import logging
 from typing import List, Optional
 
+from twisted.internet.defer import inlineCallbacks, returnValue
+
 from peek_plugin_diagram._private.storage.Display import DispColor, DispLayer, DispLevel, \
     DispLineStyle, DispTextStyle
 from peek_plugin_diagram._private.storage.ModelSet import getOrCreateModelSet, \
@@ -12,8 +14,6 @@ from peek_plugin_diagram.tuples.lookups.ImportDispLineStyleTuple import \
     ImportDispLineStyleTuple
 from peek_plugin_diagram.tuples.lookups.ImportDispTextStyleTuple import \
     ImportDispTextStyleTuple
-from twisted.internet.defer import inlineCallbacks, returnValue
-
 from vortex.DeferUtil import deferToThreadWrapWithLogger
 from vortex.Tuple import TUPLE_TYPES_BY_NAME
 
@@ -38,19 +38,20 @@ class LookupImportController:
     @inlineCallbacks
     def importLookups(self, modelSetName: str, coordSetName: Optional[str],
                       lookupTupleType: str, lookupTuples: List,
-                        deleteOthers:bool, updateExisting:bool):
+                      deleteOthers: bool, updateExisting: bool):
 
         yield self._importInThread(modelSetName, coordSetName,
                                    lookupTupleType, lookupTuples,
-                        deleteOthers)
+                                   deleteOthers, updateExisting)
 
         logger.debug("TODO, Notify the observable")
 
         returnValue(True)
 
     @deferToThreadWrapWithLogger(logger)
-    def _importInThread(self, modelSetName:str, coordSetName:str, tupleType:str, tuples,
-                        deleteOthers:bool, updateExisting:bool):
+    def _importInThread(self, modelSetName: str, coordSetName: str, tupleType: str,
+                        tuples,
+                        deleteOthers: bool, updateExisting: bool):
         LookupType = ORM_TUPLE_MAP[tupleType]
 
         itemsByImportHash = {}

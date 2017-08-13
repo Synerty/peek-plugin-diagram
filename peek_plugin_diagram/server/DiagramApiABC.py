@@ -31,7 +31,8 @@ class DiagramApiABC(metaclass=ABCMeta):
     @abstractmethod
     def importLookups(self, modelSetName: str, coordSetName: str,
                       lookupTupleType: str, lookupTuples: List,
-                      deleteOthers: bool = True, updateExisting: bool = True) -> Deferred:
+                      deleteOthers: bool = True,
+                      updateExisting: bool = True) -> Deferred:
         """ Import Lookups
 
         Add or replace diplay lookups in a model

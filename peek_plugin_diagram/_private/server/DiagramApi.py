@@ -36,9 +36,11 @@ class DiagramApi(DiagramApiABC):
 
     def importLookups(self, modelSetName: str, coordSetName: str,
                       lookupTupleType: str, lookupTuples: List,
-                      deleteOthers: bool = True, updateExisting: bool = True) -> Deferred:
+                      deleteOthers: bool = True,
+                      updateExisting: bool = True) -> Deferred:
         return self._lookupImportController.importLookups(
-            modelSetName, coordSetName, lookupTupleType, lookupTuples, deleteOthers
+            modelSetName, coordSetName, lookupTupleType, lookupTuples,
+            deleteOthers, updateExisting
         )
 
     def getLookups(self, modelSetName: str, coordSetName: str,
