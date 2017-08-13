@@ -27,12 +27,12 @@ def upgrade():
 
     op.alter_column('DispPolygon', 'geomJson',
                existing_type=sa.VARCHAR(length=200000),
-               nullable=True,
+               nullable=False,
                schema='pl_diagram')
 
     op.alter_column('DispPolyline', 'geomJson',
                existing_type=sa.VARCHAR(length=200000),
-               nullable=True,
+               nullable=False,
                schema='pl_diagram')
 
 

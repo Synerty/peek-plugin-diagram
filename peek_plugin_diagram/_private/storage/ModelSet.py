@@ -50,6 +50,9 @@ class ModelCoordSet(Tuple, DeclarativeBase):
     __tablename__ = 'ModelCoordSet'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
+    # Ensure gridSizes is serialised when it's sent to the client
+    __fieldNames__ = ["gridSizes"]
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
     initialPanX = Column(Float, nullable=False, server_default="0")
@@ -66,6 +69,15 @@ class ModelCoordSet(Tuple, DeclarativeBase):
                         nullable=False)
     modelSet = relationship(ModelSet)
 
+    # Grid size settings
+    gridSizes = relationship('ModelCoordSetGridSize', lazy="subquery")
+    smallestTextSize = Column(Float, nullable=False, server_default="6.0")
+    smallestShapeSize = Column(Float, nullable=False, server_default="2.0")
+
+    minZoom = Column(Float, nullable=False, server_default="0.01")
+    maxZoom = Column(Float, nullable=False, server_default="10.0")
+
+    # Nodes and connections
     nodeCoords = relationship('DispGroupPointerNode')
     connCoords = relationship('DispPolylineConn')
 
@@ -76,6 +88,49 @@ class ModelCoordSet(Tuple, DeclarativeBase):
 
         Index("idxCoordModelSetId", modelSetId, unique=False),
     )
+
+
+@addTupleType
+class ModelCoordSetGridSize(Tuple, DeclarativeBase):
+    """ Coord Set Grid Size Settings
+
+    To match a Z_GRID the display item must be min <= ON < max
+    The equal to is on the min side, not the max side
+
+    """
+    __tablename__ = 'ModelCoordSetGridSize'
+    __tupleType__ = diagramTuplePrefix + __tablename__
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    key = Column(Integer, nullable=False)
+    min = Column(Float, nullable=False)
+    max = Column(Float, nullable=False)
+    xGrid = Column(Integer, nullable=False)
+    yGrid = Column(Integer, nullable=False)
+
+    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
+                        nullable=False)
+    coordSet = relationship(ModelCoordSet)
+
+    __table_args__ = (
+        Index("idx_CoordSetGridSize_key", coordSetId, key, unique=True),
+    )
+
+    DEFAULT = [
+        dict(min=0.0, max=0.04, key=0, xGrid=30000, yGrid=30000),
+        dict(min=0.04, max=0.1, key=1, xGrid=10000, yGrid=10000),
+        dict(min=0.1, max=0.5, key=2, xGrid=2000, yGrid=2000),
+        dict(min=0.5, max=1000.0, key=3, xGrid=1000, yGrid=1000),
+    ]
+
+    def makeGridKey(self, x, y):
+        """ Make Grid Key
+
+            coordSetId = ModelCoordSet.id
+            gridSize = GridSize (above)
+            x, y = Grid coordinates, top left
+        """
+        return '%s|%s.%sx%s' % (self.coordSetId, self.key, x, y)
 
 
 @addTupleType
@@ -237,8 +292,16 @@ def getOrCreateCoordSet(session, modelSetName, coordSetName):
            .filter(ModelCoordSet.name == coordSetName))
 
     if not qry.count():
-        session.add(ModelCoordSet(modelSetId=modelSet.id,
-                                  name=coordSetName))
+        coordSet = ModelCoordSet(
+            modelSetId=modelSet.id,
+            name=coordSetName)
+        session.add(coordSet)
+
+        for gridSize in ModelCoordSetGridSize.DEFAULT:
+            newGrid = ModelCoordSetGridSize(**gridSize)
+            newGrid.coordSet = coordSet
+            session.add(newGrid)
+
         session.commit()
 
     return qry.one()

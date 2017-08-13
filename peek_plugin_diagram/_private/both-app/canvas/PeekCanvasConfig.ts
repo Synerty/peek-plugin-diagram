@@ -118,5 +118,8 @@ export class PeekCanvasConfig {
     updateCoordSet(newCoordSet: ModelCoordSet) {
         this.controller.coordSet = newCoordSet;
         this.controller.coordSetChange.next(newCoordSet);
+
+        this.viewPort.minZoom = newCoordSet.minZoom;
+        this.viewPort.maxZoom = newCoordSet.maxZoom;
     }
 }

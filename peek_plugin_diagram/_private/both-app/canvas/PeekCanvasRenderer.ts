@@ -4,7 +4,6 @@ import {PeekDispRenderFactory} from "./PeekDispRenderFactory";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PanI} from "./PeekInterfaces";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {gridSizeForZoom} from "../cache/GridKeyUtil";
 import {Subject} from "rxjs/Subject";
 
 export class PeekCanvasPan implements PanI {
@@ -199,7 +198,7 @@ export class PeekCanvasRenderer {
 
         let unscale = 1.0 / zoom;
 
-        let gridSize = gridSizeForZoom(zoom);
+        let gridSize = this.config.controller.coordSet.gridSizeForZoom(zoom);
 
         let minX = area.x;
         let minY = area.y;

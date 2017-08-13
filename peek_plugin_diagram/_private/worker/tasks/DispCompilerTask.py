@@ -12,14 +12,13 @@ from sqlalchemy.sql.selectable import Select
 from peek_plugin_base.storage.StorageUtil import makeCoreValuesSubqueryCondition, \
     makeOrmValuesSubqueryCondition
 from peek_plugin_base.worker import CeleryDbConn
-from peek_plugin_diagram._private.GridKeyUtil import GRID_SIZES, makeGridKey
 from peek_plugin_diagram._private.storage.Display import DispBase, DispText, \
     DispTextStyle, DispEllipse
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
     DispIndexerQueue, GridKeyCompilerQueue
 from peek_plugin_diagram._private.storage.LiveDbDispLink import \
     LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR
-from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
+from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
 from peek_plugin_livedb.worker.WorkerApi import WorkerApi
@@ -29,9 +28,6 @@ logger = logging.getLogger(__name__)
 
 CoordSetIdGridKeyTuple = namedtuple("CoordSetIdGridKeyTuple", ["coordSetId", "gridKey"])
 DispData = namedtuple('DispData', ['json', 'levelOrder', 'layerOrder'])
-
-SMALLEST_SHAPE_SIZE = 2.0
-SMALLEST_TEXT_SIZE = 6.0  # No one will be reading fonts this small
 
 
 @DeferrableTask
@@ -49,10 +45,13 @@ def compileDisps(self, queueIds, dispIds):
     conn = engine.connect()
     try:
 
+        coordSets = (ormSession.query(ModelCoordSet)
+                     .options(subqueryload(ModelCoordSet.modelSet),
+                              subqueryload(ModelCoordSet.gridSizes))
+                     .all())
+
         # Get Model Set Name Map
-        modelSetNameByCoordId = {o[0]: o[1] for o in
-                                 ormSession.query(ModelCoordSet.id,
-                                                  ModelSet.name).all()}
+        coordSetById = {o.id: o for o in coordSets}
 
         # Get Model Set Name Map
         textStyleById = {ts.id: ts for ts in ormSession.query(DispTextStyle).all()}
@@ -62,7 +61,8 @@ def compileDisps(self, queueIds, dispIds):
         dispsQry = (ormSession.query(DispBase)
             .options(subqueryload(DispBase.liveDbLinks),
                      subqueryload(DispBase.level))
-            .filter(makeOrmValuesSubqueryCondition(ormSession, DispBase.id, dispIds))
+            .filter(
+            makeOrmValuesSubqueryCondition(ormSession, DispBase.id, dispIds))
         )
 
         # print dispsQry
@@ -71,7 +71,7 @@ def compileDisps(self, queueIds, dispIds):
         liveDbKeysByModelSetName = defaultdict(list)
         for disp in dispsQry:
             # Add a reference to the model set name for convininece
-            disp.modelSetName = modelSetNameByCoordId[disp.coordSetId]
+            disp.modelSetName = coordSetById[disp.coordSetId].modelSet.name
             liveDbKeysByModelSetName[disp.modelSetName].extend(
                 [dl.liveDbKey for dl in disp.liveDbLinks]
             )
@@ -106,7 +106,9 @@ def compileDisps(self, queueIds, dispIds):
             jsonDict["g"] = json.loads(disp.geomJson)
             disp.dispJson = json.dumps(jsonDict)
 
-            for gridKey in makeGridKeys(disp, textStyleById):
+            coordSet = coordSetById[disp.coordSetId]
+
+            for gridKey in makeGridKeys(coordSet, disp, textStyleById):
                 gridCompiledQueueItems.add(
                     CoordSetIdGridKeyTuple(coordSetId=disp.coordSetId,
                                            gridKey=gridKey)
@@ -270,7 +272,8 @@ def _applyTextFormat(disp, dispLink, liveDbItem, value):
                     disp.id, disp.textFormat, value, message)
 
 
-def makeGridKeys(disp, textStyleById: Dict[int, DispTextStyle]):
+def makeGridKeys(coordSet: ModelCoordSet,
+                 disp, textStyleById: Dict[int, DispTextStyle]):
     if not hasattr(disp, "geomJson"):
         return []
 
@@ -280,14 +283,14 @@ def makeGridKeys(disp, textStyleById: Dict[int, DispTextStyle]):
     points = json.loads(disp.geomJson)
 
     gridKeys = []
-    for gridSize in list(GRID_SIZES.values()):
+    for gridSize in coordSet.gridSizes:
         # CHECK Declutter
         if 0.0 > (min(gridSize.max, (disp.level.maxZoom - 0.00001))
                       - max(gridSize.min, disp.level.minZoom)):
             continue
 
         if (isinstance(disp, DispText)
-            and _isTextTooSmall(disp, gridSize, textStyleById)):
+            and _isTextTooSmall(coordSet, disp, gridSize, textStyleById)):
             continue
 
         # If this is just a point shape/geom, then add it and continue
@@ -303,10 +306,8 @@ def makeGridKeys(disp, textStyleById: Dict[int, DispTextStyle]):
 
             # Texts on the boundaries of grids could be a problem
             # They will seem them if the pan over just a little.
-            gridKeys.append(makeGridKey(disp.coordSetId,
-                                        gridSize,
-                                        int(point['x'] / gridSize.xGrid),
-                                        int(point['y'] / gridSize.yGrid)))
+            gridKeys.append(gridSize.makeGridKey(int(point['x'] / gridSize.xGrid),
+                                                 int(point['y'] / gridSize.yGrid)))
             continue
 
         else:
@@ -321,7 +322,7 @@ def makeGridKeys(disp, textStyleById: Dict[int, DispTextStyle]):
         # If the size is too small to see at the max zoom, then skip it
         size = math.hypot(maxx - minx, maxy - miny)
         largestSize = size * gridSize.max
-        if largestSize < SMALLEST_SHAPE_SIZE:
+        if largestSize < coordSet.smallestShapeSize:
             continue
 
         # Round the grid X min/max
@@ -335,7 +336,7 @@ def makeGridKeys(disp, textStyleById: Dict[int, DispTextStyle]):
         # Iterate through and create the grids.
         for gridX in range(minGridX, maxGridX):
             for gridY in range(minGridY, maxGridY):
-                gridKeys.append(makeGridKey(disp.coordSetId, gridSize, gridX, gridY))
+                gridKeys.append(gridSize.makeGridKey(gridX, gridY))
 
     return gridKeys
 
@@ -344,7 +345,7 @@ def _pointToPixel(point: float) -> float:
     return point * 96 / 72
 
 
-def _isTextTooSmall(disp, gridSize,
+def _isTextTooSmall(coordSet: ModelCoordSet, disp, gridSize,
                     textStyleById: Dict[int, DispTextStyle]) -> bool:
     """ Is Text Too Small
 
@@ -367,7 +368,7 @@ def _isTextTooSmall(disp, gridSize,
     else:
         largestSize = lineHeight
 
-    return largestSize < SMALLEST_TEXT_SIZE
+    return largestSize < coordSet.smallestTextSize
 
 
 def _calcEllipseBounds(disp, point):

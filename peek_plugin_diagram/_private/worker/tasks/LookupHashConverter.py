@@ -154,10 +154,17 @@ class LookupHashConverter:
         newLevel = DispLevel()
         newLevel.coordSetId = self._coordSetId
         newLevel.name = "Peek Created %s" % importHash
-        newLevel.order = importHash if defaultOrder is None else defaultOrder
         newLevel.importHash = importHash
         newLevel.minZoom = 0
         newLevel.maxZoom = 10000
+
+        if defaultOrder is not None:
+            newLevel.order = defaultOrder
+        else:
+            try:
+                newLevel.order  = int(importHash)
+            except ValueError:
+                newLevel.order = 0
 
         self._ormSession.add(newLevel)
         self._ormSession.commit()
@@ -173,8 +180,15 @@ class LookupHashConverter:
         newLayer = DispLayer()
         newLayer.modelSetId = self._modelSetId
         newLayer.name = "Peek Created %s" % importHash
-        newLayer.order = importHash if defaultOrder is None else defaultOrder
         newLayer.importHash = importHash
+
+        if defaultOrder is not None:
+            newLayer.order = defaultOrder
+        else:
+            try:
+                newLayer.order  = int(importHash)
+            except ValueError:
+                newLayer.order = 0
 
         self._ormSession.add(newLayer)
         self._ormSession.commit()

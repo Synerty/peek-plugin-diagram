@@ -3,7 +3,6 @@ import {GridObservable} from "../cache/GridObservable";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {LinkedGrid} from "../cache/LinkedGrid";
 import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil";
-import {gridKeysForArea} from "../cache/GridKeyUtil";
 import {LookupCache} from "../cache/LookupCache";
 import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
 import {DispLevel} from "../tuples/lookups/DispLevel";
@@ -25,31 +24,31 @@ function now(): any {
 
 export class PeekCanvasModel {
 
-    _coordSetId = null;
+    private _coordSetId = null;
 
     // Grid Buffer
-    _gridBuffer = {};
+    private _gridBuffer = {};
 
     // The grid keys  SET in the viewable area from the last check
-    _viewingGridKeysDict = {};
+    private _viewingGridKeysDict = {};
 
     // The grid keys STRING in the viewable area from the last check
-    _viewingGridKeysStr: string = "";
+    private _viewingGridKeysStr: string = "";
 
     // Objects to be drawn on the display
-    _visableDisps = [];
+    private _visableDisps = [];
 
     // The currently selected coords
-    _selection = [];
+    private _selection = [];
 
     // Does the model need an update?
-    needsUpdate = false;
+    private needsUpdate = false;
 
     // Does the display array need recompiling?
-    needsCompiling = false;
+    private needsCompiling = false;
 
     // Is the model currently updating
-    isUpdating = false;
+    private isUpdating = false;
 
     constructor(private config: PeekCanvasConfig,
                 private gridObservable: GridObservable,
@@ -144,7 +143,7 @@ export class PeekCanvasModel {
         let area = this.config.viewPort.window;
         let zoom = this.config.viewPort.zoom;
 
-        let viewingGridKeys = gridKeysForArea(this._coordSetId, area, zoom);
+        let viewingGridKeys = this.config.controller.coordSet.gridKeysForArea(area, zoom);
 
         // If there is no change, then do nothing
         // Should these be sorted?
