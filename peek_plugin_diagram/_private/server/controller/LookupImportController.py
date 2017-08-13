@@ -13,11 +13,13 @@ from peek_plugin_diagram.tuples.lookups.ImportDispLineStyleTuple import \
 from peek_plugin_diagram.tuples.lookups.ImportDispTextStyleTuple import \
     ImportDispTextStyleTuple
 from twisted.internet.defer import inlineCallbacks, returnValue
+
 from vortex.DeferUtil import deferToThreadWrapWithLogger
+from vortex.Tuple import TUPLE_TYPES_BY_NAME
 
 logger = logging.getLogger(__name__)
 
-IMPORT_TUPLE_MAP = {
+ORM_TUPLE_MAP = {
     ImportDispColorTuple.tupleType(): DispColor,
     ImportDispLayerTuple.tupleType(): DispLayer,
     ImportDispLevelTuple.tupleType(): DispLevel,
@@ -35,18 +37,21 @@ class LookupImportController:
 
     @inlineCallbacks
     def importLookups(self, modelSetName: str, coordSetName: Optional[str],
-                      lookupTupleType: str, lookupTuples: List):
+                      lookupTupleType: str, lookupTuples: List,
+                        deleteOthers:bool):
 
         yield self._importInThread(modelSetName, coordSetName,
-                                   lookupTupleType, lookupTuples)
+                                   lookupTupleType, lookupTuples,
+                        deleteOthers)
 
         logger.debug("TODO, Notify the observable")
 
         returnValue(True)
 
     @deferToThreadWrapWithLogger(logger)
-    def _importInThread(self, modelSetName, coordSetName, tupleType, tuples):
-        LookupType = IMPORT_TUPLE_MAP[tupleType]
+    def _importInThread(self, modelSetName:str, coordSetName:str, tupleType:str, tuples,
+                        deleteOthers):
+        LookupType = ORM_TUPLE_MAP[tupleType]
 
         itemsByImportHash = {}
 
@@ -107,9 +112,10 @@ class LookupImportController:
                     ormSession.add(newTuple)
                     addCount += 1
 
-            for lookup in list(itemsByImportHash.values()):
-                ormSession.delete(lookup)
-                deleteCount += 1
+            if deleteOthers:
+                for lookup in list(itemsByImportHash.values()):
+                    ormSession.delete(lookup)
+                    deleteCount += 1
 
             try:
                 ormSession.commit()
@@ -120,6 +126,55 @@ class LookupImportController:
 
             logger.info("Updates for %s received, Added %s, Updated %s, Deleted %s",
                         tupleType, addCount, updateCount, deleteCount)
+
+        except Exception as e:
+            logger.exception(e)
+
+        finally:
+            ormSession.close()
+
+    @deferToThreadWrapWithLogger(logger)
+    def getLookups(self, modelSetName: str, coordSetName: Optional[str],
+                   tupleType: str):
+
+        LookupType = ORM_TUPLE_MAP[tupleType]
+
+        ormSession = self._dbSessionCreator()
+        try:
+
+            modelSet = getOrCreateModelSet(ormSession, modelSetName)
+
+            if coordSetName:
+                coordSet = getOrCreateCoordSet(ormSession, modelSetName, coordSetName)
+
+                all = (ormSession.query(LookupType)
+                       .filter(LookupType.coordSetId == coordSet.id)
+                       .all())
+
+            else:
+                all = (ormSession.query(LookupType)
+                       .filter(LookupType.modelSetId == modelSet.id)
+                       .all())
+
+            importTuples = []
+            ImportTuple = TUPLE_TYPES_BY_NAME[tupleType]
+
+            for ormTuple in all:
+                newTuple = ImportTuple()
+
+                for fieldName in newTuple.tupleFieldNames():
+                    if fieldName == 'modelSetName':
+                        newTuple.modelSetName = modelSetName
+
+                    elif fieldName == 'coordSetName':
+                        newTuple.coordSetName = coordSetName
+
+                    else:
+                        setattr(newTuple, fieldName, getattr(ormTuple, fieldName))
+
+                importTuples.append(newTuple)
+
+            return importTuples
 
         except Exception as e:
             logger.exception(e)

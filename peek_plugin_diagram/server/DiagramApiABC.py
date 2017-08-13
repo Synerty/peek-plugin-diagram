@@ -23,7 +23,8 @@ class DiagramApiABC(metaclass=ABCMeta):
 
     @abstractmethod
     def importLookups(self, modelSetName: str, coordSetName: str,
-                      lookupTupleType: str, lookupTuples: List) -> Deferred:
+                      lookupTupleType: str, lookupTuples: List,
+                      deleteOthers: bool = True) -> Deferred:
         """ Import Lookups
 
         Add or replace diplay lookups in a model
@@ -32,7 +33,24 @@ class DiagramApiABC(metaclass=ABCMeta):
         :param coordSetName:  The name of the coord set to import the lookups into
         :param lookupTupleType:  The type of lookups being imported
         :param lookupTuples: An array of the lookups
+        :param deleteOthers: Delete existing lookups that are not present in lookupTuples
 
         :return: A deferred that fires when the lookups are imported
+
+        """
+
+    @abstractmethod
+    def getLookups(self, modelSetName: str, coordSetName: str,
+                   lookupTupleType: str) -> Deferred:
+        """ Get Lookups
+
+        Use this method to retrieve lookups that have been previously imported.
+
+        :param modelSetName:  The name of the model set for the lookups
+        :param coordSetName:  The name of the coord set for the lookups
+        :param lookupTupleType:  The type of lookups to return
+
+        :return: A deferred that fires with a list of lookup tuples. These tuples
+                are the same type used during the import.
 
         """
