@@ -26,12 +26,12 @@ class ImportDispTextTuple(Tuple):
     H_ALLIGN_LEFT = -1
     H_ALLIGN_CENTER = 0
     H_ALLIGN_RIGHT = 1
-    horizontalAlign: int = TupleField()
+    horizontalAlign: int = TupleField(H_ALLIGN_CENTER)
 
     V_ALLIGN_TOP = -1
     V_ALLIGN_CENTER = 0
     V_ALLIGN_BOTTOM = 1
-    verticalAlign: int = TupleField()
+    verticalAlign: int = TupleField(V_ALLIGN_CENTER)
 
     geom: WKBElement = TupleField()
 

@@ -53,6 +53,7 @@ class DispLayer(Tuple, DeclarativeBase):
 
     __table_args__ = (
         Index("idx_DispLayer_modelSetId", modelSetId, unique=False),
+        Index("idx_DispLayer_importHash", modelSetId, importHash, unique=True),
     )
 
 
@@ -76,6 +77,7 @@ class DispLevel(Tuple, DeclarativeBase):
 
     __table_args__ = (
         Index("idx_DispLevel_coordSetId", coordSetId, unique=False),
+        Index("idx_DispLevel_importHash", coordSetId, importHash, unique=True),
     )
 
 
@@ -101,7 +103,7 @@ class DispTextStyle(Tuple, DeclarativeBase):
 
     __table_args__ = (
         Index("idx_DispTextStyle_modelSetId", modelSetId, unique=False),
-        Index("idx_DispTextStyle_importHash", importHash, unique=True),
+        Index("idx_DispTextStyle_importHash", modelSetId, importHash, unique=True),
     )
 
 
@@ -129,7 +131,7 @@ class DispLineStyle(Tuple, DeclarativeBase):
 
     __table_args__ = (
         Index("idx_DispLineStyle_modelSetId", modelSetId, unique=False),
-        Index("idx_DispLineStyle_importHash", importHash, unique=True),
+        Index("idx_DispLineStyle_importHash", modelSetId, importHash, unique=True),
     )
 
 
@@ -153,7 +155,7 @@ class DispColor(Tuple, DeclarativeBase):
 
     __table_args__ = (
         Index("idx_DispColor_modelSetId", modelSetId, unique=False),
-        Index("idx_DispColor_importHash", importHash, unique=True),
+        Index("idx_DispColor_importHash", modelSetId, importHash, unique=True),
     )
 
 
@@ -191,7 +193,8 @@ class DispBase(Tuple, DeclarativeBase):
     levelId = Column(Integer, ForeignKey('DispLevel.id'), doc='le')
     level = relationship(DispLevel)
 
-    dispJson = Column(String(2000), doc=JSON_EXCLUDE)
+    # MAX_STR
+    dispJson = Column(String(200000), doc=JSON_EXCLUDE)
 
     importUpdateDate = Column(DateTime, doc=JSON_EXCLUDE)
     importHash = Column(String(100), doc=JSON_EXCLUDE)
@@ -263,7 +266,7 @@ class DispPolygon(DispBase):
     cornerRadius = Column(Float, doc='cr', nullable=False, server_default='0')
     lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
 
-    geomJson = Column(String(2000), nullable=False, doc='g')
+    geomJson = Column(String(200000), nullable=False, doc='g')
 
     fillColorId = Column(Integer, ForeignKey('DispColor.id'), doc='fc')
     fillColor = relationship(DispColor, foreign_keys=fillColorId)
@@ -303,7 +306,7 @@ class DispPolyline(DispBase):
 
     lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
 
-    geomJson = Column(String(2000), nullable=False, doc='g')
+    geomJson = Column(String(200000), nullable=False, doc='g')
 
     lineColorId = Column(Integer, ForeignKey('DispColor.id'), doc='lc')
     lineColor = relationship(DispColor, foreign_keys=lineColorId)

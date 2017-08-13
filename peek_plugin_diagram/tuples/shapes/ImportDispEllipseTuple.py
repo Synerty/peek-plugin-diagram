@@ -30,8 +30,10 @@ class ImportDispEllipseTuple(Tuple):
     xRadius: float = TupleField()
     yRadius: float = TupleField()
 
-    startAngle: int = TupleField()
-    endAngle: int = TupleField()
+    # NOTE, start degree is y=0, x= positive axis (middle right)
+    # PEEK draws clockwise from there,
+    startAngle: int = TupleField(0)
+    endAngle: int = TupleField(360)
 
     #: The unique hash of this display object
     importHash: str = TupleField()
