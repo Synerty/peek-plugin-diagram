@@ -31,7 +31,7 @@ class DiagramApiABC(metaclass=ABCMeta):
     @abstractmethod
     def importLookups(self, modelSetName: str, coordSetName: str,
                       lookupTupleType: str, lookupTuples: List,
-                      deleteOthers: bool = True) -> Deferred:
+                      deleteOthers: bool = True, updateExisting: bool = True) -> Deferred:
         """ Import Lookups
 
         Add or replace diplay lookups in a model
@@ -41,6 +41,8 @@ class DiagramApiABC(metaclass=ABCMeta):
         :param lookupTupleType:  The type of lookups being imported
         :param lookupTuples: An array of the lookups
         :param deleteOthers: Delete existing lookups that are not present in lookupTuples
+        :param updateExisting: If a lookup already exists, update it.
+                This is matched by the "importHash"
 
         :return: A deferred that fires when the lookups are imported
 

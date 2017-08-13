@@ -1,6 +1,8 @@
 import logging
 from typing import List
 
+from twisted.internet.defer import Deferred
+
 from peek_plugin_diagram._private.server.controller.DispImportController import \
     DispImportController
 from peek_plugin_diagram._private.server.controller.LookupImportController import \
@@ -8,8 +10,6 @@ from peek_plugin_diagram._private.server.controller.LookupImportController impor
 from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
 from peek_plugin_diagram.server.DiagramApiABC import DiagramApiABC
-from twisted.internet import defer
-from twisted.internet.defer import Deferred
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,6 @@ class DiagramApi(DiagramApiABC):
                     coordSetName: str,
                     importGroupHash: str,
                     dispsVortexMsg: bytes) -> Deferred:
-
         return self._dispImportController.importDisps(
             modelSetName, coordSetName,
             importGroupHash, dispsVortexMsg
@@ -37,7 +36,7 @@ class DiagramApi(DiagramApiABC):
 
     def importLookups(self, modelSetName: str, coordSetName: str,
                       lookupTupleType: str, lookupTuples: List,
-                      deleteOthers: bool = True) -> Deferred:
+                      deleteOthers: bool = True, updateExisting: bool = True) -> Deferred:
         return self._lookupImportController.importLookups(
             modelSetName, coordSetName, lookupTupleType, lookupTuples, deleteOthers
         )

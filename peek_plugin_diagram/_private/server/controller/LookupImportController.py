@@ -38,7 +38,7 @@ class LookupImportController:
     @inlineCallbacks
     def importLookups(self, modelSetName: str, coordSetName: Optional[str],
                       lookupTupleType: str, lookupTuples: List,
-                        deleteOthers:bool):
+                        deleteOthers:bool, updateExisting:bool):
 
         yield self._importInThread(modelSetName, coordSetName,
                                    lookupTupleType, lookupTuples,
@@ -50,7 +50,7 @@ class LookupImportController:
 
     @deferToThreadWrapWithLogger(logger)
     def _importInThread(self, modelSetName:str, coordSetName:str, tupleType:str, tuples,
-                        deleteOthers):
+                        deleteOthers:bool, updateExisting:bool):
         LookupType = ORM_TUPLE_MAP[tupleType]
 
         itemsByImportHash = {}
@@ -95,11 +95,12 @@ class LookupImportController:
                 if importHash in itemsByImportHash:
                     existing = itemsByImportHash.pop(importHash)
 
-                    for fieldName in lookup.tupleFieldNames():
-                        setattr(existing, fieldName, getattr(lookup, fieldName))
+                    if updateExisting:
+                        for fieldName in lookup.tupleFieldNames():
+                            setattr(existing, fieldName, getattr(lookup, fieldName))
 
-                    updateFks(existing)
-                    updateCount += 1
+                        updateFks(existing)
+                        updateCount += 1
 
                 # If it's a new item, create it
                 else:
