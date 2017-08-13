@@ -19,15 +19,10 @@ class DispImportController:
 
     @inlineCallbacks
     def importDisps(self, modelSetName: str, coordSetName: str,
-                    importGroupHash: str, disps: List):
-        for disp in disps:
-            # Celery 3.0 uses pickle, and it has trouble with WKBElement
-            # This is something the import worker did anyway
-            if hasattr(disp, "geom"):
-                disp.geom = json.dumps(convertFromWkbElement(disp.geom))
+                    importGroupHash: str, dispsVortexMsg: bytes):
 
         liveDbItemsToImport = yield importDispsTask.delay(
-            modelSetName, coordSetName, importGroupHash, disps
+            modelSetName, coordSetName, importGroupHash, dispsVortexMsg
         )
 
         if liveDbItemsToImport:

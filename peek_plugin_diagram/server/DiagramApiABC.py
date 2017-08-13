@@ -7,7 +7,7 @@ from twisted.internet.defer import Deferred
 class DiagramApiABC(metaclass=ABCMeta):
     @abstractmethod
     def importDisps(self, modelSetName: str, coordSetName: str, importGroupHash: str,
-                    disps: List) -> Deferred:
+                    dispsVortexMsg: bytes) -> Deferred:
         """ Import Disps
 
         Add or replace display items in a model
@@ -15,7 +15,14 @@ class DiagramApiABC(metaclass=ABCMeta):
         :param modelSetName:  The name of the model set to import the disps into
         :param coordSetName:  The name of the cooridinate set to import the disps into
         :param importGroupHash:  The unique hash of the input group to import into
-        :param disps: An array of disps to import
+        :param dispsVortexMsg: An array of disps to import, wrapped in a serialised
+                    payload.
+
+
+        Wrap the disps list with ::
+
+                dispsVortexMsg = Payload(tuples=disps).toVortexMsg(compressionLevel=0)
+
 
         :return: A deferred that fires when the disps are loaded and queued for compile
 

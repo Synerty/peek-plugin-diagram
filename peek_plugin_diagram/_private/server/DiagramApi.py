@@ -28,17 +28,11 @@ class DiagramApi(DiagramApiABC):
     def importDisps(self, modelSetName: str,
                     coordSetName: str,
                     importGroupHash: str,
-                    disps: List) -> Deferred:
-
-        if disps is None:
-            raise Exception("Disps must be an interable")
-
-        if not disps:
-            return defer.succeed(True)
+                    dispsVortexMsg: bytes) -> Deferred:
 
         return self._dispImportController.importDisps(
             modelSetName, coordSetName,
-            importGroupHash, disps
+            importGroupHash, dispsVortexMsg
         )
 
     def importLookups(self, modelSetName: str, coordSetName: str,

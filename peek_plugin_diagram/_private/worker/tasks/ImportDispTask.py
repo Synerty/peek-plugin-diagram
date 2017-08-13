@@ -26,6 +26,7 @@ from peek_plugin_diagram.tuples.shapes.ImportDispTextTuple import ImportDispText
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
 from sqlalchemy import select
 from txcelery.defer import DeferrableTask
+from vortex.Payload import Payload
 from vortex.SerialiseUtil import convertFromWkbElement
 
 logger = logging.getLogger(__name__)
@@ -53,13 +54,15 @@ IMPORT_FIELD_NAME_MAP = {
 @DeferrableTask
 @celeryApp.task(bind=True)
 def importDispsTask(self, modelSetName: str, coordSetName: str,
-                    importGroupHash: str, disps: List)-> List[ImportLiveDbItemTuple]:
+                    importGroupHash: str, dispsVortexMsg: bytes)-> List[ImportLiveDbItemTuple]:
     """ Import Disp Task
 
     :returns None
 
     """
     try:
+        disps = Payload().fromVortexMsg(dispsVortexMsg).tuples
+
         coordSet = _loadCoordSet(modelSetName, coordSetName)
 
         dispIdsToCompile, dispLinkImportTuples, ormDisps = _importDisps(
@@ -122,6 +125,9 @@ def _importDisps(coordSet: ModelCoordSet, importGroupHash: str, importDisps):
                                               coordSetId=coordSet.id)
 
         for importDisp in importDisps:
+            if hasattr(importDisp, "geom"):
+                importDisp.geom = json.dumps(convertFromWkbElement(importDisp.geom))
+
             ormDisp = _convertImportTuple(importDisp)
             ormDisps.append(ormDisp)
 
