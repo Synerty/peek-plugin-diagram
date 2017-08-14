@@ -23,8 +23,12 @@ export class DispEllipse extends DispBase {
         return disp.w;
     }
 
-    static centerPoint(disp): PointI {
+    static centerPointX(disp): number {
         return disp.g[0];
+    }
+
+    static centerPointY(disp): number {
+        return disp.g[1];
     }
 
     static xRadius(disp): number {

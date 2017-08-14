@@ -3,6 +3,8 @@ import logging
 from datetime import datetime
 from typing import List
 
+from geoalchemy2.shape import to_shape
+
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import DispCompilerQueueController
 from peek_plugin_diagram._private.storage.Display import DispBase, DispAction, \
@@ -125,8 +127,7 @@ def _importDisps(coordSet: ModelCoordSet, importGroupHash: str, importDisps):
                                               coordSetId=coordSet.id)
 
         for importDisp in importDisps:
-            if hasattr(importDisp, "geom"):
-                importDisp.geom = json.dumps(convertFromWkbElement(importDisp.geom))
+            _convertGeom(importDisp)
 
             ormDisp = _convertImportTuple(importDisp)
             ormDisps.append(ormDisp)
@@ -156,6 +157,26 @@ def _importDisps(coordSet: ModelCoordSet, importGroupHash: str, importDisps):
         ormSession.close()
 
     return dispIdsToCompile, importDispLinks, ormDisps
+
+
+def _convertGeom(importDisp):
+    if not hasattr(importDisp, "geom"):
+        return
+
+    coordArray = []
+    shapelyShape = to_shape(importDisp.geom)
+
+    from shapely.geometry.polygon import Polygon
+    if isinstance(shapelyShape, Polygon):
+        coords = shapelyShape.exterior.coords
+    else:
+        coords = shapelyShape.coords
+
+    for i in coords:
+        coordArray.append(i[0])
+        coordArray.append(i[1])
+
+    importDisp.geom = json.dumps(coordArray)
 
 
 def _convertImportTuple(importDisp):
@@ -216,9 +237,9 @@ def _bulkLoadDispsTask(coordSet, importGroupHash, disps):
             for disp in disps:
                 if not hasattr(disp, 'geomJson'):
                     continue
-                point = json.loads(disp.geomJson)[0]
-                coordSet.initialPanX = point['x']
-                coordSet.initialPanY = point['y']
+                coords = json.loads(disp.geomJson)
+                coordSet.initialPanX = coords[0]
+                coordSet.initialPanY = coords[1]
                 coordSet.initialZoom = 0.05
                 ormSession.merge(coordSet)
                 break

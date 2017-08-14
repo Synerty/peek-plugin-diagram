@@ -23,8 +23,6 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
         // Give meaning to our short names
         let rotationRadian = DispText.rotation(disp) / 180.0 * Math.PI;
 
-        let point = DispText.centerPoint(disp); // get details of point
-
         let fontStyle = DispText.textStyle(disp);
         let fillColor = DispText.color(disp);
 
@@ -61,7 +59,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 
         // save state
         ctx.save();
-        ctx.translate(point.x, point.y);
+        ctx.translate(DispText.centerPointX(disp), DispText.centerPointY(disp));
         ctx.rotate(rotationRadian); // Degrees to radians
 
         ctx.textAlign = textAlign;

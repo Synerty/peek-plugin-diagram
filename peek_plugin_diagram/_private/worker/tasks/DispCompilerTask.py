@@ -18,7 +18,8 @@ from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
     DispIndexerQueue, GridKeyCompilerQueue
 from peek_plugin_diagram._private.storage.LiveDbDispLink import \
     LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR
-from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
+from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, \
+    ModelCoordSetGridSize
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
 from peek_plugin_livedb.worker.WorkerApi import WorkerApi
@@ -290,15 +291,14 @@ def makeGridKeys(coordSet: ModelCoordSet,
             continue
 
         if (isinstance(disp, DispText)
-            and _isTextTooSmall(coordSet, disp, gridSize, textStyleById)):
+            and _isTextTooSmall(disp, gridSize, textStyleById)):
             continue
 
         # If this is just a point shape/geom, then add it and continue
         if isinstance(disp, DispEllipse):
-            minx, miny, maxx, maxy = _calcEllipseBounds(disp, points[0])
+            minx, miny, maxx, maxy = _calcEllipseBounds(disp, points[0], points[1])
 
-        elif len(points) == 1:
-            point = points[0]
+        elif len(points) == 2:
 
             # This should be a text
             if not isinstance(disp, DispText):
@@ -306,23 +306,19 @@ def makeGridKeys(coordSet: ModelCoordSet,
 
             # Texts on the boundaries of grids could be a problem
             # They will seem them if the pan over just a little.
-            gridKeys.append(gridSize.makeGridKey(int(point['x'] / gridSize.xGrid),
-                                                 int(point['y'] / gridSize.yGrid)))
+            gridKeys.append(gridSize.makeGridKey(int(points[0] / gridSize.xGrid),
+                                                 int(points[1] / gridSize.yGrid)))
             continue
 
         else:
+            # Else, All other shapes
+            # Get the bounding box
             minx, miny, maxx, maxy = _calcBounds(points)
-
-        # Else, All other shapes
-
-
-
-        # Get the bounding box
 
         # If the size is too small to see at the max zoom, then skip it
         size = math.hypot(maxx - minx, maxy - miny)
         largestSize = size * gridSize.max
-        if largestSize < coordSet.smallestShapeSize:
+        if largestSize < gridSize.smallestShapeSize:
             continue
 
         # Round the grid X min/max
@@ -345,7 +341,7 @@ def _pointToPixel(point: float) -> float:
     return point * 96 / 72
 
 
-def _isTextTooSmall(coordSet: ModelCoordSet, disp, gridSize,
+def _isTextTooSmall(disp, gridSize:ModelCoordSetGridSize,
                     textStyleById: Dict[int, DispTextStyle]) -> bool:
     """ Is Text Too Small
 
@@ -368,18 +364,16 @@ def _isTextTooSmall(coordSet: ModelCoordSet, disp, gridSize,
     else:
         largestSize = lineHeight
 
-    return largestSize < coordSet.smallestTextSize
+    return largestSize < gridSize.smallestTextSize
 
 
-def _calcEllipseBounds(disp, point):
+def _calcEllipseBounds(disp, x, y):
     """ Calculate the bounds of an ellipse
 
     """
     # NOTE: To do this accurately we should look at the start and end angles.
     # in the interest simplicity we're not going to.
     # We'll potentially include SMALLEST_SHAPE_SIZE / 2 as well, no big deal.
-
-    x, y = point["x"], point["y"]
 
     minx = x - disp.xRadius
     maxx = x + disp.xRadius
@@ -390,24 +384,27 @@ def _calcEllipseBounds(disp, point):
     return minx, miny, maxx, maxy
 
 
-def _calcBounds(points: List[Dict[str, float]]):
+def _calcBounds(points: List[float]):
     minx = None
     maxx = None
     miny = None
     maxy = None
 
-    for point in points:
-        x, y = point["x"], point["y"]
-        if minx is None or x < minx:
-            minx = x
+    for index, val in enumerate(points):
+        isY = bool(index % 2)
 
-        if maxx is None or maxx < x:
-            maxx = x
+        if isY:
+            if miny is None or val < miny:
+                miny = val
 
-        if miny is None or y < miny:
-            miny = y
+            if maxy is None or maxy < val:
+                maxy = val
 
-        if maxy is None or maxy < y:
-            maxy = y
+        else:
+            if minx is None or val < minx:
+                minx = val
+
+            if maxx is None or maxx < val:
+                maxx = val
 
     return minx, miny, maxx, maxy

@@ -51,29 +51,31 @@ export class PeekCanvasBounds {
     static fromGeom(geom) {
         let self = new PeekCanvasBounds();
 
-        let firstPoint = geom[0]; // get details of point
+        let firstPointX = geom[0]; // get details of point
+        let firstPointY = geom[1]; // get details of point
 
-        let lx = firstPoint.x; // Low x
-        let ux = firstPoint.x; // Upper x
-        let ly = firstPoint.y; // Low y
-        let uy = firstPoint.y; // Upper y
+        let lx = firstPointX; // Low x
+        let ux = firstPointX; // Upper x
+        let ly = firstPointY; // Low y
+        let uy = firstPointY; // Upper y
 
 
-        for (let i = 1; i < geom.length; ++i) {
-            let point = geom[i];
+        for (let i = 2; i < geom.length; i += 2) {
+            let pointX = geom[i];
+            let pointY = geom[i + 1];
 
             // Work out our bounds
-            if (point.x < lx)
-                lx = point.x;
+            if (pointX < lx)
+                lx = pointX;
 
-            if (ux < point.x)
-                ux = point.x;
+            if (ux < pointX)
+                ux = pointX;
 
-            if (point.y < ly)
-                ly = point.y;
+            if (pointY < ly)
+                ly = pointY;
 
-            if (uy < point.y)
-                uy = point.y;
+            if (uy < pointY)
+                uy = pointY;
         }
 
         self.x = lx;

@@ -12,11 +12,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     }
 
 
-    private _drawLine(ctx, point1, point2, lineStyle, zoom) {
-        let x1 = point1.x;
-        let y1 = point1.y;
-        let x2 = point2.x;
-        let y2 = point2.y;
+    private _drawLine(ctx, x1, y1, x2, y2, lineStyle, zoom) {
 
         if (lineStyle.dashPattern == null) {
             ctx.lineTo(x2, y2);
@@ -56,19 +52,21 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
         let fillDirection = DispPolygon.fillDirection(disp);
         let fillPercentage = DispPolygon.fillPercent(disp);
-        
+
         let points = DispPolygon.geom(disp);
 
-        let firstPoint = points[0]; // get details of point
+        let firstPointX = points[0]; // get details of point
+        let firstPointY = points[1]; // get details of point
 
         // Fill the background first, if required
         if (lineStyle.backgroundFillDashSpace) {
             ctx.beginPath();
-            ctx.moveTo(firstPoint.x, firstPoint.y);
+            ctx.moveTo(firstPointX, firstPointY);
 
-            for (let i = 1; i < points.length; ++i) {
-                let point = points[i];
-                ctx.lineTo(point.x, point.y);
+            for (let i = 2; i < points.length; i += 2) {
+                let pointX = points[i];
+                let pointY = points[i + 1];
+                ctx.lineTo(pointX, pointY);
             }
 
             ctx.strokeStyle = this.config.renderer.backgroundColor;
@@ -77,15 +75,19 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         }
 
         ctx.beginPath();
-        ctx.moveTo(firstPoint.x, firstPoint.y);
+        ctx.moveTo(firstPointX, firstPointY);
 
-        let lastPoint = firstPoint;
-        for (let i = 1; i < points.length; ++i) {
-            let point = points[i];
+        let lastPointX = firstPointX;
+        let lastPointY = firstPointY;
+
+        for (let i = 2; i < points.length; i += 2) {
+            let pointX = points[i];
+            let pointY = points[i + 1];
 
             // Draw the segment
-            this. _drawLine(ctx, lastPoint, point, lineStyle, zoom);
-            lastPoint = point;
+            this._drawLine(ctx, lastPointX, lastPointY, pointX, pointY, lineStyle, zoom);
+            lastPointX = pointX;
+            lastPointY = pointY;
 
         }
 
@@ -113,9 +115,9 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     };
 
     private _drawSquarePercentFill(ctx, bounds,
-                           fillColor,
-                           fillDirection,
-                           fillPercentage) {
+                                   fillColor,
+                                   fillDirection,
+                                   fillPercentage) {
         let FILL_TOP_TO_BOTTOM = 0;
         let FILL_BOTTOM_TO_TOP = 1;
         let FILL_RIGHT_TO_LEFT = 2;
@@ -270,7 +272,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             let xVal = (y - intercept) / slope;
 
             if (((y - margin) < yVal && yVal < (y + margin)
-                || (x - margin) < xVal && xVal < (x + margin))
+                    || (x - margin) < xVal && xVal < (x + margin))
                 && (left <= x && x <= right && top <= y && y <= bottom))
                 return true;
 

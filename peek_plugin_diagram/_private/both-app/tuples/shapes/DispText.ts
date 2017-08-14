@@ -53,8 +53,12 @@ export class DispText extends DispBase {
         return disp.te;
     }
 
-    static centerPoint(disp): PointI {
+    static centerPointX(disp): number {
         return disp.g[0];
+    }
+
+    static centerPointY(disp): number {
+        return disp.g[1];
     }
 
 }

@@ -70,9 +70,9 @@ class ModelCoordSet(Tuple, DeclarativeBase):
     modelSet = relationship(ModelSet)
 
     # Grid size settings
-    gridSizes = relationship('ModelCoordSetGridSize', lazy="subquery")
-    smallestTextSize = Column(Float, nullable=False, server_default="6.0")
-    smallestShapeSize = Column(Float, nullable=False, server_default="2.0")
+    gridSizes = relationship('ModelCoordSetGridSize',
+                             lazy="subquery",
+                             order_by="ModelCoordSetGridSize.key")
 
     minZoom = Column(Float, nullable=False, server_default="0.01")
     maxZoom = Column(Float, nullable=False, server_default="10.0")
@@ -108,6 +108,9 @@ class ModelCoordSetGridSize(Tuple, DeclarativeBase):
     xGrid = Column(Integer, nullable=False)
     yGrid = Column(Integer, nullable=False)
 
+    smallestTextSize = Column(Float, nullable=False, server_default="6.0")
+    smallestShapeSize = Column(Float, nullable=False, server_default="2.0")
+
     coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
                         nullable=False)
     coordSet = relationship(ModelCoordSet)
@@ -117,10 +120,14 @@ class ModelCoordSetGridSize(Tuple, DeclarativeBase):
     )
 
     DEFAULT = [
-        dict(min=0.0, max=0.04, key=0, xGrid=30000, yGrid=30000),
-        dict(min=0.04, max=0.1, key=1, xGrid=10000, yGrid=10000),
-        dict(min=0.1, max=0.5, key=2, xGrid=2000, yGrid=2000),
-        dict(min=0.5, max=1000.0, key=3, xGrid=1000, yGrid=1000),
+        dict(min=0.0, max=0.04, key=0, xGrid=30000, yGrid=30000,
+             smallestShapeSize=50, smallestTextSize=20),
+        dict(min=0.04, max=0.1, key=1, xGrid=10000, yGrid=10000,
+             smallestShapeSize=50, smallestTextSize=20),
+        dict(min=0.1, max=0.5, key=2, xGrid=2000, yGrid=2000,
+             smallestShapeSize=50, smallestTextSize=20),
+        dict(min=0.5, max=1000.0, key=3, xGrid=1000, yGrid=1000,
+             smallestShapeSize=2, smallestTextSize=6),
     ]
 
     def makeGridKey(self, x, y):
@@ -242,7 +249,7 @@ class ModelConn(Tuple, DeclarativeBase):
                    nullable=False)
     dst = relationship(ModelNode, lazy='subquery', foreign_keys=dstId)
 
-    coords = relationship('DispPolylineConn', lazy='subquery')
+    coords = relationship('DispPolylineConn',lazy='subquery')
 
     __table_args__ = (
         Index("idxConnSrcDst", srcId, dstId, unique=True),

@@ -19,13 +19,14 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
             return;
 
         // Give more meaning to our short field names
-        let point = dispGroupPtr.g[0];
+        let pointX = dispGroupPtr.g[0];
+        let pointY = dispGroupPtr.g[1];
         let rotation = dispGroupPtr.r / 180.0 * Math.PI;
         let verticalScale = dispGroupPtr.vs;
         let horizontalScale = dispGroupPtr.hs;
 
         ctx.save();
-        ctx.translate(point.x, point.y);
+        ctx.translate(pointX, pointY);
         ctx.rotate(rotation);
         ctx.scale(verticalScale, horizontalScale);
 
