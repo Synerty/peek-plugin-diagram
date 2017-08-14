@@ -237,6 +237,9 @@ class DispText(DispBase):
     text = Column(String(1000), doc='te', nullable=False, server_default="new text label")
     textFormat = Column(String(1000), doc=JSON_EXCLUDE, nullable=True)
 
+    textHeight =Column(Float, doc='th', nullable=True)
+    textHStretch = Column(Float, doc='hs', nullable=False, server_default="1")
+
     geomJson = Column(String(2000), nullable=False, doc='g')
 
     colorId = Column(Integer, ForeignKey('DispColor.id'), doc='c')

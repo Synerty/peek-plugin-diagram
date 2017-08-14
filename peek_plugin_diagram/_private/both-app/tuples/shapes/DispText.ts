@@ -53,6 +53,14 @@ export class DispText extends DispBase {
         return disp.te;
     }
 
+    static height(disp): number | null {
+        return disp.th;
+    }
+
+    static horizontalStretch(disp): number {
+        return disp.hs;
+    }
+
     static centerPointX(disp): number {
         return disp.g[0];
     }

@@ -100,6 +100,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             ctx.stroke();
         }
 
+
         if (fillColor) {
             if (isPolygon && fillDirection != null && fillPercentage != null) {
                 this._drawSquarePercentFill(ctx,

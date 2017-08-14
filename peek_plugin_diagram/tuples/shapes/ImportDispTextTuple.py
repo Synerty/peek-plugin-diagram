@@ -35,6 +35,7 @@ class ImportDispTextTuple(Tuple):
 
     geom: WKBElement = TupleField()
 
+    #: The rotation of the text
     rotation: float = TupleField()
 
     #: The value of the text
@@ -42,6 +43,12 @@ class ImportDispTextTuple(Tuple):
 
     #: This field stores text with format strings that are used to create the text above.
     textFormat: Optional[str] = TupleField()
+
+    #: Text Height (Optional, defaults to height in TextStyle lookup)
+    textHeight: Optional[float] = TupleField()
+
+    #: Text Horizontal Stretch, The scale to stretch the text horizontally
+    textHStretch: float = TupleField(1)
 
     #: The unique hash of this display object
     importHash: str = TupleField()

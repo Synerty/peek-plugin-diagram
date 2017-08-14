@@ -1,7 +1,8 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC";
 import {
-    DispText, TextHorizontalAlign,
+    DispText,
+    TextHorizontalAlign,
     TextVerticalAlign
 } from "../tuples/shapes/DispText";
 import {pointToPixel} from "../DiagramUtil";
@@ -31,10 +32,17 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 
         // TODO, Draw a box around the text, based on line style
 
+        let horizontalStretchFactor = DispText.horizontalStretch(disp);
+        let textHeight = DispText.height(disp);
+
         let fontSize = fontStyle.fontSize * fontStyle.scaleFactor;
+
+        if (textHeight != null)
+            fontSize = textHeight;
 
         let font = fontSize + "px " + fontStyle.fontName + " "
             + (fontStyle.fontStyle || '');
+
 
         let lineHeight = pointToPixel(fontSize);
 
@@ -70,6 +78,11 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
             let unscale = 1.0 / zoom;
             ctx.scale(unscale, unscale);
         }
+
+        if (horizontalStretchFactor != 1) {
+            ctx.scale(horizontalStretchFactor, 1);
+        }
+
 
         let lines = DispText.text(disp).split("\n");
         for (let lineIndex = 0; lineIndex < lines.length; ++lineIndex) {
