@@ -298,7 +298,7 @@ def makeGridKeys(coordSet: ModelCoordSet,
         if isinstance(disp, DispEllipse):
             minx, miny, maxx, maxy = _calcEllipseBounds(disp, points[0], points[1])
 
-        elif len(points) == 2:
+        elif len(points) == 2: # 2 = [x, y]
 
             # This should be a text
             if not isinstance(disp, DispText):
