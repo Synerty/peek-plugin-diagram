@@ -22,11 +22,11 @@ import geoalchemy2
 def upgrade():
 
     op.add_column('DispText',
-                  sa.Column('textHeight', sa.Float(), nullable=True, server_default='2.0'),
+                  sa.Column('textHeight', sa.Float(), nullable=True),
                   schema='pl_diagram')
 
     op.add_column('DispText',
-                  sa.Column('textHStretch', sa.Float(), nullable=True, server_default='2.0'),
+                  sa.Column('textHStretch', sa.Float(), nullable=True, server_default='1.0'),
                   schema='pl_diagram')
 
 
