@@ -9,12 +9,12 @@ from peek_plugin_diagram._private.server.controller.LookupImportController impor
     LookupImportController
 from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
-from peek_plugin_diagram.server.DiagramApiABC import DiagramApiABC
+from peek_plugin_diagram.server.DiagramImportApiABC import DiagramImportApiABC
 
 logger = logging.getLogger(__name__)
 
 
-class DiagramApi(DiagramApiABC):
+class DiagramImportApi(DiagramImportApiABC):
     def __init__(self, mainController: StatusController,
                  dispImportController: DispImportController,
                  lookupImportController: LookupImportController):
