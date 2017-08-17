@@ -12,8 +12,8 @@ class DiagramCoordSetTuple(Tuple):
     __tupleType__ = diagramTuplePrefix + 'DiagramCoordSetTuple'
 
     #:  The ID of the coordinate set.
-    coordSetId: int = TupleField()
+    id: int = TupleField()
 
     #:  The name of the coordinate set.
-    coordSetName: str = TupleField()
+    name: str = TupleField()
 
