@@ -73,7 +73,7 @@ export const pluginRoutes: Routes = [
         ...PeekModuleFactory.FormsModules,
     ],
     exports: [
-        CanvasComponent
+        DiagramComponent
     ],
     providers: [
         TupleActionPushOfflineService, TupleActionPushService, {
@@ -99,5 +99,5 @@ export const pluginRoutes: Routes = [
     ],
     declarations: [DiagramComponent, CanvasComponent]
 })
-export class DiagramModule {
+export class PeekPluginDiagramModule {
 }

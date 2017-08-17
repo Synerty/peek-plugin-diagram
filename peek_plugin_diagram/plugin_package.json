@@ -32,7 +32,7 @@
     "worker": {
     },
     "mobile-web": {
-        "showHomeLink": true,
+        "showHomeLink": false,
         "appDir": "_private/both-app",
         "appModule": "diagram.module#DiagramModule",
         "assetDir": "_private/both-assets",
@@ -40,7 +40,7 @@
         "moduleDir": "plugin-module"
     },
     "mobile-ns": {
-        "showHomeLink": true,
+        "showHomeLink": false,
         "appDir": "_private/ns-app",
         "appModule": "diagram.module#DiagramModule",
         "assetDir": "_private/ns-assets",
@@ -50,7 +50,7 @@
     "agent": {
     },
     "desktop": {
-        "showHomeLink": true,
+        "showHomeLink": false,
         "appDir": "_private/both-app",
         "appModule": "diagram.module#DiagramModule",
         "assetDir": "_private/both-assets",

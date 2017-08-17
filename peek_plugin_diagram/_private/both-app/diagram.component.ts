@@ -1,12 +1,15 @@
-import {Component} from "@angular/core";
+import {Component, Input} from "@angular/core";
 
 
 @Component({
-    selector: 'plugin-diagram',
+    selector: 'peek-plugin-diagram',
     templateUrl: 'diagram.component.html',
     moduleId: module.id
 })
 export class DiagramComponent {
+
+    @Input("coordSetId")
+    coordSetId: number | null = null;
 
     constructor() {
 

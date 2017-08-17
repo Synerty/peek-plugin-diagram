@@ -36,5 +36,5 @@ export const pluginRoutes: Routes = [
     providers: [],
     declarations: [DiagramComponent]
 })
-export class DiagramModule {
+export class PeekPluginDiagramModule {
 }

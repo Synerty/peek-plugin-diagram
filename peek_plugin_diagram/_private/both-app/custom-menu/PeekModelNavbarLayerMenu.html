@@ -1,0 +1,14 @@
+<li role="presentation" class="dropdown">
+    <a class="dropdown-toggle peek-nav-size" data-toggle="dropdown" href="#"
+       role="button" aria-haspopup="true" aria-expanded="false">
+        Layers<span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu" style="overflow-y:scroll;height:350px">
+        <li ng-class="{active:isVisible(layer)}"
+            ng-repeat="layer in layers"
+            ng-click="layerClicked(layer)"
+            class="list-group-item">
+            ({{layer.order}}) - {{layer.name}}
+        </li>
+    </ul>
+</li>

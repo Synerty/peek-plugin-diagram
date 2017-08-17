@@ -3,7 +3,7 @@
 set errexit
 set nounset
 
-ng build -prod --no-aot
+ng build # -prod --no-aot
 
 [ -d dist ]
 

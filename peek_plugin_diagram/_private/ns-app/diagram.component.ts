@@ -1,4 +1,4 @@
-import {Component, ViewChild, OnInit} from "@angular/core";
+import {Component, ViewChild, OnInit, Input} from "@angular/core";
 
 import {DeviceEnrolmentService} from "@peek/peek_core_device";
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
@@ -9,14 +9,15 @@ import {LoadEventData, WebView} from 'ui/web-view';
 
 
 @Component({
-    selector: 'plugin-diagram',
+    selector: 'peek-plugin-diagram',
     templateUrl: 'diagram.component.html',
     moduleId: module.id
 })
 export class DiagramComponent extends ComponentLifecycleEventEmitter
 implements OnInit{
 
-    coordSetId: number | null = 2;
+    @Input("coordSetId")
+    coordSetId: number | null = null;
 
     private wsUrl: string = '';
     private httpUrl: string = '';
@@ -59,8 +60,9 @@ implements OnInit{
     }
 
     webViewUrl(): string {
-        let url = this.httpUrl;
+        // let url = this.httpUrl;
         // let url = '~/assets/peek_plugin_diagram/www/index.html';
+        let url = "http://10.211.55.14:4200";
         url += `?coordSetId=${this.coordSetId}`;
         url += `&vortexWsUrl=${this.wsUrl}`;
         console.log(`Sending WebView to ${url}`);
