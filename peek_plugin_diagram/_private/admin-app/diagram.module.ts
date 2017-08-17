@@ -58,6 +58,6 @@ export const pluginRoutes: Routes = [
     ],
     declarations: [DiagramComponent, StatusComponent, EditSettingComponent]
 })
-export class DiagramModule {
+export class PeekPluginDiagramModule {
 
 }

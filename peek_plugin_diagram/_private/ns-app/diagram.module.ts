@@ -10,10 +10,6 @@ import {DiagramComponent} from "./diagram.component";
 
 // Define the child routes for this plugin
 export const pluginRoutes: Routes = [
-    // {
-    //     path: 'diagram',
-    //     component: StringIntComponent
-    // },
     {
         path: '',
         pathMatch: 'full',

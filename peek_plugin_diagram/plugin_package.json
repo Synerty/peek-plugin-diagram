@@ -26,7 +26,7 @@
     "admin": {
         "showHomeLink": true,
         "appDir": "_private/admin-app",
-        "appModule": "diagram.module#DiagramModule",
+        "appModule": "diagram.module#PeekPluginDiagramModule",
         "moduleDir": "plugin-module"
     },
     "worker": {
@@ -34,17 +34,13 @@
     "mobile-web": {
         "showHomeLink": false,
         "appDir": "_private/both-app",
-        "appModule": "diagram.module#DiagramModule",
         "assetDir": "_private/both-assets",
-        "icon": "/assets/peek_plugin_diagram/icon.png",
         "moduleDir": "plugin-module"
     },
     "mobile-ns": {
         "showHomeLink": false,
         "appDir": "_private/ns-app",
-        "appModule": "diagram.module#DiagramModule",
         "assetDir": "_private/ns-assets",
-        "icon": "/assets/peek_plugin_diagram/icon.png",
         "moduleDir": "plugin-module"
     },
     "agent": {
@@ -52,9 +48,7 @@
     "desktop": {
         "showHomeLink": false,
         "appDir": "_private/both-app",
-        "appModule": "diagram.module#DiagramModule",
         "assetDir": "_private/both-assets",
-        "icon": "/assets/peek_plugin_diagram/icon.png",
         "moduleDir": "plugin-module"
     }
 }
