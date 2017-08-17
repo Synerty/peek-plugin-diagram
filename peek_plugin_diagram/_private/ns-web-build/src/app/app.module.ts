@@ -2,7 +2,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 
 import {AppComponent} from './app.component';
-import {DiagramModule} from "../peek_plugin_diagram/diagram.module.web";
+import {DiagramModule} from "../peek_plugin_diagram/diagram.module";
 
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 import {

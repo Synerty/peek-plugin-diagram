@@ -121,10 +121,9 @@ class ClientEntryHook(PluginClientEntryHookABC):
         lookupCacheController.start()
         coordSetCacheController.start()
 
-
         # Add in the HTTP resource that allows images to be downloaded
         resource = FileUnderlayResource()
-        distDir = osp.join(osp.dirname(osp.dirname(__file__)), "dist-web")
+        distDir = osp.join(osp.dirname(osp.dirname(__file__)), "ns-assets", "www")
         resource.addFileSystemRoot(distDir)
         resource.enableSinglePageApplication()
 
