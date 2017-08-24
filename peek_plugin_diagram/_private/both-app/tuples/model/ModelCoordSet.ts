@@ -10,6 +10,7 @@ export class ModelCoordSet extends Tuple {
     public static readonly tupleName = diagramTuplePrefix + "ModelCoordSet";
 
     id: number;
+    key: string;
     name: string;
     initialPanX: number;
     initialPanY: number;

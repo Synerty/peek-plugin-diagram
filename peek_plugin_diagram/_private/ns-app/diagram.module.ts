@@ -5,6 +5,8 @@ import {Routes} from "@angular/router";
 import {PeekModuleFactory} from "@synerty/peek-util/index.web";
 // Import the default route component
 import {DiagramComponent} from "./diagram.component";
+import {ItemSelectServiceBridgeNs} from "./ItemSelectServiceBridgeNs";
+import {PositionServiceBridgeNs} from "./PositionServiceBridgeNs";
 
 
 
@@ -29,7 +31,10 @@ export const pluginRoutes: Routes = [
         ...PeekModuleFactory.FormsModules,
     ],
     exports: [],
-    providers: [],
+    providers: [
+        ItemSelectServiceBridgeNs,
+        PositionServiceBridgeNs
+    ],
     declarations: [DiagramComponent]
 })
 export class PeekPluginDiagramModule {

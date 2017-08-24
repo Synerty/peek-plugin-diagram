@@ -1,6 +1,5 @@
 import {CommonModule} from "@angular/common";
 import {NgModule} from "@angular/core";
-import {Routes} from "@angular/router";
 // Import a small abstraction library to switch between nativescript and web
 import {PeekModuleFactory} from "@synerty/peek-util/index.web";
 // Import the default route component
@@ -16,7 +15,7 @@ import {
     TupleOfflineStorageNameService,
     TupleOfflineStorageService
 } from "@synerty/vortexjs";
-// Import the names we need for the
+// Import the names we need for the vortexjs integrations
 import {
     diagramActionProcessorName,
     diagramFilt,
@@ -33,6 +32,16 @@ import {LookupCache} from "./cache/LookupCache";
 import {DispGroupCache} from "./cache/DispGroupCache";
 import {CoordSetCache} from "./cache/CoordSetCache";
 import {CanvasComponent} from "./canvas-component/canvas-component";
+
+import {diagramItemSelectPrivateServiceFactory} from "./services/DiagramItemSelectPrivateService";
+import {diagramPositionPrivateServiceFactory} from "./services/DiagramPositionPrivateService";
+import {diagramToolbarPrivateServiceFactory} from "./services/DiagramToolbarPrivateService";
+
+import {
+    DiagramItemSelectService,
+    DiagramPositionService,
+    DiagramToolbarService
+} from "@peek/peek_plugin_diagram";
 
 export function tupleActionPushNameServiceFactory() {
     return new TupleActionPushNameService(
@@ -78,7 +87,21 @@ export function tupleOfflineStorageNameServiceFactory() {
         LookupCache,
         CoordSetCache,
         DispGroupCache,
-        GridObservable
+        GridObservable,
+
+        // Other plugin integration services
+        {
+            provide: DiagramPositionService,
+            useFactory: diagramPositionPrivateServiceFactory
+        },
+        {
+            provide: DiagramItemSelectService,
+            useFactory: diagramItemSelectPrivateServiceFactory
+        },
+        {
+            provide: DiagramToolbarService,
+            useFactory: diagramToolbarPrivateServiceFactory
+        },
 
     ],
     declarations: [DiagramComponent, CanvasComponent]

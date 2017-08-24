@@ -6,6 +6,7 @@ import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
 import {WebViewInterface} from 'nativescript-webview-interface';
 import {LoadEventData, WebView} from 'ui/web-view';
+import {PositionServiceBridgeNs} from "./PositionServiceBridgeNs";
 
 
 @Component({
@@ -26,7 +27,10 @@ implements OnInit{
 
     @ViewChild('webView') webView;
 
-    constructor(private enrolmentService: DeviceEnrolmentService) {
+    constructor(private enrolmentService: DeviceEnrolmentService,
+                private positionServiceBridge:PositionServiceBridgeNs,
+                private itemSelectServiceBridge:ItemSelectServiceBridgeNs,
+                private toolbarServiceBridge:ToolbarServiceBridgeNs) {
         super();
         let host = this.enrolmentService.serverHost;
 

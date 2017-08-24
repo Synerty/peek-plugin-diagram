@@ -1,18 +1,22 @@
 import {Component, OnInit} from '@angular/core';
 import {VortexService} from "@synerty/vortexjs";
+import {PositionServiceBridgeWeb} from "../service-bridge/PositionServiceBridgeWeb";
+import {ItemSelectServiceBridgeWeb} from "../service-bridge/ItemSelectServiceBridgeWeb";
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html'
+    selector: 'ns-web-diagram',
+    templateUrl: './ns-web-diagram.component.html'
 })
-export class AppComponent implements OnInit {
+export class NsWebDiagramComponent implements OnInit {
 
     coordSetId: number | null = null;
 
     private oWebViewInterface:any;
 
 
-    constructor(private vortexService: VortexService) {
+    constructor(private vortexService: VortexService,
+                private positionServiceBridge:PositionServiceBridgeWeb,
+                private itemSelectServiceBridge:ItemSelectServiceBridgeWeb) {
     }
 
     ngOnInit() {

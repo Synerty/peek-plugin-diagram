@@ -1,8 +1,8 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 
-import {AppComponent} from './app.component';
-import {DiagramModule} from "../peek_plugin_diagram/diagram.module";
+import {NsWebDiagramComponent} from './ns-web-diagram.component';
+import {PeekPluginDiagramModule} from "../peek_plugin_diagram/diagram.module";
 
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 import {
@@ -18,6 +18,8 @@ import {
 } from "@synerty/vortexjs/index-browser";
 
 import {TitleService} from "@synerty/peek-util";
+import {ItemSelectServiceBridgeWeb} from "../service-bridge/ItemSelectServiceBridgeWeb";
+import {PositionServiceBridgeWeb} from "../service-bridge/PositionServiceBridgeWeb";
 
 export function titleServiceFactory() {
     return new TitleService([]);
@@ -26,11 +28,11 @@ export function titleServiceFactory() {
 
 @NgModule({
     declarations: [
-        AppComponent
+        NsWebDiagramComponent
     ],
     imports: [
         BrowserModule,
-        DiagramModule
+        PeekPluginDiagramModule
     ],
     providers: [
         {provide: WebSqlFactoryService, useClass: WebSqlBrowserFactoryService},
@@ -43,9 +45,13 @@ export function titleServiceFactory() {
 
         // Vortex Services
         VortexStatusService,
-        VortexService
+        VortexService,
+
+        // Import bridge services
+        ItemSelectServiceBridgeWeb,
+        PositionServiceBridgeWeb,
     ],
-    bootstrap: [AppComponent]
+    bootstrap: [NsWebDiagramComponent]
 })
-export class AppModule {
+export class NsWebDiagramModule {
 }

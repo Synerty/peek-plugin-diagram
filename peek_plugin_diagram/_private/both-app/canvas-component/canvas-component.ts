@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild} from "@angular/core";
+import {Component, EventEmitter, Input, Output, ViewChild} from "@angular/core";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {TitleService} from "@synerty/peek-util";
@@ -15,6 +15,17 @@ import {CoordSetCache} from "../cache/CoordSetCache";
 
 import * as $ from "jquery";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
+import {DiagramPositionService} from "@peek/peek_plugin_diagram";
+import {
+    DiagramPositionI,
+    DiagramPositionPrivateService
+} from "../services/DiagramPositionPrivateService";
+
+export interface DispItemSelectedI {
+    key: string;
+    modelSetKey: string;
+    coordSetKey: string;
+}
 
 @Component({
     selector: 'pl-diagram-canvas',
@@ -28,6 +39,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     private canvas: any = null;
 
     @Input("coordSetId") coordSetId: number;
+
+    @Output("itemSelected") itemSelectedEvent = new EventEmitter<DispItemSelectedI>();
 
     // DoCheck last value variables
     private lastCoordSetId: number | null = null;
@@ -46,7 +59,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 private gridObservable: GridObservable,
                 private lookupCache: LookupCache,
                 private coordSetCache: CoordSetCache,
-                private dispGroupCache: DispGroupCache) {
+                private dispGroupCache: DispGroupCache,
+                private positionService: DiagramPositionService) {
         super();
 
         // Set the title
@@ -92,6 +106,10 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 this.config.updateCoordSet(coordSet);
                 this.titleService.setTitle(`Viewing ${coordSet.name}`);
             });
+
+        // Hook up the position server
+        this.connectDiagramService(<DiagramPositionPrivateService> positionService);
+
 
     }
 
@@ -157,6 +175,15 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         let y = this.config.mouse.currentViewPortPosition.y.toFixed(2);
         let zoom = this.config.viewPort.zoom.toFixed(2);
         return `${x}x${y}X${zoom}, ${this.config.model.dispOnScreen} Items`;
+    }
+
+    private connectDiagramService(service: DiagramPositionPrivateService): void {
+        service.positionObservable
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((pos: DiagramPositionI) => {
+
+            });
+
     }
 
 }
