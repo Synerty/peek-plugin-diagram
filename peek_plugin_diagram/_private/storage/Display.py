@@ -10,7 +10,7 @@
  *  Synerty Pty Ltd
  *
 """
-from sqlalchemy import Column, text
+from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String, Boolean
 from sqlalchemy.orm import relationship
@@ -196,6 +196,12 @@ class DispBase(Tuple, DeclarativeBase):
     # MAX_STR
     dispJson = Column(String(200000), doc=JSON_EXCLUDE)
 
+    #: Key, This value is a unique ID of the object that this graphic represents
+    key = Column(String(50), doc='k')
+
+    #: Selectable, Is is this item selectable?, the layer also needs selectable=true
+    selectable = Column(Boolean, doc='s', nullable=False, server_default='0')
+
     importUpdateDate = Column(DateTime, doc=JSON_EXCLUDE)
     importHash = Column(String(100), doc=JSON_EXCLUDE)
     importGroupHash = Column(String(100), doc=JSON_EXCLUDE)
@@ -217,7 +223,6 @@ class DispBase(Tuple, DeclarativeBase):
     )
 
 
-
 @addTupleType
 class DispText(DispBase):
     __tablename__ = 'DispText'
@@ -237,7 +242,7 @@ class DispText(DispBase):
     text = Column(String(1000), doc='te', nullable=False, server_default="new text label")
     textFormat = Column(String(1000), doc=JSON_EXCLUDE, nullable=True)
 
-    textHeight =Column(Float, doc='th', nullable=True)
+    textHeight = Column(Float, doc='th', nullable=True)
     textHStretch = Column(Float, doc='hs', nullable=False, server_default="1")
 
     geomJson = Column(String(2000), nullable=False, doc='g')
@@ -361,19 +366,6 @@ class DispEllipse(DispBase):
     )
 
 
-@addTupleType
-class DispAction(DispPolygon):
-    __tablename__ = 'DispAction'
-    __tupleTypeShort__ = 'DA'
-    __tupleType__ = diagramTuplePrefix + __tablename__
-
-    RENDERABLE_TYPE = DispBase.ACTION
-    __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
-
-    id = Column(Integer, ForeignKey('DispPolygon.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=False)
-
-    propsJson = Column(String(500), doc='pr')
 
 
 @addTupleType
@@ -386,7 +378,6 @@ class DispGroupItem(Tuple, DeclarativeBase):
                      primary_key=True, nullable=False)
     itemId = Column(Integer, ForeignKey('DispBase.id'),
                     primary_key=True, nullable=False)
-
 
 @addTupleType
 class DispGroup(DispBase):
@@ -436,50 +427,4 @@ class DispGroupPointer(DispBase):
 
     __table_args__ = (
         Index("idxDispGroupPointer_groupId", groupId, unique=False),
-    )
-
-
-@addTupleType
-class DispGroupPointerNode(DispGroupPointer):
-    ''' Node Coordinates
-    '''
-    __tablename__ = 'DispGroupPointerNode'
-    __tupleTypeShort__ = 'DGPN'
-    __tupleType__ = diagramTuplePrefix + __tablename__
-
-    RENDERABLE_TYPE = DispBase.GROUP_PTR_NODE
-    __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
-
-    id = Column(Integer, ForeignKey('DispGroupPointer.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=False)
-
-    nodeId = Column(Integer, ForeignKey('ModelNode.id'), nullable=False)
-    node = relationship('ModelNode')
-
-    __table_args__ = (
-        Index("idxNodeCoordNodeId", nodeId, unique=False),
-    )
-
-
-@addTupleType
-class DispPolylineConn(DispPolyline):
-    ''' Node Coordinates
-    '''
-    __tablename__ = 'DispPolylineConn'
-    __tupleTypeShort__ = 'DPLC'
-    __tupleType__ = diagramTuplePrefix + __tablename__
-
-    RENDERABLE_TYPE = DispBase.POLYLINE_CONN
-    __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
-
-    id = Column(Integer, ForeignKey('DispPolyline.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=False)
-
-    connId = Column(Integer, ForeignKey('ModelConn.id'), nullable=False)
-    conn = relationship('ModelConn')
-
-    propsJson = Column(String(500), doc='pr')
-
-    __table_args__ = (
-        Index("idxConnCoordConnId", connId, unique=False),
     )
