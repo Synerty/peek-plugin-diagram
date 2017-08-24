@@ -78,13 +78,13 @@ class LiveDbWatchController:
 
     @vortexInlineCallbacksLogAndConsumeFailure(logger)
     def processLiveDbRawValueUpdates(self, updates: List[LiveDbRawValueUpdateTuple]):
-        modelSetName = 'pofDiagram'
+        modelSetKey = 'pofDiagram'
 
         displayValueUpdates = yield convertLiveDbDisplayValuesTask.delay(
-            modelSetName, updates
+            modelSetKey, updates
         )
 
-        self._liveDbWriteApi.updateDisplayValue(modelSetName, displayValueUpdates)
+        self._liveDbWriteApi.updateDisplayValue(modelSetKey, displayValueUpdates)
 
     @deferToThreadWrapWithLogger(logger)
     def getLiveDbKeys(self, gridKeys) -> List[str]:

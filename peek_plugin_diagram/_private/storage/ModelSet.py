@@ -19,7 +19,7 @@ from sqlalchemy.sql.sqltypes import Boolean
 from sqlalchemy.types import Float
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from vortex.Tuple import addTupleType, Tuple, TupleField
+from vortex.Tuple import addTupleType, Tuple
 from .DeclarativeBase import DeclarativeBase
 
 
@@ -34,10 +34,6 @@ class ModelSet(Tuple, DeclarativeBase):
     comment = Column(String)
 
     coordSets = relationship('ModelCoordSet')
-    nodeTypes = relationship('ModelNodeType')
-    connTypes = relationship('ModelConnType')
-
-    uiData = TupleField()
 
     __table_args__ = (
         Index("idx_ModelSet_name", name, unique=True),
@@ -77,10 +73,6 @@ class ModelCoordSet(Tuple, DeclarativeBase):
 
     minZoom = Column(Float, nullable=False, server_default="0.01")
     maxZoom = Column(Float, nullable=False, server_default="10.0")
-
-    # Nodes and connections
-    nodeCoords = relationship('DispGroupPointerNode')
-    connCoords = relationship('DispPolylineConn')
 
     __table_args__ = (
         Index("idxCoordSetModelName", modelSetId, name, unique=True),
@@ -141,28 +133,27 @@ class ModelCoordSetGridSize(Tuple, DeclarativeBase):
         return '%s|%s.%sx%s' % (self.coordSetId, self.key, x, y)
 
 
-
-
-def getOrCreateModelSet(session, modelSetName):
-    qry = session.query(ModelSet).filter(ModelSet.name == modelSetName)
+def getOrCreateModelSet(session, modelSetKey):
+    qry = session.query(ModelSet).filter(ModelSet.key == modelSetKey)
     if not qry.count():
-        session.add(ModelSet(name=modelSetName))
+        session.add(ModelSet(name=modelSetKey, key=modelSetKey))
         session.commit()
 
     return qry.one()
 
 
-def getOrCreateCoordSet(session, modelSetName, coordSetName):
-    modelSet = getOrCreateModelSet(session, modelSetName)
+def getOrCreateCoordSet(session, modelSetKey, coordSetKey):
+    modelSet = getOrCreateModelSet(session, modelSetKey)
 
     qry = (session.query(ModelCoordSet)
            .filter(ModelCoordSet.modelSetId == modelSet.id)
-           .filter(ModelCoordSet.name == coordSetName))
+           .filter(ModelCoordSet.key == coordSetKey))
 
     if not qry.count():
         coordSet = ModelCoordSet(
             modelSetId=modelSet.id,
-            name=coordSetName)
+            name=coordSetKey,
+            key=coordSetKey)
         session.add(coordSet)
 
         for gridSize in ModelCoordSetGridSize.DEFAULT:

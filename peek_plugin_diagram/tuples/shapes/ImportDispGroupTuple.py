@@ -9,13 +9,13 @@ from vortex.Tuple import Tuple, addTupleType, TupleField
 
 
 @addTupleType
-class ImportDispTextTuple(Tuple):
-    """ Imported Display Text
+class ImportDispGroupTuple(Tuple):
+    """ Imported Display Group
 
     This tuple is used by other plugins to load TEXT objects into the diagram.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispTextTuple'
+    __tupleType__ = diagramTuplePrefix + 'ImportDispGroupTuple'
 
     ### BEGIN DISP COMMON FIELDS ###
 
@@ -50,39 +50,7 @@ class ImportDispTextTuple(Tuple):
     #: Related links to LiveDB values for this display item
     liveDbDispLinks: List[ImportLiveDbDispLinkTuple] = TupleField()
 
-    #: Parent DispGroup Hash, If this disp is part of a disp group then set this field to
-    # the ImportDispGroupTuple.importHash fields value
-    parentDispGroupHash: str = TupleField()
-
     ### BEGIN FIELDS FOR THIS DISP ###
 
-    textStyleHash: str = TupleField()
-    colorHash: Optional[str] = TupleField()
-
-    H_ALLIGN_LEFT = -1
-    H_ALLIGN_CENTER = 0
-    H_ALLIGN_RIGHT = 1
-    horizontalAlign: int = TupleField(H_ALLIGN_CENTER)
-
-    V_ALLIGN_TOP = -1
-    V_ALLIGN_CENTER = 0
-    V_ALLIGN_BOTTOM = 1
-    verticalAlign: int = TupleField(V_ALLIGN_CENTER)
-
-    geom: WKBElement = TupleField()
-
-    #: The rotation of the text
-    rotation: float = TupleField()
-
-    #: The value of the text
-    text: str = TupleField()
-
-    #: This field stores text with format strings that are used to create the text above.
-    textFormat: Optional[str] = TupleField()
-
-    #: Text Height (Optional, defaults to height in TextStyle lookup)
-    textHeight: Optional[float] = TupleField()
-
-    #: Text Horizontal Stretch, The scale to stretch the text horizontally
-    textHStretch: float = TupleField(1)
-
+    #: A name for this dispGroup
+    name: str = TupleField()

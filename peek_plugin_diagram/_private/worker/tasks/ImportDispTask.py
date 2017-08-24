@@ -1,41 +1,41 @@
 import json
 import logging
 from datetime import datetime
-from typing import List
+from typing import List, Dict, Tuple
 
 from geoalchemy2.shape import to_shape
 
 from peek_plugin_base.worker import CeleryDbConn
-from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import DispCompilerQueueController
-from peek_plugin_diagram._private.storage.Display import DispBase, DispAction, \
-    DispEllipse, DispPolylineConn, DispPolygon, DispText, DispPolyline
-from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, \
-    getOrCreateCoordSet
+from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
+    DispCompilerQueueController
+from peek_plugin_diagram._private.storage.Display import \
+    DispBase, DispEllipse, DispPolygon, DispText, DispPolyline, DispGroup, \
+    DispGroupPointer, DispGroupItem
+from peek_plugin_diagram._private.storage.ModelSet import \
+    ModelCoordSet, getOrCreateCoordSet
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks.ImportDispLink import importDispLinks
 from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
     LookupHashConverter
-from peek_plugin_diagram.tuples.shapes.ImportDispActionTuple import ImportDispActionTuple
-from peek_plugin_diagram.tuples.shapes.ImportDispConnectionTuple import \
-    ImportDispConnectionTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispEllipseTuple import \
     ImportDispEllipseTuple
+from peek_plugin_diagram.tuples.shapes.ImportDispGroupPtrTuple import \
+    ImportDispGroupPtrTuple
+from peek_plugin_diagram.tuples.shapes.ImportDispGroupTuple import ImportDispGroupTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispPolygonTuple import \
     ImportDispPolygonTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
     ImportDispPolylineTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispTextTuple import ImportDispTextTuple
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
-from sqlalchemy import select
 from txcelery.defer import DeferrableTask
 from vortex.Payload import Payload
-from vortex.SerialiseUtil import convertFromWkbElement
 
 logger = logging.getLogger(__name__)
 
 IMPORT_TUPLE_MAP = {
-    ImportDispActionTuple.tupleType(): DispAction,
-    ImportDispConnectionTuple.tupleType(): DispPolylineConn,
+    ImportDispGroupTuple.tupleType(): DispGroup,
+    ImportDispGroupPtrTuple.tupleType(): DispGroupPointer,
     ImportDispEllipseTuple.tupleType(): DispEllipse,
     ImportDispPolygonTuple.tupleType(): DispPolygon,
     ImportDispPolylineTuple.tupleType(): DispPolyline,
@@ -49,14 +49,15 @@ IMPORT_FIELD_NAME_MAP = {
     'colorHash': 'colorId',
     'fillColorHash': 'fillColorId',
     'lineColorHash': 'lineColorId',
-    'textStyleHash': 'textStyleId'
+    'dispGroupHash': 'groupId'
 }
 
 
 @DeferrableTask
 @celeryApp.task(bind=True)
-def importDispsTask(self, modelSetName: str, coordSetName: str,
-                    importGroupHash: str, dispsVortexMsg: bytes)-> List[ImportLiveDbItemTuple]:
+def importDispsTask(self, modelSetKey: str, coordSetKey: str,
+                    importGroupHash: str, dispsVortexMsg: bytes) -> List[
+    ImportLiveDbItemTuple]:
     """ Import Disp Task
 
     :returns None
@@ -65,14 +66,14 @@ def importDispsTask(self, modelSetName: str, coordSetName: str,
     try:
         disps = Payload().fromVortexMsg(dispsVortexMsg).tuples
 
-        coordSet = _loadCoordSet(modelSetName, coordSetName)
+        coordSet = _loadCoordSet(modelSetKey, coordSetKey)
 
-        dispIdsToCompile, dispLinkImportTuples, ormDisps = _importDisps(
-            coordSet, importGroupHash, disps
+        dispIdsToCompile, dispLinkImportTuples, ormDisps, dispGroupLinks = _importDisps(
+            coordSet, disps
         )
 
         _bulkLoadDispsTask(
-            coordSet, importGroupHash, ormDisps
+            coordSet, importGroupHash, ormDisps, dispGroupLinks
         )
 
         liveDbImportTuples = importDispLinks(
@@ -91,10 +92,10 @@ def importDispsTask(self, modelSetName: str, coordSetName: str,
         raise self.retry(exc=e, countdown=3)
 
 
-def _loadCoordSet(modelSetName, coordSetName):
+def _loadCoordSet(modelSetKey, coordSetKey):
     ormSession = CeleryDbConn.getDbSession()
     try:
-        coordSet = getOrCreateCoordSet(ormSession, modelSetName, coordSetName)
+        coordSet = getOrCreateCoordSet(ormSession, modelSetKey, coordSetKey)
         ormSession.expunge_all()
         return coordSet
 
@@ -102,7 +103,7 @@ def _loadCoordSet(modelSetName, coordSetName):
         ormSession.close()
 
 
-def _importDisps(coordSet: ModelCoordSet, importGroupHash: str, importDisps):
+def _importDisps(coordSet: ModelCoordSet, importDisps: List):
     """ Link Disps
 
     1) Use the AgentImportDispGridLookup to convert lookups from importHash
@@ -119,12 +120,18 @@ def _importDisps(coordSet: ModelCoordSet, importGroupHash: str, importDisps):
     importDispLinks = []
     ormDisps = []
 
+    dispGroupLinks = []
+
     ormSession = CeleryDbConn.getDbSession()
     try:
 
         lookupConverter = LookupHashConverter(ormSession,
                                               modelSetId=coordSet.modelSetId,
                                               coordSetId=coordSet.id)
+
+        dispGroupIdByImportHash: Dict[str, int] = {}
+        dispGroupPtrWithTargetHash: List[Tuple[DispGroupPointer, str]] = []
+        dispGroupChildWithTargetHash: List[Tuple[DispBase, str]] = []
 
         for importDisp in importDisps:
             _convertGeom(importDisp)
@@ -137,6 +144,21 @@ def _importDisps(coordSet: ModelCoordSet, importGroupHash: str, importDisps):
             dispIdsToCompile.append(ormDisp.id)
 
             ormDisp.coordSetId = coordSet.id
+
+            # If this is a dispGroup, index it's ID
+            if isinstance(ormDisp, DispGroup):
+                dispGroupIdByImportHash[ormDisp.importHash] = ormDisp.id
+
+            # If this is a dispGroupPtr, index it's targetHash so we can update it
+            if isinstance(ormDisp, DispGroupPointer):
+                dispGroupPtrWithTargetHash.append(
+                    (ormDisp, importDisp.targetDispGroupHash)
+                )
+
+            # If this is a dispGroupPtr, index it's targetHash so we can update it
+            parentDispGroupHash = getattr(importDisp, "parentDispGroupHash", None)
+            if parentDispGroupHash:
+                dispGroupChildWithTargetHash.append((ormDisp, parentDispGroupHash))
 
             # Add some interim data to the import display link, so it can be created
             for importDispLink in importDisp.liveDbDispLinks:
@@ -153,10 +175,31 @@ def _importDisps(coordSet: ModelCoordSet, importGroupHash: str, importDisps):
                 attrName = importDispLink.dispAttrName
                 importDispLink.internalDisplayValue = getattr(ormDisp, attrName)
 
+            # Create the links between the Disp and DispGroup
+            for ormObj, groupHash in dispGroupChildWithTargetHash:
+                groupOrmObjId = dispGroupIdByImportHash.get(groupHash)
+                if groupOrmObjId is None:
+                    raise Exception(
+                        "DispGroup with importHash %s doesn't exist" % groupHash)
+
+                dispGroupLinks.append(
+                    DispGroupItem(groupId=groupOrmObjId, itemId=ormObj.id)
+                )
+
+            # Link the DispGroupPtr to the DispGroup
+            for ormObj, groupHash in dispGroupPtrWithTargetHash:
+                groupOrmObjId = dispGroupIdByImportHash.get(groupHash)
+                if groupOrmObjId is None:
+                    raise Exception(
+                        "DispGroup with importHash %s doesn't exist" % groupHash)
+
+                ormObj.groupId = groupOrmObjId
+
+
     finally:
         ormSession.close()
 
-    return dispIdsToCompile, importDispLinks, ormDisps
+    return dispIdsToCompile, importDispLinks, ormDisps, dispGroupLinks
 
 
 def _convertGeom(importDisp):
@@ -207,7 +250,8 @@ def _convertImportTuple(importDisp):
     return disp
 
 
-def _bulkLoadDispsTask(coordSet, importGroupHash, disps):
+def _bulkLoadDispsTask(coordSet: ModelCoordSet, importGroupHash: str,
+                       disps: List, dispGroupLinks: List[DispGroupItem]):
     """ Import Disps Links
 
     1) Drop all disps with matching importGroupHash
@@ -244,11 +288,16 @@ def _bulkLoadDispsTask(coordSet, importGroupHash, disps):
                 ormSession.merge(coordSet)
                 break
 
-
         ormSession.commit()
 
-        # with ormSession.begin(subtransactions=True):
         ormSession.bulk_save_objects(disps, update_changed_only=False)
+
+        # Insert the Disp Group links
+        if dispGroupLinks:
+            ormSession.execute(
+                DispGroupItem.__table__.insert(),
+                [o.tupleToSqlaBulkInsertDict() for o in dispGroupLinks]
+            )
 
         ormSession.commit()
 

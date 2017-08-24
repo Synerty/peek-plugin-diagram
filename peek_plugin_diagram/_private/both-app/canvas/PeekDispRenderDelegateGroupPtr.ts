@@ -6,7 +6,7 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 
     constructor(config: PeekCanvasConfig,
                 private renderFactory/*: PeekDispRenderFactory*/,
-    private dispGroupCache:DispGroupCache) {
+                private dispGroupCache: DispGroupCache) {
         super(config);
 
     }

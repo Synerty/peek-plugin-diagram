@@ -166,12 +166,9 @@ class DispBase(Tuple, DeclarativeBase):
     # Must align with constants in javascript DispBase class
     GROUP = 10
     GROUP_PTR = 11
-    GROUP_PTR_NODE = 12
-    ACTION = 30
     TEXT = 40
     POLYGON = 50
     POLYLINE = 51
-    POLYLINE_CONN = 52
     ELLIPSE = 60
 
     id_seq = Sequence('DispBase_id_seq',

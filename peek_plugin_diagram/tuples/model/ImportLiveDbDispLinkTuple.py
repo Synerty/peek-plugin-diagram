@@ -37,8 +37,8 @@ class ImportLiveDbDispLinkTuple(Tuple):
     #: for example, a page or tile reference.
     importGroupHash: str = TupleField()
 
-    modelSetName: str = TupleField()
-    coordSetName: str = TupleField()
+    modelSetKey: str = TupleField()
+    coordSetKey: str = TupleField()
 
     #:  Additional data for this object
     props: dict = TupleField()

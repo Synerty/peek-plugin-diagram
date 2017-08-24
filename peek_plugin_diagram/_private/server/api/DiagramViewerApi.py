@@ -16,12 +16,12 @@ class DiagramViewerApi(DiagramViewerApiABC):
         pass
 
     @deferToThreadWrapWithLogger(logger)
-    def getCoordSets(self, modelSetName: str):
+    def getCoordSets(self, modelSetKey: str):
         ormSession = self._ormSessionCreator()
         try:
             all = (ormSession.query(ModelCoordSet)
                    .join(ModelSet)
-                   .filter(ModelSet.name == modelSetName)
+                   .filter(ModelSet.name == modelSetKey)
                    .all())
 
             coordSetTuples = []

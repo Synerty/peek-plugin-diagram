@@ -25,26 +25,26 @@ class DiagramImportApi(DiagramImportApiABC):
     def shutdown(self):
         pass
 
-    def importDisps(self, modelSetName: str,
-                    coordSetName: str,
+    def importDisps(self, modelSetKey: str,
+                    coordSetKey: str,
                     importGroupHash: str,
                     dispsVortexMsg: bytes) -> Deferred:
         return self._dispImportController.importDisps(
-            modelSetName, coordSetName,
+            modelSetKey, coordSetKey,
             importGroupHash, dispsVortexMsg
         )
 
-    def importLookups(self, modelSetName: str, coordSetName: str,
+    def importLookups(self, modelSetKey: str, coordSetKey: str,
                       lookupTupleType: str, lookupTuples: List,
                       deleteOthers: bool = True,
                       updateExisting: bool = True) -> Deferred:
         return self._lookupImportController.importLookups(
-            modelSetName, coordSetName, lookupTupleType, lookupTuples,
+            modelSetKey, coordSetKey, lookupTupleType, lookupTuples,
             deleteOthers, updateExisting
         )
 
-    def getLookups(self, modelSetName: str, coordSetName: str,
+    def getLookups(self, modelSetKey: str, coordSetKey: str,
                    lookupTupleType: str) -> Deferred:
         return self._lookupImportController.getLookups(
-            modelSetName, coordSetName, lookupTupleType
+            modelSetKey, coordSetKey, lookupTupleType
         )

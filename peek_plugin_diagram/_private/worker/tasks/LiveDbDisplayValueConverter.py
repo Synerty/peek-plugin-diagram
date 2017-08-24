@@ -5,7 +5,6 @@ from peek_plugin_diagram._private.storage.Display import DispTextStyle, DispLine
     DispColor, DispLevel, DispLayer
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
 from sqlalchemy import select
-from vortex.DeferUtil import deferToThreadWrapWithLogger
 
 logger = logging.getLogger(__name__)
 

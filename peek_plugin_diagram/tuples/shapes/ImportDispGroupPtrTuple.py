@@ -1,6 +1,4 @@
-from typing import Optional, List
-
-from geoalchemy2 import WKBElement
+from typing import List
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
@@ -9,13 +7,13 @@ from vortex.Tuple import Tuple, addTupleType, TupleField
 
 
 @addTupleType
-class ImportDispTextTuple(Tuple):
+class ImportDispGroupPtrTuple(Tuple):
     """ Imported Display Text
 
     This tuple is used by other plugins to load TEXT objects into the diagram.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispTextTuple'
+    __tupleType__ = diagramTuplePrefix + 'ImportDispGroupPtrTuple'
 
     ### BEGIN DISP COMMON FIELDS ###
 
@@ -23,10 +21,10 @@ class ImportDispTextTuple(Tuple):
     # It's used to link this graphical object to objects in other plugins, like vertices
     # in the peek-plugin-graphdb plugin.
     # Length = 50
-    key :str = TupleField()
+    key: str = TupleField()
 
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
-    selectable :bool = TupleField()
+    selectable: bool = TupleField()
 
     #: The hash of the level to link to (Matches ImportDispLevel.importHash)
     levelHash: str = TupleField()
@@ -56,33 +54,14 @@ class ImportDispTextTuple(Tuple):
 
     ### BEGIN FIELDS FOR THIS DISP ###
 
-    textStyleHash: str = TupleField()
-    colorHash: Optional[str] = TupleField()
-
-    H_ALLIGN_LEFT = -1
-    H_ALLIGN_CENTER = 0
-    H_ALLIGN_RIGHT = 1
-    horizontalAlign: int = TupleField(H_ALLIGN_CENTER)
-
-    V_ALLIGN_TOP = -1
-    V_ALLIGN_CENTER = 0
-    V_ALLIGN_BOTTOM = 1
-    verticalAlign: int = TupleField(V_ALLIGN_CENTER)
-
-    geom: WKBElement = TupleField()
-
     #: The rotation of the text
     rotation: float = TupleField()
 
-    #: The value of the text
-    text: str = TupleField()
+    #: Vertical Stretch, The scale to stretch the display group horizontally
+    verticalScale: float = TupleField(1)
 
-    #: This field stores text with format strings that are used to create the text above.
-    textFormat: Optional[str] = TupleField()
+    #: Horizontal Stretch, The scale to stretch the display group vertically
+    horizontalScale: float = TupleField(1)
 
-    #: Text Height (Optional, defaults to height in TextStyle lookup)
-    textHeight: Optional[float] = TupleField()
-
-    #: Text Horizontal Stretch, The scale to stretch the text horizontally
-    textHStretch: float = TupleField(1)
-
+    #: Disp Group Hash, The value of a "ImportDispGroupTuple.importHash" to point to
+    targetDispGroupHash: float = TupleField(1)

@@ -36,11 +36,11 @@ class LookupImportController:
         pass
 
     @inlineCallbacks
-    def importLookups(self, modelSetName: str, coordSetName: Optional[str],
+    def importLookups(self, modelSetKey: str, coordSetKey: Optional[str],
                       lookupTupleType: str, lookupTuples: List,
                       deleteOthers: bool, updateExisting: bool):
 
-        yield self._importInThread(modelSetName, coordSetName,
+        yield self._importInThread(modelSetKey, coordSetKey,
                                    lookupTupleType, lookupTuples,
                                    deleteOthers, updateExisting)
 
@@ -49,7 +49,7 @@ class LookupImportController:
         returnValue(True)
 
     @deferToThreadWrapWithLogger(logger)
-    def _importInThread(self, modelSetName: str, coordSetName: str, tupleType: str,
+    def _importInThread(self, modelSetKey: str, coordSetKey: str, tupleType: str,
                         tuples,
                         deleteOthers: bool, updateExisting: bool):
         LookupType = ORM_TUPLE_MAP[tupleType]
@@ -63,11 +63,11 @@ class LookupImportController:
         ormSession = self._dbSessionCreator()
         try:
 
-            modelSet = getOrCreateModelSet(ormSession, modelSetName)
+            modelSet = getOrCreateModelSet(ormSession, modelSetKey)
             coordSet = None
 
-            if coordSetName:
-                coordSet = getOrCreateCoordSet(ormSession, modelSetName, coordSetName)
+            if coordSetKey:
+                coordSet = getOrCreateCoordSet(ormSession, modelSetKey, coordSetKey)
 
                 all = (ormSession.query(LookupType)
                        .filter(LookupType.coordSetId == coordSet.id)
@@ -136,7 +136,7 @@ class LookupImportController:
             ormSession.close()
 
     @deferToThreadWrapWithLogger(logger)
-    def getLookups(self, modelSetName: str, coordSetName: Optional[str],
+    def getLookups(self, modelSetKey: str, coordSetKey: Optional[str],
                    tupleType: str):
 
         LookupType = ORM_TUPLE_MAP[tupleType]
@@ -144,10 +144,10 @@ class LookupImportController:
         ormSession = self._dbSessionCreator()
         try:
 
-            modelSet = getOrCreateModelSet(ormSession, modelSetName)
+            modelSet = getOrCreateModelSet(ormSession, modelSetKey)
 
-            if coordSetName:
-                coordSet = getOrCreateCoordSet(ormSession, modelSetName, coordSetName)
+            if coordSetKey:
+                coordSet = getOrCreateCoordSet(ormSession, modelSetKey, coordSetKey)
 
                 all = (ormSession.query(LookupType)
                        .filter(LookupType.coordSetId == coordSet.id)
@@ -165,11 +165,11 @@ class LookupImportController:
                 newTuple = ImportTuple()
 
                 for fieldName in newTuple.tupleFieldNames():
-                    if fieldName == 'modelSetName':
-                        newTuple.modelSetName = modelSetName
+                    if fieldName == 'modelSetKey':
+                        newTuple.modelSetKey = modelSetKey
 
-                    elif fieldName == 'coordSetName':
-                        newTuple.coordSetName = coordSetName
+                    elif fieldName == 'coordSetKey':
+                        newTuple.coordSetKey = coordSetKey
 
                     else:
                         setattr(newTuple, fieldName, getattr(ormTuple, fieldName))

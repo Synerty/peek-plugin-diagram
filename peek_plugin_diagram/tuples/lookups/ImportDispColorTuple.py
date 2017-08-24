@@ -25,7 +25,7 @@ class ImportDispColorTuple(Tuple):
     swapPeriod: float = TupleField()
 
     #:  The name of the model set for this colour
-    modelSetName: str = TupleField()
+    modelSetKey: str = TupleField()
 
     #:  The import hash for this colour
     importHash: str = TupleField()

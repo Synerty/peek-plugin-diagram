@@ -39,4 +39,4 @@ class ImportDispLineStyleTuple(Tuple):
 
     importHash: str = TupleField()
 
-    modelSetName: str = TupleField()
+    modelSetKey: str = TupleField()

@@ -23,7 +23,7 @@ DispData = namedtuple('DispData', ['json', 'levelOrder', 'layerOrder'])
 
 @DeferrableTask
 @celeryApp.task
-def convertLiveDbDisplayValuesTask(modelSetName: str,
+def convertLiveDbDisplayValuesTask(modelSetKey: str,
                                    rawUpdates: List[LiveDbRawValueUpdateTuple]):
     startTime = datetime.utcnow()
     keys = [u.key for u in rawUpdates]
@@ -31,11 +31,11 @@ def convertLiveDbDisplayValuesTask(modelSetName: str,
     ormSession = CeleryDbConn.getDbSession()
     try:
         liveDbDataTypeLookup = WorkerApi.getLiveDbKeyDatatypeDict(
-            ormSession, modelSetName, keys
+            ormSession, modelSetKey, keys
         )
 
         modelSetId = (ormSession.query(ModelSet.id)
-                      .filter(ModelSet.name == modelSetName)
+                      .filter(ModelSet.key == modelSetKey)
                       .one()
                       .id)
 

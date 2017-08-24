@@ -69,19 +69,19 @@ def compileDisps(self, queueIds, dispIds):
         # print dispsQry
         dispsAll = dispsQry.all()
 
-        liveDbKeysByModelSetName = defaultdict(list)
+        liveDbKeysByModelSetKey = defaultdict(list)
         for disp in dispsQry:
             # Add a reference to the model set name for convininece
-            disp.modelSetName = coordSetById[disp.coordSetId].modelSet.name
-            liveDbKeysByModelSetName[disp.modelSetName].extend(
+            disp.modelSetKey = coordSetById[disp.coordSetId].modelSet.name
+            liveDbKeysByModelSetKey[disp.modelSetKey].extend(
                 [dl.liveDbKey for dl in disp.liveDbLinks]
             )
 
-        liveDbItemByModelSetNameByKey = {}
-        for modelSetName, liveDbKeys in liveDbKeysByModelSetName.items():
-            liveDbItemByModelSetNameByKey[modelSetName] = {
+        liveDbItemByModelSetKeyByKey = {}
+        for modelSetKey, liveDbKeys in liveDbKeysByModelSetKey.items():
+            liveDbItemByModelSetKeyByKey[modelSetKey] = {
                 i.key: i for i in
-                WorkerApi.getLiveDbDisplayValues(ormSession, modelSetName, liveDbKeys)
+                WorkerApi.getLiveDbDisplayValues(ormSession, modelSetKey, liveDbKeys)
             }
 
         logger.debug("Loaded %s disp objects in %s",
@@ -94,7 +94,7 @@ def compileDisps(self, queueIds, dispIds):
         gridKeyIndexesByDispId = defaultdict(list)
 
         for disp in dispsQry:
-            liveDbItemByKey = liveDbItemByModelSetNameByKey[disp.modelSetName]
+            liveDbItemByKey = liveDbItemByModelSetKeyByKey[disp.modelSetKey]
             # Apply live db links
             _mergeInLiveDbValues(disp, liveDbItemByKey)
 
