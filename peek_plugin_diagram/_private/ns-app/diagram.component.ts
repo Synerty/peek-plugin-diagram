@@ -1,4 +1,4 @@
-import {Component, ViewChild, OnInit, Input} from "@angular/core";
+import {Component, Input, OnInit, ViewChild} from "@angular/core";
 
 import {DeviceEnrolmentService} from "@peek/peek_core_device";
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
@@ -7,6 +7,12 @@ import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {WebViewInterface} from 'nativescript-webview-interface';
 import {LoadEventData, WebView} from 'ui/web-view';
 import {PositionServiceBridgeNs} from "./PositionServiceBridgeNs";
+import {ItemSelectServiceBridgeNs} from "./ItemSelectServiceBridgeNs";
+import {
+    DiagramItemSelectService,
+    DiagramPositionService,
+    DiagramToolbarService
+} from "@peek/peek_plugin_diagram";
 
 
 @Component({
@@ -15,7 +21,7 @@ import {PositionServiceBridgeNs} from "./PositionServiceBridgeNs";
     moduleId: module.id
 })
 export class DiagramComponent extends ComponentLifecycleEventEmitter
-implements OnInit{
+    implements OnInit {
 
     @Input("coordSetId")
     coordSetId: number | null = null;
@@ -25,23 +31,18 @@ implements OnInit{
 
     private oLangWebViewInterface: WebViewInterface;
 
+    private itemSelectServiceBridge: ItemSelectServiceBridgeNs | null = null;
+    private positionServiceBridge: PositionServiceBridgeNs | null = null;
+
     @ViewChild('webView') webView;
 
     constructor(private enrolmentService: DeviceEnrolmentService,
-                private positionServiceBridge:PositionServiceBridgeNs,
-                private itemSelectServiceBridge:ItemSelectServiceBridgeNs,
-                private toolbarServiceBridge:ToolbarServiceBridgeNs) {
+                private itemSelectService: DiagramItemSelectService,
+                private positionService: DiagramPositionService,
+                private toolbarService: DiagramToolbarService) {
         super();
-        let host = this.enrolmentService.serverHost;
-
-        let httpProtocol = this.enrolmentService.serverUseSsl ? 'https' : 'http';
-        let httpPort = this.enrolmentService.serverHttpPort;
-
-        let wsProtocol = this.enrolmentService.serverUseSsl ? 'wss' : 'ws';
-        let wsPort = this.enrolmentService.serverWebsocketPort;
-
-        this.httpUrl = `${httpProtocol}://${host}:${httpPort}/${diagramBaseUrl}/web_dist`;
-        this.wsUrl = `${wsProtocol}://${host}:${wsPort}/vortexws`;
+        this.httpUrl = `${this.enrolmentService.serverHttpUrl}/${diagramBaseUrl}/web_dist`;
+        this.wsUrl = `${this.enrolmentService.serverWebsocketUrl}/vortexws`;
 
         // this.onDestroyEvent.subscribe(() => this.oLangWebViewInterface.destroy())
 
@@ -49,18 +50,34 @@ implements OnInit{
 
     ngOnInit() {
         let webView = <WebView>this.webView.nativeElement;
+
+        if (webView["android"] != null) {
+            console.log("ENABLING ANDROID DATABASE");
+            webView["android"]["getSettings"]()["setDatabaseEnabled"](true);
+        }
+
         this.oLangWebViewInterface = new WebViewInterface(webView, this.webViewUrl());
 
         // loading languages in dropdown, on load of webView content.
         this.oLangWebViewInterface.on('nsFunctionName',
-            (message:string) => {
-            console.log("NS:Received : " + message);
+            (message: string) => {
+                console.log("NS:Received : " + message);
 
-            this.oLangWebViewInterface.emit(
-                "webFunctionName",
-                "Hello from NS"
-            );
-        });
+                this.oLangWebViewInterface.emit(
+                    "webFunctionName",
+                    "Hello from NS"
+                );
+            });
+
+
+        this.itemSelectServiceBridge = new ItemSelectServiceBridgeNs(
+            this.itemSelectService, this.oLangWebViewInterface
+        );
+
+        this.positionServiceBridge = new PositionServiceBridgeNs(
+            this.positionService, this.oLangWebViewInterface
+        );
+
     }
 
     webViewUrl(): string {

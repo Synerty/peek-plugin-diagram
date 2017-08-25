@@ -1,9 +1,7 @@
+import {Injectable} from "@angular/core";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {Subject} from "rxjs";
 
-export function diagramPositionPrivateServiceFactory(): DiagramPositionService {
-    return new DiagramPositionPrivateService();
-}
 
 export interface DiagramPositionI {
     coordSetKey: string;
@@ -12,7 +10,14 @@ export interface DiagramPositionI {
     zoom: number;
 }
 
+
+@Injectable()
 export class DiagramPositionPrivateService extends DiagramPositionService {
+    constructor() {
+        super();
+
+    }
+
     positionObservable: Subject<DiagramPositionI>;
 
     position(coordSetKey: string, x: number, y: number, zoom: number): void {

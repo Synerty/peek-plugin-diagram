@@ -1,4 +1,3 @@
-import {Injectable} from "@angular/core";
 
 /** Diagram Tool Button Callback Interface
  *
@@ -31,8 +30,10 @@ export interface DiagramToolButtonI {
  * This service allows other plugins to provide tool buttons that are displayed
  * on the diagrams window.
  */
-@Injectable()
 export abstract class DiagramToolbarService {
+    constructor() {
+
+    }
 
     /** Add Tool Button
      *

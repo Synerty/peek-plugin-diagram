@@ -5,8 +5,10 @@ import {Injectable} from "@angular/core";
  * This service allows other plugins embedding the diagram to position the diagram.
  *
  */
-@Injectable()
 export abstract class DiagramPositionService {
+    constructor() {
+
+    }
 
     /** Position
      *

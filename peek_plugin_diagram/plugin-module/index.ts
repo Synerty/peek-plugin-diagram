@@ -8,6 +8,3 @@ export {
     DiagramItemDetailI,
     DiagramItemPopupContextI
 } from "./DiagramItemSelectService";
-
-export {DiagramPositionService} from "./DiagramPositionService";
-export {DiagramToolbarService} from "./DiagramToolbarService";

@@ -5,9 +5,18 @@ import {Routes} from "@angular/router";
 import {PeekModuleFactory} from "@synerty/peek-util/index.web";
 // Import the default route component
 import {DiagramComponent} from "./diagram.component";
-import {ItemSelectServiceBridgeNs} from "./ItemSelectServiceBridgeNs";
-import {PositionServiceBridgeNs} from "./PositionServiceBridgeNs";
 
+import {
+    diagramItemSelectPrivateServiceFactory,
+    diagramPositionPrivateServiceFactory,
+    diagramToolbarPrivateServiceFactory
+} from "@peek/peek_plugin_diagram/_private";
+
+import {
+    DiagramItemSelectService,
+    DiagramPositionService,
+    DiagramToolbarService
+} from "@peek/peek_plugin_diagram";
 
 
 // Define the child routes for this plugin
@@ -32,8 +41,20 @@ export const pluginRoutes: Routes = [
     ],
     exports: [],
     providers: [
-        ItemSelectServiceBridgeNs,
-        PositionServiceBridgeNs
+        // Other plugin integration services
+        {
+            provide: DiagramPositionService,
+            useFactory: diagramPositionPrivateServiceFactory
+        },
+        {
+            provide: DiagramItemSelectService,
+            useFactory: diagramItemSelectPrivateServiceFactory
+        },
+        {
+            provide: DiagramToolbarService,
+            useFactory: diagramToolbarPrivateServiceFactory
+        }
+
     ],
     declarations: [DiagramComponent]
 })

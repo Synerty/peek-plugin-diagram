@@ -1,9 +1,10 @@
-import {Injectable} from "@angular/core";
-import {DiagramItemSelectService} from "@peek/peek_plugin_diagram";
+import {DiagramPositionService} from "@peek/peek_plugin_diagram";
+import {WebViewInterface} from 'nativescript-webview-interface';
 
-@Injectable()
+
 export class PositionServiceBridgeNs {
-    constructor(private service:DiagramItemSelectService) {
+    constructor(private service: DiagramPositionService,
+                private iface: WebViewInterface) {
 
     }
 

@@ -1,4 +1,3 @@
-import {Injectable} from "@angular/core";
 import {Subject} from "rxjs";
 
 /** Diagram Menu Item Callback Interface
@@ -67,8 +66,10 @@ export interface DiagramItemPopupContextI {
  * When a selectable item on the diagram is clicked/tapped, an observable event will
  * be fired with a context class, allowing the other plugin to add menus and details to the popup.
  */
-@Injectable()
 export abstract class DiagramItemSelectService {
+    constructor() {
+
+    }
 
     /** Item Select Observer
      *

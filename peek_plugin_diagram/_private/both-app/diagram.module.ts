@@ -33,15 +33,16 @@ import {DispGroupCache} from "./cache/DispGroupCache";
 import {CoordSetCache} from "./cache/CoordSetCache";
 import {CanvasComponent} from "./canvas-component/canvas-component";
 
-import {diagramItemSelectPrivateServiceFactory} from "./services/DiagramItemSelectPrivateService";
-import {diagramPositionPrivateServiceFactory} from "./services/DiagramPositionPrivateService";
-import {diagramToolbarPrivateServiceFactory} from "./services/DiagramToolbarPrivateService";
-
 import {
-    DiagramItemSelectService,
-    DiagramPositionService,
-    DiagramToolbarService
-} from "@peek/peek_plugin_diagram";
+    DiagramItemSelectPrivateService,
+    DiagramToolbarPrivateService,
+    DiagramPositionPrivateService
+} from "@peek/peek_plugin_diagram/_private";
+
+
+import {DiagramItemSelectService} from "@peek/peek_plugin_diagram/DiagramItemSelectService";
+import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
+import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
 
 export function tupleActionPushNameServiceFactory() {
     return new TupleActionPushNameService(
@@ -92,15 +93,15 @@ export function tupleOfflineStorageNameServiceFactory() {
         // Other plugin integration services
         {
             provide: DiagramPositionService,
-            useFactory: diagramPositionPrivateServiceFactory
+            useClass: DiagramPositionPrivateService
         },
         {
             provide: DiagramItemSelectService,
-            useFactory: diagramItemSelectPrivateServiceFactory
+            useClass: DiagramItemSelectPrivateService
         },
         {
             provide: DiagramToolbarService,
-            useFactory: diagramToolbarPrivateServiceFactory
+            useClass: DiagramToolbarPrivateService
         },
 
     ],

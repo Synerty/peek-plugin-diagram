@@ -15,11 +15,11 @@ import {CoordSetCache} from "../cache/CoordSetCache";
 
 import * as $ from "jquery";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
-import {DiagramPositionService} from "@peek/peek_plugin_diagram";
+import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {
     DiagramPositionI,
     DiagramPositionPrivateService
-} from "../services/DiagramPositionPrivateService";
+} from "@peek/peek_plugin_diagram/_private/services/DiagramPositionPrivateService";
 
 export interface DispItemSelectedI {
     key: string;
