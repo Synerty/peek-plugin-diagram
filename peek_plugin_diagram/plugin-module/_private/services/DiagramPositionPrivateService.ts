@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
+import {DiagramPositionService} from "../../DiagramPositionService";
 import {Subject} from "rxjs";
 
 
@@ -18,7 +18,7 @@ export class DiagramPositionPrivateService extends DiagramPositionService {
 
     }
 
-    positionObservable: Subject<DiagramPositionI>;
+    positionObservable: Subject<DiagramPositionI> = new Subject<DiagramPositionI>();
 
     position(coordSetKey: string, x: number, y: number, zoom: number): void {
         this.positionObservable.next({

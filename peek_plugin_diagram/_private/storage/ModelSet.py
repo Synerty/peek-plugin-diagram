@@ -51,6 +51,7 @@ class ModelCoordSet(Tuple, DeclarativeBase):
     __fieldNames__ = ["gridSizes"]
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    key = Column(String(50), nullable=False)
     name = Column(String(50), nullable=False)
     initialPanX = Column(Float, nullable=False, server_default="0")
     initialPanY = Column(Float, nullable=False, server_default="0")
@@ -113,14 +114,15 @@ class ModelCoordSetGridSize(Tuple, DeclarativeBase):
     )
 
     DEFAULT = [
+        # These defaults are good for Aurora
         dict(min=0.0, max=0.04, key=0, xGrid=30000, yGrid=30000,
-             smallestShapeSize=50, smallestTextSize=20),
+             smallestShapeSize=20, smallestTextSize=8),
         dict(min=0.04, max=0.1, key=1, xGrid=10000, yGrid=10000,
-             smallestShapeSize=50, smallestTextSize=20),
+             smallestShapeSize=20, smallestTextSize=8),
         dict(min=0.1, max=0.5, key=2, xGrid=2000, yGrid=2000,
-             smallestShapeSize=50, smallestTextSize=20),
+             smallestShapeSize=20, smallestTextSize=8),
         dict(min=0.5, max=1000.0, key=3, xGrid=1000, yGrid=1000,
-             smallestShapeSize=2, smallestTextSize=6),
+             smallestShapeSize=2, smallestTextSize=4),
     ]
 
     def makeGridKey(self, x, y):

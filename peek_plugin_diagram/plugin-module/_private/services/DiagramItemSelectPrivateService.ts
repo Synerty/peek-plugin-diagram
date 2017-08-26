@@ -1,19 +1,28 @@
 import {Injectable} from "@angular/core";
-import {
-    DiagramItemPopupContextI,
-    DiagramItemSelectService
-} from "@peek/peek_plugin_diagram/DiagramItemSelectService";
-import {Subject} from "rxjs";
+import {Observable, Subject} from "rxjs";
 
+export interface SelectedItemDetailsI {
+    modelSetKey: string;
+    coordSetKey: string;
+    itemKey: string;
+}
 
+/** Item Select Service
+ *
+ * This service notifies the popup service that an item has been selected.
+ *
+ */
 @Injectable()
-export class DiagramItemSelectPrivateService extends DiagramItemSelectService {
+export class DiagramItemSelectPrivateService {
+
+    private _itemSelectSubject = new Subject<SelectedItemDetailsI>();
+
     constructor() {
-        super();
 
     }
-    itemSelectObserver(coordSetKey): Subject<DiagramItemPopupContextI> {
-        return undefined;
+
+    itemSelectObserver(): Observable<SelectedItemDetailsI> {
+        return this._itemSelectSubject;
     }
 
 }

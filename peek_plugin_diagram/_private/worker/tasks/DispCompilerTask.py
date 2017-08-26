@@ -42,8 +42,6 @@ def compileDisps(self, queueIds, dispIds):
     dispQueueTable = DispIndexerQueue.__table__
 
     ormSession = CeleryDbConn.getDbSession()
-    engine = CeleryDbConn.getDbEngine()
-    conn = engine.connect()
     try:
 
         coordSets = (ormSession.query(ModelCoordSet)
@@ -140,6 +138,8 @@ def compileDisps(self, queueIds, dispIds):
     # -----
     # Begin the GridKeyIndex updates
 
+    engine = CeleryDbConn.getDbEngine()
+    conn = engine.connect()
     transaction = conn.begin()
     try:
         lockedDispIds = conn.execute(Select(
@@ -355,9 +355,12 @@ def _isTextTooSmall(disp, gridSize:ModelCoordSetGridSize,
 
     fontStyle = textStyleById[disp.textStyleId]
 
-    fontSize = fontStyle.fontSize * fontStyle.scaleFactor
+    if disp.textHeight:
+        fontSize = fontStyle.fontSize * fontStyle.scaleFactor
+        lineHeight = _pointToPixel(fontSize)
+    else:
+        lineHeight = disp.textHeight
 
-    lineHeight = _pointToPixel(fontSize)
 
     if fontStyle.scalable:
         largestSize = lineHeight * gridSize.max

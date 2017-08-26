@@ -8,11 +8,10 @@ import {WebViewInterface} from 'nativescript-webview-interface';
 import {LoadEventData, WebView} from 'ui/web-view';
 import {PositionServiceBridgeNs} from "./PositionServiceBridgeNs";
 import {ItemSelectServiceBridgeNs} from "./ItemSelectServiceBridgeNs";
-import {
-    DiagramItemSelectService,
-    DiagramPositionService,
-    DiagramToolbarService
-} from "@peek/peek_plugin_diagram";
+import {DiagramItemSelectPrivateService} from "@peek/peek_plugin_diagram/_private/services/DiagramItemSelectPrivateService";
+import {DiagramItemPopupService} from "@peek/peek_plugin_diagram/DiagramItemPopupService";
+import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
+import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 
 
 @Component({
@@ -26,7 +25,9 @@ export class DiagramComponent extends ComponentLifecycleEventEmitter
     @Input("coordSetId")
     coordSetId: number | null = null;
 
-    private wsUrl: string = '';
+    private lastCoordSetId: number | null = null;
+
+    private wsVortexUrl: string = '';
     private httpUrl: string = '';
 
     private oLangWebViewInterface: WebViewInterface;
@@ -37,55 +38,66 @@ export class DiagramComponent extends ComponentLifecycleEventEmitter
     @ViewChild('webView') webView;
 
     constructor(private enrolmentService: DeviceEnrolmentService,
-                private itemSelectService: DiagramItemSelectService,
+                private itemSelectService: DiagramItemSelectPrivateService,
+                private itemPopupService: DiagramItemPopupService,
                 private positionService: DiagramPositionService,
                 private toolbarService: DiagramToolbarService) {
         super();
         this.httpUrl = `${this.enrolmentService.serverHttpUrl}/${diagramBaseUrl}/web_dist`;
-        this.wsUrl = `${this.enrolmentService.serverWebsocketUrl}/vortexws`;
+        this.wsVortexUrl = this.enrolmentService.serverWebsocketVortexUrl;
 
-        // this.onDestroyEvent.subscribe(() => this.oLangWebViewInterface.destroy())
 
     }
 
     ngOnInit() {
-        let webView = <WebView>this.webView.nativeElement;
 
-        if (webView["android"] != null) {
-            console.log("ENABLING ANDROID DATABASE");
-            webView["android"]["getSettings"]()["setDatabaseEnabled"](true);
-        }
+        // Watch the coordSetId
+        let sub = this.doCheckEvent
+            .takeUntil(this.onDestroyEvent)
+            .subscribe(() => {
+                if (this.lastCoordSetId == this.coordSetId)
+                    return;
 
-        this.oLangWebViewInterface = new WebViewInterface(webView, this.webViewUrl());
+                if (this.coordSetId == null)
+                    return;
 
-        // loading languages in dropdown, on load of webView content.
-        this.oLangWebViewInterface.on('nsFunctionName',
-            (message: string) => {
-                console.log("NS:Received : " + message);
+                this.lastCoordSetId = this.coordSetId;
 
-                this.oLangWebViewInterface.emit(
-                    "webFunctionName",
-                    "Hello from NS"
+                // We only take one update
+                sub.unsubscribe();
+
+                let webView = <WebView>this.webView.nativeElement;
+
+                // if (webView["android"] != null) {
+                //     console.log("ENABLING ANDROID DATABASE");
+                //     webView["android"]["getSettings"]()["setDatabaseEnabled"](true);
+                // }
+
+                /* DISABLED FOR DEMO
+                this.oLangWebViewInterface = new WebViewInterface(webView, this.webViewUrl());
+                this.onDestroyEvent
+                    .subscribe(() => this.oLangWebViewInterface.destroy());
+
+
+                this.itemSelectServiceBridge = new ItemSelectServiceBridgeNs(
+                    this, this.itemSelectService, this.oLangWebViewInterface
                 );
+
+                this.positionServiceBridge = new PositionServiceBridgeNs(
+                    this, this.positionService, this.oLangWebViewInterface
+                );
+                 */
+
             });
-
-
-        this.itemSelectServiceBridge = new ItemSelectServiceBridgeNs(
-            this.itemSelectService, this.oLangWebViewInterface
-        );
-
-        this.positionServiceBridge = new PositionServiceBridgeNs(
-            this.positionService, this.oLangWebViewInterface
-        );
 
     }
 
     webViewUrl(): string {
-        // let url = this.httpUrl;
+        let url = this.httpUrl;
         // let url = '~/assets/peek_plugin_diagram/www/index.html';
-        let url = "http://10.211.55.14:4200";
+        // let url = "http://10.211.55.14:4200";
         url += `?coordSetId=${this.coordSetId}`;
-        url += `&vortexWsUrl=${this.wsUrl}`;
+        url += `&vortexWsUrl=${this.wsVortexUrl}`;
         console.log(`Sending WebView to ${url}`);
         return url;
     }

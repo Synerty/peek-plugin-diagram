@@ -7,16 +7,31 @@ import {PeekModuleFactory} from "@synerty/peek-util/index.web";
 import {DiagramComponent} from "./diagram.component";
 
 import {
-    diagramItemSelectPrivateServiceFactory,
-    diagramPositionPrivateServiceFactory,
-    diagramToolbarPrivateServiceFactory
-} from "@peek/peek_plugin_diagram/_private";
+    DiagramItemSelectPrivateService,
+} from "@peek/peek_plugin_diagram/_private/services/DiagramItemSelectPrivateService";
+import {
+    DiagramItemPopupPrivateService,
+} from "@peek/peek_plugin_diagram/_private/services/DiagramItemPopupPrivateService";
 
 import {
-    DiagramItemSelectService,
+    DiagramPositionPrivateService,
+} from "@peek/peek_plugin_diagram/_private/services/DiagramPositionPrivateService";
+
+import {
+    DiagramToolbarPrivateService
+} from "@peek/peek_plugin_diagram/_private/services/DiagramToolbarPrivateService";
+
+import {
+    DiagramItemPopupService,
+} from "@peek/peek_plugin_diagram/DiagramItemPopupService";
+
+import {
     DiagramPositionService,
+} from "@peek/peek_plugin_diagram/DiagramPositionService";
+
+import {
     DiagramToolbarService
-} from "@peek/peek_plugin_diagram";
+} from "@peek/peek_plugin_diagram/DiagramToolbarService";
 
 
 // Define the child routes for this plugin
@@ -44,16 +59,17 @@ export const pluginRoutes: Routes = [
         // Other plugin integration services
         {
             provide: DiagramPositionService,
-            useFactory: diagramPositionPrivateServiceFactory
+            useClass: DiagramPositionPrivateService
         },
         {
-            provide: DiagramItemSelectService,
-            useFactory: diagramItemSelectPrivateServiceFactory
+            provide: DiagramItemPopupService,
+            useClass: DiagramItemPopupPrivateService
         },
         {
             provide: DiagramToolbarService,
-            useFactory: diagramToolbarPrivateServiceFactory
-        }
+            useClass: DiagramToolbarPrivateService
+        },
+        DiagramItemSelectPrivateService
 
     ],
     declarations: [DiagramComponent]

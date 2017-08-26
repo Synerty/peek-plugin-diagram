@@ -1,4 +1,4 @@
-import {Subject} from "rxjs";
+import {Subject, Observable} from "rxjs";
 
 /** Diagram Menu Item Callback Interface
  *
@@ -59,23 +59,23 @@ export interface DiagramItemPopupContextI {
     addDetailItems(details: DiagramItemDetailI[]): void;
 }
 
-/** Diagram Item Select Service
+/** Diagram Item Popup Service
  *
  * This service provides support for other plugins to integrate with the diagram.
  *
  * When a selectable item on the diagram is clicked/tapped, an observable event will
  * be fired with a context class, allowing the other plugin to add menus and details to the popup.
  */
-export abstract class DiagramItemSelectService {
+export abstract class DiagramItemPopupService {
     constructor() {
 
     }
 
-    /** Item Select Observer
+    /** Item Popup Observer
      *
      * This method returns an observer for this coordSetKey, that is fired when the item
      * is selected.
      */
-    abstract itemSelectObserver(coordSetKey): Subject<DiagramItemPopupContextI> ;
+    abstract itemPopupObserver(coordSetKey): Observable<DiagramItemPopupContextI> ;
 
 }

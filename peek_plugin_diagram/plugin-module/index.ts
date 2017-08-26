@@ -2,9 +2,9 @@ export {PeekPluginDiagramModule} from "peek_plugin_diagram/diagram.module";
 export {DiagramCoordSetTuple} from "./tuples/DiagramCoordSetTuple";
 
 export {
-    DiagramItemSelectService,
+    DiagramItemPopupService,
     DiagramMenuItemCallbackI,
     DiagramMenuItemI,
     DiagramItemDetailI,
     DiagramItemPopupContextI
-} from "./DiagramItemSelectService";
+} from "./DiagramItemPopupService";

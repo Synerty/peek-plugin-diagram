@@ -20,6 +20,10 @@ import {
     DiagramPositionI,
     DiagramPositionPrivateService
 } from "@peek/peek_plugin_diagram/_private/services/DiagramPositionPrivateService";
+import {
+    SelectedItemDetailsI,
+    DiagramItemSelectPrivateService
+} from "@peek/peek_plugin_diagram/_private/services/DiagramItemSelectPrivateService";
 
 export interface DispItemSelectedI {
     key: string;
@@ -27,6 +31,11 @@ export interface DispItemSelectedI {
     coordSetKey: string;
 }
 
+/** Canvas Component
+ *
+ * This component ties in all the plain canvas TypeScript code with the Angular
+ * services and the HTML <canvas> tag.
+ */
 @Component({
     selector: 'pl-diagram-canvas',
     templateUrl: 'canvas.component.html',
@@ -38,9 +47,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     @ViewChild('canvas') canvasView;
     private canvas: any = null;
 
-    @Input("coordSetId") coordSetId: number;
-
-    @Output("itemSelected") itemSelectedEvent = new EventEmitter<DispItemSelectedI>();
+    @Input("coordSetId")
+    coordSetId: number | null = null;
 
     // DoCheck last value variables
     private lastCoordSetId: number | null = null;
@@ -60,7 +68,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 private lookupCache: LookupCache,
                 private coordSetCache: CoordSetCache,
                 private dispGroupCache: DispGroupCache,
-                private positionService: DiagramPositionService) {
+                private positionService: DiagramPositionService,
+                private itemSelectService: DiagramItemSelectPrivateService) {
         super();
 
         // Set the title
@@ -181,6 +190,18 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         service.positionObservable
             .takeUntil(this.onDestroyEvent)
             .subscribe((pos: DiagramPositionI) => {
+            if (this.config.controller.coordSet == null) {
+                console.log("ERROR, Failed to update position, coordSet is null");
+                return;
+            }
+
+            if (this.config.controller.coordSet.key ==  pos.coordSetKey ){
+                console.log("ERROR, Failed to update position, coordSet is null");
+                return;
+            }
+
+            this.config.updateViewPortPan(pos); // pos confirms to PanI
+            this.config.updateViewPortZoom(pos.zoom);
 
             });
 

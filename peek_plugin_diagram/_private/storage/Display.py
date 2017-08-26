@@ -247,7 +247,8 @@ class DispText(DispBase):
     colorId = Column(Integer, ForeignKey('DispColor.id'), doc='c')
     color = relationship(DispColor)
 
-    textStyleId = Column(Integer, ForeignKey('DispTextStyle.id'), doc='fs')
+    textStyleId = Column(Integer, ForeignKey('DispTextStyle.id'),
+                         doc='fs', nullable=False)
     textStyle = relationship(DispTextStyle)
 
     __table_args__ = (

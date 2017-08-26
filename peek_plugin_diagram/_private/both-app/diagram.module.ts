@@ -33,14 +33,22 @@ import {DispGroupCache} from "./cache/DispGroupCache";
 import {CoordSetCache} from "./cache/CoordSetCache";
 import {CanvasComponent} from "./canvas-component/canvas-component";
 
+
 import {
     DiagramItemSelectPrivateService,
+} from "@peek/peek_plugin_diagram/_private/services/DiagramItemSelectPrivateService";
+import {
+    DiagramPositionPrivateService,
+} from "@peek/peek_plugin_diagram/_private/services/DiagramPositionPrivateService";
+import {
     DiagramToolbarPrivateService,
-    DiagramPositionPrivateService
-} from "@peek/peek_plugin_diagram/_private";
+} from "@peek/peek_plugin_diagram/_private/services/DiagramToolbarPrivateService";
+import {
+    DiagramItemPopupPrivateService,
+} from "@peek/peek_plugin_diagram/_private/services/DiagramItemPopupPrivateService";
 
 
-import {DiagramItemSelectService} from "@peek/peek_plugin_diagram/DiagramItemSelectService";
+import {DiagramItemPopupService} from "@peek/peek_plugin_diagram/DiagramItemPopupService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
 
@@ -67,7 +75,8 @@ export function tupleOfflineStorageNameServiceFactory() {
         ...PeekModuleFactory.FormsModules,
     ],
     exports: [
-        DiagramComponent
+        DiagramComponent,
+        CanvasComponent
     ],
     providers: [
         TupleActionPushOfflineService, TupleActionPushService, {
@@ -96,13 +105,14 @@ export function tupleOfflineStorageNameServiceFactory() {
             useClass: DiagramPositionPrivateService
         },
         {
-            provide: DiagramItemSelectService,
-            useClass: DiagramItemSelectPrivateService
+            provide: DiagramItemPopupService,
+            useClass: DiagramItemPopupPrivateService
         },
         {
             provide: DiagramToolbarService,
             useClass: DiagramToolbarPrivateService
         },
+        DiagramItemSelectPrivateService,
 
     ],
     declarations: [DiagramComponent, CanvasComponent]

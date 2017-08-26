@@ -18,8 +18,7 @@ import {
 } from "@synerty/vortexjs/index-browser";
 
 import {TitleService} from "@synerty/peek-util";
-import {ItemSelectServiceBridgeWeb} from "../service-bridge/ItemSelectServiceBridgeWeb";
-import {PositionServiceBridgeWeb} from "../service-bridge/PositionServiceBridgeWeb";
+import {CanvasComponent} from "../peek_plugin_diagram/canvas-component/canvas-component";
 
 export function titleServiceFactory() {
     return new TitleService([]);
@@ -47,9 +46,6 @@ export function titleServiceFactory() {
         VortexStatusService,
         VortexService,
 
-        // Import bridge services
-        ItemSelectServiceBridgeWeb,
-        PositionServiceBridgeWeb,
     ],
     bootstrap: [NsWebDiagramComponent]
 })
