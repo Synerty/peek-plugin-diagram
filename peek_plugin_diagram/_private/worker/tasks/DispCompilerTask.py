@@ -356,10 +356,10 @@ def _isTextTooSmall(disp, gridSize:ModelCoordSetGridSize,
     fontStyle = textStyleById[disp.textStyleId]
 
     if disp.textHeight:
+        lineHeight = disp.textHeight
+    else:
         fontSize = fontStyle.fontSize * fontStyle.scaleFactor
         lineHeight = _pointToPixel(fontSize)
-    else:
-        lineHeight = disp.textHeight
 
 
     if fontStyle.scalable:
