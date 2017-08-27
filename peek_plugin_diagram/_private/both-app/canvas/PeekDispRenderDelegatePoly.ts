@@ -48,7 +48,11 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
         // Null colors are also not drawn
         fillColor = (fillColor && fillColor.color) ? fillColor : null;
-        lineColor = (lineColor && lineColor.color) ? lineColor : null;
+        lineColor = (lineStyle && lineColor && lineColor.color) ? lineColor : null;
+
+        // If there are no colours defined then this is a selectable only shape
+        if (!fillColor && !lineColor)
+            return;
 
         let fillDirection = DispPolygon.fillDirection(disp);
         let fillPercentage = DispPolygon.fillPercent(disp);
@@ -59,7 +63,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         let firstPointY = points[1]; // get details of point
 
         // Fill the background first, if required
-        if (lineStyle.backgroundFillDashSpace) {
+        if (lineColor && lineStyle.backgroundFillDashSpace) {
             ctx.beginPath();
             ctx.moveTo(firstPointX, firstPointY);
 
