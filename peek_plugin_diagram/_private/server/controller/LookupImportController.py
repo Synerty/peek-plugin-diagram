@@ -108,6 +108,8 @@ class LookupImportController:
                     newTuple = LookupType()
 
                     for fieldName in lookup.tupleFieldNames():
+                        if fieldName in ("id", "coordSetId", "modelSetId"):
+                            continue
                         setattr(newTuple, fieldName, getattr(lookup, fieldName))
 
                     updateFks(newTuple)
