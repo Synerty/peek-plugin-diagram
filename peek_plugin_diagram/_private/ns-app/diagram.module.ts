@@ -1,6 +1,6 @@
 import {CommonModule} from "@angular/common";
 import {NgModule} from "@angular/core";
-import {Routes} from "@angular/router";
+
 // Import a small abstraction library to switch between nativescript and web
 import {PeekModuleFactory} from "@synerty/peek-util/index.web";
 // Import the default route component
@@ -34,15 +34,6 @@ import {
 } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 
 
-// Define the child routes for this plugin
-export const pluginRoutes: Routes = [
-    {
-        path: '',
-        pathMatch: 'full',
-        component: DiagramComponent
-    }
-
-];
 
 // Define the root module for this plugin.
 // This module is loaded by the lazy loader, what ever this defines is what is started.
@@ -50,11 +41,9 @@ export const pluginRoutes: Routes = [
 @NgModule({
     imports: [
         CommonModule,
-        PeekModuleFactory.RouterModule,
-        PeekModuleFactory.RouterModule.forChild(pluginRoutes),
         ...PeekModuleFactory.FormsModules,
     ],
-    exports: [],
+    exports: [DiagramComponent],
     providers: [
         // Other plugin integration services
         {

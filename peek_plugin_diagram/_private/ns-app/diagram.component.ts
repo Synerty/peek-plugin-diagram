@@ -27,9 +27,6 @@ export class DiagramComponent extends ComponentLifecycleEventEmitter
 
     private lastCoordSetId: number | null = null;
 
-    private wsVortexUrl: string = '';
-    private httpUrl: string = '';
-
     private oLangWebViewInterface: WebViewInterface;
 
     private itemSelectServiceBridge: ItemSelectServiceBridgeNs | null = null;
@@ -43,9 +40,6 @@ export class DiagramComponent extends ComponentLifecycleEventEmitter
                 private positionService: DiagramPositionService,
                 private toolbarService: DiagramToolbarService) {
         super();
-        this.httpUrl = `${this.enrolmentService.serverHttpUrl}/${diagramBaseUrl}/web_dist`;
-        this.wsVortexUrl = this.enrolmentService.serverWebsocketVortexUrl;
-
 
     }
 
@@ -73,7 +67,6 @@ export class DiagramComponent extends ComponentLifecycleEventEmitter
                 //     webView["android"]["getSettings"]()["setDatabaseEnabled"](true);
                 // }
 
-                /* DISABLED FOR DEMO
                 this.oLangWebViewInterface = new WebViewInterface(webView, this.webViewUrl());
                 this.onDestroyEvent
                     .subscribe(() => this.oLangWebViewInterface.destroy());
@@ -86,18 +79,18 @@ export class DiagramComponent extends ComponentLifecycleEventEmitter
                 this.positionServiceBridge = new PositionServiceBridgeNs(
                     this, this.positionService, this.oLangWebViewInterface
                 );
-                 */
 
             });
 
     }
 
     webViewUrl(): string {
-        let url = this.httpUrl;
+        let url = `${this.enrolmentService.serverHttpUrl}/${diagramBaseUrl}/web_dist`;
+        let wsVortexUrl = this.enrolmentService.serverWebsocketVortexUrl;
         // let url = '~/assets/peek_plugin_diagram/www/index.html';
         // let url = "http://10.211.55.14:4200";
         url += `?coordSetId=${this.coordSetId}`;
-        url += `&vortexWsUrl=${this.wsVortexUrl}`;
+        url += `&vortexWsUrl=${wsVortexUrl}`;
         console.log(`Sending WebView to ${url}`);
         return url;
     }
