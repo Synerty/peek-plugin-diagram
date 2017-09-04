@@ -1,6 +1,6 @@
-import {PeekCanvasConfig} from "./PeekCanvasConfig";
-import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC";
-import {DispGroupCache} from "../cache/DispGroupCache";
+import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
+import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
+import {DispGroupCache} from "../cache/DispGroupCache.web";
 
 export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 

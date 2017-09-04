@@ -2,9 +2,9 @@ import {CommonModule} from "@angular/common";
 import {NgModule} from "@angular/core";
 
 // Import a small abstraction library to switch between nativescript and web
-import {PeekModuleFactory} from "@synerty/peek-util/index.web";
+import {PeekModuleFactory} from "@synerty/peek-util/index.ns";
 // Import the default route component
-import {DiagramComponent} from "./diagram.component";
+import {DiagramComponent} from "../ns-app/diagram.component";
 
 import {
     DiagramItemSelectPrivateService,
@@ -33,6 +33,9 @@ import {
     DiagramToolbarService
 } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 
+import {CanvasComponent} from "./canvas-component/canvas.component.ns";
+import {PopupComponent} from "./popup-component/popup.component";
+import {ToolbarComponent} from "./toolbar-component/toolbar.component";
 
 
 // Define the root module for this plugin.
@@ -61,7 +64,7 @@ import {
         DiagramItemSelectPrivateService
 
     ],
-    declarations: [DiagramComponent]
+    declarations: [DiagramComponent, CanvasComponent, PopupComponent, ToolbarComponent]
 })
 export class PeekPluginDiagramModule {
 }

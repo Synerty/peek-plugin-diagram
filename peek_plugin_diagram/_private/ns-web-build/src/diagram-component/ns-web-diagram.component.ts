@@ -11,8 +11,6 @@ import {DiagramItemSelectPrivateService} from "@peek/peek_plugin_diagram/_privat
 })
 export class NsWebDiagramComponent extends ComponentLifecycleEventEmitter implements OnInit {
 
-    coordSetId: number | null = null;
-
     private oWebViewInterface: any;
     private itemSelectServiceBridge: ItemSelectServiceBridgeWeb | null = null;
     private positionServiceBridge: PositionServiceBridgeWeb | null = null;
@@ -33,15 +31,10 @@ export class NsWebDiagramComponent extends ComponentLifecycleEventEmitter implem
         );
 
         let vortexWsUrl: string | null = vars['vortexWsUrl'];
-        let coordSetId: string | null = vars['coordSetId'];
 
         if (vortexWsUrl != null) {
             VortexService.setVortexUrl(vortexWsUrl);
             this.vortexService.reconnect();
-        }
-
-        if (coordSetId != null) {
-            this.coordSetId = parseInt(coordSetId);
         }
 
 

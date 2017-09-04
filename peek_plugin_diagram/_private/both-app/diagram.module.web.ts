@@ -23,15 +23,15 @@ import {
     diagramTupleOfflineServiceName
 } from "@peek/peek_plugin_diagram/_private/PluginNames";
 // Import global modules, for example, the canvas extensions.
-import "./canvas/PeekCanvasExtensions";
+import "./canvas/PeekCanvasExtensions.web";
 // import {DisplayCanvasSplashScreen} from "./loading-splash/loading-splash.service";
-import {DiagramClientTupleOfflineObservable} from "./DiagramClientTupleOfflineObservable";
-import {GridCache} from "./cache/GridCache";
-import {GridObservable} from "./cache/GridObservable";
-import {LookupCache} from "./cache/LookupCache";
-import {DispGroupCache} from "./cache/DispGroupCache";
-import {CoordSetCache} from "./cache/CoordSetCache";
-import {CanvasComponent} from "./canvas-component/canvas-component";
+import {DiagramClientTupleOfflineObservable} from "./DiagramClientTupleOfflineObservable.web";
+import {GridCache} from "./cache/GridCache.web";
+import {GridObservable} from "./cache/GridObservable.web";
+import {LookupCache} from "./cache/LookupCache.web";
+import {DispGroupCache} from "./cache/DispGroupCache.web";
+import {CoordSetCache} from "./cache/CoordSetCache.web";
+import {CanvasComponent} from "./canvas-component/canvas-component.web";
 
 
 import {
@@ -51,6 +51,8 @@ import {
 import {DiagramItemPopupService} from "@peek/peek_plugin_diagram/DiagramItemPopupService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
+import {PopupComponent} from "./popup-component/popup.component";
+import {ToolbarComponent} from "./toolbar-component/toolbar.component";
 
 export function tupleActionPushNameServiceFactory() {
     return new TupleActionPushNameService(
@@ -115,7 +117,7 @@ export function tupleOfflineStorageNameServiceFactory() {
         DiagramItemSelectPrivateService,
 
     ],
-    declarations: [DiagramComponent, CanvasComponent]
+    declarations: [DiagramComponent, CanvasComponent, PopupComponent, ToolbarComponent]
 })
 export class PeekPluginDiagramModule {
 }

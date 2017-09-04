@@ -1,6 +1,6 @@
-import {assert} from "../DiagramUtil";
+import {assert} from "../DiagramUtil.web";
 import {GridTuple} from "../tuples/GridTuple";
-import {LookupCache} from "./LookupCache";
+import {LookupCache} from "./LookupCache.web";
 /** Linked Grid
  *
  * This class represents a constructed grid of data, ready for use by a canvas model

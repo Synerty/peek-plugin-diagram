@@ -1,11 +1,11 @@
-import {PeekCanvasConfig} from "./PeekCanvasConfig";
-import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC";
+import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
+import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {
     DispText,
     TextHorizontalAlign,
     TextVerticalAlign
 } from "../tuples/shapes/DispText";
-import {pointToPixel} from "../DiagramUtil";
+import {pointToPixel} from "../DiagramUtil.web";
 
 export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 

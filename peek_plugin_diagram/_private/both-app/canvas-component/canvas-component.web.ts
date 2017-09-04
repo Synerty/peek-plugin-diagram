@@ -1,28 +1,27 @@
-import {Component, EventEmitter, Input, Output, ViewChild} from "@angular/core";
+import {Component, ViewChild} from "@angular/core";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {TitleService} from "@synerty/peek-util";
 
-import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig";
-import {PeekDispRenderFactory} from "../canvas/PeekDispRenderFactory";
-import {PeekCanvasRenderer} from "../canvas/PeekCanvasRenderer";
-import {PeekCanvasInput} from "../canvas/PeekCanvasInput";
-import {PeekCanvasModel} from "../canvas/PeekCanvasModel";
-import {GridObservable} from "../cache/GridObservable";
-import {LookupCache} from "../cache/LookupCache";
-import {DispGroupCache} from "../cache/DispGroupCache";
-import {CoordSetCache} from "../cache/CoordSetCache";
+import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
+import {PeekDispRenderFactory} from "../canvas/PeekDispRenderFactory.web";
+import {PeekCanvasRenderer} from "../canvas/PeekCanvasRenderer.web";
+import {PeekCanvasInput} from "../canvas/PeekCanvasInput.web";
+import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
+import {GridObservable} from "../cache/GridObservable.web";
+import {LookupCache} from "../cache/LookupCache.web";
+import {DispGroupCache} from "../cache/DispGroupCache.web";
+import {CoordSetCache} from "../cache/CoordSetCache.web";
 
 import * as $ from "jquery";
-import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
+import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds.web";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {
     DiagramPositionI,
     DiagramPositionPrivateService
 } from "@peek/peek_plugin_diagram/_private/services/DiagramPositionPrivateService";
 import {
-    SelectedItemDetailsI,
-    DiagramItemSelectPrivateService
+    DiagramItemSelectPrivateService,
+    SelectedItemDetailsI
 } from "@peek/peek_plugin_diagram/_private/services/DiagramItemSelectPrivateService";
 
 export interface DispItemSelectedI {
@@ -38,8 +37,8 @@ export interface DispItemSelectedI {
  */
 @Component({
     selector: 'pl-diagram-canvas',
-    templateUrl: 'canvas.component.html',
-    styleUrls: ['canvas.component.css'],
+    templateUrl: 'canvas.component.web.html',
+    styleUrls: ['canvas.component.web.scss'],
     moduleId: module.id
 })
 export class CanvasComponent extends ComponentLifecycleEventEmitter {
@@ -47,11 +46,9 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     @ViewChild('canvas') canvasView;
     private canvas: any = null;
 
-    @Input("coordSetId")
     coordSetId: number | null = null;
 
     // DoCheck last value variables
-    private lastCoordSetId: number | null = null;
     private lastCanvasSize: string = "";
     private lastWindowHeight: number = 0;
 
@@ -62,9 +59,11 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     private model: PeekCanvasModel;
     private input: PeekCanvasInput;
 
+    // Private services
+    private _privatePosService: DiagramPositionPrivateService;
 
-    constructor(private titleService: TitleService,
-                private gridObservable: GridObservable,
+
+    constructor(private gridObservable: GridObservable,
                 private lookupCache: LookupCache,
                 private coordSetCache: CoordSetCache,
                 private dispGroupCache: DispGroupCache,
@@ -72,8 +71,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 private itemSelectService: DiagramItemSelectPrivateService) {
         super();
 
-        // Set the title
-        this.titleService.setTitle("Loading Canvas ...");
+        // Cast the private services
+        this._privatePosService = <DiagramPositionPrivateService> positionService;
 
         // The config for the canvas
         this.config = new PeekCanvasConfig();
@@ -99,25 +98,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
             .takeUntil(this.onDestroyEvent)
             .subscribe(ctx => this.input.draw(ctx));
 
-        // Watch the coordSetId
-        this.doCheckEvent
-            .takeUntil(this.onDestroyEvent)
-            .subscribe(() => {
-                if (!this.isReady() || this.lastCoordSetId == this.coordSetId)
-                    return;
-
-                if (this.coordSetId == null)
-                    return;
-
-                this.lastCoordSetId = this.coordSetId;
-
-                let coordSet = this.coordSetCache.coordSetForId(this.coordSetId);
-                this.config.updateCoordSet(coordSet);
-                this.titleService.setTitle(`Viewing ${coordSet.name}`);
-            });
-
         // Hook up the position server
-        this.connectDiagramService(<DiagramPositionPrivateService> positionService);
+        this.connectDiagramService();
 
 
     }
@@ -186,22 +168,66 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         return `${x}x${y}X${zoom}, ${this.config.model.dispOnScreen} Items`;
     }
 
-    private connectDiagramService(service: DiagramPositionPrivateService): void {
-        service.positionObservable
+    private switchToCoordSet(coordSetKey: string) {
+
+        if (!this.isReady())
+            return;
+
+        let coordSet = this.coordSetCache.coordSetForKey(coordSetKey);
+        this.config.updateCoordSet(coordSet);
+
+        this._privatePosService.titleUpdatedSubject.next(`Viewing ${coordSet.name}`);
+
+        // Update
+        this.config.updateCoordSet(coordSet);
+
+        // Inform the position service that it's ready to go.
+        this._privatePosService.isReadySubject.next(true);
+
+    }
+
+    private connectDiagramService(): void {
+        // Hook up the isReady event
+        let isReadySub = this.doCheckEvent
+            .takeUntil(this.onDestroyEvent)
+            .subscribe(() => {
+                if (!this.isReady())
+                    return;
+
+                isReadySub.unsubscribe();
+                this._privatePosService.isReadySubject.next(true);
+            });
+
+        // Watch the positionInitial observable
+        this._privatePosService.positionInitialSubject
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((coordSetKey: string) => {
+
+                if (!this.isReady())
+                    return;
+
+                this.switchToCoordSet(coordSetKey);
+            });
+
+
+        // Watch the position observable
+        this._privatePosService.positionSubject
             .takeUntil(this.onDestroyEvent)
             .subscribe((pos: DiagramPositionI) => {
-            if (this.config.controller.coordSet == null) {
-                console.log("ERROR, Failed to update position, coordSet is null");
-                return;
-            }
+                if (this.config.controller.coordSet == null) {
+                    console.log("ERROR, Failed to update position, coordSet is null");
+                    return;
+                }
 
-            if (this.config.controller.coordSet.key ==  pos.coordSetKey ){
-                console.log("ERROR, Failed to update position, coordSet is null");
-                return;
-            }
+                if (this.config.controller.coordSet.key == pos.coordSetKey) {
+                    console.log("ERROR, Failed to update position, coordSet is null");
+                    return;
+                }
 
-            this.config.updateViewPortPan(pos); // pos confirms to PanI
-            this.config.updateViewPortZoom(pos.zoom);
+                this.switchToCoordSet(pos.coordSetKey);
+
+                this.config.updateViewPortPan({x: pos.x, y: pos.y}); // pos confirms to PanI
+                this.config.updateViewPortZoom(pos.zoom);
 
             });
 

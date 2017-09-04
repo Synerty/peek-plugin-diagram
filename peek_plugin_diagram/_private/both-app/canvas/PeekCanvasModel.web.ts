@@ -1,9 +1,9 @@
-import {PeekCanvasConfig} from "./PeekCanvasConfig";
-import {GridObservable} from "../cache/GridObservable";
+import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
+import {GridObservable} from "../cache/GridObservable.web";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {LinkedGrid} from "../cache/LinkedGrid";
-import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil";
-import {LookupCache} from "../cache/LookupCache";
+import {LinkedGrid} from "../cache/LinkedGrid.web";
+import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil.web";
+import {LookupCache} from "../cache/LookupCache.web";
 import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
 import {DispLevel} from "../tuples/lookups/DispLevel";
 import {DispLayer} from "../tuples/lookups/DispLayer";

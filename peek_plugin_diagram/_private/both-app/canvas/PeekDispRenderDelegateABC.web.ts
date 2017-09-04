@@ -1,4 +1,4 @@
-import {PeekCanvasConfig} from "./PeekCanvasConfig";
+import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 
 export abstract class PeekDispRenderDelegateABC {
 

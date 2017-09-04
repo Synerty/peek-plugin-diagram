@@ -1,4 +1,4 @@
-export {PeekPluginDiagramModule} from "peek_plugin_diagram/diagram.module";
+export {PeekPluginDiagramModule} from "peek_plugin_diagram/diagram.module.web";
 export {DiagramCoordSetTuple} from "./tuples/DiagramCoordSetTuple";
 
 export {

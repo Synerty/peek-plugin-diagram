@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
-import {LookupCache} from "./LookupCache";
-import {LinkedGrid} from "./LinkedGrid";
+import {LookupCache} from "./LookupCache.web";
+import {LinkedGrid} from "./LinkedGrid.web";
 import {Subject} from "rxjs/Subject";
 import {GridTuple} from "../tuples/GridTuple";
 
@@ -17,7 +17,7 @@ import {
 } from "@synerty/vortexjs";
 import {diagramFilt, gridCacheStorageName} from "@peek/peek_plugin_diagram/_private";
 
-import {dictValuesFromObject} from "../DiagramUtil";
+import {dictValuesFromObject} from "../DiagramUtil.web";
 import * as moment from "moment";
 
 let pako = require("pako");

@@ -39,7 +39,7 @@
     },
     "mobile-ns": {
         "showHomeLink": false,
-        "appDir": "_private/ns-app",
+        "appDir": "_private/both-app",
         "assetDir": "_private/ns-assets",
         "moduleDir": "plugin-module"
     },

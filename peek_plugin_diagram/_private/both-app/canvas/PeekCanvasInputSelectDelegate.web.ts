@@ -1,10 +1,10 @@
-import {MousePos, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate";
-import {PeekCanvasConfig} from "./PeekCanvasConfig";
-import {PeekCanvasModel} from "./PeekCanvasModel";
-import {PeekCanvasInput} from "./PeekCanvasInput";
+import {MousePos, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
+import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
+import {PeekCanvasModel} from "./PeekCanvasModel.web";
+import {PeekCanvasInput} from "./PeekCanvasInput.web";
 import * as assert from "assert";
-import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {PeekDispRenderFactory} from "./PeekDispRenderFactory";
+import {PeekCanvasBounds} from "./PeekCanvasBounds.web";
+import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 
 /**
  * This input delegate handles :

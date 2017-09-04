@@ -1,12 +1,12 @@
-import {PeekCanvasConfig} from "./PeekCanvasConfig";
-import {PeekCanvasModel} from "./PeekCanvasModel";
+import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
+import {PeekCanvasModel} from "./PeekCanvasModel.web";
 
 import * as $ from "jquery";
-import {PeekDispRenderFactory} from "./PeekDispRenderFactory";
-import {disableContextMenu, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate";
+import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
+import {disableContextMenu, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate";
+import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web";
 
 
 /** Peek Canvas Input

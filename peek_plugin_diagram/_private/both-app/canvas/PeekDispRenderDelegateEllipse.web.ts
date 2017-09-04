@@ -1,5 +1,5 @@
-import {PeekCanvasConfig} from "./PeekCanvasConfig";
-import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC";
+import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
+import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {DispEllipse} from "../tuples/shapes/DispEllipse";
 
 export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {

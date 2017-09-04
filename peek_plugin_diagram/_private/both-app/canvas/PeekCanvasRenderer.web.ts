@@ -1,9 +1,9 @@
-import {PeekCanvasConfig} from "./PeekCanvasConfig";
-import {PeekCanvasModel} from "./PeekCanvasModel";
-import {PeekDispRenderFactory} from "./PeekDispRenderFactory";
+import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
+import {PeekCanvasModel} from "./PeekCanvasModel.web";
+import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {PanI} from "./PeekInterfaces";
-import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {PanI} from "./PeekInterfaces.web";
+import {PeekCanvasBounds} from "./PeekCanvasBounds.web";
 import {Subject} from "rxjs/Subject";
 
 export class PeekCanvasPan implements PanI {

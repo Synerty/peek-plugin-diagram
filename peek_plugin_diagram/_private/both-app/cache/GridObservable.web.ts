@@ -1,11 +1,11 @@
 import {Injectable} from "@angular/core";
-import {GridCache} from "./GridCache";
-import {LinkedGrid} from "./LinkedGrid";
+import {GridCache} from "./GridCache.web";
+import {LinkedGrid} from "./LinkedGrid.web";
 import {Subject} from "rxjs/Subject";
 import {
     assert, dictKeysFromObject, dictSetFromArray,
     dictValuesFromObject
-} from "../DiagramUtil";
+} from "../DiagramUtil.web";
 import {extend} from "@synerty/vortexjs";
 
 /** Grid Observable
