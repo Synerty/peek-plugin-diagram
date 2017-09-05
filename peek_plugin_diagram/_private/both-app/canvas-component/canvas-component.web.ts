@@ -13,7 +13,7 @@ import {DispGroupCache} from "../cache/DispGroupCache.web";
 import {CoordSetCache} from "../cache/CoordSetCache.web";
 
 import * as $ from "jquery";
-import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds.web";
+import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {
     DiagramPositionI,
@@ -203,8 +203,10 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
             .takeUntil(this.onDestroyEvent)
             .subscribe((coordSetKey: string) => {
 
-                if (!this.isReady())
-                    return;
+                if (!this.isReady()) {
+                    console.log("ERROR, Position was called before canvas is ready");
+                     return;
+                }
 
                 this.switchToCoordSet(coordSetKey);
             });

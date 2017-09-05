@@ -2,7 +2,7 @@ import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {DispPolygon} from "../tuples/shapes/DispPolygon";
 import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
-import {PeekCanvasBounds} from "./PeekCanvasBounds.web";
+import {PeekCanvasBounds} from "./PeekCanvasBounds";
 
 export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 

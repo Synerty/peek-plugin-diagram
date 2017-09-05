@@ -4,7 +4,7 @@ import {NgModule} from "@angular/core";
 // Import a small abstraction library to switch between nativescript and web
 import {PeekModuleFactory} from "@synerty/peek-util/index.ns";
 // Import the default route component
-import {DiagramComponent} from "../ns-app/diagram.component";
+import {DiagramComponent} from "./diagram.component";
 
 import {
     DiagramItemSelectPrivateService,

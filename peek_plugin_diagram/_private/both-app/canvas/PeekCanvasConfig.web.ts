@@ -1,6 +1,6 @@
 import {Subject} from "rxjs";
 import {PanI} from "./PeekInterfaces.web";
-import {PeekCanvasBounds} from "./PeekCanvasBounds.web";
+import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {ModelCoordSet} from "../tuples/model/ModelCoordSet";
 
 

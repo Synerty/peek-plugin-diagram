@@ -5,7 +5,7 @@ import {Subject} from "rxjs/Subject";
 import {
     assert, dictKeysFromObject, dictSetFromArray,
     dictValuesFromObject
-} from "../DiagramUtil.web";
+} from "../DiagramUtil";
 import {extend} from "@synerty/vortexjs";
 
 /** Grid Observable

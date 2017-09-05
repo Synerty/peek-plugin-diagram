@@ -6,7 +6,7 @@ import {diagramTuplePrefix} from "../_private/PluginNames";
 export class DiagramCoordSetTuple extends Tuple {
     public static readonly tupleName = diagramTuplePrefix + "DiagramCoordSetTuple";
 
-    id: number;
+    key: string;
     name: string;
 
     constructor() {

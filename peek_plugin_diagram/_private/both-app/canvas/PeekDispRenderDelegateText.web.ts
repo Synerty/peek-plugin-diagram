@@ -5,7 +5,7 @@ import {
     TextHorizontalAlign,
     TextVerticalAlign
 } from "../tuples/shapes/DispText";
-import {pointToPixel} from "../DiagramUtil.web";
+import {pointToPixel} from "../DiagramUtil";
 
 export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 

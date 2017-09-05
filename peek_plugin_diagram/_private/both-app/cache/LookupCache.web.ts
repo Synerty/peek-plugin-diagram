@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {TupleSelector} from "@synerty/vortexjs";
-import {dictKeysFromObject, dictValuesFromObject} from "../DiagramUtil.web";
+import {dictKeysFromObject, dictValuesFromObject} from "../DiagramUtil";
 import {DiagramClientTupleOfflineObservable} from "../DiagramClientTupleOfflineObservable.web";
 import {DispLevel} from "../tuples/lookups/DispLevel";
 import {DispLayer} from "../tuples/lookups/DispLayer";

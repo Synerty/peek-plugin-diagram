@@ -27,7 +27,7 @@ class DiagramViewerApi(DiagramViewerApiABC):
             coordSetTuples = []
             for obj in all:
                 coordSetTuples.append(DiagramCoordSetTuple(
-                    id=obj.id,
+                    key=obj.key,
                     name=obj.name
                 ))
 

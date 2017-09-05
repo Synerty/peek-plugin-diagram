@@ -14,6 +14,7 @@ import {TitleService} from "@synerty/peek-util";
 @Component({
     selector: 'peek-plugin-diagram',
     templateUrl: 'diagram.component.web.html',
+    styleUrls : ['diagram.component.web.scss'],
     moduleId: module.id
 })
 export class DiagramComponent extends ComponentLifecycleEventEmitter {

@@ -2,7 +2,7 @@ import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {GridObservable} from "../cache/GridObservable.web";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {LinkedGrid} from "../cache/LinkedGrid.web";
-import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil.web";
+import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil";
 import {LookupCache} from "../cache/LookupCache.web";
 import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
 import {DispLevel} from "../tuples/lookups/DispLevel";

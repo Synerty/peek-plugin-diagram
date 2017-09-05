@@ -1,4 +1,4 @@
-import {PeekCanvasBounds} from "./PeekCanvasBounds.web";
+import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {PeekDispRenderDelegatePoly} from "./PeekDispRenderDelegatePoly.web";
 import {PeekDispRenderDelegateText} from "./PeekDispRenderDelegateText.web";
 import {PeekDispRenderDelegateEllipse} from "./PeekDispRenderDelegateEllipse.web";

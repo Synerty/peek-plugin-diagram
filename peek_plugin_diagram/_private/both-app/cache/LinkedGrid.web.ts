@@ -1,4 +1,4 @@
-import {assert} from "../DiagramUtil.web";
+import {assert} from "../DiagramUtil";
 import {GridTuple} from "../tuples/GridTuple";
 import {LookupCache} from "./LookupCache.web";
 /** Linked Grid

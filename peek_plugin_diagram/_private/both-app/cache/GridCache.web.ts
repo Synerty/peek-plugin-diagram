@@ -17,7 +17,7 @@ import {
 } from "@synerty/vortexjs";
 import {diagramFilt, gridCacheStorageName} from "@peek/peek_plugin_diagram/_private";
 
-import {dictValuesFromObject} from "../DiagramUtil.web";
+import {dictValuesFromObject} from "../DiagramUtil";
 import * as moment from "moment";
 
 let pako = require("pako");

@@ -20,11 +20,10 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
     private toolbarService: DiagramToolbarPrivateService;
 
 
-    constructor(private abstractToolbarService: DiagramToolbarService) {
+    constructor(abstractToolbarService: DiagramToolbarService) {
         super();
 
         this.toolbarService = <DiagramToolbarPrivateService> abstractToolbarService;
-
 
     }
 

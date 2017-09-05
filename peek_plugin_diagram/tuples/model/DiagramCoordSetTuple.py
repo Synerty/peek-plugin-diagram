@@ -12,7 +12,7 @@ class DiagramCoordSetTuple(Tuple):
     __tupleType__ = diagramTuplePrefix + 'DiagramCoordSetTuple'
 
     #:  The ID of the coordinate set.
-    id: int = TupleField()
+    key: int = TupleField()
 
     #:  The name of the coordinate set.
     name: str = TupleField()

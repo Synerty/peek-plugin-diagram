@@ -3,7 +3,7 @@ import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekCanvasInput} from "./PeekCanvasInput.web";
 import * as assert from "assert";
-import {PeekCanvasBounds} from "./PeekCanvasBounds.web";
+import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 
 /**

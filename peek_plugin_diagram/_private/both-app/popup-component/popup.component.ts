@@ -28,6 +28,12 @@ export class PopupComponent extends ComponentLifecycleEventEmitter
 
     }
 
+
+
+    onClose() {
+
+    }
+
     ngOnInit() {
 
 
