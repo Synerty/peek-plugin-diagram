@@ -30,11 +30,18 @@ export class NsWebDiagramComponent extends ComponentLifecycleEventEmitter implem
             (m, key, value) => vars[key] = value
         );
 
+        let modelSetKey: string | null = vars['modelSetKey'];
         let vortexWsUrl: string | null = vars['vortexWsUrl'];
 
         if (vortexWsUrl != null) {
             VortexService.setVortexUrl(vortexWsUrl);
             this.vortexService.reconnect();
+        }
+
+
+        if (modelSetKey == null || modelSetKey.length == 0) {
+            alert("modelSetKey set is empty or null");
+            throw new Error("modelSetKey set is empty or null");
         }
 
 

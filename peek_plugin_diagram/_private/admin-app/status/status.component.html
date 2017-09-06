@@ -3,32 +3,52 @@
     </div>
     <div class="panel-body">
 
-        <dl class="dl-horizontal">
+        <table class="table">
+            <thead>
+
+            <tr>
+                <th></th>
+                <th>Is Running</th>
+                <th>Queue Size</th>
+                <th>Total Processed</th>
+                <th>Last Error</th>
+            </tr>
+
+            </thead>
+
+            <tbody>
+
+            <!-- DISP Compiler -->
+            <tr>
+                <th>Display Compiler</th>
+                <td>{{item.displayCompilerQueueStatus}}</td>
+                <td>{{item.displayCompilerQueueSize}}</td>
+                <td>{{item.displayCompilerProcessedTotal}}</td>
+                <td>{{item.displayCompilerLastError}}</td>
+
+            </tr>
+
             <!-- Grid Compiler -->
-            <dt>Display Compiler Running :</dt>
-            <dd>{{item.displayCompilerQueueStatus}}</dd>
+            <tr>
+                <th>Display Compiler</th>
+                <td>{{item.gridCompilerQueueStatus}}</td>
+                <td>{{item.gridCompilerQueueSize}}</td>
+                <td>{{item.gridCompilerProcessedTotal}}</td>
+                <td>{{item.gridCompilerLastError}}</td>
 
-            <dt>Display Compiler Queue Size :</dt>
-            <dd>{{item.displayCompilerQueueSize}}</dd>
+            </tr>
 
-            <dt>Display Compiler Total Processed :</dt>
-            <dd>{{item.displayCompilerProcessedTotal}}</dd>
 
-            <dt>Display Compiler Last Error :</dt>
-            <dd>{{item.displayCompilerLastError}}</dd>
+            <!-- Disp Key Index Compiler -->
+            <tr>
+                <th>Display Key Index Compiler</th>
+                <td>{{item.locationIndexCompilerQueueStatus}}</td>
+                <td>{{item.locationIndexCompilerQueueSize}}</td>
+                <td>{{item.locationIndexCompilerProcessedTotal}}</td>
+                <td>{{item.locationIndexCompilerLastError}}</td>
 
-            <!-- Grid Compiler -->
-            <dt>Grid Compiler Running :</dt>
-            <dd>{{item.gridCompilerQueueStatus}}</dd>
-
-            <dt>Grid Compiler Queue Size :</dt>
-            <dd>{{item.gridCompilerQueueSize}}</dd>
-
-            <dt>Grid Compiler Total Processed :</dt>
-            <dd>{{item.gridCompilerQueueProcessedTotal}}</dd>
-
-            <dt>Grid Compiler Last Error :</dt>
-            <dd>{{item.gridCompilerQueueLastError}}</dd>
-        </dl>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>

@@ -1,4 +1,4 @@
-import {Component, ViewChild} from "@angular/core";
+import {Component, ViewChild, Input} from "@angular/core";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
@@ -23,6 +23,7 @@ import {
     DiagramItemSelectPrivateService,
     SelectedItemDetailsI
 } from "@peek/peek_plugin_diagram/_private/services/DiagramItemSelectPrivateService";
+import {LocationIndexCache} from "../cache/LocationIndexCache.web";
 
 export interface DispItemSelectedI {
     key: string;
@@ -44,6 +45,10 @@ export interface DispItemSelectedI {
 export class CanvasComponent extends ComponentLifecycleEventEmitter {
     // https://stackoverflow.com/questions/32693061/angular-2-typescript-get-hold-of-an-element-in-the-template
     @ViewChild('canvas') canvasView;
+
+    @Input("modelSetKey")
+    modelSetKey:string;
+
     private canvas: any = null;
 
     coordSetId: number | null = null;
@@ -68,7 +73,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 private coordSetCache: CoordSetCache,
                 private dispGroupCache: DispGroupCache,
                 private positionService: DiagramPositionService,
-                private itemSelectService: DiagramItemSelectPrivateService) {
+                private itemSelectService: DiagramItemSelectPrivateService,
+                private locationIndexCache:LocationIndexCache) {
         super();
 
         // Cast the private services
@@ -107,11 +113,13 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     isReady(): boolean {
         return this.coordSetCache.isReady()
             && this.gridObservable.isReady()
-            && this.lookupCache.isReady();
+            && this.lookupCache.isReady()
+            && this.locationIndexCache.isReady();
 
     }
 
     ngOnInit() {
+        this.locationIndexCache.setModelSetKey(this.modelSetKey);
         this.canvas = this.canvasView.nativeElement;
 
         this.input.setCanvas(this.canvas);

@@ -2,6 +2,11 @@ import logging
 
 from os import path as osp
 from twisted.internet.defer import inlineCallbacks
+
+from peek_plugin_diagram._private.client.controller.LocationIndexCacheController import \
+    LocationIndexCacheController
+from peek_plugin_diagram._private.client.handlers.LocationIndexCacheHandler import \
+    LocationIndexCacheHandler
 from txhttputil.site.FileUnderlayResource import FileUnderlayResource
 
 from peek_plugin_base.PeekVortexUtil import peekServerName
@@ -88,6 +93,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
         )
         self._loadedObjects.append(serverTupleObserver)
 
+        # ----- Grid Cache Controller
         gridCacheController = GridCacheController(self.platform.serviceId)
         self._loadedObjects.append(gridCacheController)
 
@@ -99,6 +105,22 @@ class ClientEntryHook(PluginClientEntryHookABC):
         self._loadedObjects.append(gridCacheHandler)
 
         gridCacheController.setGridCacheHandler(gridCacheHandler)
+        
+        # ----- Disp Key Index Cache Controller
+
+        locationIndexCacheController = LocationIndexCacheController(self.platform.serviceId)
+        self._loadedObjects.append(locationIndexCacheController)
+
+        # This is the custom handler for the client
+        locationIndexCacheHandler = LocationIndexCacheHandler(
+            locationIndexCacheController=locationIndexCacheController,
+            clientId=self.platform.serviceId
+        )
+        self._loadedObjects.append(locationIndexCacheHandler)
+
+        locationIndexCacheController.setLocationIndexCacheHandler(locationIndexCacheHandler)
+        
+        # -----
 
         # Buffer the lookups in the client (us)
         lookupCacheController = LookupCacheController(serverTupleObserver)

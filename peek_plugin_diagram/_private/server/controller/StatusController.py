@@ -66,6 +66,22 @@ class StatusController(TupleActionProcessorDelegateABC):
         self._notify()
 
     # ---------------
+    # Disp Key Index Compiler Methods
+
+    def setLocationIndexCompilerStatus(self, state: bool, queueSize: int):
+        self._status.locationIndexCompilerQueueStatus = state
+        self._status.locationIndexCompilerQueueSize = queueSize
+        self._notify()
+
+    def addToLocationIndexCompilerTotal(self, delta: int):
+        self._status.locationIndexCompilerQueueProcessedTotal += delta
+        self._notify()
+
+    def setLocationIndexCompilerError(self, error: str):
+        self._status.locationIndexCompilerQueueLastError = error
+        self._notify()
+
+    # ---------------
     # Notify Methods
 
     def _notify(self):

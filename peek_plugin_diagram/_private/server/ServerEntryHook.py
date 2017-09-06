@@ -8,13 +8,17 @@ from peek_plugin_base.server.PluginServerStorageEntryHookABC import \
 from peek_plugin_base.server.PluginServerWorkerEntryHookABC import \
     PluginServerWorkerEntryHookABC
 from peek_plugin_diagram._private.server.api.DiagramApi import DiagramApi
+from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexUpdateHandler import \
+    ClientLocationIndexUpdateHandler
 from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import \
     ClientGridUpdateHandler
-from peek_plugin_diagram._private.server.client_handlers.RpcForClient import RpcForClient
+from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import ClientGridLoaderRpc
 from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
     DispCompilerQueueController
 from peek_plugin_diagram._private.server.controller.DispImportController import \
     DispImportController
+from peek_plugin_diagram._private.server.controller.LocationCompilerQueueController import \
+    DispKeyCompilerQueueController
 from peek_plugin_diagram._private.server.controller.GridKeyCompilerQueueController import \
     GridKeyCompilerQueueController
 from peek_plugin_diagram._private.server.controller.LiveDbWatchController import \
@@ -71,9 +75,13 @@ class ServerEntryHook(PluginServerEntryHookABC,
 
         """
 
-        # create the Status Controller
+        # create the client grid updater
         clientGridUpdateHandler = ClientGridUpdateHandler(self.dbSessionCreator)
         self._loadedObjects.append(clientGridUpdateHandler)
+
+        # create the client disp key index updater
+        clientDispIndexUpdateHandler = ClientLocationIndexUpdateHandler(self.dbSessionCreator)
+        self._loadedObjects.append(clientDispIndexUpdateHandler)
 
         # create the Status Controller
         statusController = StatusController()
@@ -84,6 +92,12 @@ class ServerEntryHook(PluginServerEntryHookABC,
             self.dbSessionCreator, statusController, clientGridUpdateHandler
         )
         self._loadedObjects.append(gridKeyCompilerQueueController)
+
+        # Create the DISP KEY INDEX queue
+        locationIndexCompilerQueueController = DispKeyCompilerQueueController(
+            self.dbSessionCreator, statusController, clientDispIndexUpdateHandler
+        )
+        self._loadedObjects.append(locationIndexCompilerQueueController)
 
         # Create the DISP queue
         dispCompilerQueueController = DispCompilerQueueController(
@@ -127,8 +141,8 @@ class ServerEntryHook(PluginServerEntryHookABC,
 
         # Create the API for the client
         self._loadedObjects.extend(
-            RpcForClient(liveDbWatchController=liveDbWatchController,
-                         dbSessionCreator=self.dbSessionCreator)
+            ClientGridLoaderRpc(liveDbWatchController=liveDbWatchController,
+                                dbSessionCreator=self.dbSessionCreator)
                 .makeHandlers()
         )
 
@@ -145,6 +159,7 @@ class ServerEntryHook(PluginServerEntryHookABC,
 
         dispCompilerQueueController.start()
         gridKeyCompilerQueueController.start()
+        locationIndexCompilerQueueController.start()
 
         logger.debug("Started")
 

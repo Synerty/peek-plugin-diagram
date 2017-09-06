@@ -31,21 +31,14 @@ import {GridObservable} from "./cache/GridObservable.web";
 import {LookupCache} from "./cache/LookupCache.web";
 import {DispGroupCache} from "./cache/DispGroupCache.web";
 import {CoordSetCache} from "./cache/CoordSetCache.web";
+import {LocationIndexCache} from "./cache/LocationIndexCache.web";
 import {CanvasComponent} from "./canvas-component/canvas-component.web";
 
 
-import {
-    DiagramItemSelectPrivateService,
-} from "@peek/peek_plugin_diagram/_private/services/DiagramItemSelectPrivateService";
-import {
-    DiagramPositionPrivateService,
-} from "@peek/peek_plugin_diagram/_private/services/DiagramPositionPrivateService";
-import {
-    DiagramToolbarPrivateService,
-} from "@peek/peek_plugin_diagram/_private/services/DiagramToolbarPrivateService";
-import {
-    DiagramItemPopupPrivateService,
-} from "@peek/peek_plugin_diagram/_private/services/DiagramItemPopupPrivateService";
+import {DiagramItemSelectPrivateService,} from "@peek/peek_plugin_diagram/_private/services/DiagramItemSelectPrivateService";
+import {DiagramPositionPrivateService,} from "@peek/peek_plugin_diagram/_private/services/DiagramPositionPrivateService";
+import {DiagramToolbarPrivateService,} from "@peek/peek_plugin_diagram/_private/services/DiagramToolbarPrivateService";
+import {DiagramItemPopupPrivateService,} from "@peek/peek_plugin_diagram/_private/services/DiagramItemPopupPrivateService";
 
 
 import {DiagramItemPopupService} from "@peek/peek_plugin_diagram/DiagramItemPopupService";
@@ -53,6 +46,7 @@ import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionS
 import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {PopupComponent} from "./popup-component/popup.component";
 import {ToolbarComponent} from "./toolbar-component/toolbar.component";
+import {LayerComponent} from "./layer-component/layer.component.web";
 
 export function tupleActionPushNameServiceFactory() {
     return new TupleActionPushNameService(
@@ -94,8 +88,8 @@ export function tupleOfflineStorageNameServiceFactory() {
             useFactory: tupleDataObservableNameServiceFactory
         },
         DiagramClientTupleOfflineObservable,
-        // DisplayCanvasSplashScreen,
         GridCache,
+        LocationIndexCache,
         LookupCache,
         CoordSetCache,
         DispGroupCache,
@@ -117,7 +111,7 @@ export function tupleOfflineStorageNameServiceFactory() {
         DiagramItemSelectPrivateService,
 
     ],
-    declarations: [DiagramComponent, CanvasComponent, PopupComponent, ToolbarComponent]
+    declarations: [DiagramComponent, CanvasComponent, PopupComponent, ToolbarComponent, LayerComponent]
 })
 export class PeekPluginDiagramModule {
 }

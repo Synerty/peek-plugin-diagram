@@ -2,7 +2,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 
 import {NsWebDiagramComponent} from './ns-web-diagram.component';
-import {PeekPluginDiagramModule} from "../peek_plugin_diagram/diagram.module";
+import {PeekPluginDiagramModule} from "../peek_plugin_diagram/diagram.module.web";
 
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 import {
@@ -18,7 +18,6 @@ import {
 } from "@synerty/vortexjs/index-browser";
 
 import {TitleService} from "@synerty/peek-util";
-import {CanvasComponent} from "../peek_plugin_diagram/canvas-component/canvas-component";
 
 export function titleServiceFactory() {
     return new TitleService([]);

@@ -3,14 +3,11 @@ import logging
 from datetime import datetime
 from typing import List, Dict
 
-from txcelery.defer import DeferrableTask
-
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_base.worker.CeleryDbConn import prefetchDeclarativeIds
 from peek_plugin_diagram._private.storage.LiveDbDispLink import LiveDbDispLink, \
     LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
-from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
     ImportLiveDbDispLinkTuple
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
@@ -19,8 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 def importDispLinks(coordSet: ModelCoordSet,
-                        importGroupHash: str,
-                        importDispLinks: List[ImportLiveDbDispLinkTuple]
+                    importGroupHash: str,
+                    importDispLinks: List[ImportLiveDbDispLinkTuple]
                     ) -> List[ImportLiveDbItemTuple]:
     """ Import Disps Links
 
@@ -43,8 +40,7 @@ def importDispLinks(coordSet: ModelCoordSet,
 
         ormSession.execute(dispLinkTable
                            .delete()
-                           .where(dispLinkTable.c.importGroupHash== importGroupHash))
-
+                           .where(dispLinkTable.c.importGroupHash == importGroupHash))
 
         if not importDispLinks:
             return []

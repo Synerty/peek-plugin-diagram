@@ -5,13 +5,11 @@ Though this is probably because the defaults places them in the same cell, row=0
  -->
 <GridLayout>
 
-    <pl-diagram-canvas></pl-diagram-canvas>
+    <pl-diagram-canvas [modelSetKey]="modelSetKey"></pl-diagram-canvas>
 
     <!-- The last item in the cell is drawn on top -->
     <StackLayout>
-        <peek-main-title></peek-main-title>
         <StackedLayout class="peek-mobile-page-contents">
-            <router-outlet></router-outlet>
         </StackedLayout>
     </StackLayout>
 </GridLayout>

@@ -19,6 +19,9 @@ import {TitleService} from "@synerty/peek-util";
 })
 export class DiagramComponent extends ComponentLifecycleEventEmitter {
 
+    @Input("modelSetKey")
+    modelSetKey:string;
+
     private privateItemPopupService: DiagramItemPopupPrivateService;
     private privatePositionService: DiagramPositionPrivateService;
     private privateToolbarService: DiagramToolbarPrivateService;

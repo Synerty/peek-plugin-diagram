@@ -8,7 +8,7 @@ from twisted.internet.defer import DeferredList, Deferred
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.client.controller.GridCacheController import \
     GridCacheController
-from peek_plugin_diagram._private.server.client_handlers.RpcForClient import RpcForClient
+from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import ClientGridLoaderRpc
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
 from vortex.PayloadEndpoint import PayloadEndpoint
@@ -142,7 +142,7 @@ class GridCacheHandler(object):
 
         # Notify the server that this client service is watching different grids.
         if keysChanged:
-            d = RpcForClient.updateClientWatchedGrids(
+            d = ClientGridLoaderRpc.updateClientWatchedGrids(
                 clientId=self._clientId,
                 gridKeys=list(self._observedVortexUuidsByGridKey)
             )

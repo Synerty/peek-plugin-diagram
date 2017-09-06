@@ -4,7 +4,7 @@ from typing import Dict, List
 from twisted.internet.defer import inlineCallbacks, Deferred
 
 from peek_plugin_diagram._private.PluginNames import diagramFilt
-from peek_plugin_diagram._private.server.client_handlers.RpcForClient import RpcForClient
+from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import ClientGridLoaderRpc
 from peek_plugin_diagram._private.tuples.GridTuple import GridTuple
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
@@ -24,6 +24,9 @@ class GridCacheController:
 
     The grid cache controller stores all the grids in memory, allowing fast access from
     the mobile and desktop devices.
+
+    NOTE: The grid set endpoint triggers a reload, this is in the case when grid sets
+    are enable or disabled. Perhaps the system should just be restarted instead.
 
     """
 
@@ -70,7 +73,7 @@ class GridCacheController:
         offset = 0
         while True:
             logger.info("Loading grids %s to %s" % (offset, offset + self.LOAD_CHUNK))
-            gridTuples = yield RpcForClient.loadGrids(offset, self.LOAD_CHUNK)
+            gridTuples = yield ClientGridLoaderRpc.loadGrids(offset, self.LOAD_CHUNK)
             if not gridTuples:
                 break
             self._loadGridIntoCache(gridTuples)

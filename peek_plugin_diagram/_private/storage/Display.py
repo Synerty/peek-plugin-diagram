@@ -193,6 +193,9 @@ class DispBase(Tuple, DeclarativeBase):
     # MAX_STR
     dispJson = Column(String(200000), doc=JSON_EXCLUDE)
 
+    #: The location of this Disp EG - [coordSetId, dispId, 0.0, 0.0] = [..., x, y]
+    locationJson = Column(String(120), doc=JSON_EXCLUDE)
+
     #: Key, This value is a unique ID of the object that this graphic represents
     key = Column(String(50), doc='k')
 

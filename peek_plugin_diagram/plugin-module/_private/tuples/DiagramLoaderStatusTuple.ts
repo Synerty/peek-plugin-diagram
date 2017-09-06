@@ -16,6 +16,11 @@ export class DiagramLoaderStatusTuple extends Tuple {
     gridCompilerQueueProcessedTotal: number;
     gridCompilerQueueLastError: string;
 
+    locationIndexCompilerQueueStatus: boolean;
+    locationIndexCompilerQueueSize: number;
+    locationIndexCompilerQueueProcessedTotal: number;
+    locationIndexCompilerQueueLastError: string;
+
     constructor() {
         super(DiagramLoaderStatusTuple.tupleName)
     }

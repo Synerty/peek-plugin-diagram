@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from "@angular/core";
+import {Component, OnInit, ViewChild, Input} from "@angular/core";
 
 import {DeviceEnrolmentService} from "@peek/peek_core_device";
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
@@ -39,6 +39,9 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
 
     @ViewChild('webView') webView;
 
+    @Input("modelSetKey")
+    modelSetKey:string;
+
     constructor(private enrolmentService: DeviceEnrolmentService,
                 private privateItemSelectService: DiagramItemSelectPrivateService,
                  positionService: DiagramPositionService) {
@@ -50,7 +53,6 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
     }
 
     ngOnInit() {
-
 
         let webView = <WebView>this.webView.nativeElement;
 
@@ -80,7 +82,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
         let wsVortexUrl = this.enrolmentService.serverWebsocketVortexUrl;
         // let url = '~/assets/peek_plugin_diagram/www/index.html';
         // let url = "http://10.211.55.14:4200";
-        url += `?vortexWsUrl=${wsVortexUrl}`;
+        url += `?modelSetKey=${this.modelSetKey}`;
+        url += `&vortexWsUrl=${wsVortexUrl}`;
         console.log(`Sending WebView to ${url}`);
         return url;
     }
