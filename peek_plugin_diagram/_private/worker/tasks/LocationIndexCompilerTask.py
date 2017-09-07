@@ -5,8 +5,6 @@ from datetime import datetime
 from typing import List, Dict
 
 import pytz
-from collections import namedtuple
-from functools import cmp_to_key
 
 from peek_plugin_base.storage.StorageUtil import makeCoreValuesSubqueryCondition, \
     makeOrmValuesSubqueryCondition
@@ -19,7 +17,6 @@ from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from txcelery.defer import DeferrableTask
 
 logger = logging.getLogger(__name__)
-
 
 """ Location Index Compiler
 
@@ -118,7 +115,7 @@ def _buildIndex(session, indexBuckets) -> Dict[str, str]:
     jsonByIndexBucket = {}
 
     # Create the IndexBucket -> Key -> [Locations] structure
-    locationByKeyByBucket = defaultdict(lambda : defaultdict(list))
+    locationByKeyByBucket = defaultdict(lambda: defaultdict(list))
     for item in indexQry:
         locationByKeyByBucket[item.indexBucket][item.key].append(item.locationJson)
 
