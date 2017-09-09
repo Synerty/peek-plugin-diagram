@@ -113,13 +113,13 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     isReady(): boolean {
         return this.coordSetCache.isReady()
             && this.gridObservable.isReady()
-            && this.lookupCache.isReady()
-            && this.locationIndexCache.isReady();
+            && this.lookupCache.isReady();
+            // && this.locationIndexCache.isReady();
 
     }
 
     ngOnInit() {
-        this.locationIndexCache.setModelSetKey(this.modelSetKey);
+        // this.locationIndexCache.setModelSetKey(this.modelSetKey);
         this.canvas = this.canvasView.nativeElement;
 
         this.input.setCanvas(this.canvas);

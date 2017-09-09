@@ -81,7 +81,7 @@ function dispKeyHashBucket(modelSetKey: string, dispKey: string): string {
         hash |= 0; // Convert to 32bit integer
     }
 
-    hash &= 1024;
+    hash = hash & 1023; // 1024 buckets
 
     return `${modelSetKey}:${hash}`;
 }
@@ -117,12 +117,12 @@ export class LocationIndexCache {
             storageFactory,
             new TupleOfflineStorageNameService(locationIndexCacheStorageName)
         );
-
-        this.initialLoad();
     }
 
     setModelSetKey(modelSetKey: string) {
         this.modelSetKey = modelSetKey;
+
+        this.initialLoad();
     }
 
     isReady(): boolean {

@@ -1,14 +1,15 @@
 import logging
 from typing import List
 
+from sqlalchemy.orm import joinedload
 from twisted.internet.defer import Deferred
 
 from peek_plugin_base.PeekVortexUtil import peekClientName
 from peek_plugin_base.storage.StorageUtil import makeOrmValuesSubqueryCondition
-from peek_plugin_diagram._private.client.controller.GridCacheController import \
-    clientGridUpdateFromServerFilt
-from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
-from peek_plugin_diagram._private.tuples.GridTuple import GridTuple
+from peek_plugin_diagram._private.client.controller.LocationIndexCacheController import \
+    clientLocationIndexUpdateFromServerFilt
+from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompiled
+from peek_plugin_diagram._private.tuples.LocationIndexTuple import LocationIndexTuple
 from vortex.DeferUtil import vortexLogFailure, deferToThreadWrapWithLogger
 from vortex.Payload import Payload
 from vortex.VortexFactory import VortexFactory, NoVortexException
@@ -37,48 +38,56 @@ class ClientLocationIndexUpdateHandler:
     def shutdown(self):
         pass
 
-    def sendGrids(self, indexBuckets: List[str]) -> None:
-        """ Send Grids
+    def sendLocationIndexes(self, indexBuckets: List[str]) -> None:
+        """ Send Location Indexes
 
         Send grid updates to the client services
 
-        :param gridKeys: A list of grid keys that this client is observing.
-                            the grids are sent to the requesting client only.
+        :param indexBuckets: A list of location index buckets that have been updated
         :returns: Nothing
         """
 
-        d: Deferred = self._serialiseGrids(gridKeys)
-        d.addCallback(VortexFactory.sendVortexMsg, destVortexName=peekClientName)
-        d.addErrback(self._sendGridsErrback, gridKeys)
+        if not indexBuckets:
+            return
 
-    def _sendGridsErrback(self, failure, gridKeys):
+        d: Deferred = self._serialiseLocationIndexes(indexBuckets)
+        d.addCallback(VortexFactory.sendVortexMsg, destVortexName=peekClientName)
+        d.addErrback(self._sendErrback, indexBuckets)
+
+    def _sendErrback(self, failure, indexBucket):
 
         if failure.check(NoVortexException):
-            logger.debug("No clients are online to send the grid to, %s", gridKeys)
+            logger.debug("No clients are online to send the grid to, %s", indexBucket)
             return
 
         vortexLogFailure(failure, logger)
 
     @deferToThreadWrapWithLogger(logger)
-    def _serialiseGrids(self, gridKeys) -> bytes:
+    def _serialiseLocationIndexes(self, indexBuckets: List[str]) -> bytes:
         session = self._dbSessionCreator()
         try:
-            ormGrids = (session.query(GridKeyIndexCompiled)
-                        .filter(makeOrmValuesSubqueryCondition(
-                session, GridKeyIndexCompiled.gridKey, gridKeys
-            ))
-                        .yield_per(200))
+            ormObjs = (
+                session.query(LocationIndexCompiled)
+                    .options(joinedload(LocationIndexCompiled.modelSet))
+                    .filter(makeOrmValuesSubqueryCondition(
+                    session, LocationIndexCompiled.indexBucket, indexBuckets
+                ))
+                    .yield_per(200)
+            )
 
-            gridTuples: List[GridTuple] = []
-            for ormGrid in ormGrids:
-                gridTuples.append(
-                    GridTuple(gridKey=ormGrid.gridKey,
-                              blobData=ormGrid.blobData,
-                              lastUpdate=ormGrid.lastUpdate)
+            locationIndexTuples: List[LocationIndexTuple] = []
+            for ormObj in ormObjs:
+                locationIndexTuples.append(
+                    LocationIndexTuple(
+                        modelSetKey=ormObj.modelSet.key,
+                        indexBucket=ormObj.indexBucket,
+                        blobData=ormObj.blobData,
+                        lastUpdate=ormObj.lastUpdate
+                    )
                 )
 
-            return Payload(filt=clientGridUpdateFromServerFilt,
-                           tuples=gridTuples).toVortexMsg()
+            return Payload(filt=clientLocationIndexUpdateFromServerFilt,
+                           tuples=locationIndexTuples).toVortexMsg()
 
         finally:
             session.close()

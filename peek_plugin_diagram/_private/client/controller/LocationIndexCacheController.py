@@ -53,12 +53,10 @@ class LocationIndexCacheController:
         self._endpoint = None
 
         self._cache = {}
-        # self._cachedLocationIndexCoordSetIds = set()
 
     @inlineCallbacks
     def reloadCache(self):
         self._cache = {}
-        # self._cachedLocationIndexCoordSetIds = set()
 
         offset = 0
         while True:
@@ -81,7 +79,7 @@ class LocationIndexCacheController:
         indexBucketsUpdated: List[str] = []
 
         for t in locationIndexTuples:
-            if (not t.locationIndexKey in self._cache or
+            if (not t.indexBucket in self._cache or
                         self._cache[t.indexBucket].lastUpdate != t.lastUpdate):
                 self._cache[t.indexBucket] = t
                 indexBucketsUpdated.append(t.indexBucket)

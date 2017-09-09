@@ -28,11 +28,11 @@ from txcelery.defer import DeferrableTask
 
 logger = logging.getLogger(__name__)
 
-CoordSetIdGridKeyTuple = namedtuple("CoordSetIdGridKeyTuple",
-                                    ["coordSetId", "gridKey"])
+CoordSetIdGridKeyData = namedtuple("CoordSetIdGridKeyTuple",
+                                   ["coordSetId", "gridKey"])
 
-ModelSetIdIndexBucketTuple = namedtuple("ModelSetIdIndexBucketTuple",
-                                        ["modelSetId", "indexBucket"])
+ModelSetIdIndexBucketData = namedtuple("ModelSetIdIndexBucketTuple",
+                                       ["modelSetId", "indexBucket"])
 
 DispData = namedtuple('DispData', ['json', 'levelOrder', 'layerOrder'])
 
@@ -136,27 +136,27 @@ def compileDisps(self, queueIds, dispIds):
                 disp.locationJson = makeLocationJson(disp, geomJson)
 
                 # Create the index bucket
-                indexBucket = dispKeyHashBucket(coordSet.modelSet.name, disp.ley)
+                indexBucket = dispKeyHashBucket(coordSet.modelSet.name, disp.key)
 
                 # Create the compiler queue item
                 locationCompiledQueueItems.add(
-                    ModelSetIdIndexBucketTuple(modelSetId=coordSet.modelSetId,
-                                               indexBucket=indexBucket)
+                    ModelSetIdIndexBucketData(modelSetId=coordSet.modelSetId,
+                                              indexBucket=indexBucket)
                 )
 
                 # Create the location index item
                 locationIndexByDispId[disp.id] = dict(
                     indexBucket=indexBucket,
                     dispId=disp.id,
-                    modelSetId=disp.modelSetId
+                    modelSetId=coordSet.modelSetId
                 )
 
             # Work out which grids we belong to
             for gridKey in makeGridKeys(coordSet, disp, geomJson, textStyleById):
                 # Create the compiler queue item
                 gridCompiledQueueItems.add(
-                    CoordSetIdGridKeyTuple(coordSetId=disp.coordSetId,
-                                           gridKey=gridKey)
+                    CoordSetIdGridKeyData(coordSetId=disp.coordSetId,
+                                          gridKey=gridKey)
                 )
 
                 # Create the grid key index item
@@ -175,8 +175,8 @@ def compileDisps(self, queueIds, dispIds):
 
     except Exception as e:
         ormSession.rollback()
-        # logger.exception(e)
-        logger.warning(e)
+        logger.exception(e)
+        # logger.warning(e)
         raise self.retry(exc=e, countdown=10)
 
     finally:
@@ -195,15 +195,18 @@ def compileDisps(self, queueIds, dispIds):
             columns=[dispBaseTable.c.id],
             for_update=True))
 
+        lockedDispIds = [o[0] for o in lockedDispIds]
+
         # Ensure that the Disps exist, otherwise we get an integrity error.
         gridKeyIndexes = []
-        for dispId, in lockedDispIds:
+        for dispId in lockedDispIds:
             gridKeyIndexes.extend(gridKeyIndexesByDispId[dispId])
 
         # Ensure that the Disps exist, otherwise we get an integrity error.
         locationIndexes = []
-        for dispId, in lockedDispIds:
-            locationIndexes.extend(locationIndexByDispId[dispId])
+        for dispId in lockedDispIds:
+            if dispId in locationIndexByDispId:
+                locationIndexes.append(locationIndexByDispId[dispId])
 
         conn.execute(gridKeyIndexTable.delete(
             makeCoreValuesSubqueryCondition(engine, gridKeyIndexTable.c.dispId, dispIds)
@@ -231,7 +234,7 @@ def compileDisps(self, queueIds, dispIds):
         if locationCompiledQueueItems:
             conn.execute(
                 locationIndexCompilerQueueTable.insert(),
-                [dict(coordSetId=i.coordSetId, gridKey=i.gridKey)
+                [dict(modelSetId=i.modelSetId, indexBucket=i.indexBucket)
                  for i in locationCompiledQueueItems]
             )
 
@@ -248,8 +251,8 @@ def compileDisps(self, queueIds, dispIds):
 
     except Exception as e:
         transaction.rollback()
-        # logger.exception(e)
-        logger.warning(e)
+        logger.exception(e)
+        # logger.warning(e)
         raise self.retry(exc=e, countdown=10)
 
     finally:

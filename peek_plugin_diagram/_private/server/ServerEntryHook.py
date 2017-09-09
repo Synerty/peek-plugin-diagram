@@ -8,21 +8,24 @@ from peek_plugin_base.server.PluginServerStorageEntryHookABC import \
 from peek_plugin_base.server.PluginServerWorkerEntryHookABC import \
     PluginServerWorkerEntryHookABC
 from peek_plugin_diagram._private.server.api.DiagramApi import DiagramApi
-from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexUpdateHandler import \
-    ClientLocationIndexUpdateHandler
+from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import \
+    ClientGridLoaderRpc
 from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import \
     ClientGridUpdateHandler
-from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import ClientGridLoaderRpc
+from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexLoaderRpc import \
+    ClientLocationIndexLoaderRpc
+from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexUpdateHandler import \
+    ClientLocationIndexUpdateHandler
 from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
     DispCompilerQueueController
 from peek_plugin_diagram._private.server.controller.DispImportController import \
     DispImportController
-from peek_plugin_diagram._private.server.controller.LocationCompilerQueueController import \
-    DispKeyCompilerQueueController
 from peek_plugin_diagram._private.server.controller.GridKeyCompilerQueueController import \
     GridKeyCompilerQueueController
 from peek_plugin_diagram._private.server.controller.LiveDbWatchController import \
     LiveDbWatchController
+from peek_plugin_diagram._private.server.controller.LocationCompilerQueueController import \
+    DispKeyCompilerQueueController
 from peek_plugin_diagram._private.server.controller.LookupImportController import \
     LookupImportController
 from peek_plugin_diagram._private.storage import DeclarativeBase
@@ -80,7 +83,8 @@ class ServerEntryHook(PluginServerEntryHookABC,
         self._loadedObjects.append(clientGridUpdateHandler)
 
         # create the client disp key index updater
-        clientDispIndexUpdateHandler = ClientLocationIndexUpdateHandler(self.dbSessionCreator)
+        clientDispIndexUpdateHandler = ClientLocationIndexUpdateHandler(
+            self.dbSessionCreator)
         self._loadedObjects.append(clientDispIndexUpdateHandler)
 
         # create the Status Controller
@@ -93,7 +97,7 @@ class ServerEntryHook(PluginServerEntryHookABC,
         )
         self._loadedObjects.append(gridKeyCompilerQueueController)
 
-        # Create the DISP KEY INDEX queue
+        # Create the LOCATION INDEX queue
         locationIndexCompilerQueueController = DispKeyCompilerQueueController(
             self.dbSessionCreator, statusController, clientDispIndexUpdateHandler
         )
@@ -139,10 +143,16 @@ class ServerEntryHook(PluginServerEntryHookABC,
         )
         self._loadedObjects.append(liveDbWatchController)
 
-        # Create the API for the client
+        # Create the GRID API for the client
         self._loadedObjects.extend(
             ClientGridLoaderRpc(liveDbWatchController=liveDbWatchController,
                                 dbSessionCreator=self.dbSessionCreator)
+                .makeHandlers()
+        )
+
+        # Create the LOCATION API for the client
+        self._loadedObjects.extend(
+            ClientLocationIndexLoaderRpc(dbSessionCreator=self.dbSessionCreator)
                 .makeHandlers()
         )
 

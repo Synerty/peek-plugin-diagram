@@ -106,7 +106,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
 
         gridCacheController.setGridCacheHandler(gridCacheHandler)
         
-        # ----- Disp Key Index Cache Controller
+        # ----- Location Index Cache Controller
 
         locationIndexCacheController = LocationIndexCacheController(self.platform.serviceId)
         self._loadedObjects.append(locationIndexCacheController)
@@ -140,6 +140,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
         coordSetCacheController.setTupleObserable(tupleObservable)
 
         yield gridCacheController.start()
+        yield locationIndexCacheController.start()
         lookupCacheController.start()
         coordSetCacheController.start()
 

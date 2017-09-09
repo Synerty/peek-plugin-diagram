@@ -66,7 +66,7 @@ def compileLocationIndex(self, queueItems) -> List[str]:
         transaction = conn.begin()
 
         inserts = []
-        for indexBucket, blobData in list(dispData.items()):
+        for indexBucket, blobData in dispData.items():
             inserts.append(dict(modelSetId=modelSetIdByIndexBucket[indexBucket],
                                 indexBucket=indexBucket,
                                 lastUpdate=lastUpdate,
@@ -94,7 +94,8 @@ def compileLocationIndex(self, queueItems) -> List[str]:
 
     except Exception as e:
         transaction.rollback()
-        logger.warning(e)  # Just a warning, it will retry
+        # logger.warning(e)  # Just a warning, it will retry
+        logger.exception(e)
         raise self.retry(exc=e, countdown=10)
 
     finally:

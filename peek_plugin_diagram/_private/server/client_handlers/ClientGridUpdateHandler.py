@@ -47,6 +47,9 @@ class ClientGridUpdateHandler:
         :returns: Nothing
         """
 
+        if not gridKeys:
+            return
+
         d: Deferred = self._serialiseGrids(gridKeys)
         d.addCallback(VortexFactory.sendVortexMsg, destVortexName=peekClientName)
         d.addErrback(self._sendGridsErrback, gridKeys)

@@ -38,10 +38,10 @@ class DispKeyCompilerQueueController:
 
     def __init__(self, ormSessionCreator,
                  statusController: StatusController,
-                 clientDispUpdateHandler: ClientLocationIndexUpdateHandler):
+                 clientLocationUpdateHandler: ClientLocationIndexUpdateHandler):
         self._ormSessionCreator = ormSessionCreator
         self._statusController: StatusController = statusController
-        self._clientDispUpdateHandler: ClientLocationIndexUpdateHandler = clientDispUpdateHandler
+        self._clientLocationUpdateHandler: ClientLocationIndexUpdateHandler = clientLocationUpdateHandler
 
         self._pollLoopingCall = task.LoopingCall(self._poll)
         self._lastQueueId = -1
@@ -86,12 +86,12 @@ class DispKeyCompilerQueueController:
         # and there are lots of them
         queueIdsToDelete = []
 
-        gridKeySet = set()
+        locationIndexBucketSet = set()
         for i in queueItems:
-            if i.gridKey in gridKeySet:
+            if i.indexBucket in locationIndexBucketSet:
                 queueIdsToDelete.append(i.id)
             else:
-                gridKeySet.add(i.gridKey)
+                locationIndexBucketSet.add(i.indexBucket)
 
         if queueIdsToDelete:
             # Delete the duplicates and requery for our new list
@@ -150,10 +150,10 @@ class DispKeyCompilerQueueController:
         finally:
             session.close()
 
-    def _pollCallback(self, gridKeys: List[str], startTime, processedCount):
+    def _pollCallback(self, indexBuckets: List[str], startTime, processedCount):
         self._queueCount -= 1
         logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
-        self._clientDispUpdateHandler.sendDisps(gridKeys)
+        self._clientLocationUpdateHandler.sendLocationIndexes(indexBuckets)
         self._statusController.addToLocationIndexCompilerTotal(processedCount)
         self._statusController.setLocationIndexCompilerStatus(True, self._queueCount)
 

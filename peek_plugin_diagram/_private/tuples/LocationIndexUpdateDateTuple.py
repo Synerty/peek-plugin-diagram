@@ -9,4 +9,4 @@ class LocationIndexUpdateDateTuple(Tuple):
     __tupleType__ = diagramTuplePrefix + "LocationIndexUpdateDateTuple"
 
     modelSetKey: str = TupleField()
-    indexBucketUpdateDates: Dict[str:str] = TupleField({})
+    indexBucketUpdateDates: Dict[str,str] = TupleField({})

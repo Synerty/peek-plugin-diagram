@@ -52,6 +52,6 @@ def dispKeyHashBucket(modelSetKey: str, dispKey: str) -> str:
     for char in dispKey:
         hash = ((hash << 5) - hash) + ord(char)
 
-    hash = hash & 1024
+    hash = hash & 1023 # 1024 buckets
 
     return "%s:%s" % (modelSetKey, hash)

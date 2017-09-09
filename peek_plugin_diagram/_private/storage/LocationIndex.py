@@ -29,7 +29,7 @@ class LocationIndexCompilerQueue(Tuple, DeclarativeBase):
                         primary_key=True)
 
     __table_args__ = (
-        Index("idx_DKCompQueue_coordSetId_gridKey", modelSetId, indexBucket,
+        Index("idx_LICompQueue_modelSetId_indexBucket", modelSetId, indexBucket,
               unique=False),
     )
 
@@ -73,6 +73,6 @@ class LocationIndexCompiled(Tuple, DeclarativeBase):
     modelSet = relationship(ModelSet)
 
     __table_args__ = (
-        Index("idx_DKIndexUpdate_coordSetId", modelSetId, unique=False),
-        Index("idx_DKIndexUpdate_gridKey", indexBucket, unique=True),
+        Index("idx_LIIndexUpdate_modelSetId", modelSetId, unique=False),
+        Index("idx_LIIndexUpdate_indexBucket", indexBucket, unique=True),
     )
