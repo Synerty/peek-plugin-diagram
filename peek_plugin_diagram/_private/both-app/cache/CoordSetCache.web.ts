@@ -14,6 +14,8 @@ import {ModelCoordSet} from "../tuples/model/ModelCoordSet";
 @Injectable()
 export class CoordSetCache {
 
+    private modelSetKey: string = "";
+
     private _coordSetByKey = {};
 
     private subscriptions = [];
@@ -22,9 +24,20 @@ export class CoordSetCache {
 
     constructor(private clientTupleObservable: DiagramClientTupleOfflineObservable) {
 
+    }
+
+    setModelSetKey(modelSetKey: string) {
+        this.modelSetKey = modelSetKey;
+        this.initialLoad();
+    }
+
+    private initialLoad(): void {
+
         this.subscriptions.push(
             this.clientTupleObservable.subscribeToTupleSelector(
-                new TupleSelector(ModelCoordSet.tupleName, {})
+                new TupleSelector(ModelCoordSet.tupleName, {
+                    modelSetKey:this.modelSetKey
+                })
             ).subscribe((tuples: any[]) => {
                 this._coordSetByKey = {};
 
@@ -34,7 +47,6 @@ export class CoordSetCache {
 
             })
         );
-
     }
 
     shutdown(): void {

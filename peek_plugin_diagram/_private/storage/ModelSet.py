@@ -19,7 +19,7 @@ from sqlalchemy.sql.sqltypes import Boolean
 from sqlalchemy.types import Float
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from vortex.Tuple import addTupleType, Tuple
+from vortex.Tuple import addTupleType, Tuple, TupleField
 from .DeclarativeBase import DeclarativeBase
 
 
@@ -74,6 +74,9 @@ class ModelCoordSet(Tuple, DeclarativeBase):
 
     minZoom = Column(Float, nullable=False, server_default="0.01")
     maxZoom = Column(Float, nullable=False, server_default="10.0")
+
+    #: Misc data holder
+    data = TupleField()
 
     __table_args__ = (
         Index("idxCoordSetModelName", modelSetId, name, unique=True),

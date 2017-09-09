@@ -18,5 +18,9 @@ class ClientLookupTupleProvider(TuplesProviderABC):
 
     def makeVortexMsg(self, filt: dict,
                       tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
-        lookupTuples = self._lookupCacheController.lookups(tupleSelector.name)
-        return Payload(filt, tuples=lookupTuples).toVortexMsgDefer()
+        modelSetKey = tupleSelector.selector["modelSetKey"]
+
+        tuples = self._lookupCacheController.lookups(tupleSelector.name)
+        tuples = list(filter(lambda i: i.data["modelSetKey"] == modelSetKey,tuples))
+
+        return Payload(filt, tuples=tuples).toVortexMsgDefer()

@@ -1,5 +1,6 @@
 from typing import Union
 
+from sqlalchemy.orm import joinedload
 from twisted.internet.defer import Deferred
 
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
@@ -19,7 +20,13 @@ class ServerCoordSetTupleProvider(TuplesProviderABC):
 
         session = self._ormSessionCreator()
         try:
-            all = session.query(ModelCoordSet).all()
+            all = (session.query(ModelCoordSet)
+                   .options(joinedload(ModelCoordSet.modelSet))
+                   .all())
+
+            for item in all:
+                item.data = {"modelSetKey": item.modelSet.key}
+
             return Payload(filt, tuples=all).toVortexMsg()
 
         finally:

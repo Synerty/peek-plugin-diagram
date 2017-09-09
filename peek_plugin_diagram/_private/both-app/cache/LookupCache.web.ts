@@ -17,6 +17,9 @@ import {DispLineStyle} from "../tuples/lookups/DispLineStyle";
  */
 @Injectable()
 export class LookupCache {
+
+    private modelSetKey: string = "";
+
     private loadedCounter = {};
     private _lookupTargetCount = 5;
 
@@ -36,10 +39,21 @@ export class LookupCache {
 
     constructor(private clientTupleObservable: DiagramClientTupleOfflineObservable) {
 
+    }
+
+    setModelSetKey(modelSetKey: string) {
+        this.modelSetKey = modelSetKey;
+
+        this.initialLoad();
+    }
+
+    private initialLoad() :void {
+
+
         let sub = (lookupAttr, tupleName, callback = null) => {
             this.subscriptions.push(
                 this.clientTupleObservable.subscribeToTupleSelector(
-                    new TupleSelector(tupleName, {})
+                    new TupleSelector(tupleName, {modelSetKey:this.modelSetKey})
                 ).subscribe((tuples: any[]) => {
                     if (!tuples.length)
                         return;
@@ -64,8 +78,7 @@ export class LookupCache {
         sub("_colorsById", DispColor.tupleName, () => this._validateColors());
         sub("_textStyleById", DispTextStyle.tupleName);
         sub("_lineStyleById", DispLineStyle.tupleName);
-
-    }
+    };
 
     isReady() {
         // isReady is used in a doCheck loop, so make if fast once it's true

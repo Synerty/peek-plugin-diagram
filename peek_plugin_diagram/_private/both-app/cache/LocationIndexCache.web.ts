@@ -45,8 +45,10 @@ class LocationIndexTupleSelector extends TupleSelector {
 /** LastUpdateTupleSelector
  */
 class UpdateDateTupleSelector extends TupleSelector {
-    constructor() {
-        super(LocationIndexUpdateDateTuple.tupleName, {});
+    constructor(modelSetKey: string) {
+        super(LocationIndexUpdateDateTuple.tupleName, {
+            modelSetKey: modelSetKey
+        });
     }
 }
 
@@ -135,7 +137,7 @@ export class LocationIndexCache {
      */
     private initialLoad(): void {
 
-        this.storage.loadTuples(new UpdateDateTupleSelector())
+        this.storage.loadTuples(new UpdateDateTupleSelector(this.modelSetKey))
             .then((tuples: LocationIndexUpdateDateTuple[]) => {
                 if (tuples.length != 0) {
                     this.indexBucketUpdateDates = tuples[0].indexBucketUpdateDates;
@@ -149,10 +151,12 @@ export class LocationIndexCache {
     }
 
     private setupVortexSubscriptions(): void {
+
+        let filt = extend({modelSetKey:this.modelSetKey},
+            clientLocationIndexWatchUpdateFromDeviceFilt);
+
         // Services don't have destructors, I'm not sure how to unsubscribe.
-        this.vortexService.createEndpointObservable(
-            this.lifecycleEmitter,
-            clientLocationIndexWatchUpdateFromDeviceFilt)
+        this.vortexService.createEndpointObservable(this.lifecycleEmitter, filt)
             .takeUntil(this.lifecycleEmitter.onDestroyEvent)
             .subscribe((payload: Payload) => this.processLocationIndexesFromServer(payload));
 
@@ -172,7 +176,11 @@ export class LocationIndexCache {
 
         let tuple = new LocationIndexUpdateDateTuple();
         tuple.indexBucketUpdateDates = this.indexBucketUpdateDates;
-        let payload = new Payload(clientLocationIndexWatchUpdateFromDeviceFilt, [tuple]);
+
+        let filt = extend({modelSetKey:this.modelSetKey},
+            clientLocationIndexWatchUpdateFromDeviceFilt);
+
+        let payload = new Payload(filt, [tuple]);
         this.vortexService.sendPayload(payload);
     }
 
@@ -212,8 +220,12 @@ export class LocationIndexCache {
                     this.indexBucketUpdateDates[locationIndex.indexBucket] = locationIndex.indexBucket;
                 }
 
+                let updateDateTuple = new LocationIndexUpdateDateTuple();
+                updateDateTuple.modelSetKey = this.modelSetKey;
+                updateDateTuple.indexBucketUpdateDates = this.indexBucketUpdateDates;
+
                 return this.storage.saveTuples(
-                    new LocationIndexUpdateDateTuple(), [this.indexBucketUpdateDates]
+                    new UpdateDateTupleSelector(this.modelSetKey), [updateDateTuple]
                 );
             })
             .catch(e => console.log(
@@ -257,7 +269,7 @@ export class LocationIndexCache {
         let indexBucket = dispKeyHashBucket(this.modelSetKey, dispKey);
 
         let retPromise: any;
-        retPromise = this.storage.loadTuples()
+        retPromise = this.storage.loadTuples(new UpdateDateTupleSelector(this.modelSetKey))
             .then((tuples: LocationIndexTuple[]) => {
                 if (tuples.length == 0)
                     return [];
@@ -266,7 +278,6 @@ export class LocationIndexCache {
                     console.log(`DispKey ${dispKey} doesn't appear in the index`);
                     return [];
                 }
-
 
                 alert("getLocations not implemented");
 

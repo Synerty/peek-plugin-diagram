@@ -39,6 +39,9 @@ class DispLayer(Tuple, DeclarativeBase):
     __tupleTypeShort__ = 'DLA'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
+    #: Misc data holder
+    data = TupleField()
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
     order = Column(Integer, nullable=False, server_default='0')
@@ -63,6 +66,9 @@ class DispLevel(Tuple, DeclarativeBase):
     __tupleTypeShort__ = 'DLE'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
+    #: Misc data holder
+    data = TupleField()
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
     order = Column(Integer, nullable=False, server_default='0')
@@ -86,6 +92,9 @@ class DispTextStyle(Tuple, DeclarativeBase):
     __tupleTypeShort__ = 'DTS'
     __tablename__ = 'DispTextStyle'
     __tupleType__ = diagramTuplePrefix + __tablename__
+
+    #: Misc data holder
+    data = TupleField()
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
@@ -112,6 +121,9 @@ class DispLineStyle(Tuple, DeclarativeBase):
     __tupleTypeShort__ = 'DLS'
     __tablename__ = 'DispLineStyle'
     __tupleType__ = diagramTuplePrefix + __tablename__
+
+    #: Misc data holder
+    data = TupleField()
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
@@ -140,6 +152,9 @@ class DispColor(Tuple, DeclarativeBase):
     __tupleTypeShort__ = 'DC'
     __tablename__ = 'DispColor'
     __tupleType__ = diagramTuplePrefix + __tablename__
+
+    #: Misc data holder
+    data = TupleField()
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), doc=JSON_EXCLUDE, nullable=False)

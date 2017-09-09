@@ -9,8 +9,15 @@ import {Injectable} from "@angular/core";
 @Injectable()
 export class DispGroupCache {
 
+    private modelSetKey: string = "";
+
     constructor() {
 
+    }
+
+    setModelSetKey(modelSetKey: string) {
+        this.modelSetKey = modelSetKey;
+        // TODO, Load model set wide disp groups
     }
 
 

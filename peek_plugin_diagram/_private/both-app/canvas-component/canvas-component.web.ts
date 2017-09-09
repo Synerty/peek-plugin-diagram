@@ -120,6 +120,10 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     ngOnInit() {
         // this.locationIndexCache.setModelSetKey(this.modelSetKey);
+        this.dispGroupCache.setModelSetKey(this.modelSetKey);
+        this.coordSetCache.setModelSetKey(this.modelSetKey);
+        this.lookupCache.setModelSetKey(this.modelSetKey);
+
         this.canvas = this.canvasView.nativeElement;
 
         this.input.setCanvas(this.canvas);

@@ -51,6 +51,7 @@ def dispKeyHashBucket(modelSetKey: str, dispKey: str) -> str:
     hash = 0
     for char in dispKey:
         hash = ((hash << 5) - hash) + ord(char)
+        hash = hash | 0 # This is in the javascript code.
 
     hash = hash & 1023 # 1024 buckets
 
