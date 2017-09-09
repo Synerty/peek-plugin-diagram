@@ -26,7 +26,7 @@
     "admin": {
         "showHomeLink": true,
         "appDir": "_private/admin-app",
-        "appModule": "diagram.module#PeekPluginDiagramModule",
+        "appModule": "diagram.module.web#PeekPluginDiagramModule",
         "moduleDir": "plugin-module"
     },
     "worker": {
