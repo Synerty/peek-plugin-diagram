@@ -19,8 +19,11 @@ from alembic import op
 
 
 def upgrade():
+    op.drop_index('idx_DispText_styleId', table_name='DispText',  schema='pl_diagram')
+
     op.alter_column('DispText', 'textStyleId', type_=sa.Integer, nullable=False,
                     schema='pl_diagram')
+    op.create_index('idx_DispText_styleId', 'DispText', ['textStyleId'], unique=False, schema='pl_diagram')
 
 
 def downgrade():
