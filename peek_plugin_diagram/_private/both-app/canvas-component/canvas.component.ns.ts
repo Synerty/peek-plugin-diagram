@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild, Input} from "@angular/core";
+import {Component, Input, OnInit, ViewChild} from "@angular/core";
 
 import {DeviceEnrolmentService} from "@peek/peek_core_device";
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
@@ -24,7 +24,7 @@ import {PositionServiceBridgeNs} from "../service-bridge/PositionServiceBridge.n
 
 @Component({
     selector: 'pl-diagram-canvas',
-    templateUrl: '../diagram.component.ns.html',
+    templateUrl: 'canvas.component.ns.html',
     moduleId: module.id
 })
 export class CanvasComponent extends ComponentLifecycleEventEmitter
@@ -40,11 +40,11 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
     @ViewChild('webView') webView;
 
     @Input("modelSetKey")
-    modelSetKey:string;
+    modelSetKey: string;
 
     constructor(private enrolmentService: DeviceEnrolmentService,
                 private privateItemSelectService: DiagramItemSelectPrivateService,
-                 positionService: DiagramPositionService) {
+                positionService: DiagramPositionService) {
         super();
 
         this.privatePositionService = <DiagramPositionPrivateService> positionService;
@@ -55,11 +55,6 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
     ngOnInit() {
 
         let webView = <WebView>this.webView.nativeElement;
-
-        // if (webView["android"] != null) {
-        //     console.log("ENABLING ANDROID DATABASE");
-        //     webView["android"]["getSettings"]()["setDatabaseEnabled"](true);
-        // }
 
         this.oLangWebViewInterface = new WebViewInterface(webView, this.webViewUrl());
         this.onDestroyEvent
@@ -73,7 +68,6 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
         this.positionServiceBridge = new PositionServiceBridgeNs(
             this, this.privatePositionService, this.oLangWebViewInterface
         );
-
 
     }
 

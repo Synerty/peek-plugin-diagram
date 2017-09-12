@@ -7,6 +7,8 @@ ng build # -prod --no-aot
 
 [ -d dist ]
 
+
+
 ASSET_DIR="../ns-assets/www"
 INDEX="${ASSET_DIR}/index.html"
 

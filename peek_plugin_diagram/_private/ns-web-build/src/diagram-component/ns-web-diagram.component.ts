@@ -11,6 +11,8 @@ import {DiagramItemSelectPrivateService} from "@peek/peek_plugin_diagram/_privat
 })
 export class NsWebDiagramComponent extends ComponentLifecycleEventEmitter implements OnInit {
 
+    modelSetKey: string | null = null;
+
     private oWebViewInterface: any;
     private itemSelectServiceBridge: ItemSelectServiceBridgeWeb | null = null;
     private positionServiceBridge: PositionServiceBridgeWeb | null = null;
@@ -30,7 +32,7 @@ export class NsWebDiagramComponent extends ComponentLifecycleEventEmitter implem
             (m, key, value) => vars[key] = value
         );
 
-        let modelSetKey: string | null = vars['modelSetKey'];
+        this.modelSetKey = vars['modelSetKey'];
         let vortexWsUrl: string | null = vars['vortexWsUrl'];
 
         if (vortexWsUrl != null) {
@@ -39,11 +41,10 @@ export class NsWebDiagramComponent extends ComponentLifecycleEventEmitter implem
         }
 
 
-        if (modelSetKey == null || modelSetKey.length == 0) {
+        if (this.modelSetKey == null || this.modelSetKey.length == 0) {
             alert("modelSetKey set is empty or null");
             throw new Error("modelSetKey set is empty or null");
         }
-
 
         // Setup the ns-web interface
         this.oWebViewInterface = window["nsWebViewInterface"];
@@ -56,7 +57,6 @@ export class NsWebDiagramComponent extends ComponentLifecycleEventEmitter implem
         this.positionServiceBridge = new PositionServiceBridgeWeb(
             this, this.positionService, this.oWebViewInterface
         );
-
 
     }
 
