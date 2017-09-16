@@ -3,13 +3,10 @@ display over the top of the canvas.
 
 Though this is probably because the defaults places them in the same cell, row=0, col=0
  -->
-<GridLayout>
+<GridLayout rows="*" columns="*">
 
-    <pl-diagram-canvas [modelSetKey]="modelSetKey"></pl-diagram-canvas>
+    <pl-diagram-canvas row="0" col="0" [modelSetKey]="modelSetKey"></pl-diagram-canvas>
 
     <!-- The last item in the cell is drawn on top -->
-    <StackLayout>
-        <StackedLayout class="peek-mobile-page-contents">
-        </StackedLayout>
-    </StackLayout>
+
 </GridLayout>
