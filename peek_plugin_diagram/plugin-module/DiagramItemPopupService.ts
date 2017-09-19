@@ -33,6 +33,8 @@ export interface DiagramMenuItemI {
  * on the diagram item select popup.
  */
 export interface DiagramItemDetailI {
+    title:string;
+    value:string; // TODO: Add support for tables, etc.
 }
 
 export interface DiagramItemPopupContextI {
@@ -71,11 +73,11 @@ export abstract class DiagramItemPopupService {
 
     }
 
-    /** Item Popup Observer
+    /** Item Popup Observable
      *
      * This method returns an observer for this coordSetKey, that is fired when the item
      * is selected.
      */
-    abstract itemPopupObserver(coordSetKey): Observable<DiagramItemPopupContextI> ;
+    abstract itemPopupObservable(coordSetKey): Observable<DiagramItemPopupContextI> ;
 
 }

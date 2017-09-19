@@ -21,7 +21,7 @@ export class DiagramItemSelectPrivateService {
 
     }
 
-    itemSelectObserver(): Observable<SelectedItemDetailsI> {
+    itemSelectObservable(): Observable<SelectedItemDetailsI> {
         return this._itemSelectSubject;
     }
 

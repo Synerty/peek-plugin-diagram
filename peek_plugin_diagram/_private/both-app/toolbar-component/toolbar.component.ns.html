@@ -1,6 +1,8 @@
 <StackLayout>
     <ScrollView>
-        <label text="toolbar1"></label>
-        <label text="toolbar2"></label>
+
+        <Button *ngFor="let btn of buttons"
+                [text]="btn.name"
+                (tap)="buttonClicked(btn)"></Button>
     </ScrollView>
 </StackLayout>

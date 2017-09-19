@@ -1,12 +1,20 @@
-<!-- Using a grid layout with no columns or rows allows the toolbars and popups to
-display over the top of the canvas.
 
-Though this is probably because the defaults places them in the same cell, row=0, col=0
- -->
-<GridLayout rows="*" columns="*">
+<GridLayout rows="auto, *" columns="auto, *">
 
-    <pl-diagram-canvas row="0" col="0" [modelSetKey]="modelSetKey"></pl-diagram-canvas>
+    <pl-diagram-canvas row="0" col="0"  rowSpan="2" colSpan="2"
+                       [modelSetKey]="modelSetKey"></pl-diagram-canvas>
 
     <!-- The last item in the cell is drawn on top -->
+    <!-- Drawing anything on top of another object prevents touch on the underlneath
+    object, even if it's an empty layout -->
+
+    <pl-diagram-popup *ngIf="popupShown"
+                      [dispKey]="currentPopupDispKey"
+                      [coordSetKey]="currentPopupCoordSetKey"
+                      [modelSetKey]="modelSetKey"
+            row="0" col="0" rowSpan="2" colSpan="2"></pl-diagram-popup>
+
+    <pl-diagram-toolbar row="0" col="0"></pl-diagram-toolbar>
+
 
 </GridLayout>

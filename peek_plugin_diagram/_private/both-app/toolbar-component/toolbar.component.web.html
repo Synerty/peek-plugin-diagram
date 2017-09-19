@@ -1,2 +1,8 @@
-<button class="btn">tb1</button>
-<button class="btn">tb2</button>
+<div class="floating-menu">
+
+    <Button *ngFor="let btn of buttons"
+            class="btn floating-menu-item"
+            (click)="buttonClicked(btn)">
+        {{btn.name}}
+    </Button>
+</div>

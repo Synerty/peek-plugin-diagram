@@ -10,15 +10,21 @@ import {Observable, Subject} from "rxjs";
 @Injectable()
 export class DiagramItemPopupPrivateService extends DiagramItemPopupService {
 
-    private _itemPopupSubject = new Subject<DiagramItemPopupContextI>();
+    itemPopupSubject = new Subject<DiagramItemPopupContextI>();
+
+    popupShownSubject = new Subject<boolean>();
 
     constructor(private itemSelectService: DiagramItemSelectPrivateService) {
         super();
 
     }
 
-    itemPopupObserver(coordSetKey): Observable<DiagramItemPopupContextI> {
-        return this._itemPopupSubject;
+    itemPopupObservable(coordSetKey): Observable<DiagramItemPopupContextI> {
+        return this.itemPopupSubject;
+    }
+
+    popupShownObservable(): Observable<boolean> {
+        return this.popupShownSubject;
     }
 
 }

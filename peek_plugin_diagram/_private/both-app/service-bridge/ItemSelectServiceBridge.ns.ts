@@ -14,7 +14,7 @@ export class ItemSelectServiceBridgeNs {
         this.iface.on(
             'itemSelected',
             (item: SelectedItemDetailsI) => {
-                let subject = <Subject<SelectedItemDetailsI>> service.itemSelectObserver();
+                let subject = <Subject<SelectedItemDetailsI>> service.itemSelectObservable();
                 console.log("NS: Received position event");
                 subject.next(item);
             }

@@ -43,4 +43,8 @@ export class DiagramPositionPrivateService extends DiagramPositionService {
         return this.isReadySubject;
     }
 
+    titleUpdatedObservable(): Observable<string> {
+        return this.titleUpdatedSubject;
+    }
+
 }

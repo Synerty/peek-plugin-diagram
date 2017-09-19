@@ -1,1 +1,8 @@
 <pl-diagram-canvas [modelSetKey]="modelSetKey"></pl-diagram-canvas>
+
+<pl-diagram-popup *ngIf="popupShown"
+                  [dispKey]="currentPopupDispKey"
+                  [coordSetKey]="currentPopupCoordSetKey"
+                  [modelSetKey]="modelSetKey"></pl-diagram-popup>
+
+<pl-diagram-toolbar class="pl-toolbar" ></pl-diagram-toolbar>

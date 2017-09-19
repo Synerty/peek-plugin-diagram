@@ -12,7 +12,7 @@ export class ItemSelectServiceBridgeWeb {
 
 
         // Send events from the nativescript side service to the <webview> side
-        service.itemSelectObserver()
+        service.itemSelectObservable()
             .takeUntil(lifeCycleEvents.onDestroyEvent)
             .subscribe((item: SelectedItemDetailsI) => {
 
