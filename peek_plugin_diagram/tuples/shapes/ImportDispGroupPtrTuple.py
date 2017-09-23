@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \

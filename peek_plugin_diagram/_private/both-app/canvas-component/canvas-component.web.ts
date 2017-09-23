@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input} from "@angular/core";
+import {Component, Input, ViewChild} from "@angular/core";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
@@ -12,6 +12,8 @@ import {LookupCache} from "../cache/LookupCache.web";
 import {DispGroupCache} from "../cache/DispGroupCache.web";
 import {CoordSetCache} from "../cache/CoordSetCache.web";
 
+import {DispBase} from "../tuples/shapes/DispBase";
+
 import * as $ from "jquery";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
@@ -24,12 +26,6 @@ import {
     SelectedItemDetailsI
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {LocationIndexCache} from "../cache/LocationIndexCache.web";
-
-export interface DispItemSelectedI {
-    key: string;
-    modelSetKey: string;
-    coordSetKey: string;
-}
 
 /** Canvas Component
  *
@@ -47,7 +43,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     @ViewChild('canvas') canvasView;
 
     @Input("modelSetKey")
-    modelSetKey:string;
+    modelSetKey: string;
 
     private canvas: any = null;
 
@@ -74,7 +70,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 private dispGroupCache: DispGroupCache,
                 private positionService: DiagramPositionService,
                 private itemSelectService: PrivateDiagramItemSelectService,
-                private locationIndexCache:LocationIndexCache) {
+                private locationIndexCache: LocationIndexCache) {
         super();
 
         // Cast the private services
@@ -104,7 +100,10 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
             .takeUntil(this.onDestroyEvent)
             .subscribe(ctx => this.input.draw(ctx));
 
-        // Hook up the position server
+        // Hook up the item selection service
+        this.connectItemSelectionService();
+
+        // Hook up the position serivce
         this.connectDiagramService();
 
 
@@ -114,7 +113,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         return this.coordSetCache.isReady()
             && this.gridObservable.isReady()
             && this.lookupCache.isReady();
-            // && this.locationIndexCache.isReady();
+        // && this.locationIndexCache.isReady();
 
     }
 
@@ -198,6 +197,25 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     }
 
+    connectItemSelectionService() {
+        this.model.selectionChangedObservable()
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((disps: {}[]) => {
+
+                if (disps.length != 1)
+                    return;
+
+                let dispKey = DispBase.key(disps[0]);
+                this.itemSelectService.selectItem({
+                    modelSetKey: this.modelSetKey,
+                    coordSetKey: this.config.controller.coordSet,
+                    itemKey: dispKey
+                });
+
+            });
+    }
+
+
     private connectDiagramService(): void {
         // Hook up the isReady event
         let isReadySub = this.doCheckEvent
@@ -217,12 +235,11 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
                 if (!this.isReady()) {
                     console.log("ERROR, Position was called before canvas is ready");
-                     return;
+                    return;
                 }
 
                 this.switchToCoordSet(coordSetKey);
             });
-
 
         // Watch the position observable
         this._privatePosService.positionObservable()

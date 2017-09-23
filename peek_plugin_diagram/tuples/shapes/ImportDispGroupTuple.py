@@ -1,7 +1,5 @@
 from typing import Optional, List
 
-from geoalchemy2 import WKBElement
-
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
     ImportLiveDbDispLinkTuple
@@ -23,10 +21,10 @@ class ImportDispGroupTuple(Tuple):
     # It's used to link this graphical object to objects in other plugins, like vertices
     # in the peek-plugin-graphdb plugin.
     # Length = 50
-    key :str = TupleField()
+    key: str = TupleField()
 
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
-    selectable :bool = TupleField()
+    selectable: bool = TupleField()
 
     #: Data, Generic data, this is passed to the popup context in the UI.
     # peek_plugin_diagram doesn't care as long as it's json compatible or None

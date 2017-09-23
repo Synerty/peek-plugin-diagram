@@ -175,26 +175,20 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         ctx.stroke();
     }
 
+    /** Contains
+     @param x: x and y are mouse coordinates
+     @param y:
+     @param margin: is the tolerance,
+
+     @returns boolean: True if x and y are on this display object
+     */
     contains(dispPoly, x: number, y: number, margin: number): boolean {
         let points = DispPolygon.geom(dispPoly);
 
         if (!PeekCanvasBounds.fromGeom(points).contains(x, y, margin))
             return false;
 
-        let isPolygon = dispPoly._tt == 'DPG';
-
-        // For PoF, We only want to hittest on connectivity
-        if (isPolygon)
-            return false;
-
-        // let x, y are mouse coordinates
-        // let margin, is the tolerance,
-
-        // let geom is an array, EG [{x:10,y:10}, {x:20,y:10}, {x:20,y:20}, {x:20,y:30}]
-        let geom = dispPoly.g;
-
-
-        if (isPolygon)
+        if (DispFactory.type(dispPoly) == DispType.polygon)
             return this.polygonContains(points, dispPoly, x, y, margin);
 
         return this.polylineContains(points, dispPoly, x, y, margin);
@@ -205,20 +199,24 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
 
         // Using the polygon line segment crossing algorithm.
-        function rayCrossesSegment(ax, ay, bx, by) {
-            let swap = ay > by;
-            ax = swap ? bx : ax;
-            ay = swap ? by : ay;
-            bx = swap ? ax : bx;
-            by = swap ? ay : by;
+        function rayCrossesSegment(axIn: number, ayIn: number,
+                                   bxIn: number, byIn: number) {
+            let swap = ayIn > byIn;
+            let ax = swap ? bxIn : axIn;
+            let ay = swap ? byIn : ayIn;
+            let bx = swap ? axIn : bxIn;
+            let by = swap ? ayIn : byIn;
 
             // alter longitude to cater for 180 degree crossings
+            // JJC, I don't think we need this, we're not using spatial references
+            /*
             if (x < 0)
                 x += 360;
             if (ax < 0)
                 ax += 360;
             if (bx < 0)
                 bx += 360;
+            */
 
             if (y == ay || y == by) y += 0.00000001;
             if ((y > by || y < ay) || (x > Math.max(ax, bx))) return false;
@@ -237,12 +235,13 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         let p1y = pFirstY;
 
         // This will deliberatly run one more iteration after the last pointY
-        for (let i = 2; i + 1 <= points.length; i += 2) {
-            // Assume we've run out of points
+        for (let i = 2; i <= points.length; i += 2) {
+            // Assume this is the last iteration by default
             let p2x = pFirstX;
             let p2y = pFirstY;
 
-            if (i + 1 == points.length) {
+            // If not, set it to the proper point.
+            if (i != points.length) {
                 p2x = points[i];
                 p2y = points[i + 1];
             }
@@ -256,6 +255,54 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
         // odd number of crossings?
         return (crossings % 2 == 1);
+
+    }
+
+    private xxx(): boolean {
+        function rayCrossesSegment(point, a, b) {
+            let px = point.x;
+            let py = point.y;
+            let swap = a.y > b.y;
+            let ax = swap ? b.x : a.x;
+            let ay = swap ? b.y : a.y;
+            let bx = swap ? a.x : b.x;
+            let by = swap ? a.y : b.y;
+
+            // alter longitude to cater for 180 degree crossings
+            if (px < 0)
+                px += 360;
+            if (ax < 0)
+                ax += 360;
+            if (bx < 0)
+                bx += 360;
+
+            if (py == ay || py == by) py += 0.00000001;
+            if ((py > by || py < ay) || (px > Math.max(ax, bx))) return false;
+            if (px < Math.min(ax, bx)) return true;
+
+            let red = (ax != bx) ? ((by - ay) / (bx - ax)) : Infinity;
+            let blue = (ax != px) ? ((py - ay) / (px - ax)) : Infinity;
+            return (blue >= red);
+        }
+
+        let crossings = 0;
+
+        // let p1 = {x: self.left, y: self.top};
+        // for (let i = 0; i <= self.points.length; ++i) {
+        //     let thisPoint = self.points[i];
+        //     let p2 = (i == self.points.length)
+        //             ? {x: self.left, y: self.top} // The closing point
+        //             : thisPoint.coord(self);
+        //
+        //     if (rayCrossesSegment({x: x, y: y}, p1, p2))
+        //         crossings++;
+        //
+        //     p1 = p2;
+        // }
+
+        // odd number of crossings?
+        return (crossings % 2 == 1);
+
 
     }
 

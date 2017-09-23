@@ -4,10 +4,11 @@ import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {LinkedGrid} from "../cache/LinkedGrid.web";
 import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil";
 import {LookupCache} from "../cache/LookupCache.web";
-import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
 import {DispLevel} from "../tuples/lookups/DispLevel";
 import {DispLayer} from "../tuples/lookups/DispLayer";
 import {DispBase} from "../tuples/shapes/DispBase";
+import {Observable, Subject} from "rxjs";
+
 // import 'rxjs/add/operator/takeUntil';
 
 function now(): any {
@@ -39,7 +40,9 @@ export class PeekCanvasModel {
     private _visableDisps = [];
 
     // The currently selected coords
-    private _selection = [];
+    private _selection: {}[] = [];
+
+    private _selectionChangedSubject = new Subject<{}[]>();
 
     // Does the model need an update?
     private needsUpdate = false;
@@ -107,11 +110,15 @@ export class PeekCanvasModel {
 
     };
 
+    selectionChangedObservable(): Observable<{}[]> {
+        return this._selectionChangedSubject;
+    }
+
 
 // -------------------------------------------------------------------------------------
 // reset
 // -------------------------------------------------------------------------------------
-    reset() {
+    private reset() {
         this.needsUpdate = false;
         this.isUpdating = false;
 
@@ -318,28 +325,19 @@ export class PeekCanvasModel {
     addSelection(objectOrArray) {
         this._selection = this._selection.add(objectOrArray);
         this.config.invalidate();
-
-        /*
-         // HACK, HACK, HACK!!!! ZebBen Menu
-         if (this._selection.length >= 1 && this._selection[0]._tt == 'DA') {
-         let dispAction = this._selection[0];
-
-         if (dispAction.d.action != null
-         && dispAction.d.action.indexOf('Popup Menu') != -1) {
-         displayCanvasPopupMenu(this._scope, this._$uibModal, dispAction);
-         }
-         }
-         */
+        this._selectionChangedSubject.next(this._selection);
     }
 
     removeSelection(objectOrArray) {
         this._selection = this._selection.remove(objectOrArray);
         this.config.invalidate();
+        this._selectionChangedSubject.next(this._selection);
     }
 
     clearSelection() {
         this._selection = [];
         this.config.invalidate();
+        this._selectionChangedSubject.next(this._selection);
     }
 
 }
