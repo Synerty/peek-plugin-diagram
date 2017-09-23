@@ -25,6 +25,16 @@ class ImportDispPolylineTuple(Tuple):
     # Length = 50
     key :str = TupleField()
 
+    #: Start Key, The key of another disp object if the start of this polyline is relate
+    # to it. For exmaple, if you were moving the other node, the start of this line should
+    # move as well
+    # Length = 50
+    startKey :str = TupleField()
+
+    #: End Key, See start key
+    # Length = 50
+    endKey :str = TupleField()
+
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
     selectable :bool = TupleField()
 

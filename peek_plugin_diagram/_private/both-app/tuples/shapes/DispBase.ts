@@ -7,7 +7,7 @@ export interface PointI {
 }
 
 /** This type defines the list of points for geometry **/
-export type PointsT = PointI[];
+export type PointsT = number[];
 
 export abstract class DispBase {
 
@@ -23,5 +23,18 @@ export abstract class DispBase {
     static layer(disp): DispLayer {
         // This is set from the short id in LookupCache.linkDispLookups
         return disp.lal;
+    }
+
+    static isSelectable(disp): boolean {
+        // This is set from the short id in LookupCache.linkDispLookups
+        return disp.s;
+    }
+
+    static key(disp): string | null {
+        return disp.k;
+    }
+
+    static data(disp): {} {
+        return disp.d;
     }
 }

@@ -338,9 +338,19 @@ class DispPolyline(DispBase):
     lineStyleId = Column(Integer, ForeignKey('DispLineStyle.id'), doc='ls')
     lineStyle = relationship(DispLineStyle)
 
+    #: Start Key, The key of another disp object,
+    # If the start point of this graphic is linked another disp obj
+    startKey = Column(String(50), doc='sk')
+
+    #: End Key, The key of another disp object,
+    # If the end point of this graphic is linked another disp obj
+    endKey = Column(String(50), doc='ek')
+
     __table_args__ = (
         Index("idx_DispPolyline_lineColorId", lineColorId, unique=False),
         Index("idx_DispPolyline_lineStyleId", lineStyleId, unique=False),
+        Index("idx_DispPolyline_startKey", startKey, unique=False),
+        Index("idx_DispPolyline_endKey", endKey, unique=False),
     )
 
 
