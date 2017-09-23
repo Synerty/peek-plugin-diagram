@@ -1,21 +1,15 @@
 import {DispEllipse} from "./DispEllipse";
-import {DispAction} from "./DispAction";
 import {DispText} from "./DispText";
 import {DispPolygon} from "./DispPolygon";
 import {DispPolyline} from "./DispPolyline";
 import {DispGroupPointer} from "./DispGroupPointer";
 import {DispGroup} from "./DispGroup";
-import {DispGroupPointerNode} from "./DispGroupPointerNode";
-import {DispPolylineConn} from "./DispPolylineConn";
 
 export enum DispType {
     ellipse,
     polygon,
     polyline,
     text,
-    action,
-    groupPointerNode,
-    polylineConn,
     group,
     groupPointer
 
@@ -42,11 +36,8 @@ export class DispFactory {
         'DPG':[DispType.polygon, DispPolygon],
         'DPL':[DispType.polyline, DispPolyline],
         'DE':[DispType.ellipse, DispEllipse],
-        'DA':[DispType.text, DispAction],
         'DG':[DispType.group, DispGroup],
         'DGP':[DispType.groupPointer, DispGroupPointer],
-        'DGPN':[DispType.groupPointerNode, DispGroupPointerNode],
-        'DPLC':[DispType.polylineConn, DispPolylineConn],
     };
 
     static type(disp) : DispType {

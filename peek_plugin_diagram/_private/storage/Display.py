@@ -217,6 +217,9 @@ class DispBase(Tuple, DeclarativeBase):
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
     selectable = Column(Boolean, doc='s', nullable=False, server_default='0')
 
+    #: Data, Generic data that is passed in the context for the item select popup
+    dataJson = Column(String(500), doc='d')
+
     importUpdateDate = Column(DateTime, doc=JSON_EXCLUDE)
     importHash = Column(String(100), doc=JSON_EXCLUDE)
     importGroupHash = Column(String(100), doc=JSON_EXCLUDE)

@@ -232,8 +232,8 @@ def _convertImportTuple(importDisp):
     disp = IMPORT_TUPLE_MAP[importDisp.tupleType()]()
 
     for importFieldName in importDisp.tupleFieldNames():
-        if importFieldName == "props":
-            disp.propsJson = json.dumps(importDisp.props)
+        if importFieldName == "data":
+            disp.dataJson = json.dumps(importDisp.data)
             continue
 
         if importFieldName == "geom":
