@@ -214,10 +214,8 @@ export class PeekCanvasModel {
     }
 
     selectableDisps() {
-        return this.viewableDisps().filter((disp) => {
-            let type_ = DispFactory.type(disp);
-            return type_ == DispType.action || type_ == DispType.polyline;
-        });
+        return this.viewableDisps()
+            .filter(disp => DispBase.isSelectable(disp));
     }
 
     selectedDisps() {

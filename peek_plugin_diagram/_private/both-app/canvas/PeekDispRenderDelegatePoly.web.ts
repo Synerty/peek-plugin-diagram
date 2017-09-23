@@ -1,6 +1,7 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {DispPolygon} from "../tuples/shapes/DispPolygon";
+import {PointsT} from "../tuples/shapes/DispBase";
 import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
 
@@ -152,10 +153,12 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     }
 
     drawSelected(dispPoly, ctx, zoom, pan) {
-        let self = this;
+        let points = DispPolygon.geom(dispPoly);
+
         let selectionConfig = this.config.renderer.selection;
+
         // DRAW THE SELECTED BOX
-        let bounds = dispPoly.bounds;
+        let bounds = PeekCanvasBounds.fromGeom(points);
 
         // Move the selection line a bit away from the object
         let offset = (selectionConfig.width + selectionConfig.lineGap) / zoom;
@@ -172,16 +175,14 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         ctx.stroke();
     }
 
-    contains(dispPoly, x, y, margin) {
-        return false;
-    }
+    contains(dispPoly, x: number, y: number, margin: number): boolean {
+        let points = DispPolygon.geom(dispPoly);
 
-    contains_old(dispPoly, x, y, margin) {
-
-        if (!dispPoly.bounds.contains(x, y, margin))
+        if (!PeekCanvasBounds.fromGeom(points).contains(x, y, margin))
             return false;
 
         let isPolygon = dispPoly._tt == 'DPG';
+
         // For PoF, We only want to hittest on connectivity
         if (isPolygon)
             return false;
@@ -193,63 +194,81 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         let geom = dispPoly.g;
 
 
-        /*
-         if (isPolygon) {
-         // Using the polygon line segment crossing algorithm.
-         function rayCrossesSegment(point, a, b) {
-         let px = point.x;
-         let py = point.y;
-         let swap = a.y > b.y;
-         let ax = swap ? b.x : a.x;
-         let ay = swap ? b.y : a.y;
-         let bx = swap ? a.x : b.x;
-         let by = swap ? a.y : b.y;
+        if (isPolygon)
+            return this.polygonContains(points, dispPoly, x, y, margin);
 
-         // alter longitude to cater for 180 degree crossings
-         if (px < 0)
-         px += 360;
-         if (ax < 0)
-         ax += 360;
-         if (bx < 0)
-         bx += 360;
+        return this.polylineContains(points, dispPoly, x, y, margin);
+    }
 
-         if (py == ay || py == by) py += 0.00000001;
-         if ((py > by || py < ay) || (px > Math.max(ax, bx))) return false;
-         if (px < Math.min(ax, bx)) return true;
+    private polygonContains(points: PointsT, dispPoly,
+                            x: number, y: number, margin: number): boolean {
 
-         let red = (ax != bx) ? ((by - ay) / (bx - ax)) : Infinity;
-         let blue = (ax != px) ? ((py - ay) / (px - ax)) : Infinity;
-         return (blue >= red);
-         }
 
-         let crossings = 0;
+        // Using the polygon line segment crossing algorithm.
+        function rayCrossesSegment(ax, ay, bx, by) {
+            let swap = ay > by;
+            ax = swap ? bx : ax;
+            ay = swap ? by : ay;
+            bx = swap ? ax : bx;
+            by = swap ? ay : by;
 
-         let pFirst = {x: dispPoly.bounds.x, y: dispPoly.bounds.y};
-         let p1 = pFirst;
-         for (let i = 1; i <= geom.length; ++i) {
-         let thisPoint = geom[i];
-         let p2 = (i == geom.length)
-         ? pFirst // The closing point
-         : thisPoint;
+            // alter longitude to cater for 180 degree crossings
+            if (x < 0)
+                x += 360;
+            if (ax < 0)
+                ax += 360;
+            if (bx < 0)
+                bx += 360;
 
-         if (rayCrossesSegment({x: x, y: y}, p1, p2))
-         crossings++;
+            if (y == ay || y == by) y += 0.00000001;
+            if ((y > by || y < ay) || (x > Math.max(ax, bx))) return false;
+            if (x < Math.min(ax, bx)) return true;
 
-         p1 = p2;
-         }
+            let red = (ax != bx) ? ((by - ay) / (bx - ax)) : Infinity;
+            let blue = (ax != x) ? ((y - ay) / (x - ax)) : Infinity;
+            return (blue >= red);
+        }
 
-         // odd number of crossings?
-         return (crossings % 2 == 1);
+        let crossings = 0;
 
-         }
-         */
+        let pFirstX = points[0];
+        let pFirstY = points[1];
+        let p1x = pFirstX;
+        let p1y = pFirstY;
+
+        // This will deliberatly run one more iteration after the last pointY
+        for (let i = 2; i + 1 <= points.length; i += 2) {
+            // Assume we've run out of points
+            let p2x = pFirstX;
+            let p2y = pFirstY;
+
+            if (i + 1 == points.length) {
+                p2x = points[i];
+                p2y = points[i + 1];
+            }
+
+            if (rayCrossesSegment(p1x, p1y, p2x, p2y))
+                crossings++;
+
+            p1x = p2x;
+            p1y = p2y;
+        }
+
+        // odd number of crossings?
+        return (crossings % 2 == 1);
+
+    }
+
+
+    private polylineContains(points: PointsT, dispPoly,
+                             x: number, y: number, margin: number): boolean {
 
         // ELSE, POLYLINE
-        let x1 = geom[0].x;
-        let y1 = geom[0].y;
-        for (let i = 1; i < geom.length; ++i) {
-            let x2 = geom[i].x;
-            let y2 = geom[i].y;
+        let x1 = points[0];
+        let y1 = points[1];
+        for (let i = 2; i < points.length; i += 2) {
+            let x2 = points[i];
+            let y2 = points[i + 1];
 
 
             let dx = x2 - x1;
@@ -280,7 +299,6 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
                     || (x - margin) < xVal && xVal < (x + margin))
                 && (left <= x && x <= right && top <= y && y <= bottom))
                 return true;
-
 
             x1 = x2;
             y1 = y2;
