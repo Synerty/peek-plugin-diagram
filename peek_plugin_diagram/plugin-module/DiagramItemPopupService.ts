@@ -78,6 +78,6 @@ export abstract class DiagramItemPopupService {
      * This method returns an observer for this coordSetKey, that is fired when the item
      * is selected.
      */
-    abstract itemPopupObservable(coordSetKey): Observable<DiagramItemPopupContextI> ;
+    abstract itemPopupObservable(): Observable<DiagramItemPopupContextI> ;
 
 }

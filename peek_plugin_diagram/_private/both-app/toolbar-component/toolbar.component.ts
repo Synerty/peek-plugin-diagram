@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnInit, Input} from "@angular/core";
 
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
@@ -9,27 +9,31 @@ import {
     DiagramToolbarService,
     DiagramToolButtonI
 } from "@peek/peek_plugin_diagram/DiagramToolbarService";
-import {DiagramToolbarPrivateService} from "@peek/peek_plugin_diagram/_private/services/DiagramToolbarPrivateService";
+import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 
 
-@Component({
-    selector: 'pl-diagram-toolbar',
-    templateUrl: 'toolbar.component.web.html',
-    styleUrls: ['toolbar.component.web.scss'],
-    moduleId: module.id
-})
-export class ToolbarComponent extends ComponentLifecycleEventEmitter
+
+export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
     implements OnInit {
+    dispKey: string;
+
+    @Input("coordSetKey")
+    coordSetKey: string;
+
+    @Input("modelSetKey")
+    modelSetKey: string;
 
 
-    private toolbarService: DiagramToolbarPrivateService;
+    protected toolbarService: PrivateDiagramToolbarService;
     buttons: DiagramToolButtonI[] = [];
 
+    toolbarIsOpen:boolean = false;
+
     constructor(abstractToolbarService: DiagramToolbarService,
-                private navBackService: NavBackService) {
+                protected navBackService: NavBackService) {
         super();
 
-        this.toolbarService = <DiagramToolbarPrivateService> abstractToolbarService;
+        this.toolbarService = <PrivateDiagramToolbarService> abstractToolbarService;
 
         this.toolbarService
             .toolButtonsUpdatedObservable()
@@ -41,14 +45,6 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
     }
 
     ngOnInit() {
-        // Add the back button
-        this.toolbarService.addToolButton({
-            name: "Back",
-            tooltip:  null,
-            icon:  null,
-            callback: () => this.navBackService.navBack(),
-            children:[]
-        });
 
     }
 
@@ -56,9 +52,13 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
         if (btn.callback != null) {
             btn.callback();
         } else {
-            // Expand toolbar?
+            // Expand children?
         }
 
+    }
+
+    toggleToolbar() :void{
+    this.toolbarIsOpen = !this.toolbarIsOpen;
     }
 
 

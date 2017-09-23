@@ -1,13 +1,13 @@
 import {
-    DiagramItemSelectPrivateService,
+    PrivateDiagramItemSelectService,
     SelectedItemDetailsI
-} from "@peek/peek_plugin_diagram/_private/services/DiagramItemSelectPrivateService";
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
 
 export class ItemSelectServiceBridgeWeb {
     constructor(private lifeCycleEvents: ComponentLifecycleEventEmitter,
-                private service: DiagramItemSelectPrivateService,
+                private service: PrivateDiagramItemSelectService,
                 private iface: any) {
 
 

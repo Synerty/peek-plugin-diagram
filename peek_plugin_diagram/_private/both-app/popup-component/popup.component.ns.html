@@ -1,3 +1,9 @@
-<Label text="popup component"></Label>
-<label class="hr"></label>
-<Button text="Close" (tap)="closeClicked()"></Button>
+<GridView *ngIf="popupShown" rows="*" cols="*">
+    <ScrollView col="0" row="0">
+        <StackedLayout>
+            <Label text="popup component"></Label>
+            <label class="hr"></label>
+            <Button text="Close" (tap)="closeTapped()"></Button>
+        </StackedLayout>
+    </ScrollView>
+</GridView>

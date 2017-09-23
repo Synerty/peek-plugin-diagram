@@ -1,0 +1,13 @@
+
+<div class="toolbar"
+     [class.toolbar-is-open]="true">
+    <div *ngFor="let btn of buttons">
+        <hr class="hr">
+        <button class="btn"
+                (click)="buttonClicked(btn)">
+            <fa *ngIf="btn.icon" [name]="btn.icon"></fa>
+            {{btn.name}}
+        </button>
+    </div>
+
+</div>

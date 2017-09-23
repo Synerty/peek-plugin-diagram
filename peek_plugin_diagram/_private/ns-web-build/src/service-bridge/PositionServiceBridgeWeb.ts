@@ -2,8 +2,8 @@ import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionS
 
 import {
     DiagramPositionI,
-    DiagramPositionPrivateService
-} from "@peek/peek_plugin_diagram/_private/services/DiagramPositionPrivateService";
+    PrivateDiagramPositionService
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
@@ -13,7 +13,7 @@ export class PositionServiceBridgeWeb {
                 private service: DiagramPositionService,
                 private iface: any) {
 
-        let positionService = <DiagramPositionPrivateService> service;
+        let positionService = <PrivateDiagramPositionService> service;
 
         // Listen for calls from the NS site
         this.iface.on(
@@ -34,7 +34,7 @@ export class PositionServiceBridgeWeb {
         );
 
         // Send events from the <webview> side to the nativescript side service
-        positionService.isReadySubject
+        positionService.isReadyObservable()
             .takeUntil(lifeCycleEvents.onDestroyEvent)
             .subscribe((val) => {
                 console.log(`WEB: Sending isReadySubject ${val}`);
@@ -42,7 +42,7 @@ export class PositionServiceBridgeWeb {
             });
 
         // Send events from the <webview> side to the nativescript side service
-        positionService.titleUpdatedSubject
+        positionService.titleUpdatedObservable()
             .takeUntil(lifeCycleEvents.onDestroyEvent)
             .subscribe((val:string) => {
                 console.log(`WEB: Sending titleUpdatedSubject ${val}`);

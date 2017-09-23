@@ -12,7 +12,7 @@ export interface DiagramPositionI {
 
 
 @Injectable()
-export class DiagramPositionPrivateService extends DiagramPositionService {
+export class PrivateDiagramPositionService extends DiagramPositionService {
 
     constructor() {
         super();
@@ -20,14 +20,17 @@ export class DiagramPositionPrivateService extends DiagramPositionService {
     }
 
     // This observable is for when the canvas updates the title
-    titleUpdatedSubject: Subject<string> = new Subject<string>();
+    private titleUpdatedSubject: Subject<string> = new Subject<string>();
 
-    positionInitialSubject: Subject<string> = new Subject<string>();
-    positionSubject: Subject<DiagramPositionI> = new Subject<DiagramPositionI>();
-    isReadySubject: Subject<boolean> = new Subject<boolean>();
+    private positionInitialSubject: Subject<string> = new Subject<string>();
+    private positionSubject: Subject<DiagramPositionI> = new Subject<DiagramPositionI>();
+    private isReadySubject: Subject<boolean> = new Subject<boolean>();
+
+    private coordSetKeySubject = new Subject<string>();
 
     positionInitial(coordSetKey: string): void {
         this.positionInitialSubject.next(coordSetKey);
+        this.coordSetKeySubject.next(coordSetKey);
     }
 
     position(coordSetKey: string, x: number, y: number, zoom: number): void {
@@ -37,6 +40,15 @@ export class DiagramPositionPrivateService extends DiagramPositionService {
             y: y,
             zoom: zoom
         });
+        this.coordSetKeySubject.next(coordSetKey);
+    }
+
+    setReady(value:boolean) {
+        this.isReadySubject.next(true);
+    }
+
+    setTitle(value:string) {
+        this.titleUpdatedSubject.next(value);
     }
 
     isReadyObservable(): Observable<boolean> {
@@ -45,6 +57,14 @@ export class DiagramPositionPrivateService extends DiagramPositionService {
 
     titleUpdatedObservable(): Observable<string> {
         return this.titleUpdatedSubject;
+    }
+
+    positionObservable(): Observable<DiagramPositionI> {
+        return this.positionSubject;
+    }
+
+    coordSetKeyObservable(): Observable<string> {
+        return this.coordSetKeySubject;
     }
 
 }

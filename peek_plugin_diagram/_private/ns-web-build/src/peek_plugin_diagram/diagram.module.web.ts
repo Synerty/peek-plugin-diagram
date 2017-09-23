@@ -2,8 +2,6 @@ import {CommonModule} from "@angular/common";
 import {NgModule} from "@angular/core";
 // Import a small abstraction library to switch between nativescript and web
 import {PeekModuleFactory} from "@synerty/peek-util/index.web";
-// Import the default route component
-import {DiagramComponent} from "./diagram.component";
 // Import the required classes from VortexJS
 import {
     TupleActionPushNameService,
@@ -24,7 +22,6 @@ import {
 } from "@peek/peek_plugin_diagram/_private/PluginNames";
 // Import global modules, for example, the canvas extensions.
 import "./canvas/PeekCanvasExtensions.web";
-// import {DisplayCanvasSplashScreen} from "./loading-splash/loading-splash.service";
 import {DiagramClientTupleOfflineObservable} from "./DiagramClientTupleOfflineObservable.web";
 import {GridCache} from "./cache/GridCache.web";
 import {GridObservable} from "./cache/GridObservable.web";
@@ -37,15 +34,7 @@ import {CanvasComponent} from "./canvas-component/canvas-component.web";
 
 import {PrivateDiagramItemSelectService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {PrivateDiagramPositionService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
-import {PrivateDiagramToolbarService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
-import {PrivateDiagramItemPopupService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemPopupService";
-
-
-import {DiagramItemPopupService} from "@peek/peek_plugin_diagram/DiagramItemPopupService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
-import {PopupComponent} from "./popup-component/popup.component.web";
-import {ToolbarComponent} from "./toolbar-component/toolbar.component.web";
 import {LayerComponent} from "./layer-component/layer.component.web";
 
 export function tupleActionPushNameServiceFactory() {
@@ -71,7 +60,6 @@ export function tupleOfflineStorageNameServiceFactory() {
         ...PeekModuleFactory.FormsModules,
     ],
     exports: [
-        DiagramComponent,
         CanvasComponent
     ],
     providers: [
@@ -103,7 +91,7 @@ export function tupleOfflineStorageNameServiceFactory() {
         PrivateDiagramItemSelectService,
 
     ],
-    declarations: [DiagramComponent, CanvasComponent, PopupComponent, ToolbarComponent, LayerComponent]
+    declarations: [CanvasComponent, LayerComponent]
 })
 export class PeekPluginDiagramModule {
 }

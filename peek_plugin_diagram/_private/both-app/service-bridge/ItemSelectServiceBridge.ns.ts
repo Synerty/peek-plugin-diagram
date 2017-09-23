@@ -1,22 +1,21 @@
 import {WebViewInterface} from 'nativescript-webview-interface';
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {
-    DiagramItemSelectPrivateService,
+    PrivateDiagramItemSelectService,
     SelectedItemDetailsI
-} from "@peek/peek_plugin_diagram/_private/services/DiagramItemSelectPrivateService";
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {Subject} from "rxjs";
 
 export class ItemSelectServiceBridgeNs {
     constructor(private lifeCycleEvents: ComponentLifecycleEventEmitter,
-                private service: DiagramItemSelectPrivateService,
+                private service: PrivateDiagramItemSelectService,
                 private iface: WebViewInterface) {
 
         this.iface.on(
             'itemSelected',
             (item: SelectedItemDetailsI) => {
-                let subject = <Subject<SelectedItemDetailsI>> service.itemSelectObservable();
                 console.log("NS: Received position event");
-                subject.next(item);
+                service.selectItem(item);
             }
         );
     }

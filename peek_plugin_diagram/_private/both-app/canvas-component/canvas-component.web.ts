@@ -17,12 +17,12 @@ import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {
     DiagramPositionI,
-    DiagramPositionPrivateService
-} from "@peek/peek_plugin_diagram/_private/services/DiagramPositionPrivateService";
+    PrivateDiagramPositionService
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import {
-    DiagramItemSelectPrivateService,
+    PrivateDiagramItemSelectService,
     SelectedItemDetailsI
-} from "@peek/peek_plugin_diagram/_private/services/DiagramItemSelectPrivateService";
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {LocationIndexCache} from "../cache/LocationIndexCache.web";
 
 export interface DispItemSelectedI {
@@ -65,7 +65,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     private input: PeekCanvasInput;
 
     // Private services
-    private _privatePosService: DiagramPositionPrivateService;
+    private _privatePosService: PrivateDiagramPositionService;
 
 
     constructor(private gridObservable: GridObservable,
@@ -73,12 +73,12 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 private coordSetCache: CoordSetCache,
                 private dispGroupCache: DispGroupCache,
                 private positionService: DiagramPositionService,
-                private itemSelectService: DiagramItemSelectPrivateService,
+                private itemSelectService: PrivateDiagramItemSelectService,
                 private locationIndexCache:LocationIndexCache) {
         super();
 
         // Cast the private services
-        this._privatePosService = <DiagramPositionPrivateService> positionService;
+        this._privatePosService = <PrivateDiagramPositionService> positionService;
 
         // The config for the canvas
         this.config = new PeekCanvasConfig();
@@ -188,13 +188,13 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         let coordSet = this.coordSetCache.coordSetForKey(coordSetKey);
         this.config.updateCoordSet(coordSet);
 
-        this._privatePosService.titleUpdatedSubject.next(`Viewing ${coordSet.name}`);
+        this._privatePosService.setTitle(`Viewing ${coordSet.name}`);
 
         // Update
         this.config.updateCoordSet(coordSet);
 
         // Inform the position service that it's ready to go.
-        this._privatePosService.isReadySubject.next(true);
+        this._privatePosService.setReady(true);
 
     }
 
@@ -207,11 +207,11 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                     return;
 
                 isReadySub.unsubscribe();
-                this._privatePosService.isReadySubject.next(true);
+                this._privatePosService.setReady(true);
             });
 
         // Watch the positionInitial observable
-        this._privatePosService.positionInitialSubject
+        this._privatePosService.coordSetKeyObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe((coordSetKey: string) => {
 
@@ -225,7 +225,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
 
         // Watch the position observable
-        this._privatePosService.positionSubject
+        this._privatePosService.positionObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe((pos: DiagramPositionI) => {
                 if (this.config.controller.coordSet == null) {

@@ -35,13 +35,55 @@
         "showHomeLink": false,
         "appDir": "_private/both-app",
         "assetDir": "_private/both-assets",
-        "moduleDir": "plugin-module"
+        "moduleDir": "plugin-module",
+        "rootServices": [
+            {
+                "file": "DiagramToolbarService",
+                "class": "DiagramToolbarService",
+                "useClassFile": "_private/services/PrivateDiagramToolbarService",
+                "useClassClass": "PrivateDiagramToolbarService",
+                "persistent": true
+            },
+            {
+                "file": "DiagramItemPopupService",
+                "class": "DiagramItemPopupService",
+                "useClassFile": "_private/services/PrivateDiagramItemPopupService",
+                "useClassClass": "PrivateDiagramItemPopupService",
+                "persistent": true
+            },
+            {
+                "file": "_private/services/PrivateDiagramItemSelectService",
+                "class": "PrivateDiagramItemSelectService",
+                "persistent": true
+            }
+        ]
     },
     "mobile-ns": {
         "showHomeLink": false,
         "appDir": "_private/both-app",
         "assetDir": "_private/ns-assets",
-        "moduleDir": "plugin-module"
+        "moduleDir": "plugin-module",
+        "rootServices": [
+            {
+                "file": "DiagramToolbarService",
+                "class": "DiagramToolbarService",
+                "useClassFile": "_private/services/PrivateDiagramToolbarService",
+                "useClassClass": "PrivateDiagramToolbarService",
+                "persistent": true
+            },
+            {
+                "file": "DiagramItemPopupService",
+                "class": "DiagramItemPopupService",
+                "useClassFile": "_private/services/PrivateDiagramItemPopupService",
+                "useClassClass": "PrivateDiagramItemPopupService",
+                "persistent": true
+            },
+            {
+                "file": "_private/services/PrivateDiagramItemSelectService",
+                "class": "PrivateDiagramItemSelectService",
+                "persistent": true
+            }
+        ]
     },
     "agent": {
     },
@@ -49,6 +91,27 @@
         "showHomeLink": false,
         "appDir": "_private/both-app",
         "assetDir": "_private/both-assets",
-        "moduleDir": "plugin-module"
+        "moduleDir": "plugin-module",
+        "rootServices": [
+            {
+                "file": "DiagramToolbarService",
+                "class": "DiagramToolbarService",
+                "useClassFile": "_private/services/PrivateDiagramToolbarService",
+                "useClassClass": "PrivateDiagramToolbarService",
+                "persistent": true
+            },
+            {
+                "file": "DiagramItemPopupService",
+                "class": "DiagramItemPopupService",
+                "useClassFile": "_private/services/PrivateDiagramItemPopupService",
+                "useClassClass": "PrivateDiagramItemPopupService",
+                "persistent": true
+            },
+            {
+                "file": "_private/services/PrivateDiagramItemSelectService",
+                "class": "PrivateDiagramItemSelectService",
+                "persistent": true
+            }
+        ]
     }
 }

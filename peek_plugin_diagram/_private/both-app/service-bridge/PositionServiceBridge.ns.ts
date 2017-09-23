@@ -2,8 +2,8 @@ import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionS
 
 import {
     DiagramPositionI,
-    DiagramPositionPrivateService
-} from "@peek/peek_plugin_diagram/_private/services/DiagramPositionPrivateService";
+    PrivateDiagramPositionService
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 
 import {WebViewInterface} from 'nativescript-webview-interface';
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
@@ -14,10 +14,10 @@ export class PositionServiceBridgeNs {
                 private service: DiagramPositionService,
                 private iface: WebViewInterface) {
 
-        let positionService = <DiagramPositionPrivateService> service;
+        let positionService = <PrivateDiagramPositionService> service;
 
         // Send events from the nativescript side service to the <webview> side
-        positionService.positionSubject
+        positionService.positionObservable()
             .takeUntil(lifeCycleEvents.onDestroyEvent)
             .subscribe((pos: DiagramPositionI) => {
                 console.log("NS: Sending positionSubject event");
@@ -25,7 +25,7 @@ export class PositionServiceBridgeNs {
             });
 
         // Send events from the nativescript side service to the <webview> side
-        positionService.positionInitialSubject
+        positionService.coordSetKeyObservable()
             .takeUntil(lifeCycleEvents.onDestroyEvent)
             .subscribe((coordSetKey: string) => {
                 console.log("NS: Sending positionInitialSubject event");
@@ -37,7 +37,7 @@ export class PositionServiceBridgeNs {
             'isReadySubject',
             (val: boolean) => {
                 console.log(`NS: Received isReadySubject event ${val}`);
-                positionService.isReadySubject.next(val);
+                positionService.setReady(val);
             }
         );
 
@@ -46,7 +46,7 @@ export class PositionServiceBridgeNs {
             'titleUpdatedSubject',
             (val: string) => {
                 console.log(`NS: Received titleUpdatedSubject event ${val}`);
-                positionService.titleUpdatedSubject.next(val);
+                positionService.setTitle(val);
             }
         );
 

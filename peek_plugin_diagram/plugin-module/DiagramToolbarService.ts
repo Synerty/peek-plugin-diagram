@@ -1,4 +1,3 @@
-
 /** Diagram Tool Button Callback Interface
  *
  * This interface represents a function that is called when the user selects a
@@ -38,10 +37,18 @@ export abstract class DiagramToolbarService {
     /** Add Tool Button
      *
      * Call this method to add new tool buttons to the diagrams tool bar.
+     * @param modelSetKey: The model set to show the button on the toolbar for.
+     * null means all of them.
+     *
+     * @param coordSetKey: The coord set to show the button on the toolbar for.
+     * null means all of them.
      *
      * @param toolButton: A single tool button, or a hierarchy of tool buttons to add
      * to the diagrams tool bar.
+     *
      */
-    abstract addToolButton(toolButton:DiagramToolButtonI);
+    abstract addToolButton(modelSetKey: string | null,
+                           coordSetKey: string | null,
+                           toolButton: DiagramToolButtonI);
 
 }

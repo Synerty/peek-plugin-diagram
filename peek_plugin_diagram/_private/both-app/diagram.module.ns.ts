@@ -7,19 +7,19 @@ import {PeekModuleFactory} from "@synerty/peek-util/index.ns";
 import {DiagramComponent} from "./diagram.component";
 
 import {
-    DiagramItemSelectPrivateService,
-} from "@peek/peek_plugin_diagram/_private/services/DiagramItemSelectPrivateService";
+    PrivateDiagramItemSelectService,
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {
-    DiagramItemPopupPrivateService,
-} from "@peek/peek_plugin_diagram/_private/services/DiagramItemPopupPrivateService";
+    PrivateDiagramItemPopupService,
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemPopupService";
 
 import {
-    DiagramPositionPrivateService,
-} from "@peek/peek_plugin_diagram/_private/services/DiagramPositionPrivateService";
+    PrivateDiagramPositionService,
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 
 import {
-    DiagramToolbarPrivateService
-} from "@peek/peek_plugin_diagram/_private/services/DiagramToolbarPrivateService";
+    PrivateDiagramToolbarService
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 
 import {
     DiagramItemPopupService,
@@ -34,8 +34,8 @@ import {
 } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 
 import {CanvasComponent} from "./canvas-component/canvas.component.ns";
-import {PopupComponent} from "./popup-component/popup.component";
-import {ToolbarComponent} from "./toolbar-component/toolbar.component";
+import {PopupComponent} from "./popup-component/popup.component.ns";
+import {ToolbarComponent} from "./toolbar-component/toolbar.component.ns";
 
 
 // Define the root module for this plugin.
@@ -51,17 +51,9 @@ import {ToolbarComponent} from "./toolbar-component/toolbar.component";
         // Other plugin integration services
         {
             provide: DiagramPositionService,
-            useClass: DiagramPositionPrivateService
+            useClass: PrivateDiagramPositionService
         },
-        {
-            provide: DiagramItemPopupService,
-            useClass: DiagramItemPopupPrivateService
-        },
-        {
-            provide: DiagramToolbarService,
-            useClass: DiagramToolbarPrivateService
-        },
-        DiagramItemSelectPrivateService
+        PrivateDiagramItemSelectService
 
     ],
     declarations: [DiagramComponent, CanvasComponent, PopupComponent, ToolbarComponent]

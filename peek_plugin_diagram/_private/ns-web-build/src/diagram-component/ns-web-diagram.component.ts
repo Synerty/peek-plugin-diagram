@@ -3,7 +3,7 @@ import {ComponentLifecycleEventEmitter, VortexService} from "@synerty/vortexjs";
 import {PositionServiceBridgeWeb} from "../service-bridge/PositionServiceBridgeWeb";
 import {ItemSelectServiceBridgeWeb} from "../service-bridge/ItemSelectServiceBridgeWeb";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {DiagramItemSelectPrivateService} from "@peek/peek_plugin_diagram/_private/services/DiagramItemSelectPrivateService";
+import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 
 @Component({
     selector: 'ns-web-diagram',
@@ -19,7 +19,7 @@ export class NsWebDiagramComponent extends ComponentLifecycleEventEmitter implem
 
     constructor(private vortexService: VortexService,
                 private positionService: DiagramPositionService,
-                private itemSelectService: DiagramItemSelectPrivateService) {
+                private itemSelectService: PrivateDiagramItemSelectService) {
         super();
     }
 

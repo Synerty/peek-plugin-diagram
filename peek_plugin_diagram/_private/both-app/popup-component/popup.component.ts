@@ -1,24 +1,22 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Input, OnInit} from "@angular/core";
 
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
 
-import {DiagramItemSelectPrivateService} from "@peek/peek_plugin_diagram/_private/services/DiagramItemSelectPrivateService";
+import {
+    PrivateDiagramItemSelectService,
+    SelectedItemDetailsI
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {
     DiagramItemDetailI,
     DiagramItemPopupService,
     DiagramMenuItemI
 } from "@peek/peek_plugin_diagram/DiagramItemPopupService";
-import {DiagramItemPopupPrivateService} from "@peek/peek_plugin_diagram/_private/services/DiagramItemPopupPrivateService";
+import {PrivateDiagramItemPopupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemPopupService";
 
 
-@Component({
-    selector: 'pl-diagram-popup',
-    templateUrl: 'popup.component.web.html',
-    moduleId: module.id
-})
-export class PopupComponent extends ComponentLifecycleEventEmitter
+export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
     implements OnInit {
 
     @Input("dispKey")
@@ -30,26 +28,37 @@ export class PopupComponent extends ComponentLifecycleEventEmitter
     @Input("modelSetKey")
     modelSetKey: string;
 
-    private itemPopupService: DiagramItemPopupPrivateService;
+    protected itemPopupService: PrivateDiagramItemPopupService;
 
     details: DiagramItemDetailI[] = [];
     menuItems: DiagramMenuItemI[] = [];
 
+    popupShown: boolean = false;
 
-    constructor(private itemSelectService: DiagramItemSelectPrivateService,
+    constructor(protected itemSelectService: PrivateDiagramItemSelectService,
                 abstractItemPopupService: DiagramItemPopupService) {
         super();
 
-        this.itemPopupService = <DiagramItemPopupPrivateService> abstractItemPopupService;
+        this.itemPopupService = <PrivateDiagramItemPopupService> abstractItemPopupService;
 
+        this.itemSelectService
+            .itemSelectObservable()
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((v: SelectedItemDetailsI) => this.openPopup(v));
 
     }
 
     ngOnInit() {
+
+    }
+
+    private openPopup(itemDetails: SelectedItemDetailsI) {
+        this.popupShown = true;
+        this.itemPopupService.setPopupShown(true);
+
         // Tell any observers that we're popping up
         // Give them a chance to add their items
-        this.itemPopupService.itemPopupSubject
-            .next(
+        this.itemPopupService.emitPopupContext(
                 {
                     key: this.dispKey,
                     coordSetKey: this.coordSetKey,
@@ -59,11 +68,18 @@ export class PopupComponent extends ComponentLifecycleEventEmitter
                 }
             );
 
+        this.platformOpen();
     }
 
-    closeClicked() {
-        this.itemPopupService.popupShownSubject.next(false);
+    protected closePopup(): void {
+        this.popupShown = false;
+        this.itemPopupService.setPopupShown(false);
+        this.platformClose()
     }
+
+    protected abstract platformOpen(): void;
+
+    protected abstract platformClose(): void;
 
 
 }

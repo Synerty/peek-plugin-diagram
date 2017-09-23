@@ -1,0 +1,22 @@
+<div class="toolbar"
+     [class.toolbar-is-open]="toolbarIsOpen"
+     [class.toolbar-is-closed]="!toolbarIsOpen">
+
+    <div *ngFor="let btn of buttons">
+        <hr class="hr">
+        <button
+                class="btn tool-button"
+                (click)="buttonClicked(btn)">
+            <fa *ngIf="btn.icon" [name]="btn.icon"></fa>
+            {{btn.name}}
+        </button>
+    </div>
+
+</div>
+
+<button
+        class="open-close-button btn"
+        (click)="toggleToolbar()">
+    <fa *ngIf="!toolbarIsOpen" name="navicon"></fa>
+    <fa *ngIf="toolbarIsOpen" name="times"></fa>
+</button>

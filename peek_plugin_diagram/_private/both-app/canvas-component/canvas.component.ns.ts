@@ -7,18 +7,18 @@ import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {WebViewInterface} from 'nativescript-webview-interface';
 import {LoadEventData, WebView} from 'ui/web-view';
 
-import {DiagramItemSelectPrivateService} from "@peek/peek_plugin_diagram/_private/services/DiagramItemSelectPrivateService";
+import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {DiagramItemPopupService} from "@peek/peek_plugin_diagram/DiagramItemPopupService";
-import {DiagramItemPopupPrivateService} from "@peek/peek_plugin_diagram/_private/services/DiagramItemPopupPrivateService";
+import {PrivateDiagramItemPopupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemPopupService";
 import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
-import {DiagramToolbarPrivateService} from "@peek/peek_plugin_diagram/_private/services/DiagramToolbarPrivateService";
+import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 
 
 import {
     DiagramPositionI,
-    DiagramPositionPrivateService
-} from "@peek/peek_plugin_diagram/_private/services/DiagramPositionPrivateService";
+    PrivateDiagramPositionService
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import {ItemSelectServiceBridgeNs} from "../service-bridge/ItemSelectServiceBridge.ns";
 import {PositionServiceBridgeNs} from "../service-bridge/PositionServiceBridge.ns";
 
@@ -35,7 +35,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
     private itemSelectServiceBridge: ItemSelectServiceBridgeNs | null = null;
     private positionServiceBridge: PositionServiceBridgeNs | null = null;
 
-    private privatePositionService: DiagramPositionPrivateService;
+    private privatePositionService: PrivateDiagramPositionService;
 
     @ViewChild('webView') webView;
 
@@ -43,11 +43,11 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
     modelSetKey: string;
 
     constructor(private enrolmentService: DeviceEnrolmentService,
-                private privateItemSelectService: DiagramItemSelectPrivateService,
+                private privateItemSelectService: PrivateDiagramItemSelectService,
                 positionService: DiagramPositionService) {
         super();
 
-        this.privatePositionService = <DiagramPositionPrivateService> positionService;
+        this.privatePositionService = <PrivateDiagramPositionService> positionService;
 
 
     }

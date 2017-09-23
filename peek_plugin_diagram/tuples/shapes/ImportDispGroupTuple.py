@@ -28,6 +28,11 @@ class ImportDispGroupTuple(Tuple):
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
     selectable :bool = TupleField()
 
+    #: Data, Generic data, this is passed to the popup context in the UI.
+    # peek_plugin_diagram doesn't care as long as it's json compatible or None
+    # Json length Length = 400
+    data: Optional[dict] = TupleField(None)
+
     #: The hash of the level to link to (Matches ImportDispLevel.importHash)
     levelHash: str = TupleField()
 

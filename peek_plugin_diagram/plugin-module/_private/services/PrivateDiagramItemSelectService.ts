@@ -13,16 +13,20 @@ export interface SelectedItemDetailsI {
  *
  */
 @Injectable()
-export class DiagramItemSelectPrivateService {
+export class PrivateDiagramItemSelectService {
 
-    private _itemSelectSubject = new Subject<SelectedItemDetailsI>();
+    private itemSelectSubject = new Subject<SelectedItemDetailsI>();
 
     constructor() {
 
     }
 
     itemSelectObservable(): Observable<SelectedItemDetailsI> {
-        return this._itemSelectSubject;
+        return this.itemSelectSubject;
+    }
+
+    selectItem(details: SelectedItemDetailsI): void {
+        this.itemSelectSubject.next(details);
     }
 
 }

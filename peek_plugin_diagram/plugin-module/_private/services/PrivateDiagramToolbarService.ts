@@ -4,7 +4,7 @@ import {DiagramToolbarService, DiagramToolButtonI} from "../../DiagramToolbarSer
 import {Observable, Subject} from "rxjs";
 
 @Injectable()
-export class DiagramToolbarPrivateService extends DiagramToolbarService {
+export class PrivateDiagramToolbarService extends DiagramToolbarService {
 
     toolButtons: DiagramToolButtonI[] = [];
 
@@ -20,7 +20,9 @@ export class DiagramToolbarPrivateService extends DiagramToolbarService {
         return this._toolButtonsUpdatedSubject;
     }
 
-    addToolButton(toolButton: DiagramToolButtonI) {
+    addToolButton(modelSetKey: string | null,
+                  coordSetKey: string | null,
+                  toolButton: DiagramToolButtonI) {
         this.toolButtons.push(toolButton);
         this._toolButtonsUpdatedSubject.next(this.toolButtons);
     }
