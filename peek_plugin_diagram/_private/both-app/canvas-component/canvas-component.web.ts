@@ -205,11 +205,11 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 if (disps.length != 1)
                     return;
 
-                let dispKey = DispBase.key(disps[0]);
                 this.itemSelectService.selectItem({
                     modelSetKey: this.modelSetKey,
                     coordSetKey: this.config.controller.coordSet,
-                    itemKey: dispKey
+                    dispKey: DispBase.key(disps[0]),
+                    dispData: DispBase.data(disps[0])
                 });
 
             });

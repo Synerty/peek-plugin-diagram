@@ -35,6 +35,8 @@ export abstract class DispBase {
     }
 
     static data(disp): {} {
+        if (disp.d == null)
+            return {};
         return disp.d;
     }
 }

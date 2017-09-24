@@ -42,6 +42,9 @@ export interface DiagramItemPopupContextI {
     /** The is the key assigned to the Disp item when it was imported */
     key: string;
 
+    /** The is the data assigned to the Disp item when it was imported */
+    data: {};
+
     /** The key of the model set that this Disp belongs to */
     modelSetKey: string;
 

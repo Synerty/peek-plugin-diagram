@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, Input, OnInit, ViewChild} from "@angular/core";
 
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
@@ -17,33 +17,43 @@ import {PopupComponentBase} from "./popup.component";
 
 @Component({
     selector: 'pl-diagram-popup',
-    templateUrl: 'popup.component.ns.html',
+    templateUrl: 'popup.component.mweb.html',
+    styleUrls: ['popup.component.mweb.scss'],
     moduleId: module.id
 })
 export class PopupComponent extends PopupComponentBase {
+   @ViewChild('modalView') modalView;
 
+    private backdropId = 'div.modal-backdrop';
 
-
-    constructor( titleService: TitleService,
-                 itemSelectService: PrivateDiagramItemSelectService,
+    constructor(  titleService: TitleService,
+                itemSelectService: PrivateDiagramItemSelectService,
                 abstractItemPopupService: DiagramItemPopupService) {
         super(titleService, itemSelectService, abstractItemPopupService);
 
-
-
     }
 
-    closeTapped():void{
+    closeClicked():void{
+        let jqModal:any = $(this.modalView.nativeElement);
+        jqModal.modal('hide');
         this.closePopup();
-
     }
 
-    platformOpen():void{
-        //pass
+    platformOpen() :void{
+        // .modal is defined in bootstraps code
+        let jqModal:any = $(this.modalView.nativeElement);
+
+        jqModal.modal({backdrop:'static',
+        keyboard:false});
+
+        // Move the backdrop
+        let element = $(this.backdropId).detach();
+        jqModal.parent().append(element);
     }
 
     platformClose():void {
         //pass
     }
+
 
 }

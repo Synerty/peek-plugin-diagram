@@ -2,6 +2,7 @@ import {Input, OnInit} from "@angular/core";
 
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import {TitleService} from "@synerty/peek-util";
 
 
 import {
@@ -19,7 +20,6 @@ import {PrivateDiagramItemPopupService} from "@peek/peek_plugin_diagram/_private
 export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
     implements OnInit {
 
-    @Input("dispKey")
     dispKey: string;
 
     @Input("coordSetKey")
@@ -35,7 +35,8 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
 
     popupShown: boolean = false;
 
-    constructor(protected itemSelectService: PrivateDiagramItemSelectService,
+    constructor(protected titleService: TitleService,
+                protected itemSelectService: PrivateDiagramItemSelectService,
                 abstractItemPopupService: DiagramItemPopupService) {
         super();
 
@@ -53,6 +54,9 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
     }
 
     private openPopup(itemDetails: SelectedItemDetailsI) {
+        this.dispKey = itemDetails.dispKey;
+
+        this.titleService.setEnabled(false);
         this.popupShown = true;
         this.itemPopupService.setPopupShown(true);
 
@@ -61,6 +65,7 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
         this.itemPopupService.emitPopupContext(
                 {
                     key: this.dispKey,
+                    data: itemDetails.dispData,
                     coordSetKey: this.coordSetKey,
                     modelSetKey: this.modelSetKey,
                     addMenuItem: (item: DiagramMenuItemI) => this.menuItems.push(item),
@@ -75,6 +80,7 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
         this.popupShown = false;
         this.itemPopupService.setPopupShown(false);
         this.platformClose()
+        this.titleService.setEnabled(true);
     }
 
     protected abstract platformOpen(): void;

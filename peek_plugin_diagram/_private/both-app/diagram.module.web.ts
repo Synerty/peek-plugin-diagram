@@ -44,7 +44,7 @@ import {PrivateDiagramItemPopupService,} from "@peek/peek_plugin_diagram/_privat
 import {DiagramItemPopupService} from "@peek/peek_plugin_diagram/DiagramItemPopupService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
-import {PopupComponent} from "./popup-component/popup.component.web";
+import {PopupComponent} from "./popup-component/popup.component.mweb";
 import {ToolbarComponent} from "./toolbar-component/toolbar.component.web";
 import {LayerComponent} from "./layer-component/layer.component.web";
 

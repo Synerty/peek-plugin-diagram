@@ -4,7 +4,8 @@ import {Observable, Subject} from "rxjs";
 export interface SelectedItemDetailsI {
     modelSetKey: string;
     coordSetKey: string;
-    itemKey: string;
+    dispKey: string;
+    dispData: {};
 }
 
 /** Item Select Service
