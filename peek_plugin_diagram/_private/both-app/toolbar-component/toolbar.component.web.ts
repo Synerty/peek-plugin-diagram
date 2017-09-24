@@ -15,8 +15,8 @@ import {ToolbarComponentBase} from "./toolbar.component";
 
 @Component({
     selector: 'pl-diagram-toolbar',
-    templateUrl: 'toolbar.component.mweb.html',
-    styleUrls: ['toolbar.component.mweb.scss'],
+    templateUrl: 'toolbar.component.web.html',
+    styleUrls: ['toolbar.component.web.scss'],
     moduleId: module.id
 })
 export class ToolbarComponent extends ToolbarComponentBase {
