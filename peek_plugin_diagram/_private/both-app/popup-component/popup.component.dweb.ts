@@ -22,9 +22,6 @@ import {PopupComponentBase} from "./popup.component";
     moduleId: module.id
 })
 export class PopupComponent extends PopupComponentBase {
-  // @ViewChild('canvas') canvasView;
-
-    private modalId = '#diagramPopupModal';
 
     constructor(  titleService: TitleService,
                 itemSelectService: PrivateDiagramItemSelectService,
@@ -33,23 +30,10 @@ export class PopupComponent extends PopupComponentBase {
 
     }
 
-    closeClicked():void{
-        this.closePopup();
-    }
-
     platformOpen() :void{
-        // .modal is defined in bootstraps code
-        let jqModal:any = $(modalId);
-
-        jqModal.modal({});
-
-        // Move the backdrop
-        let element = $('div.modal-backdrop').detach();
-        $('#diagramPopupModal').parent().append(element);
     }
 
     platformClose():void {
-        //pass
     }
 
 

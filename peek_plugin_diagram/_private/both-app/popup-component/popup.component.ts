@@ -55,8 +55,6 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
 
     private openPopup(itemDetails: SelectedItemDetailsI) {
         this.dispKey = itemDetails.dispKey;
-
-        this.titleService.setEnabled(false);
         this.popupShown = true;
         this.itemPopupService.setPopupShown(true);
 
@@ -76,16 +74,36 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
         this.platformOpen();
     }
 
-    protected closePopup(): void {
+    closePopup(): void {
         this.popupShown = false;
         this.itemPopupService.setPopupShown(false);
-        this.platformClose()
-        this.titleService.setEnabled(true);
+        this.platformClose();
+
+        // Discard the integration additions
+        this.details = [];
+        this.menuItems = [];
+        this.dispKey = '';
     }
 
     protected abstract platformOpen(): void;
 
     protected abstract platformClose(): void;
+
+    menuItemClicked(item:DiagramMenuItemI):void {
+        if (item.callback == null) {
+            // Expand Children?
+        } else {
+            item.callback();
+        }
+    }
+
+    noMenuItems():boolean {
+        return this.menuItems.length == 0;
+    }
+
+    noDetails():boolean {
+        return this.details.length == 0;
+    }
 
 
 }

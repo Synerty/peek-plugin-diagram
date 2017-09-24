@@ -1,7 +1,6 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component} from "@angular/core";
 
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {TitleService} from "@synerty/peek-util";
 
 
@@ -23,27 +22,20 @@ import {PopupComponentBase} from "./popup.component";
 export class PopupComponent extends PopupComponentBase {
 
 
-
-    constructor( titleService: TitleService,
-                 itemSelectService: PrivateDiagramItemSelectService,
+    constructor(titleService: TitleService,
+                itemSelectService: PrivateDiagramItemSelectService,
                 abstractItemPopupService: DiagramItemPopupService) {
         super(titleService, itemSelectService, abstractItemPopupService);
 
 
-
     }
 
-    closeTapped():void{
-        this.closePopup();
-
+    platformOpen(): void {
+        this.titleService.setEnabled(false);
     }
 
-    platformOpen():void{
-        //pass
-    }
-
-    platformClose():void {
-        //pass
+    platformClose(): void {
+        this.titleService.setEnabled(true);
     }
 
 }

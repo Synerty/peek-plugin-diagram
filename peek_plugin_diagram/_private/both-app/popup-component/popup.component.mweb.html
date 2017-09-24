@@ -2,13 +2,45 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" (click)="closeClicked()"
-                        aria-label="Close"><fa name="times"></fa>
+                <button type="button" class="close" (click)="closePopup()"
+                        aria-label="Close">
+                    <fa name="times"></fa>
                 </button>
                 <h4 class="modal-title">{{dispKey}}</h4>
             </div>
             <div class="modal-body">
-                <p>One fine body&hellip;</p>
+                <p *ngIf="noDetails()">
+                    There are no details for this item.
+                </p>
+                <div *ngIf="!noDetails()" class="peek-tables-section">
+                    <table class="table">
+                        <thead>
+                        <tr class="tr">
+                            <th class="th">Property</th>
+                            <th class="th">Value</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+
+                <hr>
+                <p *ngIf="noMenuItems()">
+                    There are no actions for this item.
+                </p>
+
+                <div *ngIf="!noMenuItems()" class="mobile-dialog">
+
+
+                    <div class="btn-group ">
+                        <Button *ngFor="let item of menuItems"
+                                class="dialog-action-btn" (click)="menuItemClicked(item)">
+                            <fa *ngIf="item.icon != null" [name]="icon"></fa>
+                            {{item.name}}
+                        </Button>
+
+                    </div>
+                </div>
+
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
