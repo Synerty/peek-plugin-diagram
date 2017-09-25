@@ -1,4 +1,4 @@
-import {Component, OnInit, Input} from "@angular/core";
+import {Input, OnInit} from "@angular/core";
 
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
@@ -10,7 +10,6 @@ import {
     DiagramToolButtonI
 } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
-
 
 
 export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
@@ -27,7 +26,7 @@ export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
     protected toolbarService: PrivateDiagramToolbarService;
     buttons: DiagramToolButtonI[] = [];
 
-    toolbarIsOpen:boolean = false;
+    toolbarIsOpen: boolean = false;
 
     constructor(abstractToolbarService: DiagramToolbarService,
                 protected navBackService: NavBackService) {
@@ -45,20 +44,32 @@ export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
     }
 
     ngOnInit() {
-
+        this.toolbarService
+            .addToolButton(this.modelSetKey,
+                this.coordSetKey,
+                {
+                    name: "test button",
+                    tooltip: null,
+                    icon: null,
+                    callback: null,
+                    children: []
+                }
+            );
     }
 
-    buttonClicked(btn:DiagramToolButtonI) :void {
-        if (btn.callback != null) {
+    buttonClicked(btn: DiagramToolButtonI): void {
+        if (btn.callback != null
+        ) {
             btn.callback();
-        } else {
+        }
+        else {
             // Expand children?
         }
 
     }
 
-    toggleToolbar() :void{
-    this.toolbarIsOpen = !this.toolbarIsOpen;
+    toggleToolbar(): void {
+        this.toolbarIsOpen = !this.toolbarIsOpen;
     }
 
 

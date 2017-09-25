@@ -1,9 +1,64 @@
-<GridView *ngIf="popupShown" rows="*" cols="*">
-    <ScrollView col="0" row="0">
-        <StackedLayout>
-            <Label text="popup component"></Label>
+<GridView *ngIf="popupShown"
+          class="modal-backdrop"
+          rows="*" cols="*">
+
+    <ScrollView row="0" col="0">
+        <StackLayout>
+
+            <Label [text]="dispKey"></Label>
+
+            <Button class="fa btn"
+                    [text]="'fa-times' | fonticon"
+                    (tap)="closePopup()">
+
+            </Button>
+
+            <!-- Details -------- -->
+            <Label class="hr"></Label>
+            <Label *ngIf="noDetails()"
+                   text="There are no details for this item.">
+            </Label>
+
+            <StackLayout *ngIf="!noDetails()" class="peek-tables-section">
+                <StackLayout class="table">
+                    <GridLayout class="tr" rows="auto" columns="2*, 3*">
+                        <Label class="th" row="0" col="0" text="Property"></Label>
+                        <Label class="th" row="0" col="1" text="Value"></Label>
+                    </GridLayout>
+
+                    <StackLayout>
+                        <GridLayout *ngFor="let detail of details"
+                                    rows="auto" columns="2*, 3*">
+                            <!-- Details -->
+                            <Label row="0" col="0"
+                                   [text]="item.title"></Label>
+                            <Label row="0" col="1"
+                                   [text]="item.value"></Label>
+
+                        </GridLayout>
+                    </StackLayout>
+
+                </StackLayout>
+            </StackLayout>
+
+
+            <!-- Menu -------- -->
             <label class="hr"></label>
-            <Button text="Close" (tap)="closePopup()"></Button>
-        </StackedLayout>
+            <Label *ngIf="noMenuItems()"
+                   text="There are no actions for this item.">
+            </Label>
+
+            <StackLayout class="mobile-dialog" *ngIf="!noMenuItems()">
+                <StackLayout class="btn-group ">
+                    <Button *ngFor="let item of menuItems"
+                            class="fa dialog-action-btn"
+                            [text]="(item.icon | fonticon) + item.name"
+                            (tap)="menuItemClicked(item)">
+
+                    </Button>
+                </StackLayout>
+            </StackLayout>
+        </StackLayout>
     </ScrollView>
+
 </GridView>

@@ -20,6 +20,12 @@
                     <th class="th">Value</th>
                 </tr>
                 </thead>
+                <tbody>
+                <tr class="tr" *ngFor="let detail of details">
+                    <th class="td">{{detail.title}}</th>
+                    <th class="td">{{detail.value}}</th>
+                </tr>
+                </tbody>
             </table>
         </div>
 

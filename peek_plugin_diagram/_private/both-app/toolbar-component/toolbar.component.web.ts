@@ -1,7 +1,6 @@
-import {Component, OnInit} from "@angular/core";
+import {Component} from "@angular/core";
 
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {NavBackService} from "@synerty/peek-util";
 
 
@@ -21,29 +20,10 @@ import {ToolbarComponentBase} from "./toolbar.component";
 })
 export class ToolbarComponent extends ToolbarComponentBase {
 
-    toolbarIsOpen:boolean = false;
-
     constructor(abstractToolbarService: DiagramToolbarService,
-                 navBackService: NavBackService) {
+                navBackService: NavBackService) {
         super(abstractToolbarService, navBackService);
 
-    }
-
-    buttonClicked(btn:DiagramToolButtonI) :void {
-        if (btn.callback != null) {
-            btn.callback();
-        } else {
-            // TODO Expand toolbar children
-        }
-
-    }
-
-    openToolbar() :void{
-        this.toolbarIsOpen = true;
-    }
-
-    closeToolbar():void{
-        this.toolbarIsOpen = false;
     }
 
 

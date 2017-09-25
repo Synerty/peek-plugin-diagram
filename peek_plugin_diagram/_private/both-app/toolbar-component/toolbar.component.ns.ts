@@ -1,7 +1,6 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, EventEmitter, Output} from "@angular/core";
 
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {NavBackService} from "@synerty/peek-util";
 
 
@@ -21,17 +20,19 @@ import {ToolbarComponentBase} from "./toolbar.component";
 })
 export class ToolbarComponent extends ToolbarComponentBase {
 
+    @Output("toolbarRowspanEvent")
+    toolbarRowspanEvent = new EventEmitter<number>();
+
     constructor(abstractToolbarService: DiagramToolbarService,
-                 navBackService: NavBackService) {
+                navBackService: NavBackService) {
         super(abstractToolbarService, navBackService);
 
     }
 
+    nsToggleToolbar(): void {
+        this.toggleToolbar();
+        this.toolbarRowspanEvent.emit(this.toolbarIsOpen ? 2 : 1);
 
-    openToolbar() :void{
-    }
-
-    closeToolbar():void{
     }
 
 

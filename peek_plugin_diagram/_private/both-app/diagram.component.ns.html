@@ -1,16 +1,31 @@
-<GridLayout rows="0, auto, *" columns="auto">
-
-    <pl-diagram-toolbar row="0" col="0"
-            [coordSetKey]="coordSetKey"
-            [modelSetKey]="modelSetKey"></pl-diagram-toolbar>
+<GridLayout rows="auto, auto, *" columns="auto, *">
 
 
-    <pl-diagram-popup row="1" col="0"
-                      [coordSetKey]="coordSetKey"
-                      [modelSetKey]="modelSetKey"></pl-diagram-popup>
+    <GridLayout row="0" col="0" rowSpan="3" colSpan="2">
+        <!--
+            <pl-diagram-canvas row="0" col="0" rowSpan="2" colSpan="2"
+                               [modelSetKey]="modelSetKey"></pl-diagram-canvas>
+        -->
+    </GridLayout>
 
-    <pl-diagram-canvas row="2" col="0" rowSpan="2"
-                       [modelSetKey]="modelSetKey"></pl-diagram-canvas>
+    <GridLayout row="1" col="0" [rowSpan]="nsToolbarRowSpan">
+        <pl-diagram-toolbar
+                [coordSetKey]="coordSetKey"
+                [modelSetKey]="modelSetKey"
+                (toolbarRowspanEvent)="nsToolbarRowSpan=$event">
 
+        </pl-diagram-toolbar>
+    </GridLayout>
+
+    <GridLayout row="0" col="0"
+                [rowSpan]="nsPopupRowSpan"
+                colSpan="2">
+        <pl-diagram-popup
+                (rowspanEvent)="nsPopupRowSpan=$event"
+                [coordSetKey]="coordSetKey"
+                [modelSetKey]="modelSetKey">
+
+        </pl-diagram-popup>
+    </GridLayout>
 
 </GridLayout>

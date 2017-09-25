@@ -1,7 +1,9 @@
-import {Component} from "@angular/core";
+import {Component, Output, EventEmitter} from "@angular/core";
 
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
+
 import {TitleService} from "@synerty/peek-util";
+import {switchStyleUrls} from "@synerty/peek-util/index.ns";
 
 
 import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
@@ -17,25 +19,29 @@ import {PopupComponentBase} from "./popup.component";
 @Component({
     selector: 'pl-diagram-popup',
     templateUrl: 'popup.component.ns.html',
+    styleUrls: ['./popup.component.ns.scss'],
     moduleId: module.id
 })
 export class PopupComponent extends PopupComponentBase {
 
+    @Output("rowspanEvent")
+    rowspanEvent = new EventEmitter<number>();
 
     constructor(titleService: TitleService,
                 itemSelectService: PrivateDiagramItemSelectService,
                 abstractItemPopupService: DiagramItemPopupService) {
         super(titleService, itemSelectService, abstractItemPopupService);
 
-
     }
 
     platformOpen(): void {
         this.titleService.setEnabled(false);
+        this.rowspanEvent.emit(3);
     }
 
     platformClose(): void {
         this.titleService.setEnabled(true);
+        this.rowspanEvent.emit(1);
     }
 
 }

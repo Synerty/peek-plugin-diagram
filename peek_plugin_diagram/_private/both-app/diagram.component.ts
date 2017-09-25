@@ -26,6 +26,9 @@ export class DiagramComponent extends ComponentLifecycleEventEmitter {
 
     coordSetKey: string|null = null;
 
+    nsToolbarRowSpan = 1;
+    nsPopupRowSpan = 1;
+
     private privateItemPopupService: PrivateDiagramItemPopupService;
     private privatePositionService: PrivateDiagramPositionService;
     private privateToolbarService: PrivateDiagramToolbarService;
