@@ -18,6 +18,7 @@ import {
 } from "@synerty/vortexjs/index-browser";
 
 import {TitleService} from "@synerty/peek-util";
+import {TupleStorageFactoryServiceBridgeWeb} from "./TupleStorageFactoryServiceBridgeWeb";
 
 export function titleServiceFactory() {
     return new TitleService([]);
@@ -33,8 +34,10 @@ export function titleServiceFactory() {
         PeekPluginDiagramModule
     ],
     providers: [
-        {provide: WebSqlFactoryService, useClass: WebSqlBrowserFactoryService},
-        {provide: TupleStorageFactoryService, useClass: TupleStorageFactoryServiceWeb},
+        {
+            provide: TupleStorageFactoryService,
+            useClass: TupleStorageFactoryServiceBridgeWeb
+        },
         {
             provide: TitleService,
             useFactory: titleServiceFactory

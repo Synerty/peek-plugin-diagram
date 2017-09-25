@@ -2,7 +2,8 @@ import {Component, Input, OnInit, ViewChild} from "@angular/core";
 
 import {DeviceEnrolmentService} from "@peek/peek_core_device";
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import {ComponentLifecycleEventEmitter,
+TupleOfflineStorageService} from "@synerty/vortexjs";
 
 import {WebViewInterface} from 'nativescript-webview-interface';
 import {LoadEventData, WebView} from 'ui/web-view';
@@ -21,6 +22,7 @@ import {
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import {ItemSelectServiceBridgeNs} from "../service-bridge/ItemSelectServiceBridge.ns";
 import {PositionServiceBridgeNs} from "../service-bridge/PositionServiceBridge.ns";
+import {TupleStorageBridgeNs} from "../service-bridge/TupleStorageBridge.ns";
 
 @Component({
     selector: 'pl-diagram-canvas',
@@ -34,6 +36,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
 
     private itemSelectServiceBridge: ItemSelectServiceBridgeNs | null = null;
     private positionServiceBridge: PositionServiceBridgeNs | null = null;
+    private tupleStorageBridge: TupleStorageBridgeNs | null = null;
 
     private privatePositionService: PrivateDiagramPositionService;
 
@@ -43,6 +46,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
     modelSetKey: string;
 
     constructor(private enrolmentService: DeviceEnrolmentService,
+                private tupleStorage: TupleOfflineStorageService,
                 private privateItemSelectService: PrivateDiagramItemSelectService,
                 positionService: DiagramPositionService) {
         super();
@@ -67,6 +71,10 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
 
         this.positionServiceBridge = new PositionServiceBridgeNs(
             this, this.privatePositionService, this.oLangWebViewInterface
+        );
+
+        this.tupleStorageBridge = new TupleStorageBridgeNs(
+            this.tupleStorage, this.oLangWebViewInterface
         );
 
     }
