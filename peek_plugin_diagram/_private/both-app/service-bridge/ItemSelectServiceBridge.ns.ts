@@ -1,3 +1,4 @@
+import {NgZone} from "@angular/core";
 import {WebViewInterface} from 'nativescript-webview-interface';
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {
@@ -8,14 +9,17 @@ import {Subject} from "rxjs";
 
 export class ItemSelectServiceBridgeNs {
     constructor(private lifeCycleEvents: ComponentLifecycleEventEmitter,
+                private zone: NgZone,
                 private service: PrivateDiagramItemSelectService,
                 private iface: WebViewInterface) {
 
         this.iface.on(
             'itemSelected',
             (item: SelectedItemDetailsI) => {
-                console.log("NS: Received position event");
-                service.selectItem(item);
+                console.log("NS: Received item select event");
+                this.zone.run(() => {
+                    service.selectItem(item);
+                });
             }
         );
     }

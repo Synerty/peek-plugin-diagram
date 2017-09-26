@@ -34,8 +34,6 @@ export class PopupComponent extends PopupComponentBase {
     }
 
     platformOpen() :void{
-        this.titleService.setEnabled(false);
-
         // .modal is defined in bootstraps code
         let jqModal:any = $(this.modalView.nativeElement);
 
@@ -48,8 +46,6 @@ export class PopupComponent extends PopupComponentBase {
     }
 
     platformClose():void {
-        this.titleService.setEnabled(true);
-
         let jqModal:any = $(this.modalView.nativeElement);
         jqModal.modal('hide');
     }

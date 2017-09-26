@@ -32,8 +32,6 @@ export class TupleStorageBridgeWeb extends TupleStorageServiceABC {
         iface.on(
             'tupleStoragePromiseFinished',
             (argObj: any) => {
-                console.log(JSON.stringify(TupleStorageBridgeWeb.promsById));
-
                 let args: any = new Payload().fromJsonDict(argObj).tuples;
 
                 console.log("WEB: Received tupleStoragePromiseResolved event");

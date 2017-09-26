@@ -50,16 +50,11 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
     }
 
     ngOnInit() {
-       this.openPopup({
-            "modelSetKey":"modelSetKey",
-            "coordSetKey":"coordSetKey",
-            "dispKey":"dispKey",
-            "dispData":"dispData",
 
-        });
     }
 
     protected openPopup(itemDetails: SelectedItemDetailsI) {
+        console.log("Opening popup");
         this.dispKey = itemDetails.dispKey;
         this.popupShown = true;
         this.itemPopupService.setPopupShown(true);

@@ -35,12 +35,10 @@ export class PopupComponent extends PopupComponentBase {
     }
 
     platformOpen(): void {
-        this.titleService.setEnabled(false);
         this.rowspanEvent.emit(3);
     }
 
     platformClose(): void {
-        this.titleService.setEnabled(true);
         this.rowspanEvent.emit(1);
     }
 

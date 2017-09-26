@@ -1,3 +1,4 @@
+import {NgZone} from "@angular/core";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 
 import {
@@ -11,6 +12,7 @@ import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
 export class PositionServiceBridgeNs {
     constructor(private lifeCycleEvents: ComponentLifecycleEventEmitter,
+                private zone: NgZone,
                 private service: DiagramPositionService,
                 private iface: WebViewInterface) {
 
@@ -37,7 +39,9 @@ export class PositionServiceBridgeNs {
             'isReadySubject',
             (val: boolean) => {
                 console.log(`NS: Received isReadySubject event ${val}`);
-                positionService.setReady(val);
+                this.zone.run(() => {
+                    positionService.setReady(val);
+                });
             }
         );
 
@@ -46,7 +50,9 @@ export class PositionServiceBridgeNs {
             'titleUpdatedSubject',
             (val: string) => {
                 console.log(`NS: Received titleUpdatedSubject event ${val}`);
-                positionService.setTitle(val);
+                this.zone.run(() => {
+                    positionService.setTitle(val);
+                });
             }
         );
 

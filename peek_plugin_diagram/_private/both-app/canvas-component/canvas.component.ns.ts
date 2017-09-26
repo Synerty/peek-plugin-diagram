@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewChild} from "@angular/core";
+import {Component, Input, OnInit, ViewChild, NgZone} from "@angular/core";
 
 import {DeviceEnrolmentService} from "@peek/peek_core_device";
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
@@ -45,7 +45,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
     @Input("modelSetKey")
     modelSetKey: string;
 
-    constructor(private enrolmentService: DeviceEnrolmentService,
+    constructor(private zone: NgZone,
+                private enrolmentService: DeviceEnrolmentService,
                 private tupleStorage: TupleOfflineStorageService,
                 private privateItemSelectService: PrivateDiagramItemSelectService,
                 positionService: DiagramPositionService) {
@@ -66,11 +67,11 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
 
 
         this.itemSelectServiceBridge = new ItemSelectServiceBridgeNs(
-            this, this.privateItemSelectService, this.oLangWebViewInterface
+            this, this.zone, this.privateItemSelectService, this.oLangWebViewInterface
         );
 
         this.positionServiceBridge = new PositionServiceBridgeNs(
-            this, this.privatePositionService, this.oLangWebViewInterface
+            this, this.zone, this.privatePositionService, this.oLangWebViewInterface
         );
 
         this.tupleStorageBridge = new TupleStorageBridgeNs(

@@ -55,7 +55,6 @@ export class PeekCanvasInput {
 // padding and borders
     _getMouse(e) {
 
-
         let pageX = e.pageX;
         let pageY = e.pageY;
 

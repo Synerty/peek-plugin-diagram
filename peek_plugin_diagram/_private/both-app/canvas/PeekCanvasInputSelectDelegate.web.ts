@@ -118,7 +118,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     touchStart(event:TouchEvent, mouse) {
 
-
         if (event.targetTouches.length == 2) {
             this._state = this.STATE_CANVAS_ZOOMING;
             this._lastPinchDist = null;
@@ -134,11 +133,10 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this._mouseDownWithCtrl = event.ctrlKey;
         this._mouseDownMiddleButton = event.button == 1;
         this._mouseDownRightButton = event.button == 2;
-        let panTouch = event.targetTouches && event.targetTouches.length == 1;
         this._startMousePos = mouse;
         this._lastMousePos = mouse;
 
-        if (this._mouseDownMiddleButton || this._mouseDownRightButton || panTouch) {
+        if (this._mouseDownMiddleButton || this._mouseDownRightButton) {
             this._state = this.STATE_CANVAS_PANNING;
             return;
         }
