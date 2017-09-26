@@ -6,19 +6,20 @@
 
 
 
-
+$general_border_radius: 1 !default;
+$general_margin_1: 1 !default;
+$general_margin_4: 1 !default;
 
 $open_button_height: 20px;
 
-$toolbar_width:150px;
+$toolbar_width:250px;
 
 .open-close-button {
   cursor: pointer;
   display: block;
   z-index: 3;
   position: fixed;
-  margin: 5px;
-  opacity: 0.7;
+  margin: $general_margin_1 / 3;
   font-size: $open_button_height;
 }
 
@@ -30,7 +31,7 @@ $toolbar_width:150px;
   z-index: 1; /* Stay on top */
   background-color: #111; /* Black*/
   overflow-x: hidden; /* Disable horizontal scroll */
-  padding-top:   $open_button_height + 3 * $general_button_padding;
+  margin-top:   $general_margin_4;
   transition: 0.5s; /* 0.5 second transition effect to slide in the toolbar */
 }
 
@@ -46,17 +47,13 @@ $toolbar_width:150px;
 
 /* The navigation menu links */
 .tool-button {
+  width: 90%;
+  margin: 5px auto 0 auto;
   padding: 8px 8px 8px 32px;
-  text-decoration: none;
   font-size: 25px;
-  color: #818181;
   display: block;
   transition: 0.3s
-}
 
-/* When you mouse over the navigation links, change their color */
-.tool-button:hover, .offcanvas .tool-button:focus {
-  color: #f1f1f1;
 }
 
 /* On smaller screens, where height is less than 450px, change the style of the toolbar (less padding and a smaller font size) */
