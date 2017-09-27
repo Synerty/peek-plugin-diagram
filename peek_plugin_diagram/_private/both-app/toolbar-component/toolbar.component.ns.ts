@@ -35,5 +35,11 @@ export class ToolbarComponent extends ToolbarComponentBase {
 
     }
 
+    btnIcon(btn) :string {
+        if (btn.icon == null)
+            return 'none';
+        return 'fa-' + btn.icon;
+    }
+
 
 }

@@ -50,8 +50,8 @@ export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
                 {
                     name: "test button",
                     tooltip: null,
-                    icon: null,
-                    callback: null,
+                    icon: 'pencil',
+                    callback: () => alert("Test button clicked"),
                     children: []
                 }
             );

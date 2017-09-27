@@ -10,7 +10,7 @@
                          [class.toolbar-is-closed]="!toolbarIsOpen">
 
                 <Button *ngFor="let btn of buttons"
-                        [text]="btn.name"
+                        [text]="(btnIcon(btn) | fonticon) + btn.name"
                         (tap)="buttonClicked(btn)"></Button>
             </StackLayout>
         </ScrollView>
