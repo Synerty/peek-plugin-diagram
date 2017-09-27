@@ -1,17 +1,27 @@
 
-$toolbar_width:150;
+@import '~@synerty/peek-theme/scss/_mixins.ns';
+@import '~@synerty/peek-theme/scss/_variables.ns';
 
-$open_button_height: 20;
+$toolbar_width:250;
 
 .open-close-button {
-  margin: 0px;
-  //font-size: $open_button_height;
+  margin: $general_margin_1 / 2;
+  padding: $general_padding_4;
 }
 
 
 /* The side navigation menu */
 .toolbar {
   background-color: #111; /* Black*/
+}
+
+/* The navigation menu links */
+.tool-button {
+  width: 90%;
+  margin: $general_margin_1 auto 0 auto;
+  padding: $general_padding_1 $general_padding_1 $general_padding_1 $general_padding_4;
+  font-size: $general_font_size_5;
+
 }
 
 /* Set the style for when the toolbar is open */
