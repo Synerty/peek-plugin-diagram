@@ -1,20 +1,22 @@
-<GridLayout class="toolbar" rows="auto, *" cols="auto, *">
-    <button row="0" col="0"
-            class="fa open-close-button btn"
-            (tap)="nsToggleToolbar()"
-            [text]="(toolbarIsOpen ? 'fa-times' : 'fa-navicon') | fonticon">
-    </button>
-    <GridLayout *ngIf="toolbarIsOpen" row="1" col="0" colSpan="2">
+<GridLayout rows="auto, *" columns="auto">
+    <GridLayout rows="auto" columns="auto, *">
+        <button row="0" col="0"
+                class="fa open-close-button btn"
+                (tap)="nsToggleToolbar()"
+                [text]="(toolbarIsOpen ? 'fa-times' : 'fa-navicon') | fonticon">
+        </button>
+    </GridLayout>
+    <GridLayout class="toolbar"
+                *ngIf="toolbarIsOpen"
+                row="1" col="0">
         <ScrollView>
             <StackLayout [class.toolbar-is-open]="toolbarIsOpen"
                          [class.toolbar-is-closed]="!toolbarIsOpen">
-
-                <Button *ngFor="let btn of buttons"
+                <Button class="btn tool-button"
+                        *ngFor="let btn of buttons"
                         [text]="(btnIcon(btn) | fonticon) + btn.name"
                         (tap)="buttonClicked(btn)"></Button>
             </StackLayout>
         </ScrollView>
     </GridLayout>
-
 </GridLayout>
-
