@@ -43,7 +43,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
 
     private isReadySubject = new Subject<boolean>();
 
-    positionInitial(coordSetKey: string): void {
+    positionByCoordSet(coordSetKey: string): void {
         this.positionByCoordSetSubject.next(coordSetKey);
     }
 

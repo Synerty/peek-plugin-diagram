@@ -224,7 +224,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 this._privatePosService.setReady(true);
             });
 
-        // Watch the positionInitial observable
+        // Watch the positionByCoordSet observable
         this._privatePosService.positionByCoordSetObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe((coordSetKey: string) => {

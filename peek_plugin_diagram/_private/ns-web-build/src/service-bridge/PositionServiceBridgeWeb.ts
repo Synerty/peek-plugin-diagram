@@ -26,10 +26,10 @@ export class PositionServiceBridgeWeb {
 
         // Listen for calls from the NS site
         this.iface.on(
-            'positionOnCoordSetObservable',
+            'positionByCoordSetObservable',
             (coordSetKey: string) => {
-                console.log("WEB: Received positionOnCoordSetObservable event");
-                service.positionInitial(coordSetKey);
+                console.log("WEB: Received positionByCoordSetObservable event");
+                service.positionByCoordSet(coordSetKey);
             }
         );
 
