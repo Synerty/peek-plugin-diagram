@@ -30,7 +30,7 @@ export class PositionServiceBridgeNs {
         positionService.positionOnCoordSetObservable()
             .takeUntil(lifeCycleEvents.onDestroyEvent)
             .subscribe((coordSetKey: string) => {
-                console.log("NS: Sending positionInitialSubject event");
+                console.log("NS: Sending positionOnCoordSetObservable event");
                 iface.emit("positionOnCoordSetObservable", coordSetKey);
             });
 
