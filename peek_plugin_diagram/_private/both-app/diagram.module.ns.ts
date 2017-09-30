@@ -93,14 +93,7 @@ export function tupleOfflineStorageNameServiceFactory() {
         TupleDataObserverService, TupleDataOfflineObserverService, {
             provide: TupleDataObservableNameService,
             useFactory: tupleDataObservableNameServiceFactory
-        },
-
-        // Other plugin integration services
-        {
-            provide: DiagramPositionService,
-            useClass: PrivateDiagramPositionService
-        },
-        PrivateDiagramItemSelectService
+        }
 
     ],
     declarations: [DiagramComponent, CanvasComponent, PopupComponent, ToolbarComponent]

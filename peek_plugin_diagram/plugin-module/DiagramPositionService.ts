@@ -30,6 +30,28 @@ export abstract class DiagramPositionService {
      */
     abstract position(coordSetKey: string, x: number, y: number, zoom: number): void ;
 
+    /** Position By Key
+     *
+     * @param modelSetKey: The model set that the disp key belongs to
+     * @param dispKey: The key of the display item.
+     *
+     * @param coordSetKey: Optionally, which coordSet to choose, otherwise if multitple
+     *                      coord sets are present, the user will be asked.
+     *
+     */
+    abstract positionByKey(modelSetKey: string, dispKey: string,
+                           coordSetKey: string | null): void ;
+
+    /** Can Position By Key
+     *
+     * @param modelSetKey: The model set that the disp key belongs to
+     * @param dispKey: The key of the display item.
+     *
+     * @returns A promise that fires if the positon exists.
+     *
+     */
+    abstract canPositionByKey(modelSetKey: string, dispKey: string): Promise<boolean> ;
+
 
     /** isReady
      *

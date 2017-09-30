@@ -129,10 +129,8 @@ def _buildIndex(session, indexBuckets) -> Dict[str, str]:
         # [even] is a key, [odd] is the locations json string
         indexStructure = []
         for key, locationsJson in sortedKeyLocations:
-            indexStructure.append(key)
-
-            # Combine the locations into one json array
-            indexStructure.append('[' + ','.join(locationsJson) + ']')
+            # Combine the key and locations into one json array
+            indexStructure.append('["%s",' % key + ','.join(locationsJson) + ']')
 
         # Create the blob data for this index.
         # It will be searched by a binary sort

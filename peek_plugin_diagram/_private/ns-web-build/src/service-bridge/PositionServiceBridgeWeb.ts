@@ -26,7 +26,7 @@ export class PositionServiceBridgeWeb {
 
         // Listen for calls from the NS site
         this.iface.on(
-            'positionInitialSubject',
+            'positionOnCoordSetObservable',
             (coordSetKey: string) => {
                 console.log("WEB: Received positionInitialSubject event");
                 service.positionInitial(coordSetKey);

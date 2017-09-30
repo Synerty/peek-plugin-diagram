@@ -10,4 +10,4 @@ export let diagramBaseUrl = "peek_plugin_diagram";
 
 export let gridCacheStorageName = "peek_plugin_diagram_grids";
 
-export let locationIndexCacheStorageName = "peek_plugin_diagram_disp_key_index";
+export let locationIndexCacheStorageName = "peek_plugin_diagram_location_index";

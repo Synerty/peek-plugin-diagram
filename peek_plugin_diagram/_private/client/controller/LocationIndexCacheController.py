@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from typing import Dict, List
 
 from twisted.internet.defer import inlineCallbacks, Deferred
@@ -33,6 +34,7 @@ class LocationIndexCacheController:
         self._clientId = clientId
         self._cacheHandler = None
         self._cache = {}
+        self._locationKeysByModelSet = defaultdict(set)
 
         self._endpoint = None
 
@@ -57,6 +59,7 @@ class LocationIndexCacheController:
     @inlineCallbacks
     def reloadCache(self):
         self._cache = {}
+        self._locationKeysByModelSet = defaultdict(set)
 
         offset = 0
         while True:
@@ -79,6 +82,8 @@ class LocationIndexCacheController:
         indexBucketsUpdated: List[str] = []
 
         for t in locationIndexTuples:
+            self._locationKeysByModelSet[t.modelSetKey].add(t.indexBucket)
+
             if (not t.indexBucket in self._cache or
                         self._cache[t.indexBucket].lastUpdate != t.lastUpdate):
                 self._cache[t.indexBucket] = t
@@ -90,3 +95,6 @@ class LocationIndexCacheController:
 
     def locationIndex(self, indexBucket) -> LocationIndexTuple:
         return self._cache.get(indexBucket)
+
+    def locationIndexKeys(self, modelSetKey) -> List[str]:
+        return list(self._locationKeysByModelSet[modelSetKey])

@@ -55,6 +55,18 @@
                 "file": "_private/services/PrivateDiagramItemSelectService",
                 "class": "PrivateDiagramItemSelectService",
                 "persistent": true
+            },
+            {
+                "file": "_private/services/PrivateDiagramLocationIndexService",
+                "class": "PrivateDiagramLocationIndexService",
+                "persistent": true
+            },
+            {
+                "file": "DiagramPositionService",
+                "class": "DiagramPositionService",
+                "useClassFile": "_private/services/PrivateDiagramPositionService",
+                "useClassClass": "PrivateDiagramPositionService",
+                "persistent": true
             }
         ]
     },
@@ -81,6 +93,18 @@
             {
                 "file": "_private/services/PrivateDiagramItemSelectService",
                 "class": "PrivateDiagramItemSelectService",
+                "persistent": true
+            },
+            {
+                "file": "_private/services/PrivateDiagramLocationIndexService",
+                "class": "PrivateDiagramLocationIndexService",
+                "persistent": true
+            },
+            {
+                "file": "DiagramPositionService",
+                "class": "DiagramPositionService",
+                "useClassFile": "_private/services/PrivateDiagramPositionService",
+                "useClassClass": "PrivateDiagramPositionService",
                 "persistent": true
             }
         ]
@@ -110,6 +134,18 @@
             {
                 "file": "_private/services/PrivateDiagramItemSelectService",
                 "class": "PrivateDiagramItemSelectService",
+                "persistent": true
+            },
+            {
+                "file": "_private/services/PrivateDiagramLocationIndexService",
+                "class": "PrivateDiagramLocationIndexService",
+                "persistent": true
+            },
+            {
+                "file": "DiagramPositionService",
+                "class": "DiagramPositionService",
+                "useClassFile": "_private/services/PrivateDiagramPositionService",
+                "useClassClass": "PrivateDiagramPositionService",
                 "persistent": true
             }
         ]

@@ -31,7 +31,6 @@ import {GridObservable} from "./cache/GridObservable.web";
 import {LookupCache} from "./cache/LookupCache.web";
 import {DispGroupCache} from "./cache/DispGroupCache.web";
 import {CoordSetCache} from "./cache/CoordSetCache.web";
-import {LocationIndexCache} from "./cache/LocationIndexCache.web";
 import {CanvasComponent} from "./canvas-component/canvas-component.web";
 
 
@@ -89,18 +88,11 @@ export function tupleOfflineStorageNameServiceFactory() {
         },
         DiagramClientTupleOfflineObservable,
         GridCache,
-        LocationIndexCache,
         LookupCache,
         CoordSetCache,
         DispGroupCache,
         GridObservable,
 
-        // Other plugin integration services
-        {
-            provide: DiagramPositionService,
-            useClass: PrivateDiagramPositionService
-        },
-        PrivateDiagramItemSelectService,
 
     ],
     declarations: [DiagramComponent, CanvasComponent, PopupComponent, ToolbarComponent, LayerComponent]

@@ -25,7 +25,6 @@ import {
     PrivateDiagramItemSelectService,
     SelectedItemDetailsI
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
-import {LocationIndexCache} from "../cache/LocationIndexCache.web";
 
 /** Canvas Component
  *
@@ -68,9 +67,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 private lookupCache: LookupCache,
                 private coordSetCache: CoordSetCache,
                 private dispGroupCache: DispGroupCache,
-                private positionService: DiagramPositionService,
-                private itemSelectService: PrivateDiagramItemSelectService,
-                private locationIndexCache: LocationIndexCache) {
+                positionService: DiagramPositionService,
+                private itemSelectService: PrivateDiagramItemSelectService) {
         super();
 
         // Cast the private services
@@ -113,12 +111,10 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         return this.coordSetCache.isReady()
             && this.gridObservable.isReady()
             && this.lookupCache.isReady();
-        // && this.locationIndexCache.isReady();
 
     }
 
     ngOnInit() {
-        // this.locationIndexCache.setModelSetKey(this.modelSetKey);
         this.dispGroupCache.setModelSetKey(this.modelSetKey);
         this.coordSetCache.setModelSetKey(this.modelSetKey);
         this.lookupCache.setModelSetKey(this.modelSetKey);
@@ -229,7 +225,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
             });
 
         // Watch the positionInitial observable
-        this._privatePosService.coordSetKeyObservable()
+        this._privatePosService.positionByCoordSetObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe((coordSetKey: string) => {
 
@@ -245,17 +241,11 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         this._privatePosService.positionObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe((pos: DiagramPositionI) => {
-                if (this.config.controller.coordSet == null) {
-                    console.log("ERROR, Failed to update position, coordSet is null");
-                    return;
+                // Switch only if we need to
+                if (this.config.controller.coordSet == null
+                    || this.config.controller.coordSet.key != pos.coordSetKey) {
+                    this.switchToCoordSet(pos.coordSetKey);
                 }
-
-                if (this.config.controller.coordSet.key == pos.coordSetKey) {
-                    console.log("ERROR, Failed to update position, coordSet is null");
-                    return;
-                }
-
-                this.switchToCoordSet(pos.coordSetKey);
 
                 this.config.updateViewPortPan({x: pos.x, y: pos.y}); // pos confirms to PanI
                 this.config.updateViewPortZoom(pos.zoom);

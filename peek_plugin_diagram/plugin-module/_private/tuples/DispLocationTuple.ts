@@ -16,8 +16,7 @@ export class DispKeyLocationTuple extends Tuple {
         super(DispKeyLocationTuple.tupleName)
     }
 
-    static fromLocationJson(dispLocationJson: string): DispKeyLocationTuple {
-        let data = JSON.parse(dispLocationJson);
+    static fromLocationJson(data: any[]): DispKeyLocationTuple {
         let self = new DispKeyLocationTuple();
         self.coordSetId = data[0];
         self.dispId = data[1];

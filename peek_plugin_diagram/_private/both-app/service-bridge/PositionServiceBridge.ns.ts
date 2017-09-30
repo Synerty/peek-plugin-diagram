@@ -27,11 +27,11 @@ export class PositionServiceBridgeNs {
             });
 
         // Send events from the nativescript side service to the <webview> side
-        positionService.coordSetKeyObservable()
+        positionService.positionOnCoordSetObservable()
             .takeUntil(lifeCycleEvents.onDestroyEvent)
             .subscribe((coordSetKey: string) => {
                 console.log("NS: Sending positionInitialSubject event");
-                iface.emit("positionInitialSubject", coordSetKey);
+                iface.emit("positionOnCoordSetObservable", coordSetKey);
             });
 
         // Listen for calls from the <webview> site

@@ -17,10 +17,11 @@ import {
     locationIndexCacheStorageName
 } from "@peek/peek_plugin_diagram/_private";
 
-import {dictKeysFromObject} from "../DiagramUtil";
 import * as moment from "moment";
 import {LocationIndexUpdateDateTuple} from "../tuples/LocationIndexUpdateDateTuple";
 import {DispKeyLocationTuple} from "../tuples/DispLocationTuple";
+
+import {Subject, Observable} from "rxjs";
 
 let pako = require("pako");
 
@@ -100,16 +101,10 @@ function dispKeyHashBucket(modelSetKey: string, dispKey: string): string {
  *
  */
 @Injectable()
-export class LocationIndexCache {
+export class PrivateDiagramLocationIndexService {
 
-    private modelSetKey: string = "";
-
-    private indexBucketUpdateDates = {};
-
+    private indexByModelSet = {};
     private storage: TupleOfflineStorageService;
-
-    // TODO, There appears to be no way to tear down a service
-    private lifecycleEmitter = new ComponentLifecycleEventEmitter();
 
     constructor(private vortexService: VortexService,
                 private vortexStatusService: VortexStatusService,
@@ -119,16 +114,58 @@ export class LocationIndexCache {
             storageFactory,
             new TupleOfflineStorageNameService(locationIndexCacheStorageName)
         );
+
     }
 
-    setModelSetKey(modelSetKey: string) {
-        this.modelSetKey = modelSetKey;
+    indexForModelSetKey(modelSetKey:string) : Promise<LocationIndex> {
+        if (this.indexByModelSet.hasOwnProperty(modelSetKey)) {
+            return Promise.resolve(this.indexByModelSet[modelSetKey]);
+        }
+
+        let newIndex = new LocationIndex(
+            this.vortexService,
+            this.vortexStatusService,
+            this.storage,
+            modelSetKey
+        );
+        this.indexByModelSet[modelSetKey] = newIndex;
+        return new Promise<LocationIndex>((resolve, reject) => {
+            newIndex.isReady()
+                .first()
+                .subscribe(() =>{
+                    resolve(newIndex);
+                });
+        });
+    }
+
+
+}
+
+export class LocationIndex {
+
+    private indexBucketUpdateDates = {};
+
+    // TODO, There appears to be no way to tear down a service
+    private lifecycleEmitter = new ComponentLifecycleEventEmitter();
+
+    private _hasLoaded = new Subject<void>();
+
+    constructor(private vortexService: VortexService,
+                private vortexStatusService: VortexStatusService,
+                private storage: TupleOfflineStorageService,
+                private modelSetKey:string) {
 
         this.initialLoad();
+
+        this.vortexStatusService
+            .isOnline
+            .takeUntil(this.lifecycleEmitter.onDestroyEvent)
+            .filter((val) => val)
+            .subscribe(() => this.askServerForUpdates());
     }
 
-    isReady(): boolean {
-        return dictKeysFromObject(this.indexBucketUpdateDates).length != 0;
+    isReady(): Observable<void> {
+        return this._hasLoaded;
     }
 
     /** Initial load
@@ -141,6 +178,8 @@ export class LocationIndexCache {
             .then((tuples: LocationIndexUpdateDateTuple[]) => {
                 if (tuples.length != 0) {
                     this.indexBucketUpdateDates = tuples[0].indexBucketUpdateDates;
+                    if (this.vortexStatusService.snapshot.isOnline)
+                        this._hasLoaded.next();
                 }
 
                 this.setupVortexSubscriptions();
@@ -190,6 +229,16 @@ export class LocationIndexCache {
      * Process the grids the server has sent us.
      */
     private processLocationIndexesFromServer(payload: Payload) {
+        if (payload.result != null && payload.result != true) {
+            console.log(payload.result);
+            return;
+        }
+
+        if (payload.filt["finished"] == true) {
+            this._hasLoaded.next();
+            return;
+        }
+
         let locationIndexTuples: LocationIndexTuple[] = <LocationIndexTuple[]>payload.tuples;
 
         let tuplesToSave = [];
@@ -217,7 +266,7 @@ export class LocationIndexCache {
                 // 3) Store the update date
 
                 for (let locationIndex of tuplesToSave) {
-                    this.indexBucketUpdateDates[locationIndex.indexBucket] = locationIndex.indexBucket;
+                    this.indexBucketUpdateDates[locationIndex.indexBucket] = locationIndex.lastUpdate;
                 }
 
                 let updateDateTuple = new LocationIndexUpdateDateTuple();
@@ -268,23 +317,46 @@ export class LocationIndexCache {
     getLocations(dispKey: string): Promise<DispKeyLocationTuple[]> {
         let indexBucket = dispKeyHashBucket(this.modelSetKey, dispKey);
 
+        if (!this.indexBucketUpdateDates.hasOwnProperty(indexBucket)) {
+            console.log(`DispKey ${dispKey} doesn't appear in the index`);
+            return Promise.resolve([]);
+        }
+
         let retPromise: any;
-        retPromise = this.storage.loadTuples(new UpdateDateTupleSelector(this.modelSetKey))
+        retPromise = this.storage.loadTuples(new LocationIndexTupleSelector(indexBucket))
             .then((tuples: LocationIndexTuple[]) => {
                 if (tuples.length == 0)
                     return [];
 
-                if (!this.indexBucketUpdateDates.hasOwnProperty(indexBucket)) {
-                    console.log(`DispKey ${dispKey} doesn't appear in the index`);
-                    return [];
+                if (tuples.length != 1)
+                    throw new Error("We received more tuples then expected");
+
+                let jsonStr = pako.inflate(tuples[0].blobData, {to: "string"});
+                let dispIndexArray = JSON.parse(jsonStr);
+
+                let dispLocationIndexRawData :any[] | null = null;
+
+                // TODO These keys are sorted, so we can do a binary search.
+                for (let i = 0; i  < dispIndexArray.length; i++) {
+                    if (dispIndexArray[i][0] == dispKey) {
+                        dispLocationIndexRawData = dispIndexArray[i].slice(1);
+                        break;
+                    }
                 }
 
-                alert("getLocations not implemented");
+                // If we didn't find the key, return no indexes
+                if (dispLocationIndexRawData == null)
+                    return [];
 
-                return [new DispKeyLocationTuple()];
-            })
+                let dispIndexes: DispKeyLocationTuple[] = [];
+                for (let rawData of dispLocationIndexRawData) {
+                    dispIndexes.push(
+                        DispKeyLocationTuple.fromLocationJson(rawData)
+                    );
+                }
 
-            .catch(e => console.log(`LocationIndexCache.getLocations:${e}`));
+                return dispIndexes;
+            });
         return retPromise;
 
     }

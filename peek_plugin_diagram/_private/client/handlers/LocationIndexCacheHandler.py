@@ -1,6 +1,5 @@
 import logging
-from datetime import datetime
-from typing import List, Dict
+from typing import List
 
 from collections import defaultdict
 from twisted.internet.defer import DeferredList, Deferred
@@ -8,9 +7,8 @@ from twisted.internet.defer import DeferredList, Deferred
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.client.controller.LocationIndexCacheController import \
     LocationIndexCacheController
-from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexLoaderRpc import ClientLocationIndexLoaderRpc
 from peek_plugin_diagram._private.tuples.LocationIndexUpdateDateTuple import \
-    LocationIndexUpdateDateTuple
+    LocationIndexUpdateDateTuple, DeviceLocationIndexT
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
 from vortex.PayloadEndpoint import PayloadEndpoint
@@ -23,9 +21,6 @@ clientLocationIndexWatchUpdateFromDeviceFilt = {
     'key': "clientLocationIndexWatchUpdateFromDevice"
 }
 clientLocationIndexWatchUpdateFromDeviceFilt.update(diagramFilt)
-
-#: This the type of the data that we get when the clients observe new locationIndexs.
-DeviceLocationIndexT = Dict[str, datetime]
 
 
 # ModelSet HANDLER
@@ -44,8 +39,8 @@ class LocationIndexCacheHandler(object):
             clientLocationIndexWatchUpdateFromDeviceFilt, self._processObserve
         )
 
-        self._observedLocationIndexKeysByVortexUuid = defaultdict(list)
-        self._observedVortexUuidsByLocationIndexKey = defaultdict(list)
+        self._observedModelSetKeyByVortexUuid = {}
+        self._observedVortexUuidsByModelSetKey = defaultdict(list)
 
     def shutdown(self):
         self._epObserve.shutdown()
@@ -60,13 +55,14 @@ class LocationIndexCacheHandler(object):
         # Which is incomplete at this point :-|
 
         vortexUuids = set(VortexFactory.getRemoteVortexUuids())
-        vortexUuidsToRemove = set(self._observedLocationIndexKeysByVortexUuid) - vortexUuids
+        vortexUuidsToRemove = set(
+            self._observedModelSetKeyByVortexUuid) - vortexUuids
 
         if not vortexUuidsToRemove:
             return
 
         for vortexUuid in vortexUuidsToRemove:
-            del self._observedLocationIndexKeysByVortexUuid[vortexUuid]
+            del self._observedModelSetKeyByVortexUuid[vortexUuid]
 
         self._rebuildStructs()
 
@@ -87,7 +83,8 @@ class LocationIndexCacheHandler(object):
         for locationIndexKey in locationIndexKeys:
 
             locationIndexTuple = self._cacheController.locationIndex(locationIndexKey)
-            vortexUuids = self._observedVortexUuidsByLocationIndexKey.get(locationIndexKey, [])
+            vortexUuids = self._observedVortexUuidsByModelSetKey.get(
+                locationIndexTuple.modelSetKey, [])
 
             # Queue up the required client notifications
             for vortexUuid in vortexUuids:
@@ -118,13 +115,12 @@ class LocationIndexCacheHandler(object):
                         **kwargs):
 
         updateDatesTuples: LocationIndexUpdateDateTuple = payload.tuples[0]
-        locationIndexKeys = list(lastUpdateByLocationIndexKey.keys())
 
-        self._observedLocationIndexKeysByVortexUuid[vortexUuid] = locationIndexKeys
+        self._observedModelSetKeyByVortexUuid[vortexUuid] = payload.filt["modelSetKey"]
         self._rebuildStructs()
 
         self._replyToObserve(payload.filt,
-                             lastUpdateByLocationIndexKey,
+                             updateDatesTuples.indexBucketUpdateDates,
                              sendResponse)
 
     def _rebuildStructs(self) -> None:
@@ -137,14 +133,10 @@ class LocationIndexCacheHandler(object):
         # Rebuild the other reverse lookup
         newDict = defaultdict(list)
 
-        for vortexUuid, locationIndexKeys in self._observedLocationIndexKeysByVortexUuid.items():
-            for locationIndexKey in locationIndexKeys:
-                newDict[locationIndexKey].append(vortexUuid)
+        for vortexUuid, modelSetKey in self._observedModelSetKeyByVortexUuid.items():
+            newDict[modelSetKey].append(vortexUuid)
 
-        keysChanged = set(self._observedVortexUuidsByLocationIndexKey) != set(newDict)
-
-        self._observedVortexUuidsByLocationIndexKey = newDict
-
+        self._observedVortexUuidsByModelSetKey = newDict
 
     # ---------------
     # Reply to device observe
@@ -165,10 +157,25 @@ class LocationIndexCacheHandler(object):
 
         """
 
+        modelSetKey = filt["modelSetKey"]
+
         locationIndexTuplesToSend = []
 
+        def send():
+            if not locationIndexTuplesToSend:
+                return
+
+            d: Deferred = Payload(filt=filt,
+                                  tuples=locationIndexTuplesToSend).toVortexMsgDefer()
+            d.addCallback(sendResponse)
+            d.addErrback(vortexLogFailure, logger, consumeError=True)
+
+        locationIndexKeys = self._cacheController.locationIndexKeys(modelSetKey)
+
         # Check and send any updates
-        for locationIndexKey, lastUpdate in lastUpdateByLocationIndexKey.items():
+        for locationIndexKey in locationIndexKeys:
+            lastUpdate = lastUpdateByLocationIndexKey.get(locationIndexKey)
+
             # NOTE: lastUpdate can be null.
             locationIndexTuple = self._cacheController.locationIndex(locationIndexKey)
             if not locationIndexTuple:
@@ -178,15 +185,19 @@ class LocationIndexCacheHandler(object):
             # We are king, If it's it's not our version, it's the wrong version ;-)
             logger.debug("%s, %s,  %s", locationIndexTuple.lastUpdate == lastUpdate,
                          locationIndexTuple.lastUpdate, lastUpdate)
+
             if locationIndexTuple.lastUpdate == lastUpdate:
                 logger.debug("LocationIndex %s matches the cache" % locationIndexKey)
-            else:
-                locationIndexTuplesToSend.append(locationIndexTuple)
-                logger.debug("Sending locationIndex %s from the cache" % locationIndexKey)
+                continue
 
-        if not locationIndexTuplesToSend:
-            return
+            locationIndexTuplesToSend.append(locationIndexTuple)
+            logger.debug("Sending locationIndex %s from the cache" % locationIndexKey)
 
-        d: Deferred = Payload(filt=filt, tuples=locationIndexTuplesToSend).toVortexMsgDefer()
-        d.addCallback(sendResponse)
+            if len(locationIndexTuplesToSend) == 20:
+                send()
+                locationIndexTuplesToSend = []
+
+        send()
+
+        d = sendResponse(Payload(filt={'finished':True}.update(filt)).toVortexMsg())
         d.addErrback(vortexLogFailure, logger, consumeError=True)
