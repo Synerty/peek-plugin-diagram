@@ -18,6 +18,7 @@ from peek_plugin_diagram._private.storage.LocationIndex import LocationIndex, \
     LocationIndexCompilerQueue
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
+from peek_plugin_diagram._private.worker.tasks._CalcDisp import _scaleDispGeom
 from peek_plugin_diagram._private.worker.tasks._CalcDispFromLiveDb import \
     _mergeInLiveDbValues
 from peek_plugin_diagram._private.worker.tasks._CalcGrid import makeGridKeys
@@ -110,6 +111,7 @@ def compileDisps(self, queueIds, dispIds):
                      len(dispsAll), (datetime.utcnow() - startTime))
 
         for disp in dispsQry:
+
             liveDbItemByKey = liveDbItemByModelSetKeyByKey[disp.modelSetKey]
             # Apply live db links
             _mergeInLiveDbValues(disp, liveDbItemByKey)
@@ -118,11 +120,13 @@ def compileDisps(self, queueIds, dispIds):
             if isinstance(disp, DispText) and not disp.text:
                 continue
 
+            # Get a reference to the coordSet
+            coordSet = coordSetById[disp.coordSetId]
+
             # Get the geomJson as structured data
             geomJson = json.loads(disp.geomJson)
 
-            # Get a reference to the coordSet
-            coordSet = coordSetById[disp.coordSetId]
+            geomJson = _scaleDispGeom(geomJson, coordSet)
 
             # Populate the grid
             jsonDict = disp.tupleToSmallJsonDict()

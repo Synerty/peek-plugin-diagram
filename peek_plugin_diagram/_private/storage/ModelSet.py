@@ -58,11 +58,6 @@ class ModelCoordSet(Tuple, DeclarativeBase):
     initialZoom = Column(Float, nullable=False, server_default="0")
     enabled = Column(Boolean, nullable=False, server_default="false")
 
-    comment = Column(String)
-
-    importId1 = Column(Integer)
-    importId2 = Column(String(100))
-
     modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),
                         nullable=False)
     modelSet = relationship(ModelSet)
@@ -74,6 +69,17 @@ class ModelCoordSet(Tuple, DeclarativeBase):
 
     minZoom = Column(Float, nullable=False, server_default="0.01")
     maxZoom = Column(Float, nullable=False, server_default="10.0")
+
+    multiplierX = Column(Float, nullable=False, server_default="1")
+    multiplierY = Column(Float, nullable=False, server_default="1")
+
+    offsetX = Column(Float, nullable=False, server_default="0")
+    offsetY = Column(Float, nullable=False, server_default="0")
+
+    comment = Column(String)
+
+    importId1 = Column(Integer)
+    importId2 = Column(String(100))
 
     #: Misc data holder
     data = TupleField()
