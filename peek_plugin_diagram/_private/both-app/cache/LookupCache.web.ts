@@ -1,12 +1,13 @@
 import {Injectable} from "@angular/core";
 import {TupleSelector} from "@synerty/vortexjs";
 import {dictKeysFromObject, dictValuesFromObject} from "../DiagramUtil";
-import {DiagramClientTupleOfflineObservable} from "../DiagramClientTupleOfflineObservable.web";
+import {TupleDataOfflineObserverService} from "@synerty/vortexjs";
 import {DispLevel} from "../tuples/lookups/DispLevel";
 import {DispLayer} from "../tuples/lookups/DispLayer";
 import {DispColor} from "../tuples/lookups/DispColor";
 import {DispTextStyle} from "../tuples/lookups/DispTextStyle";
 import {DispLineStyle} from "../tuples/lookups/DispLineStyle";
+import {PrivateDiagramTupleService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
 
 /** Lookup Cache
  *
@@ -37,7 +38,7 @@ export class LookupCache {
     private _isReady: boolean = false;
 
 
-    constructor(private clientTupleObservable: DiagramClientTupleOfflineObservable) {
+    constructor(private tupleService: PrivateDiagramTupleService) {
 
     }
 
@@ -52,7 +53,7 @@ export class LookupCache {
 
         let sub = (lookupAttr, tupleName, callback = null) => {
             this.subscriptions.push(
-                this.clientTupleObservable.subscribeToTupleSelector(
+                this.tupleService.tupleOfflineObserver.subscribeToTupleSelector(
                     new TupleSelector(tupleName, {modelSetKey:this.modelSetKey})
                 ).subscribe((tuples: any[]) => {
                     if (!tuples.length)

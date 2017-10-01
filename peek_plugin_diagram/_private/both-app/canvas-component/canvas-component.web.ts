@@ -10,7 +10,6 @@ import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 import {GridObservable} from "../cache/GridObservable.web";
 import {LookupCache} from "../cache/LookupCache.web";
 import {DispGroupCache} from "../cache/DispGroupCache.web";
-import {CoordSetCache} from "../cache/CoordSetCache.web";
 
 import {DispBase} from "../tuples/shapes/DispBase";
 
@@ -25,6 +24,9 @@ import {
     PrivateDiagramItemSelectService,
     SelectedItemDetailsI
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
+import {
+    PrivateDiagramCoordSetService,
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 
 /** Canvas Component
  *
@@ -65,7 +67,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     constructor(private gridObservable: GridObservable,
                 private lookupCache: LookupCache,
-                private coordSetCache: CoordSetCache,
+                private coordSetCache: PrivateDiagramCoordSetService,
                 private dispGroupCache: DispGroupCache,
                 positionService: DiagramPositionService,
                 private itemSelectService: PrivateDiagramItemSelectService) {
@@ -116,7 +118,6 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     ngOnInit() {
         this.dispGroupCache.setModelSetKey(this.modelSetKey);
-        this.coordSetCache.setModelSetKey(this.modelSetKey);
         this.lookupCache.setModelSetKey(this.modelSetKey);
 
         this.canvas = this.canvasView.nativeElement;

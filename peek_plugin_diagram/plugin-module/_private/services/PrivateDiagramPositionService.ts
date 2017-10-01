@@ -75,7 +75,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
                         let dispKeyIndex = dispKeyIndexes[0];
 
                         this.positionSubject.next({
-                            coordSetKey: 'Distribution', //dispKeyIndex.coordSetKey,
+                            coordSetKey: dispKeyIndex.coordSetKey,
                             x: dispKeyIndex.x,
                             y: dispKeyIndex.y,
                             zoom: 2.0

@@ -40,7 +40,7 @@
                     <div class="btn-group ">
                         <Button *ngFor="let item of menuItems"
                                 class="dialog-action-btn" (click)="menuItemClicked(item)">
-                            <fa *ngIf="item.icon != null" [name]="icon"></fa>
+                            <fa *ngIf="item.icon != null" [name]="item.icon"></fa>
                             {{item.name}}
                         </Button>
 

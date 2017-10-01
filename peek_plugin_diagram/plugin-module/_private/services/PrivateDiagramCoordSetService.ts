@@ -1,8 +1,10 @@
 import {Injectable} from "@angular/core";
 import {TupleSelector} from "@synerty/vortexjs";
-import {dictKeysFromObject} from "../DiagramUtil";
-import {DiagramClientTupleOfflineObservable} from "../DiagramClientTupleOfflineObservable.web";
-import {ModelCoordSet} from "../tuples/model/ModelCoordSet";
+import {TupleDataOfflineObserverService} from "@synerty/vortexjs";
+import {ModelCoordSet} from "../tuples/ModelCoordSet";
+import {
+    PrivateDiagramTupleService
+} from "./PrivateDiagramTupleService";
 
 /** CoordSetCache
  *
@@ -12,37 +14,32 @@ import {ModelCoordSet} from "../tuples/model/ModelCoordSet";
  *
  */
 @Injectable()
-export class CoordSetCache {
+export class PrivateDiagramCoordSetService {
 
     private modelSetKey: string = "";
 
     private _coordSetByKey = {};
+    private _coordSetById = {};
 
     private subscriptions = [];
     private _isReady: boolean = false;
 
 
-    constructor(private clientTupleObservable: DiagramClientTupleOfflineObservable) {
-
-    }
-
-    setModelSetKey(modelSetKey: string) {
-        this.modelSetKey = modelSetKey;
+    constructor(private tupleService: PrivateDiagramTupleService) {
         this.initialLoad();
     }
 
     private initialLoad(): void {
 
         this.subscriptions.push(
-            this.clientTupleObservable.subscribeToTupleSelector(
-                new TupleSelector(ModelCoordSet.tupleName, {
-                    modelSetKey:this.modelSetKey
-                })
+            this.tupleService.tupleOfflineObserver.subscribeToTupleSelector(
+                new TupleSelector(ModelCoordSet.tupleName, {})
             ).subscribe((tuples: any[]) => {
                 this._coordSetByKey = {};
 
                 for (let item of tuples) {
                     this._coordSetByKey[item.key] = item;
+                    this._coordSetById[item.id] = item;
                 }
 
             })
@@ -61,7 +58,11 @@ export class CoordSetCache {
         if (this._isReady)
             return true;
 
-        if (dictKeysFromObject(this._coordSetByKey).length == 0)
+        let count = 0;
+        for (let key in this._coordSetByKey)
+            count++;
+
+        if (count == 0)
             return false;
 
         this._isReady = true;
@@ -70,6 +71,10 @@ export class CoordSetCache {
 
     coordSetForKey(coordSetKey: string): ModelCoordSet {
         return this._coordSetByKey[coordSetKey];
+    };
+
+    coordSetForId(id: number): ModelCoordSet {
+        return this._coordSetById[id];
     };
 
 

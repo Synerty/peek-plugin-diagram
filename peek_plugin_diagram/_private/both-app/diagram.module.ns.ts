@@ -56,19 +56,7 @@ import {PopupComponent} from "./popup-component/popup.component.ns";
 import {ToolbarComponent} from "./toolbar-component/toolbar.component.ns";
 
 
-export function tupleActionPushNameServiceFactory() {
-    return new TupleActionPushNameService(
-        diagramActionProcessorName, diagramFilt);
-}
 
-export function tupleDataObservableNameServiceFactory() {
-    return new TupleDataObservableNameService(
-        diagramObservableName, diagramFilt);
-}
-
-export function tupleOfflineStorageNameServiceFactory() {
-    return new TupleOfflineStorageNameService(diagramTupleOfflineServiceName);
-}
 
 
 // Define the root module for this plugin.
@@ -81,19 +69,6 @@ export function tupleOfflineStorageNameServiceFactory() {
     ],
     exports: [DiagramComponent],
     providers: [
-
-        TupleActionPushOfflineService, TupleActionPushService, {
-            provide: TupleActionPushNameService,
-            useFactory: tupleActionPushNameServiceFactory
-        },
-        TupleOfflineStorageService, {
-            provide: TupleOfflineStorageNameService,
-            useFactory: tupleOfflineStorageNameServiceFactory
-        },
-        TupleDataObserverService, TupleDataOfflineObserverService, {
-            provide: TupleDataObservableNameService,
-            useFactory: tupleDataObservableNameServiceFactory
-        }
 
     ],
     declarations: [DiagramComponent, CanvasComponent, PopupComponent, ToolbarComponent]

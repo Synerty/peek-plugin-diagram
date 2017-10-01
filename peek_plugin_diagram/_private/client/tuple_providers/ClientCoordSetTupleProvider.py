@@ -18,9 +18,6 @@ class ClientCoordSetTupleProvider(TuplesProviderABC):
 
     def makeVortexMsg(self, filt: dict,
                       tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
-        modelSetKey = tupleSelector.selector["modelSetKey"]
-
-        tuples = list(filter(lambda i: i.data["modelSetKey"] == modelSetKey,
-                             self._coordSetCacheController.coordSets))
+        tuples = self._coordSetCacheController.coordSets
 
         return Payload(filt, tuples=tuples).toVortexMsgDefer()

@@ -1,8 +1,7 @@
 import {addTupleType, Tuple} from "@synerty/vortexjs";
-import {diagramTuplePrefix} from "@peek/peek_plugin_diagram/_private";
+import {diagramTuplePrefix} from "../PluginNames";
 import {ModelCoordSetGridSize} from "./ModelCoordSetGridSize";
-import {assert} from "../../DiagramUtil";
-import {PeekCanvasBounds} from "../../canvas/PeekCanvasBounds";
+import {PeekCanvasBounds} from "peek_plugin_diagram/canvas/PeekCanvasBounds";
 
 
 @addTupleType
@@ -36,7 +35,8 @@ export class ModelCoordSet extends Tuple {
      * This method calculates which Z grid to use based on a zoom level
      */
     gridSizeForZoom(zoom: number): ModelCoordSetGridSize {
-        assert(zoom != null, "Zoom can't be null");
+        if (zoom == null)
+            throw new Error("Zoom can't be null");
 
         // Figure out the Z grid
         for (let gridSize of this.gridSizes) {

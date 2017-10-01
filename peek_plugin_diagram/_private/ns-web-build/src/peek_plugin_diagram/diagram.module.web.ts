@@ -22,18 +22,18 @@ import {
 } from "@peek/peek_plugin_diagram/_private/PluginNames";
 // Import global modules, for example, the canvas extensions.
 import "./canvas/PeekCanvasExtensions.web";
-import {DiagramClientTupleOfflineObservable} from "./DiagramClientTupleOfflineObservable.web";
 import {GridCache} from "./cache/GridCache.web";
 import {GridObservable} from "./cache/GridObservable.web";
 import {LookupCache} from "./cache/LookupCache.web";
 import {DispGroupCache} from "./cache/DispGroupCache.web";
-import {CoordSetCache} from "./cache/CoordSetCache.web";
 import {CanvasComponent} from "./canvas-component/canvas-component.web";
 
 
-import {PrivateDiagramItemSelectService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
+import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {PrivateDiagramLocationIndexService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLocationIndexService";
-import {PrivateDiagramPositionService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
+import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
+import {PrivateDiagramTupleService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
+import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {LayerComponent} from "./layer-component/layer.component.web";
 
@@ -63,22 +63,10 @@ export function tupleOfflineStorageNameServiceFactory() {
         CanvasComponent
     ],
     providers: [
-        TupleActionPushOfflineService, TupleActionPushService, {
-            provide: TupleActionPushNameService,
-            useFactory: tupleActionPushNameServiceFactory
-        },
-        TupleOfflineStorageService, {
-            provide: TupleOfflineStorageNameService,
-            useFactory: tupleOfflineStorageNameServiceFactory
-        },
-        TupleDataObserverService, TupleDataOfflineObserverService, {
-            provide: TupleDataObservableNameService,
-            useFactory: tupleDataObservableNameServiceFactory
-        },
-        DiagramClientTupleOfflineObservable,
+        PrivateDiagramTupleService,
+        PrivateDiagramCoordSetService,
         GridCache,
         LookupCache,
-        CoordSetCache,
         DispGroupCache,
         GridObservable,
 

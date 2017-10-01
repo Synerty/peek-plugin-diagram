@@ -75,13 +75,12 @@ class ClientEntryHook(PluginClientEntryHookABC):
         )
 
         # Provide the devices access to the servers observable
-        self._loadedObjects.append(
-            TupleDataObservableProxyHandler(
+        tupleDataObservableProxyHandler = TupleDataObservableProxyHandler(
                 observableName=diagramObservableName,
                 proxyToVortexName=peekServerName,
                 additionalFilt=diagramFilt,
                 observerName="Proxy to devices")
-        )
+        self._loadedObjects.append(tupleDataObservableProxyHandler)
 
         #: This is an observer for us (the client) to use to observe data
         # from the server
@@ -92,6 +91,26 @@ class ClientEntryHook(PluginClientEntryHookABC):
             observerName="Data for us"
         )
         self._loadedObjects.append(serverTupleObserver)
+
+        # -----
+
+        # Buffer the lookups in the client (us)
+        lookupCacheController = LookupCacheController(serverTupleObserver)
+        self._loadedObjects.append(lookupCacheController)
+
+        # Buffer the coord sets in the client (us)
+        coordSetCacheController = CoordSetCacheController(serverTupleObserver)
+        self._loadedObjects.append(coordSetCacheController)
+
+        # Create the Tuple Observer
+        tupleObservable = makeClientTupleDataObservableHandler(
+            tupleDataObservableProxyHandler,
+            coordSetCacheController, lookupCacheController
+        )
+        self._loadedObjects.append(tupleObservable)
+
+        lookupCacheController.setTupleObserable(tupleObservable)
+        coordSetCacheController.setTupleObserable(tupleObservable)
 
         # ----- Grid Cache Controller
         gridCacheController = GridCacheController(self.platform.serviceId)
@@ -119,25 +138,6 @@ class ClientEntryHook(PluginClientEntryHookABC):
         self._loadedObjects.append(locationIndexCacheHandler)
 
         locationIndexCacheController.setLocationIndexCacheHandler(locationIndexCacheHandler)
-        
-        # -----
-
-        # Buffer the lookups in the client (us)
-        lookupCacheController = LookupCacheController(serverTupleObserver)
-        self._loadedObjects.append(lookupCacheController)
-
-        # Buffer the coord sets in the client (us)
-        coordSetCacheController = CoordSetCacheController(serverTupleObserver)
-        self._loadedObjects.append(coordSetCacheController)
-
-        # Create the Tuple Observer
-        tupleObservable = makeClientTupleDataObservableHandler(
-            coordSetCacheController, lookupCacheController
-        )
-        self._loadedObjects.append(tupleObservable)
-
-        lookupCacheController.setTupleObserable(tupleObservable)
-        coordSetCacheController.setTupleObserable(tupleObservable)
 
         yield gridCacheController.start()
         yield locationIndexCacheController.start()

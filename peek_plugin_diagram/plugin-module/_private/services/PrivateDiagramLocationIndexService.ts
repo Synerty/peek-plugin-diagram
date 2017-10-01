@@ -20,6 +20,7 @@ import {
 import * as moment from "moment";
 import {LocationIndexUpdateDateTuple} from "../tuples/LocationIndexUpdateDateTuple";
 import {DispKeyLocationTuple} from "../tuples/DispLocationTuple";
+import {PrivateDiagramCoordSetService} from "./PrivateDiagramCoordSetService";
 
 import {Subject, Observable} from "rxjs";
 
@@ -108,7 +109,8 @@ export class PrivateDiagramLocationIndexService {
 
     constructor(private vortexService: VortexService,
                 private vortexStatusService: VortexStatusService,
-                storageFactory: TupleStorageFactoryService) {
+                storageFactory: TupleStorageFactoryService,
+                private coordSetService:PrivateDiagramCoordSetService) {
 
         this.storage = new TupleOfflineStorageService(
             storageFactory,
@@ -126,7 +128,8 @@ export class PrivateDiagramLocationIndexService {
             this.vortexService,
             this.vortexStatusService,
             this.storage,
-            modelSetKey
+            modelSetKey,
+            this.coordSetService
         );
         this.indexByModelSet[modelSetKey] = newIndex;
         return new Promise<LocationIndex>((resolve, reject) => {
@@ -153,7 +156,8 @@ export class LocationIndex {
     constructor(private vortexService: VortexService,
                 private vortexStatusService: VortexStatusService,
                 private storage: TupleOfflineStorageService,
-                private modelSetKey:string) {
+                private modelSetKey:string,
+                private coordSetService:PrivateDiagramCoordSetService) {
 
         this.initialLoad();
 
@@ -350,9 +354,13 @@ export class LocationIndex {
 
                 let dispIndexes: DispKeyLocationTuple[] = [];
                 for (let rawData of dispLocationIndexRawData) {
-                    dispIndexes.push(
-                        DispKeyLocationTuple.fromLocationJson(rawData)
-                    );
+                    let dispLocation = DispKeyLocationTuple.fromLocationJson(rawData);
+
+                    dispLocation.coordSetKey = this.coordSetService
+                        .coordSetForId(dispLocation.coordSetId)
+                        .key;
+
+                    dispIndexes.push(dispLocation);
                 }
 
                 return dispIndexes;

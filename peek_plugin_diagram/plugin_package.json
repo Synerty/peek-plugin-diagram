@@ -38,6 +38,15 @@
         "moduleDir": "plugin-module",
         "rootServices": [
             {
+                "file": "_private/services/PrivateDiagramTupleService",
+                "class": "PrivateDiagramTupleService"
+            },
+            {
+                "file": "_private/services/PrivateDiagramCoordSetService",
+                "class": "PrivateDiagramCoordSetService",
+                "persistent": true
+            },
+            {
                 "file": "DiagramToolbarService",
                 "class": "DiagramToolbarService",
                 "useClassFile": "_private/services/PrivateDiagramToolbarService",
@@ -76,6 +85,15 @@
         "assetDir": "_private/ns-assets",
         "moduleDir": "plugin-module",
         "rootServices": [
+            {
+                "file": "_private/services/PrivateDiagramTupleService",
+                "class": "PrivateDiagramTupleService"
+            },
+            {
+                "file": "_private/services/PrivateDiagramCoordSetService",
+                "class": "PrivateDiagramCoordSetService",
+                "persistent": true
+            },
             {
                 "file": "DiagramToolbarService",
                 "class": "DiagramToolbarService",
@@ -117,6 +135,15 @@
         "assetDir": "_private/both-assets",
         "moduleDir": "plugin-module",
         "rootServices": [
+            {
+                "file": "_private/services/PrivateDiagramTupleService",
+                "class": "PrivateDiagramTupleService"
+            },
+            {
+                "file": "_private/services/PrivateDiagramCoordSetService",
+                "class": "PrivateDiagramCoordSetService",
+                "persistent": true
+            },
             {
                 "file": "DiagramToolbarService",
                 "class": "DiagramToolbarService",
