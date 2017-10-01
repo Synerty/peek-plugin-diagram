@@ -32,6 +32,7 @@ import {CanvasComponent} from "./canvas-component/canvas-component.web";
 
 
 import {PrivateDiagramItemSelectService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
+import {PrivateDiagramLocationIndexService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLocationIndexService";
 import {PrivateDiagramPositionService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {LayerComponent} from "./layer-component/layer.component.web";
@@ -87,6 +88,7 @@ export function tupleOfflineStorageNameServiceFactory() {
             useClass: PrivateDiagramPositionService
         },
         PrivateDiagramItemSelectService,
+        PrivateDiagramLocationIndexService,
 
     ],
     declarations: [CanvasComponent, LayerComponent]
