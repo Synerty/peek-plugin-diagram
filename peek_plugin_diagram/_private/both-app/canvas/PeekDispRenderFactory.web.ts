@@ -7,11 +7,13 @@ import {PeekDispRenderDelegateGroupPtr} from "./PeekDispRenderDelegateGroupPtr.w
 import {DispGroupCache} from "../cache/DispGroupCache.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {DispBase} from "../tuples/shapes/DispBase";
+import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
+
+
 export class PeekDispRenderFactory {
     private _delegatesByType: {};
 
     constructor(config: PeekCanvasConfig, dispGroupCache: DispGroupCache) {
-
 
         let polyDelegate = new PeekDispRenderDelegatePoly(config);
         let textDelegate = new PeekDispRenderDelegateText(config);
@@ -51,7 +53,6 @@ export class PeekDispRenderFactory {
     };
 
     drawSelected(dispObj, ctx, zoom, pan) {
-
         this._delegatesByType[dispObj._tt].drawSelected(dispObj, ctx, zoom, pan);
     };
 
@@ -62,7 +63,6 @@ export class PeekDispRenderFactory {
     };
 
     withIn(dispObj, x, y, w, h) {
-
         this._initBounds(dispObj);
         return this._delegatesByType[dispObj._tt].withIn(dispObj, x, y, w, h);
     };
@@ -72,30 +72,32 @@ export class PeekDispRenderFactory {
     };
 
     handles(dispObj) {
-
         return this._delegatesByType[dispObj._tt].handles(dispObj);
     };
 
     deltaMove(dispObj, dx, dy) {
-
         this._initBounds(dispObj);
         return this._delegatesByType[dispObj._tt].deltaMove(dx, dy);
     };
 
     area(dispObj) {
-
         this._initBounds(dispObj);
         return this._delegatesByType[dispObj._tt].area(dispObj);
     };
 
-    selectionPriotityCompare(dispObj1, dispObj2) {
+    selectionPriotityCompare(dispObj1, dispObj2): number {
 
-        if (dispObj1._tt == 'DA' && dispObj2._tt != 'DA')
-            return -1;
-
-        if (dispObj1._tt != 'DA' && dispObj2._tt == 'DA')
+        if (DispFactory.type(dispObj1) == DispType.polygon
+            && DispFactory.type(dispObj2) != DispType.polygon)
             return 1;
 
-        return dispObj2.bounds.area() - dispObj1.bounds.area();
+        // if (DispFactory.type(dispObj1) == DispType.polyline
+        //     && DispFactory.type(dispObj2) == DispType.polygon)
+        //     return 1;
+
+
+        return this._delegatesByType[dispObj2._tt].area()
+            - this._delegatesByType[dispObj1._tt].area();
+
     };
 }
