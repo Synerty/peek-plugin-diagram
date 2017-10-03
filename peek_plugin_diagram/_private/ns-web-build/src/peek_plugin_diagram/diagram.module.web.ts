@@ -22,6 +22,7 @@ import {
 } from "@peek/peek_plugin_diagram/_private/PluginNames";
 // Import global modules, for example, the canvas extensions.
 import "./canvas/PeekCanvasExtensions.web";
+import {GridLoader} from "./cache/GridLoader.web";
 import {GridCache} from "./cache/GridCache.web";
 import {GridObservable} from "./cache/GridObservable.web";
 import {LookupCache} from "./cache/LookupCache.web";
@@ -65,6 +66,7 @@ export function tupleOfflineStorageNameServiceFactory() {
     providers: [
         PrivateDiagramTupleService,
         PrivateDiagramCoordSetService,
+        GridLoader,
         GridCache,
         LookupCache,
         DispGroupCache,

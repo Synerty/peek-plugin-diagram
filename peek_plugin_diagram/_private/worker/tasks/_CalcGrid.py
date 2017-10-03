@@ -23,7 +23,7 @@ def makeGridKeys(coordSet: ModelCoordSet,
     for gridSize in coordSet.gridSizes:
         # CHECK Declutter
         if 0.0 > (min(gridSize.max, (disp.level.maxZoom - 0.00001))
-                      - max(gridSize.min, disp.level.minZoom)):
+                      - max(gridSize.min, disp.level.minZoom + 0.00001)):
             continue
 
         if (isinstance(disp, DispText)

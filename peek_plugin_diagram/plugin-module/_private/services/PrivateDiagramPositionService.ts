@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {DiagramPositionService} from "../../DiagramPositionService";
+import {DiagramPositionService, PositionUpdatedI} from "../../DiagramPositionService";
 import {Observable, Subject} from "rxjs";
 
 import {
@@ -42,6 +42,8 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
     private positionByKeySubject= new Subject<DiagramPositionByKeyI>();
 
     private isReadySubject = new Subject<boolean>();
+
+    private postionUpdatedSubject = new Subject<PositionUpdatedI>();
 
     positionByCoordSet(coordSetKey: string): void {
         this.positionByCoordSetSubject.next(coordSetKey);
@@ -104,9 +106,18 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
         this.titleUpdatedSubject.next(value);
     }
 
+    positionUpdated(pos : PositionUpdatedI): void {
+        this.postionUpdatedSubject.next(pos);
+    }
+
     isReadyObservable(): Observable<boolean> {
         return this.isReadySubject;
     }
+
+    positionUpdatedObservable(): Observable<PositionUpdatedI> {
+        return this.postionUpdatedSubject;
+    }
+
 
     titleUpdatedObservable(): Observable<string> {
         return this.titleUpdatedSubject;

@@ -1,4 +1,4 @@
-import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
+import {DiagramPositionService, DiagramPositionI} from "@peek/peek_plugin_diagram/DiagramPositionService";
 
 import {
     DiagramPositionI,
@@ -39,6 +39,14 @@ export class PositionServiceBridgeWeb {
             .subscribe((val) => {
                 console.log(`WEB: Sending isReadySubject ${val}`);
                 iface.emit("isReadySubject", val);
+            });
+
+        // Send events from the <webview> side to the nativescript side service
+        positionService.positionUpdatedObservable()
+            .takeUntil(lifeCycleEvents.onDestroyEvent)
+            .subscribe((val) => {
+                console.log(`WEB: Sending positionUpdated ${val}`);
+                iface.emit("positionUpdated", val);
             });
 
         // Send events from the <webview> side to the nativescript side service

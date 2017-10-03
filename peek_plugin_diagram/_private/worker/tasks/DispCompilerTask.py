@@ -203,17 +203,23 @@ def compileDisps(self, queueIds, dispIds):
 
         # Ensure that the Disps exist, otherwise we get an integrity error.
         gridKeyIndexes = []
+        locationIndexes = []
         for dispId in lockedDispIds:
             gridKeyIndexes.extend(gridKeyIndexesByDispId[dispId])
 
-        # Ensure that the Disps exist, otherwise we get an integrity error.
-        locationIndexes = []
-        for dispId in lockedDispIds:
             if dispId in locationIndexByDispId:
                 locationIndexes.append(locationIndexByDispId[dispId])
 
+        # Delete existing items in the location and grid index
+
+        # grid index
         conn.execute(gridKeyIndexTable.delete(
             makeCoreValuesSubqueryCondition(engine, gridKeyIndexTable.c.dispId, dispIds)
+        ))
+
+        # location index
+        conn.execute(locationIndexTable.delete(
+            makeCoreValuesSubqueryCondition(engine, locationIndexTable.c.dispId, dispIds)
         ))
 
         # ---------------

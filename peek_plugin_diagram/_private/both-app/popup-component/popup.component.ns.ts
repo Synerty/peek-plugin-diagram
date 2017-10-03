@@ -1,4 +1,4 @@
-import {Component, Output, EventEmitter} from "@angular/core";
+import {Component, Output, EventEmitter, NgZone} from "@angular/core";
 
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
 
@@ -27,10 +27,11 @@ export class PopupComponent extends PopupComponentBase {
     @Output("rowspanEvent")
     rowspanEvent = new EventEmitter<number>();
 
-    constructor(titleService: TitleService,
+    constructor(  titleService: TitleService,
                 itemSelectService: PrivateDiagramItemSelectService,
-                abstractItemPopupService: DiagramItemPopupService) {
-        super(titleService, itemSelectService, abstractItemPopupService);
+                abstractItemPopupService: DiagramItemPopupService,
+                 zone:NgZone) {
+        super(titleService, itemSelectService, abstractItemPopupService, zone);
 
     }
 

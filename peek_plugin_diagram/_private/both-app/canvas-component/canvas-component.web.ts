@@ -24,9 +24,7 @@ import {
     PrivateDiagramItemSelectService,
     SelectedItemDetailsI
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
-import {
-    PrivateDiagramCoordSetService,
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+import {PrivateDiagramCoordSetService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 
 /** Canvas Component
  *
@@ -105,6 +103,9 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
         // Hook up the position serivce
         this.connectDiagramService();
+
+        // Hook up the outward notification of position updates
+        this.connectPositionUpdateNotify();
 
 
     }
@@ -194,7 +195,35 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     }
 
-    connectItemSelectionService() {
+    connectPositionUpdateNotify() :void {
+
+        let notify = () => {
+            if (this.config.controller.coordSet == null)
+                return;
+
+            this._privatePosService.positionUpdated({
+                coordSetKey: this.config.controller.coordSet.key,
+                x: this.config.viewPort.pan.x,
+                y: this.config.viewPort.pan.y,
+                zoom: this.config.viewPort.zoom,
+            });
+        };
+
+        this.config.viewPort.panChange
+            .takeUntil(this.onDestroyEvent)
+            .subscribe(notify);
+
+        this.config.viewPort.zoomChange
+            .takeUntil(this.onDestroyEvent)
+            .subscribe(notify);
+
+        this.config.controller.coordSetChange
+            .takeUntil(this.onDestroyEvent)
+            .subscribe(notify);
+
+    }
+
+    connectItemSelectionService() :void {
         this.model.selectionChangedObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe((disps: {}[]) => {

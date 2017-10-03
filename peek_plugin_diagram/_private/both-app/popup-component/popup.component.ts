@@ -1,4 +1,4 @@
-import {Input, OnInit} from "@angular/core";
+import {Input, OnInit, NgZone} from "@angular/core";
 
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
@@ -37,7 +37,8 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
 
     constructor(protected titleService: TitleService,
                 protected itemSelectService: PrivateDiagramItemSelectService,
-                abstractItemPopupService: DiagramItemPopupService) {
+                abstractItemPopupService: DiagramItemPopupService,
+                protected zone:NgZone) {
         super();
 
         this.itemPopupService = <PrivateDiagramItemPopupService> abstractItemPopupService;
@@ -67,8 +68,12 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
                     data: itemDetails.dispData,
                     coordSetKey: this.coordSetKey,
                     modelSetKey: this.modelSetKey,
-                    addMenuItem: (item: DiagramMenuItemI) => this.menuItems.push(item),
-                    addDetailItems: (items: DiagramItemDetailI[]) => this.details.add(items),
+                    addMenuItem: (item: DiagramMenuItemI) => {
+                        this.zone.run(() => this.menuItems.push(item));
+                    },
+                    addDetailItems: (items: DiagramItemDetailI[]) => {
+                        this.zone.run(() => this.details.add(items));
+                    },
                 }
             );
 

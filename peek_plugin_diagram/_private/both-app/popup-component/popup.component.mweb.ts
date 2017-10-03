@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewChild} from "@angular/core";
+import {Component, Input, OnInit, ViewChild, NgZone} from "@angular/core";
 
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
@@ -28,8 +28,9 @@ export class PopupComponent extends PopupComponentBase {
 
     constructor(  titleService: TitleService,
                 itemSelectService: PrivateDiagramItemSelectService,
-                abstractItemPopupService: DiagramItemPopupService) {
-        super(titleService, itemSelectService, abstractItemPopupService);
+                abstractItemPopupService: DiagramItemPopupService,
+                 zone:NgZone) {
+        super(titleService, itemSelectService, abstractItemPopupService, zone);
 
     }
 

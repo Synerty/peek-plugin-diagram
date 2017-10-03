@@ -1,5 +1,12 @@
 import {Observable} from "rxjs";
 
+export interface PositionUpdatedI {
+    coordSetKey: string;
+    x: number;
+    y: number;
+    zoom: number;
+}
+
 /** Diagram Position Service
  *
  * This service allows other plugins embedding the diagram to position the diagram.
@@ -52,6 +59,11 @@ export abstract class DiagramPositionService {
      */
     abstract canPositionByKey(modelSetKey: string, dispKey: string): Promise<boolean> ;
 
+    /** Position Updated Observable
+     *
+     * @return An observerable that fires when the canvas position is updated.
+     */
+    abstract positionUpdatedObservable(): Observable<PositionUpdatedI> ;
 
     /** isReady
      *

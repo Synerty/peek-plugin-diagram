@@ -25,6 +25,7 @@ import {
 // Import global modules, for example, the canvas extensions.
 import "./canvas/PeekCanvasExtensions.web";
 // import {DisplayCanvasSplashScreen} from "./loading-splash/loading-splash.service";
+import {GridLoader} from "./cache/GridLoader.web";
 import {GridCache} from "./cache/GridCache.web";
 import {GridObservable} from "./cache/GridObservable.web";
 import {LookupCache} from "./cache/LookupCache.web";
@@ -73,6 +74,7 @@ export function tupleOfflineStorageNameServiceFactory() {
         CanvasComponent
     ],
     providers: [
+        GridLoader,
         GridCache,
         LookupCache,
         DispGroupCache,
