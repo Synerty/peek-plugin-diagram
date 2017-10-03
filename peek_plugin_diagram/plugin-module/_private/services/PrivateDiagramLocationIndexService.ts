@@ -120,20 +120,26 @@ export class PrivateDiagramLocationIndexService {
     }
 
     indexForModelSetKey(modelSetKey:string) : Promise<LocationIndex> {
+        let newIndex : LocationIndex | null = null;
+
         if (this.indexByModelSet.hasOwnProperty(modelSetKey)) {
-            return Promise.resolve(this.indexByModelSet[modelSetKey]);
+             newIndex = this.indexByModelSet[modelSetKey];
+            if (newIndex.isReady())
+                return Promise.resolve(newIndex);
+
+        } else {
+            newIndex = new LocationIndex(
+                this.vortexService,
+                this.vortexStatusService,
+                this.storage,
+                modelSetKey,
+                this.coordSetService
+            );
+            this.indexByModelSet[modelSetKey] = newIndex;
         }
 
-        let newIndex = new LocationIndex(
-            this.vortexService,
-            this.vortexStatusService,
-            this.storage,
-            modelSetKey,
-            this.coordSetService
-        );
-        this.indexByModelSet[modelSetKey] = newIndex;
         return new Promise<LocationIndex>((resolve, reject) => {
-            newIndex.isReady()
+            newIndex.isReadyObservable()
                 .first()
                 .subscribe(() =>{
                     resolve(newIndex);
@@ -151,7 +157,9 @@ export class LocationIndex {
     // TODO, There appears to be no way to tear down a service
     private lifecycleEmitter = new ComponentLifecycleEventEmitter();
 
-    private _hasLoaded = new Subject<void>();
+    private _hasLoaded = false;
+
+    private _hasLoadedSubject = new Subject<void>();
 
     constructor(private vortexService: VortexService,
                 private vortexStatusService: VortexStatusService,
@@ -168,8 +176,12 @@ export class LocationIndex {
             .subscribe(() => this.askServerForUpdates());
     }
 
-    isReady(): Observable<void> {
+    isReady(): boolean {
         return this._hasLoaded;
+    }
+
+    isReadyObservable(): Observable<void> {
+        return this._hasLoadedSubject;
     }
 
     /** Initial load
@@ -182,8 +194,10 @@ export class LocationIndex {
             .then((tuples: LocationIndexUpdateDateTuple[]) => {
                 if (tuples.length != 0) {
                     this.indexBucketUpdateDates = tuples[0].indexBucketUpdateDates;
-                    if (this.vortexStatusService.snapshot.isOnline)
-                        this._hasLoaded.next();
+                    if (this.vortexStatusService.snapshot.isOnline) {
+                        this._hasLoaded = true;
+                        this._hasLoadedSubject.next();
+                    }
                 }
 
                 this.setupVortexSubscriptions();
@@ -239,7 +253,8 @@ export class LocationIndex {
         }
 
         if (payload.filt["finished"] == true) {
-            this._hasLoaded.next();
+            this._hasLoaded = true;
+            this._hasLoadedSubject.next();
             return;
         }
 
