@@ -4,6 +4,8 @@ import {PositionServiceBridgeWeb} from "../service-bridge/PositionServiceBridgeW
 import {ItemSelectServiceBridgeWeb} from "../service-bridge/ItemSelectServiceBridgeWeb";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
+import {GridLoaderBridgeWeb} from "../service-bridge/GridLoaderBridgeWeb";
+import {GridLoader} from "../peek_plugin_diagram/cache/GridLoader";
 
 @Component({
     selector: 'ns-web-diagram',
@@ -21,6 +23,7 @@ export class NsWebDiagramComponent extends ComponentLifecycleEventEmitter implem
                 private positionService: DiagramPositionService,
                 private itemSelectService: PrivateDiagramItemSelectService) {
         super();
+
     }
 
     ngOnInit() {

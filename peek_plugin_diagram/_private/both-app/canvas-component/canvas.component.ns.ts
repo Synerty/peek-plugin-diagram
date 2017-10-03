@@ -14,6 +14,7 @@ import {PrivateDiagramItemPopupService} from "@peek/peek_plugin_diagram/_private
 import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
+import {GridLoaderA} from "../cache/GridLoader";
 
 
 import {
@@ -23,6 +24,7 @@ import {
 import {ItemSelectServiceBridgeNs} from "../service-bridge/ItemSelectServiceBridge.ns";
 import {PositionServiceBridgeNs} from "../service-bridge/PositionServiceBridge.ns";
 import {TupleStorageBridgeNs} from "../service-bridge/TupleStorageBridge.ns";
+import {GridLoaderBridgeNs} from "../service-bridge/GridLoaderBridge.ns";
 
 @Component({
     selector: 'pl-diagram-canvas',
@@ -37,6 +39,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
     private itemSelectServiceBridge: ItemSelectServiceBridgeNs | null = null;
     private positionServiceBridge: PositionServiceBridgeNs | null = null;
     private tupleStorageBridge: TupleStorageBridgeNs | null = null;
+    private gridLoaderBridge: GridLoaderBridgeNs | null = null;
 
     private privatePositionService: PrivateDiagramPositionService;
 
@@ -49,7 +52,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
                 private enrolmentService: DeviceEnrolmentService,
                 private tupleStorage: TupleOfflineStorageService,
                 private privateItemSelectService: PrivateDiagramItemSelectService,
-                positionService: DiagramPositionService) {
+                positionService: DiagramPositionService,
+                private gridLoader: GridLoaderA) {
         super();
 
         this.privatePositionService = <PrivateDiagramPositionService> positionService;
@@ -78,12 +82,15 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
             this.tupleStorage, this.oLangWebViewInterface
         );
 
+        this.gridLoaderBridge = new GridLoaderBridgeNs(
+            this, this.gridLoader, this.oLangWebViewInterface
+        );
+
     }
 
     private webViewUrl(): string {
         let url = `${this.enrolmentService.serverHttpUrl}/${diagramBaseUrl}/web_dist`;
         let wsVortexUrl = this.enrolmentService.serverWebsocketVortexUrl;
-        // let url = '~/assets/peek_plugin_diagram/www/index.html';
         // let url = "http://10.211.55.14:4200";
         url += `?modelSetKey=${this.modelSetKey}`;
         url += `&vortexWsUrl=${wsVortexUrl}`;

@@ -1,16 +1,12 @@
 import {Injectable} from "@angular/core";
 import {LookupCache} from "./LookupCache.web";
 import {LinkedGrid} from "./LinkedGrid.web";
-import {Subject} from "rxjs/Subject";
 import {GridTuple} from "../tuples/GridTuple";
+import {GridLoaderA} from "./GridLoader";
+import {Observable, Subject} from "rxjs";
 
 import {
     ComponentLifecycleEventEmitter,
-    extend,
-    Payload,
-    TupleOfflineStorageNameService,
-    TupleSelector,
-    TupleStorageFactoryService,
     TupleStorageServiceABC,
     VortexService,
     VortexStatusService
@@ -22,42 +18,6 @@ import * as moment from "moment";
 
 let pako = require("pako");
 
-
-// ----------------------------------------------------------------------------
-
-let clientGridWatchUpdateFromDeviceFilt = extend(
-    {'key': "clientGridWatchUpdateFromDevice"},
-    diagramFilt
-);
-
-// ----------------------------------------------------------------------------
-
-/** Grid Key Tuple Selector
- *
- * We're using or own storage database, seprate from the typical
- * offline tuple storage. And we're only going to store grids in id.
- *
- * Because of this, we'll extend tuple selector to only return the grid key
- * instead of it's normal ordered tuplename, {} selector.
- *
- * We only need to convert from this class to string, the revers will attemp
- * to convert it back to a real TupleSelector
- *
- * In summary, this is a hack to avoid a little unnesasary bulk.
- */
-class GridKeyTupleSelector extends TupleSelector {
-    constructor(gridKey: string) {
-        super(gridKey, {});
-    }
-
-    /** To Ordered Json Str (Override)
-     *
-     * This method is used by the Tuple Storage to generate the DB Primary Key
-     */
-    toOrderedJsonStr(): string {
-        return this.name;
-    }
-}
 
 
 // ----------------------------------------------------------------------------
@@ -94,12 +54,7 @@ class Cache {
  *
  * 2) Provide updates to the GridObservable class as grid updates come in.
  *
- * 3) Poll for grids from the local storage (IndexedDB or WebSQL), and:
- * 3.1) Update the cache
- *
- * 4) Poll for grids from the server and:
- * 4.1) Store these back into the local storage
- * 4.2) Update the cache
+ * 3) Poll for grids from the grid loader
  *
  */
 @Injectable()
@@ -113,42 +68,24 @@ export class GridCache {
     private cacheQueue: Cache[] = [];
     private MAX_CACHE = 50;
 
-    // The last set of keys requested from the GridObserver
-    private lastWatchedGridKeys: string[] = [];
-
-    private storage: TupleStorageServiceABC;
-
     // TODO, There appears to be no way to tear down a service
     private lifecycleEmitter = new ComponentLifecycleEventEmitter();
 
     constructor(private lookupCache: LookupCache,
-                private vortexService: VortexService,
-                private vortexStatusService: VortexStatusService,
-                storageFactory: TupleStorageFactoryService) {
-        this.storage = storageFactory.create(
-            new TupleOfflineStorageNameService(gridCacheStorageName)
-        );
-        this.storage.open()
-            .catch(e => console.log(`Failed to open grid cache db ${e}`));
+                private gridLoader: GridLoaderA) {
 
         // Services don't have destructors, I'm not sure how to unsubscribe.
-        this.vortexService.createEndpointObservable(
-            this.lifecycleEmitter,
-            clientGridWatchUpdateFromDeviceFilt)
-            .subscribe((payload: Payload) => this.processGridsFromServer(payload));
-
-        // If the vortex service comes back online, update the watch grids.
-        this.vortexStatusService.isOnline
-            .filter(isOnline => isOnline == true)
+        this.gridLoader.observable
             .takeUntil(this.lifecycleEmitter.onDestroyEvent)
-            .subscribe(() => this.updateWatchedGrids(this.lastWatchedGridKeys));
+            .subscribe((tuples:GridTuple[]) => this.processGridUpdates(tuples));
+
     }
 
     isReady(): boolean {
-        return this.storage.isOpen();
+        return this.gridLoader.isReady();
     }
 
-    get observable(): Subject<LinkedGrid> {
+    get observable(): Observable<LinkedGrid> {
         return this.updatesObservable;
     }
 
@@ -157,7 +94,7 @@ export class GridCache {
      * Change the list of grids that the GridObserver is interested in.
      */
     updateWatchedGrids(gridKeys: string[]): void {
-        this.lastWatchedGridKeys = gridKeys;
+        this.gridLoader.watchGrids(gridKeys);
 
         // Rotate the grid cache
         let latestCache = this.rotateCache(gridKeys);
@@ -183,15 +120,7 @@ export class GridCache {
         }
 
         // Query the local storage for the grids we don't have in the cache
-        this.queryStorageGrids(gridsToGetFromStorage)
-            .then((gridTuples: GridTuple[]) => {
-                // Now that we have the results from the local storage,
-                // we can send to the server.
-                for (let gridTuple of gridTuples)
-                    updateTimeByGridKey[gridTuple.gridKey] = gridTuple.lastUpdate;
-
-                this.sendWatchedGridsToServer(updateTimeByGridKey);
-            });
+        this.gridLoader.loadGrids(updateTimeByGridKey, gridsToGetFromStorage);
 
 
     }
@@ -241,78 +170,6 @@ export class GridCache {
     }
 
 
-    //
-    private sendWatchedGridsToServer(updateTimeByGridKey: { [gridKey: string]: string }) {
-        // There is no point talking to the server if it's offline
-        if (!this.vortexStatusService.snapshot.isOnline)
-            return;
-
-        let payload = new Payload(clientGridWatchUpdateFromDeviceFilt);
-        payload.tuples = [updateTimeByGridKey];
-        this.vortexService.sendPayload(payload);
-    }
-
-
-    /** Process Grids From Server
-     *
-     * Process the grids the server has sent us.
-     */
-    private processGridsFromServer(payload: Payload) {
-        let gridTuples: GridTuple[] = <GridTuple[]>payload.tuples;
-
-        // Decompress the grid data.
-        for (let gridTuple of gridTuples) {
-            console.log(`Received grid update ${gridTuple.gridKey} from server`);
-            try {
-                gridTuple.dispJsonStr = pako.inflate(gridTuple.blobData, {to: 'string'});
-            } catch (e) {
-                console.error(e.toString());
-            }
-            gridTuple.blobData = null;
-        }
-
-        this.processGridUpdates(gridTuples);
-        this.storeGridTuples(gridTuples);
-    }
-
-    /** Query Storage Grids
-     *
-     * Load grids from local storage if they exist in it.
-     *
-     */
-    private queryStorageGrids(gridKeys: string[]): Promise<GridTuple[]> {
-        let retPromise: any = this.storage.transaction(false)
-            .then((tx) => {
-                let promises = [];
-                //noinspection JSMismatchedCollectionQueryUpdate
-                let gridTuples: GridTuple[] = [];
-
-                for (let gridKey of gridKeys) {
-                    promises.push(
-                        tx.loadTuples(new GridKeyTupleSelector(gridKey))
-                            .then((grids: GridTuple[]) => {
-                                // Length should be 0 or 1
-                                if (!grids.length)
-                                    return;
-                                gridTuples.push(grids[0]);
-                                this.processGridUpdates(grids);
-                            })
-                    );
-                }
-
-                return Promise.all(promises)
-                    .then(() => {
-                        // Asynchronously close the transaction
-                        tx.close()
-                            .catch(e => console.log(`GridCache.queryStorageGrids commit:${e}`));
-                        // Return the grid tuples.
-                        return gridTuples;
-                    });
-            });
-        return retPromise;
-
-    }
-
     /** Process Grid Updates
      *
      */
@@ -320,6 +177,14 @@ export class GridCache {
         let latestCache = this.cacheQueue[0];
 
         for (let gridTuple of gridTuples) {
+
+            try {
+                gridTuple.dispJsonStr = pako.inflate(gridTuple.blobData, {to: 'string'});
+            } catch (e) {
+                console.log(e.toString());
+            }
+            gridTuple.blobData = null;
+
             let cachedLinkedGrid = latestCache[gridTuple.gridKey];
 
             // If the cache is newer, ignore the update
@@ -342,28 +207,6 @@ export class GridCache {
             this.updatesObservable.next(linkedGrid);
         }
 
-    }
-
-    /** Store Grid Tuples
-     * This is called with grids from the server, store them for later.
-     */
-    private storeGridTuples(gridTuples: GridTuple[]): Promise<void> {
-        let retPromise: any = this.storage.transaction(true)
-            .then((tx) => {
-
-                let promises = [];
-
-                for (let gridTuple of gridTuples) {
-                    promises.push(
-                        tx.saveTuples(new GridKeyTupleSelector(gridTuple.gridKey), [gridTuple])
-                    );
-                }
-
-                return Promise.all(promises)
-                    .then(() => tx.close())
-                    .catch(e => console.log(`GridCache.storeGridTuples: ${e}`));
-            });
-        return retPromise;
     }
 
 }

@@ -24,7 +24,6 @@ export class TupleStorageFactoryServiceBridgeWeb extends TupleStorageFactoryServ
 
     createActionStorage(): TupleActionStorageServiceABC {
         throw new Error("Action storage not implemented yet");
-                // return new TupleActionStorageWebSqlService();
     }
 }
 

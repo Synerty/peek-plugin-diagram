@@ -4,6 +4,7 @@ import {NgModule} from "@angular/core";
 import {PeekModuleFactory} from "@synerty/peek-util/index.web";
 // Import the required classes from VortexJS
 import {
+    TupleActionPushOfflineSingletonService,
     TupleActionPushNameService,
     TupleActionPushOfflineService,
     TupleActionPushService,
@@ -22,7 +23,7 @@ import {
 } from "@peek/peek_plugin_diagram/_private/PluginNames";
 // Import global modules, for example, the canvas extensions.
 import "./canvas/PeekCanvasExtensions.web";
-import {GridLoader} from "./cache/GridLoader.web";
+import {GridLoader} from "./cache/GridLoader";
 import {GridCache} from "./cache/GridCache.web";
 import {GridObservable} from "./cache/GridObservable.web";
 import {LookupCache} from "./cache/LookupCache.web";
@@ -33,24 +34,11 @@ import {CanvasComponent} from "./canvas-component/canvas-component.web";
 import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {PrivateDiagramLocationIndexService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLocationIndexService";
 import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
-import {PrivateDiagramTupleService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {LayerComponent} from "./layer-component/layer.component.web";
+import {GridLoaderBridgeWeb} from "../service-bridge/GridLoaderBridgeWeb";
 
-export function tupleActionPushNameServiceFactory() {
-    return new TupleActionPushNameService(
-        diagramActionProcessorName, diagramFilt);
-}
-
-export function tupleDataObservableNameServiceFactory() {
-    return new TupleDataObservableNameService(
-        diagramObservableName, diagramFilt);
-}
-
-export function tupleOfflineStorageNameServiceFactory() {
-    return new TupleOfflineStorageNameService(diagramTupleOfflineServiceName);
-}
 
 // Define the root module for this plugin.
 // This module is loaded by the lazy loader, what ever this defines is what is started.
@@ -64,9 +52,7 @@ export function tupleOfflineStorageNameServiceFactory() {
         CanvasComponent
     ],
     providers: [
-        PrivateDiagramTupleService,
         PrivateDiagramCoordSetService,
-        GridLoader,
         GridCache,
         LookupCache,
         DispGroupCache,

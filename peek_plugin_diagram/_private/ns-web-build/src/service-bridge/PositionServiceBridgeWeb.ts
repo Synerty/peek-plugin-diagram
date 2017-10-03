@@ -1,4 +1,7 @@
-import {DiagramPositionService, DiagramPositionI} from "@peek/peek_plugin_diagram/DiagramPositionService";
+import {
+    DiagramPositionService,
+    PositionUpdatedI
+} from "@peek/peek_plugin_diagram/DiagramPositionService";
 
 import {
     DiagramPositionI,
@@ -33,6 +36,12 @@ export class PositionServiceBridgeWeb {
             }
         );
 
+        lifeCycleEvents.onDestroyEvent
+            .subscribe(() => {
+                this.iface.off('positionSubject');
+                this.iface.off('positionByCoordSetObservable');
+            });
+
         // Send events from the <webview> side to the nativescript side service
         positionService.isReadyObservable()
             .takeUntil(lifeCycleEvents.onDestroyEvent)
@@ -44,15 +53,15 @@ export class PositionServiceBridgeWeb {
         // Send events from the <webview> side to the nativescript side service
         positionService.positionUpdatedObservable()
             .takeUntil(lifeCycleEvents.onDestroyEvent)
-            .subscribe((val) => {
-                console.log(`WEB: Sending positionUpdated ${val}`);
+            .subscribe((val: PositionUpdatedI) => {
+                console.log(`WEB: Sending positionUpdated`);
                 iface.emit("positionUpdated", val);
             });
 
         // Send events from the <webview> side to the nativescript side service
         positionService.titleUpdatedObservable()
             .takeUntil(lifeCycleEvents.onDestroyEvent)
-            .subscribe((val:string) => {
+            .subscribe((val: string) => {
                 console.log(`WEB: Sending titleUpdatedSubject ${val}`);
                 iface.emit("titleUpdatedSubject", val);
             });

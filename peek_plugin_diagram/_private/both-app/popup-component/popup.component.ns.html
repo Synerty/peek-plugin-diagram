@@ -10,8 +10,7 @@
         </Button>
     </GridLayout>
 
-    <ScrollView row="1" col="0"
-                class="m-10">
+    <ScrollView row="1" col="0" class="m-10">
         <StackLayout>
 
             <Label [text]="dispKey"></Label>
@@ -34,9 +33,9 @@
                                     rows="auto" columns="2*, 3*">
                             <!-- Details -->
                             <Label row="0" col="0"
-                                   [text]="item.title"></Label>
+                                   [text]="detail.title"></Label>
                             <Label row="0" col="1"
-                                   [text]="item.value"></Label>
+                                   [text]="detail.value"></Label>
 
                         </GridLayout>
                     </StackLayout>
@@ -55,7 +54,7 @@
                 <StackLayout class="btn-group ">
                     <Button *ngFor="let item of menuItems"
                             class="fa dialog-action-btn"
-                            [text]="(item.icon | fonticon) + item.name"
+                            [text]="(('fa' + item.icon) | fonticon) + item.name"
                             (tap)="menuItemClicked(item)">
 
                     </Button>

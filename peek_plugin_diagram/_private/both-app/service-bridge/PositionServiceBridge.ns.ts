@@ -1,5 +1,5 @@
 import {NgZone} from "@angular/core";
-import {DiagramPositionService, DiagramPositionI} from "@peek/peek_plugin_diagram/DiagramPositionService";
+import {DiagramPositionService, PositionUpdatedI} from "@peek/peek_plugin_diagram/DiagramPositionService";
 
 import {
     DiagramPositionI,
@@ -48,8 +48,8 @@ export class PositionServiceBridgeNs {
         // Listen for calls from the <webview> site
         this.iface.on(
             'positionUpdated',
-            (val: DiagramPositionI) => {
-                console.log(`NS: Received positionUpdated event ${val}`);
+            (val: PositionUpdatedI) => {
+                console.log(`NS: Received positionUpdated event`);
                 this.zone.run(() => {
                     positionService.positionUpdated(val);
                 });
@@ -66,6 +66,14 @@ export class PositionServiceBridgeNs {
                 });
             }
         );
+
+
+        lifeCycleEvents.onDestroyEvent
+            .subscribe(() => {
+                // this.iface.off('positionUpdated');
+                // this.iface.off('titleUpdatedSubject');
+                // this.iface.off('isReadySubject');
+            });
 
     }
 

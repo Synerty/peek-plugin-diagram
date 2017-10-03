@@ -25,7 +25,7 @@ import {
 // Import global modules, for example, the canvas extensions.
 import "./canvas/PeekCanvasExtensions.web";
 // import {DisplayCanvasSplashScreen} from "./loading-splash/loading-splash.service";
-import {GridLoader} from "./cache/GridLoader.web";
+import {GridLoader, GridLoaderA} from "./cache/GridLoader";
 import {GridCache} from "./cache/GridCache.web";
 import {GridObservable} from "./cache/GridObservable.web";
 import {LookupCache} from "./cache/LookupCache.web";
@@ -47,19 +47,7 @@ import {PopupComponent} from "./popup-component/popup.component.mweb";
 import {ToolbarComponent} from "./toolbar-component/toolbar.component.web";
 import {LayerComponent} from "./layer-component/layer.component.web";
 
-export function tupleActionPushNameServiceFactory() {
-    return new TupleActionPushNameService(
-        diagramActionProcessorName, diagramFilt);
-}
 
-export function tupleDataObservableNameServiceFactory() {
-    return new TupleDataObservableNameService(
-        diagramObservableName, diagramFilt);
-}
-
-export function tupleOfflineStorageNameServiceFactory() {
-    return new TupleOfflineStorageNameService(diagramTupleOfflineServiceName);
-}
 
 // Define the root module for this plugin.
 // This module is loaded by the lazy loader, what ever this defines is what is started.
@@ -74,13 +62,14 @@ export function tupleOfflineStorageNameServiceFactory() {
         CanvasComponent
     ],
     providers: [
-        GridLoader,
+        {
+            provide:GridLoaderA,
+            useClass:GridLoader
+        },
         GridCache,
         LookupCache,
         DispGroupCache,
-        GridObservable,
-
-
+        GridObservable
     ],
     declarations: [DiagramComponent, CanvasComponent, PopupComponent, ToolbarComponent, LayerComponent]
 })

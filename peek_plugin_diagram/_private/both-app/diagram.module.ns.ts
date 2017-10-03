@@ -54,6 +54,7 @@ import {
 import {CanvasComponent} from "./canvas-component/canvas.component.ns";
 import {PopupComponent} from "./popup-component/popup.component.ns";
 import {ToolbarComponent} from "./toolbar-component/toolbar.component.ns";
+import {GridLoader, GridLoaderA} from "./cache/GridLoader";
 
 
 
@@ -69,7 +70,10 @@ import {ToolbarComponent} from "./toolbar-component/toolbar.component.ns";
     ],
     exports: [DiagramComponent],
     providers: [
-
+        {
+            provide:GridLoaderA,
+            useClass:GridLoader
+        }
     ],
     declarations: [DiagramComponent, CanvasComponent, PopupComponent, ToolbarComponent]
 })
