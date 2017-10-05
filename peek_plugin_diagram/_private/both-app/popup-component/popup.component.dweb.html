@@ -35,14 +35,16 @@
         </p>
 
         <div *ngIf="!noMenuItems()" class="mobile-dialog">
+            <div *ngFor="let item of menuItems">
 
-            <div class="btn-group ">
-                <Button *ngFor="let item of menuItems"
-                        class="dialog-action-btn" (click)="menuItemClicked(item)">
-                    <fa *ngIf="item.icon != null" [name]="item.icon"></fa>
-                    {{item.name}}
-                </Button>
-
+                <div class="btn-group ">
+                    <Button
+                            class="dialog-action-btn" (click)="menuItemClicked(item)">
+                        <fa *ngIf="item.icon != null" [name]="item.icon"></fa>
+                        {{item.name}}
+                    </Button>
+                </div>
+                <br>
             </div>
         </div>
     </div><!-- /.panel-dialog -->

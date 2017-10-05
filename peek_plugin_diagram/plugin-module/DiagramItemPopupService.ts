@@ -25,6 +25,7 @@ export interface DiagramMenuItemI {
     icon: string | null;
     callback: DiagramMenuItemCallbackI | null;
     children: DiagramMenuItemI[];
+    closeOnCallback?: boolean;
 }
 
 /** Diagram Item Detail Interface

@@ -75,7 +75,7 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
                     },
                     addDetailItems: (items: DiagramItemDetailI[]) => {
                         this.zone.run(() => this.details.add(items));
-                    },
+                    }
                 }
             );
 
@@ -103,6 +103,8 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
         } else {
             item.callback();
         }
+        if (item.closeOnCallback)
+            this.closePopup();
     }
 
     noMenuItems():boolean {

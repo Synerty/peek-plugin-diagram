@@ -52,12 +52,13 @@
 
             <StackLayout class="mobile-dialog" *ngIf="!noMenuItems()">
                 <StackLayout class="btn-group ">
-                    <Button *ngFor="let item of menuItems"
-                            class="fa dialog-action-btn"
-                            [text]="(('fa' + item.icon) | fonticon) + item.name"
-                            (tap)="menuItemClicked(item)">
+                    <ng-template *ngFor="let item of menuItems">
+                        <Button class="fa dialog-action-btn"
+                                [text]="(('fa' + item.icon) | fonticon) + item.name"
+                                (tap)="menuItemClicked(item)">
 
-                    </Button>
+                        </Button>
+                    </ng-template>
                 </StackLayout>
             </StackLayout>
         </StackLayout>
