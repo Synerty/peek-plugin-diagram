@@ -1,7 +1,7 @@
 import {addTupleType, Tuple} from "@synerty/vortexjs";
 import {diagramTuplePrefix} from "../PluginNames";
 import {ModelCoordSetGridSize} from "./ModelCoordSetGridSize";
-import {PeekCanvasBounds} from "peek_plugin_diagram/canvas/PeekCanvasBounds";
+import {PeekCanvasBounds} from "../PeekCanvasBounds";
 
 
 @addTupleType
