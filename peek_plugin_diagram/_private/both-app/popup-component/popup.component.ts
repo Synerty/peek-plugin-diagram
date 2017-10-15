@@ -67,7 +67,7 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
         this.itemPopupService.emitPopupContext(
                 {
                     key: this.dispKey,
-                    data: itemDetails.dispData,
+                    data: itemDetails.dispData || {},
                     coordSetKey: this.coordSetKey,
                     modelSetKey: this.modelSetKey,
                     addMenuItem: (item: DiagramMenuItemI) => {
