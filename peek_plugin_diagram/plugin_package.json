@@ -1,6 +1,6 @@
 {
     "plugin": {
-        "title": "Network Diagram",
+        "title": "Diagram",
         "packageName": "peek_plugin_diagram",
     "version":"0.7.6.3",
         "buildNumber": "#PLUGIN_BUILD#",
