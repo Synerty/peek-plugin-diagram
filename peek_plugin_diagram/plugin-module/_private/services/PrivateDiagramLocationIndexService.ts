@@ -334,6 +334,11 @@ export class LocationIndex {
      *
      */
     getLocations(dispKey: string): Promise<DispKeyLocationTuple[]> {
+        if (dispKey == null || dispKey.length == 0) {
+            let val :DispKeyLocationTuple[] = [];
+            return Promise.resolve(val);
+        }
+
         let indexBucket = dispKeyHashBucket(this.modelSetKey, dispKey);
 
         if (!this.indexBucketUpdateDates.hasOwnProperty(indexBucket)) {
