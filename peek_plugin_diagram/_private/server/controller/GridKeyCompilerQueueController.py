@@ -34,7 +34,7 @@ class GridKeyCompilerQueueController:
     PERIOD = 0.200
 
     QUEUE_MAX = 30
-    QUEUE_MIN = 5
+    QUEUE_MIN = 10
 
     def __init__(self, ormSessionCreator,
                  statusController: StatusController,
