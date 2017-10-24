@@ -51,8 +51,8 @@ export class GridLoaderBridgeNs  {
 
         this.lifeCycleEvents.onDestroyEvent
             .subscribe(() => {
-                this.iface.off('GridLoaderBridge_loadGrids');
-                this.iface.off('GridLoaderBridge_watchGrids');
+                // this.iface.off('GridLoaderBridge_loadGrids');
+                // this.iface.off('GridLoaderBridge_watchGrids');
             });
 
     }
