@@ -222,7 +222,7 @@ class DispBase(Tuple, DeclarativeBase):
 
     importUpdateDate = Column(DateTime, doc=JSON_EXCLUDE)
     importHash = Column(String(100), doc=JSON_EXCLUDE)
-    importGroupHash = Column(String(100), doc=JSON_EXCLUDE)
+    importGroupHash = Column(String(200), doc=JSON_EXCLUDE)
     importLiveDbDispLinks = TupleField([])
 
     liveDbLinks = relationship("LiveDbDispLink")
