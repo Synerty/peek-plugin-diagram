@@ -257,7 +257,7 @@ class DispText(DispBase):
     verticalAlign = Column(Integer, doc='va', nullable=False, server_default='-1')
     horizontalAlign = Column(Integer, doc='ha', nullable=False, server_default='0')
     rotation = Column(Float, doc='r', nullable=False, server_default='0')
-    text = Column(String(1000), doc='te', nullable=False, server_default="new text label")
+    text = Column(String, doc='te', nullable=True, server_default="new text label")
     textFormat = Column(String(1000), doc=JSON_EXCLUDE, nullable=True)
 
     textHeight = Column(Float, doc='th', nullable=True)

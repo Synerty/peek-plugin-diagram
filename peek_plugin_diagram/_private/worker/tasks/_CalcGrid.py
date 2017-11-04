@@ -13,11 +13,16 @@ logger = logging.getLogger(__name__)
 
 def makeGridKeys(coordSet: ModelCoordSet,
                  disp, geomJson,
-                 textStyleById: Dict[int, DispTextStyle]):
+                 textStyleById: Dict[int, DispTextStyle]) -> List[str]:
     points = geomJson
 
     if geomJson is None:
         logger.critical("geomJson is None : %s ", disp)
+        return []
+
+    # If it's a text shape with no text, ignore it
+    if isinstance(disp, DispText) and not disp.text:
+        return []
 
     gridKeys = []
     for gridSize in coordSet.gridSizes:

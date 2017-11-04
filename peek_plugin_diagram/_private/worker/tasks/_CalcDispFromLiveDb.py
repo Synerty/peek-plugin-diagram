@@ -21,12 +21,22 @@ def _mergeInLiveDbValue(disp, dispLink, liveDbItem, value=None):
     if value is None:
         value = liveDbItem.displayValue
 
-    # At least for colors :
+    # At least for colors and string :
     # If the color vale is None, set the attribute to None as well
     # At this stage we don't expect other data types to be None
     if value is None:
         keyType = LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR[dispLink.dispAttrName]
-        assert keyType == ImportLiveDbItemTuple.DATA_TYPE_COLOR
+
+        nullableTypes = (
+            ImportLiveDbItemTuple.DATA_TYPE_COLOR,
+            ImportLiveDbItemTuple.DATA_TYPE_STRING_VALUE
+        )
+
+        assert keyType in nullableTypes, (
+            "keyType |%s| is not DATA_TYPE_COLOR\n"
+            "==DISP LINK== %s\n"
+            "==LIVE DB ITEM== %s"% (keyType, dispLink, liveDbItem))
+
         setattr(disp, dispLink.dispAttrName, None)
         return
 
