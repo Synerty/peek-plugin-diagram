@@ -168,12 +168,6 @@ export class LocationIndex {
                 private coordSetService:PrivateDiagramCoordSetService) {
 
         this.initialLoad();
-
-        this.vortexStatusService
-            .isOnline
-            .takeUntil(this.lifecycleEmitter.onDestroyEvent)
-            .filter((val) => val)
-            .subscribe(() => this.askServerForUpdates());
     }
 
     isReady(): boolean {
@@ -222,6 +216,7 @@ export class LocationIndex {
             .filter(isOnline => isOnline == true)
             .takeUntil(this.lifecycleEmitter.onDestroyEvent)
             .subscribe(() => this.askServerForUpdates());
+
     }
 
 
