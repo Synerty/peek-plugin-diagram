@@ -51,4 +51,13 @@ export abstract class DiagramToolbarService {
                            coordSetKey: string | null,
                            toolButton: DiagramToolButtonI);
 
+
+    /** Set Exit Diagram Callback
+     *
+     * Set a callable that is called when the exit diagram button is clicked / tapped.
+     *
+     * @param callable
+     */
+    abstract setExitDiagramCallback(modelSetKey: string, callable: any): void;
+
 }

@@ -1,14 +1,18 @@
 <GridLayout rows="auto, *" columns="auto">
-    <GridLayout rows="auto" columns="auto, *">
+    <GridLayout rows="auto" columns="auto, auto, *">
         <button row="0" col="0"
                 class="fa open-close-button btn"
                 (tap)="nsToggleToolbar()"
                 [text]="(toolbarIsOpen ? 'fa-times' : 'fa-navicon') | fonticon">
         </button>
+        <button *ngIf="showExitDiagramButton()"
+                row="0" col="1"
+                class="fa open-close-button btn"
+                (tap)="exitDiagramClicked()"
+                [text]=" 'fa-sign-out' | fonticon">
+        </button>
     </GridLayout>
-    <GridLayout class="toolbar"
-                *ngIf="toolbarIsOpen"
-                row="1" col="0">
+    <GridLayout class="toolbar" *ngIf="toolbarIsOpen" row="1" col="0" colSpan="2">
         <ScrollView>
             <StackLayout [class.toolbar-is-open]="toolbarIsOpen"
                          [class.toolbar-is-closed]="!toolbarIsOpen">
