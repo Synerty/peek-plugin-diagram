@@ -4,8 +4,7 @@
 
     <div *ngFor="let btn of buttons">
         <div>
-            <button
-                    class="btn tool-button"
+            <button class="btn tool-button"
                     (click)="buttonClicked(btn)">
                 <fa *ngIf="btn.icon" [name]="btn.icon"></fa>
                 {{btn.name}}
@@ -14,10 +13,17 @@
     </div>
 
 </div>
-<div>
-    <button class="open-close-button btn"
+<div class="open-close-button">
+    <button class="btn"
             (click)="toggleToolbar()">
         <fa *ngIf="!toolbarIsOpen" name="navicon"></fa>
         <fa *ngIf="toolbarIsOpen" name="times"></fa>
     </button>
+    <button class="btn"
+            *ngIf="showExitDiagramButton()"
+            (click)="exitDiagramClicked()">
+        <fa name="sign-out"></fa>
+    </button>
 </div>
+
+

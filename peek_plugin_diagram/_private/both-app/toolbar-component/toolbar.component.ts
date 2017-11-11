@@ -58,8 +58,7 @@ export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
     }
 
     buttonClicked(btn: DiagramToolButtonI): void {
-        if (btn.callback != null
-        ) {
+        if (btn.callback != null) {
             btn.callback();
         }
         else {
@@ -70,6 +69,15 @@ export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
 
     toggleToolbar(): void {
         this.toolbarIsOpen = !this.toolbarIsOpen;
+    }
+
+    showExitDiagramButton(): boolean {
+        return this.toolbarService.exitDiagramCallable(this.modelSetKey) != null;
+    }
+
+    exitDiagramClicked(): void {
+        let callable = this.toolbarService.exitDiagramCallable(this.modelSetKey);
+        return callable();
     }
 
 

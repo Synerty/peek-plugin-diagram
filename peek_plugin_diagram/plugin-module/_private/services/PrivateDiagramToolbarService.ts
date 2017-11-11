@@ -10,6 +10,7 @@ export class PrivateDiagramToolbarService extends DiagramToolbarService {
 
     private _toolButtonsUpdatedSubject = new Subject<DiagramToolButtonI[]>();
 
+    private _exitDiagramCallable = {};
 
     constructor() {
         super();
@@ -25,6 +26,15 @@ export class PrivateDiagramToolbarService extends DiagramToolbarService {
                   toolButton: DiagramToolButtonI) {
         this.toolButtons.push(toolButton);
         this._toolButtonsUpdatedSubject.next(this.toolButtons);
+    }
+
+
+    exitDiagramCallable(modelSetKey: string): any | null {
+        return this._exitDiagramCallable[modelSetKey];
+    }
+
+    setExitDiagramCallback(modelSetKey: string, callable: any): void {
+        this._exitDiagramCallable[modelSetKey] = callable;
     }
 
 }
