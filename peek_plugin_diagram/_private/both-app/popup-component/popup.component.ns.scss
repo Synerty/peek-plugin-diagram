@@ -2,6 +2,9 @@
 
 
 .modal-backdrop {
-  //background-color: $primary_dark;
-  //text-color: blue;
+  margin: $general_margin_1;
+  background-color: $white;
+  text-color: $black;
+  font-size: $general_font_size_4;
+  border-radius: $general_border_radius;
 }
