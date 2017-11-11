@@ -32,7 +32,7 @@ class ClientGridLoaderRpc:
         logger.debug("RPCs started")
 
     # -------------
-    @vortexRPC(peekServerName, acceptOnlyFromVortex=peekClientName,timeoutSeconds=60,
+    @vortexRPC(peekServerName, acceptOnlyFromVortex=peekClientName,timeoutSeconds=120,
                additionalFilt=diagramFilt, deferToThread=True)
     def loadGrids(self, offset: int, count: int) -> List[GridTuple]:
         """ Update Page Loader Status
