@@ -1,19 +1,25 @@
 <GridLayout *ngIf="popupShown"
-            class="modal-backdrop"
-            rows="auto, *" cols="*">
-    <GridLayout rows="auto" cols="*, auto"
+            rows="auto, *" columns="*"
+            class="modal-backdrop">
+    <GridLayout rows="auto" columns="auto, *, auto"
                 row="0" col="0">
-        <Button row="0" col="1"
+
+        <Label row="0" col="0"
+               [text]="dispKey"
+               class="m-10">
+        </Label>
+
+        <Button row="0" col="2"
                 class="fa btn"
                 [text]="'fa-times' | fonticon"
                 (tap)="closePopup()">
         </Button>
+
     </GridLayout>
 
-    <ScrollView row="1" col="0" class="m-10">
+    <ScrollView row="1" col="0"
+                class="m-10">
         <StackLayout>
-
-            <Label [text]="dispKey"></Label>
 
             <!-- Details -------- -->
             <Label class="hr"></Label>
@@ -63,4 +69,5 @@
             </StackLayout>
         </StackLayout>
     </ScrollView>
+
 </GridLayout>
