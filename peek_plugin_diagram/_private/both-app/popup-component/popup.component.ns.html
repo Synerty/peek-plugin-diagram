@@ -34,18 +34,25 @@
                         <Label class="th" row="0" col="1" text="Value"></Label>
                     </GridLayout>
 
-                    <StackLayout>
-                        <GridLayout *ngFor="let detail of details"
-                                    rows="auto" columns="2*, 3*">
-                            <!-- Details -->
-                            <Label row="0" col="0"
-                                   [text]="detail.title"></Label>
-                            <Label row="0" col="1"
-                                   [text]="detail.value"></Label>
+                    <GridLayout rows="*" columns="*">
+                        <ListView class="td"
+                                  [items]="details">
+                            <ng-template let-item="item" let-i="index" let-odd="odd" let-even="even">
+                                <StackLayout
+                                        [class.odd]="odd" [class.even]="even">
+                                    <GridLayout rows="auto" columns="2*, 3*">
+                                        <!-- Details -->
+                                        <Label row="0" col="0"
+                                               [text]="item.title"></Label>
+                                        <Label row="0" col="1"
+                                               textWrap="true"
+                                               [text]="item.value"></Label>
 
-                        </GridLayout>
-                    </StackLayout>
-
+                                    </GridLayout>
+                                </StackLayout>
+                            </ng-template>
+                        </ListView>
+                    </GridLayout>
                 </StackLayout>
             </StackLayout>
 
