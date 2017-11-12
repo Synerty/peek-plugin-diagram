@@ -70,9 +70,16 @@
                     <StackLayout>
                         <GridLayout rows="auto" columns="auto, *"
                                     class="btn-group">
-                            <Button row="0" col="0"
+                            <Button *ngIf="item.icon != null"
+                                    row="0" col="0"
                                     class="fa btn"
-                                    [text]="(('fa' + item.icon) | fonticon) + item.name"
+                                    [text]="('fa-' + item.icon | fonticon) + ' ' + item.name"
+                                    (tap)="menuItemClicked(item)">
+                            </Button>
+                            <Button *ngIf="item.icon == null"
+                                    row="0" col="0"
+                                    class="btn"
+                                    [text]="item.name"
                                     (tap)="menuItemClicked(item)">
                             </Button>
                         </GridLayout>
