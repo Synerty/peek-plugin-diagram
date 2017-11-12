@@ -19,75 +19,73 @@
     </GridLayout>
 
     <!-- contents -->
-    <ScrollView row="1" col="0">
-        <GridLayout rows="2*, 3*" columns="*">
+    <GridLayout row="1" col="0"
+                rows="2*, 3*" columns="*">
 
-            <!-- Details -------- -->
-            <StackLayout *ngIf="!noDetails()"
-                         row="0" col="0"
-                         class="peek-tables-section">
-                <StackLayout class="table">
-                    <GridLayout class="tr" rows="auto" columns="2*, 3*">
-                        <Label class="th p-l-10 p-r-10" row="0" col="0" text="Property"></Label>
-                        <Label class="th" row="0" col="1" text="Value"></Label>
-                    </GridLayout>
+        <!-- Details -------- -->
+        <StackLayout *ngIf="!noDetails()"
+                     row="0" col="0"
+                     class="peek-tables-section">
+            <StackLayout class="table">
+                <GridLayout class="tr" rows="auto" columns="2*, 3*">
+                    <Label class="th p-l-10 p-t-10 p-b-10" row="0" col="0" text="Property"></Label>
+                    <Label class="th p-r-10 p-t-10 p-b-10" row="0" col="1" text="Value"></Label>
+                </GridLayout>
 
-                    <GridLayout rows="*" columns="*"
-                                class="p-l-10 p-r-10">
-                        <ListView class="td"
-                                  [items]="details">
-                            <ng-template let-item="item" let-i="index" let-odd="odd" let-even="even">
-                                <StackLayout
-                                        [class.odd]="odd" [class.even]="even">
-                                    <GridLayout rows="auto" columns="2*, 3*">
-                                        <!-- Details -->
-                                        <Label row="0" col="0"
-                                               [text]="item.title"></Label>
-                                        <Label row="0" col="1"
-                                               textWrap="true"
-                                               [text]="item.value"></Label>
+                <GridLayout rows="auto" columns="*"
+                            class="p-l-10 p-r-10">
+                    <ListView class="td"
+                              [items]="details">
+                        <ng-template let-item="item" let-i="index" let-odd="odd" let-even="even">
+                            <StackLayout
+                                    [class.odd]="odd" [class.even]="even">
+                                <GridLayout rows="auto" columns="2*, 3*">
+                                    <!-- Details -->
+                                    <Label row="0" col="0"
+                                           [text]="item.title"></Label>
+                                    <Label row="0" col="1"
+                                           textWrap="true"
+                                           [text]="item.value"></Label>
 
-                                    </GridLayout>
-                                </StackLayout>
-                            </ng-template>
-                        </ListView>
-                    </GridLayout>
-                </StackLayout>
+                                </GridLayout>
+                            </StackLayout>
+                        </ng-template>
+                    </ListView>
+                </GridLayout>
             </StackLayout>
+        </StackLayout>
 
-            <Label *ngIf="noDetails()"
-                   row="0" col="0"
-                   text="There are no details for this item.">
-            </Label>
+        <Label *ngIf="noDetails()"
+               row="0" col="0"
+               text="There are no details for this item.">
+        </Label>
 
-            <!-- Menu -------- -->
-            <GridLayout *ngIf="!noMenuItems()"
-                        row="1" col="0"
-                        rows="*" columns="*"
-                        class="mobile-dialog">
-                <ListView row="0" col="0"
-                          [items]="menuItems">
-                    <ng-template let-item="item">
-                        <StackLayout>
-                            <GridLayout rows="auto" columns="auto, *"
-                                        class="btn-group">
-                                <Button row="0" col="0"
-                                        class="fa btn"
-                                        [text]="(('fa' + item.icon) | fonticon) + item.name"
-                                        (tap)="menuItemClicked(item)">
-                                </Button>
-                            </GridLayout>
-                        </StackLayout>
-                    </ng-template>
-                </ListView>
-            </GridLayout>
-
-            <Label *ngIf="noMenuItems()"
-                   row="1" col="0"
-                   text="There are no actions for this item.">
-            </Label>
-
+        <!-- Menu -------- -->
+        <GridLayout *ngIf="!noMenuItems()"
+                    row="1" col="0"
+                    rows="*" columns="*">
+            <ListView row="0" col="0"
+                      [items]="menuItems">
+                <ng-template let-item="item">
+                    <StackLayout>
+                        <GridLayout rows="auto" columns="auto, *"
+                                    class="btn-group">
+                            <Button row="0" col="0"
+                                    class="fa btn"
+                                    [text]="(('fa' + item.icon) | fonticon) + item.name"
+                                    (tap)="menuItemClicked(item)">
+                            </Button>
+                        </GridLayout>
+                    </StackLayout>
+                </ng-template>
+            </ListView>
         </GridLayout>
-    </ScrollView>
+
+        <Label *ngIf="noMenuItems()"
+               row="1" col="0"
+               text="There are no actions for this item.">
+        </Label>
+
+    </GridLayout>
 
 </GridLayout>
