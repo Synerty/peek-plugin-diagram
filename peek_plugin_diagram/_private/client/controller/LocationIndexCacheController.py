@@ -67,6 +67,14 @@ class LocationIndexCacheController:
             locationIndexTuples = yield ClientLocationIndexLoaderRpc.loadLocationIndexes(offset, self.LOAD_CHUNK)
             if not locationIndexTuples:
                 break
+
+            for locationIndexTuple in locationIndexTuples:
+                locationIndexTuple.encodedThisTuple = yield Payload(
+                    tuples=[locationIndexTuple]
+                ).toVortexMsgDefer()
+
+                locationIndexTuple.blobData = None
+
             self._loadLocationIndexIntoCache(locationIndexTuples)
             offset += self.LOAD_CHUNK
 

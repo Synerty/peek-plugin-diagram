@@ -28,7 +28,6 @@ export class PrivateDiagramToolbarService extends DiagramToolbarService {
         this._toolButtonsUpdatedSubject.next(this.toolButtons);
     }
 
-
     exitDiagramCallable(modelSetKey: string): any | null {
         return this._exitDiagramCallable[modelSetKey];
     }

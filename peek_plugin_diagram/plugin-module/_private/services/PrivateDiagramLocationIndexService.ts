@@ -308,9 +308,9 @@ export class LocationIndex {
 
                 for (let locationIndexTuple of locationIndexTuples) {
                     promises.push(
-                        tx.saveTuples(
+                        tx.saveTuplesEncoded(
                             new LocationIndexTupleSelector(locationIndexTuple.indexBucket),
-                            [locationIndexTuple]
+                            locationIndexTuple.encodedThisTuple
                         )
                     );
                 }

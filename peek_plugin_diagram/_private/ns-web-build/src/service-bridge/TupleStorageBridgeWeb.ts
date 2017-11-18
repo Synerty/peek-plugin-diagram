@@ -13,7 +13,7 @@ export class TupleStorageBridgeWeb extends TupleStorageServiceABC {
 
     static promsById = {};
     static nextPromiseId = 1;
-    
+
     private static isInitialised = false;
 
     constructor(name: TupleOfflineStorageNameService) {
@@ -25,9 +25,9 @@ export class TupleStorageBridgeWeb extends TupleStorageServiceABC {
     private static initHandler(): void {
         if (TupleStorageBridgeWeb.isInitialised)
             return;
-        
+
         TupleStorageBridgeWeb.isInitialised = true;
-        
+
         let iface: any = window["nsWebViewInterface"];
         iface.on(
             'tupleStoragePromiseFinished',
@@ -111,6 +111,10 @@ class Transaction implements TupleStorageTransaction {
             this.iface.emit("saveTuples", argObj);
 
         });
+    }
+
+    saveTuplesEncoded(tupleSelector: TupleSelector, vortexMsg: string): Promise<void>  {
+        throw new Error("saveTuplesEncoded not implemented");
     }
 
     close(): Promise<void> {
