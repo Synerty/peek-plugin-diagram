@@ -69,7 +69,6 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
         this.onDestroyEvent
             .subscribe(() => this.oLangWebViewInterface.destroy());
 
-
         this.itemSelectServiceBridge = new ItemSelectServiceBridgeNs(
             this, this.zone, this.privateItemSelectService, this.oLangWebViewInterface
         );
@@ -89,9 +88,9 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
     }
 
     private webViewUrl(): string {
-        let url = `${this.enrolmentService.serverHttpUrl}/${diagramBaseUrl}/web_dist`;
+        // let url = `${this.enrolmentService.serverHttpUrl}/${diagramBaseUrl}/web_dist`;
+        let url = `~/assets/peek_plugin_diagram/www/index.html`;
         let wsVortexUrl = this.enrolmentService.serverWebsocketVortexUrl;
-        // let url = "http://10.211.55.14:4200";
         url += `?modelSetKey=${this.modelSetKey}`;
         url += `&vortexWsUrl=${wsVortexUrl}`;
         console.log(`Sending WebView to ${url}`);
