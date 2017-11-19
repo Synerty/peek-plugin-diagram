@@ -22,5 +22,8 @@ mv dist/* ${ASSET_DIR}/
 #TARGET='~/assets/peek_plugin_diagram/www/'
 #TARGET='/peek_plugin_diagram/web_dist/'
 
-sed -i 's,src=",src="/peek_plugin_diagram/web_dist/,g' $INDEX
-sed -i 's,href=",href="/peek_plugin_diagram/web_dist/,g' $INDEX
+#sed -i 's,src=",src="/peek_plugin_diagram/web_dist/,g' $INDEX
+#sed -i 's,href=",href="/peek_plugin_diagram/web_dist/,g' $INDEX
+
+sed -i 's,src=",src="./,g' $INDEX
+sed -i 's,href=",href="./,g' $INDEX
