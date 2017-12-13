@@ -102,16 +102,6 @@ class ClientEntryHook(PluginClientEntryHookABC):
         coordSetCacheController = CoordSetCacheController(serverTupleObserver)
         self._loadedObjects.append(coordSetCacheController)
 
-        # Create the Tuple Observer
-        tupleObservable = makeClientTupleDataObservableHandler(
-            tupleDataObservableProxyHandler,
-            coordSetCacheController, lookupCacheController
-        )
-        self._loadedObjects.append(tupleObservable)
-
-        lookupCacheController.setTupleObserable(tupleObservable)
-        coordSetCacheController.setTupleObserable(tupleObservable)
-
         # ----- Grid Cache Controller
         gridCacheController = GridCacheController(self.platform.serviceId)
         self._loadedObjects.append(gridCacheController)
@@ -124,6 +114,18 @@ class ClientEntryHook(PluginClientEntryHookABC):
         self._loadedObjects.append(gridCacheHandler)
 
         gridCacheController.setGridCacheHandler(gridCacheHandler)
+
+        # Create the Tuple Observer
+        tupleObservable = makeClientTupleDataObservableHandler(
+            tupleDataObservableProxyHandler,
+            coordSetCacheController,
+            gridCacheController,
+            lookupCacheController
+        )
+        self._loadedObjects.append(tupleObservable)
+
+        lookupCacheController.setTupleObserable(tupleObservable)
+        coordSetCacheController.setTupleObserable(tupleObservable)
         
         # ----- Location Index Cache Controller
 

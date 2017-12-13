@@ -10,6 +10,7 @@ import {
 } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 import {ToolbarComponentBase} from "./toolbar.component";
+import {GridLoaderA} from "../cache/GridLoader";
 
 
 @Component({
@@ -21,8 +22,9 @@ import {ToolbarComponentBase} from "./toolbar.component";
 export class ToolbarComponent extends ToolbarComponentBase {
 
     constructor(abstractToolbarService: DiagramToolbarService,
-                navBackService: NavBackService) {
-        super(abstractToolbarService, navBackService);
+                navBackService: NavBackService,
+                HACK_gridLoader: GridLoaderA) {
+        super(abstractToolbarService, navBackService, HACK_gridLoader);
 
     }
 

@@ -11,9 +11,15 @@ import {
     TupleStorageFactoryService,
     TupleStorageServiceABC,
     VortexService,
-    VortexStatusService
+    VortexStatusService,
+    Tuple,
+    addTupleType
 } from "@synerty/vortexjs";
 import {diagramFilt, gridCacheStorageName} from "@peek/peek_plugin_diagram/_private";
+import {GridCacheIndexTuple} from "../tuples/GridCacheIndexTuple";
+import {
+    PrivateDiagramTupleService
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
 
 
 let pako = require("pako");
@@ -66,12 +72,15 @@ export abstract class GridLoaderA {
 
     abstract observable: Observable<GridTuple[]>;
 
+    abstract cacheAll(): void;
+
     abstract watchGrids(gridKeys: string[]): void ;
 
-    abstract loadGrids(currentGridUpdateTimes:{ [gridKey: string]: string },
-              gridKeys: string[]): void ;
+    abstract loadGrids(currentGridUpdateTimes: { [gridKey: string]: string },
+                       gridKeys: string[]): void ;
 
 }
+
 
 // ----------------------------------------------------------------------------
 /** Grid Cache
@@ -101,8 +110,15 @@ export class GridLoader extends GridLoaderA {
     // The last set of keys requested from the GridObserver
     private lastWatchedGridKeys: string[] = [];
 
+    // All cached grid dates
+    private gridCacheIndex: GridCacheIndexTuple = new GridCacheIndexTuple();
+
+    // The queue of grids to cache
+    private cacheGridQueueChunks = [];
+
     constructor(private vortexService: VortexService,
                 private vortexStatusService: VortexStatusService,
+                private tupleService: PrivateDiagramTupleService,
                 storageFactory: TupleStorageFactoryService) {
         super();
 
@@ -110,6 +126,7 @@ export class GridLoader extends GridLoaderA {
             new TupleOfflineStorageNameService(gridCacheStorageName)
         );
         this.storage.open()
+            .then(() => this.loadGridCacheIndex())
             .then(() => this.isReadySubject.next(true))
             .catch(e => console.log(`Failed to open grid cache db ${e}`));
 
@@ -138,6 +155,78 @@ export class GridLoader extends GridLoaderA {
         return this.updatesObservable;
     }
 
+    /** Cache All Grids
+     *
+     * Cache all the grids from the server, into this device.
+     */
+    cacheAll(): void {
+        // There is no point talking to the server if it's offline
+        if (!this.vortexStatusService.snapshot.isOnline)
+            return;
+
+        this.tupleService
+            .tupleObserver
+            .pollForTuples(new TupleSelector(GridCacheIndexTuple.tupleName, {}))
+            .then((tuples: GridCacheIndexTuple[]) => {
+                if (!tuples.length)
+                    return;
+
+                let index = tuples[0];
+                // Break the grids to cache down into chunks
+                let allChunks = [];
+                let count = 0;
+                let thisChunk = {};
+
+                for (let key in index.data) {
+                    if (!index.data.hasOwnProperty(key))
+                        continue;
+
+                    count += 1;
+
+                    // Make sure we have the right dates for our index if it exists
+                    if (this.gridCacheIndex.data[key] != null)
+                        thisChunk[key] = this.gridCacheIndex.data[key];
+                    else
+                        thisChunk[key] = null;
+
+                    if (count == 5) {
+                        allChunks.push(thisChunk);
+                        count = 0;
+                        thisChunk = {};
+                    }
+                }
+                allChunks.push(thisChunk);
+                this.cacheGridQueueChunks = allChunks;
+
+
+                console.log(`Cacheing ${this.cacheGridQueueChunks.length} grid chunks`);
+                this.cacheRequestNextChunk();
+
+            })
+            .catch(e => console.log(`ERROR in cacheAll : ${e}`));
+
+
+    }
+
+    /** Cache Request Next Chunk
+     *
+     * Request the next chunk of grids from the server
+     */
+    private cacheRequestNextChunk() {
+        if (this.cacheGridQueueChunks.length == 0)
+            return;
+
+        console.log(`Cacheing next grid chunk, ${this.cacheGridQueueChunks.length} remaining`);
+
+        let nextChunk = this.cacheGridQueueChunks.pop();
+
+        let payload = new Payload(
+            extend({cacheAll: true}, clientGridWatchUpdateFromDeviceFilt)
+        );
+        payload.tuples = [nextChunk];
+        this.vortexService.sendPayload(payload);
+    }
+
     /** Update Watched Grids
      *
      * Change the list of grids that the GridObserver is interested in.
@@ -150,9 +239,8 @@ export class GridLoader extends GridLoaderA {
      *
      * Change the list of grids that the GridObserver is interested in.
      */
-    loadGrids(currentGridUpdateTimes:{ [gridKey: string]: string },
+    loadGrids(currentGridUpdateTimes: { [gridKey: string]: string },
               gridKeys: string[]): void {
-
 
         // Query the local storage for the grids we don't have in the cache
         this.queryStorageGrids(gridKeys)
@@ -190,7 +278,12 @@ export class GridLoader extends GridLoaderA {
 
         this.updatesObservable.next(dictCopy);
 
-        this.storeGridTuples(gridTuples);
+        this.storeGridTuples(gridTuples)
+            .then(() => {
+                if (payload.filt["cacheAll"] === true)
+                    this.cacheRequestNextChunk();
+            });
+
     }
 
     /** Query Storage Grids
@@ -236,22 +329,64 @@ export class GridLoader extends GridLoaderA {
      * This is called with grids from the server, store them for later.
      */
     private storeGridTuples(gridTuples: GridTuple[]): Promise<void> {
+        let gridKeys = [];
+        for (let gridTuple of gridTuples) {
+            gridKeys.push(gridTuple.gridKey);
+        }
+        console.log(`Caching grids ${gridKeys}`);
+
         let retPromise: any = this.storage.transaction(true)
             .then((tx) => {
 
                 let promises = [];
 
                 for (let gridTuple of gridTuples) {
+                    this.gridCacheIndex.data[gridTuple.gridKey] = gridTuple.lastUpdate;
                     promises.push(
                         tx.saveTuples(new GridKeyTupleSelector(gridTuple.gridKey), [gridTuple])
                     );
                 }
 
                 return Promise.all(promises)
+                    .then(() => this.saveGridCacheIndex(tx))
                     .then(() => tx.close())
                     .catch(e => console.log(`GridCache.storeGridTuples: ${e}`));
             });
         return retPromise;
     }
 
+
+    /** Load Grid Cache Index
+     *
+     * Loads the running tab of the update dates of the cached grids
+     *
+     */
+    private loadGridCacheIndex(): Promise<void> {
+        let retPromise: any = this.storage.transaction(false)
+            .then((tx) => {
+                return tx.loadTuples(
+                    new TupleSelector(GridCacheIndexTuple.tupleName, {})
+                )
+                    .then((tuples: GridCacheIndexTuple[]) => {
+                        // Length should be 0 or 1
+                        if (tuples.length)
+                            this.gridCacheIndex = tuples[0];
+                    })
+            });
+        return retPromise;
+    }
+
+
+    /** Store Grid Cache Index
+     *
+     * Updates our running tab of the update dates of the cached grids
+     *
+     */
+    private saveGridCacheIndex(transaction): Promise<void> {
+        return transaction.saveTuples(
+            new TupleSelector(GridCacheIndexTuple.tupleName, {}),
+            [this.gridCacheIndex]
+        )
+            .catch(e => console.log(`GridCache.storeGridCacheIndex: ${e}`));
+    }
 }

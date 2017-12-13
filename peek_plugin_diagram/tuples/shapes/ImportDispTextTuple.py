@@ -42,6 +42,10 @@ class ImportDispTextTuple(Tuple):
     #: The unique hash of this display object
     importHash: str = TupleField()
 
+    #: The Z Order of this display object when compared against other objects on
+    # same layer and level.
+    zOrder: int = TupleField()
+
     #: The unique hash for all the display items imported in a group with this one.
     #: for example, a page or tile reference.
     importGroupHash: str = TupleField()

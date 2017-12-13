@@ -10,6 +10,7 @@ import {
 } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 import {ToolbarComponentBase} from "./toolbar.component";
+import {GridLoaderA} from "../cache/GridLoader";
 
 
 @Component({
@@ -24,8 +25,25 @@ export class ToolbarComponent extends ToolbarComponentBase {
     toolbarRowspanEvent = new EventEmitter<number>();
 
     constructor(abstractToolbarService: DiagramToolbarService,
-                navBackService: NavBackService) {
-        super(abstractToolbarService, navBackService);
+                navBackService: NavBackService,
+                HACK_gridLoader: GridLoaderA) {
+        super(abstractToolbarService, navBackService, HACK_gridLoader);
+
+
+        this.toolbarService
+            .addToolButton(this.modelSetKey,
+                this.coordSetKey,
+                {
+                    name: "Cache All Grids",
+                    tooltip: null,
+                    icon: 'pencil',
+                    callback: () => {
+                        this.HACK_gridLoader.cacheAll();
+                        alert("DEVEL TESTING - CACHING has started, do not click this again");
+                    },
+                    children: []
+                }
+            );
 
     }
 

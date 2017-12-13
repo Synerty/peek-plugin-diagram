@@ -68,7 +68,7 @@ class GridKeyCompilerQueueController:
 
     @inlineCallbacks
     def _poll(self):
-        from peek_plugin_diagram._private.worker.tasks.GridKeyCompilerTask import \
+        from peek_plugin_diagram._private.worker.tasks.GridCompilerTask import \
             compileGrids
 
         # We queue the grids in bursts, reducing the work we have to do.

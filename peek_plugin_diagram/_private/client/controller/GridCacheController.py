@@ -4,7 +4,8 @@ from typing import Dict, List
 from twisted.internet.defer import inlineCallbacks, Deferred
 
 from peek_plugin_diagram._private.PluginNames import diagramFilt
-from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import ClientGridLoaderRpc
+from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import \
+    ClientGridLoaderRpc
 from peek_plugin_diagram._private.tuples.GridTuple import GridTuple
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
@@ -102,3 +103,9 @@ class GridCacheController:
 
     def grid(self, gridKey) -> GridTuple:
         return self._gridCache.get(gridKey)
+
+    def gridKeyList(self) -> List[str]:
+        return list(self._gridCache.keys())
+
+    def gridDatesByKey(self):
+        return {g.gridKey: g.lastUpdate for g in self._gridCache.values()}

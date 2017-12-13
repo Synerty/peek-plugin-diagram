@@ -39,6 +39,10 @@ class ImportDispEllipseTuple(Tuple):
     #: The hash of the layer to link to (Matches ImportDispLayer.importHash)
     layerHash: str = TupleField()
 
+    #: The Z Order of this display object when compared against other objects on
+    # same layer and level.
+    zOrder: int = TupleField()
+
     #: The unique hash of this display object
     importHash: str = TupleField()
 

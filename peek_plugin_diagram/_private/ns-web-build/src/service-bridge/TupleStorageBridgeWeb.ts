@@ -66,9 +66,21 @@ class Transaction implements TupleStorageTransaction {
     }
 
     loadTuples(tupleSelector: TupleSelector): Promise<Tuple[]> {
+        return this.loadTuplesEncoded(tupleSelector)
+            .then((vortexMsg: string) => {
+                if (vortexMsg == null) {
+                    return [];
+                }
+
+                return Payload.fromVortexMsg(vortexMsg)
+                    .then((payload: Payload) => payload.tuples);
+            });
+    }
+
+    loadTuplesEncoded(tupleSelector: TupleSelector): Promise<string | null> {
         let promId = TupleStorageBridgeWeb.nextPromiseId++;
 
-        return new Promise<Tuple[]>((resolve, reject) => {
+        return new Promise<string | null>((resolve, reject) => {
             TupleStorageBridgeWeb.promsById[promId] = {
                 "resolve": resolve,
                 "reject": reject
@@ -82,13 +94,21 @@ class Transaction implements TupleStorageTransaction {
             let argObj = new Payload({}, args).toJsonDict();
 
             // Send events from the nativescript side service to the <webview> side
-            console.log("WEB: Sending loadTuples event");
-            this.iface.emit("loadTuples", argObj);
-
+            console.log("WEB: Sending loadTuplesEncoded event");
+            this.iface.emit("loadTuplesEncoded", argObj);
         });
     }
 
     saveTuples(tupleSelector: TupleSelector, tuples: Tuple[]): Promise<void> {
+
+        // The payload is a convenient way to serialise and compress the data
+        return new Payload({}, tuples).toVortexMsg()
+            .then((vortexMsg: string) => {
+                return this.saveTuplesEncoded(tupleSelector, vortexMsg);
+            });
+    }
+
+    saveTuplesEncoded(tupleSelector: TupleSelector, vortexMsg: string): Promise<void>  {
         let promId = TupleStorageBridgeWeb.nextPromiseId++;
 
         return new Promise<void>((resolve, reject) => {
@@ -100,21 +120,17 @@ class Transaction implements TupleStorageTransaction {
             let args: any = {
                 promId: promId,
                 tupleSelector: tupleSelector,
-                tuples: tuples
+                vortexMsg: vortexMsg
             };
 
             let argObj = new Payload({}, args).toJsonDict();
 
 
             // Send events from the nativescript side service to the <webview> side
-            console.log("WEB: Sending saveTuples event");
-            this.iface.emit("saveTuples", argObj);
+            console.log("WEB: Sending saveTuplesEncoded event");
+            this.iface.emit("saveTuplesEncoded", argObj);
 
         });
-    }
-
-    saveTuplesEncoded(tupleSelector: TupleSelector, vortexMsg: string): Promise<void>  {
-        throw new Error("saveTuplesEncoded not implemented");
     }
 
     close(): Promise<void> {

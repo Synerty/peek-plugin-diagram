@@ -9,7 +9,8 @@ import {
     TupleOfflineStorageService,
     TupleStorageFactoryService,
     VortexService,
-    VortexStatusService
+    VortexStatusService,
+    TupleDataObserverService
 } from "@synerty/vortexjs";
 
 import {
@@ -24,6 +25,7 @@ import {
 export class PrivateDiagramTupleService {
     public tupleOfflineAction: TupleActionPushOfflineService;
     public tupleOfflineObserver: TupleDataOfflineObserverService;
+    public tupleObserver: TupleDataObserverService;
 
 
     constructor(tupleActionSingletonService: TupleActionPushOfflineSingletonService,
@@ -42,6 +44,12 @@ export class PrivateDiagramTupleService {
 
         let tupleOfflineStorageService = new TupleOfflineStorageService(
             storageFactory, storageName);
+
+        this.tupleObserver = new TupleDataObserverService(
+            vortexService,
+            vortexStatusService,
+            zone,
+            tupleDataObservableName);
 
         this.tupleOfflineObserver = new TupleDataOfflineObserverService(
             vortexService,

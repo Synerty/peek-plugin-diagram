@@ -10,13 +10,13 @@ export class TupleStorageBridgeNs {
                 private iface: WebViewInterface) {
 
         this.iface.on(
-            'loadTuples',
+            'loadTuplesEncoded',
             (argObj: any) => {
                 let args: any = new Payload().fromJsonDict(argObj).tuples;
 
                 console.log("NS: Received loadTuples event");
                 this.handlePromise(
-                    this.tupleStorage.loadTuples(args.tupleSelector),
+                    this.tupleStorage.loadTuplesEncoded(args.tupleSelector),
                     args.promId
                 );
 
@@ -24,13 +24,13 @@ export class TupleStorageBridgeNs {
         );
 
         this.iface.on(
-            'saveTuples',
+            'saveTuplesEncoded',
             (argObj: any) => {
                 let args: any = new Payload().fromJsonDict(argObj).tuples;
 
                 console.log("NS: Received saveTuples event");
                 this.handlePromise(
-                    this.tupleStorage.saveTuples(args.tupleSelector, args.tuples),
+                    this.tupleStorage.saveTuplesEncoded(args.tupleSelector, args.vortexMsg),
                     args.promId
                 );
 

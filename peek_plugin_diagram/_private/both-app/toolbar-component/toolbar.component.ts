@@ -10,6 +10,7 @@ import {
     DiagramToolButtonI
 } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
+import {GridLoaderA} from "../cache/GridLoader";
 
 
 export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
@@ -29,7 +30,8 @@ export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
     toolbarIsOpen: boolean = false;
 
     constructor(abstractToolbarService: DiagramToolbarService,
-                protected navBackService: NavBackService) {
+                protected navBackService: NavBackService,
+                protected HACK_gridLoader: GridLoaderA) {
         super();
 
         this.toolbarService = <PrivateDiagramToolbarService> abstractToolbarService;
@@ -44,17 +46,7 @@ export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
     }
 
     ngOnInit() {
-        this.toolbarService
-            .addToolButton(this.modelSetKey,
-                this.coordSetKey,
-                {
-                    name: "test button",
-                    tooltip: null,
-                    icon: 'pencil',
-                    callback: () => alert("Test button clicked"),
-                    children: []
-                }
-            );
+
     }
 
     buttonClicked(btn: DiagramToolButtonI): void {

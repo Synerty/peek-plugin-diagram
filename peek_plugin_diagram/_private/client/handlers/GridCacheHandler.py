@@ -118,9 +118,12 @@ class GridCacheHandler(object):
         self._observedGridKeysByVortexUuid[vortexUuid] = gridKeys
         self._rebuildStructs()
 
+        cacheAll = payload.filt.get("cacheAll") == True
+
         self._replyToObserve(payload.filt,
                              lastUpdateByGridKey,
-                             sendResponse)
+                             sendResponse,
+                             cacheAll=cacheAll)
 
     def _rebuildStructs(self) -> None:
         """ Rebuild Structs
@@ -153,7 +156,8 @@ class GridCacheHandler(object):
 
     def _replyToObserve(self, filt,
                         lastUpdateByGridKey: DeviceGridT,
-                        sendResponse: SendVortexMsgResponseCallable) -> None:
+                        sendResponse: SendVortexMsgResponseCallable,
+                        cacheAll=False) -> None:
         """ Reply to Observe
 
         The client has told us that it's observing a new set of grids, and the lastUpdate
@@ -166,8 +170,15 @@ class GridCacheHandler(object):
         :returns: None
 
         """
-
         gridTuplesToSend = []
+
+        def sendChunk(toSend):
+            if not toSend and not cacheAll:
+                return
+
+            d: Deferred = Payload(filt=filt, tuples=toSend).toVortexMsgDefer()
+            d.addCallback(sendResponse)
+            d.addErrback(vortexLogFailure, logger, consumeError=True)
 
         # Check and send any updates
         for gridKey, lastUpdate in lastUpdateByGridKey.items():
@@ -186,9 +197,8 @@ class GridCacheHandler(object):
                 gridTuplesToSend.append(gridTuple)
                 logger.debug("Sending grid %s from the cache" % gridKey)
 
-        if not gridTuplesToSend:
-            return
+            if len(gridTuplesToSend) == 5 and not cacheAll:
+                sendChunk(gridTuplesToSend)
+                gridTuplesToSend = []
 
-        d: Deferred = Payload(filt=filt, tuples=gridTuplesToSend).toVortexMsgDefer()
-        d.addCallback(sendResponse)
-        d.addErrback(vortexLogFailure, logger, consumeError=True)
+        sendChunk(gridTuplesToSend)

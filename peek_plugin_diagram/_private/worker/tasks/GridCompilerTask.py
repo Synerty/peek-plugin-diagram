@@ -113,14 +113,14 @@ def _dispBaseSortCmp(dispData1, dispData2):
     if layerDiff != 0:
         return layerDiff
 
-    return dispData1.id - dispData2.id
+    return dispData1.zOrder - dispData2.zOrder
 
 
 def _qryDispData(session, gridKeys):
     indexQry = (
         session.query(GridKeyIndex.gridKey, DispBase.dispJson,
                       DispBase.id,
-                      DispLevel.order, DispLayer.order)
+                      DispLevel.order, DispLayer.order, DispLayer.zOrder)
             .join(DispBase, DispBase.id == GridKeyIndex.dispId)
             .join(DispLevel)
             .join(DispLayer)

@@ -72,6 +72,10 @@ export class GridLoaderBridgeWeb extends GridLoaderA {
         return GridLoaderBridgeWeb.readySubject;
      }
 
+    cacheAll(): void {
+      throw new Error("Not Implemented");
+    }
+
 
     loadGrids(currentGridUpdateTimes:{ [gridKey: string]: string },
               gridKeys: string[]): void {
