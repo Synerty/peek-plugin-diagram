@@ -15,6 +15,9 @@ import {
     Tuple,
     addTupleType
 } from "@synerty/vortexjs";
+
+
+import {FooterService} from "@synerty/peek-util";
 import {diagramFilt, gridCacheStorageName} from "@peek/peek_plugin_diagram/_private";
 import {GridCacheIndexTuple} from "../tuples/GridCacheIndexTuple";
 import {
@@ -116,7 +119,8 @@ export class GridLoader extends GridLoaderA {
     // The queue of grids to cache
     private cacheGridQueueChunks = [];
 
-    constructor(private vortexService: VortexService,
+    constructor(private footerService: FooterService,
+                private vortexService: VortexService,
                 private vortexStatusService: VortexStatusService,
                 private tupleService: PrivateDiagramTupleService,
                 storageFactory: TupleStorageFactoryService) {
@@ -198,7 +202,6 @@ export class GridLoader extends GridLoaderA {
                 allChunks.push(thisChunk);
                 this.cacheGridQueueChunks = allChunks;
 
-
                 console.log(`Cacheing ${this.cacheGridQueueChunks.length} grid chunks`);
                 this.cacheRequestNextChunk();
 
@@ -213,8 +216,12 @@ export class GridLoader extends GridLoaderA {
      * Request the next chunk of grids from the server
      */
     private cacheRequestNextChunk() {
-        if (this.cacheGridQueueChunks.length == 0)
+        if (this.cacheGridQueueChunks.length == 0) {
+            this.footerService.setStatusText(`Caching Complete`);
             return;
+        }
+
+        this.footerService.setStatusText(`${this.cacheGridQueueChunks.length} grids left`);
 
         console.log(`Cacheing next grid chunk, ${this.cacheGridQueueChunks.length} remaining`);
 
@@ -329,6 +336,10 @@ export class GridLoader extends GridLoaderA {
      * This is called with grids from the server, store them for later.
      */
     private storeGridTuples(gridTuples: GridTuple[]): Promise<void> {
+        if (gridTuples.length == 0) {
+            return Promise.resolve();
+        }
+
         let gridKeys = [];
         for (let gridTuple of gridTuples) {
             gridKeys.push(gridTuple.gridKey);
