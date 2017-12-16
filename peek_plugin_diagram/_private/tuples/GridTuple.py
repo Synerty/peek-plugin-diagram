@@ -9,5 +9,5 @@ class GridTuple(Tuple):
     __tupleType__ = diagramTuplePrefix + "GridTuple"
 
     gridKey: str = TupleField()
-    blobData: str = TupleField()
+    dispJsonStr: str = TupleField()
     lastUpdate: datetime = TupleField()

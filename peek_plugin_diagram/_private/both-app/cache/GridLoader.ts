@@ -1,5 +1,6 @@
 import {Injectable} from "@angular/core";
 import {GridTuple} from "../tuples/GridTuple";
+import {EncodedGridTuple} from "../tuples/EncodedGridTuple";
 import {Observable, Subject} from "rxjs";
 
 import {
@@ -185,21 +186,30 @@ export class GridLoader extends GridLoaderA {
                     if (!index.data.hasOwnProperty(key))
                         continue;
 
-                    count += 1;
+                    let serverDate = index.data[key];
 
                     // Make sure we have the right dates for our index if it exists
-                    if (this.gridCacheIndex.data[key] != null)
-                        thisChunk[key] = this.gridCacheIndex.data[key];
-                    else
+                    let ourCacheDate = this.gridCacheIndex.data[key];
+                    if (ourCacheDate == null) {
+                        // We havn't cached this grid at all, add it to the queue
                         thisChunk[key] = null;
+                        count += 1;
 
-                    if (count == 5) {
+                    } else if (ourCacheDate != serverDate) {
+                        // We have this grid, but it's out of date
+                        thisChunk[key] = ourCacheDate;
+                        count += 1;
+                    } // ELSE, we're all good.
+
+                    if (count == 15) {
                         allChunks.push(thisChunk);
                         count = 0;
                         thisChunk = {};
                     }
                 }
-                allChunks.push(thisChunk);
+                if (count)
+                    allChunks.push(thisChunk);
+
                 this.cacheGridQueueChunks = allChunks;
 
                 console.log(`Cacheing ${this.cacheGridQueueChunks.length} grid chunks`);
@@ -278,16 +288,25 @@ export class GridLoader extends GridLoaderA {
      * Process the grids the server has sent us.
      */
     private processGridsFromServer(payload: Payload) {
-        let gridTuples: GridTuple[] = <GridTuple[]>payload.tuples;
+        let encodedGridTuples: EncodedGridTuple[] = <EncodedGridTuple[]>payload.tuples;
 
-        let tupleCopyObj = new Payload({}, gridTuples).toJsonDict();
-        let dictCopy: any = new Payload().fromJsonDict(tupleCopyObj).tuples;
+        let isCacheAll = payload.filt["cacheAll"] === true;
 
-        this.updatesObservable.next(dictCopy);
+        if (!isCacheAll) {
+            for (let encodedGridTuple of encodedGridTuples) {
+                Payload.fromVortexMsg(encodedGridTuple.encodedGridTuple)
+                .then((payload:Payload) => {
+                    this.updatesObservable.next(payload.tuples);
+                })
+                .catch((err) => {
+                    console.log(`GridLoader.processGridsFromServer error: ${err}`);
+                });
+            }
+        }
 
-        this.storeGridTuples(gridTuples)
+        this.storeGridTuples(encodedGridTuples)
             .then(() => {
-                if (payload.filt["cacheAll"] === true)
+                if (isCacheAll)
                     this.cacheRequestNextChunk();
             });
 
@@ -335,14 +354,14 @@ export class GridLoader extends GridLoaderA {
     /** Store Grid Tuples
      * This is called with grids from the server, store them for later.
      */
-    private storeGridTuples(gridTuples: GridTuple[]): Promise<void> {
-        if (gridTuples.length == 0) {
+    private storeGridTuples(encodedGridTuples: EncodedGridTuple[]): Promise<void> {
+        if (encodedGridTuples.length == 0) {
             return Promise.resolve();
         }
 
         let gridKeys = [];
-        for (let gridTuple of gridTuples) {
-            gridKeys.push(gridTuple.gridKey);
+        for (let encodedGridTuple of encodedGridTuples) {
+            gridKeys.push(encodedGridTuple.gridKey);
         }
         console.log(`Caching grids ${gridKeys}`);
 
@@ -351,10 +370,14 @@ export class GridLoader extends GridLoaderA {
 
                 let promises = [];
 
-                for (let gridTuple of gridTuples) {
-                    this.gridCacheIndex.data[gridTuple.gridKey] = gridTuple.lastUpdate;
+                for (let encodedGridTuple of encodedGridTuples) {
+                    this.gridCacheIndex.data[encodedGridTuple.gridKey]
+                         = encodedGridTuple.lastUpdate;
                     promises.push(
-                        tx.saveTuples(new GridKeyTupleSelector(gridTuple.gridKey), [gridTuple])
+                        tx.saveTuplesEncoded(
+                            new GridKeyTupleSelector(encodedGridTuple.gridKey),
+                            encodedGridTuple.encodedGridTuple
+                        )
                     );
                 }
 

@@ -1,5 +1,8 @@
 import logging
 import zlib
+import hashlib
+from base64 import b64encode
+
 from _collections import defaultdict
 from datetime import datetime
 from typing import List
@@ -10,6 +13,9 @@ from functools import cmp_to_key
 from peek_plugin_base.storage.StorageUtil import makeCoreValuesSubqueryCondition, \
     makeOrmValuesSubqueryCondition
 from peek_plugin_base.worker import CeleryDbConn
+
+from peek_plugin_diagram._private.tuples.GridTuple import GridTuple
+
 from peek_plugin_diagram._private.storage.Display import DispLevel, DispBase, DispLayer
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled, \
     GridKeyCompilerQueue, \
@@ -17,9 +23,12 @@ from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompil
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from txcelery.defer import DeferrableTask
 
+from vortex.Payload import Payload
+
+
 logger = logging.getLogger(__name__)
 
-DispData = namedtuple('DispData', ['json', 'id', 'levelOrder', 'layerOrder'])
+DispData = namedtuple('DispData', ['json', 'id', 'zOrder', 'levelOrder', 'layerOrder'])
 
 """ Grid Compiler
 
@@ -68,11 +77,24 @@ def compileGrids(self, queueItems) -> List[str]:
         transaction = conn.begin()
 
         inserts = []
-        for gridKey, blobData in list(dispData.items()):
+        for gridKey, dispJsonStr in list(dispData.items()):
+            m = hashlib.sha256()
+            m.update(gridKey.encode())
+            m.update(dispJsonStr.encode())
+            gridTupleHash = b64encode(m.digest()).decode()
+
+            gridTuple = GridTuple(
+                gridKey=gridKey,
+                dispJsonStr=dispJsonStr,
+                lastUpdate=gridTupleHash
+            )
+
+            encodedGridTuple = Payload(tuples=[gridTuple]).toVortexMsg()
+
             inserts.append(dict(coordSetId=coordSetIdByGridKey[gridKey],
                                 gridKey=gridKey,
-                                lastUpdate=lastUpdate,
-                                blobData=blobData))
+                                lastUpdate=gridTupleHash,
+                                encodedGridTuple=encodedGridTuple))
 
         if inserts:
             conn.execute(gridTable.insert(), inserts)
@@ -119,8 +141,8 @@ def _dispBaseSortCmp(dispData1, dispData2):
 def _qryDispData(session, gridKeys):
     indexQry = (
         session.query(GridKeyIndex.gridKey, DispBase.dispJson,
-                      DispBase.id,
-                      DispLevel.order, DispLayer.order, DispLayer.zOrder)
+                      DispBase.id, DispBase.zOrder,
+                      DispLevel.order, DispLayer.order)
             .join(DispBase, DispBase.id == GridKeyIndex.dispId)
             .join(DispLevel)
             .join(DispLayer)
@@ -140,9 +162,6 @@ def _qryDispData(session, gridKeys):
                                            key=cmp_to_key(_dispBaseSortCmp))
                            if d.json]
 
-        dispsDumpedJson = '[' + ','.join(dispsDumpedJson) + ']'
-        blobData = zlib.compress(dispsDumpedJson.encode(), 9)
-
-        dispsByGridKeys[gridKey] = blobData
+        dispsByGridKeys[gridKey] = '[' + ','.join(dispsDumpedJson) + ']'
 
     return dispsByGridKeys

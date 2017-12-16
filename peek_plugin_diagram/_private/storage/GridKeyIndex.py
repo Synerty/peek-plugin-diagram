@@ -71,7 +71,7 @@ class GridKeyIndexCompiled(Tuple, DeclarativeBase):
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     gridKey = Column(String(30), nullable=False)
-    blobData = Column(PeekLargeBinary, nullable=False)
+    encodedGridTuple = Column(PeekLargeBinary, nullable=False)
     lastUpdate = Column(String(50), nullable=False)
 
     coordSetId = Column(Integer,

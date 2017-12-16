@@ -9,6 +9,7 @@ from peek_plugin_diagram._private.client.controller.GridCacheController import \
     clientGridUpdateFromServerFilt
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
 from peek_plugin_diagram._private.tuples.GridTuple import GridTuple
+from peek_plugin_diagram._private.tuples.EncodedGridTuple import EncodedGridTuple
 from vortex.DeferUtil import vortexLogFailure, deferToThreadWrapWithLogger
 from vortex.Payload import Payload
 from vortex.VortexFactory import VortexFactory, NoVortexException
@@ -75,8 +76,8 @@ class ClientGridUpdateHandler:
             gridTuples: List[GridTuple] = []
             for ormGrid in ormGrids:
                 gridTuples.append(
-                    GridTuple(gridKey=ormGrid.gridKey,
-                              blobData=ormGrid.blobData,
+                    EncodedGridTuple(gridKey=ormGrid.gridKey,
+                              encodedGridTuple=ormGrid.encodedGridTuple,
                               lastUpdate=ormGrid.lastUpdate)
                 )
 

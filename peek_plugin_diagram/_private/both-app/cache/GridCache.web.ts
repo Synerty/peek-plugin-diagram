@@ -1,9 +1,9 @@
-import {Injectable} from "@angular/core";
-import {LookupCache} from "./LookupCache.web";
-import {LinkedGrid} from "./LinkedGrid.web";
-import {GridTuple} from "../tuples/GridTuple";
-import {GridLoaderA} from "./GridLoader";
-import {Observable, Subject} from "rxjs";
+import { Injectable } from "@angular/core";
+import { LookupCache } from "./LookupCache.web";
+import { LinkedGrid } from "./LinkedGrid.web";
+import { GridTuple } from "../tuples/GridTuple";
+import { GridLoaderA } from "./GridLoader";
+import { Observable, Subject } from "rxjs";
 
 import {
     ComponentLifecycleEventEmitter,
@@ -11,9 +11,9 @@ import {
     VortexService,
     VortexStatusService
 } from "@synerty/vortexjs";
-import {diagramFilt, gridCacheStorageName} from "@peek/peek_plugin_diagram/_private";
+import { diagramFilt, gridCacheStorageName } from "@peek/peek_plugin_diagram/_private";
 
-import {dictValuesFromObject} from "../DiagramUtil";
+import { dictValuesFromObject } from "../DiagramUtil";
 import * as moment from "moment";
 
 let pako = require("pako");
@@ -72,12 +72,12 @@ export class GridCache {
     private lifecycleEmitter = new ComponentLifecycleEventEmitter();
 
     constructor(private lookupCache: LookupCache,
-                private gridLoader: GridLoaderA) {
+        private gridLoader: GridLoaderA) {
 
         // Services don't have destructors, I'm not sure how to unsubscribe.
         this.gridLoader.observable
             .takeUntil(this.lifecycleEmitter.onDestroyEvent)
-            .subscribe((tuples:GridTuple[]) => this.processGridUpdates(tuples));
+            .subscribe((tuples: GridTuple[]) => this.processGridUpdates(tuples));
 
     }
 
@@ -177,24 +177,13 @@ export class GridCache {
         let latestCache = this.cacheQueue[0];
 
         for (let gridTuple of gridTuples) {
-
-            try {
-                gridTuple.dispJsonStr = pako.inflate(gridTuple.blobData, {to: 'string'});
-            } catch (e) {
-                console.log(e.toString());
-            }
-            gridTuple.blobData = null;
-
             let cachedLinkedGrid = latestCache[gridTuple.gridKey];
 
-            // If the cache is newer, ignore the update
+            // If the cache differs, ignore the update
             // This really shouldn't happen.
-            if (cachedLinkedGrid != null) {
-                let cacheGridDate = moment(cachedLinkedGrid.lastUpdate);
-                let newGridDate = moment(gridTuple.lastUpdate);
-                if (newGridDate.isBefore(cacheGridDate)) {
-                    continue
-                }
+            if (cachedLinkedGrid != null
+                && cachedLinkedGrid.lastUpdate == gridTuple.lastUpdate) {
+                continue
             }
 
             // 1) Link the grid

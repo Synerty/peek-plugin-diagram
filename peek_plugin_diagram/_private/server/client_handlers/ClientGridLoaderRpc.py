@@ -5,6 +5,7 @@ from typing import List, Tuple
 from peek_plugin_base.PeekVortexUtil import peekServerName, peekClientName
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
+from peek_plugin_diagram._private.tuples.EncodedGridTuple import EncodedGridTuple
 from peek_plugin_diagram._private.tuples.GridTuple import GridTuple
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Tuple import TUPLE_TYPES_BY_NAME
@@ -52,8 +53,8 @@ class ClientGridLoaderRpc:
             gridTuples: List[GridTuple] = []
             for ormGrid in ormGrids:
                 gridTuples.append(
-                    GridTuple(gridKey=ormGrid.gridKey,
-                              blobData=ormGrid.blobData,
+                    EncodedGridTuple(gridKey=ormGrid.gridKey,
+                              encodedGridTuple=ormGrid.encodedGridTuple,
                               lastUpdate=ormGrid.lastUpdate)
                 )
 

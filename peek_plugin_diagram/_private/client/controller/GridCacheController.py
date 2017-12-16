@@ -7,6 +7,7 @@ from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import \
     ClientGridLoaderRpc
 from peek_plugin_diagram._private.tuples.GridTuple import GridTuple
+from peek_plugin_diagram._private.tuples.EncodedGridTuple import EncodedGridTuple
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
 from vortex.PayloadEndpoint import PayloadEndpoint
@@ -39,7 +40,7 @@ class GridCacheController:
     def __init__(self, clientId: str):
         self._clientId = clientId
         self._gridCacheHandler = None
-        self._gridCache = {}
+        self._gridCache: Dict[str, EncodedGridTuple] = {}
 
         self._gridEndpoint = None
         self._coordSetEndpoint = None
@@ -73,7 +74,8 @@ class GridCacheController:
 
         offset = 0
         while True:
-            logger.info("Loading grids %s to %s" % (offset, offset + self.LOAD_CHUNK))
+            logger.info("Loading grids %s to %s" %
+                        (offset, offset + self.LOAD_CHUNK))
             gridTuples = yield ClientGridLoaderRpc.loadGrids(offset, self.LOAD_CHUNK)
             if not gridTuples:
                 break
@@ -86,14 +88,14 @@ class GridCacheController:
 
     def _processGridPayload(self, payload: Payload, **kwargs):
         gridTuples: List[GridTuple] = payload.tuples
-        self._loadGridIntoCache(gridTuples)
+        yield self._loadGridIntoCache(gridTuples)
 
-    def _loadGridIntoCache(self, gridTuples: List[GridTuple]):
+    def _loadGridIntoCache(self, encodedGridTuples: List[EncodedGridTuple]):
         gridKeyUpdates: List[str] = []
 
-        for t in gridTuples:
+        for t in encodedGridTuples:
             if (not t.gridKey in self._gridCache or
-                        self._gridCache[t.gridKey].lastUpdate != t.lastUpdate):
+                    self._gridCache[t.gridKey].lastUpdate != t.lastUpdate):
                 self._gridCache[t.gridKey] = t
                 gridKeyUpdates.append(t.gridKey)
 
@@ -101,7 +103,7 @@ class GridCacheController:
 
         self._gridCacheHandler.notifyOfGridUpdate(gridKeyUpdates)
 
-    def grid(self, gridKey) -> GridTuple:
+    def grid(self, gridKey) -> EncodedGridTuple:
         return self._gridCache.get(gridKey)
 
     def gridKeyList(self) -> List[str]:

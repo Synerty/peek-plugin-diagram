@@ -176,7 +176,10 @@ class GridCacheHandler(object):
             if not toSend and not cacheAll:
                 return
 
-            d: Deferred = Payload(filt=filt, tuples=toSend).toVortexMsgDefer()
+            d: Deferred = (
+                Payload(filt=filt, tuples=toSend)
+                .toVortexMsgDefer(compressionLevel=2)
+            )
             d.addCallback(sendResponse)
             d.addErrback(vortexLogFailure, logger, consumeError=True)
 
