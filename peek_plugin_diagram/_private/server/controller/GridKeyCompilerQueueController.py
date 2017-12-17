@@ -33,8 +33,8 @@ class GridKeyCompilerQueueController:
     FETCH_SIZE = 5
     PERIOD = 0.200
 
-    QUEUE_MAX = 30
-    QUEUE_MIN = 10
+    QUEUE_MAX = 100
+    QUEUE_MIN = 30
 
     def __init__(self, ormSessionCreator,
                  statusController: StatusController,
