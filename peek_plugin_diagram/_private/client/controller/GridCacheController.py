@@ -83,8 +83,6 @@ class GridCacheController:
             offset += self.LOAD_CHUNK
 
     def _processGridPayload(self, payload: Payload, **kwargs):
-        print(':-] ' * 20)
-        print(payload.filt)
         gridTuples: List[GridTuple] = payload.tuples
         return self._loadGridIntoCache(gridTuples)
 

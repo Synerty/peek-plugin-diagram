@@ -291,15 +291,7 @@ export class GridLoader extends GridLoaderA {
         let isCacheAll = payload.filt["cacheAll"] === true;
 
         if (!isCacheAll) {
-            for (let encodedGridTuple of encodedGridTuples) {
-                Payload.fromVortexMsg(encodedGridTuple.encodedGridTuple)
-                .then((payload:Payload) => {
-                    this.updatesObservable.next(payload.tuples);
-                })
-                .catch((err) => {
-                    console.log(`GridLoader.processGridsFromServer error: ${err}`);
-                });
-            }
+            this.emitEncodedGridTuples(encodedGridTuples)
         }
 
         this.storeGridTuples(encodedGridTuples)
@@ -307,6 +299,32 @@ export class GridLoader extends GridLoaderA {
                 if (isCacheAll)
                     this.cacheRequestNextChunk();
             });
+
+    }
+
+    private emitEncodedGridTuples(encodedGridTuples: EncodedGridTuple[]):void {
+
+        let promises :Promise<void>[] = [];
+        let gridTuples:GridTuple[] = [];
+
+        for (let encodedGridTuple of encodedGridTuples) {
+            let promise :any = Payload.fromVortexMsg(encodedGridTuple.encodedGridTuple)
+            .then((payload:Payload) => {
+                gridTuples.push(payload.tuples[0]);
+            })
+            .catch((err) => {
+                console.log(`GridLoader.emitEncodedGridTuples decode error: ${err}`);
+            });
+            promises.push(promise);
+        }
+
+        Promise.all(promises)
+        .then(() => {
+            this.updatesObservable.next(gridTuples);
+        })
+        .catch((err) => {
+            console.log(`GridLoader.emitEncodedGridTuples all error: ${err}`);
+        });
 
     }
 
