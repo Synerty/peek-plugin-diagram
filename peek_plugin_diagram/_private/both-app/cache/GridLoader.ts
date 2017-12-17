@@ -1,7 +1,7 @@
-import {Injectable} from "@angular/core";
-import {GridTuple} from "../tuples/GridTuple";
-import {EncodedGridTuple} from "../tuples/EncodedGridTuple";
-import {Observable, Subject} from "rxjs";
+import { Injectable } from "@angular/core";
+import { GridTuple } from "../tuples/GridTuple";
+import { EncodedGridTuple } from "../tuples/EncodedGridTuple";
+import { Observable, Subject } from "rxjs";
 
 import {
     ComponentLifecycleEventEmitter,
@@ -18,9 +18,9 @@ import {
 } from "@synerty/vortexjs";
 
 
-import {FooterService} from "@synerty/peek-util";
-import {diagramFilt, gridCacheStorageName} from "@peek/peek_plugin_diagram/_private";
-import {GridCacheIndexTuple} from "../tuples/GridCacheIndexTuple";
+import { FooterService } from "@synerty/peek-util";
+import { diagramFilt, gridCacheStorageName } from "@peek/peek_plugin_diagram/_private";
+import { GridCacheIndexTuple } from "../tuples/GridCacheIndexTuple";
 import {
     PrivateDiagramTupleService
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
@@ -30,7 +30,7 @@ import {
 // ----------------------------------------------------------------------------
 
 let clientGridWatchUpdateFromDeviceFilt = extend(
-    {'key': "clientGridWatchUpdateFromDevice"},
+    { 'key': "clientGridWatchUpdateFromDevice" },
     diagramFilt
 );
 
@@ -68,18 +68,18 @@ export abstract class GridLoaderA {
 
     }
 
-    abstract isReady(): boolean ;
+    abstract isReady(): boolean;
 
-    abstract isReadyObservable(): Observable<boolean> ;
+    abstract isReadyObservable(): Observable<boolean>;
 
     abstract observable: Observable<GridTuple[]>;
 
     abstract cacheAll(): void;
 
-    abstract watchGrids(gridKeys: string[]): void ;
+    abstract watchGrids(gridKeys: string[]): void;
 
     abstract loadGrids(currentGridUpdateTimes: { [gridKey: string]: string },
-                       gridKeys: string[]): void ;
+        gridKeys: string[]): void;
 
 }
 
@@ -118,11 +118,14 @@ export class GridLoader extends GridLoaderA {
     // The queue of grids to cache
     private cacheGridQueueChunks = [];
 
+    // Saving the cache after each chunk is so expensive, we only do it every 20 or so
+    private chunksSavedSinceLastIndexSave = 0;
+
     constructor(private footerService: FooterService,
-                private vortexService: VortexService,
-                private vortexStatusService: VortexStatusService,
-                private tupleService: PrivateDiagramTupleService,
-                storageFactory: TupleStorageFactoryService) {
+        private vortexService: VortexService,
+        private vortexStatusService: VortexStatusService,
+        private tupleService: PrivateDiagramTupleService,
+        storageFactory: TupleStorageFactoryService) {
         super();
 
         this.storage = storageFactory.create(
@@ -224,10 +227,15 @@ export class GridLoader extends GridLoaderA {
      * Request the next chunk of grids from the server
      */
     private cacheRequestNextChunk() {
+        this.chunksSavedSinceLastIndexSave++;
+
         if (this.cacheGridQueueChunks.length == 0) {
             this.footerService.setStatusText(`Caching Complete`);
+            this.saveGridCacheIndex(true);
             return;
         }
+
+        this.saveGridCacheIndex();
 
         this.footerService.setStatusText(`${this.cacheGridQueueChunks.length} grids left`);
 
@@ -236,7 +244,7 @@ export class GridLoader extends GridLoaderA {
         let nextChunk = this.cacheGridQueueChunks.pop();
 
         let payload = new Payload(
-            extend({cacheAll: true}, clientGridWatchUpdateFromDeviceFilt)
+            extend({ cacheAll: true }, clientGridWatchUpdateFromDeviceFilt)
         );
         payload.tuples = [nextChunk];
         this.vortexService.sendPayload(payload);
@@ -255,7 +263,7 @@ export class GridLoader extends GridLoaderA {
      * Change the list of grids that the GridObserver is interested in.
      */
     loadGrids(currentGridUpdateTimes: { [gridKey: string]: string },
-              gridKeys: string[]): void {
+        gridKeys: string[]): void {
 
         // Query the local storage for the grids we don't have in the cache
         this.queryStorageGrids(gridKeys)
@@ -295,36 +303,33 @@ export class GridLoader extends GridLoaderA {
         }
 
         this.storeGridTuples(encodedGridTuples)
-            .then(() => {
-                if (isCacheAll)
-                    this.cacheRequestNextChunk();
-            });
+            .then(() => isCacheAll && this.cacheRequestNextChunk());
 
     }
 
-    private emitEncodedGridTuples(encodedGridTuples: EncodedGridTuple[]):void {
+    private emitEncodedGridTuples(encodedGridTuples: EncodedGridTuple[]): void {
 
-        let promises :Promise<void>[] = [];
-        let gridTuples:GridTuple[] = [];
+        let promises: Promise<void>[] = [];
+        let gridTuples: GridTuple[] = [];
 
         for (let encodedGridTuple of encodedGridTuples) {
-            let promise :any = Payload.fromVortexMsg(encodedGridTuple.encodedGridTuple)
-            .then((payload:Payload) => {
-                gridTuples.push(payload.tuples[0]);
-            })
-            .catch((err) => {
-                console.log(`GridLoader.emitEncodedGridTuples decode error: ${err}`);
-            });
+            let promise: any = Payload.fromVortexMsg(encodedGridTuple.encodedGridTuple)
+                .then((payload: Payload) => {
+                    gridTuples.push(payload.tuples[0]);
+                })
+                .catch((err) => {
+                    console.log(`GridLoader.emitEncodedGridTuples decode error: ${err}`);
+                });
             promises.push(promise);
         }
 
         Promise.all(promises)
-        .then(() => {
-            this.updatesObservable.next(gridTuples);
-        })
-        .catch((err) => {
-            console.log(`GridLoader.emitEncodedGridTuples all error: ${err}`);
-        });
+            .then(() => {
+                this.updatesObservable.next(gridTuples);
+            })
+            .catch((err) => {
+                console.log(`GridLoader.emitEncodedGridTuples all error: ${err}`);
+            });
 
     }
 
@@ -388,7 +393,7 @@ export class GridLoader extends GridLoaderA {
 
                 for (let encodedGridTuple of encodedGridTuples) {
                     this.gridCacheIndex.data[encodedGridTuple.gridKey]
-                         = encodedGridTuple.lastUpdate;
+                        = encodedGridTuple.lastUpdate;
                     promises.push(
                         tx.saveTuplesEncoded(
                             new GridKeyTupleSelector(encodedGridTuple.gridKey),
@@ -398,7 +403,7 @@ export class GridLoader extends GridLoaderA {
                 }
 
                 return Promise.all(promises)
-                    .then(() => this.saveGridCacheIndex(tx))
+                    .then(() => this.saveGridCacheIndex(false, tx))
                     .then(() => tx.close())
                     .catch(e => console.log(`GridCache.storeGridTuples: ${e}`));
             });
@@ -432,11 +437,25 @@ export class GridLoader extends GridLoaderA {
      * Updates our running tab of the update dates of the cached grids
      *
      */
-    private saveGridCacheIndex(transaction): Promise<void> {
-        return transaction.saveTuples(
-            new TupleSelector(GridCacheIndexTuple.tupleName, {}),
-            [this.gridCacheIndex]
-        )
-            .catch(e => console.log(`GridCache.storeGridCacheIndex: ${e}`));
+
+    private saveGridCacheIndex(force = false, transaction = null): Promise<void> {
+
+        if (this.chunksSavedSinceLastIndexSave <= 20 && !force)
+            return Promise.resolve();
+
+        let ts = new TupleSelector(GridCacheIndexTuple.tupleName, {});
+        let tuples = [this.gridCacheIndex];
+        let errCb = (e) => console.log(`GridCache.storeGridCacheIndex: ${e}`)
+
+        this.chunksSavedSinceLastIndexSave = 0;
+
+        if (transaction != null)
+            return transaction.saveTuples(ts, tuples)
+                .catch(errCb);
+
+        return this.storage.transaction(true)
+            .then((tx) => tx.saveTuples(ts, tuples))
+            .catch(errCb);
     }
+
 }

@@ -1,5 +1,5 @@
-import {addTupleType, Tuple} from "@synerty/vortexjs";
-import {diagramTuplePrefix} from "@peek/peek_plugin_diagram/_private";
+import { addTupleType, Tuple } from "@synerty/vortexjs";
+import { diagramTuplePrefix } from "@peek/peek_plugin_diagram/_private";
 
 
 // ----------------------------------------------------------------------------
@@ -14,10 +14,15 @@ import {diagramTuplePrefix} from "@peek/peek_plugin_diagram/_private";
 export class GridCacheIndexTuple extends Tuple {
     public static readonly tupleName = diagramTuplePrefix + "GridCacheIndexTuple";
 
-    data: {[gridKey:string] : string} = {};
+    // Improve performance of the JSON serialisation
+    protected _rawJonableFields = ['data'];
+
+    data: { [gridKey: string]: string } = {};
 
     constructor() {
         super(GridCacheIndexTuple.tupleName)
     }
+
+
 }
 
