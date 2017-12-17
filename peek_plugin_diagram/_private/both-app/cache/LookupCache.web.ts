@@ -1,13 +1,13 @@
-import {Injectable} from "@angular/core";
-import {TupleSelector} from "@synerty/vortexjs";
-import {dictKeysFromObject, dictValuesFromObject} from "../DiagramUtil";
-import {TupleDataOfflineObserverService} from "@synerty/vortexjs";
-import {DispLevel} from "../tuples/lookups/DispLevel";
-import {DispLayer} from "../tuples/lookups/DispLayer";
-import {DispColor} from "../tuples/lookups/DispColor";
-import {DispTextStyle} from "../tuples/lookups/DispTextStyle";
-import {DispLineStyle} from "../tuples/lookups/DispLineStyle";
-import {PrivateDiagramTupleService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
+import { Injectable } from "@angular/core";
+import { TupleSelector } from "@synerty/vortexjs";
+import { dictKeysFromObject, dictValuesFromObject } from "../DiagramUtil";
+import { TupleDataOfflineObserverService } from "@synerty/vortexjs";
+import { DispLevel } from "../tuples/lookups/DispLevel";
+import { DispLayer } from "../tuples/lookups/DispLayer";
+import { DispColor } from "../tuples/lookups/DispColor";
+import { DispTextStyle } from "../tuples/lookups/DispTextStyle";
+import { DispLineStyle } from "../tuples/lookups/DispLineStyle";
+import { PrivateDiagramTupleService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
 
 /** Lookup Cache
  *
@@ -48,13 +48,13 @@ export class LookupCache {
         this.initialLoad();
     }
 
-    private initialLoad() :void {
+    private initialLoad(): void {
 
 
         let sub = (lookupAttr, tupleName, callback = null) => {
             this.subscriptions.push(
                 this.tupleService.tupleOfflineObserver.subscribeToTupleSelector(
-                    new TupleSelector(tupleName, {modelSetKey:this.modelSetKey})
+                    new TupleSelector(tupleName, { modelSetKey: this.modelSetKey })
                 ).subscribe((tuples: any[]) => {
                     if (!tuples.length)
                         return;
@@ -78,7 +78,7 @@ export class LookupCache {
         sub("_layersById", DispLayer.tupleName, () => this.createLayersOrderedByOrder());
         sub("_colorsById", DispColor.tupleName, () => this._validateColors());
         sub("_textStyleById", DispTextStyle.tupleName);
-        sub("_lineStyleById", DispLineStyle.tupleName);
+        sub("_lineStyleById", DispLineStyle.tupleName, () => this._convertLineStyleDashPattern());
     };
 
     isReady() {
@@ -101,8 +101,8 @@ export class LookupCache {
         this.subscriptions = [];
     };
 
-// ============================================================================
-// Load Callbacks
+    // ============================================================================
+    // Load Callbacks
 
     _validateColors() {
 
@@ -142,8 +142,8 @@ export class LookupCache {
     };
 
 
-// ============================================================================
-// Accessors
+    // ============================================================================
+    // Accessors
 
     levelForId(levelId) {
 
@@ -202,6 +202,20 @@ export class LookupCache {
         }
     };
 
+    /** Convert Line Style Dash Pattern
+     * 
+     * This method converts the line style json into an array of numbers
+     */
+    private _convertLineStyleDashPattern() {
+        let lineStyles: DispLineStyle[] = dictValuesFromObject(this._lineStyleById);
+        for (let lineStyle of lineStyles) {
+            if (lineStyle.dashPattern == null)
+                continue;
+
+            lineStyle.dashPattern = JSON.parse('' + lineStyle.dashPattern);
+        }
+    }
+
 
     linkDispLookups(disp) {
 
@@ -244,7 +258,7 @@ export class LookupCache {
     };
 
 
-// ============================================================================
-// Create manage model single instance
+    // ============================================================================
+    // Create manage model single instance
 
 }

@@ -1,4 +1,5 @@
 import logging
+import json
 from typing import List, Optional
 
 from twisted.internet.defer import inlineCallbacks, returnValue
@@ -54,6 +55,9 @@ class LookupImportController:
                         deleteOthers: bool, updateExisting: bool):
         LookupType = ORM_TUPLE_MAP[tupleType]
 
+        if LookupType == DispLineStyle:
+            self._convertLineStyles(tuples)
+
         itemsByImportHash = {}
 
         addCount = 0
@@ -67,7 +71,8 @@ class LookupImportController:
             coordSet = None
 
             if coordSetKey:
-                coordSet = getOrCreateCoordSet(ormSession, modelSetKey, coordSetKey)
+                coordSet = getOrCreateCoordSet(
+                    ormSession, modelSetKey, coordSetKey)
 
                 all = (ormSession.query(LookupType)
                        .filter(LookupType.coordSetId == coordSet.id)
@@ -98,7 +103,8 @@ class LookupImportController:
 
                     if updateExisting:
                         for fieldName in lookup.tupleFieldNames():
-                            setattr(existing, fieldName, getattr(lookup, fieldName))
+                            setattr(existing, fieldName,
+                                    getattr(lookup, fieldName))
 
                         updateFks(existing)
                         updateCount += 1
@@ -110,7 +116,8 @@ class LookupImportController:
                     for fieldName in lookup.tupleFieldNames():
                         if fieldName in ("id", "coordSetId", "modelSetId"):
                             continue
-                        setattr(newTuple, fieldName, getattr(lookup, fieldName))
+                        setattr(newTuple, fieldName,
+                                getattr(lookup, fieldName))
 
                     updateFks(newTuple)
                     ormSession.add(newTuple)
@@ -133,6 +140,7 @@ class LookupImportController:
 
         except Exception as e:
             logger.exception(e)
+            raise 
 
         finally:
             ormSession.close()
@@ -149,7 +157,8 @@ class LookupImportController:
             modelSet = getOrCreateModelSet(ormSession, modelSetKey)
 
             if coordSetKey:
-                coordSet = getOrCreateCoordSet(ormSession, modelSetKey, coordSetKey)
+                coordSet = getOrCreateCoordSet(
+                    ormSession, modelSetKey, coordSetKey)
 
                 all = (ormSession.query(LookupType)
                        .filter(LookupType.coordSetId == coordSet.id)
@@ -174,7 +183,8 @@ class LookupImportController:
                         newTuple.coordSetKey = coordSetKey
 
                     else:
-                        setattr(newTuple, fieldName, getattr(ormTuple, fieldName))
+                        setattr(newTuple, fieldName,
+                                getattr(ormTuple, fieldName))
 
                 importTuples.append(newTuple)
 
@@ -185,3 +195,17 @@ class LookupImportController:
 
         finally:
             ormSession.close()
+
+    def _convertLineStyles(self, importLineStyles: List[ImportDispTextStyleTuple]):
+        for style in importLineStyles:
+            dp = style.dashPattern
+
+            if dp is None:
+                continue
+
+            if not isinstance(dp, list):
+                dp = [dp]
+
+            style.dashPattern = json.dumps(dp)
+
+

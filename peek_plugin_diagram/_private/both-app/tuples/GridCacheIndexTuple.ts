@@ -22,7 +22,5 @@ export class GridCacheIndexTuple extends Tuple {
     constructor() {
         super(GridCacheIndexTuple.tupleName)
     }
-
-
 }
 

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union, List
 
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
@@ -35,7 +35,12 @@ class ImportDispLineStyleTuple(Tuple):
 
     winStyle: str = TupleField()
 
-    dashPattern: Optional[str] = TupleField()
+    #: A dash pattern style
+    # We accept :
+    # * None
+    # an integer
+    # a list of integers
+    dashPattern: Optional[Union[List[int],int]] = TupleField()
 
     importHash: str = TupleField()
 

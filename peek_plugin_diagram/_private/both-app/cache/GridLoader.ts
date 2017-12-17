@@ -169,6 +169,8 @@ export class GridLoader extends GridLoaderA {
         // There is no point talking to the server if it's offline
         if (!this.vortexStatusService.snapshot.isOnline)
             return;
+        
+        this.footerService.setStatusText(`Starting Cache Update`);
 
         this.tupleService
             .tupleObserver

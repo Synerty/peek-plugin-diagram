@@ -1,9 +1,10 @@
-import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
-import {DispPolygon} from "../tuples/shapes/DispPolygon";
-import {PointsT} from "../tuples/shapes/DispBase";
-import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
-import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import { PeekCanvasConfig } from "./PeekCanvasConfig.web";
+import { PeekDispRenderDelegateABC } from "./PeekDispRenderDelegateABC.web";
+import { DispPolygon } from "../tuples/shapes/DispPolygon";
+import { PointsT } from "../tuples/shapes/DispBase";
+import { DispFactory, DispType } from "../tuples/shapes/DispFactory";
+import { PeekCanvasBounds } from "./PeekCanvasBounds";
+import { DispLineStyle } from "../tuples/lookups/DispLineStyle";
 
 export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
@@ -13,15 +14,17 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     }
 
 
-    private _drawLine(ctx, x1, y1, x2, y2, lineStyle, zoom) {
+    private _drawLine(ctx, x1: number, y1: number, x2: number, y2: number,
+        dashPattern:null | number[],
+        zoom: number, segmentNum: number) {
 
-        if (lineStyle.dashPattern == null) {
+        if (dashPattern == null) {
             ctx.lineTo(x2, y2);
             return;
         }
 
         // FIXME HACK, Just hard code the dash len
-        let dashLen = lineStyle.dashPattern[0] / zoom;
+        let dashLen = dashPattern[segmentNum % dashPattern.length] / zoom;
 
         ctx.moveTo(x1, y1);
 
@@ -47,6 +50,10 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         let lineColor = DispPolygon.lineColor(disp);
         let lineStyle = DispPolygon.lineStyle(disp);
 
+        let dashPattern = null;
+        if (lineStyle != null && lineStyle.dashPattern != null)
+            dashPattern  = lineStyle.dashPattern;
+
         // Null colors are also not drawn
         fillColor = (fillColor && fillColor.color) ? fillColor : null;
         lineColor = (lineStyle && lineColor && lineColor.color) ? lineColor : null;
@@ -64,7 +71,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         let firstPointY = points[1]; // get details of point
 
         // Fill the background first, if required
-        if (lineColor && lineStyle.backgroundFillDashSpace) {
+        if (lineColor && lineStyle.backgroundFillDashSpace && dashPattern) {
             ctx.beginPath();
             ctx.moveTo(firstPointX, firstPointY);
 
@@ -90,10 +97,12 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             let pointY = points[i + 1];
 
             // Draw the segment
-            this._drawLine(ctx, lastPointX, lastPointY, pointX, pointY, lineStyle, zoom);
+            this._drawLine(ctx,
+                lastPointX, lastPointY, pointX, pointY,
+                dashPattern, zoom, i);
+
             lastPointX = pointX;
             lastPointY = pointY;
-
         }
 
         if (isPolygon)
@@ -121,9 +130,9 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     };
 
     private _drawSquarePercentFill(ctx, bounds,
-                                   fillColor,
-                                   fillDirection,
-                                   fillPercentage) {
+        fillColor,
+        fillDirection,
+        fillPercentage) {
         let FILL_TOP_TO_BOTTOM = 0;
         let FILL_BOTTOM_TO_TOP = 1;
         let FILL_RIGHT_TO_LEFT = 2;
@@ -195,12 +204,12 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     }
 
     private polygonContains(points: PointsT, dispPoly,
-                            x: number, y: number, margin: number): boolean {
+        x: number, y: number, margin: number): boolean {
 
 
         // Using the polygon line segment crossing algorithm.
         function rayCrossesSegment(axIn: number, ayIn: number,
-                                   bxIn: number, byIn: number) {
+            bxIn: number, byIn: number) {
             let swap = ayIn > byIn;
             let ax = swap ? bxIn : axIn;
             let ay = swap ? byIn : ayIn;
@@ -308,7 +317,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
 
     private polylineContains(points: PointsT, dispPoly,
-                             x: number, y: number, margin: number): boolean {
+        x: number, y: number, margin: number): boolean {
 
         // ELSE, POLYLINE
         let x1 = points[0];
@@ -343,7 +352,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             let xVal = (y - intercept) / slope;
 
             if (((y - margin) < yVal && yVal < (y + margin)
-                    || (x - margin) < xVal && xVal < (x + margin))
+                || (x - margin) < xVal && xVal < (x + margin))
                 && (left <= x && x <= right && top <= y && y <= bottom))
                 return true;
 
