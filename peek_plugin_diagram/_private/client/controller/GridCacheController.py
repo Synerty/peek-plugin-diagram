@@ -42,20 +42,17 @@ class GridCacheController:
         self._gridCacheHandler = None
         self._gridCache: Dict[str, EncodedGridTuple] = {}
 
-        self._gridEndpoint = None
-        self._coordSetEndpoint = None
-
-    def setGridCacheHandler(self, gridCacheHandler):
-        self._gridCacheHandler = gridCacheHandler
-
-    @inlineCallbacks
-    def start(self):
         self._gridEndpoint = PayloadEndpoint(clientGridUpdateFromServerFilt,
                                              self._processGridPayload)
 
         self._coordSetEndpoint = PayloadEndpoint(clientCoordSetUpdateFromServerFilt,
                                                  self._processCoordSetPayload)
 
+    def setGridCacheHandler(self, gridCacheHandler):
+        self._gridCacheHandler = gridCacheHandler
+
+    @inlineCallbacks
+    def start(self):
         yield self.reloadCache()
 
     def shutdown(self):
@@ -63,6 +60,9 @@ class GridCacheController:
 
         self._gridEndpoint.shutdown()
         self._gridEndpoint = None
+
+        self._coordSetEndpoint.shutdown()
+        self._coordSetEndpoint = None
 
         self._gridCache = {}
         # self._cachedGridCoordSetIds = set()
@@ -82,13 +82,15 @@ class GridCacheController:
             self._loadGridIntoCache(gridTuples)
             offset += self.LOAD_CHUNK
 
+    def _processGridPayload(self, payload: Payload, **kwargs):
+        print(':-] ' * 20)
+        print(payload.filt)
+        gridTuples: List[GridTuple] = payload.tuples
+        return self._loadGridIntoCache(gridTuples)
+
     def _processCoordSetPayload(self, payload: Payload, **kwargs):
         d: Deferred = self.reloadCache()
         d.addErrback(vortexLogFailure, logger, consumeError=True)
-
-    def _processGridPayload(self, payload: Payload, **kwargs):
-        gridTuples: List[GridTuple] = payload.tuples
-        yield self._loadGridIntoCache(gridTuples)
 
     def _loadGridIntoCache(self, encodedGridTuples: List[EncodedGridTuple]):
         gridKeyUpdates: List[str] = []

@@ -26,8 +26,6 @@ import {
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
 
 
-let pako = require("pako");
-
 
 // ----------------------------------------------------------------------------
 

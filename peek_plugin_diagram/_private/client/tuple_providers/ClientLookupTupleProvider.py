@@ -21,6 +21,10 @@ class ClientLookupTupleProvider(TuplesProviderABC):
         modelSetKey = tupleSelector.selector["modelSetKey"]
 
         tuples = self._lookupCacheController.lookups(tupleSelector.name)
-        tuples = list(filter(lambda i: i.data["modelSetKey"] == modelSetKey,tuples))
+
+        if tuples:
+            tuples = list(filter(lambda i: i.data["modelSetKey"] == modelSetKey, tuples))
+        else:
+            tuples = []
 
         return Payload(filt, tuples=tuples).toVortexMsgDefer()

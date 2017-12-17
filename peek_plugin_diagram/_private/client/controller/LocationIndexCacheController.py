@@ -36,16 +36,14 @@ class LocationIndexCacheController:
         self._cache = {}
         self._locationKeysByModelSet = defaultdict(set)
 
-        self._endpoint = None
+        self._endpoint = PayloadEndpoint(clientLocationIndexUpdateFromServerFilt,
+                                         self._processLocationIndexPayload)
 
     def setLocationIndexCacheHandler(self, locationIndexCacheHandler):
         self._cacheHandler = locationIndexCacheHandler
 
     @inlineCallbacks
     def start(self):
-        self._endpoint = PayloadEndpoint(clientLocationIndexUpdateFromServerFilt,
-                                         self._processLocationIndexPayload)
-
         yield self.reloadCache()
 
     def shutdown(self):
