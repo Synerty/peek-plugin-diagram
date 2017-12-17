@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Optional
 
 from twisted.internet.defer import Deferred
 
@@ -51,35 +51,45 @@ class ClientGridUpdateHandler:
         if not gridKeys:
             return
 
+        def send(vortexMsg: bytes):
+            if vortexMsg:
+                VortexFactory.sendVortexMsg(
+                    vortexMsg, destVortexName=peekClientName
+                )
+
         d: Deferred = self._serialiseGrids(gridKeys)
-        d.addCallback(VortexFactory.sendVortexMsg, destVortexName=peekClientName)
+        d.addCallback(send)
         d.addErrback(self._sendGridsErrback, gridKeys)
 
     def _sendGridsErrback(self, failure, gridKeys):
 
         if failure.check(NoVortexException):
-            logger.debug("No clients are online to send the grid to, %s", gridKeys)
+            logger.debug(
+                "No clients are online to send the grid to, %s", gridKeys)
             return
 
         vortexLogFailure(failure, logger)
 
     @deferToThreadWrapWithLogger(logger)
-    def _serialiseGrids(self, gridKeys) -> bytes:
+    def _serialiseGrids(self, gridKeys) -> Optional[bytes]:
         session = self._dbSessionCreator()
         try:
             ormGrids = (session.query(GridKeyIndexCompiled)
                         .filter(makeOrmValuesSubqueryCondition(
-                session, GridKeyIndexCompiled.gridKey, gridKeys
-            ))
+                            session, GridKeyIndexCompiled.gridKey, gridKeys
+                        ))
                         .yield_per(200))
 
             gridTuples: List[GridTuple] = []
             for ormGrid in ormGrids:
                 gridTuples.append(
                     EncodedGridTuple(gridKey=ormGrid.gridKey,
-                              encodedGridTuple=ormGrid.encodedGridTuple,
-                              lastUpdate=ormGrid.lastUpdate)
+                                     encodedGridTuple=ormGrid.encodedGridTuple,
+                                     lastUpdate=ormGrid.lastUpdate)
                 )
+
+            if not gridTuples:
+                return None
 
             return Payload(filt=clientGridUpdateFromServerFilt,
                            tuples=gridTuples).toVortexMsg()

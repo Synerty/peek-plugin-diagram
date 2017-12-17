@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy.orm import joinedload
 from twisted.internet.defer import Deferred
@@ -50,29 +50,36 @@ class ClientLocationIndexUpdateHandler:
         if not indexBuckets:
             return
 
+        def send(vortexMsg: bytes):
+            if vortexMsg:
+                VortexFactory.sendVortexMsg(
+                    vortexMsg, destVortexName=peekClientName
+                )
+
         d: Deferred = self._serialiseLocationIndexes(indexBuckets)
-        d.addCallback(VortexFactory.sendVortexMsg, destVortexName=peekClientName)
+        d.addCallback(send)
         d.addErrback(self._sendErrback, indexBuckets)
 
     def _sendErrback(self, failure, indexBucket):
 
         if failure.check(NoVortexException):
-            logger.debug("No clients are online to send the grid to, %s", indexBucket)
+            logger.debug(
+                "No clients are online to send the grid to, %s", indexBucket)
             return
 
         vortexLogFailure(failure, logger)
 
     @deferToThreadWrapWithLogger(logger)
-    def _serialiseLocationIndexes(self, indexBuckets: List[str]) -> bytes:
+    def _serialiseLocationIndexes(self, indexBuckets: List[str]) -> Optional[bytes]:
         session = self._dbSessionCreator()
         try:
             ormObjs = (
                 session.query(LocationIndexCompiled)
-                    .options(joinedload(LocationIndexCompiled.modelSet))
-                    .filter(makeOrmValuesSubqueryCondition(
-                    session, LocationIndexCompiled.indexBucket, indexBuckets
-                ))
-                    .yield_per(200)
+                .options(joinedload(LocationIndexCompiled.modelSet))
+                .filter(makeOrmValuesSubqueryCondition(
+                        session, LocationIndexCompiled.indexBucket, indexBuckets
+                        ))
+                .yield_per(200)
             )
 
             locationIndexTuples: List[LocationIndexTuple] = []
@@ -85,6 +92,9 @@ class ClientLocationIndexUpdateHandler:
                         lastUpdate=ormObj.lastUpdate
                     )
                 )
+
+            if not locationIndexTuples:
+                return None
 
             return Payload(filt=clientLocationIndexUpdateFromServerFilt,
                            tuples=locationIndexTuples).toVortexMsg()
