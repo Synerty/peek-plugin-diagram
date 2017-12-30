@@ -13,4 +13,5 @@ class LocationIndexUpdateDateTuple(Tuple):
     __tupleType__ = diagramTuplePrefix + "LocationIndexUpdateDateTuple"
 
     modelSetKey: str = TupleField()
+    initialLoadComplete: bool = TupleField()
     indexBucketUpdateDates: DeviceLocationIndexT = TupleField({})

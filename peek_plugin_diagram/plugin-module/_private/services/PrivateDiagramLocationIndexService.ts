@@ -17,12 +17,13 @@ import {
     locationIndexCacheStorageName
 } from "@peek/peek_plugin_diagram/_private";
 
-import * as moment from "moment";
+
 import {LocationIndexUpdateDateTuple} from "../tuples/LocationIndexUpdateDateTuple";
 import {DispKeyLocationTuple} from "../tuples/DispLocationTuple";
 import {PrivateDiagramCoordSetService} from "./PrivateDiagramCoordSetService";
 
 import {Subject, Observable} from "rxjs";
+import {EncodedLocationIndexTuple} from "../tuples/EncodedLocationIndexTuple";
 
 let pako = require("pako");
 
@@ -110,7 +111,7 @@ export class PrivateDiagramLocationIndexService {
     constructor(private vortexService: VortexService,
                 private vortexStatusService: VortexStatusService,
                 storageFactory: TupleStorageFactoryService,
-                private coordSetService:PrivateDiagramCoordSetService) {
+                private coordSetService: PrivateDiagramCoordSetService) {
 
         this.storage = new TupleOfflineStorageService(
             storageFactory,
@@ -119,11 +120,11 @@ export class PrivateDiagramLocationIndexService {
 
     }
 
-    indexForModelSetKey(modelSetKey:string) : Promise<LocationIndex> {
-        let newIndex : LocationIndex | null = null;
+    indexForModelSetKey(modelSetKey: string): Promise<LocationIndex> {
+        let newIndex: LocationIndex | null = null;
 
         if (this.indexByModelSet.hasOwnProperty(modelSetKey)) {
-             newIndex = this.indexByModelSet[modelSetKey];
+            newIndex = this.indexByModelSet[modelSetKey];
             if (newIndex.isReady())
                 return Promise.resolve(newIndex);
 
@@ -141,7 +142,7 @@ export class PrivateDiagramLocationIndexService {
         return new Promise<LocationIndex>((resolve, reject) => {
             newIndex.isReadyObservable()
                 .first()
-                .subscribe(() =>{
+                .subscribe(() => {
                     resolve(newIndex);
                 });
         });
@@ -152,9 +153,8 @@ export class PrivateDiagramLocationIndexService {
 
 export class LocationIndex {
 
-    private indexBucketUpdateDates = {};
+    private index = new LocationIndexUpdateDateTuple();
 
-    // TODO, There appears to be no way to tear down a service
     private lifecycleEmitter = new ComponentLifecycleEventEmitter();
 
     private _hasLoaded = false;
@@ -164,9 +164,9 @@ export class LocationIndex {
     constructor(private vortexService: VortexService,
                 private vortexStatusService: VortexStatusService,
                 private storage: TupleOfflineStorageService,
-                private modelSetKey:string,
-                private coordSetService:PrivateDiagramCoordSetService) {
-
+                private modelSetKey: string,
+                private coordSetService: PrivateDiagramCoordSetService) {
+        this.index.modelSetKey = this.modelSetKey;
         this.initialLoad();
     }
 
@@ -187,11 +187,13 @@ export class LocationIndex {
         this.storage.loadTuples(new UpdateDateTupleSelector(this.modelSetKey))
             .then((tuples: LocationIndexUpdateDateTuple[]) => {
                 if (tuples.length != 0) {
-                    this.indexBucketUpdateDates = tuples[0].indexBucketUpdateDates;
-                    if (this.vortexStatusService.snapshot.isOnline) {
+                    this.index = tuples[0];
+
+                    if (this.index.initialLoadComplete) {
                         this._hasLoaded = true;
                         this._hasLoadedSubject.next();
                     }
+
                 }
 
                 this.setupVortexSubscriptions();
@@ -203,7 +205,7 @@ export class LocationIndex {
 
     private setupVortexSubscriptions(): void {
 
-        let filt = extend({modelSetKey:this.modelSetKey},
+        let filt = extend({modelSetKey: this.modelSetKey},
             clientLocationIndexWatchUpdateFromDeviceFilt);
 
         // Services don't have destructors, I'm not sure how to unsubscribe.
@@ -227,9 +229,9 @@ export class LocationIndex {
             return;
 
         let tuple = new LocationIndexUpdateDateTuple();
-        tuple.indexBucketUpdateDates = this.indexBucketUpdateDates;
+        tuple.indexBucketUpdateDates = this.index.indexBucketUpdateDates;
 
-        let filt = extend({modelSetKey:this.modelSetKey},
+        let filt = extend({modelSetKey: this.modelSetKey},
             clientLocationIndexWatchUpdateFromDeviceFilt);
 
         let payload = new Payload(filt, [tuple]);
@@ -243,34 +245,31 @@ export class LocationIndex {
      */
     private processLocationIndexesFromServer(payload: Payload) {
         if (payload.result != null && payload.result != true) {
-            console.log(payload.result);
+            console.log(`ERROR: ${payload.result}`);
             return;
         }
 
         if (payload.filt["finished"] == true) {
-            this._hasLoaded = true;
-            this._hasLoadedSubject.next();
+            this.index.initialLoadComplete = true;
+
+            this.storage.saveTuples(
+                new UpdateDateTupleSelector(this.modelSetKey), [this.index]
+            )
+                .then(() => {
+                    this._hasLoaded = true;
+                    this._hasLoadedSubject.next();
+                })
+                .catch(err => console.log(`ERROR : ${err}`));
+
             return;
         }
 
-        let locationIndexTuples: LocationIndexTuple[] = <LocationIndexTuple[]>payload.tuples;
+        let encodedLocationIndexTuples: EncodedLocationIndexTuple[] = <EncodedLocationIndexTuple[]>payload.tuples;
 
         let tuplesToSave = [];
 
-        for (let locationIndex of locationIndexTuples) {
-            let updateDate = this.indexBucketUpdateDates[locationIndex.indexBucket];
-
-            // If the cache is newer, ignore the update
-            // This really shouldn't happen.
-            if (updateDate != null) {
-                let cacheLocationIndexDate = moment(updateDate);
-                let newLocationIndexDate = moment(locationIndex.lastUpdate);
-                if (newLocationIndexDate.isBefore(cacheLocationIndexDate)) {
-                    continue
-                }
-            }
-
-            tuplesToSave.push(locationIndex);
+        for (let item of encodedLocationIndexTuples) {
+            tuplesToSave.push(item);
         }
 
 
@@ -280,16 +279,13 @@ export class LocationIndex {
                 // 3) Store the update date
 
                 for (let locationIndex of tuplesToSave) {
-                    this.indexBucketUpdateDates[locationIndex.indexBucket] = locationIndex.lastUpdate;
+                    this.index.indexBucketUpdateDates[locationIndex.indexBucket] = locationIndex.lastUpdate;
                 }
 
-                let updateDateTuple = new LocationIndexUpdateDateTuple();
-                updateDateTuple.modelSetKey = this.modelSetKey;
-                updateDateTuple.indexBucketUpdateDates = this.indexBucketUpdateDates;
-
                 return this.storage.saveTuples(
-                    new UpdateDateTupleSelector(this.modelSetKey), [updateDateTuple]
+                    new UpdateDateTupleSelector(this.modelSetKey), [this.index]
                 );
+
             })
             .catch(e => console.log(
                 `LocationIndexCache.storeLocationIndexTuples: ${e}`));
@@ -299,26 +295,24 @@ export class LocationIndex {
     /** Store Index Bucket
      * Stores the index bucket in the local db.
      */
-    private storeLocationIndexTuples(locationIndexTuples: LocationIndexTuple[]): Promise<void> {
+    private storeLocationIndexTuples(encodedLocationIndexTuples: EncodedLocationIndexTuple[]): Promise<void> {
         let retPromise: any;
         retPromise = this.storage.transaction(true)
             .then((tx) => {
 
                 let promises = [];
 
-                for (let locationIndexTuple of locationIndexTuples) {
+                for (let encodedLocationIndexTuple of encodedLocationIndexTuples) {
                     promises.push(
                         tx.saveTuplesEncoded(
-                            new LocationIndexTupleSelector(locationIndexTuple.indexBucket),
-                            locationIndexTuple.encodedThisTuple
+                            new LocationIndexTupleSelector(encodedLocationIndexTuple.indexBucket),
+                            encodedLocationIndexTuple.encodedLocationIndexTuple
                         )
                     );
                 }
 
                 return Promise.all(promises)
-                    .then(() => tx.close())
-                    .catch(e => console.log(
-                        `LocationIndexCache.storeLocationIndexTuples: ${e}`));
+                    .then(() => tx.close());
             });
         return retPromise;
     }
@@ -330,13 +324,13 @@ export class LocationIndex {
      */
     getLocations(dispKey: string): Promise<DispKeyLocationTuple[]> {
         if (dispKey == null || dispKey.length == 0) {
-            let val :DispKeyLocationTuple[] = [];
+            let val: DispKeyLocationTuple[] = [];
             return Promise.resolve(val);
         }
 
         let indexBucket = dispKeyHashBucket(this.modelSetKey, dispKey);
 
-        if (!this.indexBucketUpdateDates.hasOwnProperty(indexBucket)) {
+        if (!this.index.indexBucketUpdateDates.hasOwnProperty(indexBucket)) {
             console.log(`DispKey ${dispKey} doesn't appear in the index`);
             return Promise.resolve([]);
         }
@@ -350,13 +344,12 @@ export class LocationIndex {
                 if (tuples.length != 1)
                     throw new Error("We received more tuples then expected");
 
-                let jsonStr = pako.inflate(tuples[0].blobData, {to: "string"});
-                let dispIndexArray = JSON.parse(jsonStr);
+                let dispIndexArray = JSON.parse(tuples[0].jsonStr);
 
-                let dispLocationIndexRawData :any[] | null = null;
+                let dispLocationIndexRawData: any[] | null = null;
 
                 // TODO These keys are sorted, so we can do a binary search.
-                for (let i = 0; i  < dispIndexArray.length; i++) {
+                for (let i = 0; i < dispIndexArray.length; i++) {
                     if (dispIndexArray[i][0] == dispKey) {
                         dispLocationIndexRawData = dispIndexArray[i].slice(1);
                         break;
@@ -377,6 +370,9 @@ export class LocationIndex {
 
                     dispIndexes.push(dispLocation);
                 }
+
+                if (dispIndexes.length !== 0)
+                    alert(`found ${dispKey}`);
 
                 return dispIndexes;
             });

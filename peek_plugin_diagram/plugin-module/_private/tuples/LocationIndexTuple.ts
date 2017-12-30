@@ -9,14 +9,9 @@ export class LocationIndexTuple extends Tuple {
     modelSetKey: string;
     indexBucket: string;
 
-    // The compressed (deflated) json string.
-    blobData: string | null;
+    // The json string.
+    jsonStr: string | null;
     lastUpdate: string;
-
-    // A compressed payload of... this tuple, it's a little recursive.
-    // This removes the need for the client to convert the
-    // tuple to a vortexMsg in saveTuple
-    encodedThisTuple: string;
 
 
     constructor() {

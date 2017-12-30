@@ -6,6 +6,8 @@ from peek_plugin_base.storage.DbConnection import DbSessionCreator
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompiled
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
+from peek_plugin_diagram._private.tuples.EncodedLocationIndexTuple import \
+    EncodedLocationIndexTuple
 from peek_plugin_diagram._private.tuples.LocationIndexTuple import LocationIndexTuple
 from vortex.rpc.RPC import vortexRPC
 
@@ -31,7 +33,7 @@ class ClientLocationIndexLoaderRpc:
     # -------------
     @vortexRPC(peekServerName, acceptOnlyFromVortex=peekClientName, timeoutSeconds=60,
                additionalFilt=diagramFilt, deferToThread=True)
-    def loadLocationIndexes(self, offset: int, count: int) -> List[LocationIndexTuple]:
+    def loadLocationIndexes(self, offset: int, count: int) -> List[EncodedLocationIndexTuple]:
         """ Update Page Loader Status
 
         Tell the server of the latest status of the loader
@@ -40,23 +42,23 @@ class ClientLocationIndexLoaderRpc:
         session = self._dbSessionCreator()
         try:
             ormLocationIndexes = (session
-                                  .query(LocationIndexCompiled.indexBucket,
-                                         LocationIndexCompiled.blobData,
-                                         LocationIndexCompiled.lastUpdate,
-                                         ModelSet.key)
-                                  .join(ModelSet)
-                                  .order_by(LocationIndexCompiled.id)
-                                  .offset(offset)
-                                  .limit(count)
-                                  .yield_per(200))
+                .query(LocationIndexCompiled.indexBucket,
+                       LocationIndexCompiled.blobData,
+                       LocationIndexCompiled.lastUpdate,
+                       ModelSet.key)
+                .join(ModelSet)
+                .order_by(LocationIndexCompiled.id)
+                .offset(offset)
+                .limit(count)
+                .yield_per(200))
 
             gridTuples: List[LocationIndexTuple] = []
             for obj in ormLocationIndexes:
                 gridTuples.append(
-                    LocationIndexTuple(indexBucket=obj.indexBucket,
-                                       blobData=obj.blobData,
-                                       lastUpdate=obj.lastUpdate,
-                                       modelSetKey=obj.key)
+                    EncodedLocationIndexTuple(indexBucket=obj.indexBucket,
+                                              encodedLocationIndexTuple=obj.blobData,
+                                              lastUpdate=obj.lastUpdate,
+                                              modelSetKey=obj.key)
                 )
 
             return gridTuples

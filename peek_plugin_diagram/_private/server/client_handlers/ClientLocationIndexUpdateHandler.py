@@ -9,6 +9,8 @@ from peek_plugin_base.storage.StorageUtil import makeOrmValuesSubqueryCondition
 from peek_plugin_diagram._private.client.controller.LocationIndexCacheController import \
     clientLocationIndexUpdateFromServerFilt
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompiled
+from peek_plugin_diagram._private.tuples.EncodedLocationIndexTuple import \
+    EncodedLocationIndexTuple
 from peek_plugin_diagram._private.tuples.LocationIndexTuple import LocationIndexTuple
 from vortex.DeferUtil import vortexLogFailure, deferToThreadWrapWithLogger
 from vortex.Payload import Payload
@@ -85,10 +87,10 @@ class ClientLocationIndexUpdateHandler:
             locationIndexTuples: List[LocationIndexTuple] = []
             for ormObj in ormObjs:
                 locationIndexTuples.append(
-                    LocationIndexTuple(
+                    EncodedLocationIndexTuple(
                         modelSetKey=ormObj.modelSet.key,
                         indexBucket=ormObj.indexBucket,
-                        blobData=ormObj.blobData,
+                        encodedLocationIndexTuple=ormObj.blobData,
                         lastUpdate=ormObj.lastUpdate
                     )
                 )

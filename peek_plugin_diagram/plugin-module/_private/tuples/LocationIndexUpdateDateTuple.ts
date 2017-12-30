@@ -6,8 +6,9 @@ import {diagramTuplePrefix} from "@peek/peek_plugin_diagram/_private";
 export class LocationIndexUpdateDateTuple extends Tuple {
     public static readonly tupleName = diagramTuplePrefix + "LocationIndexUpdateDateTuple";
 
-    modelSetKey:string;
-    indexBucketUpdateDates: {};
+    modelSetKey: string;
+    initialLoadComplete: boolean = false;
+    indexBucketUpdateDates: {} = {};
 
     constructor() {
         super(LocationIndexUpdateDateTuple.tupleName)

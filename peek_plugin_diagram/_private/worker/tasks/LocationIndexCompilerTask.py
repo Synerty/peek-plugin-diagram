@@ -4,7 +4,12 @@ from _collections import defaultdict
 from datetime import datetime
 from typing import List, Dict
 
+import hashlib
 import pytz
+from base64 import b64encode
+
+from peek_plugin_diagram._private.storage.ModelSet import ModelSet
+from vortex.Payload import Payload
 
 from peek_plugin_base.storage.StorageUtil import makeCoreValuesSubqueryCondition, \
     makeOrmValuesSubqueryCondition
@@ -13,6 +18,7 @@ from peek_plugin_diagram._private.storage.Display import DispBase
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompiled, \
     LocationIndex
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompilerQueue
+from peek_plugin_diagram._private.tuples.LocationIndexTuple import LocationIndexTuple
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from txcelery.defer import DeferrableTask
 
@@ -55,6 +61,16 @@ def compileLocationIndex(self, queueItems) -> List[str]:
         logger.debug("Staring compile of %s queueItems in %s",
                      len(queueItems), (datetime.utcnow() - startTime))
 
+        # Get Model Sets
+
+        modelSetIds = list(set(modelSetIdByIndexBucket.values()))
+        modelSetQry = (
+            session.query(ModelSet.key, ModelSet.id)
+                .filter(ModelSet.id.in_(modelSetIds))
+        )
+
+        modelSetKeyByModelSetId = {o.id: o.key for o in modelSetQry}
+
         total = 0
         dispData = _buildIndex(session, indexBuckets)
 
@@ -66,10 +82,28 @@ def compileLocationIndex(self, queueItems) -> List[str]:
         transaction = conn.begin()
 
         inserts = []
-        for indexBucket, blobData in dispData.items():
-            inserts.append(dict(modelSetId=modelSetIdByIndexBucket[indexBucket],
+        for indexBucket, jsonStr in dispData.items():
+            modelSetId = modelSetIdByIndexBucket[indexBucket]
+            modelSetKey = modelSetKeyByModelSetId[modelSetId]
+
+            m = hashlib.sha256()
+            m.update(modelSetKey.encode())
+            m.update(jsonStr.encode())
+            dataHash = b64encode(m.digest()).decode()
+
+            locationIndexTuple = LocationIndexTuple(
+                modelSetKey=modelSetKey,
+                indexBucket=indexBucket,
+                jsonStr=jsonStr,
+                lastUpdate=dataHash
+
+            )
+
+            blobData = Payload(tuples=[locationIndexTuple]).toVortexMsg()
+
+            inserts.append(dict(modelSetId=modelSetId,
                                 indexBucket=indexBucket,
-                                lastUpdate=lastUpdate,
+                                lastUpdate=dataHash,
                                 blobData=blobData))
 
         if inserts:
@@ -111,6 +145,7 @@ def _buildIndex(session, indexBuckets) -> Dict[str, str]:
             .filter(makeOrmValuesSubqueryCondition(
             session, LocationIndex.indexBucket, indexBuckets
         ))
+            .order_by(DispBase.id)
     )
 
     jsonByIndexBucket = {}
@@ -134,9 +169,6 @@ def _buildIndex(session, indexBuckets) -> Dict[str, str]:
 
         # Create the blob data for this index.
         # It will be searched by a binary sort
-        dumpedJson = '[' + ','.join(indexStructure) + ']'
-        blobData = zlib.compress(dumpedJson.encode(), 9)
-
-        jsonByIndexBucket[indexBucket] = blobData
+        jsonByIndexBucket[indexBucket] = '[' + ','.join(indexStructure) + ']'
 
     return jsonByIndexBucket

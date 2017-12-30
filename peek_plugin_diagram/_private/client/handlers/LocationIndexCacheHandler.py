@@ -2,7 +2,7 @@ import logging
 from typing import List
 
 from collections import defaultdict
-from twisted.internet.defer import DeferredList, Deferred
+from twisted.internet.defer import DeferredList, Deferred, inlineCallbacks
 
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.client.controller.LocationIndexCacheController import \
@@ -108,7 +108,7 @@ class LocationIndexCacheHandler(object):
 
     # ---------------
     # Process observes from the devices
-
+    @inlineCallbacks
     def _processObserve(self, payload: Payload,
                         vortexUuid: str,
                         sendResponse: SendVortexMsgResponseCallable,
@@ -119,9 +119,9 @@ class LocationIndexCacheHandler(object):
         self._observedModelSetKeyByVortexUuid[vortexUuid] = payload.filt["modelSetKey"]
         self._rebuildStructs()
 
-        self._replyToObserve(payload.filt,
-                             updateDatesTuples.indexBucketUpdateDates,
-                             sendResponse)
+        yield self._replyToObserve(payload.filt,
+                                   updateDatesTuples.indexBucketUpdateDates,
+                                   sendResponse)
 
     def _rebuildStructs(self) -> None:
         """ Rebuild Structs
@@ -141,6 +141,7 @@ class LocationIndexCacheHandler(object):
     # ---------------
     # Reply to device observe
 
+    @inlineCallbacks
     def _replyToObserve(self, filt,
                         lastUpdateByLocationIndexKey: DeviceLocationIndexT,
                         sendResponse: SendVortexMsgResponseCallable) -> None:
@@ -160,16 +161,6 @@ class LocationIndexCacheHandler(object):
         modelSetKey = filt["modelSetKey"]
 
         locationIndexTuplesToSend = []
-
-        def send():
-            if not locationIndexTuplesToSend:
-                return
-
-            d: Deferred = Payload(filt=filt,
-                                  tuples=locationIndexTuplesToSend).toVortexMsgDefer()
-            d.addCallback(sendResponse)
-            d.addErrback(vortexLogFailure, logger, consumeError=True)
-
         locationIndexKeys = self._cacheController.locationIndexKeys(modelSetKey)
 
         # Check and send any updates
@@ -177,27 +168,37 @@ class LocationIndexCacheHandler(object):
             lastUpdate = lastUpdateByLocationIndexKey.get(locationIndexKey)
 
             # NOTE: lastUpdate can be null.
-            locationIndexTuple = self._cacheController.locationIndex(locationIndexKey)
-            if not locationIndexTuple:
+            encodedLocationIndexTuple = self._cacheController.locationIndex(
+                locationIndexKey)
+            if not encodedLocationIndexTuple:
                 logger.debug("LocationIndex %s is not in the cache" % locationIndexKey)
                 continue
 
             # We are king, If it's it's not our version, it's the wrong version ;-)
-            logger.debug("%s, %s,  %s", locationIndexTuple.lastUpdate == lastUpdate,
-                         locationIndexTuple.lastUpdate, lastUpdate)
+            logger.debug("%s, %s,  %s",
+                         encodedLocationIndexTuple.lastUpdate == lastUpdate,
+                         encodedLocationIndexTuple.lastUpdate, lastUpdate)
 
-            if locationIndexTuple.lastUpdate == lastUpdate:
+            if encodedLocationIndexTuple.lastUpdate == lastUpdate:
                 logger.debug("LocationIndex %s matches the cache" % locationIndexKey)
                 continue
 
-            locationIndexTuplesToSend.append(locationIndexTuple)
+            locationIndexTuplesToSend.append(encodedLocationIndexTuple)
             logger.debug("Sending locationIndex %s from the cache" % locationIndexKey)
 
             if len(locationIndexTuplesToSend) == 20:
-                send()
+                vortexMsg = yield Payload(filt=filt,
+                                          tuples=locationIndexTuplesToSend).toVortexMsgDefer()
+                yield sendResponse(vortexMsg)
                 locationIndexTuplesToSend = []
 
-        send()
+        if locationIndexTuplesToSend:
+            vortexMsg = yield Payload(filt=filt,
+                                      tuples=locationIndexTuplesToSend).toVortexMsgDefer()
+            yield sendResponse(vortexMsg)
 
-        d = sendResponse(Payload(filt={'finished':True}.update(filt)).toVortexMsg())
-        d.addErrback(vortexLogFailure, logger, consumeError=True)
+        # Tell the client the initial load is complete.
+        finishedFilt = {'finished': True}
+        finishedFilt.update(filt)
+        vortexMsg = yield Payload(filt=finishedFilt).toVortexMsgDefer()
+        yield sendResponse(vortexMsg)

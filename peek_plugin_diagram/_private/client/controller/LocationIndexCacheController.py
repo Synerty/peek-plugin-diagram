@@ -6,6 +6,8 @@ from twisted.internet.defer import inlineCallbacks, Deferred
 
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexLoaderRpc import ClientLocationIndexLoaderRpc
+from peek_plugin_diagram._private.tuples.EncodedLocationIndexTuple import \
+    EncodedLocationIndexTuple
 from peek_plugin_diagram._private.tuples.LocationIndexTuple import LocationIndexTuple
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
@@ -26,7 +28,7 @@ class LocationIndexCacheController:
     """
 
     #: This stores the cache of locationIndex data for the clients
-    _cache: Dict[str, LocationIndexTuple] = None
+    _cache: Dict[str, EncodedLocationIndexTuple] = None
 
     LOAD_CHUNK = 50
 
@@ -66,14 +68,17 @@ class LocationIndexCacheController:
             if not locationIndexTuples:
                 break
 
+            updatedTuples = []
             for locationIndexTuple in locationIndexTuples:
-                locationIndexTuple.encodedThisTuple = yield Payload(
-                    tuples=[locationIndexTuple]
-                ).toVortexMsgDefer()
+                if locationIndexTuple.indexBucket in self._cache:
+                    lastUpdate = self._cache[locationIndexTuple.indexBucket].lastUpdate
+                    if lastUpdate == locationIndexTuple.lastUpdate:
+                        continue
+                updatedTuples.append(locationIndexTuple)
 
-                locationIndexTuple.blobData = None
+            if updatedTuples:
+                self._loadLocationIndexIntoCache(updatedTuples)
 
-            self._loadLocationIndexIntoCache(locationIndexTuples)
             offset += self.LOAD_CHUNK
 
     def _processCoordSetPayload(self, payload: Payload, **kwargs):
