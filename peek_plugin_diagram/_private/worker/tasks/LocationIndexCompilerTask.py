@@ -141,11 +141,11 @@ def _buildIndex(session, indexBuckets) -> Dict[str, str]:
     indexQry = (
         session.query(LocationIndex.indexBucket,
                       DispBase.id, DispBase.key, DispBase.locationJson)
-            .join(DispBase, DispBase.id == LocationIndex.dispId)
+            .join(DispBase, DispBase.key == LocationIndex.dispId)
             .filter(makeOrmValuesSubqueryCondition(
             session, LocationIndex.indexBucket, indexBuckets
         ))
-            .order_by(DispBase.id)
+            .order_by(DispBase.key, DispBase.id)
     )
 
     jsonByIndexBucket = {}

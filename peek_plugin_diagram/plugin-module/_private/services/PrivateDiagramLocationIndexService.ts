@@ -371,9 +371,6 @@ export class LocationIndex {
                     dispIndexes.push(dispLocation);
                 }
 
-                if (dispIndexes.length !== 0)
-                    alert(`found ${dispKey}`);
-
                 return dispIndexes;
             });
         return retPromise;
