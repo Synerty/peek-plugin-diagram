@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from typing import List
 
+import pytz
 from sqlalchemy import asc
 from twisted.internet import task
 from twisted.internet.defer import inlineCallbacks
@@ -107,8 +108,8 @@ class GridKeyCompilerQueueController:
             self._lastQueueId = items[-1].id
 
             d = compileGrids.delay(items)
-            d.addCallback(self._pollCallback, datetime.utcnow(), len(items))
-            d.addErrback(self._pollErrback, datetime.utcnow())
+            d.addCallback(self._pollCallback, datetime.now(pytz.utc), len(items))
+            d.addErrback(self._pollErrback, datetime.now(pytz.utc))
 
             self._queueCount += 1
             if self._queueCount >= self.QUEUE_MAX:
@@ -152,7 +153,7 @@ class GridKeyCompilerQueueController:
 
     def _pollCallback(self, gridKeys: List[str], startTime, processedCount):
         self._queueCount -= 1
-        logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
+        logger.debug("Time Taken = %s" % (datetime.now(pytz.utc) - startTime))
         self._clientGridUpdateHandler.sendGrids(gridKeys)
         self._statusController.addToGridCompilerTotal(processedCount)
         self._statusController.setGridCompilerStatus(True, self._queueCount)
@@ -161,5 +162,5 @@ class GridKeyCompilerQueueController:
         self._queueCount -= 1
         self._statusController.setGridCompilerError(str(failure.value))
         self._statusController.setGridCompilerStatus(True, self._queueCount)
-        logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
+        logger.debug("Time Taken = %s" % (datetime.now(pytz.utc) - startTime))
         vortexLogFailure(failure, logger)

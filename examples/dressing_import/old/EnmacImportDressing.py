@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 
 import os
+import pytz
 from geoalchemy2.shape import to_shape, from_shape
 from peek.core.import_enmac.EnmacImportLookups import _EnmacImportLookups
 from peek.core.import_enmac.EnmacImportPprim import EnmacImportPprim
@@ -221,10 +222,10 @@ class EnmacImportDressing(EnmacImportPprim):
                                     .filter(GridKeyIndexUpdate.coordSetId == coordSetId))
 
         if existingGridKeyUpdateQry.count() != 0:
-            existingGridKeyUpdateQry.one().lastUpdate = datetime.utcnow()
+            existingGridKeyUpdateQry.one().lastUpdate = datetime.now(pytz.utc)
         else:
             session.add(GridKeyIndexUpdate(gridKey=DRESSING_GRID_KEY,
-                                           lastUpdate=datetime.utcnow(),
+                                           lastUpdate=datetime.now(pytz.utc),
                                            coordSetId=coordSetId))
 
         session.commit()

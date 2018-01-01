@@ -50,7 +50,7 @@ def compileLocationIndex(self, queueItems) -> List[str]:
     compiledTable = LocationIndexCompiled.__table__
     lastUpdate = datetime.now(pytz.utc).isoformat()
 
-    startTime = datetime.utcnow()
+    startTime = datetime.now(pytz.utc)
 
     session = CeleryDbConn.getDbSession()
     engine = CeleryDbConn.getDbEngine()
@@ -59,7 +59,7 @@ def compileLocationIndex(self, queueItems) -> List[str]:
     try:
 
         logger.debug("Staring compile of %s queueItems in %s",
-                     len(queueItems), (datetime.utcnow() - startTime))
+                     len(queueItems), (datetime.now(pytz.utc) - startTime))
 
         # Get Model Sets
 
@@ -111,7 +111,7 @@ def compileLocationIndex(self, queueItems) -> List[str]:
 
         logger.debug("Compiled %s LocationIndexes, %s missing, in %s",
                      len(inserts),
-                     len(indexBuckets) - len(inserts), (datetime.utcnow() - startTime))
+                     len(indexBuckets) - len(inserts), (datetime.now(pytz.utc) - startTime))
 
         total += len(inserts)
 
@@ -122,7 +122,7 @@ def compileLocationIndex(self, queueItems) -> List[str]:
 
         transaction.commit()
         logger.debug("Compiled and Comitted %s LocationIndexCompileds in %s",
-                     total, (datetime.utcnow() - startTime))
+                     total, (datetime.now(pytz.utc) - startTime))
 
         return indexBuckets
 

@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from typing import List
 
+import pytz
 from sqlalchemy.sql.expression import asc
 from twisted.internet import task
 from twisted.internet.defer import inlineCallbacks
@@ -73,8 +74,8 @@ class DispCompilerQueueController:
 
         # deferLater, to make it call in the main thread.
         d = compileDisps.delay(queueIds, dispIds)
-        d.addCallback(self._pollCallback, datetime.utcnow(), len(queueItems))
-        d.addErrback(self._pollErrback, datetime.utcnow(), len(queueItems))
+        d.addCallback(self._pollCallback, datetime.now(pytz.utc), len(queueItems))
+        d.addErrback(self._pollErrback, datetime.now(pytz.utc), len(queueItems))
 
         self._queueCount += 1
         self._statusController.setDisplayCompilerStatus(True, self._queueCount)
@@ -98,13 +99,13 @@ class DispCompilerQueueController:
     @deferToThreadWrapWithLogger(logger)
     def _pollCallback(self, arg, startTime, dispCount):
         self._queueCount -= 1
-        logger.debug("%s Disps, Time Taken = %s" % (dispCount, datetime.utcnow() - startTime))
+        logger.debug("%s Disps, Time Taken = %s" % (dispCount, datetime.now(pytz.utc) - startTime))
         self._statusController.setDisplayCompilerStatus(True, self._queueCount)
         self._statusController.addToDisplayCompilerTotal(self.FETCH_SIZE)
 
     def _pollErrback(self, failure, startTime, dispCount):
         self._queueCount -= 1
-        logger.debug("%s Disps, Time Taken = %s" % (dispCount, datetime.utcnow() - startTime))
+        logger.debug("%s Disps, Time Taken = %s" % (dispCount, datetime.now(pytz.utc) - startTime))
         self._statusController.setDisplayCompilerStatus(True, self._queueCount)
         self._statusController.setDisplayCompilerError(str(failure.value))
         vortexLogFailure(failure, logger)

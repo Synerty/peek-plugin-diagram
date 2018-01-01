@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 from typing import List, Dict, Tuple
 
+import pytz
 from geoalchemy2.shape import to_shape
 
 from peek_plugin_base.worker import CeleryDbConn
@@ -265,7 +266,7 @@ def _bulkLoadDispsTask(coordSet: ModelCoordSet, importGroupHash: str,
     :return:
     """
 
-    startTime = datetime.utcnow()
+    startTime = datetime.now(pytz.utc)
 
     dispTable = DispBase.__table__
 
@@ -303,7 +304,7 @@ def _bulkLoadDispsTask(coordSet: ModelCoordSet, importGroupHash: str,
         ormSession.commit()
 
         logger.info("Inserted %s Disps in %s",
-                    len(disps), (datetime.utcnow() - startTime))
+                    len(disps), (datetime.now(pytz.utc) - startTime))
 
     finally:
         ormSession.close()

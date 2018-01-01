@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from typing import List
 
+import pytz
 from sqlalchemy import asc
 from twisted.internet import task
 from twisted.internet.defer import inlineCallbacks
@@ -107,8 +108,8 @@ class DispKeyCompilerQueueController:
             self._lastQueueId = items[-1].id
 
             d = compileLocationIndex.delay(items)
-            d.addCallback(self._pollCallback, datetime.utcnow(), len(items))
-            d.addErrback(self._pollErrback, datetime.utcnow())
+            d.addCallback(self._pollCallback, datetime.now(pytz.utc), len(items))
+            d.addErrback(self._pollErrback, datetime.now(pytz.utc))
 
             self._queueCount += 1
             if self._queueCount >= self.QUEUE_MAX:
@@ -152,7 +153,7 @@ class DispKeyCompilerQueueController:
 
     def _pollCallback(self, indexBuckets: List[str], startTime, processedCount):
         self._queueCount -= 1
-        logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
+        logger.debug("Time Taken = %s" % (datetime.now(pytz.utc) - startTime))
         self._clientLocationUpdateHandler.sendLocationIndexes(indexBuckets)
         self._statusController.addToLocationIndexCompilerTotal(processedCount)
         self._statusController.setLocationIndexCompilerStatus(True, self._queueCount)
@@ -161,5 +162,5 @@ class DispKeyCompilerQueueController:
         self._queueCount -= 1
         self._statusController.setLocationIndexCompilerError(str(failure.value))
         self._statusController.setLocationIndexCompilerStatus(True, self._queueCount)
-        logger.debug("Time Taken = %s" % (datetime.utcnow() - startTime))
+        logger.debug("Time Taken = %s" % (datetime.now(pytz.utc) - startTime))
         vortexLogFailure(failure, logger)

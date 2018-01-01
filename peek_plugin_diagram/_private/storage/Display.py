@@ -222,7 +222,7 @@ class DispBase(Tuple, DeclarativeBase):
     #: Data, Generic data that is passed in the context for the item select popup
     dataJson = Column(String(500), doc='d')
 
-    importUpdateDate = Column(DateTime, doc=JSON_EXCLUDE)
+    importUpdateDate = Column(DateTime(True), doc=JSON_EXCLUDE)
     importHash = Column(String(100), doc=JSON_EXCLUDE)
     importGroupHash = Column(String(200), doc=JSON_EXCLUDE)
     importLiveDbDispLinks = TupleField([])

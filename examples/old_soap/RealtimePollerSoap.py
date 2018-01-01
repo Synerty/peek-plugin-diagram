@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 
 import os
+import pytz
 from suds import client as SudsClient
 from twisted.internet import task, reactor
 from twisted.internet.defer import DeferredSemaphore
@@ -33,7 +34,7 @@ class RealtimeValue:
         if value == self.value:
             return False
         self.value = value
-        self.lastUpdateDate = datetime.utcnow()
+        self.lastUpdateDate = datetime.now(pytz.utc)
 
         return True
 

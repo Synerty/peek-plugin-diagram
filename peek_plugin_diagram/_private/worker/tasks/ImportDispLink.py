@@ -3,6 +3,8 @@ import logging
 from datetime import datetime
 from typing import List, Dict
 
+import pytz
+
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_base.worker.CeleryDbConn import prefetchDeclarativeIds
 from peek_plugin_diagram._private.storage.LiveDbDispLink import LiveDbDispLink, \
@@ -33,7 +35,7 @@ def importDispLinks(coordSet: ModelCoordSet,
     dispLinkTable = LiveDbDispLink.__table__
     dispLinkIdIterator = prefetchDeclarativeIds(LiveDbDispLink, len(importDispLinks))
 
-    startTime = datetime.utcnow()
+    startTime = datetime.now(pytz.utc)
 
     ormSession = CeleryDbConn.getDbSession()
     try:
@@ -67,7 +69,7 @@ def importDispLinks(coordSet: ModelCoordSet,
 
         logger.info(
             "Inserted %s LiveDbDispLinks in %s",
-            len(dispLinkInserts), (datetime.utcnow() - startTime)
+            len(dispLinkInserts), (datetime.now(pytz.utc) - startTime)
         )
 
         return list(liveDbItemsToImportByKey.values())

@@ -3,6 +3,7 @@ import logging
 from _collections import defaultdict
 from datetime import datetime
 
+import pytz
 from collections import namedtuple
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.sql.selectable import Select
@@ -41,7 +42,7 @@ DispData = namedtuple('DispData', ['json', 'levelOrder', 'layerOrder'])
 @DeferrableTask
 @celeryApp.task(bind=True)
 def compileDisps(self, queueIds, dispIds):
-    startTime = datetime.utcnow()
+    startTime = datetime.now(pytz.utc)
 
     dispBaseTable = DispBase.__table__
     dispQueueTable = DispIndexerQueue.__table__
@@ -108,7 +109,7 @@ def compileDisps(self, queueIds, dispIds):
             }
 
         logger.debug("Loaded %s disp objects in %s",
-                     len(dispsAll), (datetime.utcnow() - startTime))
+                     len(dispsAll), (datetime.now(pytz.utc) - startTime))
 
         for disp in dispsQry:
 
@@ -171,11 +172,11 @@ def compileDisps(self, queueIds, dispIds):
                          importGroupHash=disp.importGroupHash))
 
         logger.debug("Updated %s disp objects in %s",
-                     len(dispsAll), (datetime.utcnow() - startTime))
+                     len(dispsAll), (datetime.now(pytz.utc) - startTime))
 
         ormSession.commit()
         logger.debug("Committed %s disp objects in %s",
-                     len(dispsAll), (datetime.utcnow() - startTime))
+                     len(dispsAll), (datetime.now(pytz.utc) - startTime))
 
     except Exception as e:
         ormSession.rollback()
@@ -257,7 +258,7 @@ def compileDisps(self, queueIds, dispIds):
 
         transaction.commit()
         logger.debug("Committed %s GridKeyIndex in %s",
-                     len(gridKeyIndexes), (datetime.utcnow() - startTime))
+                     len(gridKeyIndexes), (datetime.now(pytz.utc) - startTime))
 
     except Exception as e:
         transaction.rollback()

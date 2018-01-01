@@ -1,6 +1,7 @@
 import logging
 import zlib
 import hashlib
+import pytz
 from base64 import b64encode
 
 from _collections import defaultdict
@@ -54,9 +55,9 @@ def compileGrids(self, queueItems) -> List[str]:
 
     queueTable = GridKeyCompilerQueue.__table__
     gridTable = GridKeyIndexCompiled.__table__
-    lastUpdate = datetime.utcnow().isoformat()
+    lastUpdate = datetime.now(pytz.utc).isoformat()
 
-    startTime = datetime.utcnow()
+    startTime = datetime.now(pytz.utc)
 
     session = CeleryDbConn.getDbSession()
     engine = CeleryDbConn.getDbEngine()
@@ -65,7 +66,7 @@ def compileGrids(self, queueItems) -> List[str]:
     try:
 
         logger.debug("Staring compile of %s queueItems in %s",
-                     len(queueItems), (datetime.utcnow() - startTime))
+                     len(queueItems), (datetime.now(pytz.utc) - startTime))
 
         total = 0
         dispData = _qryDispData(session, gridKeys)
@@ -101,7 +102,7 @@ def compileGrids(self, queueItems) -> List[str]:
 
         logger.debug("Compiled %s gridKeys, %s missing, in %s",
                      len(inserts),
-                     len(gridKeys) - len(inserts), (datetime.utcnow() - startTime))
+                     len(gridKeys) - len(inserts), (datetime.now(pytz.utc) - startTime))
 
         total += len(inserts)
 
@@ -112,7 +113,7 @@ def compileGrids(self, queueItems) -> List[str]:
 
         transaction.commit()
         logger.debug("Compiled and Comitted %s GridKeyIndexCompileds in %s",
-                     total, (datetime.utcnow() - startTime))
+                     total, (datetime.now(pytz.utc) - startTime))
 
         return gridKeys
 

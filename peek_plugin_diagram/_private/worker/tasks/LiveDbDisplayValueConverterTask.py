@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from typing import List
 
+import pytz
 from collections import namedtuple
 from txcelery.defer import  DeferrableTask
 
@@ -25,7 +26,7 @@ DispData = namedtuple('DispData', ['json', 'levelOrder', 'layerOrder'])
 @celeryApp.task
 def convertLiveDbDisplayValuesTask(modelSetKey: str,
                                    rawUpdates: List[LiveDbRawValueUpdateTuple]):
-    startTime = datetime.utcnow()
+    startTime = datetime.now(pytz.utc)
     keys = [u.key for u in rawUpdates]
 
     ormSession = CeleryDbConn.getDbSession()
@@ -61,6 +62,6 @@ def convertLiveDbDisplayValuesTask(modelSetKey: str,
         ))
 
     logger.debug("Converted %s LiveDB Raw Values in %s",
-                 len(rawUpdates), (datetime.utcnow() - startTime))
+                 len(rawUpdates), (datetime.now(pytz.utc) - startTime))
 
     return displayValueUpdates
