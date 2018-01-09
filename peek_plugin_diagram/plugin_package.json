@@ -2,7 +2,7 @@
     "plugin": {
         "title": "Diagram",
         "packageName": "peek_plugin_diagram",
-    "version":"0.8.0",
+    "version":"0.8.1",
         "buildNumber": "#PLUGIN_BUILD#",
         "buildDate": "#BUILD_DATE#",
         "creator": "Synerty Pty Ltd",
