@@ -33,9 +33,9 @@ def _mergeInLiveDbValue(disp, dispLink, liveDbItem, value=None):
         )
 
         assert keyType in nullableTypes, (
-            "keyType |%s| is not DATA_TYPE_COLOR\n"
-            "==DISP LINK== %s\n"
-            "==LIVE DB ITEM== %s"% (keyType, dispLink, liveDbItem))
+                "keyType |%s| is not DATA_TYPE_COLOR\n"
+                "==DISP LINK== %s\n"
+                "==LIVE DB ITEM== %s" % (keyType, dispLink, liveDbItem))
 
         setattr(disp, dispLink.dispAttrName, None)
         return
@@ -97,6 +97,12 @@ def _applyTextFormat(disp, dispLink, liveDbItem, value):
                          liveDbItem.key, value, disp.textFormat)
             disp.text = ""
 
-        logger.warn("DispText %s textFormat=|%s| value=|%s| failed with %s\n"
-                    "This can occur if the LiveDbItem.rawValue has not yet been updated",
-                    disp.id, disp.textFormat, value, message)
+        if '%' in disp.textFormat and disp.textFormat == value:
+            # The value in the livedb has not yet been acquired from the external system
+            pass
+
+        else:
+            logger.warning(
+                "DispText %s textFormat=|%s| value=|%s| failed with %s\n"
+                "This can occur if the LiveDbItem.rawValue has not yet been updated",
+                disp.id, disp.textFormat, value, message)
