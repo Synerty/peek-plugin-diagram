@@ -46,7 +46,7 @@ def _mergeInLiveDbValue(disp, dispLink, liveDbItem, value=None):
         setattr(disp, dispLink.dispAttrName, value)
         return
 
-        # ----------------------------
+    # ----------------------------
     # Special case for Text
 
     # If there is no format, then just use the value
@@ -54,11 +54,18 @@ def _mergeInLiveDbValue(disp, dispLink, liveDbItem, value=None):
         disp.text = value
         return
 
+    # The value in the livedb has not yet been acquired from the external system
+    # Just return the formatting, at least the text will show something.
+    if '%' in disp.textFormat and disp.textFormat == value:
+        disp.text = disp.textFormat
+        return
+
     _applyTextFormat(disp, dispLink, liveDbItem, value)
 
 
 def _applyTextFormat(disp, dispLink, liveDbItem, value):
     # If there is a format, then convert it.
+
     try:
         disp.text = (disp.textFormat % value)
 
@@ -68,7 +75,7 @@ def _applyTextFormat(disp, dispLink, liveDbItem, value):
         try:
             if "number is required" in message:
                 return _applyTextFormat(
-                    disp, dispLink, liveDbItem, int(value))
+                    disp, dispLink, liveDbItem, float(value))
 
             if "invalid literal for int" in message:
                 return _applyTextFormat(
@@ -91,18 +98,9 @@ def _applyTextFormat(disp, dispLink, liveDbItem, value):
                     disp, dispLink, liveDbItem, float(value))
 
         except ValueError as e:
-            # We can't convert the value to int/float
-            # Ignore the formatting, it will come good when the value does
-            logger.debug("Failed to format |%s| value |%s| to |%s|",
-                         liveDbItem.key, value, disp.textFormat)
-            disp.text = ""
+            disp.text = disp.textFormat
 
-        if '%' in disp.textFormat and disp.textFormat == value:
-            # The value in the livedb has not yet been acquired from the external system
-            pass
-
-        else:
-            logger.warning(
-                "DispText %s textFormat=|%s| value=|%s| failed with %s\n"
-                "This can occur if the LiveDbItem.rawValue has not yet been updated",
-                disp.id, disp.textFormat, value, message)
+        logger.warning(
+            "DispText %s, %s textFormat=|%s| value=|%s| failed with %s\n"
+            "This can occur if the LiveDbItem.rawValue has not yet been updated",
+            disp.id, liveDbItem.key, disp.textFormat, value, message)
