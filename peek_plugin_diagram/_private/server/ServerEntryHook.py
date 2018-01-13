@@ -97,9 +97,14 @@ class ServerEntryHook(PluginServerEntryHookABC,
         )
         self._loadedObjects.append(gridKeyCompilerQueueController)
 
+        def locationsCanBeQueuedFunc() -> bool:
+            return (not gridKeyCompilerQueueController.isBusy()
+                    and not dispCompilerQueueController.isBusy())
+
         # Create the LOCATION INDEX queue
         locationIndexCompilerQueueController = DispKeyCompilerQueueController(
-            self.dbSessionCreator, statusController, clientDispIndexUpdateHandler
+            self.dbSessionCreator, statusController, clientDispIndexUpdateHandler,
+            readyLambdaFunc=locationsCanBeQueuedFunc
         )
         self._loadedObjects.append(locationIndexCompilerQueueController)
 

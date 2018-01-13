@@ -37,6 +37,8 @@ class DispCompilerQueueController:
         self._lastQueueId = 0
         self._queueCount = 0
 
+    def isBusy(self) -> bool:
+        return self._queueCount != 0
 
     def start(self):
         self._statusController.setDisplayCompilerStatus(True, self._queueCount)
@@ -85,11 +87,11 @@ class DispCompilerQueueController:
         session = self._ormSessionCreator()
         try:
             queueItems = (session.query(DispIndexerQueueTable)
-                          .order_by(asc(DispIndexerQueueTable.id))
-                          .filter(DispIndexerQueueTable.id > self._lastQueueId)
-                          .yield_per(self.FETCH_SIZE)
-                          .limit(self.FETCH_SIZE)
-                          .all())
+                .order_by(asc(DispIndexerQueueTable.id))
+                .filter(DispIndexerQueueTable.id > self._lastQueueId)
+                .yield_per(self.FETCH_SIZE)
+                .limit(self.FETCH_SIZE)
+                .all())
 
             session.expunge_all()
             return queueItems
@@ -99,13 +101,15 @@ class DispCompilerQueueController:
     @deferToThreadWrapWithLogger(logger)
     def _pollCallback(self, arg, startTime, dispCount):
         self._queueCount -= 1
-        logger.debug("%s Disps, Time Taken = %s" % (dispCount, datetime.now(pytz.utc) - startTime))
+        logger.debug("%s Disps, Time Taken = %s",
+                     dispCount, datetime.now(pytz.utc) - startTime)
         self._statusController.setDisplayCompilerStatus(True, self._queueCount)
         self._statusController.addToDisplayCompilerTotal(self.FETCH_SIZE)
 
     def _pollErrback(self, failure, startTime, dispCount):
         self._queueCount -= 1
-        logger.debug("%s Disps, Time Taken = %s" % (dispCount, datetime.now(pytz.utc) - startTime))
+        logger.debug("%s Disps, Time Taken = %s",
+                     dispCount, datetime.now(pytz.utc) - startTime)
         self._statusController.setDisplayCompilerStatus(True, self._queueCount)
         self._statusController.setDisplayCompilerError(str(failure.value))
         vortexLogFailure(failure, logger)

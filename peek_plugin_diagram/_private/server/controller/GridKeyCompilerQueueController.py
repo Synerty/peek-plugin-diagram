@@ -53,6 +53,9 @@ class GridKeyCompilerQueueController:
         d = self._pollLoopingCall.start(self.PERIOD, now=False)
         d.addCallbacks(self._timerCallback, self._timerErrback)
 
+    def isBusy(self) -> bool:
+        return self._queueCount != 0
+
     def _timerErrback(self, failure):
         vortexLogFailure(failure, logger)
         self._statusController.setGridCompilerStatus(False, self._queueCount)

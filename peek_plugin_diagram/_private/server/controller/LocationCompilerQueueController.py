@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import List
+from typing import List, Callable
 
 import pytz
 from sqlalchemy import asc
@@ -31,18 +31,20 @@ class DispKeyCompilerQueueController:
 
     """
 
-    FETCH_SIZE = 5
+    FETCH_SIZE = 10
     PERIOD = 0.200
 
-    QUEUE_MAX = 30
-    QUEUE_MIN = 5
+    QUEUE_MAX = 10
+    QUEUE_MIN = 0
 
     def __init__(self, ormSessionCreator,
                  statusController: StatusController,
-                 clientLocationUpdateHandler: ClientLocationIndexUpdateHandler):
+                 clientLocationUpdateHandler: ClientLocationIndexUpdateHandler,
+                 readyLambdaFunc: Callable):
         self._ormSessionCreator = ormSessionCreator
         self._statusController: StatusController = statusController
         self._clientLocationUpdateHandler: ClientLocationIndexUpdateHandler = clientLocationUpdateHandler
+        self._readyLambdaFunc = readyLambdaFunc
 
         self._pollLoopingCall = task.LoopingCall(self._poll)
         self._lastQueueId = -1
@@ -69,6 +71,9 @@ class DispKeyCompilerQueueController:
 
     @inlineCallbacks
     def _poll(self):
+        if not self._readyLambdaFunc():
+            return
+
         from peek_plugin_diagram._private.worker.tasks.LocationIndexCompilerTask import \
             compileLocationIndex
 
@@ -120,11 +125,11 @@ class DispKeyCompilerQueueController:
         session = self._ormSessionCreator()
         try:
             qry = (session.query(LocationIndexCompilerQueue)
-                   .order_by(asc(LocationIndexCompilerQueue.id))
-                   .filter(LocationIndexCompilerQueue.id > self._lastQueueId)
-                   .yield_per(500)
-                   # .limit(self.FETCH_SIZE)
-                   )
+                .order_by(asc(LocationIndexCompilerQueue.id))
+                .filter(LocationIndexCompilerQueue.id > self._lastQueueId)
+                .yield_per(500)
+                # .limit(self.FETCH_SIZE)
+                )
 
             queueItems = qry.all()
             session.expunge_all()
