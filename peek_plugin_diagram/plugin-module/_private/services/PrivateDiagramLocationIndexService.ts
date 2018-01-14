@@ -364,9 +364,13 @@ export class LocationIndex {
                 for (let rawData of dispLocationIndexRawData) {
                     let dispLocation = DispKeyLocationTuple.fromLocationJson(rawData);
 
-                    dispLocation.coordSetKey = this.coordSetService
-                        .coordSetForId(dispLocation.coordSetId)
-                        .key;
+                    let coordSet = this.coordSetService
+                        .coordSetForId(dispLocation.coordSetId);
+
+                    if (coordSet == null)
+                        continue;
+
+                    dispLocation.coordSetKey = coordSet.key;
 
                     dispIndexes.push(dispLocation);
                 }
