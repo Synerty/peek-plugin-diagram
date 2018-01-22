@@ -57,6 +57,10 @@ import 'core-js/es7/reflect';
 import 'zone.js/dist/zone';  // Included with Angular CLI.
 
 
+import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/takeUntil';
+import 'rxjs/add/operator/first';
+
 
 /***************************************************************************************************
  * APPLICATION IMPORTS

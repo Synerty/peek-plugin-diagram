@@ -92,7 +92,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 
-@synerty/vortexjs@0.9.44
+@synerty/vortexjs@0.10.1
 MIT
 MIT License
 
@@ -247,7 +247,7 @@ IN THE SOFTWARE.
 MIT
 MIT
 
-jquery@3.2.1
+jquery@3.3.1
 MIT
 Copyright JS Foundation and other contributors, https://js.foundation/
 
@@ -361,7 +361,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 MIT
 MIT
 
-css-loader@0.28.8
+css-loader@0.28.9
 MIT
 Copyright JS Foundation and other contributors
 
