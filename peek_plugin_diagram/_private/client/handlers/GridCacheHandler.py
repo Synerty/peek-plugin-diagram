@@ -111,14 +111,13 @@ class GridCacheHandler(object):
                         vortexUuid: str,
                         sendResponse: SendVortexMsgResponseCallable,
                         **kwargs):
-
-        lastUpdateByGridKey: DeviceGridT = payload.tuples[0]
-        gridKeys = list(lastUpdateByGridKey.keys())
-
-        self._observedGridKeysByVortexUuid[vortexUuid] = gridKeys
-        self._rebuildStructs()
-
         cacheAll = payload.filt.get("cacheAll") == True
+        lastUpdateByGridKey: DeviceGridT = payload.tuples[0]
+
+        if not cacheAll:
+            gridKeys = list(lastUpdateByGridKey.keys())
+            self._observedGridKeysByVortexUuid[vortexUuid] = gridKeys
+            self._rebuildStructs()
 
         self._replyToObserve(payload.filt,
                              lastUpdateByGridKey,
