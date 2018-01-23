@@ -34,18 +34,20 @@
             There are no actions for this item.
         </p>
 
-        <div *ngIf="!noMenuItems()" class="mobile-dialog">
-            <div *ngFor="let item of menuItems">
 
-                <div class="btn-group ">
-                    <Button
-                            class="dialog-action-btn" (click)="menuItemClicked(item)">
-                        <fa *ngIf="item.icon != null" [name]="item.icon"></fa>
-                        {{item.name}}
-                    </Button>
+        <div *ngIf="!noMenuItems()">
+            <div class="row" *ngFor="let item of menuItems">
+
+                <div class="col-md-12">
+                    <div class="btn-group">
+                        <Button class="btn" (click)="menuItemClicked(item)">
+                            <fa *ngIf="item.icon != null" [name]="item.icon"></fa>
+                            {{item.name}}
+                        </Button>
+                    </div>
                 </div>
-                <br>
+
             </div>
         </div>
-    </div><!-- /.panel-dialog -->
+    </div>
 </div>

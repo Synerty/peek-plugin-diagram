@@ -35,16 +35,17 @@
                 </p>
 
                 <div *ngIf="!noMenuItems()">
-                    <div *ngFor="let item of menuItems">
+                    <div class="row" *ngFor="let item of menuItems">
 
-                        <div class="btn-group">
-                            <Button class="btn" (click)="menuItemClicked(item)">
-                                <fa *ngIf="item.icon != null" [name]="item.icon"></fa>
-                                {{item.name}}
-                            </Button>
+                        <div class="col-md-12">
+                            <div class="btn-group">
+                                <Button class="btn" (click)="menuItemClicked(item)">
+                                    <fa *ngIf="item.icon != null" [name]="item.icon"></fa>
+                                    {{item.name}}
+                                </Button>
+                            </div>
                         </div>
 
-                        <br>
                     </div>
                 </div>
 
