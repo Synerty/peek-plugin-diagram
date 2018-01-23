@@ -16,7 +16,7 @@
         <ScrollView>
             <StackLayout [class.toolbar-is-open]="toolbarIsOpen"
                          [class.toolbar-is-closed]="!toolbarIsOpen">
-                <Button class="btn tool-button"
+                <Button class="btn tool-button fa"
                         *ngFor="let btn of buttons"
                         [text]="(btnIcon(btn) | fonticon) + btn.name"
                         (tap)="buttonClicked(btn)"></Button>
