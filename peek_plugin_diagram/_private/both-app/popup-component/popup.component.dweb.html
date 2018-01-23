@@ -12,18 +12,18 @@
         <p *ngIf="noDetails()">
             There are no details for this item.
         </p>
-        <div *ngIf="!noDetails()" class="peek-tables-section">
-            <table class="table">
+        <div *ngIf="!noDetails()">
+            <table class="table table-striped">
                 <thead>
-                <tr class="tr">
-                    <th class="th">Property</th>
-                    <th class="th">Value</th>
+                <tr>
+                    <th>Property</th>
+                    <th>Value</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr class="tr" *ngFor="let detail of details">
-                    <th class="td">{{detail.title}}</th>
-                    <th class="td">{{detail.value}}</th>
+                <tr *ngFor="let detail of details">
+                    <td>{{detail.title}}</td>
+                    <td>{{detail.value}}</td>
                 </tr>
                 </tbody>
             </table>
