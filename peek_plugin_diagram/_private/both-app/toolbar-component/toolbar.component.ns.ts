@@ -25,25 +25,10 @@ export class ToolbarComponent extends ToolbarComponentBase {
     toolbarRowspanEvent = new EventEmitter<number>();
 
     constructor(abstractToolbarService: DiagramToolbarService,
-                navBackService: NavBackService,
-                HACK_gridLoader: GridLoaderA) {
-        super(abstractToolbarService, navBackService, HACK_gridLoader);
+                navBackService: NavBackService) {
+        super(abstractToolbarService, navBackService);
 
 
-        this.toolbarService
-            .addToolButton(this.modelSetKey,
-                this.coordSetKey,
-                {
-                    name: "Cache All Grids",
-                    tooltip: null,
-                    icon: 'pencil',
-                    callback: () => {
-                        this.HACK_gridLoader.cacheAll();
-                        alert("DEVEL TESTING - CACHING has started, do not click this again");
-                    },
-                    children: []
-                }
-            );
 
     }
 

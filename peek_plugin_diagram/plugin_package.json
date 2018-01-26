@@ -2,7 +2,7 @@
     "plugin": {
         "title": "Diagram",
         "packageName": "peek_plugin_diagram",
-    "version":"0.8.2.1",
+        "version": "0.8.2.1",
         "buildNumber": "#PLUGIN_BUILD#",
         "buildDate": "#BUILD_DATE#",
         "creator": "Synerty Pty Ltd",
@@ -36,10 +36,16 @@
         "appDir": "_private/both-app",
         "assetDir": "_private/both-assets",
         "moduleDir": "plugin-module",
+        "cfgDir": "_private/both-cfg",
+        "cfgModule": "diagram-cfg.module#DiagramCfgModule",
         "rootServices": [
             {
                 "file": "_private/services/PrivateDiagramTupleService",
                 "class": "PrivateDiagramTupleService"
+            },
+            {
+                "file": "_private/services/PrivateDiagramCacheStatusService",
+                "class": "PrivateDiagramCacheStatusService"
             },
             {
                 "file": "_private/services/PrivateDiagramCoordSetService",
@@ -84,10 +90,16 @@
         "appDir": "_private/both-app",
         "assetDir": "_private/ns-assets",
         "moduleDir": "plugin-module",
+        "cfgDir": "_private/both-cfg",
+        "cfgModule": "diagram-cfg.module#DiagramCfgModule",
         "rootServices": [
             {
                 "file": "_private/services/PrivateDiagramTupleService",
                 "class": "PrivateDiagramTupleService"
+            },
+            {
+                "file": "_private/services/PrivateDiagramCacheStatusService",
+                "class": "PrivateDiagramCacheStatusService"
             },
             {
                 "file": "_private/services/PrivateDiagramCoordSetService",
@@ -134,10 +146,16 @@
         "appDir": "_private/both-app",
         "assetDir": "_private/both-assets",
         "moduleDir": "plugin-module",
+        "cfgDir": "_private/both-cfg",
+        "cfgModule": "diagram.module#DiagramModule",
         "rootServices": [
             {
                 "file": "_private/services/PrivateDiagramTupleService",
                 "class": "PrivateDiagramTupleService"
+            },
+            {
+                "file": "_private/services/PrivateDiagramCacheStatusService",
+                "class": "PrivateDiagramCacheStatusService"
             },
             {
                 "file": "_private/services/PrivateDiagramCoordSetService",

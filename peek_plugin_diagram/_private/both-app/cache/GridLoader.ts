@@ -24,6 +24,9 @@ import { GridCacheIndexTuple } from "../tuples/GridCacheIndexTuple";
 import {
     PrivateDiagramTupleService
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
+import {
+    PrivateDiagramCacheStatusService
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCacheStatusService";
 
 
 
@@ -63,8 +66,9 @@ class GridKeyTupleSelector extends TupleSelector {
     }
 }
 
-export abstract class GridLoaderA {
+export abstract class GridLoaderA extends ComponentLifecycleEventEmitter{
     constructor() {
+        super();
 
     }
 
@@ -106,9 +110,6 @@ export class GridLoader extends GridLoaderA {
 
     private storage: TupleStorageServiceABC;
 
-    // TODO, There appears to be no way to tear down a service
-    private lifecycleEmitter = new ComponentLifecycleEventEmitter();
-
     // The last set of keys requested from the GridObserver
     private lastWatchedGridKeys: string[] = [];
 
@@ -121,7 +122,7 @@ export class GridLoader extends GridLoaderA {
     // Saving the cache after each chunk is so expensive, we only do it every 20 or so
     private chunksSavedSinceLastIndexSave = 0;
 
-    constructor(private footerService: FooterService,
+    constructor(private cacheStatusService: PrivateDiagramCacheStatusService,
         private vortexService: VortexService,
         private vortexStatusService: VortexStatusService,
         private tupleService: PrivateDiagramTupleService,
@@ -138,14 +139,14 @@ export class GridLoader extends GridLoaderA {
 
         // Services don't have destructors, I'm not sure how to unsubscribe.
         this.vortexService.createEndpointObservable(
-            this.lifecycleEmitter,
+            this,
             clientGridWatchUpdateFromDeviceFilt)
             .subscribe((payload: Payload) => this.processGridsFromServer(payload));
 
         // If the vortex service comes back online, update the watch grids.
         this.vortexStatusService.isOnline
             .filter(isOnline => isOnline == true)
-            .takeUntil(this.lifecycleEmitter.onDestroyEvent)
+            .takeUntil(this.onDestroyEvent)
             .subscribe(() => this.loadGrids({}, this.lastWatchedGridKeys));
     }
 
@@ -170,7 +171,7 @@ export class GridLoader extends GridLoaderA {
         if (!this.vortexStatusService.snapshot.isOnline)
             return;
         
-        this.footerService.setStatusText(`Starting Cache Update`);
+        this.cacheStatusService.updateStatus(`Starting Cache Update`);
 
         this.tupleService
             .tupleObserver
@@ -232,14 +233,14 @@ export class GridLoader extends GridLoaderA {
         this.chunksSavedSinceLastIndexSave++;
 
         if (this.cacheGridQueueChunks.length == 0) {
-            this.footerService.setStatusText(`Caching Complete`);
+            this.cacheStatusService.updateStatus(`Caching Complete`);
             this.saveGridCacheIndex(true);
             return;
         }
 
         this.saveGridCacheIndex();
 
-        this.footerService.setStatusText(`${this.cacheGridQueueChunks.length} grids left`);
+        this.cacheStatusService.updateStatus(`${this.cacheGridQueueChunks.length} grids left`);
 
         console.log(`Cacheing next grid chunk, ${this.cacheGridQueueChunks.length} remaining`);
 
@@ -447,7 +448,7 @@ export class GridLoader extends GridLoaderA {
 
         let ts = new TupleSelector(GridCacheIndexTuple.tupleName, {});
         let tuples = [this.gridCacheIndex];
-        let errCb = (e) => console.log(`GridCache.storeGridCacheIndex: ${e}`)
+        let errCb = (e) => console.log(`GridCache.storeGridCacheIndex: ${e}`);
 
         this.chunksSavedSinceLastIndexSave = 0;
 
