@@ -16,8 +16,19 @@
         "worker",
         "client",
         "desktop",
-        "mobile"
+        "mobile",
+        "doc-admin",
+        "doc-user"
     ],
+    "doc-admin": {
+        "docDir": "doc-admin",
+        "docRst": "index.rst",
+        "hasApi": true
+    },
+    "doc-user": {
+        "docDir": "doc-user",
+        "docRst": "index.rst"
+    },
     "server": {
     },
     "storage": {
