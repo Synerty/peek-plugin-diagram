@@ -47,8 +47,6 @@
         "appDir": "_private/both-app",
         "assetDir": "_private/both-assets",
         "moduleDir": "plugin-module",
-        "cfgDir": "_private/both-cfg",
-        "cfgModule": "diagram-cfg.module#DiagramCfgModule",
         "rootServices": [
             {
                 "file": "_private/services/PrivateDiagramTupleService",
@@ -157,8 +155,6 @@
         "appDir": "_private/both-app",
         "assetDir": "_private/both-assets",
         "moduleDir": "plugin-module",
-        "cfgDir": "_private/both-cfg",
-        "cfgModule": "diagram.module#DiagramModule",
         "rootServices": [
             {
                 "file": "_private/services/PrivateDiagramTupleService",

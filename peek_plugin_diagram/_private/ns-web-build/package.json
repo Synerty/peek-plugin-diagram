@@ -24,7 +24,7 @@
     "@angular/router": "^4.4.0",
     "@synerty/ng2-balloon-msg": "^0.3.3",
     "@synerty/peek-util": "^0.5.9",
-    "@synerty/vortexjs": "^0.10.1",
+    "@synerty/vortexjs": "^0.10.3",
     "core-js": "^2.4.1",
     "jquery": "^3.2.1",
     "moment": "^2.18.1",
