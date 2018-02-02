@@ -10,7 +10,6 @@ import {
     DiagramToolButtonI
 } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
-import {GridLoaderA} from "../cache/GridLoader";
 
 
 export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
@@ -29,9 +28,7 @@ export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
 
     toolbarIsOpen: boolean = false;
 
-    constructor(abstractToolbarService: DiagramToolbarService,
-                protected navBackService: NavBackService,
-                protected HACK_gridLoader: GridLoaderA) {
+    constructor(abstractToolbarService: DiagramToolbarService) {
         super();
 
         this.toolbarService = <PrivateDiagramToolbarService> abstractToolbarService;
