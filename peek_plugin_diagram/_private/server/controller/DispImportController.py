@@ -29,3 +29,7 @@ class DispImportController:
             yield self._liveDbWriteApi.importLiveDbItems(
                 modelSetKey, liveDbItemsToImport
             )
+
+            yield self._liveDbWriteApi.pollLiveDbValueAcquisition(
+                modelSetKey, [i.key for i in liveDbItemsToImport]
+            )
