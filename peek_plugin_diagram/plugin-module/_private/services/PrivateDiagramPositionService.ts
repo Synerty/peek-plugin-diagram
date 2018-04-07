@@ -1,6 +1,7 @@
 import {Injectable} from "@angular/core";
 import {DiagramPositionService, PositionUpdatedI} from "../../DiagramPositionService";
-import {Observable, Subject} from "rxjs";
+import {Subject} from "rxjs/Subject";
+import {Observable} from "rxjs/Observable";
 
 import {
     LocationIndex,

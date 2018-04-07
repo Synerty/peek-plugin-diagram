@@ -1,4 +1,6 @@
-import {Subject, Observable} from "rxjs";
+
+import {Subject} from "rxjs/Subject";
+import {Observable} from "rxjs/Observable";
 
 /** Diagram Menu Item Callback Interface
  *

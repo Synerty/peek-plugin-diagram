@@ -3,7 +3,8 @@ import { LookupCache } from "./LookupCache.web";
 import { LinkedGrid } from "./LinkedGrid.web";
 import { GridTuple } from "../tuples/GridTuple";
 import { GridLoaderA } from "./GridLoader";
-import { Observable, Subject } from "rxjs";
+import {Subject} from "rxjs/Subject";
+import {Observable} from "rxjs/Observable";
 
 import {
     ComponentLifecycleEventEmitter,

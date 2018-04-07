@@ -22,7 +22,8 @@ import {LocationIndexUpdateDateTuple} from "../tuples/LocationIndexUpdateDateTup
 import {DispKeyLocationTuple} from "../tuples/DispLocationTuple";
 import {PrivateDiagramCoordSetService} from "./PrivateDiagramCoordSetService";
 
-import {Subject, Observable} from "rxjs";
+import {Subject} from "rxjs/Subject";
+import {Observable} from "rxjs/Observable";
 import {EncodedLocationIndexTuple} from "../tuples/EncodedLocationIndexTuple";
 
 let pako = require("pako");

@@ -7,7 +7,8 @@ import {
     TupleStorageServiceABC
 } from "@synerty/vortexjs";
 import {GridLoaderA} from "../peek_plugin_diagram/cache/GridLoader";
-import {Observable, Subject} from "rxjs";
+import { Observable } from "rxjs/Observable";
+import { Subject } from "rxjs/Subject";
 import {GridTuple} from "../peek_plugin_diagram/tuples/GridTuple";
 
 

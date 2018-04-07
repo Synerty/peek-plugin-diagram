@@ -1,5 +1,6 @@
 import {Injectable} from "@angular/core";
-import {Observable, Subject} from "rxjs";
+import {Subject} from "rxjs/Subject";
+import {Observable} from "rxjs/Observable";
 
 export interface SelectedItemDetailsI {
     modelSetKey: string;

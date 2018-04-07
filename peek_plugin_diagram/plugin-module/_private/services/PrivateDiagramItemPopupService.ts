@@ -4,7 +4,8 @@ import {
     DiagramItemPopupService
 } from "../../DiagramItemPopupService";
 import {PrivateDiagramItemSelectService} from "./PrivateDiagramItemSelectService";
-import {Observable, Subject} from "rxjs";
+import {Subject} from "rxjs/Subject";
+import {Observable} from "rxjs/Observable";
 
 
 @Injectable()

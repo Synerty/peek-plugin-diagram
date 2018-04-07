@@ -1,7 +1,8 @@
 import { Injectable } from "@angular/core";
 import { GridTuple } from "../tuples/GridTuple";
 import { EncodedGridTuple } from "../tuples/EncodedGridTuple";
-import { Observable, Subject } from "rxjs";
+import {Subject} from "rxjs/Subject";
+import {Observable} from "rxjs/Observable";
 
 import {
     ComponentLifecycleEventEmitter,

@@ -7,7 +7,8 @@ import {LookupCache} from "../cache/LookupCache.web";
 import {DispLevel} from "../tuples/lookups/DispLevel";
 import {DispLayer} from "../tuples/lookups/DispLayer";
 import {DispBase} from "../tuples/shapes/DispBase";
-import {Observable, Subject} from "rxjs";
+import {Subject} from "rxjs/Subject";
+import {Observable} from "rxjs/Observable";
 
 // import 'rxjs/add/operator/takeUntil';
 

@@ -5,7 +5,7 @@ import {
     PrivateDiagramItemSelectService,
     SelectedItemDetailsI
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
-import {Subject} from "rxjs";
+import {Subject} from "rxjs/Subject";
 
 export class ItemSelectServiceBridgeNs {
     constructor(private lifeCycleEvents: ComponentLifecycleEventEmitter,
