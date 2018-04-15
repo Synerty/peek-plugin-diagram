@@ -20,7 +20,7 @@ import {
 } from "@peek/peek_plugin_diagram/_private/PluginNames";
 
 // Import a small abstraction library to switch between nativescript and web
-import {PeekModuleFactory} from "@synerty/peek-util/index.ns";
+import {PeekModuleFactory} from "@synerty/peek-util-ns";
 // Import the default route component
 import {DiagramComponent} from "./diagram.component";
 

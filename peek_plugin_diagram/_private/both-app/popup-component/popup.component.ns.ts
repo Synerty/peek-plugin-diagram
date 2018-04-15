@@ -3,7 +3,6 @@ import {Component, Output, EventEmitter, NgZone} from "@angular/core";
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
 
 import {TitleService} from "@synerty/peek-util";
-import {switchStyleUrls} from "@synerty/peek-util/index.ns";
 
 
 import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";

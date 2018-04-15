@@ -1,7 +1,7 @@
 import {CommonModule} from "@angular/common";
 import {NgModule} from "@angular/core";
 // Import a small abstraction library to switch between nativescript and web
-import {PeekModuleFactory} from "@synerty/peek-util/index.web";
+import {PeekModuleFactory} from "@synerty/peek-util-web";
 // Import the default route component
 import {DiagramComponent} from "./diagram.component";
 // Import the required classes from VortexJS
