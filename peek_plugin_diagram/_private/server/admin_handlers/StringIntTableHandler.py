@@ -26,7 +26,7 @@ class __ExtUpdateObservable(OrmCrudHandlerExtension):
 
     """
 
-    def __init__(self, tupleDataObserver: TupleDataObservableHandler):
+    def __init__(self, tupleDataObserver: TupleDataObservableHandler) -> None:
         self._tupleDataObserver = tupleDataObserver
 
     def _tellObserver(self, tuple_, tuples, session, payloadFilt):

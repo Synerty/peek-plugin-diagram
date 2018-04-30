@@ -10,6 +10,8 @@
  *  Synerty Pty Ltd
  *
 """
+import typing
+
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String, Boolean
@@ -54,7 +56,7 @@ class DispLayer(Tuple, DeclarativeBase):
 
     importHash = Column(String(100), doc=JSON_EXCLUDE)
 
-    __table_args__ = (
+    __table_args__: typing.Tuple = (
         Index("idx_DispLayer_modelSetId", modelSetId, unique=False),
         Index("idx_DispLayer_importHash", modelSetId, importHash, unique=True),
     )
@@ -232,7 +234,7 @@ class DispBase(Tuple, DeclarativeBase):
     __mapper_args__ = {'polymorphic_on': type,
                        'with_polymorphic': '*'}
 
-    __table_args__ = (
+    __table_args__: typing.Tuple = (
         Index("idx_Disp_importGroupHash", importGroupHash, unique=False),
         # Index("idx_Disp_importHash", importHash, unique=True),
         Index("idx_Disp_importUpdateDate", importUpdateDate, unique=False),
@@ -274,7 +276,7 @@ class DispText(DispBase):
                          doc='fs', nullable=False)
     textStyle = relationship(DispTextStyle)
 
-    __table_args__ = (
+    __table_args__: typing.Tuple = (
         Index("idx_DispText_colorId", colorId, unique=False),
         Index("idx_DispText_styleId", textStyleId, unique=False),
     )
@@ -397,8 +399,6 @@ class DispEllipse(DispBase):
     )
 
 
-
-
 @addTupleType
 class DispGroupItem(Tuple, DeclarativeBase):
     __tablename__ = 'DispGroupItem'  # Must differ from class name
@@ -409,6 +409,7 @@ class DispGroupItem(Tuple, DeclarativeBase):
                      primary_key=True, nullable=False)
     itemId = Column(Integer, ForeignKey('DispBase.id'),
                     primary_key=True, nullable=False)
+
 
 @addTupleType
 class DispGroup(DispBase):

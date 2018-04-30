@@ -11,6 +11,7 @@ from peek_plugin_diagram._private.tuples.EncodedGridTuple import EncodedGridTupl
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
 from vortex.PayloadEndpoint import PayloadEndpoint
+from vortex.PayloadEnvelope import PayloadEnvelope
 
 logger = logging.getLogger(__name__)
 
@@ -82,11 +83,13 @@ class GridCacheController:
             self._loadGridIntoCache(gridTuples)
             offset += self.LOAD_CHUNK
 
-    def _processGridPayload(self, payload: Payload, **kwargs):
-        gridTuples: List[GridTuple] = payload.tuples
+    @inlineCallbacks
+    def _processGridPayload(self, payloadEnvelope: PayloadEnvelope, **kwargs):
+        payload = yield payloadEnvelope.decodePayloadDefer()
+        gridTuples: List[EncodedGridTuple] = payload.tuples
         return self._loadGridIntoCache(gridTuples)
 
-    def _processCoordSetPayload(self, payload: Payload, **kwargs):
+    def _processCoordSetPayload(self, payloadEnvelope: PayloadEnvelope, **kwargs):
         d: Deferred = self.reloadCache()
         d.addErrback(vortexLogFailure, logger, consumeError=True)
 

@@ -12,6 +12,7 @@ from peek_plugin_diagram._private.tuples.LocationIndexTuple import LocationIndex
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
 from vortex.PayloadEndpoint import PayloadEndpoint
+from vortex.PayloadEnvelope import PayloadEnvelope
 
 logger = logging.getLogger(__name__)
 
@@ -85,8 +86,10 @@ class LocationIndexCacheController:
         d: Deferred = self.reloadCache()
         d.addErrback(vortexLogFailure, logger, consumeError=True)
 
-    def _processLocationIndexPayload(self, payload: Payload, **kwargs):
-        locationIndexTuples: List[LocationIndexTuple] = payload.tuples
+    @inlineCallbacks
+    def _processLocationIndexPayload(self, payloadEnvelope: PayloadEnvelope, **kwargs):
+        paylod = yield payloadEnvelope.decodePayloadDefer()
+        locationIndexTuples: List[LocationIndexTuple] = paylod.tuples
         self._loadLocationIndexIntoCache(locationIndexTuples)
 
     def _loadLocationIndexIntoCache(self, locationIndexTuples: List[LocationIndexTuple]):

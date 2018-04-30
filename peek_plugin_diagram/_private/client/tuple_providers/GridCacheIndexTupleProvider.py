@@ -1,7 +1,7 @@
 import logging
 from typing import Union
 
-from twisted.internet.defer import Deferred
+from twisted.internet.defer import Deferred, inlineCallbacks
 
 from peek_plugin_diagram._private.client.controller.CoordSetCacheController import \
     CoordSetCacheController
@@ -19,9 +19,12 @@ class GridCacheIndexTupleProvider(TuplesProviderABC):
     def __init__(self, gridCacheController: GridCacheController):
         self._gridCacheController = gridCacheController
 
+    @inlineCallbacks
     def makeVortexMsg(self, filt: dict,
                       tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
         tuple = GridCacheIndexTuple()
         tuple.data = self._gridCacheController.gridDatesByKey()
 
-        return Payload(filt, tuples=[tuple]).toVortexMsgDefer()
+        payloadEnvelope = yield Payload(filt, tuples=[tuple]).makePayloadEnvelopeDefer()
+        vortexMsg = yield  payloadEnvelope.toVortexMsgDefer()
+        return vortexMsg

@@ -1,7 +1,7 @@
 import logging
 from typing import Union
 
-from twisted.internet.defer import Deferred
+from twisted.internet.defer import Deferred, inlineCallbacks
 
 from peek_plugin_diagram._private.client.controller.CoordSetCacheController import \
     CoordSetCacheController
@@ -16,8 +16,11 @@ class ClientCoordSetTupleProvider(TuplesProviderABC):
     def __init__(self, coordSetCacheController: CoordSetCacheController):
         self._coordSetCacheController = coordSetCacheController
 
+    @inlineCallbacks
     def makeVortexMsg(self, filt: dict,
                       tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
         tuples = self._coordSetCacheController.coordSets
 
-        return Payload(filt, tuples=tuples).toVortexMsgDefer()
+        payloadEnvelope = yield Payload(filt, tuples=tuples).makePayloadEnvelopeDefer()
+        vortexMsg = yield payloadEnvelope.toVortexMsgDefer()
+        return vortexMsg

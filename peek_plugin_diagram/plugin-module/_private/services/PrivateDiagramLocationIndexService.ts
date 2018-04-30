@@ -5,6 +5,7 @@ import {
     ComponentLifecycleEventEmitter,
     extend,
     Payload,
+    PayloadEnvelope,
     TupleOfflineStorageNameService,
     TupleOfflineStorageService,
     TupleSelector,
@@ -212,7 +213,9 @@ export class LocationIndex {
         // Services don't have destructors, I'm not sure how to unsubscribe.
         this.vortexService.createEndpointObservable(this.lifecycleEmitter, filt)
             .takeUntil(this.lifecycleEmitter.onDestroyEvent)
-            .subscribe((payload: Payload) => this.processLocationIndexesFromServer(payload));
+            .subscribe((payloadEnvelope: PayloadEnvelope) => {
+                this.processLocationIndexesFromServer(payloadEnvelope);
+            });
 
         // If the vortex service comes back online, update the watch grids.
         this.vortexStatusService.isOnline
@@ -244,13 +247,13 @@ export class LocationIndex {
      *
      * Process the grids the server has sent us.
      */
-    private processLocationIndexesFromServer(payload: Payload) {
-        if (payload.result != null && payload.result != true) {
-            console.log(`ERROR: ${payload.result}`);
+    private processLocationIndexesFromServer(payloadEnvelope: PayloadEnvelope) {
+        if (payloadEnvelope.result != null && payloadEnvelope.result != true) {
+            console.log(`ERROR: ${payloadEnvelope.result}`);
             return;
         }
 
-        if (payload.filt["finished"] == true) {
+        if (payloadEnvelope.filt["finished"] == true) {
             this.index.initialLoadComplete = true;
 
             this.storage.saveTuples(
@@ -264,6 +267,17 @@ export class LocationIndex {
 
             return;
         }
+
+        payloadEnvelope
+            .decodePayload()
+            .then((payload: Payload) => this.storeLocationIndexPayload(payload))
+            .catch(e =>
+                `LocationIndexCache.processLocationIndexesFromServer failed: ${e}`
+            );
+
+    }
+
+    private storeLocationIndexPayload(payload: Payload) {
 
         let encodedLocationIndexTuples: EncodedLocationIndexTuple[] = <EncodedLocationIndexTuple[]>payload.tuples;
 
@@ -289,7 +303,7 @@ export class LocationIndex {
 
             })
             .catch(e => console.log(
-                `LocationIndexCache.storeLocationIndexTuples: ${e}`));
+                `LocationIndexCache.storeLocationIndexPayload: ${e}`));
 
     }
 

@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Dict
 
 from collections import defaultdict
-from twisted.internet.defer import DeferredList, Deferred
+from twisted.internet.defer import DeferredList, Deferred, inlineCallbacks
 
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.client.controller.GridCacheController import \
@@ -12,6 +12,7 @@ from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc imp
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
 from vortex.PayloadEndpoint import PayloadEndpoint
+from vortex.PayloadEnvelope import PayloadEnvelope
 from vortex.VortexABC import SendVortexMsgResponseCallable
 from vortex.VortexFactory import VortexFactory
 
@@ -107,11 +108,15 @@ class GridCacheHandler(object):
     # ---------------
     # Process observes from the devices
 
-    def _processObserve(self, payload: Payload,
+    @inlineCallbacks
+    def _processObserve(self, payloadEnvelope: PayloadEnvelope,
                         vortexUuid: str,
                         sendResponse: SendVortexMsgResponseCallable,
                         **kwargs):
-        cacheAll = payload.filt.get("cacheAll") == True
+        cacheAll = payloadEnvelope.filt.get("cacheAll") == True
+
+        payload =yield payloadEnvelope.decodePayloadDefer()
+
         lastUpdateByGridKey: DeviceGridT = payload.tuples[0]
 
         if not cacheAll:

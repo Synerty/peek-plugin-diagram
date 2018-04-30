@@ -1,40 +1,36 @@
-import { Injectable } from "@angular/core";
-import { GridTuple } from "../tuples/GridTuple";
-import { EncodedGridTuple } from "../tuples/EncodedGridTuple";
+import {Injectable} from "@angular/core";
+import {GridTuple} from "../tuples/GridTuple";
+import {EncodedGridTuple} from "../tuples/EncodedGridTuple";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 
 import {
+    addTupleType,
     ComponentLifecycleEventEmitter,
     extend,
     Payload,
+    PayloadEnvelope,
+    Tuple,
     TupleOfflineStorageNameService,
     TupleSelector,
     TupleStorageFactoryService,
     TupleStorageServiceABC,
     VortexService,
-    VortexStatusService,
-    Tuple,
-    addTupleType
+    VortexStatusService
 } from "@synerty/vortexjs";
 
 
-import { FooterService } from "@synerty/peek-util";
-import { diagramFilt, gridCacheStorageName } from "@peek/peek_plugin_diagram/_private";
-import { GridCacheIndexTuple } from "../tuples/GridCacheIndexTuple";
-import {
-    PrivateDiagramTupleService
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
-import {
-    PrivateDiagramCacheStatusService
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCacheStatusService";
-
+import {FooterService} from "@synerty/peek-util";
+import {diagramFilt, gridCacheStorageName} from "@peek/peek_plugin_diagram/_private";
+import {GridCacheIndexTuple} from "../tuples/GridCacheIndexTuple";
+import {PrivateDiagramTupleService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
+import {PrivateDiagramCacheStatusService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCacheStatusService";
 
 
 // ----------------------------------------------------------------------------
 
 let clientGridWatchUpdateFromDeviceFilt = extend(
-    { 'key': "clientGridWatchUpdateFromDevice" },
+    {'key': "clientGridWatchUpdateFromDevice"},
     diagramFilt
 );
 
@@ -67,7 +63,7 @@ class GridKeyTupleSelector extends TupleSelector {
     }
 }
 
-export abstract class GridLoaderA extends ComponentLifecycleEventEmitter{
+export abstract class GridLoaderA extends ComponentLifecycleEventEmitter {
     constructor() {
         super();
 
@@ -84,7 +80,7 @@ export abstract class GridLoaderA extends ComponentLifecycleEventEmitter{
     abstract watchGrids(gridKeys: string[]): void;
 
     abstract loadGrids(currentGridUpdateTimes: { [gridKey: string]: string },
-        gridKeys: string[]): void;
+                       gridKeys: string[]): void;
 
 }
 
@@ -124,10 +120,10 @@ export class GridLoader extends GridLoaderA {
     private chunksSavedSinceLastIndexSave = 0;
 
     constructor(private cacheStatusService: PrivateDiagramCacheStatusService,
-        private vortexService: VortexService,
-        private vortexStatusService: VortexStatusService,
-        private tupleService: PrivateDiagramTupleService,
-        storageFactory: TupleStorageFactoryService) {
+                private vortexService: VortexService,
+                private vortexStatusService: VortexStatusService,
+                private tupleService: PrivateDiagramTupleService,
+                storageFactory: TupleStorageFactoryService) {
         super();
 
         this.storage = storageFactory.create(
@@ -142,7 +138,9 @@ export class GridLoader extends GridLoaderA {
         this.vortexService.createEndpointObservable(
             this,
             clientGridWatchUpdateFromDeviceFilt)
-            .subscribe((payload: Payload) => this.processGridsFromServer(payload));
+            .subscribe((payloadEnvelope: PayloadEnvelope) =>
+                this.processGridsFromServer(payloadEnvelope)
+            );
 
         // If the vortex service comes back online, update the watch grids.
         this.vortexStatusService.isOnline
@@ -171,7 +169,7 @@ export class GridLoader extends GridLoaderA {
         // There is no point talking to the server if it's offline
         if (!this.vortexStatusService.snapshot.isOnline)
             return;
-        
+
         this.cacheStatusService.updateStatus(`Starting Cache Update`);
 
         this.tupleService
@@ -248,7 +246,7 @@ export class GridLoader extends GridLoaderA {
         let nextChunk = this.cacheGridQueueChunks.pop();
 
         let payload = new Payload(
-            extend({ cacheAll: true }, clientGridWatchUpdateFromDeviceFilt)
+            extend({cacheAll: true}, clientGridWatchUpdateFromDeviceFilt)
         );
         payload.tuples = [nextChunk];
         this.vortexService.sendPayload(payload);
@@ -267,7 +265,7 @@ export class GridLoader extends GridLoaderA {
      * Change the list of grids that the GridObserver is interested in.
      */
     loadGrids(currentGridUpdateTimes: { [gridKey: string]: string },
-        gridKeys: string[]): void {
+              gridKeys: string[]): void {
 
         // Query the local storage for the grids we don't have in the cache
         this.queryStorageGrids(gridKeys)
@@ -297,18 +295,22 @@ export class GridLoader extends GridLoaderA {
      *
      * Process the grids the server has sent us.
      */
-    private processGridsFromServer(payload: Payload) {
-        let encodedGridTuples: EncodedGridTuple[] = <EncodedGridTuple[]>payload.tuples;
+    private processGridsFromServer(payloadEnvelope: PayloadEnvelope) {
+        payloadEnvelope.decodePayload()
+            .then((payload: Payload) => {
+                let encodedGridTuples: EncodedGridTuple[] = <EncodedGridTuple[]>payload.tuples;
 
-        let isCacheAll = payload.filt["cacheAll"] === true;
+                let isCacheAll = payload.filt["cacheAll"] === true;
 
-        if (!isCacheAll) {
-            this.emitEncodedGridTuples(encodedGridTuples)
-        }
+                if (!isCacheAll) {
+                    this.emitEncodedGridTuples(encodedGridTuples)
+                }
 
-        this.storeGridTuples(encodedGridTuples)
-            .then(() => isCacheAll && this.cacheRequestNextChunk());
-
+                let promise: any = this.storeGridTuples(encodedGridTuples)
+                    .then(() => isCacheAll && this.cacheRequestNextChunk());
+                return promise;
+            })
+            .catch(e => `ERROR GridLoader.processGridsFromServer: ${e}`);
     }
 
     private emitEncodedGridTuples(encodedGridTuples: EncodedGridTuple[]): void {
@@ -317,7 +319,7 @@ export class GridLoader extends GridLoaderA {
         let gridTuples: GridTuple[] = [];
 
         for (let encodedGridTuple of encodedGridTuples) {
-            let promise: any = Payload.fromVortexMsg(encodedGridTuple.encodedGridTuple)
+            let promise: any = Payload.fromEncodedPayload(encodedGridTuple.encodedGridTuple)
                 .then((payload: Payload) => {
                     gridTuples.push(payload.tuples[0]);
                 })

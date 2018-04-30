@@ -1,6 +1,6 @@
-import logging
 import json
-from typing import List, Optional
+import logging
+from typing import List, Optional, Any, Dict
 
 from twisted.internet.defer import inlineCallbacks, returnValue
 
@@ -20,7 +20,7 @@ from vortex.Tuple import TUPLE_TYPES_BY_NAME
 
 logger = logging.getLogger(__name__)
 
-ORM_TUPLE_MAP = {
+ORM_TUPLE_MAP: Dict[str, Any] = {
     ImportDispColorTuple.tupleType(): DispColor,
     ImportDispLayerTuple.tupleType(): DispLayer,
     ImportDispLevelTuple.tupleType(): DispLevel,
@@ -47,7 +47,7 @@ class LookupImportController:
 
         logger.debug("TODO, Notify the observable")
 
-        returnValue(True)
+        return True
 
     @deferToThreadWrapWithLogger(logger)
     def _importInThread(self, modelSetKey: str, coordSetKey: str, tupleType: str,
@@ -140,7 +140,7 @@ class LookupImportController:
 
         except Exception as e:
             logger.exception(e)
-            raise 
+            raise
 
         finally:
             ormSession.close()
@@ -207,5 +207,3 @@ class LookupImportController:
                 dp = [dp]
 
             style.dashPattern = json.dumps(dp)
-
-

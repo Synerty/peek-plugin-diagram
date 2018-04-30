@@ -1,7 +1,7 @@
 import logging
 from typing import Union
 
-from twisted.internet.defer import Deferred
+from twisted.internet.defer import Deferred, inlineCallbacks
 
 from peek_plugin_diagram._private.client.controller.LookupCacheController import \
     LookupCacheController
@@ -16,6 +16,7 @@ class ClientLookupTupleProvider(TuplesProviderABC):
     def __init__(self, lookupCacheController: LookupCacheController):
         self._lookupCacheController = lookupCacheController
 
+    @inlineCallbacks
     def makeVortexMsg(self, filt: dict,
                       tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
         modelSetKey = tupleSelector.selector["modelSetKey"]
@@ -27,4 +28,7 @@ class ClientLookupTupleProvider(TuplesProviderABC):
         else:
             tuples = []
 
-        return Payload(filt, tuples=tuples).toVortexMsgDefer()
+        payloadEnvelope = yield Payload(filt, tuples=tuples).makePayloadEnvelopeDefer()
+        vortexMsg = yield  payloadEnvelope.toVortexMsgDefer()
+        return vortexMsg
+

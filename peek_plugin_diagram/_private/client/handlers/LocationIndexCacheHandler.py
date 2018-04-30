@@ -12,6 +12,7 @@ from peek_plugin_diagram._private.tuples.LocationIndexUpdateDateTuple import \
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
 from vortex.PayloadEndpoint import PayloadEndpoint
+from vortex.PayloadEnvelope import PayloadEnvelope
 from vortex.VortexABC import SendVortexMsgResponseCallable
 from vortex.VortexFactory import VortexFactory
 
@@ -109,10 +110,12 @@ class LocationIndexCacheHandler(object):
     # ---------------
     # Process observes from the devices
     @inlineCallbacks
-    def _processObserve(self, payload: Payload,
+    def _processObserve(self, payloadEnvelope: PayloadEnvelope,
                         vortexUuid: str,
                         sendResponse: SendVortexMsgResponseCallable,
                         **kwargs):
+
+        payload = yield payloadEnvelope.decodePayloadDefer()
 
         updateDatesTuples: LocationIndexUpdateDateTuple = payload.tuples[0]
 

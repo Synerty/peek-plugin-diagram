@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 def _scaleDispGeom(points: List[float], coordSet: ModelCoordSet) -> List[float]:
-    newGeom = []
+    newGeom: List[float] = []
 
     for xi in range(0, len(points), 2):
         x = points[xi] * coordSet.multiplierX + coordSet.offsetX
