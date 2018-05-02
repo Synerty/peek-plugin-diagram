@@ -66,7 +66,7 @@ def importDispsTask(self, modelSetKey: str, coordSetKey: str,
 
     """
     try:
-        disps = Payload().fromVortexMsg(dispsVortexMsg).tuples
+        disps = Payload().fromEncodedPayload(dispsVortexMsg).tuples
 
         coordSet = _loadCoordSet(modelSetKey, coordSetKey)
 

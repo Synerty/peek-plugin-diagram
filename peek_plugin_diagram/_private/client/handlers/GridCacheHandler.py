@@ -1,14 +1,15 @@
 import logging
+from collections import defaultdict
 from datetime import datetime
 from typing import List, Dict
 
-from collections import defaultdict
 from twisted.internet.defer import DeferredList, Deferred, inlineCallbacks
 
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.client.controller.GridCacheController import \
     GridCacheController
-from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import ClientGridLoaderRpc
+from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import \
+    ClientGridLoaderRpc
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
 from vortex.PayloadEndpoint import PayloadEndpoint
@@ -97,7 +98,8 @@ class GridCacheHandler(object):
             payload.filt = clientGridWatchUpdateFromDeviceFilt
 
             # Serliase in thread, and then send.
-            d = payload.toVortexMsgDefer()
+            d = payload.makePayloadEnvelopeDefer()
+            d.addCallback(lambda payloadEnvelope:payloadEnvelope.toVortexMsgDefer())
             d.addCallback(VortexFactory.sendVortexMsg, destVortexUuid=vortexUuid)
             dl.append(d)
 
@@ -115,7 +117,7 @@ class GridCacheHandler(object):
                         **kwargs):
         cacheAll = payloadEnvelope.filt.get("cacheAll") == True
 
-        payload =yield payloadEnvelope.decodePayloadDefer()
+        payload = yield payloadEnvelope.decodePayloadDefer()
 
         lastUpdateByGridKey: DeviceGridT = payload.tuples[0]
 
@@ -180,10 +182,9 @@ class GridCacheHandler(object):
             if not toSend and not cacheAll:
                 return
 
-            d: Deferred = (
-                Payload(filt=filt, tuples=toSend)
-                .toVortexMsgDefer(compressionLevel=2)
-            )
+            payload = Payload(filt=filt, tuples=toSend)
+            d: Deferred = payload.makePayloadEnvelopeDefer(compressionLevel=2)
+            d.addCallback(lambda payloadEnvelope: payloadEnvelope.toVortexMsgDefer())
             d.addCallback(sendResponse)
             d.addErrback(vortexLogFailure, logger, consumeError=True)
 
@@ -197,7 +198,7 @@ class GridCacheHandler(object):
 
             # We are king, If it's it's not our version, it's the wrong version ;-)
             logger.debug("%s, %s,  %s", gridTuple.lastUpdate == lastUpdate,
-                         gridTuple.lastUpdate , lastUpdate)
+                         gridTuple.lastUpdate, lastUpdate)
             if gridTuple.lastUpdate == lastUpdate:
                 logger.debug("Grid %s matches the cache" % gridKey)
             else:

@@ -91,8 +91,9 @@ class ClientGridUpdateHandler:
             if not gridTuples:
                 return None
 
-            return Payload(filt=clientGridUpdateFromServerFilt,
-                           tuples=gridTuples).toVortexMsg()
+            return Payload(
+                filt=clientGridUpdateFromServerFilt, tuples=gridTuples
+                           ).makePayloadEnvelope().toVortexMsg()
 
         finally:
             session.close()

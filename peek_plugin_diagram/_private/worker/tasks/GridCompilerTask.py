@@ -90,7 +90,7 @@ def compileGrids(self, queueItems) -> List[str]:
                 lastUpdate=gridTupleHash
             )
 
-            encodedGridTuple = Payload(tuples=[gridTuple]).toVortexMsg()
+            encodedGridTuple = Payload(tuples=[gridTuple]).toEncodedPayload()
 
             inserts.append(dict(coordSetId=coordSetIdByGridKey[gridKey],
                                 gridKey=gridKey,

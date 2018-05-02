@@ -15,7 +15,6 @@ from peek_plugin_diagram._private.server.controller.StatusController import \
 from peek_plugin_diagram._private.storage.LocationIndex import \
     LocationIndexCompilerQueue
 from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
-from vortex.VortexFactory import NoVortexException
 
 logger = logging.getLogger(__name__)
 

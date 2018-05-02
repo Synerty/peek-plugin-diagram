@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {TupleStorageServiceABC} from "@synerty/vortexjs/src/vortex/storage/TupleStorageServiceABC";
-import {TupleOfflineStorageNameService} from "@synerty/vortexjs/src/vortex/TupleOfflineStorageNameService";
+import {TupleOfflineStorageNameService} from "@synerty/vortexjs/src/vortex/storage/TupleOfflineStorageNameService";
 import {TupleStorageIndexedDbService} from "@synerty/vortexjs/src/vortex/storage/TupleStorageIndexedDbService";
 import {TupleStorageWebSqlService} from "@synerty/vortexjs/src/vortex/storage/TupleStorageWebSqlService";
 import {TupleStorageNullService} from "@synerty/vortexjs/src/vortex/storage/TupleStorageNullService";

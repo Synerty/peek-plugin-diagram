@@ -99,7 +99,7 @@ def compileLocationIndex(self, queueItems) -> List[str]:
 
             )
 
-            blobData = Payload(tuples=[locationIndexTuple]).toVortexMsg()
+            blobData = Payload(tuples=[locationIndexTuple]).toEncodedPayload()
 
             inserts.append(dict(modelSetId=modelSetId,
                                 indexBucket=indexBucket,

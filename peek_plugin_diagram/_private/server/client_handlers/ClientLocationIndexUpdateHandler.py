@@ -98,8 +98,9 @@ class ClientLocationIndexUpdateHandler:
             if not locationIndexTuples:
                 return None
 
-            return Payload(filt=clientLocationIndexUpdateFromServerFilt,
-                           tuples=locationIndexTuples).toVortexMsg()
+            return Payload(
+                filt=clientLocationIndexUpdateFromServerFilt, tuples=locationIndexTuples
+            ).makePayloadEnvelope().toVortexMsg()
 
         finally:
             session.close()

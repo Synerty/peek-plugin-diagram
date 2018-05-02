@@ -3,10 +3,21 @@
 set errexit
 set nounset
 
+rm -rf src/@peek/peek_plugin_diagram
+cp -pr ../../../plugin-module src/@peek/peek_plugin_diagram
+
+rm -rf src/assets/peek_plugin_diagram
+cp -pr ../ns-assets src/assets/peek_plugin_diagram
+
+find src/peek_plugin_diagram -type d -depth 1 -exec rm -rf {} \;
+for name in cache canvas canvas-component layer-component tuples
+do
+    cp -pr ../both-app/${name} src/peek_plugin_diagram/
+done
+
 ng build -prod --no-aot
 
 [ -d dist ]
-
 
 
 ASSET_DIR="../ns-assets/www"

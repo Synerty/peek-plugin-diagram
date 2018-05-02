@@ -72,12 +72,12 @@ class Transaction implements TupleStorageTransaction {
 
   loadTuples(tupleSelector: TupleSelector): Promise<Tuple[]> {
     return this.loadTuplesEncoded(tupleSelector)
-      .then((vortexMsg: string) => {
-        if (vortexMsg == null) {
+      .then((encodedPayload: string) => {
+        if (encodedPayload == null) {
           return [];
         }
 
-        return Payload.fromVortexMsg(vortexMsg)
+        return Payload.fromEncodedPayload(encodedPayload)
           .then((payload: Payload) => payload.tuples);
       });
   }
@@ -107,13 +107,13 @@ class Transaction implements TupleStorageTransaction {
   saveTuples(tupleSelector: TupleSelector, tuples: Tuple[]): Promise<void> {
 
     // The payload is a convenient way to serialise and compress the data
-    return new Payload({}, tuples).toVortexMsg()
-      .then((vortexMsg: string) => {
-        return this.saveTuplesEncoded(tupleSelector, vortexMsg);
+    return new Payload({}, tuples).toEncodedPayload()
+      .then((encodedPayload: string) => {
+        return this.saveTuplesEncoded(tupleSelector, encodedPayload);
       });
   }
 
-  saveTuplesEncoded(tupleSelector: TupleSelector, vortexMsg: string): Promise<void> {
+  saveTuplesEncoded(tupleSelector: TupleSelector, encodedPayload: string): Promise<void> {
     let promId = TupleStorageBridgeWeb.nextPromiseId++;
 
     return new Promise<void>((resolve, reject) => {
@@ -125,7 +125,7 @@ class Transaction implements TupleStorageTransaction {
       let args: any = {
         promId: promId,
         tupleSelector: tupleSelector,
-        vortexMsg: vortexMsg
+        encodedPayload: encodedPayload
       };
 
       let argObj = new Payload({}, args).toJsonDict();

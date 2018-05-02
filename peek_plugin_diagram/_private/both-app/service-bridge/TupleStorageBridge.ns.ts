@@ -30,7 +30,7 @@ export class TupleStorageBridgeNs {
 
                 console.log("NS: Received saveTuples event");
                 this.handlePromise(
-                    this.tupleStorage.saveTuplesEncoded(args.tupleSelector, args.vortexMsg),
+                    this.tupleStorage.saveTuplesEncoded(args.tupleSelector, args.encodedPayload),
                     args.promId
                 );
 

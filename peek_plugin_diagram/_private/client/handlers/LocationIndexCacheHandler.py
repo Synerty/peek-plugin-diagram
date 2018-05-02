@@ -1,8 +1,8 @@
 import logging
+from collections import defaultdict
 from typing import List
 
-from collections import defaultdict
-from twisted.internet.defer import DeferredList, Deferred, inlineCallbacks
+from twisted.internet.defer import DeferredList, inlineCallbacks, Deferred
 
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.client.controller.LocationIndexCacheController import \
@@ -99,7 +99,8 @@ class LocationIndexCacheHandler(object):
             payload.filt = clientLocationIndexWatchUpdateFromDeviceFilt
 
             # Serliase in thread, and then send.
-            d = payload.toVortexMsgDefer()
+            d = payload.makePayloadEnvelopeDefer()
+            d.addCallback(lambda payloadEnvelope:payloadEnvelope.toVortexMsgDefer())
             d.addCallback(VortexFactory.sendVortexMsg, destVortexUuid=vortexUuid)
             dl.append(d)
 
@@ -166,6 +167,16 @@ class LocationIndexCacheHandler(object):
         locationIndexTuplesToSend = []
         locationIndexKeys = self._cacheController.locationIndexKeys(modelSetKey)
 
+        def sendChunk(locationIndexTuplesToSend):
+            if not locationIndexTuplesToSend:
+                return
+
+            payload = Payload(filt=filt, tuples=locationIndexTuplesToSend)
+            d: Deferred = payload.makePayloadEnvelopeDefer()
+            d.addCallback(lambda payloadEnvelope: payloadEnvelope.toVortexMsgDefer())
+            d.addCallback(sendResponse)
+            d.addErrback(vortexLogFailure, logger, consumeError=True)
+
         # Check and send any updates
         for locationIndexKey in locationIndexKeys:
             lastUpdate = lastUpdateByLocationIndexKey.get(locationIndexKey)
@@ -190,18 +201,14 @@ class LocationIndexCacheHandler(object):
             logger.debug("Sending locationIndex %s from the cache" % locationIndexKey)
 
             if len(locationIndexTuplesToSend) == 20:
-                vortexMsg = yield Payload(filt=filt,
-                                          tuples=locationIndexTuplesToSend).toVortexMsgDefer()
-                yield sendResponse(vortexMsg)
+                sendChunk(locationIndexTuplesToSend)
                 locationIndexTuplesToSend = []
 
         if locationIndexTuplesToSend:
-            vortexMsg = yield Payload(filt=filt,
-                                      tuples=locationIndexTuplesToSend).toVortexMsgDefer()
-            yield sendResponse(vortexMsg)
+            sendChunk(locationIndexTuplesToSend)
 
         # Tell the client the initial load is complete.
         finishedFilt = {'finished': True}
         finishedFilt.update(filt)
-        vortexMsg = yield Payload(filt=finishedFilt).toVortexMsgDefer()
+        vortexMsg = yield PayloadEnvelope(filt=finishedFilt).toVortexMsgDefer()
         yield sendResponse(vortexMsg)
