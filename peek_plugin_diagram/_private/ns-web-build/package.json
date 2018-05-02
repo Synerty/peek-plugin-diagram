@@ -26,6 +26,7 @@
     "@synerty/peek-util": "^0.6.1",
     "@synerty/peek-util-web": "^0.6.1",
     "@synerty/vortexjs": "^0.11.1",
+    "angular-font-awesome": "^3.1.2",
     "core-js": "^2.4.1",
     "jquery": "^3.3.1",
     "moment": "^2.17.1",

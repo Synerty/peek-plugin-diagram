@@ -4,16 +4,18 @@ set errexit
 set nounset
 
 rm -rf src/@peek/peek_plugin_diagram
-cp -pr ../../../plugin-module src/@peek/peek_plugin_diagram
+cp -pr ../../plugin-module src/@peek/peek_plugin_diagram
 
 rm -rf src/assets/peek_plugin_diagram
-cp -pr ../ns-assets src/assets/peek_plugin_diagram
+cp -pr ../ns-assets/assets/peek_plugin_diagram src/assets/
 
-find src/peek_plugin_diagram -type d -depth 1 -exec rm -rf {} \;
+find -d src/peek_plugin_diagram -depth 1  -type d -exec rm -rf {} \;
 for name in cache canvas canvas-component layer-component tuples
 do
     cp -pr ../both-app/${name} src/peek_plugin_diagram/
 done
+
+cp -pr ../both-app/DiagramUtil.ts src/peek_plugin_diagram/DiagramUtil.ts
 
 ng build -prod --no-aot
 
