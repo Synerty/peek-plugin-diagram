@@ -6,10 +6,9 @@ from twisted.internet.defer import inlineCallbacks, Deferred
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import \
     ClientGridLoaderRpc
-from peek_plugin_diagram._private.tuples.GridTuple import GridTuple
 from peek_plugin_diagram._private.tuples.EncodedGridTuple import EncodedGridTuple
+from peek_plugin_diagram._private.tuples.GridTuple import GridTuple
 from vortex.DeferUtil import vortexLogFailure
-from vortex.Payload import Payload
 from vortex.PayloadEndpoint import PayloadEndpoint
 from vortex.PayloadEnvelope import PayloadEnvelope
 
@@ -36,7 +35,8 @@ class GridCacheController:
     #: This stores the cache of grid data for the clients
     _gridCache: Dict[str, GridTuple] = None
 
-    LOAD_CHUNK = 200
+    LOAD_CHUNK = 100
+    LOAD_PARALLELISM = 4
 
     def __init__(self, clientId: str):
         self._clientId = clientId
@@ -68,20 +68,44 @@ class GridCacheController:
         self._gridCache = {}
         # self._cachedGridCoordSetIds = set()
 
-    @inlineCallbacks
     def reloadCache(self):
         self._gridCache = {}
-        # self._cachedGridCoordSetIds = set()
 
-        offset = 0
-        while True:
+        d = Deferred()
+
+        class C:
+            inProgress = self.LOAD_PARALLELISM
+
+        def nextChunk():
+            offset = 0
+            while True:
+                yield offset
+                offset += self.LOAD_CHUNK
+
+        nextChunkGen = nextChunk()
+
+        def callback(gridTuples):
+            if not gridTuples:
+                C.inProgress -= 1
+                if not C.inProgress:
+                    d.callback(True)
+                return
+
+            self._loadGridIntoCache(gridTuples)
+            load()
+
+        def load():
+            offset = next(nextChunkGen)
             logger.info("Loading grids %s to %s" %
                         (offset, offset + self.LOAD_CHUNK))
-            gridTuples = yield ClientGridLoaderRpc.loadGrids(offset, self.LOAD_CHUNK)
-            if not gridTuples:
-                break
-            self._loadGridIntoCache(gridTuples)
-            offset += self.LOAD_CHUNK
+            d = ClientGridLoaderRpc.loadGrids(offset, self.LOAD_CHUNK)
+            d.addCallback(callback)
+            d.addErrback(vortexLogFailure, logger, consumeError=True)
+
+        for _ in range(self.LOAD_PARALLELISM):
+            load()
+
+        return d
 
     @inlineCallbacks
     def _processGridPayload(self, payloadEnvelope: PayloadEnvelope, **kwargs):
