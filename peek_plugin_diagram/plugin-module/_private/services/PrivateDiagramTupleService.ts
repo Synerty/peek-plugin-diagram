@@ -50,7 +50,10 @@ export class PrivateDiagramTupleService {
             tupleDataObservableName,
             tupleOfflineStorageService);
 
-        this.tupleObserver = new TupleDataObserverService(this.tupleOfflineObserver);
+        this.tupleObserver = new TupleDataObserverService(
+            this.tupleOfflineObserver,
+            tupleDataObservableName
+        );
 
 
         this.tupleOfflineAction = new TupleActionPushOfflineService(
