@@ -28,10 +28,10 @@ class DiagramImportApi(DiagramImportApiABC):
     def importDisps(self, modelSetKey: str,
                     coordSetKey: str,
                     importGroupHash: str,
-                    dispsVortexMsg: bytes) -> Deferred:
+                    dispsEncodedPayload: bytes) -> Deferred:
         return self._dispImportController.importDisps(
             modelSetKey, coordSetKey,
-            importGroupHash, dispsVortexMsg
+            importGroupHash, dispsEncodedPayload
         )
 
     def importLookups(self, modelSetKey: str, coordSetKey: str,

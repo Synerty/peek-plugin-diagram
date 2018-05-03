@@ -41,7 +41,7 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
     id = Column(Integer, id_seq, server_default=id_seq.next_value(),
                 primary_key=True, autoincrement=False)
 
-    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id'), nullable=False)
+    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete="CASCADE"), nullable=False)
     coordSet = relationship(ModelCoordSet)
 
     dispId = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE'),

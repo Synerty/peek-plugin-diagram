@@ -58,7 +58,7 @@ IMPORT_FIELD_NAME_MAP = {
 @DeferrableTask
 @celeryApp.task(bind=True)
 def importDispsTask(self, modelSetKey: str, coordSetKey: str,
-                    importGroupHash: str, dispsVortexMsg: bytes) -> List[
+                    importGroupHash: str, dispsEncodedPayload: bytes) -> List[
     ImportLiveDbItemTuple]:
     """ Import Disp Task
 
@@ -66,7 +66,7 @@ def importDispsTask(self, modelSetKey: str, coordSetKey: str,
 
     """
     try:
-        disps = Payload().fromEncodedPayload(dispsVortexMsg).tuples
+        disps = Payload().fromEncodedPayload(dispsEncodedPayload).tuples
 
         coordSet = _loadCoordSet(modelSetKey, coordSetKey)
 

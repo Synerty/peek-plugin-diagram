@@ -53,7 +53,7 @@ class GridKeyIndex(Tuple, DeclarativeBase):
 
     disp = relationship(DispBase)
 
-    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id'), nullable=False)
+    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete="CASCADE"), nullable=False)
     coordSet = relationship(ModelCoordSet)
 
     __table_args__ = (

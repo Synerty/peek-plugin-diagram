@@ -19,10 +19,10 @@ class DispImportController:
 
     @inlineCallbacks
     def importDisps(self, modelSetKey: str, coordSetKey: str,
-                    importGroupHash: str, dispsVortexMsg: bytes):
+                    importGroupHash: str, dispsEncodedPayload: bytes):
 
         liveDbItemsToImport = yield importDispsTask.delay(
-            modelSetKey, coordSetKey, importGroupHash, dispsVortexMsg
+            modelSetKey, coordSetKey, importGroupHash, dispsEncodedPayload
         )
 
         if liveDbItemsToImport:
