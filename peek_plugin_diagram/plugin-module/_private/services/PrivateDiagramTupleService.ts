@@ -31,8 +31,7 @@ export class PrivateDiagramTupleService {
     constructor(tupleActionSingletonService: TupleActionPushOfflineSingletonService,
                 vortexService: VortexService,
                 vortexStatusService: VortexStatusService,
-                storageFactory: TupleStorageFactoryService,
-                zone: NgZone) {
+                storageFactory: TupleStorageFactoryService) {
 
 
         let tupleDataObservableName = new TupleDataObservableNameService(
@@ -45,18 +44,13 @@ export class PrivateDiagramTupleService {
         let tupleOfflineStorageService = new TupleOfflineStorageService(
             storageFactory, storageName);
 
-        this.tupleObserver = new TupleDataObserverService(
-            vortexService,
-            vortexStatusService,
-            zone,
-            tupleDataObservableName);
-
         this.tupleOfflineObserver = new TupleDataOfflineObserverService(
             vortexService,
             vortexStatusService,
-            zone,
             tupleDataObservableName,
             tupleOfflineStorageService);
+
+        this.tupleObserver = new TupleDataObserverService(this.tupleOfflineObserver);
 
 
         this.tupleOfflineAction = new TupleActionPushOfflineService(
