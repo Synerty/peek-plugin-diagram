@@ -4,10 +4,13 @@ import {NgModule} from "@angular/core";
 import {RouterModule, Routes} from "@angular/router";
 import {EditSettingComponent} from "./edit-setting-table/edit.component";
 import {
-    TupleActionPushService,
-    TupleDataObserverService,
     TupleActionPushNameService,
-    TupleDataObservableNameService
+    TupleActionPushService,
+    TupleDataObservableNameService,
+    TupleDataObserverService,
+    TupleOfflineStorageNameService,
+    TupleOfflineStorageService,
+    TupleDataOfflineObserverService
 } from "@synerty/vortexjs";
 // Import our components
 import {DiagramComponent} from "./diagram.component";
@@ -15,7 +18,8 @@ import {StatusComponent} from "./status/status.component";
 import {
     diagramActionProcessorName,
     diagramFilt,
-    diagramObservableName
+    diagramObservableName,
+    diagramTupleOfflineServiceName
 } from "@peek/peek_plugin_diagram/_private";
 
 
@@ -27,6 +31,10 @@ export function tupleActionPushNameServiceFactory() {
 export function tupleDataObservableNameServiceFactory() {
     return new TupleDataObservableNameService(
         diagramObservableName, diagramFilt);
+}
+
+export function tupleOfflineStorageNameServiceFactory() {
+    return new TupleOfflineStorageNameService(diagramTupleOfflineServiceName);
 }
 
 // Define the routes for this Angular module
@@ -51,10 +59,14 @@ export const pluginRoutes: Routes = [
             provide: TupleActionPushNameService,
             useFactory: tupleActionPushNameServiceFactory
         },
-        TupleDataObserverService, {
+        TupleOfflineStorageService, {
+            provide: TupleOfflineStorageNameService,
+            useFactory: tupleOfflineStorageNameServiceFactory
+        },
+        TupleDataObserverService, TupleDataOfflineObserverService, {
             provide: TupleDataObservableNameService,
             useFactory: tupleDataObservableNameServiceFactory
-        }
+        },
     ],
     declarations: [DiagramComponent, StatusComponent, EditSettingComponent]
 })
