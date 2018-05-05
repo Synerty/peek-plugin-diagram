@@ -1,13 +1,7 @@
 import logging
-
 from os import path as osp
-from twisted.internet.defer import inlineCallbacks
 
-from peek_plugin_diagram._private.client.controller.LocationIndexCacheController import \
-    LocationIndexCacheController
-from peek_plugin_diagram._private.client.handlers.LocationIndexCacheHandler import \
-    LocationIndexCacheHandler
-from txhttputil.site.FileUnderlayResource import FileUnderlayResource
+from twisted.internet.defer import inlineCallbacks
 
 from peek_plugin_base.PeekVortexUtil import peekServerName
 from peek_plugin_base.client.PluginClientEntryHookABC import PluginClientEntryHookABC
@@ -20,12 +14,17 @@ from peek_plugin_diagram._private.client.controller.CoordSetCacheController impo
     CoordSetCacheController
 from peek_plugin_diagram._private.client.controller.GridCacheController import \
     GridCacheController
+from peek_plugin_diagram._private.client.controller.LocationIndexCacheController import \
+    LocationIndexCacheController
 from peek_plugin_diagram._private.client.controller.LookupCacheController import \
     LookupCacheController
 from peek_plugin_diagram._private.client.handlers.GridCacheHandler import GridCacheHandler
+from peek_plugin_diagram._private.client.handlers.LocationIndexCacheHandler import \
+    LocationIndexCacheHandler
 from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
 from peek_plugin_diagram._private.tuples import loadPrivateTuples
 from peek_plugin_diagram.tuples import loadPublicTuples
+from txhttputil.site.FileUnderlayResource import FileUnderlayResource
 from vortex.handler.TupleActionProcessorProxy import TupleActionProcessorProxy
 from vortex.handler.TupleDataObservableProxyHandler import TupleDataObservableProxyHandler
 from vortex.handler.TupleDataObserverClient import TupleDataObserverClient
@@ -76,10 +75,10 @@ class ClientEntryHook(PluginClientEntryHookABC):
 
         # Provide the devices access to the servers observable
         tupleDataObservableProxyHandler = TupleDataObservableProxyHandler(
-                observableName=diagramObservableName,
-                proxyToVortexName=peekServerName,
-                additionalFilt=diagramFilt,
-                observerName="Proxy to devices")
+            observableName=diagramObservableName,
+            proxyToVortexName=peekServerName,
+            additionalFilt=diagramFilt,
+            observerName="Proxy to devices")
         self._loadedObjects.append(tupleDataObservableProxyHandler)
 
         #: This is an observer for us (the client) to use to observe data
@@ -122,14 +121,15 @@ class ClientEntryHook(PluginClientEntryHookABC):
             gridCacheController,
             lookupCacheController
         )
-        self._loadedObjects.append(tupleObservable)
+        # This is already in the _loadedObjects, it's tupleDataObservableProxyHandler
 
         lookupCacheController.setTupleObserable(tupleObservable)
         coordSetCacheController.setTupleObserable(tupleObservable)
-        
+
         # ----- Location Index Cache Controller
 
-        locationIndexCacheController = LocationIndexCacheController(self.platform.serviceId)
+        locationIndexCacheController = LocationIndexCacheController(
+            self.platform.serviceId)
         self._loadedObjects.append(locationIndexCacheController)
 
         # This is the custom handler for the client
@@ -139,7 +139,8 @@ class ClientEntryHook(PluginClientEntryHookABC):
         )
         self._loadedObjects.append(locationIndexCacheHandler)
 
-        locationIndexCacheController.setLocationIndexCacheHandler(locationIndexCacheHandler)
+        locationIndexCacheController.setLocationIndexCacheHandler(
+            locationIndexCacheHandler)
 
         yield gridCacheController.start()
         yield locationIndexCacheController.start()

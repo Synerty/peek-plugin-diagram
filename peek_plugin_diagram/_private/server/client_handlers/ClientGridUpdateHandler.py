@@ -51,7 +51,7 @@ class ClientGridUpdateHandler:
         if not gridKeys:
             return
 
-        def send(vortexMsg: bytes):
+        def send(vortexMsg: Optional[bytes]):
             if vortexMsg:
                 VortexFactory.sendVortexMsg(
                     vortexMsg, destVortexName=peekClientName
