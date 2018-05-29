@@ -2,15 +2,14 @@ import logging
 from collections import defaultdict
 from typing import Dict, List
 
-from twisted.internet.defer import inlineCallbacks, Deferred
+from twisted.internet.defer import inlineCallbacks
 
 from peek_plugin_diagram._private.PluginNames import diagramFilt
-from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexLoaderRpc import ClientLocationIndexLoaderRpc
+from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexLoaderRpc import \
+    ClientLocationIndexLoaderRpc
 from peek_plugin_diagram._private.tuples.EncodedLocationIndexTuple import \
     EncodedLocationIndexTuple
 from peek_plugin_diagram._private.tuples.LocationIndexTuple import LocationIndexTuple
-from vortex.DeferUtil import vortexLogFailure
-from vortex.Payload import Payload
 from vortex.PayloadEndpoint import PayloadEndpoint
 from vortex.PayloadEnvelope import PayloadEnvelope
 
@@ -69,22 +68,9 @@ class LocationIndexCacheController:
             if not locationIndexTuples:
                 break
 
-            updatedTuples = []
-            for locationIndexTuple in locationIndexTuples:
-                if locationIndexTuple.indexBucket in self._cache:
-                    lastUpdate = self._cache[locationIndexTuple.indexBucket].lastUpdate
-                    if lastUpdate == locationIndexTuple.lastUpdate:
-                        continue
-                updatedTuples.append(locationIndexTuple)
-
-            if updatedTuples:
-                self._loadLocationIndexIntoCache(updatedTuples)
+            self._loadLocationIndexIntoCache(locationIndexTuples)
 
             offset += self.LOAD_CHUNK
-
-    def _processCoordSetPayload(self, payload: Payload, **kwargs):
-        d: Deferred = self.reloadCache()
-        d.addErrback(vortexLogFailure, logger, consumeError=True)
 
     @inlineCallbacks
     def _processLocationIndexPayload(self, payloadEnvelope: PayloadEnvelope, **kwargs):
