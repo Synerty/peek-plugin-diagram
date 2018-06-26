@@ -45,6 +45,8 @@ export class PeekCanvasModel {
 
     private _selectionChangedSubject = new Subject<{}[]>();
 
+    private _keysToTryToSelect: string[] = [];
+
     // Does the model need an update?
     private needsUpdate = false;
 
@@ -130,6 +132,8 @@ export class PeekCanvasModel {
 
         this._viewingGridKeysDict = {};
         this._viewingGridKeysStr = "";
+
+        this._keysToTryToSelect = [];
     };
 
 
@@ -313,6 +317,17 @@ export class PeekCanvasModel {
             }
         }
 
+
+        for (let key of this._keysToTryToSelect) {
+            for (let disp of disps) {
+                if (DispBase.key(disp) == key) {
+                    this._selection.add(disp); // Don't notify of item select
+                    this._keysToTryToSelect.remove(key);
+                    break;
+                }
+            }
+        }
+
         this._visableDisps = disps;
         this.config.model.dispOnScreen = disps.length;
         this.config.invalidate();
@@ -321,6 +336,10 @@ export class PeekCanvasModel {
 
         console.log(`${dateStr()} Model: compileDisps took ${timeTaken}ms`
             + ` for ${disps.length} disps and ${viewableGrids.length} grids`);
+    }
+
+    tryToSelectKeys(keys: string[]) {
+        this._keysToTryToSelect = keys;
     }
 
     addSelection(objectOrArray) {
