@@ -8,3 +8,9 @@ export {
     DiagramItemDetailI,
     DiagramItemPopupContextI
 } from "./DiagramItemPopupService";
+
+
+export {
+    DiagramPositionService,
+    PositionUpdatedI
+} from "./DiagramPositionService";
