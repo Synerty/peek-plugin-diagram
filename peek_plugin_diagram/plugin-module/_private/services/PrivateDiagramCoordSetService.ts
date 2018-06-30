@@ -1,10 +1,11 @@
 import {Injectable} from "@angular/core";
-import {TupleSelector} from "@synerty/vortexjs";
-import {TupleDataOfflineObserverService} from "@synerty/vortexjs";
-import {ModelCoordSet} from "../tuples/ModelCoordSet";
 import {
-    PrivateDiagramTupleService
-} from "./PrivateDiagramTupleService";
+    ComponentLifecycleEventEmitter,
+    TupleDataOfflineObserverService,
+    TupleSelector
+} from "@synerty/vortexjs";
+import {ModelCoordSet} from "../tuples/ModelCoordSet";
+import {PrivateDiagramTupleService} from "./PrivateDiagramTupleService";
 
 /** CoordSetCache
  *
@@ -14,7 +15,7 @@ import {
  *
  */
 @Injectable()
-export class PrivateDiagramCoordSetService {
+export class PrivateDiagramCoordSetService extends ComponentLifecycleEventEmitter {
 
     private modelSetKey: string = "";
 
@@ -26,15 +27,16 @@ export class PrivateDiagramCoordSetService {
 
 
     constructor(private tupleService: PrivateDiagramTupleService) {
+        super();
         this.initialLoad();
     }
 
     private initialLoad(): void {
 
-        this.subscriptions.push(
-            this.tupleService.offlineObserver.subscribeToTupleSelector(
-                new TupleSelector(ModelCoordSet.tupleName, {})
-            ).subscribe((tuples: any[]) => {
+        this.tupleService.offlineObserver
+            .subscribeToTupleSelector(new TupleSelector(ModelCoordSet.tupleName, {}))
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((tuples: any[]) => {
                 this._coordSetByKey = {};
 
                 for (let item of tuples) {
@@ -42,31 +44,15 @@ export class PrivateDiagramCoordSetService {
                     this._coordSetById[item.id] = item;
                 }
 
+                this._isReady = tuples.length != 0;
             })
-        );
     }
 
     shutdown(): void {
-        for (let sub of this.subscriptions) {
-            sub.unsubscribe();
-        }
-        this.subscriptions = [];
     };
 
     isReady(): boolean {
-        // isReady is used in a doCheck loop, so make if fast once it's true
-        if (this._isReady)
-            return true;
-
-        let count = 0;
-        for (let key in this._coordSetByKey)
-            count++;
-
-        if (count == 0)
-            return false;
-
-        this._isReady = true;
-        return true;
+        return this._isReady;
     };
 
     coordSetForKey(coordSetKey: string): ModelCoordSet {
