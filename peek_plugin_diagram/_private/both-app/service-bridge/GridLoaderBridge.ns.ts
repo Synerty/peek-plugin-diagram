@@ -6,14 +6,14 @@ import {
     PrivateDiagramItemSelectService,
     SelectedItemDetailsI
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
-import {GridLoaderA} from "../cache/GridLoader";
-import {GridTuple} from "../tuples/GridTuple";
+import {PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader/PrivateDiagramGridLoaderServiceA";
+import {GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
 
 export class GridLoaderBridgeNs  {
 
 
     constructor(private lifeCycleEvents: ComponentLifecycleEventEmitter,
-                private gridLoader: GridLoaderA,
+                private gridLoader: PrivateDiagramGridLoaderServiceA,
                 private iface: WebViewInterface) {
 
         this.iface.on(

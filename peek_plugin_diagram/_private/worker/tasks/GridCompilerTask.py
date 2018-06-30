@@ -1,5 +1,4 @@
 import logging
-import zlib
 import hashlib
 import pytz
 from base64 import b64encode
@@ -15,7 +14,7 @@ from peek_plugin_base.storage.StorageUtil import makeCoreValuesSubqueryCondition
     makeOrmValuesSubqueryCondition
 from peek_plugin_base.worker import CeleryDbConn
 
-from peek_plugin_diagram._private.tuples.GridTuple import GridTuple
+from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
 
 from peek_plugin_diagram._private.storage.Display import DispLevel, DispBase, DispLayer
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled, \

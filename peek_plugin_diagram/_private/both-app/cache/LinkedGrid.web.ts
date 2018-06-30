@@ -1,5 +1,5 @@
 import {assert} from "../DiagramUtil";
-import {GridTuple} from "../tuples/GridTuple";
+import {GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
 import {LookupCache} from "./LookupCache.web";
 /** Linked Grid
  *

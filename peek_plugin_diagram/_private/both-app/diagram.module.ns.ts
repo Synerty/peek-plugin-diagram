@@ -54,7 +54,6 @@ import {
 import {CanvasComponent} from "./canvas-component/canvas.component.ns";
 import {PopupComponent} from "./popup-component/popup.component.ns";
 import {ToolbarComponent} from "./toolbar-component/toolbar.component.ns";
-import {GridLoader, GridLoaderA} from "./cache/GridLoader";
 
 
 
@@ -69,12 +68,7 @@ import {GridLoader, GridLoaderA} from "./cache/GridLoader";
         ...PeekModuleFactory.FormsModules,
     ],
     exports: [DiagramComponent],
-    providers: [
-        {
-            provide:GridLoaderA,
-            useClass:GridLoader
-        }
-    ],
+    providers: [],
     declarations: [DiagramComponent, CanvasComponent, PopupComponent, ToolbarComponent]
 })
 export class PeekPluginDiagramModule {

@@ -3,8 +3,8 @@ import {diagramTuplePrefix} from "../PluginNames";
 
 
 @addTupleType
-export class DiagramLoaderStatusTuple extends Tuple {
-    public static readonly tupleName = diagramTuplePrefix + "DiagramLoaderStatusTuple";
+export class DiagramImporterStatusTuple extends Tuple {
+    public static readonly tupleName = diagramTuplePrefix + "DiagramImporterStatusTuple";
 
     displayCompilerQueueStatus: boolean;
     displayCompilerQueueSize: number;
@@ -22,6 +22,6 @@ export class DiagramLoaderStatusTuple extends Tuple {
     locationIndexCompilerQueueLastError: string;
 
     constructor() {
-        super(DiagramLoaderStatusTuple.tupleName)
+        super(DiagramImporterStatusTuple.tupleName)
     }
 }

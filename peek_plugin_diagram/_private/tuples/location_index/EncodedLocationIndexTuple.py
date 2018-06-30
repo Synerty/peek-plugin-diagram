@@ -1,7 +1,4 @@
-from datetime import datetime
-
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from peek_plugin_diagram._private.tuples.LocationIndexTuple import LocationIndexTuple
 from vortex.Tuple import addTupleType, TupleField, Tuple
 
 

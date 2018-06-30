@@ -12,6 +12,8 @@ DeviceLocationIndexT = Dict[str, str]
 class LocationIndexUpdateDateTuple(Tuple):
     __tupleType__ = diagramTuplePrefix + "LocationIndexUpdateDateTuple"
 
-    modelSetKey: str = TupleField()
+    # Improve performance of the JSON serialisation
+    __rawJonableFields__ = ('initialLoadComplete', 'updateDateByChunkKey')
+
     initialLoadComplete: bool = TupleField()
     indexBucketUpdateDates: DeviceLocationIndexT = TupleField({})

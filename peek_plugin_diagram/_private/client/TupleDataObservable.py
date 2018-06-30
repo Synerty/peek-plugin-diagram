@@ -13,7 +13,7 @@ from peek_plugin_diagram._private.client.tuple_providers.GridCacheIndexTupleProv
 from peek_plugin_diagram._private.storage.Display import DispLevel, DispTextStyle, \
     DispLineStyle, DispColor, DispLayer
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
-from peek_plugin_diagram._private.tuples.GridCacheIndexTuple import GridCacheIndexTuple
+from peek_plugin_diagram._private.tuples.grid.GridUpdateDateTuple import GridUpdateDateTuple
 from vortex.handler.TupleDataObservableProxyHandler import TupleDataObservableProxyHandler
 
 
@@ -49,7 +49,7 @@ def makeClientTupleDataObservableHandler(
     tupleObservable.addTupleProvider(ModelCoordSet.tupleName(),
                                      ClientCoordSetTupleProvider(coordSetCacheController))
 
-    tupleObservable.addTupleProvider(GridCacheIndexTuple.tupleName(),
+    tupleObservable.addTupleProvider(GridUpdateDateTuple.tupleName(),
                                      GridCacheIndexTupleProvider(gridCacheController))
 
     return tupleObservable

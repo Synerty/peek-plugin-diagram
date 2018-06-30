@@ -8,8 +8,8 @@ from peek_plugin_base.storage.StorageUtil import makeOrmValuesSubqueryCondition
 from peek_plugin_diagram._private.client.controller.GridCacheController import \
     clientGridUpdateFromServerFilt
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
-from peek_plugin_diagram._private.tuples.GridTuple import GridTuple
-from peek_plugin_diagram._private.tuples.EncodedGridTuple import EncodedGridTuple
+from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
+from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import EncodedGridTuple
 from vortex.DeferUtil import vortexLogFailure, deferToThreadWrapWithLogger
 from vortex.Payload import Payload
 from vortex.VortexFactory import VortexFactory, NoVortexException

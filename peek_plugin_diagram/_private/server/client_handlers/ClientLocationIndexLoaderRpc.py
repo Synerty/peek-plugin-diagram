@@ -6,9 +6,9 @@ from peek_plugin_base.storage.DbConnection import DbSessionCreator
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompiled
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
-from peek_plugin_diagram._private.tuples.EncodedLocationIndexTuple import \
+from peek_plugin_diagram._private.tuples.location_index.EncodedLocationIndexTuple import \
     EncodedLocationIndexTuple
-from peek_plugin_diagram._private.tuples.LocationIndexTuple import LocationIndexTuple
+from peek_plugin_diagram._private.tuples.location_index.LocationIndexTuple import LocationIndexTuple
 from vortex.rpc.RPC import vortexRPC
 
 logger = logging.getLogger(__name__)

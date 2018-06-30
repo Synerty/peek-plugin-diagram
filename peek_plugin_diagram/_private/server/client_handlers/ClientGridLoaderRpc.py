@@ -1,14 +1,12 @@
 import logging
-from typing import List, Tuple
-
+from typing import List
 
 from peek_plugin_base.PeekVortexUtil import peekServerName, peekClientName
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
-from peek_plugin_diagram._private.tuples.EncodedGridTuple import EncodedGridTuple
-from peek_plugin_diagram._private.tuples.GridTuple import GridTuple
+from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import EncodedGridTuple
+from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
 from vortex.DeferUtil import vortexLogFailure
-from vortex.Tuple import TUPLE_TYPES_BY_NAME
 from vortex.rpc.RPC import vortexRPC
 
 logger = logging.getLogger(__name__)

@@ -7,7 +7,7 @@ from twisted.internet.defer import DeferredList, inlineCallbacks, Deferred
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.client.controller.LocationIndexCacheController import \
     LocationIndexCacheController
-from peek_plugin_diagram._private.tuples.LocationIndexUpdateDateTuple import \
+from peek_plugin_diagram._private.tuples.location_index.LocationIndexUpdateDateTuple import \
     LocationIndexUpdateDateTuple, DeviceLocationIndexT
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
@@ -28,7 +28,7 @@ clientLocationIndexWatchUpdateFromDeviceFilt.update(diagramFilt)
 class LocationIndexCacheHandler(object):
     def __init__(self, locationIndexCacheController: LocationIndexCacheController,
                  clientId: str):
-        """ App LocationIndex Handler
+        """ App PrivateDiagramLocationLoaderService Handler
 
         This class handles the custom needs of the desktop/mobile apps observing locationIndexs.
 
@@ -40,55 +40,34 @@ class LocationIndexCacheHandler(object):
             clientLocationIndexWatchUpdateFromDeviceFilt, self._processObserve
         )
 
-        self._observedModelSetKeyByVortexUuid = {}
-        self._observedVortexUuidsByModelSetKey = defaultdict(list)
+        self._observingVortexUuid = set()
 
     def shutdown(self):
         self._epObserve.shutdown()
         self._epObserve = None
 
     # ---------------
-    # Filter out offline vortexes
-
-    def _filterOutOfflineVortexes(self):
-        # TODO, Change this to observe offline vortexes
-        # This depends on the VortexFactory offline observable implementation.
-        # Which is incomplete at this point :-|
-
-        vortexUuids = set(VortexFactory.getRemoteVortexUuids())
-        vortexUuidsToRemove = set(
-            self._observedModelSetKeyByVortexUuid) - vortexUuids
-
-        if not vortexUuidsToRemove:
-            return
-
-        for vortexUuid in vortexUuidsToRemove:
-            del self._observedModelSetKeyByVortexUuid[vortexUuid]
-
-        self._rebuildStructs()
-
-    # ---------------
     # Process update from the server
 
     def notifyOfLocationIndexUpdate(self, locationIndexKeys: List[str]):
-        """ Notify of LocationIndex Updates
+        """ Notify of PrivateDiagramLocationLoaderService Updates
 
         This method is called by the client.LocationIndexCacheController when it receives updates
         from the server.
 
         """
-        self._filterOutOfflineVortexes()
+        self._observingVortexUuid = (
+                self._observingVortexUuid & set(VortexFactory.getRemoteVortexUuids())
+        )
 
         payloadsByVortexUuid = defaultdict(Payload)
 
         for locationIndexKey in locationIndexKeys:
 
             locationIndexTuple = self._cacheController.locationIndex(locationIndexKey)
-            vortexUuids = self._observedVortexUuidsByModelSetKey.get(
-                locationIndexTuple.modelSetKey, [])
 
             # Queue up the required client notifications
-            for vortexUuid in vortexUuids:
+            for vortexUuid in self._observingVortexUuid:
                 logger.debug("Sending unsolicited locationIndex %s to vortex %s",
                              locationIndexKey, vortexUuid)
                 payloadsByVortexUuid[vortexUuid].tuples.append(locationIndexTuple)
@@ -100,7 +79,7 @@ class LocationIndexCacheHandler(object):
 
             # Serliase in thread, and then send.
             d = payload.makePayloadEnvelopeDefer()
-            d.addCallback(lambda payloadEnvelope:payloadEnvelope.toVortexMsgDefer())
+            d.addCallback(lambda payloadEnvelope: payloadEnvelope.toVortexMsgDefer())
             d.addCallback(VortexFactory.sendVortexMsg, destVortexUuid=vortexUuid)
             dl.append(d)
 
@@ -120,27 +99,11 @@ class LocationIndexCacheHandler(object):
 
         updateDatesTuples: LocationIndexUpdateDateTuple = payload.tuples[0]
 
-        self._observedModelSetKeyByVortexUuid[vortexUuid] = payload.filt["modelSetKey"]
-        self._rebuildStructs()
+        self._observingVortexUuid.add(vortexUuid)
 
         yield self._replyToObserve(payload.filt,
                                    updateDatesTuples.indexBucketUpdateDates,
                                    sendResponse)
-
-    def _rebuildStructs(self) -> None:
-        """ Rebuild Structs
-
-        Rebuild the reverse index of uuids by locationIndex key.
-
-        :returns: None
-        """
-        # Rebuild the other reverse lookup
-        newDict = defaultdict(list)
-
-        for vortexUuid, modelSetKey in self._observedModelSetKeyByVortexUuid.items():
-            newDict[modelSetKey].append(vortexUuid)
-
-        self._observedVortexUuidsByModelSetKey = newDict
 
     # ---------------
     # Reply to device observe
@@ -162,10 +125,8 @@ class LocationIndexCacheHandler(object):
 
         """
 
-        modelSetKey = filt["modelSetKey"]
-
         locationIndexTuplesToSend = []
-        locationIndexKeys = self._cacheController.locationIndexKeys(modelSetKey)
+        locationIndexKeys = self._cacheController.locationIndexKeys()
 
         def sendChunk(locationIndexTuplesToSend):
             if not locationIndexTuplesToSend:
@@ -185,7 +146,8 @@ class LocationIndexCacheHandler(object):
             encodedLocationIndexTuple = self._cacheController.locationIndex(
                 locationIndexKey)
             if not encodedLocationIndexTuple:
-                logger.debug("LocationIndex %s is not in the cache" % locationIndexKey)
+                logger.debug(
+                    "PrivateDiagramLocationLoaderService %s is not in the cache" % locationIndexKey)
                 continue
 
             # We are king, If it's it's not our version, it's the wrong version ;-)
@@ -194,7 +156,8 @@ class LocationIndexCacheHandler(object):
                          encodedLocationIndexTuple.lastUpdate, lastUpdate)
 
             if encodedLocationIndexTuple.lastUpdate == lastUpdate:
-                logger.debug("LocationIndex %s matches the cache" % locationIndexKey)
+                logger.debug(
+                    "PrivateDiagramLocationLoaderService %s matches the cache" % locationIndexKey)
                 continue
 
             locationIndexTuplesToSend.append(encodedLocationIndexTuple)

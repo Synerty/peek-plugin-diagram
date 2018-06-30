@@ -32,7 +32,7 @@ export class PrivateDiagramCoordSetService {
     private initialLoad(): void {
 
         this.subscriptions.push(
-            this.tupleService.tupleOfflineObserver.subscribeToTupleSelector(
+            this.tupleService.offlineObserver.subscribeToTupleSelector(
                 new TupleSelector(ModelCoordSet.tupleName, {})
             ).subscribe((tuples: any[]) => {
                 this._coordSetByKey = {};

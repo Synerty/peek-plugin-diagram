@@ -10,8 +10,20 @@
 
     <StackLayout class="peek-information-section">
 
-        <button class="btn" text="Cache All Grids" (tap)="cacheAllClicked()"></button>
-        <label [text]="lastStatus" textWrap="true"></label>
+        <button class="btn"
+                [class.bg-success]="gridCache.cacheForOfflineEnabled"
+                [text]="gridCache.cacheForOfflineEnabled ? 'Disable Offline Support':'Enable Offline Support'"
+                (tap)="toggleOfflineMode()"></button>
+
+        <label text="Grid Cache Offline Mode Enabled : {{gridCache.cacheForOfflineEnabled}}" textWrap="true"></label>
+        <label text="Grid Cache Load Complete : {{gridCache.initialLoadComplete}}" textWrap="true"></label>
+        <label text="Grid Cache Load Progress : {{gridCache.loadProgress}}/{{gridCache.loadTotal}}" textWrap="true"></label>
+        <label text="Grid Cache Last Check Finished : {{gridCache.lastCheck}}" textWrap="true"></label>
+
+        <label text="Location Object Offline Mode Enabled : {{locationIndex.cacheForOfflineEnabled}}" textWrap="true"></label>
+        <label text="Location Object Load Complete : {{locationIndex.initialLoadComplete}}" textWrap="true"></label>
+        <label text="Location Object Load Progress : {{locationIndex.loadProgress}}/{{locationIndex.loadTotal}}" textWrap="true"></label>
+        <label text="Location Object Last Check : {{locationIndex.lastCheck}}" textWrap="true"></label>
 
     </StackLayout>
 </StackLayout>

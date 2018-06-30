@@ -1,5 +1,4 @@
 import logging
-import zlib
 from _collections import defaultdict
 from datetime import datetime
 from typing import List, Dict
@@ -18,7 +17,7 @@ from peek_plugin_diagram._private.storage.Display import DispBase
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompiled, \
     LocationIndex
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompilerQueue
-from peek_plugin_diagram._private.tuples.LocationIndexTuple import LocationIndexTuple
+from peek_plugin_diagram._private.tuples.location_index.LocationIndexTuple import LocationIndexTuple
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from txcelery.defer import DeferrableTask
 

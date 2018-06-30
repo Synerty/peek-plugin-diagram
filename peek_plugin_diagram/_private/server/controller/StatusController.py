@@ -2,8 +2,8 @@ import logging
 
 from twisted.internet.defer import Deferred
 
-from peek_plugin_diagram._private.tuples.DiagramLoaderStatusTuple import \
-    DiagramLoaderStatusTuple
+from peek_plugin_diagram._private.tuples.DiagramImporterStatusTuple import \
+    DiagramImporterStatusTuple
 from vortex.TupleAction import TupleActionABC
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleActionProcessor import TupleActionProcessorDelegateABC
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class StatusController(TupleActionProcessorDelegateABC):
     def __init__(self):
-        self._status = DiagramLoaderStatusTuple()
+        self._status = DiagramImporterStatusTuple()
         self._tupleObservable = None
 
     def setTupleObservable(self, tupleObserver: TupleDataObservableHandler):
@@ -86,5 +86,5 @@ class StatusController(TupleActionProcessorDelegateABC):
 
     def _notify(self):
         self._tupleObserver.notifyOfTupleUpdate(
-            TupleSelector(DiagramLoaderStatusTuple.tupleType(), {})
+            TupleSelector(DiagramImporterStatusTuple.tupleType(), {})
         )

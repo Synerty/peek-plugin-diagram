@@ -6,10 +6,10 @@ from vortex.Tuple import addTupleType, TupleField, Tuple
 
 
 @addTupleType
-class GridCacheIndexTuple(Tuple):
-    __tupleType__ = diagramTuplePrefix + "GridCacheIndexTuple"
+class GridUpdateDateTuple(Tuple):
+    __tupleType__ = diagramTuplePrefix + "GridUpdateDateTuple"
 
     # Improve performance of the JSON serialisation
-    __rawJonableFields__ = ('data',)
+    __rawJonableFields__ = ( 'updateDateByChunkKey',)
 
-    data: Dict[str, str] = TupleField()
+    updateDateByChunkKey: Dict[str, str] = TupleField()

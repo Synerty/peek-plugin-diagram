@@ -6,8 +6,8 @@ from twisted.internet.defer import inlineCallbacks, Deferred
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import \
     ClientGridLoaderRpc
-from peek_plugin_diagram._private.tuples.EncodedGridTuple import EncodedGridTuple
-from peek_plugin_diagram._private.tuples.GridTuple import GridTuple
+from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import EncodedGridTuple
+from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
 from vortex.DeferUtil import vortexLogFailure
 from vortex.PayloadEndpoint import PayloadEndpoint
 from vortex.PayloadEnvelope import PayloadEnvelope
@@ -35,8 +35,8 @@ class GridCacheController:
     #: This stores the cache of grid data for the clients
     _gridCache: Dict[str, GridTuple] = None
 
-    LOAD_CHUNK = 100
-    LOAD_PARALLELISM = 4
+    LOAD_CHUNK = 75
+    LOAD_PARALLELISM = 6
 
     def __init__(self, clientId: str):
         self._clientId = clientId

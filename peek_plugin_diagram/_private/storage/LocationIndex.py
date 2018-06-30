@@ -36,7 +36,7 @@ class LocationIndexCompilerQueue(Tuple, DeclarativeBase):
 
 @addTupleType
 class LocationIndex(Tuple, DeclarativeBase):
-    __tablename__ = 'LocationIndex'
+    __tablename__ = 'PrivateDiagramLocationLoaderService'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     indexBucket = Column(String(100), primary_key=True)

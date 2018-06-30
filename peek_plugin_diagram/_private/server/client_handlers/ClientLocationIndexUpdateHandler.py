@@ -9,9 +9,9 @@ from peek_plugin_base.storage.StorageUtil import makeOrmValuesSubqueryCondition
 from peek_plugin_diagram._private.client.controller.LocationIndexCacheController import \
     clientLocationIndexUpdateFromServerFilt
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompiled
-from peek_plugin_diagram._private.tuples.EncodedLocationIndexTuple import \
+from peek_plugin_diagram._private.tuples.location_index.EncodedLocationIndexTuple import \
     EncodedLocationIndexTuple
-from peek_plugin_diagram._private.tuples.LocationIndexTuple import LocationIndexTuple
+from peek_plugin_diagram._private.tuples.location_index.LocationIndexTuple import LocationIndexTuple
 from vortex.DeferUtil import vortexLogFailure, deferToThreadWrapWithLogger
 from vortex.Payload import Payload
 from vortex.VortexFactory import VortexFactory, NoVortexException

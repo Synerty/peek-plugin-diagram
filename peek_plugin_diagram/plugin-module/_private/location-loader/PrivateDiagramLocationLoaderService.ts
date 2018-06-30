@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {LocationIndexTuple} from "../tuples/LocationIndexTuple";
+import {LocationIndexTuple} from "./LocationIndexTuple";
 
 import {
     ComponentLifecycleEventEmitter,
@@ -19,13 +19,16 @@ import {
 } from "@peek/peek_plugin_diagram/_private";
 
 
-import {LocationIndexUpdateDateTuple} from "../tuples/LocationIndexUpdateDateTuple";
-import {DispKeyLocationTuple} from "../tuples/DispLocationTuple";
-import {PrivateDiagramCoordSetService} from "./PrivateDiagramCoordSetService";
+import {LocationIndexUpdateDateTuple} from "./LocationIndexUpdateDateTuple";
+import {DispKeyLocationTuple} from "./DispLocationTuple";
+import {PrivateDiagramCoordSetService} from "../services/PrivateDiagramCoordSetService";
 
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
-import {EncodedLocationIndexTuple} from "../tuples/EncodedLocationIndexTuple";
+import {EncodedLocationIndexTuple} from "./EncodedLocationIndexTuple";
+import {PrivateDiagramLocationLoaderStatusTuple} from "./PrivateDiagramLocationLoaderStatusTuple";
+import {PrivateDiagramTupleService} from "../services/PrivateDiagramTupleService";
+import {OfflineConfigTuple} from "../tuples";
 
 let pako = require("pako");
 
@@ -50,10 +53,8 @@ class LocationIndexTupleSelector extends TupleSelector {
 /** LastUpdateTupleSelector
  */
 class UpdateDateTupleSelector extends TupleSelector {
-    constructor(modelSetKey: string) {
-        super(LocationIndexUpdateDateTuple.tupleName, {
-            modelSetKey: modelSetKey
-        });
+    constructor() {
+        super(LocationIndexUpdateDateTuple.tupleName, {});
     }
 }
 
@@ -61,6 +62,8 @@ class UpdateDateTupleSelector extends TupleSelector {
 // ----------------------------------------------------------------------------
 /** hash method
  */
+let BUCKET_COUNT = 1024;
+
 function dispKeyHashBucket(modelSetKey: string, dispKey: string): string {
     /** Disp Key Hash Bucket
 
@@ -88,14 +91,14 @@ function dispKeyHashBucket(modelSetKey: string, dispKey: string): string {
         hash |= 0; // Convert to 32bit integer
     }
 
-    hash = hash & 1023; // 1024 buckets
+    hash = hash & (BUCKET_COUNT - 1); // 1024 buckets
 
     return `${modelSetKey}:${hash}`;
 }
 
 
 // ----------------------------------------------------------------------------
-/** LocationIndex Cache
+/** PrivateDiagramLocationLoaderService Cache
  *
  * This class has the following responsibilities:
  *
@@ -105,71 +108,45 @@ function dispKeyHashBucket(modelSetKey: string, dispKey: string): string {
  *
  */
 @Injectable()
-export class PrivateDiagramLocationIndexService {
-
-    private indexByModelSet = {};
-    private storage: TupleOfflineStorageService;
-
-    constructor(private vortexService: VortexService,
-                private vortexStatusService: VortexStatusService,
-                storageFactory: TupleStorageFactoryService,
-                private coordSetService: PrivateDiagramCoordSetService) {
-
-        this.storage = new TupleOfflineStorageService(
-            storageFactory,
-            new TupleOfflineStorageNameService(locationIndexCacheStorageName)
-        );
-
-    }
-
-    indexForModelSetKey(modelSetKey: string): Promise<LocationIndex> {
-        let newIndex: LocationIndex | null = null;
-
-        if (this.indexByModelSet.hasOwnProperty(modelSetKey)) {
-            newIndex = this.indexByModelSet[modelSetKey];
-            if (newIndex.isReady())
-                return Promise.resolve(newIndex);
-
-        } else {
-            newIndex = new LocationIndex(
-                this.vortexService,
-                this.vortexStatusService,
-                this.storage,
-                modelSetKey,
-                this.coordSetService
-            );
-            this.indexByModelSet[modelSetKey] = newIndex;
-        }
-
-        return new Promise<LocationIndex>((resolve, reject) => {
-            newIndex.isReadyObservable()
-                .first()
-                .subscribe(() => {
-                    resolve(newIndex);
-                });
-        });
-    }
-
-
-}
-
-export class LocationIndex {
+export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEventEmitter {
 
     private index = new LocationIndexUpdateDateTuple();
 
     private lifecycleEmitter = new ComponentLifecycleEventEmitter();
 
     private _hasLoaded = false;
-
     private _hasLoadedSubject = new Subject<void>();
+
+    private storage: TupleOfflineStorageService;
+
+    private _statusSubject = new Subject<PrivateDiagramLocationLoaderStatusTuple>();
+    private _status = new PrivateDiagramLocationLoaderStatusTuple();
+
+    private offlineConfig: OfflineConfigTuple = new OfflineConfigTuple();
 
     constructor(private vortexService: VortexService,
                 private vortexStatusService: VortexStatusService,
-                private storage: TupleOfflineStorageService,
-                private modelSetKey: string,
-                private coordSetService: PrivateDiagramCoordSetService) {
-        this.index.modelSetKey = this.modelSetKey;
-        this.initialLoad();
+                storageFactory: TupleStorageFactoryService,
+                private coordSetService: PrivateDiagramCoordSetService,
+                private tupleService: PrivateDiagramTupleService) {
+        super();
+
+        this.tupleService.offlineObserver
+            .subscribeToTupleSelector(new TupleSelector(OfflineConfigTuple.tupleName, {}),
+                false, false, true)
+            .takeUntil(this.onDestroyEvent)
+            .filter(v => v.length != 0)
+            .subscribe((tuples: OfflineConfigTuple[]) => {
+                this.offlineConfig = tuples[0];
+                if (this.offlineConfig.cacheChunksForOffline)
+                    this.initialLoad();
+                this._notifyStatus();
+            });
+
+        this.storage = new TupleOfflineStorageService(
+            storageFactory,
+            new TupleOfflineStorageNameService(locationIndexCacheStorageName)
+        );
     }
 
     isReady(): boolean {
@@ -180,13 +157,29 @@ export class LocationIndex {
         return this._hasLoadedSubject;
     }
 
+    statusObservable(): Observable<PrivateDiagramLocationLoaderStatusTuple> {
+        return this._statusSubject;
+    }
+
+    status(): PrivateDiagramLocationLoaderStatusTuple {
+        return this._status;
+    }
+
+    private _notifyStatus(): void {
+        this._status.cacheForOfflineEnabled = this.offlineConfig.cacheChunksForOffline;
+        this._status.initialLoadComplete = this.index.initialLoadComplete;
+        this._status.loadProgress = Object.keys(this.index.updateDateByChunkKey).length;
+        // this._status.loadTotal = BUCKET_COUNT;
+        this._statusSubject.next(this._status);
+    }
+
     /** Initial load
      *
      * Load the dates of the index buckets and ask the server if it has any updates.
      */
     private initialLoad(): void {
 
-        this.storage.loadTuples(new UpdateDateTupleSelector(this.modelSetKey))
+        this.storage.loadTuples(new UpdateDateTupleSelector())
             .then((tuples: LocationIndexUpdateDateTuple[]) => {
                 if (tuples.length != 0) {
                     this.index = tuples[0];
@@ -198,20 +191,22 @@ export class LocationIndex {
 
                 }
 
+                this._notifyStatus();
+
                 this.setupVortexSubscriptions();
                 this.askServerForUpdates();
 
             });
 
+        this._notifyStatus();
+
     }
 
     private setupVortexSubscriptions(): void {
 
-        let filt = extend({modelSetKey: this.modelSetKey},
-            clientLocationIndexWatchUpdateFromDeviceFilt);
-
         // Services don't have destructors, I'm not sure how to unsubscribe.
-        this.vortexService.createEndpointObservable(this.lifecycleEmitter, filt)
+        this.vortexService.createEndpointObservable(this.lifecycleEmitter,
+            clientLocationIndexWatchUpdateFromDeviceFilt)
             .takeUntil(this.lifecycleEmitter.onDestroyEvent)
             .subscribe((payloadEnvelope: PayloadEnvelope) => {
                 this.processLocationIndexesFromServer(payloadEnvelope);
@@ -233,12 +228,10 @@ export class LocationIndex {
             return;
 
         let tuple = new LocationIndexUpdateDateTuple();
-        tuple.indexBucketUpdateDates = this.index.indexBucketUpdateDates;
+        tuple.updateDateByChunkKey = this.index.updateDateByChunkKey;
+        this._status.loadTotal = Object.keys(this.index.updateDateByChunkKey).length;
 
-        let filt = extend({modelSetKey: this.modelSetKey},
-            clientLocationIndexWatchUpdateFromDeviceFilt);
-
-        let payload = new Payload(filt, [tuple]);
+        let payload = new Payload(clientLocationIndexWatchUpdateFromDeviceFilt, [tuple]);
         this.vortexService.sendPayload(payload);
     }
 
@@ -248,6 +241,9 @@ export class LocationIndex {
      * Process the grids the server has sent us.
      */
     private processLocationIndexesFromServer(payloadEnvelope: PayloadEnvelope) {
+
+        this._status.lastCheck = new Date();
+
         if (payloadEnvelope.result != null && payloadEnvelope.result != true) {
             console.log(`ERROR: ${payloadEnvelope.result}`);
             return;
@@ -256,12 +252,11 @@ export class LocationIndex {
         if (payloadEnvelope.filt["finished"] == true) {
             this.index.initialLoadComplete = true;
 
-            this.storage.saveTuples(
-                new UpdateDateTupleSelector(this.modelSetKey), [this.index]
-            )
+            this.storage.saveTuples(new UpdateDateTupleSelector(), [this.index])
                 .then(() => {
                     this._hasLoaded = true;
                     this._hasLoadedSubject.next();
+                    this._notifyStatus();
                 })
                 .catch(err => console.log(`ERROR : ${err}`));
 
@@ -294,11 +289,11 @@ export class LocationIndex {
                 // 3) Store the update date
 
                 for (let locationIndex of tuplesToSave) {
-                    this.index.indexBucketUpdateDates[locationIndex.indexBucket] = locationIndex.lastUpdate;
+                    this.index.updateDateByChunkKey[locationIndex.indexBucket] = locationIndex.lastUpdate;
                 }
 
                 return this.storage.saveTuples(
-                    new UpdateDateTupleSelector(this.modelSetKey), [this.index]
+                    new UpdateDateTupleSelector(), [this.index]
                 );
 
             })
@@ -337,15 +332,16 @@ export class LocationIndex {
      * Get the location of a Disp.key from the index..
      *
      */
-    getLocations(dispKey: string): Promise<DispKeyLocationTuple[]> {
-        if (dispKey == null || dispKey.length == 0) {
+    getLocations(modelSetKey: string, dispKey: string): Promise<DispKeyLocationTuple[]> {
+        if (dispKey == null || dispKey.length == 0
+            || modelSetKey == null || modelSetKey.length == 0) {
             let val: DispKeyLocationTuple[] = [];
             return Promise.resolve(val);
         }
 
-        let indexBucket = dispKeyHashBucket(this.modelSetKey, dispKey);
+        let indexBucket = dispKeyHashBucket(modelSetKey, dispKey);
 
-        if (!this.index.indexBucketUpdateDates.hasOwnProperty(indexBucket)) {
+        if (!this.index.updateDateByChunkKey.hasOwnProperty(indexBucket)) {
             console.log(`DispKey ${dispKey} doesn't appear in the index`);
             return Promise.resolve([]);
         }

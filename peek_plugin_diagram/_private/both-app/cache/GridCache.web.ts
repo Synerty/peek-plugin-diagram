@@ -1,8 +1,7 @@
-import { Injectable } from "@angular/core";
-import { LookupCache } from "./LookupCache.web";
-import { LinkedGrid } from "./LinkedGrid.web";
-import { GridTuple } from "../tuples/GridTuple";
-import { GridLoaderA } from "./GridLoader";
+import {Injectable} from "@angular/core";
+import {LookupCache} from "./LookupCache.web";
+import {LinkedGrid} from "./LinkedGrid.web";
+import {PrivateDiagramGridLoaderServiceA, GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 
@@ -12,13 +11,11 @@ import {
     VortexService,
     VortexStatusService
 } from "@synerty/vortexjs";
-import { diagramFilt, gridCacheStorageName } from "@peek/peek_plugin_diagram/_private";
+import {diagramFilt, gridCacheStorageName} from "@peek/peek_plugin_diagram/_private";
 
-import { dictValuesFromObject } from "../DiagramUtil";
-import * as moment from "moment";
+import {dictValuesFromObject} from "../DiagramUtil";
 
 let pako = require("pako");
-
 
 
 // ----------------------------------------------------------------------------
@@ -73,7 +70,7 @@ export class GridCache {
     private lifecycleEmitter = new ComponentLifecycleEventEmitter();
 
     constructor(private lookupCache: LookupCache,
-        private gridLoader: GridLoaderA) {
+                private gridLoader: PrivateDiagramGridLoaderServiceA) {
 
         // Services don't have destructors, I'm not sure how to unsubscribe.
         this.gridLoader.observable

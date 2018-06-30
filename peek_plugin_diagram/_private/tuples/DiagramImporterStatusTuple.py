@@ -3,8 +3,8 @@ from vortex.Tuple import addTupleType, TupleField, Tuple
 
 
 @addTupleType
-class DiagramLoaderStatusTuple(Tuple):
-    __tupleType__ = diagramTuplePrefix + "DiagramLoaderStatusTuple"
+class DiagramImporterStatusTuple(Tuple):
+    __tupleType__ = diagramTuplePrefix + "DiagramImporterStatusTuple"
 
     displayCompilerQueueStatus: bool = TupleField(False)
     displayCompilerQueueSize: int = TupleField(0)

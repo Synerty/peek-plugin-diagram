@@ -6,9 +6,7 @@ import {PeekModuleFactory} from "@synerty/peek-util-web";
 // Import the default route component
 import {DiagramCfgComponent} from "./diagram-cfg.component";
 // Import global modules, for example, the canvas extensions.
-import {GridLoader, GridLoaderA} from "peek_plugin_diagram/cache/GridLoader";
 
-import {PrivateDiagramCacheStatusService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCacheStatusService";
 
 
 
@@ -38,10 +36,6 @@ export const pluginRoutes: Routes = [
     ],
     exports: [],
     providers: [
-        {
-            provide: GridLoaderA,
-            useClass: GridLoader
-        }
     ],
     declarations: [DiagramCfgComponent]
 })

@@ -1,5 +1,4 @@
 import logging
-from collections import defaultdict
 from typing import Dict, List
 
 from twisted.internet.defer import inlineCallbacks
@@ -7,9 +6,10 @@ from twisted.internet.defer import inlineCallbacks
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexLoaderRpc import \
     ClientLocationIndexLoaderRpc
-from peek_plugin_diagram._private.tuples.EncodedLocationIndexTuple import \
+from peek_plugin_diagram._private.tuples.location_index.EncodedLocationIndexTuple import \
     EncodedLocationIndexTuple
-from peek_plugin_diagram._private.tuples.LocationIndexTuple import LocationIndexTuple
+from peek_plugin_diagram._private.tuples.location_index.LocationIndexTuple import \
+    LocationIndexTuple
 from vortex.PayloadEndpoint import PayloadEndpoint
 from vortex.PayloadEnvelope import PayloadEnvelope
 
@@ -27,16 +27,13 @@ class LocationIndexCacheController:
 
     """
 
-    #: This stores the cache of locationIndex data for the clients
-    _cache: Dict[str, EncodedLocationIndexTuple] = None
-
     LOAD_CHUNK = 50
 
     def __init__(self, clientId: str):
         self._clientId = clientId
         self._cacheHandler = None
-        self._cache = {}
-        self._locationKeysByModelSet = defaultdict(set)
+        self._cache: Dict[str, EncodedLocationIndexTuple] = {}
+        self._locationIndexKeys = set()
 
         self._endpoint = PayloadEndpoint(clientLocationIndexUpdateFromServerFilt,
                                          self._processLocationIndexPayload)
@@ -59,12 +56,14 @@ class LocationIndexCacheController:
     @inlineCallbacks
     def reloadCache(self):
         self._cache = {}
-        self._locationKeysByModelSet = defaultdict(set)
+        self._locationIndexKeys = set()
 
         offset = 0
         while True:
-            logger.info("Loading LocationIndex %s to %s" % (offset, offset + self.LOAD_CHUNK))
-            locationIndexTuples = yield ClientLocationIndexLoaderRpc.loadLocationIndexes(offset, self.LOAD_CHUNK)
+            logger.info("Loading PrivateDiagramLocationLoaderService %s to %s" % (
+                offset, offset + self.LOAD_CHUNK))
+            locationIndexTuples = yield ClientLocationIndexLoaderRpc.loadLocationIndexes(
+                offset, self.LOAD_CHUNK)
             if not locationIndexTuples:
                 break
 
@@ -82,19 +81,20 @@ class LocationIndexCacheController:
         indexBucketsUpdated: List[str] = []
 
         for t in locationIndexTuples:
-            self._locationKeysByModelSet[t.modelSetKey].add(t.indexBucket)
+            self._locationIndexKeys.add(t.indexBucket)
 
             if (not t.indexBucket in self._cache or
-                        self._cache[t.indexBucket].lastUpdate != t.lastUpdate):
+                    self._cache[t.indexBucket].lastUpdate != t.lastUpdate):
                 self._cache[t.indexBucket] = t
                 indexBucketsUpdated.append(t.indexBucket)
 
-        logger.debug("Received locationIndex updates from server, %s", indexBucketsUpdated)
+        logger.debug("Received locationIndex updates from server, %s",
+                     indexBucketsUpdated)
 
         self._cacheHandler.notifyOfLocationIndexUpdate(indexBucketsUpdated)
 
-    def locationIndex(self, indexBucket) -> LocationIndexTuple:
+    def locationIndex(self, indexBucket) -> EncodedLocationIndexTuple:
         return self._cache.get(indexBucket)
 
-    def locationIndexKeys(self, modelSetKey) -> List[str]:
-        return list(self._locationKeysByModelSet[modelSetKey])
+    def locationIndexKeys(self) -> List[str]:
+        return list(self._locationIndexKeys)

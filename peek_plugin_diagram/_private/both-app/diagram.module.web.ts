@@ -25,7 +25,6 @@ import {
 // Import global modules, for example, the canvas extensions.
 import "./canvas/PeekCanvasExtensions.web";
 // import {DisplayCanvasSplashScreen} from "./loading-splash/loading-splash.service";
-import {GridLoader, GridLoaderA} from "./cache/GridLoader";
 import {GridCache} from "./cache/GridCache.web";
 import {GridObservable} from "./cache/GridObservable.web";
 import {LookupCache} from "./cache/LookupCache.web";
@@ -62,10 +61,6 @@ import {LayerComponent} from "./layer-component/layer.component.web";
         CanvasComponent
     ],
     providers: [
-        {
-            provide:GridLoaderA,
-            useClass:GridLoader
-        },
         GridCache,
         LookupCache,
         DispGroupCache,
