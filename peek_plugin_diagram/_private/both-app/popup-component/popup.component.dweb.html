@@ -22,15 +22,9 @@
                 </thead>
                 <tbody>
                 <tr *ngFor="let detail of details; odd as odd; even as even"
-                    [class.bg-odd]="odd"
-                    [class.bg-even]="even">
-                    <td
-                            [class.bg-odd]="odd"
-                            [class.bg-even]="even">{{detail.title}}
-                    </td>
-                    <td
-                            [class.bg-odd]="odd"
-                            [class.bg-even]="even">{{detail.value}}
+                    [class.bg-odd]="odd" [class.bg-even]="even">
+                    <td [class.bg-odd]="odd" [class.bg-even]="even">{{detail.title}}</td>
+                    <td [class.bg-odd]="odd" [class.bg-even]="even">{{detail.value}}
                     </td>
                 </tr>
                 </tbody>
@@ -46,7 +40,7 @@
             <tbody>
             <tr *ngFor="let item of menuItems">
                 <td>
-                    <button class="btn btn-block" (click)="menuItemClicked(item)">
+                    <button class="btn btn-block"  style="white-space: normal;" (click)="menuItemClicked(item)">
                         <fa *ngIf="item.icon != null" [name]="item.icon"></fa>
                         {{item.name}}
                     </button>

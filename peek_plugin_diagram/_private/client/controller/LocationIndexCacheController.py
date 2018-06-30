@@ -60,7 +60,7 @@ class LocationIndexCacheController:
 
         offset = 0
         while True:
-            logger.info("Loading PrivateDiagramLocationLoaderService %s to %s" % (
+            logger.info("Loading LocationIndex %s to %s" % (
                 offset, offset + self.LOAD_CHUNK))
             locationIndexTuples = yield ClientLocationIndexLoaderRpc.loadLocationIndexes(
                 offset, self.LOAD_CHUNK)

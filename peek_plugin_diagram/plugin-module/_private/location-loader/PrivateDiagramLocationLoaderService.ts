@@ -20,7 +20,7 @@ import {
 
 
 import {LocationIndexUpdateDateTuple} from "./LocationIndexUpdateDateTuple";
-import {DispKeyLocationTuple} from "./DispLocationTuple";
+import {DispKeyLocationTuple} from "./DispKeyLocationTuple";
 import {PrivateDiagramCoordSetService} from "../services/PrivateDiagramCoordSetService";
 
 import {Subject} from "rxjs/Subject";
@@ -338,6 +338,41 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
             let val: DispKeyLocationTuple[] = [];
             return Promise.resolve(val);
         }
+
+        if (!this.offlineConfig.cacheChunksForOffline) {
+            let ts = new TupleSelector(DispKeyLocationTuple.tupleName, {
+                "modelSetKey": modelSetKey,
+                "keys": [dispKey]
+            });
+
+            let isOnlinePromise: any = this.vortexStatusService.snapshot.isOnline ?
+                Promise.resolve() :
+                this.vortexStatusService.isOnline
+                    .filter(online => online)
+                    .first()
+                    .toPromise();
+
+            return isOnlinePromise
+                .then(() => this.tupleService.offlineObserver.pollForTuples(ts, false));
+        }
+
+        if (this.isReady())
+            return this.getLocationsFromLocal(modelSetKey, dispKey);
+
+        return this.isReadyObservable()
+            .first()
+            .toPromise()
+            .then(() => this.getLocationsFromLocal(modelSetKey, dispKey));
+
+
+    }
+
+    /** Get Locations
+     *
+     * Get the location of a Disp.key from the index..
+     *
+     */
+    private getLocationsFromLocal(modelSetKey: string, dispKey: string): Promise<DispKeyLocationTuple[]> {
 
         let indexBucket = dispKeyHashBucket(modelSetKey, dispKey);
 

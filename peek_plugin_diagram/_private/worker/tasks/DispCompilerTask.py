@@ -57,7 +57,7 @@ def compileDisps(self, queueIds, dispIds):
     # inserts for GridKeyCompilerQueue
     locationCompiledQueueItems = set()
 
-    # List of location index bucket to disp index items to insert into PrivateDiagramLocationLoaderService
+    # List of location index bucket to disp index items to insert into LocationIndex
     locationIndexByDispId = {}
 
     # ---------------
@@ -137,7 +137,7 @@ def compileDisps(self, queueIds, dispIds):
             # Populate the location json
             disp.locationJson = None
             if disp.key:
-                # Create the location json for the PrivateDiagramLocationLoaderService
+                # Create the location json for the LocationIndex
                 disp.locationJson = makeLocationJson(disp, geomJson)
 
                 # Create the index bucket

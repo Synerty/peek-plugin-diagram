@@ -3,7 +3,7 @@ import {DiagramPositionService, PositionUpdatedI} from "../../DiagramPositionSer
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 
-import {DispKeyLocationTuple} from "../location-loader/DispLocationTuple";
+import {DispKeyLocationTuple} from "../location-loader/DispKeyLocationTuple";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 import {PrivateDiagramLocationLoaderService} from "../location-loader";
 

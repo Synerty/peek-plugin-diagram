@@ -2,10 +2,14 @@ from peek_plugin_diagram._private.client.controller.CoordSetCacheController impo
     CoordSetCacheController
 from peek_plugin_diagram._private.client.controller.GridCacheController import \
     GridCacheController
+from peek_plugin_diagram._private.client.controller.LocationIndexCacheController import \
+    LocationIndexCacheController
 from peek_plugin_diagram._private.client.controller.LookupCacheController import \
     LookupCacheController
 from peek_plugin_diagram._private.client.tuple_providers.ClientCoordSetTupleProvider import \
     ClientCoordSetTupleProvider
+from peek_plugin_diagram._private.client.tuple_providers.ClientDispKeyLocationTupleProvider import \
+    ClientDispKeyLocationTupleProvider
 from peek_plugin_diagram._private.client.tuple_providers.ClientLookupTupleProvider import \
     ClientLookupTupleProvider
 from peek_plugin_diagram._private.client.tuple_providers.GridCacheIndexTupleProvider import \
@@ -13,7 +17,10 @@ from peek_plugin_diagram._private.client.tuple_providers.GridCacheIndexTupleProv
 from peek_plugin_diagram._private.storage.Display import DispLevel, DispTextStyle, \
     DispLineStyle, DispColor, DispLayer
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
-from peek_plugin_diagram._private.tuples.grid.GridUpdateDateTuple import GridUpdateDateTuple
+from peek_plugin_diagram._private.tuples.grid.GridUpdateDateTuple import \
+    GridUpdateDateTuple
+from peek_plugin_diagram._private.tuples.location_index.DispKeyLocationTuple import \
+    DispKeyLocationTuple
 from vortex.handler.TupleDataObservableProxyHandler import TupleDataObservableProxyHandler
 
 
@@ -21,12 +28,14 @@ def makeClientTupleDataObservableHandler(
         tupleObservable: TupleDataObservableProxyHandler,
         coordSetCacheController: CoordSetCacheController,
         gridCacheController: GridCacheController,
-        lookupCacheController: LookupCacheController):
+        lookupCacheController: LookupCacheController,
+        locationCacheController: LocationIndexCacheController):
     """" Make CLIENT Tuple Data Observable Handler
 
     This method creates the observable object, registers the tuple providers and then
     returns it.
 
+    :param locationCacheController:
     :param tupleObservable: The tuple observable proxy
     :param coordSetCacheController: The clients coord set cache controller
     :param gridCacheController: The cache controller for the grid
@@ -51,5 +60,10 @@ def makeClientTupleDataObservableHandler(
 
     tupleObservable.addTupleProvider(GridUpdateDateTuple.tupleName(),
                                      GridCacheIndexTupleProvider(gridCacheController))
+
+    tupleObservable.addTupleProvider(
+        DispKeyLocationTuple.tupleName(),
+        ClientDispKeyLocationTupleProvider(locationCacheController,
+                                           coordSetCacheController))
 
     return tupleObservable

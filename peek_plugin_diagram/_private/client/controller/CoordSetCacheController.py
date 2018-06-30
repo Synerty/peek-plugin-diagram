@@ -1,10 +1,6 @@
-from typing import List, Iterable
-
-from copy import copy
-from twisted.internet.defer import inlineCallbacks
+from typing import List, Dict, Optional
 
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
-from vortex.Payload import Payload
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
 from vortex.handler.TupleDataObserverClient import TupleDataObserverClient
@@ -16,12 +12,13 @@ class CoordSetCacheController:
     This class caches the lookups in each client.
 
     """
-    #: This stores the cache of grid data for the clients
-    _coordSetCache: List[ModelCoordSet] = None
 
     def __init__(self, tupleObserver: TupleDataObserverClient):
         self._tupleObserver = tupleObserver
         self._tupleObservable = None
+
+        #: This stores the cache of grid data for the clients
+        self._coordSetCache: Dict[int, ModelCoordSet] = {}
 
     def setTupleObserable(self, tupleObservable: TupleDataObservableHandler):
         self._tupleObservable = tupleObservable
@@ -34,14 +31,13 @@ class CoordSetCacheController:
     def shutdown(self):
         self._tupleObservable = None
         self._tupleObserver = None
-        self._coordSetCache = []
+        self._coordSetCache = {}
 
     def _processNewTuples(self, coordSetTuples):
-
         if not coordSetTuples:
             return
 
-        self._coordSetCache = coordSetTuples
+        self._coordSetCache = {c.id: c for c in coordSetTuples}
 
         self._tupleObservable.notifyOfTupleUpdate(
             TupleSelector(ModelCoordSet.tupleName(), {})
@@ -49,4 +45,7 @@ class CoordSetCacheController:
 
     @property
     def coordSets(self) -> List[ModelCoordSet]:
-        return copy(self._coordSetCache)
+        return list(self._coordSetCache.values())
+
+    def coordSetForId(self, coordSetId: int) -> Optional[ModelCoordSet]:
+        return self._coordSetCache.get(coordSetId)

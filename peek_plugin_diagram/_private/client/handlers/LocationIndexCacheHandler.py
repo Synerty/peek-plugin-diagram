@@ -28,7 +28,7 @@ clientLocationIndexWatchUpdateFromDeviceFilt.update(diagramFilt)
 class LocationIndexCacheHandler(object):
     def __init__(self, locationIndexCacheController: LocationIndexCacheController,
                  clientId: str):
-        """ App PrivateDiagramLocationLoaderService Handler
+        """ App LocationIndexCacheHandler Handler
 
         This class handles the custom needs of the desktop/mobile apps observing locationIndexs.
 
@@ -50,7 +50,7 @@ class LocationIndexCacheHandler(object):
     # Process update from the server
 
     def notifyOfLocationIndexUpdate(self, locationIndexKeys: List[str]):
-        """ Notify of PrivateDiagramLocationLoaderService Updates
+        """ Notify of LocationIndexCacheHandler Updates
 
         This method is called by the client.LocationIndexCacheController when it receives updates
         from the server.
@@ -147,7 +147,7 @@ class LocationIndexCacheHandler(object):
                 locationIndexKey)
             if not encodedLocationIndexTuple:
                 logger.debug(
-                    "PrivateDiagramLocationLoaderService %s is not in the cache" % locationIndexKey)
+                    "LocationIndexCacheHandler %s is not in the cache" % locationIndexKey)
                 continue
 
             # We are king, If it's it's not our version, it's the wrong version ;-)
@@ -157,7 +157,7 @@ class LocationIndexCacheHandler(object):
 
             if encodedLocationIndexTuple.lastUpdate == lastUpdate:
                 logger.debug(
-                    "PrivateDiagramLocationLoaderService %s matches the cache" % locationIndexKey)
+                    "LocationIndexCacheHandler %s matches the cache" % locationIndexKey)
                 continue
 
             locationIndexTuplesToSend.append(encodedLocationIndexTuple)

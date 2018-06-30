@@ -3,7 +3,7 @@ from typing import Optional
 
 from collections import namedtuple
 
-from peek_plugin_diagram._private.tuples.location_index.DispLocationTuple import DispKeyLocationTuple
+from peek_plugin_diagram._private.tuples.location_index.DispKeyLocationTuple import DispKeyLocationTuple
 from peek_plugin_diagram._private.worker.tasks._CalcGrid import _calcBounds
 
 logger = logging.getLogger(__name__)
