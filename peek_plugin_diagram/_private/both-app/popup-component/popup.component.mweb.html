@@ -21,9 +21,18 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr class="tr" *ngFor="let detail of details">
-                            <th class="td">{{detail.title}}</th>
-                            <th class="td">{{detail.value}}</th>
+                        <tr class="tr"
+                            *ngFor="let detail of details; odd as odd; even as even"
+                            [class.bg-odd]="odd"
+                            [class.bg-even]="even">
+                            <th class="td"
+                                [class.bg-odd]="odd"
+                                [class.bg-even]="even">{{detail.title}}
+                            </th>
+                            <th class="td"
+                                [class.bg-odd]="odd"
+                                [class.bg-even]="even">{{detail.value}}
+                            </th>
                         </tr>
                         </tbody>
                     </table>
@@ -34,20 +43,18 @@
                     There are no actions for this item.
                 </p>
 
-                <div *ngIf="!noMenuItems()">
-                    <div class="row" *ngFor="let item of menuItems">
-
-                        <div class="col-md-12">
-                            <div class="btn-group">
-                                <Button class="btn" (click)="menuItemClicked(item)">
-                                    <fa *ngIf="item.icon != null" [name]="item.icon"></fa>
-                                    {{item.name}}
-                                </Button>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
+                <table class="table" *ngIf="!noMenuItems()">
+                    <tbody>
+                    <tr *ngFor="let item of menuItems">
+                        <td>
+                            <Button class="btn btn-block" (click)="menuItemClicked(item)">
+                                <fa *ngIf="item.icon != null" [name]="item.icon"></fa>
+                                {{item.name}}
+                            </Button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
 
             </div>
         </div><!-- /.modal-content -->
