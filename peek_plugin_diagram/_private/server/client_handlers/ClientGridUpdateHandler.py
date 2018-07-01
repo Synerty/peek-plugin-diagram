@@ -51,6 +51,10 @@ class ClientGridUpdateHandler:
         if not gridKeys:
             return
 
+        if peekClientName not in VortexFactory.getRemoteVortexName():
+            logger.debug("No clients are online to send the grid to, %s", gridKeys)
+            return
+
         def send(vortexMsg: Optional[bytes]):
             if vortexMsg:
                 VortexFactory.sendVortexMsg(

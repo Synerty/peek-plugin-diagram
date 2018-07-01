@@ -11,7 +11,8 @@ from peek_plugin_diagram._private.client.controller.LocationIndexCacheController
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompiled
 from peek_plugin_diagram._private.tuples.location_index.EncodedLocationIndexTuple import \
     EncodedLocationIndexTuple
-from peek_plugin_diagram._private.tuples.location_index.LocationIndexTuple import LocationIndexTuple
+from peek_plugin_diagram._private.tuples.location_index.LocationIndexTuple import \
+    LocationIndexTuple
 from vortex.DeferUtil import vortexLogFailure, deferToThreadWrapWithLogger
 from vortex.Payload import Payload
 from vortex.VortexFactory import VortexFactory, NoVortexException
@@ -52,6 +53,11 @@ class ClientLocationIndexUpdateHandler:
         if not indexBuckets:
             return
 
+        if peekClientName not in VortexFactory.getRemoteVortexName():
+            logger.debug("No clients are online to send the location index to, %s",
+                         indexBuckets)
+            return
+
         def send(vortexMsg: bytes):
             if vortexMsg:
                 VortexFactory.sendVortexMsg(
@@ -62,11 +68,11 @@ class ClientLocationIndexUpdateHandler:
         d.addCallback(send)
         d.addErrback(self._sendErrback, indexBuckets)
 
-    def _sendErrback(self, failure, indexBucket):
+    def _sendErrback(self, failure, indexBuckets):
 
         if failure.check(NoVortexException):
             logger.debug(
-                "No clients are online to send the grid to, %s", indexBucket)
+                "No clients are online to send the location index to, %s", indexBuckets)
             return
 
         vortexLogFailure(failure, logger)
@@ -77,11 +83,11 @@ class ClientLocationIndexUpdateHandler:
         try:
             ormObjs = (
                 session.query(LocationIndexCompiled)
-                .options(joinedload(LocationIndexCompiled.modelSet))
-                .filter(makeOrmValuesSubqueryCondition(
-                        session, LocationIndexCompiled.indexBucket, indexBuckets
-                        ))
-                .yield_per(200)
+                    .options(joinedload(LocationIndexCompiled.modelSet))
+                    .filter(makeOrmValuesSubqueryCondition(
+                    session, LocationIndexCompiled.indexBucket, indexBuckets
+                ))
+                    .yield_per(200)
             )
 
             locationIndexTuples: List[LocationIndexTuple] = []
