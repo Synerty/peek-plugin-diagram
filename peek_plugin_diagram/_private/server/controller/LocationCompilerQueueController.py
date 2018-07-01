@@ -31,7 +31,7 @@ class DispKeyCompilerQueueController:
     """
 
     FETCH_SIZE = 10
-    PERIOD = 0.200
+    PERIOD = 5.000
 
     QUEUE_MAX = 10
     QUEUE_MIN = 0
