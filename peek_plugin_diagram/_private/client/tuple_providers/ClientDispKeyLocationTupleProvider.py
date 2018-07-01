@@ -53,6 +53,11 @@ class ClientDispKeyLocationTupleProvider(TuplesProviderABC):
 
         for chunkKey, subKeys in keysByChunkKey.items():
             chunk: EncodedLocationIndexTuple = self._locationCache.locationIndex(chunkKey)
+
+            if not chunk:
+                logger.warning("Location index chunk %s is missing from cache", chunkKey)
+                continue
+
             jsonStr = Payload().fromEncodedPayload(chunk.encodedLocationIndexTuple).tuples[0].jsonStr
             locationsByKey = {i[0]: i[1:] for i in json.loads(jsonStr)}
 
