@@ -53,7 +53,7 @@ export class LookupCache {
 
         let sub = (lookupAttr, tupleName, callback = null) => {
             this.subscriptions.push(
-                this.tupleService.tupleOfflineObserver.subscribeToTupleSelector(
+                this.tupleService.offlineObserver.subscribeToTupleSelector(
                     new TupleSelector(tupleName, { modelSetKey: this.modelSetKey })
                 ).subscribe((tuples: any[]) => {
                     if (!tuples.length)

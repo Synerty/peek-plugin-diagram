@@ -17,7 +17,7 @@ done
 
 cp -pr ../both-app/DiagramUtil.ts src/peek_plugin_diagram/DiagramUtil.ts
 
-ng build -prod --no-aot
+ng build --prod --no-build-optimizer --no-aot
 
 [ -d dist ]
 

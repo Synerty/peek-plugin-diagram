@@ -1,8 +1,7 @@
-import {Injectable, NgZone} from "@angular/core";
+import {Injectable} from "@angular/core";
 import {
     TupleActionPushNameService,
     TupleActionPushOfflineService,
-    TupleActionPushOfflineSingletonService,
     TupleDataObservableNameService,
     TupleDataOfflineObserverService,
     TupleOfflineStorageNameService,
@@ -27,8 +26,7 @@ export class PrivateDiagramTupleServiceWeb {
 
     constructor(vortexService: VortexService,
                 vortexStatusService: VortexStatusService,
-                storageFactory: TupleStorageFactoryService,
-                zone: NgZone) {
+                storageFactory: TupleStorageFactoryService) {
 
 
         let tupleDataObservableName = new TupleDataObservableNameService(
@@ -44,7 +42,6 @@ export class PrivateDiagramTupleServiceWeb {
         this.tupleOfflineObserver = new TupleDataOfflineObserverService(
             vortexService,
             vortexStatusService,
-            zone,
             tupleDataObservableName,
             tupleOfflineStorageService);
 

@@ -14,7 +14,7 @@ import {PrivateDiagramItemPopupService} from "@peek/peek_plugin_diagram/_private
 import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {GridLoaderA} from "../cache/GridLoader";
+import {PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader/PrivateDiagramGridLoaderServiceA";
 
 
 import {
@@ -53,7 +53,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
                 private tupleStorage: TupleOfflineStorageService,
                 private privateItemSelectService: PrivateDiagramItemSelectService,
                 positionService: DiagramPositionService,
-                private gridLoader: GridLoaderA) {
+                private gridLoader: PrivateDiagramGridLoaderServiceA) {
         super();
 
         this.privatePositionService = <PrivateDiagramPositionService> positionService;

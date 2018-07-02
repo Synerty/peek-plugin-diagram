@@ -23,7 +23,6 @@ import {
 } from "@peek/peek_plugin_diagram/_private/PluginNames";
 // Import global modules, for example, the canvas extensions.
 import "./canvas/PeekCanvasExtensions.web";
-import {GridLoader} from "./cache/GridLoader";
 import {GridCache} from "./cache/GridCache.web";
 import {GridObservable} from "./cache/GridObservable.web";
 import {LookupCache} from "./cache/LookupCache.web";
@@ -32,7 +31,7 @@ import {CanvasComponent} from "./canvas-component/canvas-component.web";
 
 
 import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
-import {PrivateDiagramLocationIndexService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLocationIndexService";
+import {PrivateDiagramLocationLoaderService} from "@peek/peek_plugin_diagram/_private/location-loader";
 import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
@@ -64,7 +63,7 @@ import {GridLoaderBridgeWeb} from "../service-bridge/GridLoaderBridgeWeb";
             useClass: PrivateDiagramPositionService
         },
         PrivateDiagramItemSelectService,
-        PrivateDiagramLocationIndexService,
+        PrivateDiagramLocationLoaderService,
 
     ],
     declarations: [CanvasComponent, LayerComponent]

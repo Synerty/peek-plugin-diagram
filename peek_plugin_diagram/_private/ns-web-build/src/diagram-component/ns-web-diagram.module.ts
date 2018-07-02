@@ -16,7 +16,7 @@ import {
     WebSqlBrowserFactoryService
 } from "@synerty/vortexjs/index-browser";
 import {GridLoaderBridgeWeb} from "../service-bridge/GridLoaderBridgeWeb";
-import {GridLoaderA} from "../peek_plugin_diagram/cache/GridLoader";
+import {PrivateDiagramGridLoaderServiceA} from "../@peek/peek_plugin_diagram/_private/grid-loader/PrivateDiagramGridLoaderServiceA";
 
 import {TitleService} from "@synerty/peek-util";
 import {TupleStorageFactoryServiceBridgeWeb} from "./TupleStorageFactoryServiceBridgeWeb";
@@ -50,7 +50,7 @@ export function titleServiceFactory() {
             useFactory: titleServiceFactory
         },
         {
-            provide: GridLoaderA,
+            provide: PrivateDiagramGridLoaderServiceA,
             useClass: GridLoaderBridgeWeb
         },
         Ng2BalloonMsgService,

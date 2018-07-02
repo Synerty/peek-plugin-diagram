@@ -1,4 +1,4 @@
 export * from "./PluginNames";
-export {DiagramLoaderStatusTuple} from "./tuples/DiagramLoaderStatusTuple";
-export {SettingPropertyTuple} from "./tuples/SettingPropertyTuple";
+export {DiagramImporterStatusTuple} from "./admin/DiagramImporterStatusTuple";
+export {SettingPropertyTuple} from "./admin/SettingPropertyTuple";
 

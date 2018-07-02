@@ -1,25 +1,25 @@
-import {Injectable, OnDestroy} from "@angular/core";
+import {Injectable} from "@angular/core";
+import {Payload} from "@synerty/vortexjs";
+import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
 import {
-    Payload,
-    Tuple,
-    TupleOfflineStorageNameService,
-    TupleSelector,
-    TupleStorageServiceABC
-} from "@synerty/vortexjs";
-import {GridLoaderA} from "../peek_plugin_diagram/cache/GridLoader";
-import { Observable } from "rxjs/Observable";
-import { Subject } from "rxjs/Subject";
-import {GridTuple} from "../peek_plugin_diagram/tuples/GridTuple";
+    GridTuple,
+    PrivateDiagramGridLoaderStatusTuple,
+    PrivateDiagramGridLoaderServiceA
+} from "../@peek/peek_plugin_diagram/_private/grid-loader";
 
 
 @Injectable()
-export class GridLoaderBridgeWeb extends GridLoaderA {
+export class GridLoaderBridgeWeb extends PrivateDiagramGridLoaderServiceA {
 
     private static updateSubject = new Subject<GridTuple[]>();
     private static readySubject = new Subject<boolean>();
     private static isReadyVal = false;
 
-    private static iface:any;
+    private static _statusSubject = new Subject<PrivateDiagramGridLoaderStatusTuple>();
+    private static _status = new PrivateDiagramGridLoaderStatusTuple();
+
+    private static iface: any;
 
     private static isInitialised = false;
 
@@ -54,11 +54,21 @@ export class GridLoaderBridgeWeb extends GridLoaderA {
             }
         );
 
+        GridLoaderBridgeWeb.iface.on(
+            'GridLoaderBridge_statusObservable',
+            (argObj: any) => {
+                let status: any = new Payload().fromJsonDict(argObj).tuples;
+                console.log("WEB: Received GridLoaderBridge_statusObservable event");
+                GridLoaderBridgeWeb._status = status;
+                GridLoaderBridgeWeb._statusSubject.next(status);
+            }
+        );
+
 
         GridLoaderBridgeWeb.iface.emit("GridLoaderBridge_start", "nothing");
     }
 
-    get observable(): Observable<GridTuple[]>{
+    get observable(): Observable<GridTuple[]> {
         return GridLoaderBridgeWeb.updateSubject;
 
     }
@@ -69,16 +79,20 @@ export class GridLoaderBridgeWeb extends GridLoaderA {
     }
 
 
-     isReadyObservable(): Observable<boolean>  {
+    isReadyObservable(): Observable<boolean> {
         return GridLoaderBridgeWeb.readySubject;
-     }
+    }
 
-    cacheAll(): void {
-      throw new Error("Not Implemented");
+    statusObservable(): Observable<PrivateDiagramGridLoaderStatusTuple> {
+        return GridLoaderBridgeWeb._statusSubject;
+    }
+
+    status(): PrivateDiagramGridLoaderStatusTuple {
+        return GridLoaderBridgeWeb._status;
     }
 
 
-    loadGrids(currentGridUpdateTimes:{ [gridKey: string]: string },
+    loadGrids(currentGridUpdateTimes: { [gridKey: string]: string },
               gridKeys: string[]): void {
 
         let args: any = {

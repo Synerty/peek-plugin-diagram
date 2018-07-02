@@ -195,7 +195,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     }
 
-    connectPositionUpdateNotify() :void {
+    connectPositionUpdateNotify(): void {
 
         let notify = () => {
             if (this.config.controller.coordSet == null)
@@ -223,7 +223,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     }
 
-    connectItemSelectionService() :void {
+    connectItemSelectionService(): void {
         this.model.selectionChangedObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe((disps: {}[]) => {
@@ -280,6 +280,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 this.config.updateViewPortPan({x: pos.x, y: pos.y}); // pos confirms to PanI
                 this.config.updateViewPortZoom(pos.zoom);
 
+                if (pos.highlightKey != null)
+                    this.model.tryToSelectKeys([pos.highlightKey]);
             });
 
     }

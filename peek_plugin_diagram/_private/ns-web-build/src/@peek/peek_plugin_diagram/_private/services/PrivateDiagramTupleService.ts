@@ -1,16 +1,19 @@
-import {Injectable, NgZone} from "@angular/core";
+import {Injectable} from "@angular/core";
 import {
     TupleActionPushNameService,
     TupleActionPushOfflineService,
     TupleActionPushOfflineSingletonService,
+    TupleActionPushService,
     TupleDataObservableNameService,
+    TupleDataObserverService,
     TupleDataOfflineObserverService,
     TupleOfflineStorageNameService,
     TupleOfflineStorageService,
+    TupleSelector,
     TupleStorageFactoryService,
     VortexService,
     VortexStatusService,
-    TupleDataObserverService
+    WebSqlFactoryService
 } from "@synerty/vortexjs";
 
 import {
@@ -21,49 +24,69 @@ import {
 } from "../PluginNames";
 
 
+export function tupleDataObservableNameServiceFactory() {
+    return new TupleDataObservableNameService(
+        diagramObservableName, diagramFilt);
+}
+
+export function tupleOfflineStorageNameServiceFactory() {
+    return new TupleOfflineStorageNameService(diagramTupleOfflineServiceName);
+}
+
+export function tupleActionPushNameServiceFactory() {
+    return new TupleActionPushNameService(
+        diagramActionProcessorName, diagramFilt);
+}
+
+
 @Injectable()
 export class PrivateDiagramTupleService {
-    public tupleOfflineAction: TupleActionPushOfflineService;
-    public tupleOfflineObserver: TupleDataOfflineObserverService;
-    public tupleObserver: TupleDataObserverService;
+    public offlineStorage: TupleOfflineStorageService;
+    public offlineObserver: TupleDataOfflineObserverService;
+    public observer: TupleDataObserverService;
+
+    public action: TupleActionPushService;
+    public offlineAction: TupleActionPushOfflineService;
 
 
-    constructor(tupleActionSingletonService: TupleActionPushOfflineSingletonService,
+    constructor(storageFactory: TupleStorageFactoryService,
                 vortexService: VortexService,
                 vortexStatusService: VortexStatusService,
-                storageFactory: TupleStorageFactoryService,
-                zone: NgZone) {
+                actionSingleton: TupleActionPushOfflineSingletonService) {
 
+        // Create the offline storage
+        this.offlineStorage = new TupleOfflineStorageService(
+            storageFactory,
+            tupleOfflineStorageNameServiceFactory()
+        );
 
-        let tupleDataObservableName = new TupleDataObservableNameService(
-            diagramObservableName, diagramFilt);
-        let storageName = new TupleOfflineStorageNameService(
-            diagramTupleOfflineServiceName);
-        let tupleActionName = new TupleActionPushNameService(
-            diagramActionProcessorName, diagramFilt);
+        // Online Actions
+        this.action = new TupleActionPushService(
+            tupleActionPushNameServiceFactory(),
+            vortexService,
+            vortexStatusService
+        );
 
-        let tupleOfflineStorageService = new TupleOfflineStorageService(
-            storageFactory, storageName);
-
-        this.tupleObserver = new TupleDataObserverService(
+        // Offline Actions
+        this.offlineAction = new TupleActionPushOfflineService(
+            tupleActionPushNameServiceFactory(),
             vortexService,
             vortexStatusService,
-            zone,
-            tupleDataObservableName);
+            actionSingleton
+        );
 
-        this.tupleOfflineObserver = new TupleDataOfflineObserverService(
+        // Offline Tuple Data Observer
+        let observerName = tupleDataObservableNameServiceFactory();
+        this.offlineObserver = new TupleDataOfflineObserverService(
             vortexService,
             vortexStatusService,
-            zone,
-            tupleDataObservableName,
-            tupleOfflineStorageService);
+            observerName,
+            this.offlineStorage
+        );
 
+        // Online Tuple Data Observer
+        this.observer = new TupleDataObserverService(this.offlineObserver, observerName);
 
-        this.tupleOfflineAction = new TupleActionPushOfflineService(
-            tupleActionName,
-            vortexService,
-            vortexStatusService,
-            tupleActionSingletonService);
 
     }
 

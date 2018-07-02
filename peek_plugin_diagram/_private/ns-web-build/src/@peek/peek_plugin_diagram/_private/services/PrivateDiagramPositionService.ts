@@ -3,12 +3,9 @@ import {DiagramPositionService, PositionUpdatedI} from "../../DiagramPositionSer
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 
-import {
-    LocationIndex,
-    PrivateDiagramLocationIndexService
-} from "./PrivateDiagramLocationIndexService";
-import {DispKeyLocationTuple} from "../tuples/DispLocationTuple";
+import {DispKeyLocationTuple} from "../location-loader/DispKeyLocationTuple";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import {PrivateDiagramLocationLoaderService} from "../location-loader";
 
 
 export interface DiagramPositionI {
@@ -16,6 +13,7 @@ export interface DiagramPositionI {
     x: number;
     y: number;
     zoom: number;
+    highlightKey: string | null;
 }
 
 
@@ -29,8 +27,8 @@ export interface DiagramPositionByKeyI {
 @Injectable()
 export class PrivateDiagramPositionService extends DiagramPositionService {
 
-    constructor(private locationIndexFactoryService:PrivateDiagramLocationIndexService,
-                private balloonMsg:Ng2BalloonMsgService) {
+    constructor(private locationIndexService: PrivateDiagramLocationLoaderService,
+                private balloonMsg: Ng2BalloonMsgService) {
         super();
 
     }
@@ -39,8 +37,8 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
     private titleUpdatedSubject: Subject<string> = new Subject<string>();
 
     private positionByCoordSetSubject = new Subject<string>();
-    private positionSubject= new Subject<DiagramPositionI>();
-    private positionByKeySubject= new Subject<DiagramPositionByKeyI>();
+    private positionSubject = new Subject<DiagramPositionI>();
+    private positionByKeySubject = new Subject<DiagramPositionByKeyI>();
 
     private isReadySubject = new Subject<boolean>();
 
@@ -55,7 +53,8 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
             coordSetKey: coordSetKey,
             x: x,
             y: y,
-            zoom: zoom
+            zoom: zoom,
+            highlightKey: null
         });
     }
 
@@ -63,40 +62,46 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
                   dispKey: string,
                   coordSetKey: string | null): void {
 
-        this.locationIndexFactoryService
-            .indexForModelSetKey(modelSetKey)
-            .then((locationIndex:LocationIndex) =>{
-                locationIndex.getLocations(dispKey)
-                    .then((dispKeyIndexes:DispKeyLocationTuple[]) => {
+        this.locationIndexService
+            .getLocations(modelSetKey, dispKey)
+            .then((dispKeyIndexes: DispKeyLocationTuple[]) => {
 
-                        if (dispKeyIndexes.length == 0) {
-                            this.balloonMsg.showError(
-                                `Can not locate disply item ${dispKey} in model set ${modelSetKey}`
-                            );
-                        }
+                if (dispKeyIndexes.length == 0) {
+                    this.balloonMsg.showError(
+                        `Can not locate disply item ${dispKey} in model set ${modelSetKey}`
+                    );
+                }
 
-                        let dispKeyIndex = dispKeyIndexes[0];
+                for (let dispKeyIndex of dispKeyIndexes) {
+                    // If we've been given a coord set key and it doesn't match the found item:
+                    if (coordSetKey != null && dispKeyIndex.coordSetKey != coordSetKey) {
+                        continue;
+                    }
 
-                        this.positionSubject.next({
-                            coordSetKey: dispKeyIndex.coordSetKey,
-                            x: dispKeyIndex.x,
-                            y: dispKeyIndex.y,
-                            zoom: 2.0
-                        });
-                });
-        });
+                    this.positionSubject.next({
+                        coordSetKey: dispKeyIndex.coordSetKey,
+                        x: dispKeyIndex.x,
+                        y: dispKeyIndex.y,
+                        zoom: 2.0,
+                        highlightKey: dispKey
+                    });
+                    return;
+                }
+
+                this.balloonMsg.showError(
+                    `Can not locate disply item ${dispKey} in model set ${modelSetKey}, in coord set ${coordSetKey}`
+                );
+
+            });
     }
 
 
-    canPositionByKey(modelSetKey: string, dispKey: string): Promise<boolean>  {
-        let casted :any = null;
-       casted = this.locationIndexFactoryService
-            .indexForModelSetKey(modelSetKey)
-            .then((locationIndex:LocationIndex) =>{
-                return locationIndex.getLocations(dispKey)
-                    .then((val:DispKeyLocationTuple[]) =>  val.length != 0);
-        });
-       return casted;
+    canPositionByKey(modelSetKey: string, dispKey: string): Promise<boolean> {
+        let casted: any = null;
+        casted = this.locationIndexService
+            .getLocations(modelSetKey, dispKey)
+            .then((val: DispKeyLocationTuple[]) => val.length != 0);
+        return casted;
     }
 
     setReady(value: boolean) {
@@ -107,7 +112,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
         this.titleUpdatedSubject.next(value);
     }
 
-    positionUpdated(pos : PositionUpdatedI): void {
+    positionUpdated(pos: PositionUpdatedI): void {
         this.postionUpdatedSubject.next(pos);
     }
 

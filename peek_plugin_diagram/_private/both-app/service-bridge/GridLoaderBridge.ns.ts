@@ -1,13 +1,19 @@
-
-
 import {WebViewInterface} from 'nativescript-webview-interface';
-import {Payload, TupleOfflineStorageService, ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import {
+    ComponentLifecycleEventEmitter,
+    Payload,
+    TupleOfflineStorageService
+} from "@synerty/vortexjs";
 import {
     PrivateDiagramItemSelectService,
     SelectedItemDetailsI
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
-import {PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader/PrivateDiagramGridLoaderServiceA";
-import {GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
+
+import {
+    GridTuple,
+    PrivateDiagramGridLoaderServiceA,
+    PrivateDiagramGridLoaderStatusTuple
+} from "@peek/peek_plugin_diagram/_private/grid-loader";
 
 export class GridLoaderBridgeNs  {
 
@@ -59,8 +65,6 @@ export class GridLoaderBridgeNs  {
 
     private start():void{
 
-
-
         // If the vortex service comes back online, update the watch grids.
         this.gridLoader.observable
             .takeUntil(this.lifeCycleEvents.onDestroyEvent)
@@ -79,6 +83,14 @@ export class GridLoaderBridgeNs  {
             .subscribe((val:boolean) => {
                 console.log("NS: Sending GridLoaderBridge_isReadyObservable event");
                 this.iface.emit("GridLoaderBridge_isReadyObservable", val);
+            });
+
+        // If the vortex service comes back online, update the watch grids.
+        this.gridLoader.statusObservable()
+            .takeUntil(this.lifeCycleEvents.onDestroyEvent)
+            .subscribe((val:PrivateDiagramGridLoaderStatusTuple) => {
+                console.log("NS: Sending GridLoaderBridge_statusObservable event");
+                this.iface.emit("GridLoaderBridge_statusObservable", new Payload({}, val).toJsonDict());
             });
 
 
