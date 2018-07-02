@@ -90,7 +90,7 @@ export class GridLoaderBridgeNs  {
             .takeUntil(this.lifeCycleEvents.onDestroyEvent)
             .subscribe((val:PrivateDiagramGridLoaderStatusTuple) => {
                 console.log("NS: Sending GridLoaderBridge_statusObservable event");
-                this.iface.emit("GridLoaderBridge_statusObservable", new Payload({}, val).toJsonDict());
+                this.iface.emit("GridLoaderBridge_statusObservable", new Payload({}, [val]).toJsonDict());
             });
 
 

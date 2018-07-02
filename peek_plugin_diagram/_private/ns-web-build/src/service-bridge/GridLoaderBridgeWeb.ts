@@ -57,7 +57,7 @@ export class GridLoaderBridgeWeb extends PrivateDiagramGridLoaderServiceA {
         GridLoaderBridgeWeb.iface.on(
             'GridLoaderBridge_statusObservable',
             (argObj: any) => {
-                let status: any = new Payload().fromJsonDict(argObj).tuples;
+                let status: any = new Payload().fromJsonDict(argObj).tuples[0];
                 console.log("WEB: Received GridLoaderBridge_statusObservable event");
                 GridLoaderBridgeWeb._status = status;
                 GridLoaderBridgeWeb._statusSubject.next(status);
