@@ -21,7 +21,7 @@ import {
 
 @Injectable()
 export class PrivateDiagramTupleServiceWeb {
-    public tupleOfflineObserver: TupleDataOfflineObserverService;
+    public offlineObserver: TupleDataOfflineObserverService;
 
 
     constructor(vortexService: VortexService,
@@ -39,7 +39,7 @@ export class PrivateDiagramTupleServiceWeb {
         let tupleOfflineStorageService = new TupleOfflineStorageService(
             storageFactory, storageName);
 
-        this.tupleOfflineObserver = new TupleDataOfflineObserverService(
+        this.offlineObserver = new TupleDataOfflineObserverService(
             vortexService,
             vortexStatusService,
             tupleDataObservableName,

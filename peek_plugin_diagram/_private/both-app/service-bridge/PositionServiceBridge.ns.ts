@@ -49,7 +49,7 @@ export class PositionServiceBridgeNs {
         this.iface.on(
             'positionUpdated',
             (val: PositionUpdatedI) => {
-                console.log(`NS: Received positionUpdated event`);
+                // console.log(`NS: Received positionUpdated event`);
                 this.zone.run(() => {
                     positionService.positionUpdated(val);
                 });
