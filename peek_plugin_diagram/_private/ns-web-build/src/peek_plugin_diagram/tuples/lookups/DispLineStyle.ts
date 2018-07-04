@@ -20,7 +20,8 @@ export class DispLineStyle extends Tuple {
     readonly JOIN_MITER = "miter";
     joinStyle: string;
 
-    dashPattern: null | number[] | string; // Stored in the DB as a string
+    dashPattern: null | string; // Stored in the DB as a string
+    dashPatternParsed: null | number[]; // Parsed when the tuples are loaded
 
     startArrowSize: number;
     endArrowSize: number;

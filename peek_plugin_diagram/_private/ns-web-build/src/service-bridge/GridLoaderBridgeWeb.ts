@@ -4,8 +4,8 @@ import {Observable} from "rxjs/Observable";
 import {Subject} from "rxjs/Subject";
 import {
     GridTuple,
-    PrivateDiagramGridLoaderStatusTuple,
-    PrivateDiagramGridLoaderServiceA
+    PrivateDiagramGridLoaderServiceA,
+    PrivateDiagramGridLoaderStatusTuple
 } from "../@peek/peek_plugin_diagram/_private/grid-loader";
 
 

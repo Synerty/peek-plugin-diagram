@@ -51,8 +51,8 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         let lineStyle = DispPolygon.lineStyle(disp);
 
         let dashPattern = null;
-        if (lineStyle != null && lineStyle.dashPattern != null)
-            dashPattern  = lineStyle.dashPattern;
+        if (lineStyle != null && lineStyle.dashPatternParsed != null)
+            dashPattern  = lineStyle.dashPatternParsed;
 
         // Null colors are also not drawn
         fillColor = (fillColor && fillColor.color) ? fillColor : null;

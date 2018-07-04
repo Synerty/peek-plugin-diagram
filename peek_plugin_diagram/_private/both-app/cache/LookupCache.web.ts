@@ -212,7 +212,7 @@ export class LookupCache {
             if (lineStyle.dashPattern == null)
                 continue;
 
-            lineStyle.dashPattern = JSON.parse('' + lineStyle.dashPattern);
+            lineStyle.dashPatternParsed = JSON.parse('' + lineStyle.dashPattern);
         }
     }
 
