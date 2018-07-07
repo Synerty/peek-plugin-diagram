@@ -34,8 +34,9 @@ export abstract class DiagramPositionService {
      * @param x: The X coordinate to position to.
      * @param y: The Y coordinate to position to.
      * @param zoom: The Zoom to set when positioning the diagram.
+     * @param highlightKey: The key to highlight when we've positioned
      */
-    abstract position(coordSetKey: string, x: number, y: number, zoom: number): void ;
+    abstract position(coordSetKey: string, x: number, y: number, zoom: number, highlightKey?: string | null): void ;
 
     /** Position By Key
      *

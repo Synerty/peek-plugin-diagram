@@ -23,7 +23,7 @@ export class PositionServiceBridgeWeb {
             'positionSubject',
             (pos: DiagramPositionI) => {
                 console.log("WEB: Received positionSubject event");
-                service.position(pos.coordSetKey, pos.x, pos.y, pos.zoom);
+                service.position(pos.coordSetKey, pos.x, pos.y, pos.zoom, pos.highlightKey);
             }
         );
 

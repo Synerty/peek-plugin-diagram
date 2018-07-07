@@ -48,13 +48,13 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
         this.positionByCoordSetSubject.next(coordSetKey);
     }
 
-    position(coordSetKey: string, x: number, y: number, zoom: number): void {
+    position(coordSetKey: string, x: number, y: number, zoom: number, highlightKey: string | null = null): void {
         this.positionSubject.next({
             coordSetKey: coordSetKey,
             x: x,
             y: y,
             zoom: zoom,
-            highlightKey: null
+            highlightKey: highlightKey
         });
     }
 
