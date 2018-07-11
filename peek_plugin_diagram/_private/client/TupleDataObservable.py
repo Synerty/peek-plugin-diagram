@@ -10,6 +10,8 @@ from peek_plugin_diagram._private.client.tuple_providers.ClientCoordSetTupleProv
     ClientCoordSetTupleProvider
 from peek_plugin_diagram._private.client.tuple_providers.ClientDispKeyLocationTupleProvider import \
     ClientDispKeyLocationTupleProvider
+from peek_plugin_diagram._private.client.tuple_providers.ClientLocationIndexUpdateDateTupleProvider import \
+    ClientLocationIndexUpdateDateTupleProvider
 from peek_plugin_diagram._private.client.tuple_providers.ClientLookupTupleProvider import \
     ClientLookupTupleProvider
 from peek_plugin_diagram._private.client.tuple_providers.GridCacheIndexTupleProvider import \
@@ -21,6 +23,8 @@ from peek_plugin_diagram._private.tuples.grid.GridUpdateDateTuple import \
     GridUpdateDateTuple
 from peek_plugin_diagram._private.tuples.location_index.DispKeyLocationTuple import \
     DispKeyLocationTuple
+from peek_plugin_diagram._private.tuples.location_index.LocationIndexUpdateDateTuple import \
+    LocationIndexUpdateDateTuple
 from vortex.handler.TupleDataObservableProxyHandler import TupleDataObservableProxyHandler
 
 
@@ -65,5 +69,9 @@ def makeClientTupleDataObservableHandler(
         DispKeyLocationTuple.tupleName(),
         ClientDispKeyLocationTupleProvider(locationCacheController,
                                            coordSetCacheController))
+
+    tupleObservable.addTupleProvider(
+        LocationIndexUpdateDateTuple.tupleName(),
+        ClientLocationIndexUpdateDateTupleProvider(locationCacheController))
 
     return tupleObservable

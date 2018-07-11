@@ -30,8 +30,6 @@ import {PrivateDiagramLocationLoaderStatusTuple} from "./PrivateDiagramLocationL
 import {PrivateDiagramTupleService} from "../services/PrivateDiagramTupleService";
 import {OfflineConfigTuple} from "../tuples";
 
-let pako = require("pako");
-
 
 // ----------------------------------------------------------------------------
 
@@ -109,8 +107,10 @@ function dispKeyHashBucket(modelSetKey: string, dispKey: string): string {
  */
 @Injectable()
 export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEventEmitter {
+    private UPDATE_CHUNK_FETCH_SIZE = 5;
 
     private index = new LocationIndexUpdateDateTuple();
+    private askServerChunks: LocationIndexUpdateDateTuple[] = [];
 
     private lifecycleEmitter = new ComponentLifecycleEventEmitter();
 
@@ -147,6 +147,9 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
             storageFactory,
             new TupleOfflineStorageNameService(locationIndexCacheStorageName)
         );
+
+        this.setupVortexSubscriptions();
+        this._notifyStatus();
     }
 
     isReady(): boolean {
@@ -168,8 +171,12 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
     private _notifyStatus(): void {
         this._status.cacheForOfflineEnabled = this.offlineConfig.cacheChunksForOffline;
         this._status.initialLoadComplete = this.index.initialLoadComplete;
-        this._status.loadProgress = Object.keys(this.index.updateDateByChunkKey).length;
-        // this._status.loadTotal = BUCKET_COUNT;
+
+        let keys = Object.keys(this.index.updateDateByChunkKey);
+        this._status.loadProgress = keys.filter(
+            (key) => this.index.updateDateByChunkKey[key] != null
+        ).length;
+
         this._statusSubject.next(this._status);
     }
 
@@ -180,7 +187,8 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
     private initialLoad(): void {
 
         this.storage.loadTuples(new UpdateDateTupleSelector())
-            .then((tuples: LocationIndexUpdateDateTuple[]) => {
+            .then((tuplesAny: any[]) => {
+                let tuples: LocationIndexUpdateDateTuple[] = tuplesAny;
                 if (tuples.length != 0) {
                     this.index = tuples[0];
 
@@ -188,13 +196,10 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
                         this._hasLoaded = true;
                         this._hasLoadedSubject.next();
                     }
-
                 }
 
-                this._notifyStatus();
-
-                this.setupVortexSubscriptions();
                 this.askServerForUpdates();
+                this._notifyStatus();
 
             });
 
@@ -220,19 +225,90 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
 
     }
 
+    private areWeTalkingToTheServer(): boolean {
+        return this.offlineConfig.cacheChunksForOffline
+            && this.vortexStatusService.snapshot.isOnline;
+    }
 
-    //
+
+    /** Ask Server For Updates
+     *
+     * Tell the server the state of the chunks in our index and ask if there
+     * are updates.
+     *
+     */
     private askServerForUpdates() {
-        // There is no point talking to the server if it's offline
-        if (!this.vortexStatusService.snapshot.isOnline)
+        if (!this.areWeTalkingToTheServer()) return;
+
+
+        this.tupleService.observer
+            .pollForTuples(new UpdateDateTupleSelector())
+            .then((tuplesAny: any) => {
+                let serverIndex: LocationIndexUpdateDateTuple = tuplesAny[0];
+                let keys = Object.keys(serverIndex.updateDateByChunkKey);
+                let keysNeedingUpdate:string[] = [];
+
+                this._status.loadTotal = keys.length;
+
+                // Tuples is an array of strings
+                for (let chunkKey of keys) {
+                    if (!this.index.updateDateByChunkKey.hasOwnProperty(chunkKey)) {
+                        this.index.updateDateByChunkKey[chunkKey] = null;
+                        keysNeedingUpdate.push(chunkKey);
+
+                    } else if (this.index.updateDateByChunkKey[chunkKey]
+                        != serverIndex.updateDateByChunkKey[chunkKey]) {
+                        keysNeedingUpdate.push(chunkKey);
+                    }
+                }
+                this.queueChunksToAskServer(keysNeedingUpdate);
+            });
+    }
+
+
+    /** Queue Chunks To Ask Server
+     *
+     */
+    private queueChunksToAskServer(keysNeedingUpdate: string[]) {
+        if (!this.areWeTalkingToTheServer()) return;
+
+        this.askServerChunks = [];
+
+        let count = 0;
+        let indexChunk = new LocationIndexUpdateDateTuple();
+
+        for (let key of keysNeedingUpdate) {
+            indexChunk.updateDateByChunkKey[key] = this.index.updateDateByChunkKey[key];
+            count++;
+
+            if (count == this.UPDATE_CHUNK_FETCH_SIZE) {
+                this.askServerChunks.push(indexChunk);
+                count = 0;
+                indexChunk = new LocationIndexUpdateDateTuple();
+            }
+        }
+
+        if (count)
+            this.askServerChunks.push(indexChunk);
+
+        this.askServerForNextUpdateChunk();
+
+        this._status.lastCheck = new Date();
+        this._notifyStatus();
+    }
+
+
+    private askServerForNextUpdateChunk() {
+        if (!this.areWeTalkingToTheServer()) return;
+
+        if (this.askServerChunks.length == 0)
             return;
 
-        let tuple = new LocationIndexUpdateDateTuple();
-        tuple.updateDateByChunkKey = this.index.updateDateByChunkKey;
-        this._status.loadTotal = Object.keys(this.index.updateDateByChunkKey).length;
-
-        let payload = new Payload(clientLocationIndexWatchUpdateFromDeviceFilt, [tuple]);
+        let indexChunk: LocationIndexUpdateDateTuple = this.askServerChunks.pop();
+        let payload = new Payload(clientLocationIndexWatchUpdateFromDeviceFilt, [indexChunk]);
         this.vortexService.sendPayload(payload);
+
+        this._status.lastCheck = new Date();
     }
 
 
@@ -242,30 +318,26 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
      */
     private processLocationIndexesFromServer(payloadEnvelope: PayloadEnvelope) {
 
-        this._status.lastCheck = new Date();
-
         if (payloadEnvelope.result != null && payloadEnvelope.result != true) {
             console.log(`ERROR: ${payloadEnvelope.result}`);
-            return;
-        }
-
-        if (payloadEnvelope.filt["finished"] == true) {
-            this.index.initialLoadComplete = true;
-
-            this.storage.saveTuples(new UpdateDateTupleSelector(), [this.index])
-                .then(() => {
-                    this._hasLoaded = true;
-                    this._hasLoadedSubject.next();
-                    this._notifyStatus();
-                })
-                .catch(err => console.log(`ERROR : ${err}`));
-
             return;
         }
 
         payloadEnvelope
             .decodePayload()
             .then((payload: Payload) => this.storeLocationIndexPayload(payload))
+            .then(() => {
+                if (this.askServerChunks.length == 0) {
+                    this.index.initialLoadComplete = true;
+                    this._hasLoaded = true;
+                    this._hasLoadedSubject.next();
+
+                } else {
+                    this.askServerForNextUpdateChunk();
+
+                }
+                this._notifyStatus();
+            })
             .catch(e =>
                 `LocationIndexCache.processLocationIndexesFromServer failed: ${e}`
             );
@@ -274,14 +346,9 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
 
     private storeLocationIndexPayload(payload: Payload) {
 
-        let encodedLocationIndexTuples: EncodedLocationIndexTuple[] = <EncodedLocationIndexTuple[]>payload.tuples;
-
-        let tuplesToSave = [];
-
-        for (let item of encodedLocationIndexTuples) {
-            tuplesToSave.push(item);
-        }
-
+        let tuplesToSave: EncodedLocationIndexTuple[] = <EncodedLocationIndexTuple[]>payload.tuples;
+        if (tuplesToSave.length == 0)
+            return;
 
         // 2) Store the index
         this.storeLocationIndexTuples(tuplesToSave)

@@ -16,4 +16,4 @@ class LocationIndexUpdateDateTuple(Tuple):
     __rawJonableFields__ = ('initialLoadComplete', 'updateDateByChunkKey')
 
     initialLoadComplete: bool = TupleField()
-    indexBucketUpdateDates: DeviceLocationIndexT = TupleField({})
+    updateDateByChunkKey: DeviceLocationIndexT = TupleField({})
