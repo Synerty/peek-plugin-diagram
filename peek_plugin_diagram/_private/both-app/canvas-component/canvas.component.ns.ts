@@ -90,9 +90,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
     private webViewUrl(): string {
         // let url = `${this.enrolmentService.serverHttpUrl}/${diagramBaseUrl}/web_dist/index.html`;
         let url = `~/assets/peek_plugin_diagram/www/index.html`;
-        let wsVortexUrl = this.enrolmentService.serverWebsocketVortexUrl;
         url += `?modelSetKey=${this.modelSetKey}`;
-        url += `&vortexWsUrl=${wsVortexUrl}`;
         console.log(`Sending WebView to ${url}`);
         return url;
     }
