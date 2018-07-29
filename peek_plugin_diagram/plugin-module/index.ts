@@ -1,3 +1,5 @@
+export {DiagramCoordSetService} from "./DiagramCoordSetService";
+
 export {PeekPluginDiagramModule} from "peek_plugin_diagram/diagram.module.web";
 export {DiagramCoordSetTuple} from "./tuples/DiagramCoordSetTuple";
 
@@ -14,3 +16,4 @@ export {
     DiagramPositionService,
     PositionUpdatedI
 } from "./DiagramPositionService";
+

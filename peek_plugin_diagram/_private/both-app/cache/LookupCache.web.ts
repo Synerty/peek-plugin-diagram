@@ -2,11 +2,11 @@ import { Injectable } from "@angular/core";
 import { TupleSelector } from "@synerty/vortexjs";
 import { dictKeysFromObject, dictValuesFromObject } from "../DiagramUtil";
 import { TupleDataOfflineObserverService } from "@synerty/vortexjs";
-import { DispLevel } from "../tuples/lookups/DispLevel";
-import { DispLayer } from "../tuples/lookups/DispLayer";
-import { DispColor } from "../tuples/lookups/DispColor";
-import { DispTextStyle } from "../tuples/lookups/DispTextStyle";
-import { DispLineStyle } from "../tuples/lookups/DispLineStyle";
+import { DispLevel } from "@peek/peek_plugin_diagram/_private/tuples/lookups";
+import { DispLayer } from "@peek/peek_plugin_diagram/_private/tuples/lookups";
+import { DispColor } from "@peek/peek_plugin_diagram/_private/tuples/lookups";
+import { DispTextStyle } from "@peek/peek_plugin_diagram/_private/tuples/lookups";
+import { DispLineStyle } from "@peek/peek_plugin_diagram/_private/tuples/lookups";
 import { PrivateDiagramTupleService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
 
 /** Lookup Cache

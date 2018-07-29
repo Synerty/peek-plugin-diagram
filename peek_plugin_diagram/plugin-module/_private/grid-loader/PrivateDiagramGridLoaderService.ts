@@ -87,6 +87,7 @@ class GridKeyTupleSelector extends TupleSelector {
 export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderServiceA {
     private UPDATE_CHUNK_FETCH_SIZE = 5;
     private SAVE_POINT_ITERATIONS = 1000 / 5; // Every 1000 grids
+    private OFFLINE_CHECK_PERIOD_MS = 15 * 60 * 1000; // 15 minutes
 
     private isReadySubject = new Subject<boolean>();
 
@@ -128,10 +129,6 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
                 this._notifyStatus();
             });
 
-        Observable.interval(15 * 60 * 1000)
-            .takeUntil(this.onDestroyEvent)
-            .subscribe(() => this.askServerForUpdates());
-
         this.storage = storageFactory.create(
             new TupleOfflineStorageNameService(gridCacheStorageName)
         );
@@ -140,19 +137,13 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
             .then(() => this.isReadySubject.next(true))
             .catch(e => console.log(`Failed to open grid cache db ${e}`));
 
-        // Services don't have destructors, I'm not sure how to unsubscribe.
-        this.vortexService.createEndpointObservable(
-            this,
-            clientGridWatchUpdateFromDeviceFilt)
-            .subscribe((payloadEnvelope: PayloadEnvelope) =>
-                this.processGridsFromServer(payloadEnvelope)
-            );
+        this.setupVortexSubscriptions();
+        this._notifyStatus();
 
-        // If the vortex service comes back online, update the watch grids.
-        this.vortexStatusService.isOnline
-            .filter(isOnline => isOnline == true)
+        // Check for updates every so often
+        Observable.interval(this.OFFLINE_CHECK_PERIOD_MS)
             .takeUntil(this.onDestroyEvent)
-            .subscribe(() => this.loadGrids({}, this.lastWatchedGridKeys));
+            .subscribe(() => this.askServerForUpdates());
     }
 
     isReady(): boolean {
@@ -184,6 +175,27 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
             this._status.loadProgress -= Object.keys(chunk).length;
 
         this._statusSubject.next(this._status);
+
+    }
+
+    private setupVortexSubscriptions(): void {
+
+        // Services don't have destructors, I'm not sure how to unsubscribe.
+        this.vortexService.createEndpointObservable(
+            this,
+            clientGridWatchUpdateFromDeviceFilt)
+            .subscribe((payloadEnvelope: PayloadEnvelope) =>
+                this.processGridsFromServer(payloadEnvelope)
+            );
+
+        // If the vortex service comes back online, update the watch grids.
+        this.vortexStatusService.isOnline
+            .filter(isOnline => isOnline == true)
+            .takeUntil(this.onDestroyEvent)
+            .subscribe(() => {
+                this.loadGrids({}, this.lastWatchedGridKeys);
+                this.askServerForUpdates();
+            });
     }
 
     private areWeTalkingToTheServer(): boolean {

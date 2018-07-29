@@ -1,5 +1,5 @@
-import {DispLevel} from "../lookups/DispLevel";
-import {DispLayer} from "../lookups/DispLayer";
+import {DispLevel} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
+import {DispLayer} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
 
 export interface PointI {
     x: number;

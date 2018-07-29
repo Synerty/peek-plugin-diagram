@@ -94,6 +94,10 @@
                 "useClassFile": "_private/services/PrivateDiagramPositionService",
                 "useClassClass": "PrivateDiagramPositionService",
                 "persistent": true
+            },
+            {
+                "file": "DiagramCoordSetService",
+                "class": "DiagramCoordSetService"
             }
         ]
     },
@@ -156,6 +160,10 @@
                 "file": "_private/services/PrivateDiagramOfflineCacherService",
                 "class": "PrivateDiagramOfflineCacherService",
                 "persistent": true
+            },
+            {
+                "file": "DiagramCoordSetService",
+                "class": "DiagramCoordSetService"
             }
         ]
     },
@@ -213,6 +221,10 @@
                 "useClassFile": "_private/services/PrivateDiagramPositionService",
                 "useClassClass": "PrivateDiagramPositionService",
                 "persistent": true
+            },
+            {
+                "file": "DiagramCoordSetService",
+                "class": "DiagramCoordSetService"
             }
         ]
     }

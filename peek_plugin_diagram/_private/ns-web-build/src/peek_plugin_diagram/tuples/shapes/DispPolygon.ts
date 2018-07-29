@@ -1,6 +1,6 @@
 import {DispBase, PointsT} from "./DispBase";
-import {DispColor} from "../lookups/DispColor";
-import {DispLineStyle} from "../lookups/DispLineStyle";
+import {DispColor} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
+import {DispLineStyle} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
 
 export enum PolygonFillDirection {
     fillTopToBottom = 0,

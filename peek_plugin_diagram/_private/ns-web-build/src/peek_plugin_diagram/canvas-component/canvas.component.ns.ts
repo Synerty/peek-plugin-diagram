@@ -29,6 +29,9 @@ import {PositionServiceBridgeNs} from "../service-bridge/PositionServiceBridge.n
 import {TupleStorageBridgeNs} from "../service-bridge/TupleStorageBridge.ns";
 import {GridLoaderBridgeNs} from "../service-bridge/GridLoaderBridge.ns";
 
+
+        import * as fs from "tns-core-modules/file-system";
+
 @Component({
     selector: 'pl-diagram-canvas',
     templateUrl: 'canvas.component.ns.html',
@@ -92,8 +95,11 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
 
     private webViewUrl(): string {
         // let url = `${this.enrolmentService.serverHttpUrl}/${diagramBaseUrl}/web_dist/index.html`;
-        let url = `~/assets/peek_plugin_diagram/www/index.html`;
+
+        let appPath = fs.knownFolders.currentApp().path;
+        let url = `${appPath}/assets/peek_plugin_diagram/www/index.html`;
         url += `?modelSetKey=${this.modelSetKey}`;
+        url = encodeURI(url);
         console.log(`Sending WebView to ${url}`);
         return url;
     }

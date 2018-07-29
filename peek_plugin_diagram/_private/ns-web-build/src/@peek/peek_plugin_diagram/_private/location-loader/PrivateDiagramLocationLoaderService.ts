@@ -113,8 +113,6 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
     private index = new LocationIndexUpdateDateTuple();
     private askServerChunks: LocationIndexUpdateDateTuple[] = [];
 
-    private lifecycleEmitter = new ComponentLifecycleEventEmitter();
-
     private _hasLoaded = false;
     private _hasLoadedSubject = new Subject<void>();
 
@@ -215,9 +213,9 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
     private setupVortexSubscriptions(): void {
 
         // Services don't have destructors, I'm not sure how to unsubscribe.
-        this.vortexService.createEndpointObservable(this.lifecycleEmitter,
+        this.vortexService.createEndpointObservable(this,
             clientLocationIndexWatchUpdateFromDeviceFilt)
-            .takeUntil(this.lifecycleEmitter.onDestroyEvent)
+            .takeUntil(this.onDestroyEvent)
             .subscribe((payloadEnvelope: PayloadEnvelope) => {
                 this.processLocationIndexesFromServer(payloadEnvelope);
             });
@@ -225,7 +223,7 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
         // If the vortex service comes back online, update the watch grids.
         this.vortexStatusService.isOnline
             .filter(isOnline => isOnline == true)
-            .takeUntil(this.lifecycleEmitter.onDestroyEvent)
+            .takeUntil(this.onDestroyEvent)
             .subscribe(() => this.askServerForUpdates());
 
     }

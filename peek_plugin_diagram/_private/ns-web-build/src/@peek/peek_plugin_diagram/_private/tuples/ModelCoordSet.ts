@@ -25,6 +25,9 @@ export class ModelCoordSet extends Tuple {
 
     gridSizes: ModelCoordSetGridSize[];
 
+    // Misc data holder
+    data: { [key: string]: any } | null;
+
     constructor() {
         super(ModelCoordSet.tupleName)
     }

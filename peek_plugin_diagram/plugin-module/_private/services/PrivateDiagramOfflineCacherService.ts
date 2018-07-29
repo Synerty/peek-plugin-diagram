@@ -11,7 +11,7 @@ import {
     DispLevel,
     DispLineStyle,
     DispTextStyle
-} from "peek_plugin_diagram/tuples/lookups";
+} from "../tuples/lookups";
 
 
 /** Diagram Lookups offline cacher

@@ -4,7 +4,6 @@ import { DispPolygon } from "../tuples/shapes/DispPolygon";
 import { PointsT } from "../tuples/shapes/DispBase";
 import { DispFactory, DispType } from "../tuples/shapes/DispFactory";
 import { PeekCanvasBounds } from "./PeekCanvasBounds";
-import { DispLineStyle } from "../tuples/lookups/DispLineStyle";
 
 export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
