@@ -108,7 +108,7 @@ function dispKeyHashBucket(modelSetKey: string, dispKey: string): string {
 @Injectable()
 export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEventEmitter {
     private UPDATE_CHUNK_FETCH_SIZE = 5;
-    private OFFLINE_CHECK_PERIOD_MS = 15 * 1000; // 15 minutes
+    private OFFLINE_CHECK_PERIOD_MS = 15 * 60 * 1000; // 15 minutes
 
     private index = new LocationIndexUpdateDateTuple();
     private askServerChunks: LocationIndexUpdateDateTuple[] = [];
@@ -178,10 +178,9 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
         this._status.cacheForOfflineEnabled = this.offlineConfig.cacheChunksForOffline;
         this._status.initialLoadComplete = this.index.initialLoadComplete;
 
-        let keys = Object.keys(this.index.updateDateByChunkKey);
-        this._status.loadProgress = keys.filter(
-            (key) => this.index.updateDateByChunkKey[key] != null
-        ).length;
+        this._status.loadProgress = Object.keys(this.index.updateDateByChunkKey).length;
+        for (let chunk of this.askServerChunks)
+            this._status.loadProgress -= Object.keys(chunk.updateDateByChunkKey).length;
 
         this._statusSubject.next(this._status);
     }
@@ -246,13 +245,18 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
     private askServerForUpdates() {
         if (!this.areWeTalkingToTheServer()) return;
 
+        // If we're still caching, then exit
+        if (this.askServerChunks.length != 0) {
+            this.askServerForNextUpdateChunk();
+            return;
+        }
 
         this.tupleService.observer
             .pollForTuples(new UpdateDateTupleSelector())
             .then((tuplesAny: any) => {
                 let serverIndex: LocationIndexUpdateDateTuple = tuplesAny[0];
                 let keys = Object.keys(serverIndex.updateDateByChunkKey);
-                let keysNeedingUpdate:string[] = [];
+                let keysNeedingUpdate: string[] = [];
 
                 this._status.loadTotal = keys.length;
 
@@ -311,6 +315,7 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
             return;
 
         let indexChunk: LocationIndexUpdateDateTuple = this.askServerChunks.pop();
+
         let payload = new Payload(clientLocationIndexWatchUpdateFromDeviceFilt, [indexChunk]);
         this.vortexService.sendPayload(payload);
 

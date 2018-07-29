@@ -1,7 +1,6 @@
 import {Injectable} from "@angular/core";
 import {GridTuple} from "./GridTuple";
 import {PrivateDiagramGridLoaderServiceA} from "./PrivateDiagramGridLoaderServiceA";
-import {EncodedGridTuple} from "./EncodedGridTuple";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 
@@ -27,6 +26,7 @@ import {GridUpdateDateTuple} from "./GridUpdateDateTuple";
 import {PrivateDiagramTupleService} from "../services";
 import {OfflineConfigTuple} from "../tuples";
 import {PrivateDiagramGridLoaderStatusTuple} from "./PrivateDiagramGridLoaderStatusTuple";
+import {EncodedGridTuple} from "./EncodedGridTuple";
 
 
 // ----------------------------------------------------------------------------
@@ -40,8 +40,6 @@ let clientGridWatchUpdateFromDeviceFilt = extend(
 // ----------------------------------------------------------------------------
 
 let noSpaceMsg = "there was not enough remaining storage space";
-let chunksPerPoll = 30;
-let savePointIterations = 1000 / chunksPerPoll;
 
 // ----------------------------------------------------------------------------
 
@@ -87,6 +85,8 @@ class GridKeyTupleSelector extends TupleSelector {
  */
 @Injectable()
 export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderServiceA {
+    private UPDATE_CHUNK_FETCH_SIZE = 5;
+    private SAVE_POINT_ITERATIONS = 1000 / 5; // Every 1000 grids
 
     private isReadySubject = new Subject<boolean>();
 
@@ -101,7 +101,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
     private index: GridUpdateDateTuple = new GridUpdateDateTuple();
 
     // The queue of grids to cache
-    private cacheGridQueueChunks = [];
+    private askServerChunks = [];
 
     // Saving the cache after each chunk is so expensive, we only do it every 20 or so
     private chunksSavedSinceLastIndexSave = 0;
@@ -124,13 +124,13 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
             .filter(v => v.length != 0)
             .subscribe((tuples: OfflineConfigTuple[]) => {
                 this.offlineConfig = tuples[0];
-                this.startCacheAll();
+                this.askServerForUpdates();
                 this._notifyStatus();
             });
 
         Observable.interval(15 * 60 * 1000)
             .takeUntil(this.onDestroyEvent)
-            .subscribe(() => this.startCacheAll());
+            .subscribe(() => this.askServerForUpdates());
 
         this.storage = storageFactory.create(
             new TupleOfflineStorageNameService(gridCacheStorageName)
@@ -178,83 +178,94 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
     private _notifyStatus(): void {
         this._status.cacheForOfflineEnabled = this.offlineConfig.cacheChunksForOffline;
         this._status.initialLoadComplete = this.index.initialLoadComplete;
+
         this._status.loadProgress = Object.keys(this.index.updateDateByChunkKey).length;
-        // this._status.loadTotal = this.cacheGridQueueChunks.length;
+        for (let chunk of this.askServerChunks)
+            this._status.loadProgress -= Object.keys(chunk).length;
+
         this._statusSubject.next(this._status);
+    }
+
+    private areWeTalkingToTheServer(): boolean {
+        return this.offlineConfig.cacheChunksForOffline
+            && this.vortexStatusService.snapshot.isOnline;
     }
 
     /** Cache All Grids
      *
      * Cache all the grids from the server, into this device.
      */
-    private startCacheAll(): void {
+    private askServerForUpdates(): void {
         this._notifyStatus();
+        if (!this.areWeTalkingToTheServer()) return;
 
-        // There is no point talking to the server if it's offline
-        if (!this.vortexStatusService.snapshot.isOnline)
+        // If we're still caching, then exit
+        if (this.askServerChunks.length != 0) {
+            this.askServerForNextUpdateChunk();
             return;
-
-        // If caching offline is not enabled, then exit
-        if (!this.offlineConfig.cacheChunksForOffline)
-            return;
-
-        // If we're stil caching, then exit
-        if (!this.cacheGridQueueChunks)
-            return;
+        }
 
         this.tupleService
             .observer
             .pollForTuples(new TupleSelector(GridUpdateDateTuple.tupleName, {}))
-            .then((tuples: GridUpdateDateTuple[]) => {
-                if (!tuples.length)
-                    return;
+            .then((tuplesAny: any) => {
+                if (!tuplesAny.length) return;
 
-                if (!this.offlineConfig.cacheChunksForOffline)
-                    return;
+                let serverIndex: GridUpdateDateTuple = tuplesAny[0];
+                let keys = Object.keys(serverIndex.updateDateByChunkKey);
+                let keysNeedingUpdate: string[] = [];
 
-                let index = tuples[0];
-                // Break the grids to cache down into chunks
-                let allChunks = [];
-                let count = 0;
-                let thisChunk = {};
-
-                let keys = Object.keys(index.updateDateByChunkKey);
                 this._status.loadTotal = keys.length;
-                for (let key of keys) {
 
-                    let serverDate = index.updateDateByChunkKey[key];
+                for (let chunkKey of keys) {
+                    if (!this.index.updateDateByChunkKey.hasOwnProperty(chunkKey)) {
+                        this.index.updateDateByChunkKey[chunkKey] = null;
+                        keysNeedingUpdate.push(chunkKey);
 
-                    // Make sure we have the right dates for our index if it exists
-                    let ourCacheDate = this.index.updateDateByChunkKey[key];
-                    if (ourCacheDate == null) {
-                        // We havn't cached this grid at all, add it to the queue
-                        thisChunk[key] = null;
-                        count += 1;
-
-                    } else if (ourCacheDate != serverDate) {
-                        // We have this grid, but it's out of date
-                        thisChunk[key] = ourCacheDate;
-                        count += 1;
-                    } // ELSE, we're all good.
-
-                    if (count == chunksPerPoll) {
-                        allChunks.push(thisChunk);
-                        count = 0;
-                        thisChunk = {};
+                    } else if (this.index.updateDateByChunkKey[chunkKey]
+                        != serverIndex.updateDateByChunkKey[chunkKey]) {
+                        keysNeedingUpdate.push(chunkKey);
                     }
                 }
-                if (count)
-                    allChunks.push(thisChunk);
-
-                this.cacheGridQueueChunks = allChunks;
-
-                console.log(`Caching ${this.cacheGridQueueChunks.length} grid chunks`);
-                this.cacheRequestNextChunk();
-
-                this._notifyStatus();
+                this.queueChunksToAskServer(keysNeedingUpdate);
 
             })
             .catch(e => console.log(`ERROR in cacheAll : ${e}`));
+
+
+    }
+
+
+    /** Queue Chunks To Ask Server
+     *
+     */
+    private queueChunksToAskServer(keysNeedingUpdate: string[]) {
+        if (!this.areWeTalkingToTheServer()) return;
+
+        this.askServerChunks = [];
+        this.chunksSavedSinceLastIndexSave = 0;
+
+        let count = 0;
+        let indexChunk = {};
+
+        for (let key of keysNeedingUpdate) {
+            indexChunk[key] = this.index.updateDateByChunkKey[key];
+            count++;
+
+            if (count == this.UPDATE_CHUNK_FETCH_SIZE) {
+                this.askServerChunks.push(indexChunk);
+                count = 0;
+                indexChunk = {};
+            }
+        }
+
+        if (count)
+            this.askServerChunks.push(indexChunk);
+
+        this.askServerForNextUpdateChunk();
+
+        this._status.lastCheck = new Date();
+        this._notifyStatus();
 
 
     }
@@ -263,34 +274,19 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
      *
      * Request the next chunk of grids from the server
      */
-    private cacheRequestNextChunk() {
-        this.chunksSavedSinceLastIndexSave++;
+    private askServerForNextUpdateChunk() {
+        if (!this.areWeTalkingToTheServer()) return;
 
-        // Finish the load
-        if (!this.offlineConfig.cacheChunksForOffline)
-            this.cacheGridQueueChunks = [];
-
-        if (this.cacheGridQueueChunks.length == 0) {
-            this.index.initialLoadComplete = true;
-            this._status.lastCheck = new Date();
-            this._notifyStatus();
-            this.saveGridCacheIndex(true);
+        if (this.askServerChunks.length == 0)
             return;
-        }
 
-        this.saveGridCacheIndex();
+        let nextChunk = this.askServerChunks.pop();
 
-        this._notifyStatus();
-
-        console.log(`Caching next grid chunk, ${this.cacheGridQueueChunks.length} remaining`);
-
-        let nextChunk = this.cacheGridQueueChunks.pop();
-
-        let payload = new Payload(
-            extend({cacheAll: true}, clientGridWatchUpdateFromDeviceFilt)
-        );
-        payload.tuples = [nextChunk];
+        let payload = new Payload({cacheAll: true}, [nextChunk]);
+        extend(payload.filt, clientGridWatchUpdateFromDeviceFilt);
         this.vortexService.sendPayload(payload);
+
+        this._status.lastCheck = new Date();
     }
 
     /** Update Watched Grids
@@ -347,8 +343,25 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
                     this.emitEncodedGridTuples(encodedGridTuples)
                 }
 
+                // We always cache the tuples
                 let promise: any = this.storeGridTuples(encodedGridTuples)
-                    .then(() => isCacheAll && this.cacheRequestNextChunk());
+                    .then(() => {
+                        if (!isCacheAll)
+                            return;
+
+                        this.chunksSavedSinceLastIndexSave++;
+
+                        if (this.askServerChunks.length == 0) {
+                            this.saveGridCacheIndex(true);
+                            this.index.initialLoadComplete = true;
+
+                        } else {
+                            this.saveGridCacheIndex();
+                            this.askServerForNextUpdateChunk();
+
+                        }
+                        this._notifyStatus();
+                    });
                 return promise;
             })
             .catch(e => `ERROR GridLoader.processGridsFromServer: ${e}`);
@@ -491,7 +504,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
 
     private saveGridCacheIndex(force = false, transaction = null): Promise<void> {
 
-        if (this.chunksSavedSinceLastIndexSave <= savePointIterations && !force)
+        if (this.chunksSavedSinceLastIndexSave <= this.SAVE_POINT_ITERATIONS && !force)
             return Promise.resolve();
 
         let ts = new TupleSelector(GridUpdateDateTuple.tupleName, {});
