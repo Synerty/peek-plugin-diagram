@@ -50,7 +50,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     // DoCheck last value variables
     private lastCanvasSize: string = "";
-    private lastWindowHeight: number = 0;
+    private lastFrameSize: string = "";
 
     config: PeekCanvasConfig;
 
@@ -129,23 +129,36 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         let jqCanvas = $(this.canvas);
 
         $("body").css("overflow", "hidden");
+        // NOTE: If you're debugging diagram flickering, it might help to remove this.
+        jqCanvas.parent().css("background-color", this.config.renderer.backgroundColor);
 
         // Update the canvas height
         this.doCheckEvent
             .takeUntil(this.onDestroyEvent)
             .subscribe(() => {
-                let height = $(window).height();
+                let frameSize = `${$(window).height()}`;
 
-                if (this.lastWindowHeight == height)
+                jqCanvas.parents()
+                    .filter(function () {
+                        return this.tagName.toLowerCase() != "html"
+                    })
+                    .map(function () {
+                        frameSize += `;${$(this).height()}`
+                    });
+
+                if (this.lastFrameSize == frameSize)
                     return;
 
-                this.lastWindowHeight = height;
+                this.lastFrameSize = frameSize;
 
+                console.log(this.lastFrameSize);
+                console.log(`${$(window).height()} - ${jqCanvas.offset().top}`);
 
-                let newHeight = height - jqCanvas.offset().top;
+                let newHeight = $(window).height() - jqCanvas.offset().top;
 
                 jqCanvas.css("height", `${newHeight}px`);
                 jqCanvas.css("width", "100%");
+                this.config.invalidate();
             });
 
         // Watch the canvas window size
