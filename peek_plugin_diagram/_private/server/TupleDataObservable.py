@@ -2,15 +2,17 @@ from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.PluginNames import diagramObservableName
 from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
-from peek_plugin_diagram._private.server.tuple_providers.ServerCoordSetTupleProvider import \
-    ServerCoordSetTupleProvider
 from peek_plugin_diagram._private.server.tuple_providers.DiagramLoaderStatusTupleProvider import \
     DiagramLoaderStatusTupleProvider
+from peek_plugin_diagram._private.server.tuple_providers.ServerCoordSetTupleProvider import \
+    ServerCoordSetTupleProvider
 from peek_plugin_diagram._private.server.tuple_providers.ServerLookupTupleProvider import \
     ServerLookupTupleProvider
+from peek_plugin_diagram._private.server.tuple_providers.ServerModelSetTupleProvider import \
+    ServerModelSetTupleProvider
 from peek_plugin_diagram._private.storage.Display import DispLevel, DispLayer, DispColor, \
     DispLineStyle, DispTextStyle
-from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
+from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
 from peek_plugin_diagram._private.tuples.DiagramImporterStatusTuple import \
     DiagramImporterStatusTuple
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
@@ -35,6 +37,10 @@ def makeTupleDataObservableHandler(ormSessionCreator,
     # Register TupleProviders here
     tupleObservable.addTupleProvider(DiagramImporterStatusTuple.tupleName(),
                                      DiagramLoaderStatusTupleProvider(statusController))
+
+    # Register TupleProviders here
+    tupleObservable.addTupleProvider(ModelSet.tupleName(),
+                                     ServerModelSetTupleProvider(ormSessionCreator))
 
     # Register TupleProviders here
     tupleObservable.addTupleProvider(ModelCoordSet.tupleName(),

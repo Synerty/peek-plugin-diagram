@@ -18,6 +18,8 @@ from peek_plugin_diagram._private.client.controller.LocationIndexCacheController
     LocationIndexCacheController
 from peek_plugin_diagram._private.client.controller.LookupCacheController import \
     LookupCacheController
+from peek_plugin_diagram._private.client.controller.ModelSetCacheController import \
+    ModelSetCacheController
 from peek_plugin_diagram._private.client.handlers.GridCacheHandler import GridCacheHandler
 from peek_plugin_diagram._private.client.handlers.LocationIndexCacheHandler import \
     LocationIndexCacheHandler
@@ -97,6 +99,10 @@ class ClientEntryHook(PluginClientEntryHookABC):
         lookupCacheController = LookupCacheController(serverTupleObserver)
         self._loadedObjects.append(lookupCacheController)
 
+        # Buffer the model sets in the client (us)
+        modelSetCacheController = ModelSetCacheController(serverTupleObserver)
+        self._loadedObjects.append(modelSetCacheController)
+
         # Buffer the coord sets in the client (us)
         coordSetCacheController = CoordSetCacheController(serverTupleObserver)
         self._loadedObjects.append(coordSetCacheController)
@@ -135,6 +141,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
         # Create the Tuple Observer
         tupleObservable = makeClientTupleDataObservableHandler(
             tupleDataObservableProxyHandler,
+            modelSetCacheController,
             coordSetCacheController,
             gridCacheController,
             lookupCacheController,
@@ -143,17 +150,23 @@ class ClientEntryHook(PluginClientEntryHookABC):
         # This is already in the _loadedObjects, it's tupleDataObservableProxyHandler
 
         lookupCacheController.setTupleObserable(tupleObservable)
+        modelSetCacheController.setTupleObserable(tupleObservable)
         coordSetCacheController.setTupleObserable(tupleObservable)
 
         yield gridCacheController.start()
         yield locationIndexCacheController.start()
         lookupCacheController.start()
+        modelSetCacheController.start()
         coordSetCacheController.start()
 
         # Add in the HTTP resource that allows images to be downloaded
         resource = FileUnderlayResource()
-        distDir = osp.join(osp.dirname(osp.dirname(__file__)), "ns-assets", "www")
-        #distDir = osp.join(osp.dirname(osp.dirname(__file__)), "ns-web-build", "dist")
+
+        # Serve the release
+        # distDir = osp.join(osp.dirname(osp.dirname(__file__)), "ns-assets", "www")
+
+        # For debugging
+        distDir = osp.join(osp.dirname(osp.dirname(__file__)), "ns-web-build", "dist")
         resource.addFileSystemRoot(distDir)
         resource.enableSinglePageApplication()
 

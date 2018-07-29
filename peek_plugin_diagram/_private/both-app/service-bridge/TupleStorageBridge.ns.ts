@@ -4,9 +4,12 @@ import {
     PrivateDiagramItemSelectService,
     SelectedItemDetailsI
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
+import {
+    PrivateDiagramTupleService
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
 
 export class TupleStorageBridgeNs {
-    constructor(private tupleStorage: TupleOfflineStorageService,
+    constructor(private tupleService: PrivateDiagramTupleService,
                 private iface: WebViewInterface) {
 
         this.iface.on(
@@ -16,7 +19,7 @@ export class TupleStorageBridgeNs {
 
                 console.log("NS: Received loadTuples event");
                 this.handlePromise(
-                    this.tupleStorage.loadTuplesEncoded(args.tupleSelector),
+                    this.tupleService.offlineStorage.loadTuplesEncoded(args.tupleSelector),
                     args.promId
                 );
 
@@ -30,7 +33,7 @@ export class TupleStorageBridgeNs {
 
                 console.log("NS: Received saveTuples event");
                 this.handlePromise(
-                    this.tupleStorage.saveTuplesEncoded(args.tupleSelector, args.encodedPayload),
+                    this.tupleService.offlineStorage.saveTuplesEncoded(args.tupleSelector, args.encodedPayload),
                     args.promId
                 );
 

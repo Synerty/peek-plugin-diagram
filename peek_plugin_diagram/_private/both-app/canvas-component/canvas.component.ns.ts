@@ -1,9 +1,11 @@
-import {Component, Input, OnInit, ViewChild, NgZone} from "@angular/core";
+import {Component, Input, NgZone, OnInit, ViewChild} from "@angular/core";
 
 import {DeviceEnrolmentService} from "@peek/peek_core_device";
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
-import {ComponentLifecycleEventEmitter,
-TupleOfflineStorageService} from "@synerty/vortexjs";
+import {
+    ComponentLifecycleEventEmitter,
+    TupleOfflineStorageService
+} from "@synerty/vortexjs";
 
 import {WebViewInterface} from 'nativescript-webview-interface';
 import {LoadEventData, WebView} from 'ui/web-view';
@@ -15,6 +17,7 @@ import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarSer
 import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader/PrivateDiagramGridLoaderServiceA";
+import {PrivateDiagramTupleService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
 
 
 import {
@@ -25,6 +28,9 @@ import {ItemSelectServiceBridgeNs} from "../service-bridge/ItemSelectServiceBrid
 import {PositionServiceBridgeNs} from "../service-bridge/PositionServiceBridge.ns";
 import {TupleStorageBridgeNs} from "../service-bridge/TupleStorageBridge.ns";
 import {GridLoaderBridgeNs} from "../service-bridge/GridLoaderBridge.ns";
+
+
+        import * as fs from "tns-core-modules/file-system";
 
 @Component({
     selector: 'pl-diagram-canvas',
@@ -50,7 +56,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
 
     constructor(private zone: NgZone,
                 private enrolmentService: DeviceEnrolmentService,
-                private tupleStorage: TupleOfflineStorageService,
+                private tupleService: PrivateDiagramTupleService,
                 private privateItemSelectService: PrivateDiagramItemSelectService,
                 positionService: DiagramPositionService,
                 private gridLoader: PrivateDiagramGridLoaderServiceA) {
@@ -78,7 +84,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
         );
 
         this.tupleStorageBridge = new TupleStorageBridgeNs(
-            this.tupleStorage, this.oLangWebViewInterface
+            this.tupleService, this.oLangWebViewInterface
         );
 
         this.gridLoaderBridge = new GridLoaderBridgeNs(
@@ -89,8 +95,11 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
 
     private webViewUrl(): string {
         // let url = `${this.enrolmentService.serverHttpUrl}/${diagramBaseUrl}/web_dist/index.html`;
-        let url = `~/assets/peek_plugin_diagram/www/index.html`;
+
+        let appPath = fs.knownFolders.currentApp().path;
+        let url = `${appPath}/assets/peek_plugin_diagram/www/index.html`;
         url += `?modelSetKey=${this.modelSetKey}`;
+        url = encodeURI(url);
         console.log(`Sending WebView to ${url}`);
         return url;
     }
