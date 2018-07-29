@@ -25,7 +25,7 @@
     "@synerty/ng2-balloon-msg": "^0.4.0",
     "@synerty/peek-util": "^0.7.2",
     "@synerty/peek-util-web": "^0.7.2",
-    "@synerty/vortexjs": "^1.1.0",
+    "@synerty/vortexjs": "^1.1.6",
     "angular-font-awesome": "^3.1.2",
     "core-js": "^2.4.1",
     "jquery": "^3.3.1",
