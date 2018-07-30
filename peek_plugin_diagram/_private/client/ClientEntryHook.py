@@ -159,6 +159,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
         modelSetCacheController.start()
         coordSetCacheController.start()
 
+        '''
         # Add in the HTTP resource that allows images to be downloaded
         resource = FileUnderlayResource()
 
@@ -171,6 +172,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
         resource.enableSinglePageApplication()
 
         self.platform.addMobileResource(b'web_dist', resource)
+        '''
 
         logger.debug("Started")
 
