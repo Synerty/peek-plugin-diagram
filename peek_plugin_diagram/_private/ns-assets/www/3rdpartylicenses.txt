@@ -335,7 +335,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 MIT
 MIT
 
-@synerty/vortexjs@1.1.6
+@synerty/vortexjs@1.1.10
 MIT
 MIT License
 

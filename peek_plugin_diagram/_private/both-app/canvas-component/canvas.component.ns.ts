@@ -1,4 +1,4 @@
-import {Component, Input, NgZone, OnInit, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, Input, NgZone, ViewChild} from "@angular/core";
 
 import {DeviceEnrolmentService} from "@peek/peek_core_device";
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
@@ -30,7 +30,7 @@ import {TupleStorageBridgeNs} from "../service-bridge/TupleStorageBridge.ns";
 import {GridLoaderBridgeNs} from "../service-bridge/GridLoaderBridge.ns";
 
 
-        import * as fs from "tns-core-modules/file-system";
+import * as fs from "tns-core-modules/file-system";
 
 @Component({
     selector: 'pl-diagram-canvas',
@@ -38,7 +38,7 @@ import {GridLoaderBridgeNs} from "../service-bridge/GridLoaderBridge.ns";
     moduleId: module.id
 })
 export class CanvasComponent extends ComponentLifecycleEventEmitter
-    implements OnInit {
+    implements AfterViewInit {
 
     private oLangWebViewInterface: WebViewInterface;
 
@@ -67,7 +67,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
 
     }
 
-    ngOnInit() {
+    ngAfterViewInit() {
 
         let webView = <WebView>this.webView.nativeElement;
 
@@ -94,10 +94,20 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
     }
 
     private webViewUrl(): string {
-        // let url = `${this.enrolmentService.serverHttpUrl}/${diagramBaseUrl}/web_dist/index.html`;
-
+        let liveSyncUrl = `${this.enrolmentService.serverHttpUrl}/${diagramBaseUrl}/web_dist/index.html`;
         let appPath = fs.knownFolders.currentApp().path;
-        let url = `${appPath}/assets/peek_plugin_diagram/www/index.html`;
+        let localUrl = `${appPath}/assets/peek_plugin_diagram/www/index.html`;
+
+        let isLiveSync = appPath.indexOf("LiveSync") != -1;
+
+        // For some reason the livesync doesn't sync the assets properly.
+        // So in this case, just talk to the peek client service
+        let url = isLiveSync ? liveSyncUrl : localUrl;
+
+        if (isLiveSync) {
+            alert(`This is in LiveSync, we going to use the server ${url}`);
+        }
+
         url += `?modelSetKey=${this.modelSetKey}`;
         url = encodeURI(url);
         console.log(`Sending WebView to ${url}`);
