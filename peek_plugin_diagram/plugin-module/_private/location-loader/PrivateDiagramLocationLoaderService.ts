@@ -38,6 +38,8 @@ let clientLocationIndexWatchUpdateFromDeviceFilt = extend(
     diagramFilt
 );
 
+const cacheAll = "cacheAll";
+
 // ----------------------------------------------------------------------------
 /** LocationIndexTupleSelector
  */
@@ -314,7 +316,9 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
 
         let indexChunk: LocationIndexUpdateDateTuple = this.askServerChunks.pop();
 
-        let payload = new Payload(clientLocationIndexWatchUpdateFromDeviceFilt, [indexChunk]);
+        let filt = extend({}, clientLocationIndexWatchUpdateFromDeviceFilt);
+        filt[cacheAll] = true;
+        let payload = new Payload(filt, [indexChunk]);
         this.vortexService.sendPayload(payload);
 
         this._status.lastCheck = new Date();
@@ -341,12 +345,13 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
                     this._hasLoaded = true;
                     this._hasLoadedSubject.next();
 
-                } else {
+                } else if (payloadEnvelope.filt[cacheAll] == true) {
                     this.askServerForNextUpdateChunk();
 
                 }
-                this._notifyStatus();
+
             })
+            .then(() => this._notifyStatus())
             .catch(e =>
                 `LocationIndexCache.processLocationIndexesFromServer failed: ${e}`
             );
