@@ -85,7 +85,7 @@ class GridKeyTupleSelector extends TupleSelector {
  */
 @Injectable()
 export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderServiceA {
-    private UPDATE_CHUNK_FETCH_SIZE = 10;
+    private UPDATE_CHUNK_FETCH_SIZE = 5;
     private SAVE_POINT_ITERATIONS = 1000 / 5; // Every 1000 grids
     private OFFLINE_CHECK_PERIOD_MS = 15 * 60 * 1000; // 15 minutes
 
