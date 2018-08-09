@@ -5,7 +5,6 @@ from twisted.internet.defer import Deferred, inlineCallbacks
 
 from peek_plugin_diagram._private.client.controller.GridCacheController import \
     GridCacheController
-from peek_plugin_diagram._private.tuples.grid.GridUpdateDateTuple import GridUpdateDateTuple
 from vortex.Payload import Payload
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TuplesProviderABC
@@ -20,9 +19,18 @@ class GridCacheIndexTupleProvider(TuplesProviderABC):
     @inlineCallbacks
     def makeVortexMsg(self, filt: dict,
                       tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
-        tuple = GridUpdateDateTuple()
-        tuple.updateDateByChunkKey = self._gridCacheController.gridDatesByKey()
+        tuples = [
+            [i[0], i[1]]
+            for i in self._gridCacheController.gridDatesByKey().items()
+        ]
+        sorted(tuples, key=lambda i: i[0])
 
-        payloadEnvelope = yield Payload(filt, tuples=[tuple]).makePayloadEnvelopeDefer()
-        vortexMsg = yield  payloadEnvelope.toVortexMsgDefer()
+        start = tupleSelector.selector.get('start')
+        count = tupleSelector.selector.get('count')
+
+        if start is not None and count:
+            tuples = tuples[start:count]
+
+        payloadEnvelope = yield Payload(filt, tuples=tuples).makePayloadEnvelopeDefer()
+        vortexMsg = yield payloadEnvelope.toVortexMsgDefer()
         return vortexMsg

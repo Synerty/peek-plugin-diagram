@@ -217,32 +217,52 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
             return;
         }
 
-        this.tupleService
-            .observer
-            .pollForTuples(new TupleSelector(GridUpdateDateTuple.tupleName, {}))
-            .then((tuplesAny: any) => {
-                if (!tuplesAny.length) return;
+        let keysNeedingUpdate: string[] = [];
+        let total = 0;
+        let start = 0;
+        let chunkSize = 5000;
 
-                let serverIndex: GridUpdateDateTuple = tuplesAny[0];
-                let keys = Object.keys(serverIndex.updateDateByChunkKey);
-                let keysNeedingUpdate: string[] = [];
+        let complete = () => {
+            this._status.loadTotal = total;
+            this.queueChunksToAskServer(keysNeedingUpdate);
+        };
 
-                this._status.loadTotal = keys.length;
+        // This is one big hoop to avoid memory issues on older iOS devices
+        let queueNext = () => {
+            let ts = new TupleSelector(GridUpdateDateTuple.tupleName, {
+                start: start,
+                count: start + chunkSize
+            });
+            start += chunkSize;
 
-                for (let chunkKey of keys) {
-                    if (!this.index.updateDateByChunkKey.hasOwnProperty(chunkKey)) {
-                        this.index.updateDateByChunkKey[chunkKey] = null;
-                        keysNeedingUpdate.push(chunkKey);
-
-                    } else if (this.index.updateDateByChunkKey[chunkKey]
-                        != serverIndex.updateDateByChunkKey[chunkKey]) {
-                        keysNeedingUpdate.push(chunkKey);
+            this.tupleService
+                .observer
+                .pollForTuples(ts)
+                .then((tuples: any[]) => {
+                    if (!tuples.length) {
+                        complete();
+                        return;
                     }
-                }
-                this.queueChunksToAskServer(keysNeedingUpdate);
 
-            })
-            .catch(e => console.log(`ERROR in cacheAll : ${e}`));
+                    total += tuples.length;
+
+                    for (let item of tuples) {
+                        let chunkKey = item[0];
+                        let lastUpdate = item[1];
+
+                        if (!this.index.updateDateByChunkKey.hasOwnProperty(chunkKey)) {
+                            this.index.updateDateByChunkKey[chunkKey] = null;
+                            keysNeedingUpdate.push(chunkKey);
+
+                        } else if (this.index.updateDateByChunkKey[chunkKey] != lastUpdate) {
+                            keysNeedingUpdate.push(chunkKey);
+                        }
+                    }
+                    setTimeout(() => queueNext(), 0);
+                })
+                .catch(e => console.log(`ERROR in cacheAll : ${e}`));
+        };
+        queueNext();
 
 
     }
