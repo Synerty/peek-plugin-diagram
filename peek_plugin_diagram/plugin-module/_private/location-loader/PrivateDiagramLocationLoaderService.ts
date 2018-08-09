@@ -420,7 +420,9 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
             return Promise.resolve(val);
         }
 
-        if (!this.offlineConfig.cacheChunksForOffline) {
+        // If there is no offline support, or we're online
+        if (!this.offlineConfig.cacheChunksForOffline
+            || this.vortexStatusService.isOnline) {
             let ts = new TupleSelector(DispKeyLocationTuple.tupleName, {
                 "modelSetKey": modelSetKey,
                 "keys": [dispKey]
@@ -437,6 +439,7 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
                 .then(() => this.tupleService.offlineObserver.pollForTuples(ts, false));
         }
 
+        // If we do have offline support
         if (this.isReady())
             return this.getLocationsFromLocal(modelSetKey, dispKey);
 
