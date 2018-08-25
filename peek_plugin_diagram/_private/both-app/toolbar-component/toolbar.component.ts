@@ -69,5 +69,9 @@ export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
         return callable();
     }
 
+    isToolbarEmpty() : boolean {
+        return this.buttons.length == 0;
+    }
+
 
 }

@@ -1,6 +1,7 @@
 <GridLayout rows="auto, *" columns="auto">
     <GridLayout rows="auto" columns="auto, auto, *">
         <button row="0" col="0"
+                *ngIf="!isToolbarEmpty()"
                 class="fa open-close-button btn"
                 (tap)="nsToggleToolbar()"
                 [text]="(toolbarIsOpen ? 'fa-times' : 'fa-navicon') | fonticon">

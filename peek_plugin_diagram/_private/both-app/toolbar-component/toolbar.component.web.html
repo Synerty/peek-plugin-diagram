@@ -15,6 +15,7 @@
 </div>
 <div class="open-close-button">
     <button class="btn"
+            *ngIf="!isToolbarEmpty()"
             (click)="toggleToolbar()">
         <fa *ngIf="!toolbarIsOpen" name="navicon"></fa>
         <fa *ngIf="toolbarIsOpen" name="times"></fa>
