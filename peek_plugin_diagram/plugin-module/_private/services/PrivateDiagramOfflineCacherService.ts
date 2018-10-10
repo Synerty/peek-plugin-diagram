@@ -1,7 +1,8 @@
 import {Injectable} from "@angular/core";
 import {
     ComponentLifecycleEventEmitter,
-    TupleSelector
+    TupleSelector,
+    VortexStatusService
 } from "@synerty/vortexjs";
 import {PrivateDiagramTupleService} from "./PrivateDiagramTupleService";
 import {ModelCoordSet, ModelSet} from "../tuples";
@@ -35,17 +36,34 @@ export class PrivateDiagramOfflineCacherService extends ComponentLifecycleEventE
 
     private lookupSubs = [];
 
-    constructor(private tupleService: PrivateDiagramTupleService) {
+    constructor(private tupleService: PrivateDiagramTupleService,
+                vortexStatusService: VortexStatusService) {
         super();
 
+        // Delete data older than 7 days
         let date7DaysAgo = new Date(Date.now() - 7 * 24 * 3600 * 1000);
 
-        // Delete data older than 7 days
-        this.tupleService.offlineStorage
-            .deleteOldTuples(date7DaysAgo)
-            .catch(err => console.log(`ERROR: Failed to delete old tuples`))
-            .then(() => {
+        let promise = null;
+        if (vortexStatusService.snapshot.isOnline) {
+            promise = this.tupleService.offlineStorage
+                .deleteOldTuples(date7DaysAgo)
+                .catch(err => console.log(`ERROR: Failed to delete old tuples`));
 
+        } else {
+            vortexStatusService.isOnline
+                .takeUntil(this.onDestroyEvent)
+                .filter((val) => val === true)
+                .first()
+                .subscribe(() => {
+                    this.tupleService.offlineStorage
+                        .deleteOldTuples(date7DaysAgo)
+                        .catch(err => console.log(`ERROR: Failed to delete old tuples`));
+                });
+            promise = Promise.resolve();
+        }
+
+        promise
+            .then(() => {
                 this.loadModelSet();
                 this.loadModelCoordSet();
             });
