@@ -1,24 +1,22 @@
-import {
-    PrivateDiagramItemSelectService,
-    SelectedItemDetailsI
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
+import {SelectedItemDetailsI} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
+
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
 
-export class ItemSelectServiceBridgeWeb {
-    constructor(private lifeCycleEvents: ComponentLifecycleEventEmitter,
-                private service: PrivateDiagramItemSelectService,
-                private iface: any) {
+@Injectable()
+export class ItemSelectServiceBridgeWeb extends ComponentLifecycleEventEmitter {
+
+    private iface: window["nsWebViewInterface"];
+
+    constructor() {
+        super();
+
+    }
 
 
-        // Send events from the nativescript side service to the <webview> side
-        service.itemSelectObservable()
-            .takeUntil(lifeCycleEvents.onDestroyEvent)
-            .subscribe((item: SelectedItemDetailsI) => {
-
-                console.log("WEB: Sending itemSelect event");
-                iface.emit("itemSelected", item);
-            });
+    selectItem(details: SelectedItemDetailsI): void {
+        console.log("WEB: Sending itemSelect event");
+        this.iface.emit("ItemSelectService.itemSelected", item);
     }
 
 }

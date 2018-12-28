@@ -13,13 +13,7 @@ export class NsWebDiagramComponent extends ComponentLifecycleEventEmitter implem
 
     modelSetKey: string | null = null;
 
-    private oWebViewInterface: any;
-    private itemSelectServiceBridge: ItemSelectServiceBridgeWeb | null = null;
-    private positionServiceBridge: PositionServiceBridgeWeb | null = null;
-
-    constructor(private vortexService: VortexService,
-                private positionService: DiagramPositionService,
-                private itemSelectService: PrivateDiagramItemSelectService) {
+    constructor() {
         super();
 
     }
@@ -39,18 +33,6 @@ export class NsWebDiagramComponent extends ComponentLifecycleEventEmitter implem
             alert("modelSetKey set is empty or null");
             throw new Error("modelSetKey set is empty or null");
         }
-
-        // Setup the ns-web interface
-        this.oWebViewInterface = window["nsWebViewInterface"];
-
-        // Create the bridge handlers
-        this.itemSelectServiceBridge = new ItemSelectServiceBridgeWeb(
-            this, this.itemSelectService, this.oWebViewInterface
-        );
-
-        this.positionServiceBridge = new PositionServiceBridgeWeb(
-            this, this.positionService, this.oWebViewInterface
-        );
 
     }
 

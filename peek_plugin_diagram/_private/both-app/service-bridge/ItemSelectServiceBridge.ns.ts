@@ -14,7 +14,7 @@ export class ItemSelectServiceBridgeNs {
                 private iface: WebViewInterface) {
 
         this.iface.on(
-            'itemSelected',
+            'ItemSelectService.itemSelected',
             (item: SelectedItemDetailsI) => {
                 console.log("NS: Received item select event");
                 this.zone.run(() => {

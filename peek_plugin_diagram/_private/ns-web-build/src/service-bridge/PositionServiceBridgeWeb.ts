@@ -10,13 +10,13 @@ import {
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
+@Injectable()
+export class PositionServiceBridgeWeb extends ComponentLifecycleEventEmitter {
 
-export class PositionServiceBridgeWeb {
-    constructor(private lifeCycleEvents: ComponentLifecycleEventEmitter,
-                private service: DiagramPositionService,
-                private iface: any) {
+    private iface: window["nsWebViewInterface"];
 
-        let positionService = <PrivateDiagramPositionService> service;
+    constructor() {
+        super();
 
         // Listen for calls from the NS site
         this.iface.on(
@@ -36,36 +36,27 @@ export class PositionServiceBridgeWeb {
             }
         );
 
-        lifeCycleEvents.onDestroyEvent
+        this.onDestroyEvent
             .subscribe(() => {
                 this.iface.off('positionSubject');
                 this.iface.off('positionByCoordSetObservable');
             });
 
-        // Send events from the <webview> side to the nativescript side service
-        positionService.isReadyObservable()
-            .takeUntil(lifeCycleEvents.onDestroyEvent)
-            .subscribe((val) => {
-                console.log(`WEB: Sending isReadySubject ${val}`);
-                iface.emit("isReadySubject", val);
-            });
+    }
 
-        // Send events from the <webview> side to the nativescript side service
-        positionService.positionUpdatedObservable()
-            .takeUntil(lifeCycleEvents.onDestroyEvent)
-            .subscribe((val: PositionUpdatedI) => {
-                console.log(`WEB: Sending positionUpdated`);
-                iface.emit("positionUpdated", val);
-            });
+    setReady(value: boolean) {
+        console.log(`WEB: Sending isReadySubject ${val}`);
+        this.iface.emit("isReadySubject", val);
+    }
 
-        // Send events from the <webview> side to the nativescript side service
-        positionService.titleUpdatedObservable()
-            .takeUntil(lifeCycleEvents.onDestroyEvent)
-            .subscribe((val: string) => {
-                console.log(`WEB: Sending titleUpdatedSubject ${val}`);
-                iface.emit("titleUpdatedSubject", val);
-            });
+    positionUpdated(pos: PositionUpdatedI): void {
+        console.log(`WEB: Sending positionUpdated`);
+        this.iface.emit("positionUpdated", val);
+    }
 
+    setTitle(value: string) {
+        console.log(`WEB: Sending titleUpdatedSubject ${val}`);
+        this.iface.emit("titleUpdatedSubject", val);
     }
 
 }

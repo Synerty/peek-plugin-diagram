@@ -16,8 +16,10 @@ import {PrivateDiagramItemPopupService} from "@peek/peek_plugin_diagram/_private
 import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader/PrivateDiagramGridLoaderServiceA";
+import {PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader";
 import {PrivateDiagramTupleService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
+import {PrivateDiagramBranchLoaderServiceA} from "@peek/peek_plugin_diagram/_private/branch-loader";
+import {DiagramBranchService} from "@peek/peek_plugin_diagram";
 
 
 import {
@@ -28,9 +30,12 @@ import {ItemSelectServiceBridgeNs} from "../service-bridge/ItemSelectServiceBrid
 import {PositionServiceBridgeNs} from "../service-bridge/PositionServiceBridge.ns";
 import {TupleStorageBridgeNs} from "../service-bridge/TupleStorageBridge.ns";
 import {GridLoaderBridgeNs} from "../service-bridge/GridLoaderBridge.ns";
+import {BranchLoaderServiceBridgeNs} from "../service-bridge/BranchLoaderServiceBridge.ns";
+import {BranchServiceBridgeNs} from "../service-bridge/BranchServiceBridge.ns";
 
 
 import * as fs from "tns-core-modules/file-system";
+import {BranchServiceBridgeNs} from "../service-bridge/BranchServiceBridge.ns";
 
 @Component({
     selector: 'pl-diagram-canvas',
@@ -46,6 +51,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
     private positionServiceBridge: PositionServiceBridgeNs | null = null;
     private tupleStorageBridge: TupleStorageBridgeNs | null = null;
     private gridLoaderBridge: GridLoaderBridgeNs | null = null;
+    private branchLoaderServiceBridge: BranchLoaderServiceBridgeNs | null = null;
+    private branchServiceBridge: BranchServiceBridgeNs | null = null;
 
     private privatePositionService: PrivateDiagramPositionService;
 
@@ -59,7 +66,9 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
                 private tupleService: PrivateDiagramTupleService,
                 private privateItemSelectService: PrivateDiagramItemSelectService,
                 positionService: DiagramPositionService,
-                private gridLoader: PrivateDiagramGridLoaderServiceA) {
+                private gridLoader: PrivateDiagramGridLoaderServiceA,
+                private branchLoaderService: PrivateDiagramBranchLoaderServiceA,
+                private branchService: DiagramBranchService) {
         super();
 
         this.privatePositionService = <PrivateDiagramPositionService> positionService;
@@ -89,6 +98,14 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
 
         this.gridLoaderBridge = new GridLoaderBridgeNs(
             this, this.gridLoader, this.oLangWebViewInterface
+        );
+
+        this.branchLoaderServiceBridge = new BranchLoaderServiceBridgeNs(
+            this, this.branchLoaderService, this.oLangWebViewInterface
+        );
+
+        this.branchServiceBridge = new BranchServiceBridgeNs(
+            this, this.branchService, this.oLangWebViewInterface
         );
 
     }

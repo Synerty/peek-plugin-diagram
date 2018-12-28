@@ -23,6 +23,13 @@ import {TupleStorageFactoryServiceBridgeWeb} from "./TupleStorageFactoryServiceB
 import {PrivateDiagramTupleServiceWeb} from "./PrivateDiagramTupleServiceWeb";
 import {PrivateDiagramTupleService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
 
+import {BranchLoaderServiceBridgeWeb} from "../service-bridge/BranchLoaderServiceBridgeWeb";
+import {PrivateDiagramBranchLoaderServiceA} from "@peek/peek_plugin_diagram/_private/branch-loader";
+
+import {BranchServiceBridgeWeb} from "../service-bridge/BranchLoaderServiceBridgeWeb";
+import {DiagramBranchService} from "@peek/peek_plugin_diagram";
+
+
 export function titleServiceFactory() {
     return new TitleService([]);
 }
@@ -52,6 +59,22 @@ export function titleServiceFactory() {
         {
             provide: PrivateDiagramGridLoaderServiceA,
             useClass: GridLoaderBridgeWeb
+        },
+        {
+            provide: PrivateDiagramItemSelectService,
+            useClass: ItemSelectServiceBridgeWeb
+        },
+        {
+            provide: DiagramPositionService,
+            useClass: PositionServiceBridgeWeb
+        },
+        {
+            provide: DiagramBranchService,
+            useClass: BranchServiceBridgeWeb
+        },
+        {
+            provide: PrivateDiagramBranchLoaderServiceA,
+            useClass: BranchLoaderServiceBridgeWeb
         },
         Ng2BalloonMsgService,
 
