@@ -38,6 +38,8 @@ let clientLocationIndexWatchUpdateFromDeviceFilt = extend(
     diagramFilt
 );
 
+const cacheAll = "cacheAll";
+
 // ----------------------------------------------------------------------------
 /** LocationIndexTupleSelector
  */
@@ -314,7 +316,9 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
 
         let indexChunk: LocationIndexUpdateDateTuple = this.askServerChunks.pop();
 
-        let payload = new Payload(clientLocationIndexWatchUpdateFromDeviceFilt, [indexChunk]);
+        let filt = extend({}, clientLocationIndexWatchUpdateFromDeviceFilt);
+        filt[cacheAll] = true;
+        let payload = new Payload(filt, [indexChunk]);
         this.vortexService.sendPayload(payload);
 
         this._status.lastCheck = new Date();
@@ -341,12 +345,13 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
                     this._hasLoaded = true;
                     this._hasLoadedSubject.next();
 
-                } else {
+                } else if (payloadEnvelope.filt[cacheAll] == true) {
                     this.askServerForNextUpdateChunk();
 
                 }
-                this._notifyStatus();
+
             })
+            .then(() => this._notifyStatus())
             .catch(e =>
                 `LocationIndexCache.processLocationIndexesFromServer failed: ${e}`
             );
@@ -415,7 +420,9 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
             return Promise.resolve(val);
         }
 
-        if (!this.offlineConfig.cacheChunksForOffline) {
+        // If there is no offline support, or we're online
+        if (!this.offlineConfig.cacheChunksForOffline
+            || this.vortexStatusService.snapshot.isOnline) {
             let ts = new TupleSelector(DispKeyLocationTuple.tupleName, {
                 "modelSetKey": modelSetKey,
                 "keys": [dispKey]
@@ -432,6 +439,7 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
                 .then(() => this.tupleService.offlineObserver.pollForTuples(ts, false));
         }
 
+        // If we do have offline support
         if (this.isReady())
             return this.getLocationsFromLocal(modelSetKey, dispKey);
 

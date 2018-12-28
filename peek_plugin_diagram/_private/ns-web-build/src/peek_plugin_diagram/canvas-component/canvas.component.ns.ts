@@ -1,4 +1,4 @@
-import {Component, Input, NgZone, OnInit, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, Input, NgZone, ViewChild} from "@angular/core";
 
 import {DeviceEnrolmentService} from "@peek/peek_core_device";
 import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
@@ -16,8 +16,10 @@ import {PrivateDiagramItemPopupService} from "@peek/peek_plugin_diagram/_private
 import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader/PrivateDiagramGridLoaderServiceA";
+import {PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader";
 import {PrivateDiagramTupleService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
+import {PrivateDiagramBranchLoaderServiceA} from "@peek/peek_plugin_diagram/_private/branch-loader";
+import {DiagramBranchService} from "@peek/peek_plugin_diagram";
 
 
 import {
@@ -28,9 +30,12 @@ import {ItemSelectServiceBridgeNs} from "../service-bridge/ItemSelectServiceBrid
 import {PositionServiceBridgeNs} from "../service-bridge/PositionServiceBridge.ns";
 import {TupleStorageBridgeNs} from "../service-bridge/TupleStorageBridge.ns";
 import {GridLoaderBridgeNs} from "../service-bridge/GridLoaderBridge.ns";
+import {BranchLoaderServiceBridgeNs} from "../service-bridge/BranchLoaderServiceBridge.ns";
+import {BranchServiceBridgeNs} from "../service-bridge/BranchServiceBridge.ns";
 
 
-        import * as fs from "tns-core-modules/file-system";
+import * as fs from "tns-core-modules/file-system";
+import {BranchServiceBridgeNs} from "../service-bridge/BranchServiceBridge.ns";
 
 @Component({
     selector: 'pl-diagram-canvas',
@@ -38,7 +43,7 @@ import {GridLoaderBridgeNs} from "../service-bridge/GridLoaderBridge.ns";
     moduleId: module.id
 })
 export class CanvasComponent extends ComponentLifecycleEventEmitter
-    implements OnInit {
+    implements AfterViewInit {
 
     private oLangWebViewInterface: WebViewInterface;
 
@@ -46,6 +51,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
     private positionServiceBridge: PositionServiceBridgeNs | null = null;
     private tupleStorageBridge: TupleStorageBridgeNs | null = null;
     private gridLoaderBridge: GridLoaderBridgeNs | null = null;
+    private branchLoaderServiceBridge: BranchLoaderServiceBridgeNs | null = null;
+    private branchServiceBridge: BranchServiceBridgeNs | null = null;
 
     private privatePositionService: PrivateDiagramPositionService;
 
@@ -59,7 +66,9 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
                 private tupleService: PrivateDiagramTupleService,
                 private privateItemSelectService: PrivateDiagramItemSelectService,
                 positionService: DiagramPositionService,
-                private gridLoader: PrivateDiagramGridLoaderServiceA) {
+                private gridLoader: PrivateDiagramGridLoaderServiceA,
+                private branchLoaderService: PrivateDiagramBranchLoaderServiceA,
+                private branchService: DiagramBranchService) {
         super();
 
         this.privatePositionService = <PrivateDiagramPositionService> positionService;
@@ -67,7 +76,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
 
     }
 
-    ngOnInit() {
+    ngAfterViewInit() {
 
         let webView = <WebView>this.webView.nativeElement;
 
@@ -91,13 +100,31 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter
             this, this.gridLoader, this.oLangWebViewInterface
         );
 
+        this.branchLoaderServiceBridge = new BranchLoaderServiceBridgeNs(
+            this, this.branchLoaderService, this.oLangWebViewInterface
+        );
+
+        this.branchServiceBridge = new BranchServiceBridgeNs(
+            this, this.branchService, this.oLangWebViewInterface
+        );
+
     }
 
     private webViewUrl(): string {
-        // let url = `${this.enrolmentService.serverHttpUrl}/${diagramBaseUrl}/web_dist/index.html`;
-
+        let liveSyncUrl = `${this.enrolmentService.serverHttpUrl}/${diagramBaseUrl}/web_dist/index.html`;
         let appPath = fs.knownFolders.currentApp().path;
-        let url = `${appPath}/assets/peek_plugin_diagram/www/index.html`;
+        let localUrl = `${appPath}/assets/peek_plugin_diagram/www/index.html`;
+
+        let isLiveSync = appPath.indexOf("LiveSync") != -1;
+
+        // For some reason the livesync doesn't sync the assets properly.
+        // So in this case, just talk to the peek client service
+        let url = isLiveSync ? liveSyncUrl : localUrl;
+
+        if (isLiveSync) {
+            alert(`This is in LiveSync, we going to use the server ${url}`);
+        }
+
         url += `?modelSetKey=${this.modelSetKey}`;
         url = encodeURI(url);
         console.log(`Sending WebView to ${url}`);
