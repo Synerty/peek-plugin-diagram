@@ -8,6 +8,10 @@ from peek_plugin_base.server.PluginServerStorageEntryHookABC import \
 from peek_plugin_base.server.PluginServerWorkerEntryHookABC import \
     PluginServerWorkerEntryHookABC
 from peek_plugin_diagram._private.server.api.DiagramApi import DiagramApi
+from peek_plugin_diagram._private.server.client_handlers.BranchIndexChunkLoadRpc import \
+    BranchIndexChunkLoadRpc
+from peek_plugin_diagram._private.server.client_handlers.BranchIndexChunkUpdateHandler import \
+    BranchIndexChunkUpdateHandler
 from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import \
     ClientGridLoaderRpc
 from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import \
@@ -16,6 +20,10 @@ from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexLoad
     ClientLocationIndexLoaderRpc
 from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexUpdateHandler import \
     ClientLocationIndexUpdateHandler
+from peek_plugin_diagram._private.server.controller.BranchIndexCompilerController import \
+    BranchIndexCompilerController
+from peek_plugin_diagram._private.server.controller.BranchUpdateController import \
+    BranchUpdateController
 from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
     DispCompilerQueueController
 from peek_plugin_diagram._private.server.controller.DispImportController import \
@@ -78,19 +86,35 @@ class ServerEntryHook(PluginServerEntryHookABC,
 
         """
 
+        # ----------------
+        # Get a reference to the LiveDB API
+        liveDbApi: LiveDBApiABC = self.platform.getOtherPluginApi("peek_plugin_livedb")
+
+        # ----------------
         # create the client grid updater
         clientGridUpdateHandler = ClientGridUpdateHandler(self.dbSessionCreator)
         self._loadedObjects.append(clientGridUpdateHandler)
 
+        # ----------------
         # create the client disp key index updater
         clientDispIndexUpdateHandler = ClientLocationIndexUpdateHandler(
-            self.dbSessionCreator)
+            self.dbSessionCreator
+        )
         self._loadedObjects.append(clientDispIndexUpdateHandler)
 
+        # ----------------
+        # Create the client branch index handler
+        clientBranchIndexChunkUpdateHandler = BranchIndexChunkUpdateHandler(
+            self.dbSessionCreator
+        )
+        self._loadedObjects.append(clientBranchIndexChunkUpdateHandler)
+
+        # ----------------
         # create the Status Controller
         statusController = StatusController()
         self._loadedObjects.append(statusController)
 
+        # ----------------
         # Create the GRID KEY queue
         gridKeyCompilerQueueController = GridKeyCompilerQueueController(
             self.dbSessionCreator, statusController, clientGridUpdateHandler
@@ -101,6 +125,7 @@ class ServerEntryHook(PluginServerEntryHookABC,
             return (not gridKeyCompilerQueueController.isBusy()
                     and not dispCompilerQueueController.isBusy())
 
+        # ----------------
         # Create the LOCATION INDEX queue
         locationIndexCompilerQueueController = DispKeyCompilerQueueController(
             self.dbSessionCreator, statusController, clientDispIndexUpdateHandler,
@@ -108,38 +133,63 @@ class ServerEntryHook(PluginServerEntryHookABC,
         )
         self._loadedObjects.append(locationIndexCompilerQueueController)
 
+        # ----------------
         # Create the DISP queue
         dispCompilerQueueController = DispCompilerQueueController(
             self.dbSessionCreator, statusController
         )
         self._loadedObjects.append(dispCompilerQueueController)
 
+        # ----------------
+        # Branch Index Compiler Controller
+        branchIndexCompilerController = BranchIndexCompilerController(
+            dbSessionCreator=self.dbSessionCreator,
+            statusController=statusController,
+            clientUpdateHandler=clientBranchIndexChunkUpdateHandler
+        )
+        self._loadedObjects.append(branchIndexCompilerController)
+
+        # ----------------
         # Create the Action Processor
         self._loadedObjects.append(makeTupleActionProcessorHandler(statusController))
 
+        # ----------------
         # Create the Tuple Observer
         tupleObservable = makeTupleDataObservableHandler(
             self.dbSessionCreator, statusController
         )
         self._loadedObjects.append(tupleObservable)
 
+        # ----------------
         # Tell the status controller about the Tuple Observable
         statusController.setTupleObservable(tupleObservable)
 
+        # ----------------
         # Initialise the handlers for the admin interface
         self._loadedObjects.extend(
             makeAdminBackendHandlers(tupleObservable, self.dbSessionCreator)
         )
 
+        # ----------------
+        # Create the display object Import Controller
+        dispImportController = DispImportController(liveDbWriteApi=liveDbApi.writeApi)
+        self._loadedObjects.append(dispImportController)
+
+        # ----------------
         # Create the import lookup controller
         lookupImportController = LookupImportController(
             dbSessionCreator=self.dbSessionCreator
         )
         self._loadedObjects.append(lookupImportController)
 
-        # Create the Live DB Controller
-        liveDbApi: LiveDBApiABC = self.platform.getOtherPluginApi("peek_plugin_livedb")
+        # ----------------
+        # Create the update branch controller
+        branchUpdateController = BranchUpdateController(
+            liveDbWriteApi=liveDbApi.writeApi
+        )
+        self._loadedObjects.append(branchUpdateController)
 
+        # ----------------
         # Create the Watch Grid Controller
         liveDbWatchController = LiveDbWatchController(
             liveDbWriteApi=liveDbApi.writeApi,
@@ -148,6 +198,7 @@ class ServerEntryHook(PluginServerEntryHookABC,
         )
         self._loadedObjects.append(liveDbWatchController)
 
+        # ----------------
         # Create the GRID API for the client
         self._loadedObjects.extend(
             ClientGridLoaderRpc(liveDbWatchController=liveDbWatchController,
@@ -155,26 +206,35 @@ class ServerEntryHook(PluginServerEntryHookABC,
                 .makeHandlers()
         )
 
+        # ----------------
+        # Create the Branch Index for the client
+        self._loadedObjects.extend(
+            BranchIndexChunkLoadRpc(dbSessionCreator=self.dbSessionCreator)
+                .makeHandlers()
+        )
+
+        # ----------------
         # Create the LOCATION API for the client
         self._loadedObjects.extend(
             ClientLocationIndexLoaderRpc(dbSessionCreator=self.dbSessionCreator)
                 .makeHandlers()
         )
 
-        # Create the display object Import Controller
-        dispImportController = DispImportController(liveDbWriteApi=liveDbApi.writeApi)
-        self._loadedObjects.append(dispImportController)
-
+        # ----------------
         # Initialise the API object that will be shared with other plugins
         self._api = DiagramApi(
             statusController, dispImportController,
-            lookupImportController, self.dbSessionCreator
+            lookupImportController, branchUpdateController,
+            self.dbSessionCreator
         )
         self._loadedObjects.append(self._api)
 
+        # ----------------
+        # Start the queue controller
         dispCompilerQueueController.start()
         gridKeyCompilerQueueController.start()
         locationIndexCompilerQueueController.start()
+        branchIndexCompilerController.start()
 
         logger.debug("Started")
 

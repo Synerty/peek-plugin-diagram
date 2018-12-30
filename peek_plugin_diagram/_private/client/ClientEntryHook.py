@@ -10,6 +10,8 @@ from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.PluginNames import diagramObservableName
 from peek_plugin_diagram._private.client.TupleDataObservable import \
     makeClientTupleDataObservableHandler
+from peek_plugin_diagram._private.client.controller.BranchIndexCacheController import \
+    BranchIndexCacheController
 from peek_plugin_diagram._private.client.controller.CoordSetCacheController import \
     CoordSetCacheController
 from peek_plugin_diagram._private.client.controller.GridCacheController import \
@@ -20,6 +22,8 @@ from peek_plugin_diagram._private.client.controller.LookupCacheController import
     LookupCacheController
 from peek_plugin_diagram._private.client.controller.ModelSetCacheController import \
     ModelSetCacheController
+from peek_plugin_diagram._private.client.handlers.BranchIndexCacheHandler import \
+    BranchIndexCacheHandler
 from peek_plugin_diagram._private.client.handlers.GridCacheHandler import GridCacheHandler
 from peek_plugin_diagram._private.client.handlers.LocationIndexCacheHandler import \
     LocationIndexCacheHandler
@@ -136,6 +140,24 @@ class ClientEntryHook(PluginClientEntryHookABC):
         locationIndexCacheController.setLocationIndexCacheHandler(
             locationIndexCacheHandler)
 
+        # ----------------
+        # BranchIndex Cache Controller
+
+        branchIndexCacheController = BranchIndexCacheController(
+            self.platform.serviceId
+        )
+        self._loadedObjects.append(branchIndexCacheController)
+
+        # ----------------
+        # BranchIndex Cache Handler
+
+        branchIndexHandler = BranchIndexCacheHandler(
+            cacheController=branchIndexCacheController,
+            clientId=self.platform.serviceId
+        )
+        self._loadedObjects.append(branchIndexHandler)
+        branchIndexCacheController.setBranchIndexCacheHandler(branchIndexHandler)
+
 
         # -----
         # Create the Tuple Observer
@@ -145,16 +167,21 @@ class ClientEntryHook(PluginClientEntryHookABC):
             coordSetCacheController,
             gridCacheController,
             lookupCacheController,
-            locationIndexCacheController
+            locationIndexCacheController,
+            branchIndexCacheController
         )
         # This is already in the _loadedObjects, it's tupleDataObservableProxyHandler
 
+
+        # ----------------
+        # Set the caches reference to the handler
         lookupCacheController.setTupleObserable(tupleObservable)
         modelSetCacheController.setTupleObserable(tupleObservable)
         coordSetCacheController.setTupleObserable(tupleObservable)
 
-        yield gridCacheController.start()
         yield locationIndexCacheController.start()
+        yield branchIndexCacheController.start()
+        yield gridCacheController.start()
         lookupCacheController.start()
         modelSetCacheController.start()
         coordSetCacheController.start()

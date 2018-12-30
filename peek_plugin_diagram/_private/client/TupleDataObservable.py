@@ -1,3 +1,5 @@
+from peek_plugin_diagram._private.client.controller.BranchIndexCacheController import \
+    BranchIndexCacheController
 from peek_plugin_diagram._private.client.controller.CoordSetCacheController import \
     CoordSetCacheController
 from peek_plugin_diagram._private.client.controller.GridCacheController import \
@@ -32,18 +34,19 @@ from peek_plugin_diagram._private.tuples.location_index.LocationIndexUpdateDateT
 from vortex.handler.TupleDataObservableProxyHandler import TupleDataObservableProxyHandler
 
 
-def makeClientTupleDataObservableHandler(
-        tupleObservable: TupleDataObservableProxyHandler,
-        modelSetCacheController: ModelSetCacheController,
-        coordSetCacheController: CoordSetCacheController,
-        gridCacheController: GridCacheController,
-        lookupCacheController: LookupCacheController,
-        locationCacheController: LocationIndexCacheController):
+def makeClientTupleDataObservableHandler(tupleObservable: TupleDataObservableProxyHandler,
+                                         modelSetCacheController: ModelSetCacheController,
+                                         coordSetCacheController: CoordSetCacheController,
+                                         gridCacheController: GridCacheController,
+                                         lookupCacheController: LookupCacheController,
+                                         locationCacheController: LocationIndexCacheController,
+                                         branchCacheController:BranchIndexCacheController):
     """" Make CLIENT Tuple Data Observable Handler
 
     This method creates the observable object, registers the tuple providers and then
     returns it.
 
+    :param branchCacheController:
     :param modelSetCacheController:
     :param locationCacheController:
     :param tupleObservable: The tuple observable proxy
@@ -82,5 +85,11 @@ def makeClientTupleDataObservableHandler(
     tupleObservable.addTupleProvider(
         LocationIndexUpdateDateTuple.tupleName(),
         ClientLocationIndexUpdateDateTupleProvider(locationCacheController))
+
+    tupleObservable.addTupleProvider(BranchTuple.tupleName(),
+                                     BranchTupleProvider(cacheHandler))
+
+    tupleObservable.addTupleProvider(BranchIndexUpdateDateTuple.tupleName(),
+                                     BranchIndexUpdateDateTupleProvider(branchCacheController))
 
     return tupleObservable

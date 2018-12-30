@@ -82,6 +82,22 @@ class StatusController(TupleActionProcessorDelegateABC):
         self._notify()
 
     # ---------------
+    # Disp Key Index Compiler Methods
+
+    def setBranchIndexCompilerStatus(self, state: bool, queueSize: int):
+        self._status.branchIndexCompilerQueueStatus = state
+        self._status.branchIndexCompilerQueueSize = queueSize
+        self._notify()
+
+    def addToBranchIndexCompilerTotal(self, delta: int):
+        self._status.branchIndexCompilerQueueProcessedTotal += delta
+        self._notify()
+
+    def setBranchIndexCompilerError(self, error: str):
+        self._status.branchIndexCompilerQueueLastError = error
+        self._notify()
+
+    # ---------------
     # Notify Methods
 
     def _notify(self):

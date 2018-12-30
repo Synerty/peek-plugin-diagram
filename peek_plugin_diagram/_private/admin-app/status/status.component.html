@@ -18,7 +18,7 @@
 
             <tbody>
 
-            <!-- DISP Compiler -->
+            <!-- Disp Compiler -->
             <tr>
                 <th>Display Compiler</th>
                 <td>{{item.displayCompilerQueueStatus}}</td>
@@ -38,8 +38,7 @@
 
             </tr>
 
-
-            <!-- Disp Key Index Compiler -->
+            <!-- Location Index Compiler -->
             <tr>
                 <th>Location Compiler</th>
                 <td>{{item.locationIndexCompilerQueueStatus}}</td>
@@ -48,6 +47,17 @@
                 <td>{{item.locationIndexCompilerLastError}}</td>
 
             </tr>
+
+            <!-- Branch Index Compiler -->
+            <tr>
+                <th>Branch Compiler</th>
+                <td>{{item.branchIndexCompilerQueueStatus}}</td>
+                <td>{{item.branchIndexCompilerQueueSize}}</td>
+                <td>{{item.branchIndexCompilerProcessedTotal}}</td>
+                <td>{{item.branchIndexCompilerLastError}}</td>
+
+            </tr>
+
             </tbody>
         </table>
     </div>

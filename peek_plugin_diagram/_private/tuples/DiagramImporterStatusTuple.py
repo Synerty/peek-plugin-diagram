@@ -20,3 +20,8 @@ class DiagramImporterStatusTuple(Tuple):
     locationIndexCompilerQueueSize: int = TupleField(0)
     locationIndexCompilerQueueProcessedTotal: int = TupleField(0)
     locationIndexCompilerQueueLastError: str = TupleField()
+
+    branchIndexCompilerQueueStatus: bool = TupleField(False)
+    branchIndexCompilerQueueSize: int = TupleField(0)
+    branchIndexCompilerQueueProcessedTotal: int = TupleField(0)
+    branchIndexCompilerQueueLastError: str = TupleField()

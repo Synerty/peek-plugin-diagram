@@ -21,6 +21,11 @@ export class DiagramImporterStatusTuple extends Tuple {
     locationIndexCompilerQueueProcessedTotal: number;
     locationIndexCompilerQueueLastError: string;
 
+    branchIndexCompilerQueueStatus: boolean;
+    branchIndexCompilerQueueSize: number;
+    branchIndexCompilerQueueProcessedTotal: number;
+    branchIndexCompilerQueueLastError: string;
+
     constructor() {
         super(DiagramImporterStatusTuple.tupleName)
     }

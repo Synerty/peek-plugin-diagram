@@ -3,6 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import MetaData
 from txhttputil.util.ModuleUtil import filterModules
 
+from peek_plugin_diagram._private.storage import branch
+
 metadata = MetaData(schema="pl_diagram")
 DeclarativeBase = declarative_base(metadata=metadata)
 
@@ -21,4 +23,7 @@ def loadStorageTuples():
     for mod in filterModules(__package__, __file__):
         if mod.startswith("Declarative"):
             continue
+        __import__(mod, locals(), globals())
+
+    for mod in filterModules(branch.__package__, branch.__file__):
         __import__(mod, locals(), globals())

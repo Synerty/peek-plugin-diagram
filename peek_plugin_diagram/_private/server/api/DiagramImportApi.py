@@ -3,6 +3,8 @@ from typing import List
 
 from twisted.internet.defer import Deferred
 
+from peek_plugin_diagram._private.server.controller.BranchUpdateController import \
+    BranchUpdateController
 from peek_plugin_diagram._private.server.controller.DispImportController import \
     DispImportController
 from peek_plugin_diagram._private.server.controller.LookupImportController import \
@@ -17,10 +19,12 @@ logger = logging.getLogger(__name__)
 class DiagramImportApi(DiagramImportApiABC):
     def __init__(self, mainController: StatusController,
                  dispImportController: DispImportController,
-                 lookupImportController: LookupImportController):
+                 lookupImportController: LookupImportController,
+                 branchUpdateController: BranchUpdateController):
         self._mainController = mainController
         self._dispImportController = dispImportController
         self._lookupImportController = lookupImportController
+        self._branchUpdateController = branchUpdateController
 
     def shutdown(self):
         pass
@@ -33,6 +37,9 @@ class DiagramImportApi(DiagramImportApiABC):
             modelSetKey, coordSetKey,
             importGroupHash, dispsEncodedPayload
         )
+
+    def importBranches(self, branchesEncodedPayload: bytes) -> Deferred:
+        return self._branchUpdateController.importBranches(branchesEncodedPayload)
 
     def importLookups(self, modelSetKey: str, coordSetKey: str,
                       lookupTupleType: str, lookupTuples: List,

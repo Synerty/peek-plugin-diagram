@@ -1,3 +1,5 @@
-export {PrivateDiagramBranchLoaderServiceA} from "./PrivateDiagramBranchLoaderServiceA";
-export {GridTuple} from "./GridTuple";
-export {PrivateDiagramBranchLoaderStatusTuple} from "./PrivateDiagramBranchLoaderStatusTuple";
+
+export {BranchIndexUpdateDateTuple} from "./BranchIndexUpdateDateTuple";
+export {BranchIndexEncodedChunkTuple} from "./BranchIndexEncodedChunkTuple";
+export {BranchIndexLoaderService, BranchIndexResultI} from "./BranchIndexLoaderService";
+export {BranchIndexLoaderStatusTuple} from "./BranchIndexLoaderStatusTuple";
