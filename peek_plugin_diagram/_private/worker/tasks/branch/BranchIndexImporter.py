@@ -54,8 +54,7 @@ def createOrUpdateBranchs(self, branchesEncodedPayload: bytes) -> None:
                 modelSetId = _makeModelSet(modelSetKey)
                 modelSetIdByKey[modelSetKey] = modelSetId
 
-            branchTypeIdsByName = _prepareLookups(branchIndexs, modelSetId)
-            _insertOrUpdateObjects(branchIndexs, modelSetId, branchTypeIdsByName)
+            _insertOrUpdateObjects(branchIndexs, modelSetId)
 
     except Exception as e:
         logger.debug("Retrying import index-blueprintobjects, %s", e)
@@ -69,9 +68,6 @@ def _validateNewBranchIndexs(newBranchs: List[ImportBranchTuple]) -> None:
 
         if not branchIndex.modelSetKey:
             raise Exception("modelSetKey is empty for %s" % branchIndex)
-
-        if not branchIndex.branchTypeKey:
-            raise Exception("branchTypeKey is empty for %s" % branchIndex)
 
         # if not branchIndex.branchIndex:
         #     raise Exception("branchIndex is empty for %s" % branchIndex)
@@ -107,61 +103,8 @@ def _makeModelSet(modelSetKey: str) -> int:
         dbSession.close()
 
 
-def _prepareLookups(newBranchs: List[ImportBranchTuple], modelSetId: int
-                    ) -> Dict[str, int]:
-    """ Check Or Insert Branchs
-
-    """
-
-    dbSession = CeleryDbConn.getDbSession()
-
-    startTime = datetime.now(pytz.utc)
-
-    try:
-
-        branchTypeKeys = set()
-
-        for o in newBranchs:
-            o.branchTypeKey = o.branchTypeKey.lower()
-            branchTypeKeys.add(o.branchTypeKey)
-
-        # Prepare Object Types
-        branchTypes = (
-            dbSession.query(BranchType)
-                .filter(BranchType.modelSetId == modelSetId)
-                .all()
-        )
-        branchTypeKeys -= set([o.key for o in branchTypes])
-
-        if not branchTypeKeys:
-            branchTypeIdsByKey = {o.key: o.id for o in branchTypes}
-
-        else:
-            for newType in branchTypeKeys:
-                dbSession.add(BranchType(
-                    key=newType, name=newType, modelSetId=modelSetId
-                ))
-
-            dbSession.commit()
-
-            branchTypes = dbSession.query(BranchType).all()
-            branchTypeIdsByKey = {o.key: o.id for o in branchTypes}
-
-        logger.debug("Prepared lookups in %s", (datetime.now(pytz.utc) - startTime))
-
-        return branchTypeIdsByKey
-
-    except Exception as e:
-        dbSession.rollback()
-        raise
-
-    finally:
-        dbSession.close()
-
-
 def _insertOrUpdateObjects(newBranchs: List[ImportBranchTuple],
-                           modelSetId: int,
-                           branchTypeIdsByName: Dict[str, int]) -> None:
+                           coordSetId: int) -> None:
     """ Insert or Update Objects
 
     1) Find objects and update them
@@ -191,7 +134,7 @@ def _insertOrUpdateObjects(newBranchs: List[ImportBranchTuple],
             columns=[branchIndexTable.c.id, branchIndexTable.c.key,
                      branchIndexTable.c.chunkKey, branchIndexTable.c.packedJson],
             whereclause=and_(branchIndexTable.c.key.in_(objectKeys),
-                             branchIndexTable.c.modelSetId == modelSetId)
+                             branchIndexTable.c.coordSetId == coordSetId)
         )))
 
         foundObjectByKey = {o.key: o for o in results}
@@ -211,16 +154,13 @@ def _insertOrUpdateObjects(newBranchs: List[ImportBranchTuple],
             importHashSet.add(importBranchIndex.importGroupHash)
 
             existingObject = foundObjectByKey.get(importBranchIndex.key)
-            importBranchTypeId = branchTypeIdsByName[
-                importBranchIndex.branchTypeKey]
 
-            packedJson = importBranchIndex.packJson(modelSetId, importBranchTypeId)
+            packedJson = importBranchIndex.packJson()
 
             # Work out if we need to update the object type
             if existingObject:
                 updates.append(
                     dict(b_id=existingObject.id,
-                         b_typeId=importBranchTypeId,
                          b_packedJson=packedJson)
                 )
                 dontDeleteObjectIds.append(existingObject.id)
@@ -229,8 +169,7 @@ def _insertOrUpdateObjects(newBranchs: List[ImportBranchTuple],
                 id_ = next(newIdGen)
                 existingObject = BranchIndex(
                     id=id_,
-                    modelSetId=modelSetId,
-                    branchTypeId=importBranchTypeId,
+                    coordSetId=coordSetId,
                     key=importBranchIndex.key,
                     importGroupHash=importBranchIndex.importGroupHash,
                     chunkKey=makeChunkKey(importBranchIndex.modelSetKey,
@@ -240,7 +179,7 @@ def _insertOrUpdateObjects(newBranchs: List[ImportBranchTuple],
                 inserts.append(existingObject.tupleToSqlaBulkInsertDict())
 
             objectIdByKey[existingObject.key] = existingObject.id
-            chunkKeysForQueue.add((modelSetId, existingObject.chunkKey))
+            chunkKeysForQueue.add((coordSetId, existingObject.chunkKey))
 
         if importHashSet:
             conn.execute(
@@ -257,8 +196,7 @@ def _insertOrUpdateObjects(newBranchs: List[ImportBranchTuple],
             stmt = (
                 branchIndexTable.update()
                     .where(branchIndexTable.c.id == bindparam('b_id'))
-                    .values(branchTypeId=bindparam('b_typeId'),
-                            packedJson=bindparam('b_packedJson'))
+                    .values(packedJson=bindparam('b_packedJson'))
             )
             conn.execute(stmt, updates)
 

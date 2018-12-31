@@ -587,8 +587,7 @@ export class BranchIndexLoaderService
         let objects: { [key: string]: DiagramBranchTuple } = {};
         for (let result of results) {
             objects[result.key] = result;
-            result.branchType = this.objectTypesByIds[result.branchType.id__];
-            result.modelSet = this.modelSetByIds[result.modelSet.id__];
+            // result.coordSetKey = this.modelSetByIds[result.modelSet.id__];
         }
         return objects;
     }

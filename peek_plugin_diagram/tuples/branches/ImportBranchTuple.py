@@ -1,3 +1,4 @@
+import json
 from typing import List
 
 from vortex.Tuple import Tuple, addTupleType, TupleField
@@ -31,3 +32,19 @@ class ImportBranchTuple(Tuple):
 
     #:  Is this branch Visible by default
     visible: bool = TupleField()
+
+
+    def packJson(self) -> str:
+        """ Pack JSON
+
+        This is used by the import worker to pack this object into the index.
+
+        """
+        packedJsonDict = dict(
+            ck=self.coordSetKey,
+            k=self.key,
+            d=self.delta,
+            v=self.visible
+        )
+
+        return json.dumps(packedJsonDict, sort_keys=True)

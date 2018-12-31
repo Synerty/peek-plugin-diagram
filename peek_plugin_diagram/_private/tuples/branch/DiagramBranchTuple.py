@@ -12,7 +12,7 @@ class DiagramBranchTuple(Tuple):
     This tuple is used by other plugins to load branches into the diagram.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportBranchTuple'
+    __tupleType__ = diagramTuplePrefix + 'DiagramBranchTuple'
 
     #:  The name of the model set for this branch
     modelSetKey: str = TupleField()

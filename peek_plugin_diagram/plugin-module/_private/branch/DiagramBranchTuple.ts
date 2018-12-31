@@ -26,10 +26,6 @@ export class DiagramBranchTuple extends Tuple {
         let objectProps: {} = JSON.parse(packedJson);
 
         // Get out the object type
-        let thisBranchTypeId = objectProps['_tid'];
-        delete objectProps['_tid'];
-
-        // Get out the object type
         let thisModelSetId = objectProps['_msid'];
         delete objectProps['_msid'];
 
