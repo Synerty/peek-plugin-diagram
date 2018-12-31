@@ -10,6 +10,10 @@ from peek_plugin_diagram._private.client.controller.LookupCacheController import
     LookupCacheController
 from peek_plugin_diagram._private.client.controller.ModelSetCacheController import \
     ModelSetCacheController
+from peek_plugin_diagram._private.client.tuple_providers.BranchIndexUpdateDateTupleProvider import \
+    BranchIndexUpdateDateTupleProvider
+from peek_plugin_diagram._private.client.tuple_providers.BranchTupleProvider import \
+    BranchTupleProvider
 from peek_plugin_diagram._private.client.tuple_providers.ClientCoordSetTupleProvider import \
     ClientCoordSetTupleProvider
 from peek_plugin_diagram._private.client.tuple_providers.ClientDispKeyLocationTupleProvider import \
@@ -25,6 +29,10 @@ from peek_plugin_diagram._private.client.tuple_providers.GridCacheIndexTupleProv
 from peek_plugin_diagram._private.storage.Display import DispLevel, DispTextStyle, \
     DispLineStyle, DispColor, DispLayer
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
+from peek_plugin_diagram._private.tuples.branch.BranchIndexUpdateDateTuple import \
+    BranchIndexUpdateDateTuple
+from peek_plugin_diagram._private.tuples.branch.DiagramBranchTuple import \
+    DiagramBranchTuple
 from peek_plugin_diagram._private.tuples.grid.GridUpdateDateTuple import \
     GridUpdateDateTuple
 from peek_plugin_diagram._private.tuples.location_index.DispKeyLocationTuple import \
@@ -40,7 +48,7 @@ def makeClientTupleDataObservableHandler(tupleObservable: TupleDataObservablePro
                                          gridCacheController: GridCacheController,
                                          lookupCacheController: LookupCacheController,
                                          locationCacheController: LocationIndexCacheController,
-                                         branchCacheController:BranchIndexCacheController):
+                                         branchCacheController: BranchIndexCacheController):
     """" Make CLIENT Tuple Data Observable Handler
 
     This method creates the observable object, registers the tuple providers and then
@@ -86,10 +94,11 @@ def makeClientTupleDataObservableHandler(tupleObservable: TupleDataObservablePro
         LocationIndexUpdateDateTuple.tupleName(),
         ClientLocationIndexUpdateDateTupleProvider(locationCacheController))
 
-    tupleObservable.addTupleProvider(BranchTuple.tupleName(),
-                                     BranchTupleProvider(cacheHandler))
+    tupleObservable.addTupleProvider(DiagramBranchTuple.tupleName(),
+                                     BranchTupleProvider(branchCacheController))
 
     tupleObservable.addTupleProvider(BranchIndexUpdateDateTuple.tupleName(),
-                                     BranchIndexUpdateDateTupleProvider(branchCacheController))
+                                     BranchIndexUpdateDateTupleProvider(
+                                         branchCacheController))
 
     return tupleObservable

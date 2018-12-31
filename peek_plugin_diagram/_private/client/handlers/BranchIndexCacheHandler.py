@@ -7,7 +7,7 @@ from twisted.internet.defer import DeferredList, inlineCallbacks, Deferred
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.client.controller.BranchIndexCacheController import \
     BranchIndexCacheController
-from peek_plugin_diagram._private.tuples.BranchIndexUpdateDateTuple import \
+from peek_plugin_diagram._private.tuples.branch.BranchIndexUpdateDateTuple import \
     BranchIndexUpdateDateTuple
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
