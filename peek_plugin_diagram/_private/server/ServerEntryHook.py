@@ -150,10 +150,6 @@ class ServerEntryHook(PluginServerEntryHookABC,
         self._loadedObjects.append(branchIndexCompilerController)
 
         # ----------------
-        # Create the Action Processor
-        self._loadedObjects.append(makeTupleActionProcessorHandler(statusController))
-
-        # ----------------
         # Create the Tuple Observer
         tupleObservable = makeTupleDataObservableHandler(
             self.dbSessionCreator, statusController
@@ -228,6 +224,12 @@ class ServerEntryHook(PluginServerEntryHookABC,
             self.dbSessionCreator
         )
         self._loadedObjects.append(self._api)
+
+        # ----------------
+        # Create the Action Processor
+        self._loadedObjects.append(
+            makeTupleActionProcessorHandler(statusController, branchUpdateController)
+        )
 
         # ----------------
         # Start the queue controller

@@ -15,8 +15,8 @@ from peek_plugin_diagram._private.storage.branch.BranchIndex import \
     BranchIndex
 from peek_plugin_diagram._private.storage.branch.BranchIndexCompilerQueue import \
     BranchIndexCompilerQueue
-from peek_plugin_diagram._private.tuples.branch.DiagramBranchTuple import \
-    DiagramBranchTuple
+from peek_plugin_diagram._private.tuples.branch.BranchTuple import \
+    BranchTuple
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks.branch._BranchIndexCalcChunkKey import \
     makeChunkKey
@@ -157,7 +157,7 @@ def _insertOrUpdateObjects(newBranchs: List[ImportBranchTuple],
 
             existingObject = foundObjectByKey.get(importBranchTuple.key)
 
-            packedJson = DiagramBranchTuple.packJson(importBranchTuple)
+            packedJson = BranchTuple.packJson(importBranchTuple)
 
             # Work out if we need to update the object type
             if existingObject:

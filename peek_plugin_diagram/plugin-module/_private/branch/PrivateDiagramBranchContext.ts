@@ -3,7 +3,7 @@ import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {VortexStatusService} from "@synerty/vortexjs";
 import {DiagramBranchService} from "../../DiagramBranchService";
-import {DiagramBranchTuple} from "./DiagramBranchTuple";
+import {BranchTuple} from "./BranchTuple";
 import {DiagramBranchContext, DiagramBranchLocation} from "../../DiagramBranchContext";
 import {DiagramDeltaBase} from "../../branch/DiagramDeltaBase";
 
@@ -16,7 +16,7 @@ import {DiagramDeltaBase} from "../../branch/DiagramDeltaBase";
 export class PrivateDiagramBranchContext extends DiagramBranchContext {
 
 
-    constructor(private branch: DiagramBranchTuple) {
+    constructor(private branch: BranchTuple) {
         super();
 
     }

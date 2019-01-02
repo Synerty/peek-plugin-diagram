@@ -8,21 +8,20 @@ from peek_plugin_diagram.tuples.branches.ImportBranchTuple import ImportBranchTu
 
 
 @addTupleType
-class DiagramBranchTuple(Tuple):
-    """ Imported Branch
+class BranchTuple(Tuple):
+    """ Branch Tuple
 
-    This tuple is used by other plugins to load branches into the diagram.
+    This is the private branch tuple used to work with the branch.
 
     """
-    __COORD_SET_NUM = 0
+    __COORD_SET_ID_NUM = 0
     __KEY_NUM = 1
     __VISIBLE_NUM = 2
     __DELTAS_JSON_NUM = 3
 
-    __tupleType__ = diagramTuplePrefix + 'DiagramBranchTuple'
+    __tupleType__ = diagramTuplePrefix + 'BranchTuple'
 
-    #:  The Coordinate Set key that this branch applies to
-    # coordSetKey: str = TupleField()
+    __rawJonableFields__ = ["_packedJson"]
 
     #:  The packed JSON data for this object
     _packedJson: List[Any] = TupleField([])
@@ -30,7 +29,7 @@ class DiagramBranchTuple(Tuple):
     @classmethod
     def loadFromImportTuple(cls, importBranchTuple: ImportBranchTuple,
                             coordSetId: int,
-                            colorHashMap: Dict[int, str]) -> "DiagramBranchTuple":
+                            colorHashMap: Dict[int, str]) -> "BranchTuple":
         """ Load From Import Tuple
 
         This is used by the import worker to pack this object into the index.
@@ -54,7 +53,7 @@ class DiagramBranchTuple(Tuple):
 
     @property
     def coordSetId(self):
-        return self._packedJson[self.__COORD_SET_NUM]
+        return self._packedJson[self.__COORD_SET_ID_NUM]
 
     @property
     def key(self):

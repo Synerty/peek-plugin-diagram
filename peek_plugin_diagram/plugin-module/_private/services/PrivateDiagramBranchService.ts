@@ -6,7 +6,7 @@ import {VortexStatusService} from "@synerty/vortexjs";
 import {DiagramBranchService} from "../../DiagramBranchService";
 import {DiagramBranchContext, DiagramBranchLocation} from "../../branch/DiagramBranchContext";
 import {PrivateDiagramBranchContext} from "../branch/PrivateDiagramBranchContext";
-import {DiagramBranchTuple} from "../branch/DiagramBranchTuple";
+import {BranchTuple} from "../branch/BranchTuple";
 import {PrivateDiagramBranchLoaderServiceA} from "../branch-loader";
 
 /** Diagram Branch Service
@@ -34,7 +34,7 @@ export class PrivateDiagramBranchService extends DiagramBranchService {
                 return;
             }
 
-            let branch = new DiagramBranchTuple();
+            let branch = new BranchTuple();
             let val: DiagramBranchContext = new PrivateDiagramBranchContext(branch);
             resolve(val);
         });

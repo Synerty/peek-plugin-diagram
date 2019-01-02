@@ -24,7 +24,7 @@ import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {BranchIndexEncodedChunkTuple} from "./BranchIndexEncodedChunkTuple";
 import {BranchIndexUpdateDateTuple} from "./BranchIndexUpdateDateTuple";
-import {DiagramBranchTuple} from "../branch/DiagramBranchTuple";
+import {BranchTuple} from "../branch/BranchTuple";
 import {PrivateDiagramTupleService} from "../services/PrivateDiagramTupleService";
 import {BranchIndexLoaderStatusTuple} from "./BranchIndexLoaderStatusTuple";
 
@@ -35,7 +35,7 @@ import {BranchIndexLoaderServiceA} from "./BranchIndexLoaderServiceA";
 // ----------------------------------------------------------------------------
 
 export interface BranchIndexResultI {
-    [key: string]: DiagramBranchTuple
+    [key: string]: BranchTuple
 }
 
 // ----------------------------------------------------------------------------
@@ -458,7 +458,7 @@ export class BranchIndexLoaderService
         // If there is no offline support, or we're online
         if (!this.offlineConfig.cacheChunksForOffline
             || this.vortexStatusService.snapshot.isOnline) {
-            let ts = new TupleSelector(DiagramBranchTuple.tupleName, {
+            let ts = new TupleSelector(BranchTuple.tupleName, {
                 "modelSetKey": modelSetKey,
                 "keys": keys
             });
@@ -472,7 +472,7 @@ export class BranchIndexLoaderService
 
             return isOnlinePromise
                 .then(() => this.tupleService.offlineObserver.pollForTuples(ts, false))
-                .then((docs: DiagramBranchTuple[]) => this._populateAndIndexObjectTypes(docs));
+                .then((docs: BranchTuple[]) => this._populateAndIndexObjectTypes(docs));
         }
 
 
@@ -495,7 +495,7 @@ export class BranchIndexLoaderService
      *
      */
     private getBranchsWhenReady(
-        modelSetKey: string, keys: string[]): Promise<DiagramBranchTuple[]> {
+        modelSetKey: string, keys: string[]): Promise<BranchTuple[]> {
 
         let keysByChunkKey: { [key: string]: string[]; } = {};
         let chunkKeys: string[] = [];
@@ -518,8 +518,8 @@ export class BranchIndexLoaderService
         }
 
         return Promise.all(promises)
-            .then((promiseResults: DiagramBranchTuple[][]) => {
-                let objects: DiagramBranchTuple[] = [];
+            .then((promiseResults: BranchTuple[][]) => {
+                let objects: BranchTuple[] = [];
                 for (let results of  promiseResults) {
                     for (let result of results) {
                         objects.push(result);
@@ -535,7 +535,7 @@ export class BranchIndexLoaderService
      * Get the objects with matching keywords from the index..
      *
      */
-    private getBranchsForKeys(keys: string[], chunkKey: string): Promise<DiagramBranchTuple[]> {
+    private getBranchsForKeys(keys: string[], chunkKey: string): Promise<BranchTuple[]> {
 
         if (!this.index.updateDateByChunkKey.hasOwnProperty(chunkKey)) {
             console.log(`ObjectIDs: ${keys} doesn't appear in the index`);
@@ -555,7 +555,7 @@ export class BranchIndexLoaderService
                     .then((payload: Payload) => JSON.parse(<any>payload.tuples))
                     .then((chunkData: { [key: number]: string; }) => {
 
-                        let foundBranchIndexs: DiagramBranchTuple[] = [];
+                        let foundBranchIndexs: BranchTuple[] = [];
 
                         for (let key of keys) {
                             // Find the keyword, we're just iterating
@@ -569,7 +569,7 @@ export class BranchIndexLoaderService
 
                             let packedJson = chunkData[key];
                             foundBranchIndexs
-                                .push(DiagramBranchTuple.unpackJson(key, packedJson));
+                                .push(BranchTuple.unpackJson(key, packedJson));
 
                         }
 
@@ -582,9 +582,9 @@ export class BranchIndexLoaderService
 
     }
 
-    private _populateAndIndexObjectTypes(results: DiagramBranchTuple[]): BranchIndexResultI {
+    private _populateAndIndexObjectTypes(results: BranchTuple[]): BranchIndexResultI {
 
-        let objects: { [key: string]: DiagramBranchTuple } = {};
+        let objects: { [key: string]: BranchTuple } = {};
         for (let result of results) {
             objects[result.key] = result;
             // result.coordSetKey = this.modelSetByIds[result.modelSet.id__];

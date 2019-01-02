@@ -15,7 +15,7 @@ from peek_plugin_diagram._private.storage.branch.BranchIndexEncodedChunk import 
     BranchIndexEncodedChunk
 from peek_plugin_diagram._private.worker.tasks.branch._BranchIndexCalcChunkKey import \
     makeChunkKey
-from peek_plugin_diagram._private.tuples.branch.DiagramBranchTuple import DiagramBranchTuple
+from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ class BranchTupleProvider(TuplesProviderABC):
 
         keysByChunkKey = defaultdict(list)
 
-        results: List[DiagramBranchTuple] = []
+        results: List[BranchTuple] = []
 
         for key in keys:
             keysByChunkKey[makeChunkKey(modelSetKey, key)].append(key)
@@ -57,7 +57,9 @@ class BranchTupleProvider(TuplesProviderABC):
 
                 packedJson = resultsByKey[subKey]
 
-                results.append(DiagramBranchTuple.unpackJson(subKey, packedJson))
+                result = BranchTuple()
+                result._packedJson = json.loads(packedJson)
+                results.append(results)
 
         # Create the vortex message
         return Payload(filt, tuples=results).makePayloadEnvelope().toVortexMsg()

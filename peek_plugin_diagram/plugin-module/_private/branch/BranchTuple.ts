@@ -15,32 +15,25 @@ import {DiagramCoordSetTuple} from "../..";
  *
  */
 @addTupleType
-export class DiagramBranchTuple extends Tuple {
-    public static readonly tupleName = diagramTuplePrefix + "DiagramBranchTuple";
-
-    coordSetKey: string;
-    coordSetId: number;
-
-    key: string;
+export class BranchTuple extends Tuple {
+    public static readonly tupleName = diagramTuplePrefix + "BranchTuple";
 
     // The list of deltas for this branch
     _packedJson: any[] = [];
 
-    // Properties
-    visible: boolean = false;
-
-    private static readonly __COORD_SET_NUM = 0;
-    private static readonly __DELTAS_NUM = 1;
-    private static readonly __VISIBLE_NUM = 2;
+    private static readonly __COORD_SET_ID_NUM = 0;
+    private static readonly __KEY_NUM = 1;
+    private static readonly __DELTAS_NUM = 2;
+    private static readonly __VISIBLE_NUM = 3;
 
     constructor() {
-        super(DiagramBranchTuple.tupleName)
+        super(BranchTuple.tupleName)
     }
 
-    static unpackJson(key: string, packedJsonStr: string): DiagramBranchTuple {
+    static unpackJson(key: string, packedJsonStr: string): BranchTuple {
 
         // Create the new object
-        let newSelf = new DiagramBranchTuple();
+        let newSelf = new BranchTuple();
         newSelf._packedJson = JSON.parse(packedJsonStr);
         newSelf.key = key;
         return newSelf;
@@ -48,11 +41,15 @@ export class DiagramBranchTuple extends Tuple {
     }
 
     get coordSetId(): number {
-        return this._packedJson[DiagramBranchTuple.__COORD_SET_NUM];
+        return this._packedJson[BranchTuple.__COORD_SET_ID_NUM];
+    }
+
+    get key(): string {
+        return this._packedJson[BranchTuple.__KEY_NUM];
     }
 
     get deltas(): DiagramDeltaBase[] {
-        let deltasJson = this._packedJson[DiagramBranchTuple.__DELTAS_NUM];
+        let deltasJson = this._packedJson[BranchTuple.__DELTAS_NUM];
         let deltas = [];
         for (let deltaJson of deltasJson) {
             let deltaType = deltaJson[0];
@@ -70,6 +67,6 @@ export class DiagramBranchTuple extends Tuple {
     }
 
     get visible(): boolean {
-        return this._packedJson[DiagramBranchTuple.__VISIBLE_NUM];
+        return this._packedJson[BranchTuple.__VISIBLE_NUM];
     }
 }

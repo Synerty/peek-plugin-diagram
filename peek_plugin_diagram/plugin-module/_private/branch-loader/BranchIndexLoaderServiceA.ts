@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {DiagramBranchTuple} from "../branch/DiagramBranchTuple";
+import {BranchTuple} from "../branch/BranchTuple";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
@@ -17,7 +17,7 @@ export abstract class BranchIndexLoaderServiceA extends ComponentLifecycleEventE
 
     abstract isReadyObservable(): Observable<boolean>;
 
-    // abstract observable: Observable<DiagramBranchTuple[]>;
+    // abstract observable: Observable<BranchTuple[]>;
 
     abstract statusObservable(): Observable<BranchIndexLoaderStatusTuple> ;
 

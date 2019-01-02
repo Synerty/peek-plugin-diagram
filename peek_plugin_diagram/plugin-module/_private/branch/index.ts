@@ -1,2 +1,2 @@
-export {DiagramBranchTuple} from "./DiagramBranchTuple";
+export {BranchTuple} from "./BranchTuple";
 export {PrivateDiagramBranchContext} from "./PrivateDiagramBranchContext";

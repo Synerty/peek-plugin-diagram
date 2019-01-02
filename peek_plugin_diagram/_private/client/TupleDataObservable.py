@@ -31,8 +31,8 @@ from peek_plugin_diagram._private.storage.Display import DispLevel, DispTextStyl
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
 from peek_plugin_diagram._private.tuples.branch.BranchIndexUpdateDateTuple import \
     BranchIndexUpdateDateTuple
-from peek_plugin_diagram._private.tuples.branch.DiagramBranchTuple import \
-    DiagramBranchTuple
+from peek_plugin_diagram._private.tuples.branch.BranchTuple import \
+    BranchTuple
 from peek_plugin_diagram._private.tuples.grid.GridUpdateDateTuple import \
     GridUpdateDateTuple
 from peek_plugin_diagram._private.tuples.location_index.DispKeyLocationTuple import \
@@ -94,7 +94,7 @@ def makeClientTupleDataObservableHandler(tupleObservable: TupleDataObservablePro
         LocationIndexUpdateDateTuple.tupleName(),
         ClientLocationIndexUpdateDateTupleProvider(locationCacheController))
 
-    tupleObservable.addTupleProvider(DiagramBranchTuple.tupleName(),
+    tupleObservable.addTupleProvider(BranchTuple.tupleName(),
                                      BranchTupleProvider(branchCacheController))
 
     tupleObservable.addTupleProvider(BranchIndexUpdateDateTuple.tupleName(),
