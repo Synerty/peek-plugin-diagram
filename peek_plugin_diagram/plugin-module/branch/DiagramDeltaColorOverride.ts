@@ -27,6 +27,7 @@ export class DiagramDeltaColorOverride extends DiagramDeltaBase {
 
     /** The Line Color apples to shape lines */
     get lineColor(): DispColor | null {
+        let colorInt = DeltaColorOverride.lineColor(this._jsonData);
 
     }
 
