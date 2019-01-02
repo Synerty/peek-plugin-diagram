@@ -1,14 +1,22 @@
-
+from typing import List, Any, Dict
 
 BRANCH_DELTA_CLASSES_BY_TYPE = {}
+_BRANCH_DELTA_CLASSES_BY_IMPORT_TUPLE_TYPE = {}
 
 
-def addBranchDeltaType(cls):
-    if cls.deltaType in BRANCH_DELTA_CLASSES_BY_TYPE:
-        raise Exception("Delta Type %s is already registered" % cls.deltaType)
+def addBranchDeltaType(deltaType: int, importDeltaTupleType: str):
+    def f(cls):
+        if deltaType in BRANCH_DELTA_CLASSES_BY_TYPE:
+            raise Exception("Delta Type %s is already registered" % cls.deltaType)
 
-    BRANCH_DELTA_CLASSES_BY_TYPE[cls.deltaType] = cls
-    return cls
+        if importDeltaTupleType in _BRANCH_DELTA_CLASSES_BY_IMPORT_TUPLE_TYPE:
+            raise Exception("Delta Type %s is already registered" % cls.deltaType)
+
+        BRANCH_DELTA_CLASSES_BY_TYPE[deltaType] = cls
+        _BRANCH_DELTA_CLASSES_BY_IMPORT_TUPLE_TYPE[importDeltaTupleType] = cls
+        return cls
+
+    return f
 
 
 class BranchDeltaBase:
@@ -26,12 +34,11 @@ class BranchDeltaBase:
     _jsonData: List[Any] = []
 
     def __init__(self, deltaType: int):
-        self.type = deltaType
+        self.deltaType = deltaType
 
     @classmethod
-    def packJson(cls, importDeltaTuple, colorHashMap):
-        raise NotImplementedError("packJson is not implemented for %s" % cls.deltaType)
-
-    @classmethod
-    def unpackJson(cls, jsonData):
-        raise NotImplementedError("packJson is not implemented for %s" % cls.deltaType)
+    def loadFromImportTuple(cls, importDeltaTuple,
+                            colorHashMap:Dict[int,str]) -> "BranchDeltaBase":
+        Delta = _BRANCH_DELTA_CLASSES_BY_IMPORT_TUPLE_TYPE[importDeltaTuple.tupleType()]
+        return Delta.loadFromImportTuple(importDeltaTuple=importDeltaTuple,
+                                         colorHashMap=colorHashMap)

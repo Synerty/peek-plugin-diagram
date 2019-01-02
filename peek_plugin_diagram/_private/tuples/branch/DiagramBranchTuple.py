@@ -1,5 +1,4 @@
-import json
-from typing import List, Any
+from typing import List, Any, Dict
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
@@ -18,49 +17,52 @@ class DiagramBranchTuple(Tuple):
     __COORD_SET_NUM = 0
     __KEY_NUM = 1
     __VISIBLE_NUM = 2
+    __DELTAS_JSON_NUM = 3
 
     __tupleType__ = diagramTuplePrefix + 'DiagramBranchTuple'
 
     #:  The Coordinate Set key that this branch applies to
-    coordSetKey: str = TupleField()
-    coordSetId: int = TupleField()
-
-    #:  The unique key for this branch
-    key: str = TupleField()
+    # coordSetKey: str = TupleField()
 
     #:  The packed JSON data for this object
-    _packedJson:List[Any] = TupleField([])
-
-    #:  Is this branch Visible by default
-    visible: bool = TupleField()
-
+    _packedJson: List[Any] = TupleField([])
 
     @classmethod
-    def packJson(cls, importBranchTuple: ImportBranchTuple, coordSetId: int) -> str:
-        """ Pack JSON
+    def loadFromImportTuple(cls, importBranchTuple: ImportBranchTuple,
+                            coordSetId: int,
+                            colorHashMap: Dict[int, str]) -> "DiagramBranchTuple":
+        """ Load From Import Tuple
 
         This is used by the import worker to pack this object into the index.
 
         """
 
-        deltasJson = [
-            BranchDeltaBase
-        ]
-        packedJsonDict = [
-            coordSetId,
-            deltasJson,
-            importBranchTuple.visible
-        ]
+        deltasJson = []
+        for importDelta in importBranchTuple.deltas:
+            delta = BranchDeltaBase.loadFromImportTuple(importDeltaTuple=importDelta,
+                                                            colorHashMap=colorHashMap)
+            deltasJson.append(delta._jsonData)
 
-        return json.dumps(packedJsonDict)
-
-    @@property
-    def coordSetId(self):
-        return self._packedJson[0]
+        self = cls()
+        self._packedJson = [
+            coordSetId,  # __COORD_SET_NUM
+            importBranchTuple.key,  # __KEY_NUM
+            importBranchTuple.visible,  # __VISIBLE_NUM
+            deltasJson,  # __DELTAS_JSON
+        ]
+        return self
 
     @property
-    def deltas(self)-> List[BranchDeltaBase]:
-        branchDeltasJson = self._packedJson[self.__COORD_SET_ID]
+    def coordSetId(self):
+        return self._packedJson[self.__COORD_SET_NUM]
+
+    @property
+    def key(self):
+        return self._packedJson[self.__KEY_NUM]
+
+    @property
+    def deltas(self) -> List[BranchDeltaBase]:
+        branchDeltasJson = self._packedJson[self.__DELTAS_JSON_NUM]
         branchDeltaClasses = []
         for deltaJson in branchDeltasJson:
             branchType = deltaJson[0]
@@ -69,6 +71,6 @@ class DiagramBranchTuple(Tuple):
 
         return branchDeltaClasses
 
-    @@property
+    @property
     def visible(self) -> bool:
         return self._packedJson[self.__VISIBLE_NUM]

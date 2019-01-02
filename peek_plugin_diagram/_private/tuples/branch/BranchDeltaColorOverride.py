@@ -1,6 +1,13 @@
-from peek_plugin_diagram._private.tuples.branch.BranchDeltaBase import BranchDeltaBase
-from typing import List
+from peek_plugin_diagram._private.tuples.branch.BranchDeltaBase import BranchDeltaBase, \
+    addBranchDeltaType
+from typing import List, Dict, Optional
 
+from peek_plugin_diagram.tuples.branches.ImportBranchDeltaColorOverride import \
+    ImportBranchDeltaColorOverride
+
+
+@addBranchDeltaType(BranchDeltaBase.TYPE_COLOUR_OVERRIDE,
+                    ImportBranchDeltaColorOverride.tupleName())
 class BranchDeltaColorOverride(BranchDeltaBase):
     """Diagram Delta Color Override Class
 
@@ -12,6 +19,25 @@ class BranchDeltaColorOverride(BranchDeltaBase):
     __FILL_COLOR_NUM = 3
     __COLOR_NUM = 4
 
+    def __init__(self):
+        BranchDeltaBase.__init__(self, BranchDeltaBase.TYPE_COLOUR_OVERRIDE)
+
+    @classmethod
+    def loadFromImportTuple(cls, importDeltaTuple,
+                            colorHashMap: Dict[int, str]) -> "BranchDeltaColorOverride":
+        def mapColor(colorHash: str) -> Optional[int]:
+            return colorHashMap[colorHash] if colorHash else None
+
+        self = cls()
+        self._packedJson = [
+            self.deltaType,
+            importDeltaTuple.dispKeys,  # __DISP_KEYS_NUM
+            mapColor(importDeltaTuple.lineColorHash),  # __LINE_COLOR_NUM
+            mapColor(importDeltaTuple.fillColorHash),  # __FILL_COLOR_NUM
+            mapColor(importDeltaTuple.colorHash),  # __COLOR_NUM
+        ]
+        return self
+
     #: The Disp Keys to color
     @property
     def dispKeys(self) -> List[str]:
@@ -19,15 +45,15 @@ class BranchDeltaColorOverride(BranchDeltaBase):
 
     #: The Line Color apples to shape lines
     @property
-    def lineColor(self)-> str:
+    def lineColor(self) -> str:
         return self._jsonData[self.__LINE_COLOR_NUM]
 
     #: The Fill Color applies to closed shapes
     @property
-    def fillColor(self)-> str:
+    def fillColor(self) -> str:
         return self._jsonData[self.__FILL_COLOR_NUM]
 
     #: This color applies to texts
     @property
-    def color(self)-> str:
+    def color(self) -> str:
         return self._jsonData[self.__COLOR_NUM]
