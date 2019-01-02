@@ -1,6 +1,4 @@
-import json
 from typing import List
-
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
@@ -27,24 +25,11 @@ class ImportBranchTuple(Tuple):
     #:  The import hash for this branch
     importHash: str = TupleField()
 
+    #:  The import hash for this branch
+    importGroupHash: str = TupleField()
+
     #:  The alt color
-    delta: List = TupleField([])
+    deltas: List = TupleField([])
 
     #:  Is this branch Visible by default
     visible: bool = TupleField()
-
-
-    def packJson(self) -> str:
-        """ Pack JSON
-
-        This is used by the import worker to pack this object into the index.
-
-        """
-        packedJsonDict = dict(
-            ck=self.coordSetKey,
-            k=self.key,
-            d=self.delta,
-            v=self.visible
-        )
-
-        return json.dumps(packedJsonDict, sort_keys=True)

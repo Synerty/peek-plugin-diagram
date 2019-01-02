@@ -15,6 +15,8 @@ from peek_plugin_diagram._private.storage.branch.BranchIndex import \
     BranchIndex
 from peek_plugin_diagram._private.storage.branch.BranchIndexCompilerQueue import \
     BranchIndexCompilerQueue
+from peek_plugin_diagram._private.tuples.branch.DiagramBranchTuple import \
+    DiagramBranchTuple
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks.branch._BranchIndexCalcChunkKey import \
     makeChunkKey
@@ -150,12 +152,12 @@ def _insertOrUpdateObjects(newBranchs: List[ImportBranchTuple],
         updates = []
 
         # Work out which objects have been updated or need inserting
-        for importBranchIndex in newBranchs:
-            importHashSet.add(importBranchIndex.importGroupHash)
+        for importBranchTuple in newBranchs:
+            importHashSet.add(importBranchTuple.importGroupHash)
 
-            existingObject = foundObjectByKey.get(importBranchIndex.key)
+            existingObject = foundObjectByKey.get(importBranchTuple.key)
 
-            packedJson = importBranchIndex.packJson()
+            packedJson = DiagramBranchTuple.packJson(importBranchTuple)
 
             # Work out if we need to update the object type
             if existingObject:
@@ -170,10 +172,10 @@ def _insertOrUpdateObjects(newBranchs: List[ImportBranchTuple],
                 existingObject = BranchIndex(
                     id=id_,
                     coordSetId=coordSetId,
-                    key=importBranchIndex.key,
-                    importGroupHash=importBranchIndex.importGroupHash,
-                    chunkKey=makeChunkKey(importBranchIndex.modelSetKey,
-                                          importBranchIndex.key),
+                    key=importBranchTuple.key,
+                    importGroupHash=importBranchTuple.importGroupHash,
+                    chunkKey=makeChunkKey(importBranchTuple.modelSetKey,
+                                          importBranchTuple.key),
                     packedJson=packedJson
                 )
                 inserts.append(existingObject.tupleToSqlaBulkInsertDict())

@@ -2,45 +2,63 @@ import {addTupleType, Tuple} from "@synerty/vortexjs";
 import {diagramTuplePrefix} from "../PluginNames";
 import {DiagramDeltaBase} from "../../branch/DiagramDeltaBase";
 import {ModelSet} from "@peek/peek_plugin_diagram";
+import {BranchDeltaBase} from "@peek/peek_plugin_diagram/branch";
+import {DiagramCoordSetTuple} from "../..";
 
-
+/** Diagram Branch Tuple
+ *
+ * This tuple is used internally to transfer branches from the client tuple provider,
+ * and transfer branches to the client wrapped in a TupleAction.
+ *
+ */
 @addTupleType
 export class DiagramBranchTuple extends Tuple {
     public static readonly tupleName = diagramTuplePrefix + "DiagramBranchTuple";
 
-    modelSetKey: string;
     coordSetKey: string;
+    coordSetId: number;
+
     key: string;
 
-    deltas: DiagramDeltaBase[] = [];
+    // The list of deltas for this branch
+    _packedJson: any[] = [];
 
     // Properties
     visible: boolean = false;
+
+    private static readonly __COORD_SET_NUM = 0;
+    private static readonly __DELTAS_NUM = 1;
+    private static readonly __VISIBLE_NUM = 2;
 
     constructor() {
         super(DiagramBranchTuple.tupleName)
     }
 
-    static unpackJson(key: string, packedJson: string): DiagramBranchTuple {
-        // Reconstruct the data
-        let objectProps: {} = JSON.parse(packedJson);
-
-        // Get out the object type
-        let thisModelSetId = objectProps['_msid'];
-        delete objectProps['_msid'];
+    static unpackJson(key: string, packedJsonStr: string): DiagramBranchTuple {
 
         // Create the new object
         let newSelf = new DiagramBranchTuple();
-
-        newSelf.modelSetKey = objectProps["modelSetKey"];
-        newSelf.coordSetKey = objectProps["coordSetKey"];
+        newSelf._packedJson = JSON.parse(packedJsonStr);
         newSelf.key = key;
-
-        // Unpack the custom data here
-        newSelf.deltas = objectProps["deltas"];
-        newSelf.visible = objectProps["visible"];
-
         return newSelf;
 
+    }
+
+    get coordSetId():number {
+        return this._packedJson[DiagramBranchTuple.__COORD_SET_NUM];
+    }
+
+    get deltas():DiagramDeltaBase[] {
+
+        return this._packedJson[DiagramBranchTuple.__DELTAS_NUM];
+    }
+
+    addDelta(delta:BranchDeltaBase):void {
+        this.deltas.push(delta._)
+
+    }
+
+    get visible():boolean {
+        return this._packedJson[DiagramBranchTuple.__VISIBLE_NUM];
     }
 }

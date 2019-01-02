@@ -1,24 +1,44 @@
-import {addTupleType, Tuple} from "@synerty/vortexjs";
-import {diagramTuplePrefix} from "../_private";
-import {DiagramDeltaBase} from "./DiagramDeltaBase";
+import {addBranchDeltaType, DiagramDeltaBase} from "./DiagramDeltaBase";
+import {DispColor} from "../_private/tuples/lookups";
+import {DeltaColorOverride} from "../../_private/both-app/tuples/deltas/DeltaColorOverride";
 
 /** Diagram Delta Color Override Tuple
  *
- * This delta applies an override colour to a set of display keys
+ * This delta applies an override colour to a set of display keys.
+ * This is the publicly exposed class.
  *
  */
-@addTupleType()
+@addBranchDeltaType(DiagramDeltaBase.TYPE_COLOUR_OVERRIDE)
 export class DiagramDeltaColorOverride extends DiagramDeltaBase {
-    public static readonly tupleName = diagramTuplePrefix + "DiagramDeltaColorOverride";
 
-    /** The type of this delta */
-    public readonly type: number;
 
     constructor() {
-        super(DiagramDeltaBase.TYPE_COLOUR_OVERRIDE,
-            DiagramDeltaColorOverride.tupleName);
+        super(DiagramDeltaBase.TYPE_COLOUR_OVERRIDE);
     }
 
+    /** The Disp Keys to color */
+    get dispKeys(): string[] {
+        return DeltaColorOverride.dispKeys(this._jsonData);
+    }
+
+    addDispKeys(dispKeys: string[]): void {
+        DeltaColorOverride.addDispKeys(this._jsonData, dispKeys);
+    }
+
+    /** The Line Color apples to shape lines */
+    get lineColor(): DispColor | null {
+
+    }
+
+    /** The Fill Color applies to closed shapes */
+    get fillColor(): DispColor | null {
+
+    }
+
+    /** This color applies to texts */
+    get color(): DispColor | null {
+
+    }
 
 
 }
