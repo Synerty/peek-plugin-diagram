@@ -446,7 +446,7 @@ export class BranchIndexLoaderService
      * Get the objects with matching keywords from the index..
      *
      */
-    getBranchs(modelSetKey: string, keys: string[]): Promise<BranchIndexResultI> {
+    getBranches(modelSetKey: string, keys: string[]): Promise<BranchIndexResultI> {
         if (modelSetKey == null || modelSetKey.length == 0) {
             Promise.reject("We've been passed a null/empty modelSetKey");
         }
@@ -478,13 +478,13 @@ export class BranchIndexLoaderService
 
         // If we do have offline support
         if (this.isReady())
-            return this.getBranchsWhenReady(modelSetKey, keys)
+            return this.getBranchesWhenReady(modelSetKey, keys)
                 .then(docs => this._populateAndIndexObjectTypes(docs));
 
         return this.isReadyObservable()
             .first()
             .toPromise()
-            .then(() => this.getBranchsWhenReady(modelSetKey, keys))
+            .then(() => this.getBranchesWhenReady(modelSetKey, keys))
             .then(docs => this._populateAndIndexObjectTypes(docs));
     }
 
@@ -494,7 +494,7 @@ export class BranchIndexLoaderService
      * Get the objects with matching keywords from the index..
      *
      */
-    private getBranchsWhenReady(
+    private getBranchesWhenReady(
         modelSetKey: string, keys: string[]): Promise<BranchTuple[]> {
 
         let keysByChunkKey: { [key: string]: string[]; } = {};
@@ -513,7 +513,7 @@ export class BranchIndexLoaderService
         for (let chunkKey of chunkKeys) {
             let keysForThisChunk = keysByChunkKey[chunkKey];
             promises.push(
-                this.getBranchsForKeys(keysForThisChunk, chunkKey)
+                this.getBranchesForKeys(keysForThisChunk, chunkKey)
             );
         }
 
@@ -535,7 +535,7 @@ export class BranchIndexLoaderService
      * Get the objects with matching keywords from the index..
      *
      */
-    private getBranchsForKeys(keys: string[], chunkKey: string): Promise<BranchTuple[]> {
+    private getBranchesForKeys(keys: string[], chunkKey: string): Promise<BranchTuple[]> {
 
         if (!this.index.updateDateByChunkKey.hasOwnProperty(chunkKey)) {
             console.log(`ObjectIDs: ${keys} doesn't appear in the index`);

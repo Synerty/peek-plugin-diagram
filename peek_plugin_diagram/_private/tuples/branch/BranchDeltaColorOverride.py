@@ -1,7 +1,9 @@
+from typing import List, Optional
+
 from peek_plugin_diagram._private.tuples.branch.BranchDeltaBase import BranchDeltaBase, \
     addBranchDeltaType
-from typing import List, Dict, Optional
-
+from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
+    LookupHashConverter
 from peek_plugin_diagram.tuples.branches.ImportBranchDeltaColorOverride import \
     ImportBranchDeltaColorOverride
 
@@ -24,9 +26,10 @@ class BranchDeltaColorOverride(BranchDeltaBase):
 
     @classmethod
     def loadFromImportTuple(cls, importDeltaTuple,
-                            colorHashMap: Dict[int, str]) -> "BranchDeltaColorOverride":
+                            lookupHashConverter: LookupHashConverter
+                            ) -> "BranchDeltaColorOverride":
         def mapColor(colorHash: str) -> Optional[int]:
-            return colorHashMap[colorHash] if colorHash else None
+            return lookupHashConverter.getColourId(colorHash) if colorHash else None
 
         self = cls()
         self._packedJson = [

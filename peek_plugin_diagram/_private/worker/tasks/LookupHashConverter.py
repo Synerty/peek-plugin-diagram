@@ -63,34 +63,34 @@ class LookupHashConverter:
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
             setattr(disp, attrName,
-                    self._getColourId(getattr(disp, attrName)))
+                    self.getColourId(getattr(disp, attrName)))
 
         for attrName in (T.DISP_ATTR_LINE_STYLE,):
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
             setattr(disp, attrName,
-                    self._getLineStyleId(getattr(disp, attrName)))
+                    self.getLineStyleId(getattr(disp, attrName)))
 
         for attrName in (T.DISP_ATTR_TEXT_STYLE,):
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
             setattr(disp, attrName,
-                    self._getTextStyleId(getattr(disp, attrName)))
+                    self.getTextStyleId(getattr(disp, attrName)))
 
         for attrName in ['levelId']:
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
-            setattr(disp, attrName, self._getLevelId(getattr(disp, attrName)))
+            setattr(disp, attrName, self.getLevelId(getattr(disp, attrName)))
 
         for attrName in ['layerId']:
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
-            setattr(disp, attrName, self._getLayerId(getattr(disp, attrName)))
+            setattr(disp, attrName, self.getLayerId(getattr(disp, attrName)))
 
         if isinstance(disp, DispGroupPointer):
             raise NotImplementedError("Not implemented")
 
-    def _getTextStyleId(self, importHash):
+    def getTextStyleId(self, importHash):
         importHash = str(importHash)
 
         if importHash in self._textStyleIdByImportHash:
@@ -106,7 +106,7 @@ class LookupHashConverter:
         self._textStyleIdByImportHash[importHash] = textStyle.id
         return textStyle.id
 
-    def _getLineStyleId(self, importHash):
+    def getLineStyleId(self, importHash):
         importHash = str(importHash)
 
         if importHash in self._lineStyleIdByImportHash:
@@ -125,7 +125,7 @@ class LookupHashConverter:
         self._lineStyleIdByImportHash[importHash] = newLine.id
         return newLine.id
 
-    def _getColourId(self, importHash):
+    def getColourId(self, importHash):
         if importHash is None:
             return None
 
@@ -145,7 +145,7 @@ class LookupHashConverter:
         self._colorIdByImportHash[importHash] = newColor.id
         return newColor.id
 
-    def _getLevelId(self, importHash, defaultOrder=None):
+    def getLevelId(self, importHash, defaultOrder=None):
         importHash = str(importHash)
 
         if importHash in self._levelByImportHash:
@@ -171,7 +171,7 @@ class LookupHashConverter:
         self._levelByImportHash[importHash] = newLevel.id
         return newLevel.id
 
-    def _getLayerId(self, importHash, defaultOrder=None):
+    def getLayerId(self, importHash, defaultOrder=None):
         importHash = str(importHash)
 
         if importHash in self._layerByImportHash:

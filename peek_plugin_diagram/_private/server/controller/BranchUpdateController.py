@@ -6,7 +6,7 @@ from vortex.handler.TupleActionProcessor import TupleActionProcessorDelegateABC
 from peek_plugin_diagram._private.tuples.branch.BranchUpdateTupleAction import \
     BranchUpdateTupleAction
 from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexImporter import \
-    createOrUpdateBranchs
+    createOrUpdateBranches
 from peek_plugin_livedb.server.LiveDBWriteApiABC import LiveDBWriteApiABC
 
 logger = logging.getLogger(__name__)
@@ -27,11 +27,11 @@ class BranchUpdateController(TupleActionProcessorDelegateABC):
 
     @inlineCallbacks
     def updateBranch(self, branchEncodedPayload:bytes):
-        liveDbItemsToImport = yield createOrUpdateBranchs.delay(branchEncodedPayload)
+        liveDbItemsToImport = yield createOrUpdateBranches.delay(branchEncodedPayload)
 
     @inlineCallbacks
     def importBranches(self, branchesEncodedPayload: bytes):
-        liveDbItemsToImport = yield createOrUpdateBranchs.delay(branchesEncodedPayload)
+        liveDbItemsToImport = yield createOrUpdateBranches.delay(branchesEncodedPayload)
 
         # if liveDbItemsToImport:
         #     yield self._liveDbWriteApi.importLiveDbItems(

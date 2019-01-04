@@ -1,4 +1,7 @@
-from typing import List, Any, Dict
+from typing import List, Any
+
+from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
+    LookupHashConverter
 
 BRANCH_DELTA_CLASSES_BY_TYPE = {}
 _BRANCH_DELTA_CLASSES_BY_IMPORT_TUPLE_TYPE = {}
@@ -38,7 +41,7 @@ class BranchDeltaBase:
 
     @classmethod
     def loadFromImportTuple(cls, importDeltaTuple,
-                            colorHashMap:Dict[int,str]) -> "BranchDeltaBase":
+                            lookupHashConverter: LookupHashConverter) -> "BranchDeltaBase":
         Delta = _BRANCH_DELTA_CLASSES_BY_IMPORT_TUPLE_TYPE[importDeltaTuple.tupleType()]
         return Delta.loadFromImportTuple(importDeltaTuple=importDeltaTuple,
-                                         colorHashMap=colorHashMap)
+                                         lookupHashConverter=lookupHashConverter)

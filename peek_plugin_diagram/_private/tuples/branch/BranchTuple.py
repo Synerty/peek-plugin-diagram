@@ -1,9 +1,12 @@
-from typing import List, Any, Dict
+import json
+from typing import List, Any
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from peek_plugin_diagram._private.tuples.branch.BranchDeltaBase import \
     BranchDeltaBase, BRANCH_DELTA_CLASSES_BY_TYPE
+from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
+    LookupHashConverter
 from peek_plugin_diagram.tuples.branches.ImportBranchTuple import ImportBranchTuple
 
 
@@ -29,7 +32,7 @@ class BranchTuple(Tuple):
     @classmethod
     def loadFromImportTuple(cls, importBranchTuple: ImportBranchTuple,
                             coordSetId: int,
-                            colorHashMap: Dict[int, str]) -> "BranchTuple":
+                            lookupHashConverter: LookupHashConverter) -> "BranchTuple":
         """ Load From Import Tuple
 
         This is used by the import worker to pack this object into the index.
@@ -39,7 +42,7 @@ class BranchTuple(Tuple):
         deltasJson = []
         for importDelta in importBranchTuple.deltas:
             delta = BranchDeltaBase.loadFromImportTuple(importDeltaTuple=importDelta,
-                                                            colorHashMap=colorHashMap)
+                                                        lookupHashConverter=lookupHashConverter)
             deltasJson.append(delta._jsonData)
 
         self = cls()
@@ -50,6 +53,9 @@ class BranchTuple(Tuple):
             deltasJson,  # __DELTAS_JSON
         ]
         return self
+
+    def packJson(self) -> str:
+        return json.dumps(self._packedJson)
 
     @property
     def coordSetId(self):
