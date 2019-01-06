@@ -1,7 +1,7 @@
 import logging
 import pytz
 from datetime import datetime
-from typing import List
+from typing import List, Set, Tuple
 
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.storage.branch.BranchIndex import BranchIndex
@@ -16,6 +16,10 @@ logger = logging.getLogger(__name__)
 This module is called from the BranchIndexUpdater method.
 
 1) Figure out which grid this branch effects.
+1.1) Convert the branch deltas to a list of disps,
+    from the disps they effect
+    and the disps they create
+1.2) Use the makeGridKeys method to work out the grid keys
 2) Delete the old entries from the BranchGridIndex
 3) Insert the new entries into the BranchGridIndex
 4) Insert the grid keys into the GridKeyCompuler Queue
