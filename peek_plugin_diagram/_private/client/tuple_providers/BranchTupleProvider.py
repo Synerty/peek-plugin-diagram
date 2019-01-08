@@ -58,7 +58,7 @@ class BranchTupleProvider(TuplesProviderABC):
                 packedJson = resultsByKey[subKey]
 
                 result = BranchTuple()
-                result._packedJson = json.loads(packedJson)
+                result.packedJson__ = json.loads(packedJson)
                 results.append(results)
 
         # Create the vortex message

@@ -19,7 +19,7 @@ export class BranchTuple extends Tuple {
     public static readonly tupleName = diagramTuplePrefix + "BranchTuple";
 
     // The list of deltas for this branch
-    _packedJson: any[] = [];
+    packedJson__: any[] = [];
 
     private static readonly __COORD_SET_ID_NUM = 0;
     private static readonly __KEY_NUM = 1;
@@ -34,22 +34,22 @@ export class BranchTuple extends Tuple {
 
         // Create the new object
         let newSelf = new BranchTuple();
-        newSelf._packedJson = JSON.parse(packedJsonStr);
+        newSelf.packedJson__ = JSON.parse(packedJsonStr);
         newSelf.key = key;
         return newSelf;
 
     }
 
     get coordSetId(): number {
-        return this._packedJson[BranchTuple.__COORD_SET_ID_NUM];
+        return this.packedJson__[BranchTuple.__COORD_SET_ID_NUM];
     }
 
     get key(): string {
-        return this._packedJson[BranchTuple.__KEY_NUM];
+        return this.packedJson__[BranchTuple.__KEY_NUM];
     }
 
     get deltas(): DiagramDeltaBase[] {
-        let deltasJson = this._packedJson[BranchTuple.__DELTAS_NUM];
+        let deltasJson = this.packedJson__[BranchTuple.__DELTAS_NUM];
         let deltas = [];
         for (let deltaJson of deltasJson) {
             let deltaType = deltaJson[0];
@@ -67,6 +67,6 @@ export class BranchTuple extends Tuple {
     }
 
     get visible(): boolean {
-        return this._packedJson[BranchTuple.__VISIBLE_NUM];
+        return this.packedJson__[BranchTuple.__VISIBLE_NUM];
     }
 }

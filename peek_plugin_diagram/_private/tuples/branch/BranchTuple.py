@@ -24,10 +24,10 @@ class BranchTuple(Tuple):
 
     __tupleType__ = diagramTuplePrefix + 'BranchTuple'
 
-    __rawJonableFields__ = ["_packedJson"]
+    __rawJonableFields__ = ["packedJson__"]
 
     #:  The packed JSON data for this object
-    _packedJson: List[Any] = TupleField([])
+    packedJson__: List[Any] = TupleField([])
 
     @classmethod
     def loadFromImportTuple(cls, importBranchTuple: ImportBranchTuple,
@@ -46,7 +46,7 @@ class BranchTuple(Tuple):
             deltasJson.append(delta._jsonData)
 
         self = cls()
-        self._packedJson = [
+        self.packedJson__ = [
             coordSetId,  # __COORD_SET_NUM
             importBranchTuple.key,  # __KEY_NUM
             importBranchTuple.visible,  # __VISIBLE_NUM
@@ -55,19 +55,19 @@ class BranchTuple(Tuple):
         return self
 
     def packJson(self) -> str:
-        return json.dumps(self._packedJson)
+        return json.dumps(self.packedJson__)
 
     @property
     def coordSetId(self):
-        return self._packedJson[self.__COORD_SET_ID_NUM]
+        return self.packedJson__[self.__COORD_SET_ID_NUM]
 
     @property
     def key(self):
-        return self._packedJson[self.__KEY_NUM]
+        return self.packedJson__[self.__KEY_NUM]
 
     @property
     def deltas(self) -> List[BranchDeltaBase]:
-        branchDeltasJson = self._packedJson[self.__DELTAS_JSON_NUM]
+        branchDeltasJson = self.packedJson__[self.__DELTAS_JSON_NUM]
         branchDeltaClasses = []
         for deltaJson in branchDeltasJson:
             branchType = deltaJson[0]
@@ -78,4 +78,4 @@ class BranchTuple(Tuple):
 
     @property
     def visible(self) -> bool:
-        return self._packedJson[self.__VISIBLE_NUM]
+        return self.packedJson__[self.__VISIBLE_NUM]

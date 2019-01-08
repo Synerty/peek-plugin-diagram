@@ -32,7 +32,7 @@ class BranchDeltaColorOverride(BranchDeltaBase):
             return lookupHashConverter.getColourId(colorHash) if colorHash else None
 
         self = cls()
-        self._packedJson = [
+        self.packedJson__ = [
             self.deltaType,
             importDeltaTuple.dispKeys,  # __DISP_KEYS_NUM
             mapColor(importDeltaTuple.lineColorHash),  # __LINE_COLOR_NUM
