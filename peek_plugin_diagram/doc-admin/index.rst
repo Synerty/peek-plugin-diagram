@@ -9,3 +9,10 @@ that supports zooming, panning, touch, mobile, desktop,
 and attribute updates from the peek-plugin-livedb plugin.
 
 .. image:: example_diagram.png
+
+.. toctree::
+    :maxdepth: 3
+    :caption: Contents:
+
+    overview
+    admin_tasks
