@@ -36,6 +36,18 @@ The delete will cascade to the related tables, this may take some time.
 
 Once the delete is complete, restart the Peek Client service.
 
+Updating Layers
+```````````````
+
+Updating the layers is a common admin task when first setting up the diagram.
+Since layers can contain display items that are used for debug, or alternate views
+such as simulated states, it's important that the right layers are enabled.
+
+Edit the "selectable" and "visible" columns for each layer in the
+:code:`pl_diagram."DispLayer"` table.
+
+You have completed updating the table, restart the Peek Client service.
+
 
 Updating Coord Set Z Grids
 ``````````````````````````

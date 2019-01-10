@@ -133,6 +133,8 @@ is not included in the grids data.
 
 This provides both loading and rendering performance.
 
+.. image:: diagram_layers.jpg
+
 Display / Grid Compiling
 ````````````````````````
 
