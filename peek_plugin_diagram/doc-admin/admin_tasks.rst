@@ -26,6 +26,8 @@ The fields most often customised are as follows :
 
 Update the values in the table accordingly, then restart the Peek Client service.
 
+.. _diagram_delete_coord_sets:
+
 Deleting Coord Sets
 ```````````````````
 
