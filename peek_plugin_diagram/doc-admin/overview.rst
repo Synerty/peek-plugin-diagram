@@ -65,6 +65,8 @@ Display items properties can have links to values the LiveDB plugin.
 This allows values in the LiveDB plugin to change the colour, text value, etc of a shape
 displayed on the diagram.
 
+The Peek Diagram is aware of the LiveDB values that are currently being viewed by all
+viewers and continuously updates the LiveDB plugin with this list as "Priority Items".
 
 
 Model Set
