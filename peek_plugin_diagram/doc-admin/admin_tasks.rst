@@ -121,6 +121,8 @@ Recompiling the Location Index will rebuild these bash buckets.
 
 Each model set has it's own location index.
 
+.. note:: You should not expect to need to recompile the index.
+
 ----
 
 #.  Find the ID of the model set to recompile the location index for.
@@ -130,11 +132,11 @@ Each model set has it's own location index.
 #.  Execute the following, replacing <ID> with the :code:`modeSetId` ::
 
 
-        -- Delete the existing grids for this coord set.
+        -- Delete the existing index data.
         DELETE FROM pl_diagram."LocationIndexCompilerQueue" WHERE "modelSetId" = <ID>;
         DELETE FROM pl_diagram."LocationIndexCompiled" WHERE "modelSetId" = <ID>;
 
-        -- Queue the display items for re-calculation
+        -- Queue the chunks for compiling
         INSERT INTO pl_diagram."LocationIndexCompilerQueue" ("modelSetId", "indexBucket")
         SELECT DISTINCT "modelSetId", "indexBucket"
         FROM pl_diagram."LocationIndex"
