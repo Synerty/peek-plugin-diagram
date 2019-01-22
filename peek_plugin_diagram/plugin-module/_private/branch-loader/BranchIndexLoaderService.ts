@@ -14,7 +14,7 @@ import {
 } from "@synerty/vortexjs";
 
 import {
-    diagramCacheStorageName,
+    branchCacheStorageName,
     diagramFilt,
     diagramTuplePrefix
 } from "../PluginNames";
@@ -177,7 +177,7 @@ export class BranchIndexLoaderService
 
         this.storage = new TupleOfflineStorageService(
             storageFactory,
-            new TupleOfflineStorageNameService(diagramCacheStorageName)
+            new TupleOfflineStorageNameService(branchCacheStorageName)
         );
 
         this.setupVortexSubscriptions();
