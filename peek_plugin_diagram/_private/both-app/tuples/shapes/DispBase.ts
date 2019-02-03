@@ -16,17 +16,17 @@ export abstract class DispBase {
     }
 
     static level(disp): DispLevel {
-        // This is set from the short id in LookupCache.linkDispLookups
+        // This is set from the short id in DiagramLookupCache._linkDispLookups
         return disp.lel;
     }
 
     static layer(disp): DispLayer {
-        // This is set from the short id in LookupCache.linkDispLookups
+        // This is set from the short id in DiagramLookupCache._linkDispLookups
         return disp.lal;
     }
 
     static isSelectable(disp): boolean {
-        // This is set from the short id in LookupCache.linkDispLookups
+        // This is set from the short id in DiagramLookupCache._linkDispLookups
         return disp.s;
     }
 

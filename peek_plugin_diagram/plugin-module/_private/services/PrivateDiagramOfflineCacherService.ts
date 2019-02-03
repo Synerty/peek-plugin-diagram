@@ -12,7 +12,7 @@ import {
     DispLevel,
     DispLineStyle,
     DispTextStyle
-} from "../tuples/lookups";
+} from "../../lookups";
 
 
 /** Diagram Lookups offline cacher

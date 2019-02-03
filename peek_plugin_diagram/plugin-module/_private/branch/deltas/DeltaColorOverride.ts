@@ -1,5 +1,4 @@
 import {DeltaBase} from "./DeltaBase";
-import {DispColor} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
 
 /** Diagram Delta Color Override Tuple
  *
@@ -17,16 +16,33 @@ export class DeltaColorOverride extends DeltaBase {
         return deltaJson[DeltaColorOverride.__DISP_KEYS_NUM];
     }
 
-    static addDispKeys(deltaJson: any[], dispKeys: string[]): string[] {
-        return deltaJson[DeltaColorOverride.__DISP_KEYS_NUM];
+    static addDispKeys(deltaJson: any[], dispKeys: string[]): void {
+        if (deltaJson[DeltaColorOverride.__DISP_KEYS_NUM] == null)
+            deltaJson[DeltaColorOverride.__DISP_KEYS_NUM] = [];
+        Array.prototype.push.apply(deltaJson[DeltaColorOverride.__DISP_KEYS_NUM], dispKeys);
+    }
+
+    // Line Color
+    static setLineColor(value: number, deltaJson): void {
+        deltaJson[DeltaColorOverride.__LINE_COLOR_NUM];
     }
 
     static lineColor(deltaJson): number {
         return deltaJson[DeltaColorOverride.__LINE_COLOR_NUM];
     }
 
+    // Fill Color
+    static setFillColor(value: number | null, deltaJson): void {
+        deltaJson[DeltaColorOverride.__FILL_COLOR_NUM] = value;
+    }
+
     static fillColor(deltaJson): number {
         return deltaJson[DeltaColorOverride.__FILL_COLOR_NUM];
+    }
+
+    // Color
+    static setColor(value: number | null, deltaJson): void {
+        deltaJson[DeltaColorOverride.__COLOR_NUM] = value;
     }
 
     static color(deltaJson): number {

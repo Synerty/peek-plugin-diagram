@@ -5,7 +5,7 @@ from peek_plugin_diagram._private.worker.tasks import GridCompilerTask, \
     ImportDispTask, LiveDbDisplayValueConverterTask, DispCompilerTask, \
     LocationIndexCompilerTask
 from peek_plugin_diagram._private.worker.tasks.branch import BranchIndexCompiler, \
-    BranchIndexImporter, BranchGridIndexCompiler
+    BranchIndexImporter, BranchIndexUpdater
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class WorkerEntryHook(PluginWorkerEntryHookABC):
 
     @property
     def celeryAppIncludes(self):
-        return [BranchGridIndexCompiler.__name__,
+        return [BranchIndexUpdater.__name__,
                 BranchIndexCompiler.__name__,
                 BranchIndexImporter.__name__,
                 DispCompilerTask.__name__,

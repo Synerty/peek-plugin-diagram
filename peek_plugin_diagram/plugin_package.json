@@ -58,8 +58,27 @@
                 "class": "PrivateDiagramTupleService"
             },
             {
+                "file": "DiagramLookupFactoryService",
+                "class": "DiagramLookupFactoryService",
+                "persistent": true
+            },
+            {
                 "file": "_private/services/PrivateDiagramCoordSetService",
                 "class": "PrivateDiagramCoordSetService",
+                "persistent": true
+            },
+            {
+                "file": "_private/branch-loader/BranchIndexLoaderServiceA",
+                "class": "BranchIndexLoaderServiceA",
+                "useClassFile": "_private/branch-loader/BranchIndexLoaderService",
+                "useClassClass": "BranchIndexLoaderService",
+                "persistent": true
+            },
+            {
+                "file": "_private/branch/DiagramBranchService",
+                "class": "DiagramBranchService",
+                "useClassFile": "_private/branch/PrivateDiagramBranchService",
+                "useClassClass": "PrivateDiagramBranchService",
                 "persistent": true
             },
             {
@@ -119,8 +138,27 @@
                 "class": "PrivateDiagramTupleService"
             },
             {
+                "file": "DiagramLookupFactoryService",
+                "class": "DiagramLookupFactoryService",
+                "persistent": true
+            },
+            {
                 "file": "_private/services/PrivateDiagramCoordSetService",
                 "class": "PrivateDiagramCoordSetService",
+                "persistent": true
+            },
+            {
+                "file": "_private/branch-loader/BranchIndexLoaderServiceA",
+                "class": "BranchIndexLoaderServiceA",
+                "useClassFile": "_private/branch-loader/BranchIndexLoaderService",
+                "useClassClass": "BranchIndexLoaderService",
+                "persistent": true
+            },
+            {
+                "file": "_private/branch/DiagramBranchService",
+                "class": "DiagramBranchService",
+                "useClassFile": "_private/branch/PrivateDiagramBranchService",
+                "useClassClass": "PrivateDiagramBranchService",
                 "persistent": true
             },
             {
@@ -185,8 +223,27 @@
                 "class": "PrivateDiagramTupleService"
             },
             {
+                "file": "DiagramLookupFactoryService",
+                "class": "DiagramLookupFactoryService",
+                "persistent": true
+            },
+            {
                 "file": "_private/services/PrivateDiagramCoordSetService",
                 "class": "PrivateDiagramCoordSetService",
+                "persistent": true
+            },
+            {
+                "file": "_private/branch-loader/BranchIndexLoaderServiceA",
+                "class": "BranchIndexLoaderServiceA",
+                "useClassFile": "_private/branch-loader/BranchIndexLoaderService",
+                "useClassClass": "BranchIndexLoaderService",
+                "persistent": true
+            },
+            {
+                "file": "_private/branch/DiagramBranchService",
+                "class": "DiagramBranchService",
+                "useClassFile": "_private/branch/PrivateDiagramBranchService",
+                "useClassClass": "PrivateDiagramBranchService",
                 "persistent": true
             },
             {

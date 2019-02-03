@@ -3,7 +3,7 @@ import {GridObservable} from "../cache/GridObservable.web";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {LinkedGrid} from "../cache/LinkedGrid.web";
 import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil";
-import {LookupCache} from "../cache/LookupCache.web";
+import {LookupCache} from "../cache/DiagramLookupCache.web";
 import {DispLevel} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
 import {DispLayer} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
 import {DispBase} from "../tuples/shapes/DispBase";

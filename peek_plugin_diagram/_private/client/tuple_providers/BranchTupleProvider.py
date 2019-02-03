@@ -14,7 +14,7 @@ from peek_plugin_diagram._private.client.controller.BranchIndexCacheController i
 from peek_plugin_diagram._private.storage.branch.BranchIndexEncodedChunk import \
     BranchIndexEncodedChunk
 from peek_plugin_diagram._private.worker.tasks.branch._BranchIndexCalcChunkKey import \
-    makeChunkKey
+    makeChunkKeyForBranchIndex
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ class BranchTupleProvider(TuplesProviderABC):
         results: List[BranchTuple] = []
 
         for key in keys:
-            keysByChunkKey[makeChunkKey(modelSetKey, key)].append(key)
+            keysByChunkKey[makeChunkKeyForBranchIndex(modelSetKey, key)].append(key)
 
         for chunkKey, subKeys in keysByChunkKey.items():
             chunk: BranchIndexEncodedChunk = self._cacheHandler.branchIndexChunk(chunkKey)

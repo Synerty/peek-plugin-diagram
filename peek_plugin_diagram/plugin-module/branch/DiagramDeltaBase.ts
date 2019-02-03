@@ -1,3 +1,5 @@
+import {DiagramLookupCache} from "../DiagramLookupCacheService";
+
 export let BRANCH_DELTA_CLASSES_BY_TYPE = {};
 
 
@@ -32,31 +34,8 @@ export abstract class DiagramDeltaBase {
         this.type = type;
     }
 
-    static unpackJson(key: string, packedJson: string): DiagramBranchTuple {
-        // Create the new object
-        let newSelf = new DiagramBranchTuple();
-
-
-        newSelf.modelSetKey = objectProps["modelSetKey"];
-        newSelf.coordSetKey = objectProps["coordSetKey"];
-        newSelf.key = key;
-
-        // Unpack the custom data here
-        newSelf.deltas = objectProps["deltas"];
-        newSelf.visible = objectProps["visible"];
-
-        return newSelf;
-
-    }
-
-    packJson(): string {
-        // Reconstruct the data
-        let jsonData: any[] = [
-            this.type,
-        ];
-
-        return JSON.stringify(jsonData);
-
-    }
+    abstract __link(lookupCache: DiagramLookupCache): void;
 
 }
+
+

@@ -13,11 +13,7 @@ import {
     VortexStatusService
 } from "@synerty/vortexjs";
 
-import {
-    branchCacheStorageName,
-    diagramFilt,
-    diagramTuplePrefix
-} from "../PluginNames";
+import {branchCacheStorageName, diagramFilt, diagramTuplePrefix} from "../PluginNames";
 
 
 import {Subject} from "rxjs/Subject";
@@ -31,6 +27,7 @@ import {BranchIndexLoaderStatusTuple} from "./BranchIndexLoaderStatusTuple";
 import {OfflineConfigTuple} from "../tuples/OfflineConfigTuple";
 import {ModelSet} from "../tuples/ModelSet";
 import {BranchIndexLoaderServiceA} from "./BranchIndexLoaderServiceA";
+import {DiagramBranchContext} from "../../branch/DiagramBranchContext";
 
 // ----------------------------------------------------------------------------
 
@@ -122,8 +119,7 @@ function keyChunk(modelSetKey: string, key: string): string {
  *
  */
 @Injectable()
-export class BranchIndexLoaderService
-    implements BranchIndexLoaderServiceA {
+export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
     private UPDATE_CHUNK_FETCH_SIZE = 5;
     private OFFLINE_CHECK_PERIOD_MS = 15 * 60 * 1000; // 15 minutes
@@ -133,7 +129,7 @@ export class BranchIndexLoaderService
 
     private _hasLoaded = false;
 
-    private _hasLoadedSubject = new Subject<void>();
+    private _hasLoadedSubject: Subject<boolean> = new Subject<boolean>();
     private storage: TupleOfflineStorageService;
 
     private _statusSubject = new Subject<BranchIndexLoaderStatusTuple>();
@@ -149,6 +145,7 @@ export class BranchIndexLoaderService
                 private vortexStatusService: VortexStatusService,
                 storageFactory: TupleStorageFactoryService,
                 private tupleService: PrivateDiagramTupleService) {
+        super();
 
         this.tupleService.offlineObserver
             .subscribeToTupleSelector(new TupleSelector(OfflineConfigTuple.tupleName, {}),
@@ -169,7 +166,7 @@ export class BranchIndexLoaderService
             .subscribe((tuples: ModelSet[]) => {
                 this.modelSetByIds = {};
                 for (let item of tuples) {
-                    this.modelSetByIds[item.id__] = item;
+                    this.modelSetByIds[item.id] = item;
                 }
                 this._hasModelSetLoaded = true;
                 this._notifyReady();
@@ -193,9 +190,10 @@ export class BranchIndexLoaderService
         return this._hasLoaded;
     }
 
-    isReadyObservable(): Observable<void> {
+    isReadyObservable(): Observable<boolean> {
         return this._hasLoadedSubject;
     }
+
 
     statusObservable(): Observable<BranchIndexLoaderStatusTuple> {
         return this._statusSubject;
@@ -587,9 +585,13 @@ export class BranchIndexLoaderService
         let objects: { [key: string]: BranchTuple } = {};
         for (let result of results) {
             objects[result.key] = result;
-            // result.coordSetKey = this.modelSetByIds[result.modelSet.id__];
+            // result.coordSetKey = this.modelSetByIds[result.modelSet.id];
         }
         return objects;
+    }
+
+    saveBranch(context: DiagramBranchContext): Promise<void> {
+        return undefined;
     }
 
 

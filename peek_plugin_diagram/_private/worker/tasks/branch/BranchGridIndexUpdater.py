@@ -8,6 +8,8 @@ from peek_plugin_diagram._private.storage.branch.BranchIndex import BranchIndex
 from peek_plugin_diagram._private.storage.branch.BranchIndexCompilerQueue import \
     BranchIndexCompilerQueue
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
+from peek_plugin_diagram._private.worker.tasks.branch._BranchIndexCalcChunkKey import \
+    makeChunkKeyForBranchIndex
 
 logger = logging.getLogger(__name__)
 

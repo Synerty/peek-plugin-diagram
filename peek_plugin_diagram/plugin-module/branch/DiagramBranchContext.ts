@@ -1,4 +1,4 @@
-import {DiagramDeltaBase} from "./branch_deltas/DiagramDeltaBase";
+import {DiagramDeltaBase} from "./DiagramDeltaBase";
 
 
 /** Diagram Branch Service Enum

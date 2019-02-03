@@ -1,7 +1,7 @@
 import {
     DiagramBranchService,
     BranchUpdatedI
-} from "@peek/peek_plugin_diagram/DiagramBranchService";
+} from "@peek/peek_plugin_diagram/DiagramBranchContext";
 
 import {
     DiagramBranchI,

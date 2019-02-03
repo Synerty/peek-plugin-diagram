@@ -8,7 +8,7 @@ import {PeekCanvasRenderer} from "../canvas/PeekCanvasRenderer.web";
 import {PeekCanvasInput} from "../canvas/PeekCanvasInput.web";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 import {GridObservable} from "../cache/GridObservable.web";
-import {LookupCache} from "../cache/LookupCache.web";
+import {LookupCache} from "../cache/DiagramLookupCache.web";
 import {DispGroupCache} from "../cache/DispGroupCache.web";
 
 import {DispBase} from "../tuples/shapes/DispBase";

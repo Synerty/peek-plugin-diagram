@@ -4,7 +4,7 @@ import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
 
-import {LookupCache} from "../cache/LookupCache.web";
+import {LookupCache} from "../cache/DiagramLookupCache.web";
 
 
 @Component({

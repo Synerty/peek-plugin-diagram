@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {LookupCache} from "./LookupCache.web";
+import {LookupCache} from "./DiagramLookupCache.web";
 import {LinkedGrid} from "./LinkedGrid.web";
 import {PrivateDiagramGridLoaderServiceA, GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader";
 import {Subject} from "rxjs/Subject";

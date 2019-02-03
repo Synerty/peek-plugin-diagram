@@ -1,6 +1,6 @@
 import {assert} from "../DiagramUtil";
 import {GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
-import {LookupCache} from "./LookupCache.web";
+import {LookupCache} from "./DiagramLookupCache.web";
 /** Linked Grid
  *
  * This class represents a constructed grid of data, ready for use by a canvas model

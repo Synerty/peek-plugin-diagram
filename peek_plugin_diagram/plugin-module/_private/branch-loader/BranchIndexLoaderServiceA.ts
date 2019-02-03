@@ -1,5 +1,4 @@
 import {Injectable} from "@angular/core";
-import {BranchTuple} from "../branch/BranchTuple";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
@@ -28,7 +27,7 @@ export abstract class BranchIndexLoaderServiceA extends ComponentLifecycleEventE
     // abstract loadGrids(currentGridUpdateTimes: { [gridKey: string]: string },
     //                    gridKeys: string[]): void;
 
-    abstract saveBranch(context:DiagramBranchContext):Promise<void>;
+    abstract saveBranch(context: DiagramBranchContext): Promise<void>;
 
 
 }

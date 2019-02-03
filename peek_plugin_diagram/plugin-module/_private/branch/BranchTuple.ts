@@ -4,9 +4,7 @@ import {
     BRANCH_DELTA_CLASSES_BY_TYPE,
     DiagramDeltaBase
 } from "../../branch/DiagramDeltaBase";
-import {ModelSet} from "@peek/peek_plugin_diagram";
-import {BranchDeltaBase} from "@peek/peek_plugin_diagram/branch";
-import {DiagramCoordSetTuple} from "../..";
+import {DiagramLookupCache} from "../../DiagramLookupCacheService";
 
 /** Diagram Branch Tuple
  *
@@ -35,7 +33,7 @@ export class BranchTuple extends Tuple {
         // Create the new object
         let newSelf = new BranchTuple();
         newSelf.packedJson__ = JSON.parse(packedJsonStr);
-        newSelf.key = key;
+        newSelf.packedJson__[BranchTuple.__KEY_NUM] = key;
         return newSelf;
 
     }
@@ -48,22 +46,28 @@ export class BranchTuple extends Tuple {
         return this.packedJson__[BranchTuple.__KEY_NUM];
     }
 
-    get deltas(): DiagramDeltaBase[] {
+    deltas(lookupCache: DiagramLookupCache): DiagramDeltaBase[] {
         let deltasJson = this.packedJson__[BranchTuple.__DELTAS_NUM];
         let deltas = [];
         for (let deltaJson of deltasJson) {
             let deltaType = deltaJson[0];
             let Delta = BRANCH_DELTA_CLASSES_BY_TYPE[deltaType];
-            let delta = Delta();
+            let delta = new Delta();
             delta._jsonData = deltaJson;
+            delta.__link(lookupCache);
             deltas.push(delta);
         }
         return deltas;
     }
 
-    addDelta(delta: BranchDeltaBase): void {
-        this.deltas.push(delta["_deltaJson"])
+    addDelta(delta: DiagramDeltaBase): void {
+        if (this.packedJson__[BranchTuple.__DELTAS_NUM] == null)
+            this.packedJson__[BranchTuple.__DELTAS_NUM] = [];
+        this.packedJson__[BranchTuple.__DELTAS_NUM].push(delta["_deltaJson"])
+    }
 
+    set visible(value: boolean) {
+        this.packedJson__[BranchTuple.__VISIBLE_NUM] = value;
     }
 
     get visible(): boolean {
