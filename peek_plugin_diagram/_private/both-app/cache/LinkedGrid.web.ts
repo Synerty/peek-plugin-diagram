@@ -1,6 +1,6 @@
 import {assert} from "../DiagramUtil";
 import {GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
-import {LookupCache} from "./DiagramLookupCache.web";
+import {DiagramLookupCache} from "@peek/peek_plugin_diagram/DiagramLookupCache";
 /** Linked Grid
  *
  * This class represents a constructed grid of data, ready for use by a canvas model
@@ -13,7 +13,7 @@ export class LinkedGrid {
     disps = [];
 
     constructor(serverCompiledGridOrGridKey: string | GridTuple,
-                lookupStore: LookupCache | null = null) {
+                lookupStore: DiagramLookupCache | null = null) {
 
         // initialise for empty grid keys
         if (typeof serverCompiledGridOrGridKey === "string") {
@@ -48,7 +48,7 @@ export class LinkedGrid {
                 // including dips that had not yet had json assigned.
                 continue;
             }
-            if (lookupStore.linkDispLookups(disp) != null) {
+            if (lookupStore._linkDispLookups(disp) != null) {
                 this.disps.push(disp);
             }
         }

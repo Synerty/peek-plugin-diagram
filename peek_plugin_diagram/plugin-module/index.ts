@@ -1,3 +1,7 @@
+export {DiagramLookupFactoryService} from "./DiagramLookupFactoryService";
+
+export {DiagramLookupCache} from "./DiagramLookupCache";
+
 export {DiagramCoordSetService} from "./DiagramCoordSetService";
 
 export {PeekPluginDiagramModule} from "peek_plugin_diagram/diagram.module.web";
@@ -17,4 +21,3 @@ export {
     DiagramPositionService,
     PositionUpdatedI
 } from "./DiagramPositionService";
-

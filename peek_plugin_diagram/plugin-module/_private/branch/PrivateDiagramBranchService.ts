@@ -11,7 +11,7 @@ import {BranchTuple} from "../branch/BranchTuple";
 import {BranchIndexLoaderServiceA} from "../branch-loader/BranchIndexLoaderServiceA";
 import {DiagramBranchService} from "../../DiagramBranchService";
 import {DiagramLookupFactoryService} from "../../DiagramLookupFactoryService";
-import {DiagramLookupCache} from "../../DiagramLookupCacheService";
+import {DiagramLookupCache} from "../../DiagramLookupCache";
 
 /** Diagram Branch Service
  *

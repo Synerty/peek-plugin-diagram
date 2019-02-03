@@ -1,7 +1,7 @@
 import {addBranchDeltaType, DiagramDeltaBase} from "./DiagramDeltaBase";
 import {DispColor} from "../lookups";
 import {DeltaColorOverride} from "../_private/branch/deltas/DeltaColorOverride";
-import {DiagramLookupCache} from "../DiagramLookupCacheService";
+import {DiagramLookupCache} from "../DiagramLookupCache";
 
 /** Diagram Delta Color Override Tuple
  *

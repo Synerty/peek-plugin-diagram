@@ -27,7 +27,6 @@ import "./canvas/PeekCanvasExtensions.web";
 // import {DisplayCanvasSplashScreen} from "./loading-splash/loading-splash.service";
 import {GridCache} from "./cache/GridCache.web";
 import {GridObservable} from "./cache/GridObservable.web";
-import {LookupCache} from "./cache/DiagramLookupCache.web";
 import {DispGroupCache} from "./cache/DispGroupCache.web";
 import {CanvasComponent} from "./canvas-component/canvas-component.web";
 
@@ -45,7 +44,6 @@ import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarSer
 import {PopupComponent} from "./popup-component/popup.component.mweb";
 import {ToolbarComponent} from "./toolbar-component/toolbar.component.web";
 import {LayerComponent} from "./layer-component/layer.component.web";
-
 
 
 // Define the root module for this plugin.

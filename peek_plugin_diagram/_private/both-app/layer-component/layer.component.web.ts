@@ -4,7 +4,7 @@ import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
 
-import {LookupCache} from "../cache/DiagramLookupCache.web";
+import {DiagramLookupCache} from "@peek/peek_plugin_diagram/DiagramLookupCache";
 
 
 @Component({
@@ -16,7 +16,7 @@ export class LayerComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
 
 
-    constructor(private lookupCache: LookupCache) {
+    constructor(private lookupCache: DiagramLookupCache) {
         super();
 
     }

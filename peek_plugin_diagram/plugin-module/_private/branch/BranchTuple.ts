@@ -4,7 +4,7 @@ import {
     BRANCH_DELTA_CLASSES_BY_TYPE,
     DiagramDeltaBase
 } from "../../branch/DiagramDeltaBase";
-import {DiagramLookupCache} from "../../DiagramLookupCacheService";
+import {DiagramLookupCache} from "../../DiagramLookupCache";
 
 /** Diagram Branch Tuple
  *

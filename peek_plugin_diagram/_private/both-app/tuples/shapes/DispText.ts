@@ -1,6 +1,6 @@
 import {DispBase, PointI} from "./DispBase";
-import {DispTextStyle} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
-import {DispColor} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
+import {DispTextStyle} from "@peek/peek_plugin_diagram/lookups";
+import {DispColor} from "@peek/peek_plugin_diagram/lookups";
 
 export enum TextVerticalAlign {
     top = -1,

@@ -8,7 +8,8 @@ import {PeekCanvasRenderer} from "../canvas/PeekCanvasRenderer.web";
 import {PeekCanvasInput} from "../canvas/PeekCanvasInput.web";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 import {GridObservable} from "../cache/GridObservable.web";
-import {LookupCache} from "../cache/DiagramLookupCache.web";
+import {DiagramLookupCache} from "@peek/peek_plugin_diagram/DiagramLookupCache";
+import {DiagramLookupFactoryService} from "@peek/peek_plugin_diagram/DiagramLookupFactoryService";
 import {DispGroupCache} from "../cache/DispGroupCache.web";
 
 import {DispBase} from "../tuples/shapes/DispBase";
@@ -62,9 +63,11 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     // Private services
     private _privatePosService: PrivateDiagramPositionService;
 
+    private lookupCache: DiagramLookupCache | null = null;
+
 
     constructor(private gridObservable: GridObservable,
-                private lookupCache: LookupCache,
+                private lookupFactory: DiagramLookupFactoryService,
                 private coordSetCache: PrivateDiagramCoordSetService,
                 private dispGroupCache: DispGroupCache,
                 positionService: DiagramPositionService,
@@ -72,16 +75,22 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         super();
 
         // Cast the private services
-        this._privatePosService = <PrivateDiagramPositionService> positionService;
+        this._privatePosService = <PrivateDiagramPositionService>positionService;
 
         // The config for the canvas
         this.config = new PeekCanvasConfig();
 
+
+    }
+
+    private initCanvas(): void {
+        // this.lookupCache must not be null
+
         // The model view the viewable items on the canvas
-        this.model = new PeekCanvasModel(this.config, gridObservable, lookupCache, this);
+        this.model = new PeekCanvasModel(this.config, this.gridObservable, this.lookupCache, this);
 
         // The display renderer delegates
-        this.dispDelegate = new PeekDispRenderFactory(this.config, dispGroupCache);
+        this.dispDelegate = new PeekDispRenderFactory(this.config, this.dispGroupCache);
 
         // The user interaction handler.
         this.input = new PeekCanvasInput(
@@ -107,19 +116,25 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         // Hook up the outward notification of position updates
         this.connectPositionUpdateNotify();
 
-
     }
 
     isReady(): boolean {
         return this.coordSetCache.isReady()
             && this.gridObservable.isReady()
-            && this.lookupCache.isReady();
+            && this.lookupCache != null;
 
     }
 
     ngOnInit() {
+
+        this.lookupFactory.loadCache(this.modelSetKey)
+            .then((cache) => {
+                this.lookupCache = cache;
+                this.initCanvas();
+            })
+            .catch(e => console.log(`Load Lookup Cache faile : ${e}`));
+
         this.dispGroupCache.setModelSetKey(this.modelSetKey);
-        this.lookupCache.setModelSetKey(this.modelSetKey);
 
         this.canvas = this.canvasView.nativeElement;
 

@@ -5,7 +5,7 @@ import {VortexStatusService} from "@synerty/vortexjs";
 import {BranchTuple} from "./BranchTuple";
 import {DiagramDeltaBase} from "../../branch/DiagramDeltaBase";
 import {DiagramBranchContext} from "../../branch/DiagramBranchContext";
-import {DiagramLookupCache} from "../../DiagramLookupCacheService";
+import {DiagramLookupCache} from "../../DiagramLookupCache";
 
 /** Diagram Branch Service
  *

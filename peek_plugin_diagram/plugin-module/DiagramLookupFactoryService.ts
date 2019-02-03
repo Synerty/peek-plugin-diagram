@@ -2,7 +2,7 @@ import {Injectable} from "@angular/core";
 import {TupleDataOfflineObserverService, TupleSelector} from "@synerty/vortexjs";
 
 import {PrivateDiagramTupleService} from "./_private/services/PrivateDiagramTupleService";
-import {DiagramLookupCache} from "./DiagramLookupCacheService";
+import {DiagramLookupCache} from "./DiagramLookupCache";
 import {filter} from "rxjs/operators";
 
 /** Lookup Factory Service

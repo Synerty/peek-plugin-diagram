@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {LookupCache} from "./DiagramLookupCache.web";
+import {DiagramLookupCache} from "@peek/peek_plugin_diagram/DiagramLookupCache";
 import {LinkedGrid} from "./LinkedGrid.web";
 import {PrivateDiagramGridLoaderServiceA, GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader";
 import {Subject} from "rxjs/Subject";
@@ -69,7 +69,7 @@ export class GridCache {
     // TODO, There appears to be no way to tear down a service
     private lifecycleEmitter = new ComponentLifecycleEventEmitter();
 
-    constructor(private lookupCache: LookupCache,
+    constructor(private lookupCache: DiagramLookupCache,
                 private gridLoader: PrivateDiagramGridLoaderServiceA) {
 
         // Services don't have destructors, I'm not sure how to unsubscribe.

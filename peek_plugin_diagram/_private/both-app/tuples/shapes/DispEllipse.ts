@@ -1,6 +1,6 @@
 import {DispBase, PointI} from "./DispBase";
-import {DispColor} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
-import {DispLineStyle} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
+import {DispColor} from "@peek/peek_plugin_diagram/lookups";
+import {DispLineStyle} from "@peek/peek_plugin_diagram/lookups";
 
 export class DispEllipse extends DispBase {
 

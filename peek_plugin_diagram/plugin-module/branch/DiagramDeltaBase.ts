@@ -1,4 +1,4 @@
-import {DiagramLookupCache} from "../DiagramLookupCacheService";
+import {DiagramLookupCache} from "../DiagramLookupCache";
 
 export let BRANCH_DELTA_CLASSES_BY_TYPE = {};
 
