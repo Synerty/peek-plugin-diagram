@@ -54,6 +54,6 @@ class BranchDeltaBase(metaclass=ABCMeta):
 
     @classmethod
     def createFromDeltaJson(cls, deltaJson: List[Any]) -> "BranchDeltaBase":
-        deltaType = deltaJson[0]
+        deltaType = deltaJson[cls.__DELTA_TYPE_NUM]
         Delta = BRANCH_DELTA_CLASSES_BY_TYPE[deltaType]
         return Delta.unpackJson(deltaJson)

@@ -3,6 +3,7 @@ from collections import defaultdict
 import logging
 import pytz
 from datetime import datetime
+from sqlalchemy import select
 from typing import List, Set, Tuple, Dict
 
 from peek_plugin_base.worker import CeleryDbConn
@@ -15,6 +16,32 @@ from peek_plugin_diagram._private.worker.tasks._CalcGridForBranch import \
     makeGridKeysForBranch
 
 logger = logging.getLogger(__name__)
+
+
+def removeBranchGridIndexes(conn, branchIndexIds: List[int]) -> None:
+    """ Remove Branches
+
+    This worker task removes branches from the BranchGridIndex.
+
+    NOTE: The branches will be removed by a cascading constraint, we only have
+    to queue the grids for recompile.
+
+    """
+
+    branchGridIndexTable = BranchGridIndex.__table__
+    queueTable = GridKeyCompilerQueue.__table__
+
+    results = conn.execute(select(
+        distinct=True,
+        columns=[branchGridIndexTable.c.gridKey, branchGridIndexTable.c.coordSetId],
+        whereclause=branchGridIndexTable.c.branchIndexId.in_(branchIndexIds)
+    )).fetchall()
+
+    conn.execute(
+        queueTable.insert(),
+        [dict(coordSetId=item.coordSetId, gridKey=item.gridKey) for item in results]
+    )
+
 
 """ Branch Grid Index Updater
 
@@ -80,6 +107,7 @@ def _insertOrUpdateBranchGrids(conn, coordSet: ModelCoordSet,
             insert = BranchGridIndex(
                 id=id_,
                 branchIndexId=newBranch.id,
+                coordSetId=coordSet.id,
                 gridKey=gridKey
             )
             inserts.append(insert.tupleToSqlaBulkInsertDict())
@@ -101,7 +129,7 @@ def _insertOrUpdateBranchGrids(conn, coordSet: ModelCoordSet,
     if chunkKeysForQueue:
         conn.execute(
             queueTable.insert(),
-            [dict(coordSetId=cid, chunkKey=ck) for cid, ck in chunkKeysForQueue]
+            [dict(coordSetId=cid, gridKey=ck) for cid, ck in chunkKeysForQueue]
         )
 
     logger.debug("Inserted %s BrandIndexes queued %s chunks in %s",

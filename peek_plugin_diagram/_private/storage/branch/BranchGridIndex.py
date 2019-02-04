@@ -24,11 +24,14 @@ class BranchGridIndex(Tuple, DeclarativeBase):
     branchIndexId = Column(Integer,
                         ForeignKey('BranchIndex.id', ondelete='CASCADE'),
                         nullable=False)
-    # branchIndex = relationship(BranchIndex)
+
+    coordSetId = Column(Integer,
+                        ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
+                        primary_key=True)
 
     #:  The Grid Key for this subset of a branch fits into.
     gridKey = Column(String, nullable=False)
 
     __table_args__ = (
-        Index("idx_BranchGridIndex_key", branchIndexId, gridKey, unique=True),
+        Index("idx_BranchGridIndex_coord_key", coordSetId, branchIndexId, gridKey, unique=True),
     )

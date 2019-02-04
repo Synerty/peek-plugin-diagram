@@ -33,7 +33,7 @@ class BranchDeltaColorOverride(BranchDeltaBase):
 
         self = cls()
         self.packedJson__ = [
-            self.deltaType,
+            self.deltaType,  # __DELTA_TYPE_NUM
             importDeltaTuple.dispKeys,  # __DISP_KEYS_NUM
             mapColor(importDeltaTuple.lineColorHash),  # __LINE_COLOR_NUM
             mapColor(importDeltaTuple.fillColorHash),  # __FILL_COLOR_NUM
