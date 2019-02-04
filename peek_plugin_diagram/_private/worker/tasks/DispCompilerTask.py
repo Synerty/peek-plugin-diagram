@@ -22,7 +22,7 @@ from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks._CalcDisp import _scaleDispGeom
 from peek_plugin_diagram._private.worker.tasks._CalcDispFromLiveDb import \
     _mergeInLiveDbValues
-from peek_plugin_diagram._private.worker.tasks._CalcGrid import makeGridKeys
+from peek_plugin_diagram._private.worker.tasks._CalcGridForDisp import makeGridKeysForDisp
 from peek_plugin_diagram._private.worker.tasks._CalcLocation import makeLocationJson, \
     dispKeyHashBucket
 from peek_plugin_livedb.worker.WorkerApi import WorkerApi
@@ -157,7 +157,7 @@ def compileDisps(self, queueIds, dispIds):
                 )
 
             # Work out which grids we belong to
-            for gridKey in makeGridKeys(coordSet, disp, geomJson, textStyleById):
+            for gridKey in makeGridKeysForDisp(coordSet, disp, geomJson, textStyleById):
                 # Create the compiler queue item
                 gridCompiledQueueItems.add(
                     CoordSetIdGridKeyData(coordSetId=disp.coordSetId,
