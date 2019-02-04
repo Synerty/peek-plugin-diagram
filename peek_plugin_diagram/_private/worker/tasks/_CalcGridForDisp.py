@@ -11,9 +11,9 @@ from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, \
 logger = logging.getLogger(__name__)
 
 
-def makeGridKeys(coordSet: ModelCoordSet,
-                 disp, geomJson,
-                 textStyleById: Dict[int, DispTextStyle]) -> List[str]:
+def makeGridKeysForDisp(coordSet: ModelCoordSet,
+                        disp, geomJson,
+                        textStyleById: Dict[int, DispTextStyle]) -> List[str]:
     points = geomJson
 
     if geomJson is None:

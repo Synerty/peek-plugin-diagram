@@ -9,6 +9,8 @@ from typing import List, Dict
 from vortex.Payload import Payload
 
 from peek_plugin_base.worker import CeleryDbConn
+from peek_plugin_diagram._private.storage.Display import DispTextStyle
+from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
@@ -46,6 +48,16 @@ def createOrUpdateBranches(self, importBranchesEncodedPayload: bytes) -> None:
     # Do the import
     groupedBranches = _convertImportBranchTuples(importBranches)
 
+    # Create a lookup of CoordSets by ID
+    dbSession = CeleryDbConn.getDbSession()
+    try:
+        coordSetById = {i.id: i for i in dbSession.query(ModelCoordSet).all()}
+        textStylesById = {i.id: i for i in dbSession.query(DispTextStyle).all()}
+        dbSession.expunge_all()
+
+    finally:
+        dbSession.close()
+
     startTime = datetime.now(pytz.utc)
 
     engine = CeleryDbConn.getDbEngine()
@@ -54,8 +66,9 @@ def createOrUpdateBranches(self, importBranchesEncodedPayload: bytes) -> None:
 
     try:
         for (modelSetKey, modelSetId, coordSetId), branches in groupedBranches.items():
+            coordSet = coordSetById[coordSetId]
             _insertOrUpdateBranches(conn, modelSetKey, modelSetId, branches)
-            _insertOrUpdateBranchGrids(conn, modelSetKey, coordSetId, branches)
+            _insertOrUpdateBranchGrids(conn, coordSet, textStylesById, branches)
             transaction.commit()
 
             logger.debug("Completed importing %s branches for coordSetId %s in %s",
@@ -91,7 +104,7 @@ def _convertImportBranchTuples(importBranches: List[ImportBranchTuple]
     # Sort out the importBranches by coordSetKey
     branchByModelKeyByCoordKey = defaultdict(lambda: defaultdict(list))
     for importBranch in importBranches:
-        branchByModelKeyByCoordKey[importBranch.modelSetKey][importBranch.modelSetKey] \
+        branchByModelKeyByCoordKey[importBranch.modelSetKey][importBranch.coordSetKey] \
             .append(importBranch)
 
     # Define the converted importBranches

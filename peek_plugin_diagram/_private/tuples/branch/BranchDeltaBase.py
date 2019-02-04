@@ -1,3 +1,4 @@
+from abc import ABCMeta, abstractmethod
 from typing import List, Any
 
 from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
@@ -22,7 +23,7 @@ def addBranchDeltaType(deltaType: int, importDeltaTupleType: str):
     return f
 
 
-class BranchDeltaBase:
+class BranchDeltaBase(metaclass=ABCMeta):
     """ Branch Delta Base
 
     This is the base class of all diagram deltas.
@@ -40,8 +41,19 @@ class BranchDeltaBase:
         self.deltaType = deltaType
 
     @classmethod
+    @abstractmethod
+    def unpackJson(cls, deltaJson: List[Any]):
+        pass
+
+    @classmethod
     def loadFromImportTuple(cls, importDeltaTuple,
                             lookupHashConverter: LookupHashConverter) -> "BranchDeltaBase":
         Delta = _BRANCH_DELTA_CLASSES_BY_IMPORT_TUPLE_TYPE[importDeltaTuple.tupleType()]
         return Delta.loadFromImportTuple(importDeltaTuple=importDeltaTuple,
                                          lookupHashConverter=lookupHashConverter)
+
+    @classmethod
+    def createFromDeltaJson(cls, deltaJson: List[Any]) -> "BranchDeltaBase":
+        deltaType = deltaJson[0]
+        Delta = BRANCH_DELTA_CLASSES_BY_TYPE[deltaType]
+        return Delta.unpackJson(deltaJson)

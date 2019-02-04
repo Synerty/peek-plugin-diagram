@@ -1,94 +1,109 @@
+from collections import defaultdict
+
 import logging
 import pytz
 from datetime import datetime
-from typing import List, Set, Tuple
+from typing import List, Set, Tuple, Dict
 
 from peek_plugin_base.worker import CeleryDbConn
-from peek_plugin_diagram._private.storage.branch.BranchIndex import BranchIndex
-from peek_plugin_diagram._private.storage.branch.BranchIndexCompilerQueue import \
-    BranchIndexCompilerQueue
+from peek_plugin_diagram._private.storage.Display import DispTextStyle
+from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyCompilerQueue
+from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
+from peek_plugin_diagram._private.storage.branch.BranchGridIndex import BranchGridIndex
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
-from peek_plugin_diagram._private.worker.tasks.branch._BranchIndexCalcChunkKey import \
-    makeChunkKeyForBranchIndex
+from peek_plugin_diagram._private.worker.tasks._CalcGridForBranch import \
+    makeGridKeysForBranch
 
 logger = logging.getLogger(__name__)
 
 """ Branch Grid Index Updater
 
-This module is called from the BranchIndexUpdater method.
+This module is called from the BranchGridIndexUpdater method.
 
 1) Figure out which grid this branch effects.
 1.1) Convert the branch deltas to a list of disps,
     from the disps they effect
     and the disps they create
-1.2) Use the makeGridKeys method to work out the grid keys
+1.2) Use the makeGridKeysForDisp method to work out the grid keys
 2) Delete the old entries from the BranchGridIndex
 3) Insert the new entries into the BranchGridIndex
 4) Insert the grid keys into the GridKeyCompuler Queue
 """
 
 
-def _insertOrUpdateBranchGrids(conn, modelSetKey: str, coordSetId: int,
+def _insertOrUpdateBranchGrids(conn, coordSet: ModelCoordSet,
+                               textStylesById: Dict[int, DispTextStyle],
                                newBranches: List[BranchTuple]) -> None:
     """ Compile Branch Grid Index Task
 
     :param conn: The connection used to exection SQL
-    :param modelSetKey: The Key of the Model Set.
-    :param coordSetId: The ID of the Coordinate Set.
+    :param coordSet: The ID of the Coordinate Set.
+    :type textStylesById: A lookup of the text syles, used to calculated text sizes.
     :param newBranches: The branch tuples to add to the grid
     :returns: A list of grid keys that have been updated.
     """
 
     startTime = datetime.now(pytz.utc)
 
-    branchIndexTable = BranchIndex.__table__
-    queueTable = BranchIndexCompilerQueue.__table__
-
-    importHashSet = set()
+    branchGridIndexTable = BranchGridIndex.__table__
+    queueTable = GridKeyCompilerQueue.__table__
 
     chunkKeysForQueue: Set[Tuple[int, str]] = set()
 
-    # Get the IDs that we need
-    newIdGen = CeleryDbConn.prefetchDeclarativeIds(BranchIndex, len(newBranches))
+    # GridKeyIndexes to insert
+    gridKeyIndexesByBranchId = defaultdict(list)
+    totalGridKeys = 0
+
+    # BranchIndexIds to delete
+    branchIndexIdsToDelete = []
 
     # Create state arrays
     inserts = []
 
-    # Work out which objects have been updated or need inserting
+    # Calculate the grid keys of each branch.
     for newBranch in newBranches:
-        importHashSet.add(newBranch.importGroupHash)
-        branchJson = newBranch.packJson()
+        gridKeys = makeGridKeysForBranch(coordSet, newBranch, textStylesById)
+        gridKeyIndexesByBranchId[newBranch.id] = gridKeys
+        totalGridKeys += len(gridKeys)
 
-        id_ = next(newIdGen)
-        existingObject = BranchIndex(
-            id=id_,
-            coordSetId=newBranch.coordSetId,
-            key=newBranch.key,
-            importGroupHash=newBranch.importGroupHash,
-            chunkKey=makeChunkKeyForBranchIndex(modelSetKey, newBranch.key),
-            packedJson=branchJson
-        )
-        inserts.append(existingObject.tupleToSqlaBulkInsertDict())
+        branchIndexIdsToDelete.append(newBranch.id)
 
-        chunkKeysForQueue.add((modelSetId, existingObject.chunkKey))
+    # Get the IDs that we need
+    newIdGen = CeleryDbConn.prefetchDeclarativeIds(BranchGridIndex, totalGridKeys)
 
-    # 1) Delete existing branches
-    if importHashSet:
+    # Create the inserts for each branch
+    for newBranch in newBranches:
+
+        for gridKey in gridKeyIndexesByBranchId[newBranch.id]:
+            # noinspection PyTypeChecker
+            id_ = next(newIdGen)
+            insert = BranchGridIndex(
+                id=id_,
+                branchIndexId=newBranch.id,
+                gridKey=gridKey
+            )
+            inserts.append(insert.tupleToSqlaBulkInsertDict())
+
+            chunkKeysForQueue.add((coordSet.id, gridKey))
+
+    # 2) Delete existing branches
+    if branchIndexIdsToDelete:
         conn.execute(
-            branchIndexTable.delete(branchIndexTable.c.importGroupHash.in_(importHashSet))
+            branchGridIndexTable.delete(branchGridIndexTable
+                                        .c.branchIndexId.in_(branchIndexIdsToDelete))
         )
 
-    # 2) Insert new branches
+    # 3) Insert new branches
     if inserts:
-        conn.execute(branchIndexTable.insert(), inserts)
+        conn.execute(branchGridIndexTable.insert(), inserts)
 
-    # 3) Queue chunks for recompile
+    # 4) Queue chunks for recompile
     if chunkKeysForQueue:
         conn.execute(
             queueTable.insert(),
-            [dict(modelSetId=m, chunkKey=c) for m, c in chunkKeysForQueue]
+            [dict(coordSetId=cid, chunkKey=ck) for cid, ck in chunkKeysForQueue]
         )
 
-    logger.debug("Inserted %s queued %s chunks in %s",
+    logger.debug("Inserted %s BrandIndexes queued %s chunks in %s",
                  len(inserts), len(chunkKeysForQueue),
                  (datetime.now(pytz.utc) - startTime))

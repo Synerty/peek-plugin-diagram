@@ -71,11 +71,13 @@ def _insertOrUpdateBranches(conn,
     # Work out which objects have been updated or need inserting
     for newBranch in newBranches:
         importHashSet.add(newBranch.importGroupHash)
+
+        # noinspection PyTypeChecker
+        newBranch.id = next(newIdGen)
         branchJson = newBranch.packJson()
 
-        id_ = next(newIdGen)
         existingObject = BranchIndex(
-            id=id_,
+            id=newBranch.id,
             coordSetId=newBranch.coordSetId,
             key=newBranch.key,
             importGroupHash=newBranch.importGroupHash,

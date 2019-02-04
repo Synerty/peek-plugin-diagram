@@ -19,10 +19,11 @@ export class BranchTuple extends Tuple {
     // The list of deltas for this branch
     packedJson__: any[] = [];
 
-    private static readonly __COORD_SET_ID_NUM = 0;
-    private static readonly __KEY_NUM = 1;
-    private static readonly __DELTAS_NUM = 2;
-    private static readonly __VISIBLE_NUM = 3;
+    private static readonly __ID_NUM = 0;
+    private static readonly __COORD_SET_ID_NUM = 1;
+    private static readonly __KEY_NUM = 2;
+    private static readonly __DELTAS_NUM = 3;
+    private static readonly __VISIBLE_NUM = 4;
 
     constructor() {
         super(BranchTuple.tupleName)
@@ -36,6 +37,10 @@ export class BranchTuple extends Tuple {
         newSelf.packedJson__[BranchTuple.__KEY_NUM] = key;
         return newSelf;
 
+    }
+
+    get id(): number {
+        return this.packedJson__[BranchTuple.__ID_NUM];
     }
 
     get coordSetId(): number {

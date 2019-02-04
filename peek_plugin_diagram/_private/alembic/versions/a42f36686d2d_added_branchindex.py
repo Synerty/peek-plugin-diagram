@@ -59,7 +59,6 @@ def upgrade():
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('branchIndexId', sa.Integer(), nullable=False),
     sa.Column('gridKey', sa.String(), nullable=False),
-    sa.Column('packedJson', sa.String(), nullable=False),
     sa.ForeignKeyConstraint(['branchIndexId'], ['pl_diagram.BranchIndex.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     schema='pl_diagram'

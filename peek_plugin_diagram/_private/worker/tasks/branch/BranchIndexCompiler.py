@@ -36,6 +36,7 @@ Compile the index-blueprintindexes
 def compileBranchIndexChunk(self, queueItems) -> List[int]:
     """ Compile BranchIndex Index Task
 
+    :param self: A bound parameter from celery
     :param queueItems: An encoded payload containing the queue tuples.
     :returns: A list of grid keys that have been updated.
     """

@@ -29,9 +29,6 @@ class BranchGridIndex(Tuple, DeclarativeBase):
     #:  The Grid Key for this subset of a branch fits into.
     gridKey = Column(String, nullable=False)
 
-    #:  The JSON for this grid part of the the branch, ready for the Compiler to use
-    packedJson = Column(String, nullable=False)
-
     __table_args__ = (
         Index("idx_BranchGridIndex_key", branchIndexId, gridKey, unique=True),
     )
