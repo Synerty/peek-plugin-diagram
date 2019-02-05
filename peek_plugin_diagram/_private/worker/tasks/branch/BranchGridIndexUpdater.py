@@ -3,12 +3,13 @@ from collections import defaultdict
 import logging
 import pytz
 from datetime import datetime
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from typing import List, Set, Tuple, Dict
 
 from peek_plugin_base.worker import CeleryDbConn
-from peek_plugin_diagram._private.storage.Display import DispTextStyle
-from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyCompilerQueue
+from peek_plugin_diagram._private.storage.Display import DispTextStyle, DispBase
+from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyCompilerQueue, \
+    GridKeyIndex
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 from peek_plugin_diagram._private.storage.branch.BranchGridIndex import BranchGridIndex
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
@@ -75,6 +76,9 @@ def _insertOrUpdateBranchGrids(conn, coordSet: ModelCoordSet,
     branchGridIndexTable = BranchGridIndex.__table__
     queueTable = GridKeyCompilerQueue.__table__
 
+    dispBaseTable = DispBase.__table__
+    gridKeyIndexTable = GridKeyIndex.__table__
+
     chunkKeysForQueue: Set[Tuple[int, str]] = set()
 
     # GridKeyIndexes to insert
@@ -87,9 +91,32 @@ def _insertOrUpdateBranchGrids(conn, coordSet: ModelCoordSet,
     # Create state arrays
     inserts = []
 
+    # Get a list of disp keys the branches reference
+    referencedDispKeys = set()
+    for newBranch in newBranches:
+        for delta in newBranch.deltas:
+            dispKeys = delta.dispKeys
+            if dispKeys:
+                referencedDispKeys.update(dispKeys)
+
+    results = conn.execute(
+        select(columns=[gridKeyIndexTable.c.gridKey, dispBaseTable.c.key],
+               whereclause=and_(dispBaseTable.c.key.in_(referencedDispKeys),
+                                gridKeyIndexTable.c.coordSetId == coordSet.id))
+            .select_from(gridKeyIndexTable.join(dispBaseTable))
+    ).fetchall()
+
+    gridKeysByDispKey = defaultdict(list)
+    for row in results:
+        gridKeysByDispKey[row.key].append(row.gridKey)
+
+    # Cleanup the result set
+    del results
+
     # Calculate the grid keys of each branch.
     for newBranch in newBranches:
-        gridKeys = makeGridKeysForBranch(coordSet, newBranch, textStylesById)
+        gridKeys = makeGridKeysForBranch(coordSet, newBranch, textStylesById,
+                                         gridKeysByDispKey)
         gridKeyIndexesByBranchId[newBranch.id] = gridKeys
         totalGridKeys += len(gridKeys)
 

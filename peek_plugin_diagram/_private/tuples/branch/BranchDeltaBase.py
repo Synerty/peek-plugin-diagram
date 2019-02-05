@@ -40,6 +40,16 @@ class BranchDeltaBase(metaclass=ABCMeta):
     def __init__(self, deltaType: int):
         self.deltaType = deltaType
 
+    @property
+    @abstractmethod
+    def dispKeys(self) -> List[str]:
+        """ Disp Keys
+
+        This property returns a list of disp keys that are referenced by the deltas
+        in this branch.
+
+        """
+
     @classmethod
     @abstractmethod
     def unpackJson(cls, deltaJson: List[Any]):
