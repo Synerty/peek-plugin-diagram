@@ -9,6 +9,7 @@ export class GridTuple extends Tuple {
     gridKey: string;
     // The json string.
     dispJsonStr: string | null;
+    branchJsonStr: string | null;
     lastUpdate: string;
 
     constructor() {

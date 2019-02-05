@@ -29,12 +29,11 @@ export class BranchTuple extends Tuple {
         super(BranchTuple.tupleName)
     }
 
-    static unpackJson(key: string, packedJsonStr: string): BranchTuple {
+    static unpackJson(packedJsonStr: string): BranchTuple {
 
         // Create the new object
         let newSelf = new BranchTuple();
         newSelf.packedJson__ = JSON.parse(packedJsonStr);
-        newSelf.packedJson__[BranchTuple.__KEY_NUM] = key;
         return newSelf;
 
     }
@@ -59,7 +58,7 @@ export class BranchTuple extends Tuple {
             let Delta = BRANCH_DELTA_CLASSES_BY_TYPE[deltaType];
             let delta = new Delta();
             delta._jsonData = deltaJson;
-            delta.__link(lookupCache);
+            delta._linkDispLookups(lookupCache);
             deltas.push(delta);
         }
         return deltas;

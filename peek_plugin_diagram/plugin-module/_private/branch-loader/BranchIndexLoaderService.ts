@@ -567,7 +567,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
                             let packedJson = chunkData[key];
                             foundBranchIndexs
-                                .push(BranchTuple.unpackJson(key, packedJson));
+                                .push(BranchTuple.unpackJson(packedJson));
 
                         }
 
