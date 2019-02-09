@@ -10,8 +10,7 @@ import {PrivateDiagramBranchContext} from "../branch/PrivateDiagramBranchContext
 import {BranchTuple} from "../branch/BranchTuple";
 import {BranchIndexLoaderServiceA} from "../branch-loader/BranchIndexLoaderServiceA";
 import {DiagramBranchService} from "../../DiagramBranchService";
-import {DiagramLookupFactoryService} from "../../DiagramLookupFactoryService";
-import {DiagramLookupCache} from "../../DiagramLookupCache";
+import {DiagramLookupService} from "../../DiagramLookupService";
 
 /** Diagram Branch Service
  *
@@ -24,7 +23,7 @@ export class PrivateDiagramBranchService extends DiagramBranchService {
     private _startEditingObservable = new Subject<PrivateDiagramBranchContext>();
     private _stopEditingObservable = new Subject<void>();
 
-    constructor(private lookupfactory: DiagramLookupFactoryService,
+    constructor(private lookupService: DiagramLookupService,
                 private branchLoader: BranchIndexLoaderServiceA) {
         super();
 
@@ -33,23 +32,19 @@ export class PrivateDiagramBranchService extends DiagramBranchService {
     getOrCreateBranch(modelSetKey: string, coordSetKey: string,
                       branchKey: string,
                       location: DiagramBranchLocation): Promise<DiagramBranchContext> {
-        let prom: any = this.lookupfactory
-            .loadCache(modelSetKey)
-            .then((lookupCache: DiagramLookupCache) => {
-                return new Promise<DiagramBranchContext>((resolve, reject) => {
-                    if (location != DiagramBranchLocation.LocalBranch) {
-                        reject("Only local branches are implemented");
-                        return;
-                    }
+        let prom: any = new Promise<DiagramBranchContext>((resolve, reject) => {
+            if (location != DiagramBranchLocation.LocalBranch) {
+                reject("Only local branches are implemented");
+                return;
+            }
 
-                    let branch = new BranchTuple();
-                    let val: DiagramBranchContext = new PrivateDiagramBranchContext(
-                        lookupCache,
-                        branch, modelSetKey, coordSetKey
-                    );
-                    resolve(val);
-                });
-            })
+            let branch = new BranchTuple();
+            let val: DiagramBranchContext = new PrivateDiagramBranchContext(
+                this.lookupService,
+                branch, modelSetKey, coordSetKey
+            );
+            resolve(val);
+        });
         return prom;
     }
 

@@ -58,8 +58,8 @@
                 "class": "PrivateDiagramTupleService"
             },
             {
-                "file": "DiagramLookupFactoryService",
-                "class": "DiagramLookupFactoryService",
+                "file": "DiagramLookupService",
+                "class": "DiagramLookupService",
                 "persistent": true
             },
             {
@@ -138,8 +138,8 @@
                 "class": "PrivateDiagramTupleService"
             },
             {
-                "file": "DiagramLookupFactoryService",
-                "class": "DiagramLookupFactoryService",
+                "file": "DiagramLookupService",
+                "class": "DiagramLookupService",
                 "persistent": true
             },
             {
@@ -223,8 +223,8 @@
                 "class": "PrivateDiagramTupleService"
             },
             {
-                "file": "DiagramLookupFactoryService",
-                "class": "DiagramLookupFactoryService",
+                "file": "DiagramLookupService",
+                "class": "DiagramLookupService",
                 "persistent": true
             },
             {

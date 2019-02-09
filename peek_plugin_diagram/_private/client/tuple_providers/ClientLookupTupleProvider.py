@@ -19,14 +19,8 @@ class ClientLookupTupleProvider(TuplesProviderABC):
     @inlineCallbacks
     def makeVortexMsg(self, filt: dict,
                       tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
-        modelSetKey = tupleSelector.selector["modelSetKey"]
 
         tuples = self._lookupCacheController.lookups(tupleSelector.name)
-
-        if tuples:
-            tuples = list(filter(lambda i: i.data["modelSetKey"] == modelSetKey, tuples))
-        else:
-            tuples = []
 
         payloadEnvelope = yield Payload(filt, tuples=tuples).makePayloadEnvelopeDefer()
         vortexMsg = yield  payloadEnvelope.toVortexMsgDefer()

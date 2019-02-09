@@ -3,7 +3,7 @@ import {GridObservable} from "../cache/GridObservable.web";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {LinkedGrid} from "../cache/LinkedGrid.web";
 import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil";
-import {DiagramLookupCache} from "@peek/peek_plugin_diagram/DiagramLookupCache";
+import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {DispLevel} from "@peek/peek_plugin_diagram/lookups";
 import {DispLayer} from "@peek/peek_plugin_diagram/lookups";
 import {DispBase} from "../tuples/shapes/DispBase";
@@ -58,7 +58,7 @@ export class PeekCanvasModel {
 
     constructor(private config: PeekCanvasConfig,
                 private gridObservable: GridObservable,
-                private lookupCache: DiagramLookupCache,
+                private lookupCache: DiagramLookupService,
                 private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
 
         this.needsUpdate = false;

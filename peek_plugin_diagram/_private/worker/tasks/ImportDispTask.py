@@ -89,7 +89,7 @@ def importDispsTask(self, modelSetKey: str, coordSetKey: str,
         return liveDbImportTuples
 
     except Exception as e:
-        # logger.exception(e)
+        logger.exception(e)
         logger.info("Retrying import displays, %s", e)
         raise self.retry(exc=e, countdown=3)
 

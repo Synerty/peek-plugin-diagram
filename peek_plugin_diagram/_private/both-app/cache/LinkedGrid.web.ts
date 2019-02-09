@@ -1,8 +1,8 @@
 import {assert} from "../DiagramUtil";
 import {GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
-import {DiagramLookupCache} from "@peek/peek_plugin_diagram/DiagramLookupCache";
-import {DiagramDeltaBase} from "../../../plugin-module/branch/DiagramDeltaBase";
+import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
+import {DiagramDeltaBase} from "@peek/peek_plugin_diagram/branch/DiagramDeltaBase";
 
 /** Linked Grid
  *
@@ -14,10 +14,10 @@ export class LinkedGrid {
     lastUpdate = null;
     loadedFromServerDate = new Date();
     disps = [];
-    branchDeltasByBranchKey: { [key: string]: DiagramDeltaBase } = {};
+    branchDeltasByBranchKey: { [key: string]: DiagramDeltaBase[] } = {};
 
     constructor(serverCompiledGridOrGridKey: string | GridTuple,
-                lookupStore: DiagramLookupCache | null = null) {
+                lookupStore: DiagramLookupService | null = null) {
 
         // initialise for empty grid keys
         if (typeof serverCompiledGridOrGridKey === "string") {

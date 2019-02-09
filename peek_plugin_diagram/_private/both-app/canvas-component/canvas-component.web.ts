@@ -8,8 +8,7 @@ import {PeekCanvasRenderer} from "../canvas/PeekCanvasRenderer.web";
 import {PeekCanvasInput} from "../canvas/PeekCanvasInput.web";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 import {GridObservable} from "../cache/GridObservable.web";
-import {DiagramLookupCache} from "@peek/peek_plugin_diagram/DiagramLookupCache";
-import {DiagramLookupFactoryService} from "@peek/peek_plugin_diagram/DiagramLookupFactoryService";
+import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {DispGroupCache} from "../cache/DispGroupCache.web";
 
 import {DispBase} from "../tuples/shapes/DispBase";
@@ -63,11 +62,9 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     // Private services
     private _privatePosService: PrivateDiagramPositionService;
 
-    private lookupCache: DiagramLookupCache | null = null;
-
 
     constructor(private gridObservable: GridObservable,
-                private lookupFactory: DiagramLookupFactoryService,
+                private lookupCache: DiagramLookupService,
                 private coordSetCache: PrivateDiagramCoordSetService,
                 private dispGroupCache: DispGroupCache,
                 positionService: DiagramPositionService,
@@ -126,13 +123,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     }
 
     ngOnInit() {
-
-        this.lookupFactory.loadCache(this.modelSetKey)
-            .then((cache) => {
-                this.lookupCache = cache;
-                this.initCanvas();
-            })
-            .catch(e => console.log(`Load Lookup Cache faile : ${e}`));
+        this.initCanvas();
 
         this.dispGroupCache.setModelSetKey(this.modelSetKey);
 

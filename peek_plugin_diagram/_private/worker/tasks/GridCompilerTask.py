@@ -172,7 +172,7 @@ def _qryDispData(session, gridKeys):
 
 def _qryBranchData(session, gridKeys):
     indexQry = (
-        session.query(BranchIndex.gridKey, BranchIndex.packedJson, BranchIndex.key)
+        session.query(BranchGridIndex.gridKey, BranchIndex.packedJson, BranchIndex.key)
             .join(BranchIndex, BranchIndex.id == BranchGridIndex.branchIndexId)
             .filter(makeOrmValuesSubqueryCondition(
             session, BranchGridIndex.gridKey, gridKeys

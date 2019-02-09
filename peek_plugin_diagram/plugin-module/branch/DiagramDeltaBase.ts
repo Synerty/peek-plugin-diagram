@@ -1,4 +1,4 @@
-import {DiagramLookupCache} from "../DiagramLookupCache";
+import {DiagramLookupService} from "../DiagramLookupService";
 
 export let BRANCH_DELTA_CLASSES_BY_TYPE = {};
 
@@ -34,7 +34,7 @@ export abstract class DiagramDeltaBase {
         this.type = type;
     }
 
-    abstract __link(lookupCache: DiagramLookupCache): void;
+    abstract __link(lookupCache: DiagramLookupService): void;
 
 }
 

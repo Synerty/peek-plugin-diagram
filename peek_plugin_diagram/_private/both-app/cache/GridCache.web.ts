@@ -1,7 +1,10 @@
 import {Injectable} from "@angular/core";
-import {DiagramLookupCache} from "@peek/peek_plugin_diagram/DiagramLookupCache";
+import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {LinkedGrid} from "./LinkedGrid.web";
-import {PrivateDiagramGridLoaderServiceA, GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader";
+import {
+    GridTuple,
+    PrivateDiagramGridLoaderServiceA
+} from "@peek/peek_plugin_diagram/_private/grid-loader";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 
@@ -14,8 +17,6 @@ import {
 import {diagramFilt, gridCacheStorageName} from "@peek/peek_plugin_diagram/_private";
 
 import {dictValuesFromObject} from "../DiagramUtil";
-
-let pako = require("pako");
 
 
 // ----------------------------------------------------------------------------
@@ -69,8 +70,9 @@ export class GridCache {
     // TODO, There appears to be no way to tear down a service
     private lifecycleEmitter = new ComponentLifecycleEventEmitter();
 
-    constructor(private lookupCache: DiagramLookupCache,
+    constructor(private lookupService: DiagramLookupService,
                 private gridLoader: PrivateDiagramGridLoaderServiceA) {
+
 
         // Services don't have destructors, I'm not sure how to unsubscribe.
         this.gridLoader.observable
@@ -185,7 +187,7 @@ export class GridCache {
             }
 
             // 1) Link the grid
-            let linkedGrid = new LinkedGrid(gridTuple, this.lookupCache);
+            let linkedGrid = new LinkedGrid(gridTuple, this.lookupService);
 
             // 2) Cache the grid
             latestCache.put(linkedGrid);

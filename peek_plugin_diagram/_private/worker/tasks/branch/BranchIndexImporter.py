@@ -79,6 +79,7 @@ def createOrUpdateBranches(self, importBranchesEncodedPayload: bytes) -> None:
     except Exception as e:
         transaction.rollback()
         logger.debug("Retrying createOrUpdateBranches, %s", e)
+        logger.exception(e)
         raise self.retry(exc=e, countdown=3)
 
     finally:

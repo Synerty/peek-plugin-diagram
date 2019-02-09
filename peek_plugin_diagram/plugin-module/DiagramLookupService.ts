@@ -3,8 +3,6 @@ import {TupleDataOfflineObserverService, TupleSelector} from "@synerty/vortexjs"
 import {DispColor, DispLayer, DispLevel, DispLineStyle, DispTextStyle} from "./lookups";
 import {PrivateDiagramTupleService} from "./_private/services/PrivateDiagramTupleService";
 import {Observable, Subject} from "rxjs";
-import {DiagramDeltaBase} from "./branch/DiagramDeltaBase";
-import {DeltaColorOverride} from "./_private/branch/deltas/DeltaColorOverride";
 
 let dictValuesFromObject = (dict) => Object.keys(dict).map(key => dict[key]);
 
@@ -15,7 +13,8 @@ let dictValuesFromObject = (dict) => Object.keys(dict).map(key => dict[key]);
  * Typically there will be only a few hundred of these.
  *
  */
-export class DiagramLookupCache {
+@Injectable()
+export class DiagramLookupService {
 
     private loadedCounter = {};
     private _lookupTargetCount = 5;
@@ -35,11 +34,10 @@ export class DiagramLookupCache {
     private _isReadySubject: Subject<boolean> = new Subject<boolean>();
 
 
-    constructor(private tupleService: PrivateDiagramTupleService,
-                private modelSetKey: string) {
+    constructor(private tupleService: PrivateDiagramTupleService) {
 
         let sub = (lookupAttr, tupleName, callback = null) => {
-            let ts = new TupleSelector(tupleName, {modelSetKey: this.modelSetKey});
+            let ts = new TupleSelector(tupleName, {});
             this.subscriptions.push(
                 this.tupleService.offlineObserver.subscribeToTupleSelector(ts)
                     .subscribe((tuples: any[]) => {

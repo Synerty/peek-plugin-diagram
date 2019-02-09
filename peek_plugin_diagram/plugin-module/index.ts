@@ -1,6 +1,4 @@
-export {DiagramLookupFactoryService} from "./DiagramLookupFactoryService";
-
-export {DiagramLookupCache} from "./DiagramLookupCache";
+export {DiagramLookupService} from "./DiagramLookupService";
 
 export {DiagramCoordSetService} from "./DiagramCoordSetService";
 

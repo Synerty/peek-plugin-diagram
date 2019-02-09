@@ -1,7 +1,7 @@
 import {addBranchDeltaType, DiagramDeltaBase} from "./DiagramDeltaBase";
 import {DispColor} from "../lookups";
 import {DeltaColorOverride} from "../_private/branch/deltas/DeltaColorOverride";
-import {DiagramLookupCache} from "../DiagramLookupCache";
+import {DiagramLookupService} from "../DiagramLookupService";
 
 /** Diagram Delta Color Override Tuple
  *
@@ -28,7 +28,7 @@ export class DiagramDeltaColorOverride extends DiagramDeltaBase {
      * @param lookupCache
      * @private
      */
-    __link(lookupCache: DiagramLookupCache): void {
+    __link(lookupCache: DiagramLookupService): void {
         let lineColorId = DeltaColorOverride.lineColor(this._jsonData);
         let fillColorId = DeltaColorOverride.fillColor(this._jsonData);
         let colorId = DeltaColorOverride.color(this._jsonData);

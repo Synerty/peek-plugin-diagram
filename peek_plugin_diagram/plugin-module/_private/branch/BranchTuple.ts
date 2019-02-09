@@ -4,7 +4,7 @@ import {
     BRANCH_DELTA_CLASSES_BY_TYPE,
     DiagramDeltaBase
 } from "../../branch/DiagramDeltaBase";
-import {DiagramLookupCache} from "../../DiagramLookupCache";
+import {DiagramLookupService} from "../../DiagramLookupService";
 
 /** Diagram Branch Tuple
  *
@@ -50,7 +50,7 @@ export class BranchTuple extends Tuple {
         return this.packedJson__[BranchTuple.__KEY_NUM];
     }
 
-    deltas(lookupCache: DiagramLookupCache): DiagramDeltaBase[] {
+    deltas(lookupCache: DiagramLookupService): DiagramDeltaBase[] {
         let deltasJson = this.packedJson__[BranchTuple.__DELTAS_NUM];
         let deltas = [];
         for (let deltaJson of deltasJson) {

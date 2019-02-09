@@ -75,6 +75,7 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
     except Exception as e:
         dbSession.rollback()
         logger.debug("Retrying updateBranch, %s", e)
+        logger.exception(e)
         raise self.retry(exc=e, countdown=3)
 
     finally:
@@ -106,6 +107,7 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
     except Exception as e:
         transaction.rollback()
         logger.debug("Retrying updateBranch, %s", e)
+        logger.exception(e)
         raise self.retry(exc=e, countdown=3)
 
     finally:
@@ -174,6 +176,7 @@ def removeBranches(self, modelSetKey: str, coordSetKey: str, keys: List[str]) ->
     except Exception as e:
         transaction.rollback()
         logger.debug("Retrying createOrUpdateBranches, %s", e)
+        logger.exception(e)
         raise self.retry(exc=e, countdown=3)
 
     finally:

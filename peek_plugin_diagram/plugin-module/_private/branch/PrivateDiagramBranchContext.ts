@@ -5,7 +5,7 @@ import {VortexStatusService} from "@synerty/vortexjs";
 import {BranchTuple} from "./BranchTuple";
 import {DiagramDeltaBase} from "../../branch/DiagramDeltaBase";
 import {DiagramBranchContext} from "../../branch/DiagramBranchContext";
-import {DiagramLookupCache} from "../../DiagramLookupCache";
+import {DiagramLookupService} from "../../DiagramLookupService";
 
 /** Diagram Branch Service
  *
@@ -15,7 +15,7 @@ import {DiagramLookupCache} from "../../DiagramLookupCache";
 export class PrivateDiagramBranchContext extends DiagramBranchContext {
 
 
-    constructor(private lookupCache: DiagramLookupCache,
+    constructor(private lookupCache: DiagramLookupService,
                 private branch: BranchTuple,
                 private _modelSetKey: string,
                 private _coordSetKey: string) {
