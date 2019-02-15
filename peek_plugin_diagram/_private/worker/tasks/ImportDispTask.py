@@ -163,39 +163,42 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
                 dispGroupChildWithTargetHash.append((ormDisp, parentDispGroupHash))
 
             # Add some interim data to the import display link, so it can be created
-            for importDispLink in importDisp.liveDbDispLinks:
-                attrName = importDispLink.dispAttrName
-                importDispLink.internalRawValue = getattr(ormDisp, attrName)
-                importDispLink.internalDispId = ormDisp.id
-                importDispLinks.append(importDispLink)
+            if hasattr(importDisp, "liveDbDispLinks"):
+                for importDispLink in importDisp.liveDbDispLinks:
+                    attrName = importDispLink.dispAttrName
+                    importDispLink.internalRawValue = getattr(ormDisp, attrName)
+                    importDispLink.internalDispId = ormDisp.id
+                    importDispLinks.append(importDispLink)
 
             # Convert the values of the liveDb attributes
             lookupConverter.convertLookups(ormDisp)
 
             # Add the after translate value, this is the Display Value
-            for importDispLink in importDisp.liveDbDispLinks:
-                attrName = importDispLink.dispAttrName
-                importDispLink.internalDisplayValue = getattr(ormDisp, attrName)
+            if hasattr(importDisp, "liveDbDispLinks"):
+                for importDispLink in importDisp.liveDbDispLinks:
+                    attrName = importDispLink.dispAttrName
+                    importDispLink.internalDisplayValue = getattr(ormDisp, attrName)
 
-            # Create the links between the Disp and DispGroup
-            for ormObj, groupHash in dispGroupChildWithTargetHash:
-                groupOrmObjId = dispGroupIdByImportHash.get(groupHash)
-                if groupOrmObjId is None:
-                    raise Exception(
-                        "DispGroup with importHash %s doesn't exist" % groupHash)
+        # Link the DispGroups
+        # Create the links between the Disp and DispGroup
+        for ormDisp, groupHash in dispGroupChildWithTargetHash:
+            groupOrmObjId = dispGroupIdByImportHash.get(groupHash)
+            if groupOrmObjId is None:
+                raise Exception(
+                    "DispGroup with importHash %s doesn't exist" % groupHash)
 
-                dispGroupLinks.append(
-                    DispGroupItem(groupId=groupOrmObjId, itemId=ormObj.id)
-                )
+            dispGroupLinks.append(
+                DispGroupItem(groupId=groupOrmObjId, itemId=ormDisp.id)
+            )
 
-            # Link the DispGroupPtr to the DispGroup
-            for ormObj, groupHash in dispGroupPtrWithTargetHash:
-                groupOrmObjId = dispGroupIdByImportHash.get(groupHash)
-                if groupOrmObjId is None:
-                    raise Exception(
-                        "DispGroup with importHash %s doesn't exist" % groupHash)
+        # Link the DispGroupPtr to the DispGroup
+        for ormDisp, groupHash in dispGroupPtrWithTargetHash:
+            groupOrmObjId = dispGroupIdByImportHash.get(groupHash)
+            if groupOrmObjId is None:
+                raise Exception(
+                    "DispGroup with importHash %s doesn't exist" % groupHash)
 
-                ormObj.groupId = groupOrmObjId
+            ormDisp.groupId = groupOrmObjId
 
 
     finally:
@@ -278,8 +281,8 @@ def _bulkLoadDispsTask(coordSet: ModelCoordSet, importGroupHash: str,
 
         # Initialise the ModelCoordSet initial position if it's not set
         if (not coordSet.initialPanX
-            and not coordSet.initialPanY
-            and not coordSet.initialZoom):
+                and not coordSet.initialPanY
+                and not coordSet.initialZoom):
             for disp in disps:
                 if not hasattr(disp, 'geomJson'):
                     continue

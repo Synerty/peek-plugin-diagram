@@ -17,12 +17,6 @@ class ImportDispGroupTuple(Tuple):
 
     ### BEGIN DISP COMMON FIELDS ###
 
-    #: Key, This value is a unique ID of the object that this graphic represents
-    # It's used to link this graphical object to objects in other plugins, like vertices
-    # in the peek-plugin-graphdb plugin.
-    # Length = 50
-    key: str = TupleField()
-
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
     selectable: bool = TupleField()
 
@@ -31,17 +25,10 @@ class ImportDispGroupTuple(Tuple):
     # Json length Length = 400
     data: Optional[dict] = TupleField(None)
 
-    #: The hash of the level to link to (Matches ImportDispLevel.importHash)
-    levelHash: str = TupleField()
-
-    #: The hash of the layer to link to (Matches ImportDispLayer.importHash)
-    layerHash: str = TupleField()
-
-    #: The Z Order of this display object when compared against other objects on
-    # same layer and level.
-    zOrder: int = TupleField()
-
     #: The unique hash of this display object
+    # This will be referenced by:
+    # ImportDispGroupPrtTuple.targetDispGroupHash, and
+    # Any disps in the group, disp.parentDispGroupHash
     importHash: str = TupleField()
 
     #: The unique hash for all the display items imported in a group with this one.
@@ -55,9 +42,13 @@ class ImportDispGroupTuple(Tuple):
     coordSetKey: str = TupleField()
 
     #: Related links to LiveDB values for this display item
-    liveDbDispLinks: List[ImportLiveDbDispLinkTuple] = TupleField()
+    # NOT USED
+    # TODO, Remove
+    # liveDbDispLinks: List[ImportLiveDbDispLinkTuple] = TupleField()
 
     ### BEGIN FIELDS FOR THIS DISP ###
 
     #: A name for this dispGroup
     name: str = TupleField()
+
+    # TODO, Add relative center point fields
