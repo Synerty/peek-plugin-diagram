@@ -1,3 +1,4 @@
+from geoalchemy2 import WKBElement
 from typing import Optional, List
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
@@ -10,7 +11,16 @@ from vortex.Tuple import Tuple, addTupleType, TupleField
 class ImportDispGroupTuple(Tuple):
     """ Imported Display Group
 
-    This tuple is used by other plugins to load TEXT objects into the diagram.
+    This tuple is used by other plugins to load groups of display objects
+    into the diagram model.
+
+    Display items are apart of this group if their :code:`parentDispGroupHash` value is
+    set to the :code:`importHash` of this group.
+
+    The display items that are apart of this group will never be displayed.
+
+    To create an instance of this display group on the diagram,
+    import a ImportDispGroupPtyTuple display object.
 
     """
     __tupleType__ = diagramTuplePrefix + 'ImportDispGroupTuple'
@@ -41,14 +51,12 @@ class ImportDispGroupTuple(Tuple):
     #: The Key of the Coordinate Set to import into
     coordSetKey: str = TupleField()
 
-    #: Related links to LiveDB values for this display item
-    # NOT USED
-    # TODO, Remove
-    # liveDbDispLinks: List[ImportLiveDbDispLinkTuple] = TupleField()
-
     ### BEGIN FIELDS FOR THIS DISP ###
 
     #: A name for this dispGroup
     name: str = TupleField()
 
-    # TODO, Add relative center point fields
+    # If this is set to true, then this group will be available in the user interface
+    # for edit support (located in the special '##|dispgroup' grid key)
+    compileAsTemplate: bool = TupleField(False)
+

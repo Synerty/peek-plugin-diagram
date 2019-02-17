@@ -11,7 +11,6 @@
  *
 """
 import typing
-
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String, Boolean
@@ -19,9 +18,9 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm.mapper import reconstructor
 from sqlalchemy.sql.schema import Index, Sequence
 from sqlalchemy.sql.sqltypes import Float, DateTime
+from vortex.Tuple import Tuple, addTupleType, TupleField, JSON_EXCLUDE
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from vortex.Tuple import Tuple, addTupleType, TupleField, JSON_EXCLUDE
 from .DeclarativeBase import DeclarativeBase
 from .ModelSet import ModelCoordSet, ModelSet
 
@@ -196,6 +195,10 @@ class DispBase(Tuple, DeclarativeBase):
 
     type = Column(Integer, doc=JSON_EXCLUDE, nullable=False)
 
+    #: Used for disps that belong to either a DispGroup or a Disp
+    groupId = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE'),
+                     doc=JSON_EXCLUDE)
+
     coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
                         doc=JSON_EXCLUDE,
                         nullable=False)
@@ -210,19 +213,19 @@ class DispBase(Tuple, DeclarativeBase):
     zOrder = Column(Integer, server_default='0', nullable=False)
 
     # MAX_STR
-    dispJson = Column(String(200000), doc=JSON_EXCLUDE)
+    dispJson = Column(String, doc=JSON_EXCLUDE)
 
     #: The location of this Disp EG - [coordSetId, dispId, 0.0, 0.0] = [..., x, y]
-    locationJson = Column(String(120), doc=JSON_EXCLUDE)
+    locationJson = Column(String, doc=JSON_EXCLUDE)
 
     #: Key, This value is a unique ID of the object that this graphic represents
-    key = Column(String(50), doc='k')
+    key = Column(String, doc='k')
 
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
     selectable = Column(Boolean, doc='s', nullable=False, server_default='0')
 
     #: Data, Generic data that is passed in the context for the item select popup
-    dataJson = Column(String(500), doc='d')
+    dataJson = Column(String, doc='d')
 
     importUpdateDate = Column(DateTime(True), doc=JSON_EXCLUDE)
     importHash = Column(String(100), doc=JSON_EXCLUDE)
@@ -242,6 +245,7 @@ class DispBase(Tuple, DeclarativeBase):
         Index("idx_Disp_layerId", layerId, unique=False),
         Index("idx_Disp_levelId", levelId, unique=False),
         Index("idx_Disp_coordSetId_", coordSetId, unique=False),
+        Index("idx_Disp_groupId", groupId, unique=False),
     )
 
 
@@ -267,7 +271,7 @@ class DispText(DispBase):
     textHeight = Column(Float, doc='th', nullable=True)
     textHStretch = Column(Float, doc='hs', nullable=False, server_default="1")
 
-    geomJson = Column(String(2000), nullable=False, doc='g')
+    geomJson = Column(String, nullable=False, doc='g')
 
     colorId = Column(Integer, ForeignKey('DispColor.id'), doc='c')
     color = relationship(DispColor)
@@ -297,7 +301,7 @@ class DispPolygon(DispBase):
     cornerRadius = Column(Float, doc='cr', nullable=False, server_default='0')
     lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
 
-    geomJson = Column(String(200000), nullable=False, doc='g')
+    geomJson = Column(String, nullable=False, doc='g')
 
     fillColorId = Column(Integer, ForeignKey('DispColor.id'), doc='fc')
     fillColor = relationship(DispColor, foreign_keys=fillColorId)
@@ -337,7 +341,7 @@ class DispPolyline(DispBase):
 
     lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
 
-    geomJson = Column(String(200000), nullable=False, doc='g')
+    geomJson = Column(String, nullable=False, doc='g')
 
     lineColorId = Column(Integer, ForeignKey('DispColor.id'), doc='lc')
     lineColor = relationship(DispColor, foreign_keys=lineColorId)
@@ -380,7 +384,7 @@ class DispEllipse(DispBase):
     endAngle = Column(Float, doc='ea', nullable=False, server_default='360')
     lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
 
-    geomJson = Column(String(2000), nullable=False, doc='g')
+    geomJson = Column(String, nullable=False, doc='g')
 
     fillColorId = Column(Integer, ForeignKey('DispColor.id'), doc='fc')
     fillColor = relationship(DispColor, foreign_keys=fillColorId)
@@ -400,18 +404,6 @@ class DispEllipse(DispBase):
 
 
 @addTupleType
-class DispGroupItem(Tuple, DeclarativeBase):
-    __tablename__ = 'DispGroupItem'  # Must differ from class name
-    __tupleTypeShort__ = 'DGI'
-    __tupleType__ = diagramTuplePrefix + __tablename__
-
-    groupId = Column(Integer, ForeignKey('DispGroup.id', ondelete='CASCADE'),
-                     primary_key=True, nullable=False)
-    itemId = Column(Integer, ForeignKey('DispBase.id'),
-                    primary_key=True, nullable=False)
-
-
-@addTupleType
 class DispGroup(DispBase):
     __tablename__ = 'DispGroup'
     __tupleTypeShort__ = 'DG'
@@ -423,11 +415,16 @@ class DispGroup(DispBase):
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
                 , primary_key=True, autoincrement=False)
 
-    name = Column(String(50), doc=JSON_EXCLUDE, nullable=False, unique=True)
+    name = Column(String, doc=JSON_EXCLUDE, nullable=False, unique=True)
+    compileAsTemplate = Column(Boolean, nullable=False, server_default='false')
 
-    items = relationship(DispBase, secondary=DispGroupItem.__table__)
+    disps = relationship(DispBase,
+                         primaryjoin='DispBase.groupId==DispGroup.id',
+                         foreign_keys=[DispBase.groupId],
+                         remote_side='DispBase.groupId')
 
-    itemsUi = TupleField(defaultValue={})
+    #: This field stores an array of disps that belong to this group.
+    dispsForJson = TupleField(shortName='di')
 
     @reconstructor
     def __init__(self):
@@ -451,12 +448,16 @@ class DispGroupPointer(DispBase):
     verticalScale = Column(Float, doc='vs', nullable=False, server_default='1.0')
     horizontalScale = Column(Float, doc='hs', nullable=False, server_default='1.0')
 
-    geomJson = Column(String(2000), nullable=False, doc='g')
+    geomJson = Column(String, nullable=False, doc='g')
 
-    groupId = Column(Integer, ForeignKey('DispGroup.id'),
-                     doc='gid', nullable=False)
-    group = relationship(DispGroup, foreign_keys=[groupId])
+    targetDispGroupId = Column(Integer, ForeignKey('DispGroup.id', ondelete='SET NULL'),
+                               doc='gid', nullable=True)
+
+    disps = relationship(DispBase,
+                         primaryjoin='DispBase.groupId==DispGroupPointer.id',
+                         foreign_keys=[DispBase.groupId],
+                         remote_side='DispBase.groupId')
 
     __table_args__ = (
-        Index("idxDispGroupPointer_groupId", groupId, unique=False),
+        Index("idxDispGroupPointer_targetDispGroupId", targetDispGroupId, unique=False),
     )

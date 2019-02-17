@@ -1,11 +1,10 @@
-from typing import Optional, List
-
 from geoalchemy2 import WKBElement
+from typing import Optional, List
+from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
     ImportLiveDbDispLinkTuple
-from vortex.Tuple import Tuple, addTupleType, TupleField
 
 
 @addTupleType
@@ -61,6 +60,10 @@ class ImportDispPolygonTuple(Tuple):
 
     #: Parent DispGroup Hash, If this disp is part of a disp group then set this field to
     # the ImportDispGroupTuple.importHash fields value
+    # NOTE: If this disp is part of a display group, then the GEOM coordinates need to
+    # be relative to 0x0.
+    # NOTE: Disps that are apart of a group must all be imported with the same
+    # importGroupHash, during the same import call.
     parentDispGroupHash: str = TupleField()
 
     ### BEGIN FIELDS FOR THIS DISP ###

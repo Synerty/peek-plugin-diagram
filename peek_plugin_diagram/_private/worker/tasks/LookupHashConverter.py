@@ -87,8 +87,8 @@ class LookupHashConverter:
                 continue
             setattr(disp, attrName, self.getLayerId(getattr(disp, attrName)))
 
-        if isinstance(disp, DispGroupPointer):
-            raise NotImplementedError("Not implemented")
+        # if isinstance(disp, DispGroupPointer):
+        #     raise NotImplementedError("Not implemented")
 
     def getTextStyleId(self, importHash):
         importHash = str(importHash)

@@ -1,11 +1,10 @@
-from typing import Optional, List
-
 from geoalchemy2 import WKBElement
+from typing import Optional, List
+from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
     ImportLiveDbDispLinkTuple
-from vortex.Tuple import Tuple, addTupleType, TupleField
 
 
 @addTupleType
@@ -23,10 +22,10 @@ class ImportDispEllipseTuple(Tuple):
     # It's used to link this graphical object to objects in other plugins, like vertices
     # in the peek-plugin-graphdb plugin.
     # Length = 50
-    key :str = TupleField()
+    key: str = TupleField()
 
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
-    selectable :bool = TupleField()
+    selectable: bool = TupleField()
 
     #: Data, Generic data, this is passed to the popup context in the UI.
     # peek_plugin_diagram doesn't care as long as it's json compatible or None
@@ -61,6 +60,10 @@ class ImportDispEllipseTuple(Tuple):
 
     #: Parent DispGroup Hash, If this disp is part of a disp group then set this field to
     # the ImportDispGroupTuple.importHash fields value
+    # NOTE: If this disp is part of a display group, then the GEOM coordinates need to
+    # be relative to 0x0.
+    # NOTE: Disps that are apart of a group must all be imported with the same
+    # importGroupHash, during the same import call.
     parentDispGroupHash: str = TupleField()
 
     ### BEGIN FIELDS FOR THIS DISP ###
@@ -79,4 +82,3 @@ class ImportDispEllipseTuple(Tuple):
     # PEEK draws clockwise from there,
     startAngle: int = TupleField(0)
     endAngle: int = TupleField(360)
-

@@ -1,9 +1,10 @@
+from geoalchemy2 import WKBElement
 from typing import List, Optional
+from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
     ImportLiveDbDispLinkTuple
-from vortex.Tuple import Tuple, addTupleType, TupleField
 
 
 @addTupleType
@@ -32,6 +33,8 @@ class ImportDispGroupPtrTuple(Tuple):
     data: Optional[dict] = TupleField(None)
 
     #: The hash of the level to link to (Matches ImportDispLevel.importHash)
+    # If the level shows at all zoom levels, then filtering will move on to the
+    # individual disp level.
     levelHash: str = TupleField()
 
     #: The hash of the layer to link to (Matches ImportDispLayer.importHash)
@@ -59,6 +62,10 @@ class ImportDispGroupPtrTuple(Tuple):
 
     #: Parent DispGroup Hash, If this disp is part of a disp group then set this field to
     # the ImportDispGroupTuple.importHash fields value
+    # NOTE: If this disp is part of a display group, then the GEOM coordinates need to
+    # be relative to 0x0.
+    # NOTE: Disps that are apart of a group must all be imported with the same
+    # importGroupHash, during the same import call.
     parentDispGroupHash: str = TupleField()
 
     ### BEGIN FIELDS FOR THIS DISP ###
@@ -74,3 +81,6 @@ class ImportDispGroupPtrTuple(Tuple):
 
     #: Disp Group Hash, The value of a "ImportDispGroupTuple.importHash" to point to
     targetDispGroupHash: float = TupleField(1)
+
+    #: The center location of this
+    geom: WKBElement = TupleField()

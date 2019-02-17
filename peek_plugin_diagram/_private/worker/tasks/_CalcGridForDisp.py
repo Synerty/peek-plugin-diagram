@@ -1,10 +1,11 @@
 import logging
-import logging
 import math
+
+import logging
 from typing import Dict, List
 
 from peek_plugin_diagram._private.storage.Display import DispText, \
-    DispTextStyle, DispEllipse
+    DispTextStyle, DispEllipse, DispGroup
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, \
     ModelCoordSetGridSize
 
@@ -27,7 +28,11 @@ def makeGridKeysForDisp(coordSet: ModelCoordSet,
     gridKeys = []
     for gridSize in coordSet.gridSizes:
         # CHECK Declutter
-        if 0.0 > (min(gridSize.max, (disp.level.maxZoom - 0.00001))
+        if isinstance(disp, DispGroup) and disp.level is None:
+            # Skip the check if the DispGroup has no level. It will be in all levels.
+            pass
+
+        elif 0.0 > (min(gridSize.max, (disp.level.maxZoom - 0.00001))
                       - max(gridSize.min, disp.level.minZoom + 0.00001)):
             continue
 

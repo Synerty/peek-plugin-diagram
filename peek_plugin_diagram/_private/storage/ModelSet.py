@@ -17,9 +17,9 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Index
 from sqlalchemy.sql.sqltypes import Boolean
 from sqlalchemy.types import Float
+from vortex.Tuple import addTupleType, Tuple, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from vortex.Tuple import addTupleType, Tuple, TupleField
 from .DeclarativeBase import DeclarativeBase
 
 
@@ -142,6 +142,17 @@ class ModelCoordSetGridSize(Tuple, DeclarativeBase):
             x, y = Grid coordinates, top left
         """
         return '%s|%s.%sx%s' % (self.coordSetId, self.key, x, y)
+
+
+def makeDispGroupGridKey(coordSetId: int):
+    """ Make Disp Group Grid Key
+
+    Make the special disp group grid key name.
+    This is used to store all of the DispGroups that are not specifically stored in a
+    grid, with the DispGroupPtr that uses it.
+
+    """
+    return '%s|dispgroup' % coordSetId
 
 
 def getOrCreateModelSet(session, modelSetKey):

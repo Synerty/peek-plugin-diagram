@@ -1,17 +1,18 @@
 import json
 import logging
-from datetime import datetime
-from typing import List, Dict, Tuple
-
 import pytz
+from datetime import datetime
 from geoalchemy2.shape import to_shape
+from txcelery.defer import DeferrableTask
+from typing import List, Dict, Tuple
+from vortex.Payload import Payload
 
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
     DispCompilerQueueController
 from peek_plugin_diagram._private.storage.Display import \
     DispBase, DispEllipse, DispPolygon, DispText, DispPolyline, DispGroup, \
-    DispGroupPointer, DispGroupItem
+    DispGroupPointer
 from peek_plugin_diagram._private.storage.ModelSet import \
     ModelCoordSet, getOrCreateCoordSet
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
@@ -29,8 +30,6 @@ from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
     ImportDispPolylineTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispTextTuple import ImportDispTextTuple
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
-from txcelery.defer import DeferrableTask
-from vortex.Payload import Payload
 
 logger = logging.getLogger(__name__)
 
@@ -70,13 +69,13 @@ def importDispsTask(self, modelSetKey: str, coordSetKey: str,
 
         coordSet = _loadCoordSet(modelSetKey, coordSetKey)
 
-        dispIdsToCompile, dispLinkImportTuples, ormDisps, dispGroupLinks = _importDisps(
+        # _validateImportDisps(disps)
+
+        dispIdsToCompile, dispLinkImportTuples, ormDisps = _importDisps(
             coordSet, disps
         )
 
-        _bulkLoadDispsTask(
-            coordSet, importGroupHash, ormDisps, dispGroupLinks
-        )
+        _bulkLoadDispsTask(coordSet, importGroupHash, ormDisps)
 
         liveDbImportTuples = importDispLinks(
             coordSet, importGroupHash, dispLinkImportTuples
@@ -105,6 +104,18 @@ def _loadCoordSet(modelSetKey, coordSetKey):
         ormSession.close()
 
 
+# def _validateImportDisps(importDisp: List):
+#
+#     for importDisp in importDisp:
+#         isGroup = isinstance(importDisp, ImportDispGroupTuple)
+#         isGroupChild = not isGroup and importDisp.parentDispGroupHash
+#
+#         if isGroupChild:
+#             if importDisp.key:
+#                 raise Exception("Disp can not have a key if it's apart of a group, %s",
+#                                 importDisp)
+
+
 def _importDisps(coordSet: ModelCoordSet, importDisps: List):
     """ Link Disps
 
@@ -122,8 +133,6 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
     importDispLinks = []
     ormDisps = []
 
-    dispGroupLinks = []
-
     ormSession = CeleryDbConn.getDbSession()
     try:
 
@@ -136,15 +145,23 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
         dispGroupChildWithTargetHash: List[Tuple[DispBase, str]] = []
 
         for importDisp in importDisps:
+            # Convert the geometry into the internal array format
             _convertGeom(importDisp)
 
+            # Create the storage tuple instance, and copy over the data.
             ormDisp = _convertImportTuple(importDisp)
             ormDisps.append(ormDisp)
 
             # Preallocate the IDs for performance on PostGreSQL
             ormDisp.id = next(dispIdGen)
-            dispIdsToCompile.append(ormDisp.id)
 
+            # Queue the Disp to be compiled into a grid.
+            # Disps belonging to a group do not get compiled into grids.
+            # parentDispGroupHash is not a field of ImportDispGroupTuple
+            if isinstance(ormDisp, DispGroup) or not importDisp.parentDispGroupHash:
+                dispIdsToCompile.append(ormDisp.id)
+
+            # Assign the coord set id.
             ormDisp.coordSetId = coordSet.id
 
             # If this is a dispGroup, index it's ID
@@ -157,7 +174,7 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
                     (ormDisp, importDisp.targetDispGroupHash)
                 )
 
-            # If this is a dispGroupPtr, index it's targetHash so we can update it
+            # If this is a dispGroupPtr, index its targetHash so we can update it
             parentDispGroupHash = getattr(importDisp, "parentDispGroupHash", None)
             if parentDispGroupHash:
                 dispGroupChildWithTargetHash.append((ormDisp, parentDispGroupHash))
@@ -187,9 +204,7 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
                 raise Exception(
                     "DispGroup with importHash %s doesn't exist" % groupHash)
 
-            dispGroupLinks.append(
-                DispGroupItem(groupId=groupOrmObjId, itemId=ormDisp.id)
-            )
+            ormDisp.groupId = groupOrmObjId
 
         # Link the DispGroupPtr to the DispGroup
         for ormDisp, groupHash in dispGroupPtrWithTargetHash:
@@ -198,13 +213,13 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
                 raise Exception(
                     "DispGroup with importHash %s doesn't exist" % groupHash)
 
-            ormDisp.groupId = groupOrmObjId
+            ormDisp.targetDispGroup = groupOrmObjId
 
 
     finally:
         ormSession.close()
 
-    return dispIdsToCompile, importDispLinks, ormDisps, dispGroupLinks
+    return dispIdsToCompile, importDispLinks, ormDisps
 
 
 def _convertGeom(importDisp):
@@ -228,6 +243,12 @@ def _convertGeom(importDisp):
 
 
 def _convertImportTuple(importDisp):
+    """ Convert Import Tuple
+
+    This method mostly copies over data from the import tuple into the storage tuple,
+    converting some fields and field names as required.
+
+    """
     if not importDisp.tupleType() in IMPORT_TUPLE_MAP:
         raise Exception(
             "Import Tuple %s is not a valid type" % importDisp.tupleType()
@@ -241,6 +262,12 @@ def _convertImportTuple(importDisp):
             continue
 
         if importFieldName == "geom":
+
+            # Groups are stored in whichever grid where the where ever the center point
+            # is located, OR, in the special dispgroup grid.
+            if isinstance(disp, DispGroup) and not importDisp.geom:
+                continue
+
             disp.geomJson = importDisp.geom
 
             # Moved to server, due to celery 3 pickle problem
@@ -252,11 +279,13 @@ def _convertImportTuple(importDisp):
 
         setattr(disp, dispFieldName, getattr(importDisp, importFieldName))
 
+    if isinstance(disp, DispGroup):
+        disp.dispsJson = '[]'
+
     return disp
 
 
-def _bulkLoadDispsTask(coordSet: ModelCoordSet, importGroupHash: str,
-                       disps: List, dispGroupLinks: List[DispGroupItem]):
+def _bulkLoadDispsTask(coordSet: ModelCoordSet, importGroupHash: str, disps: List):
     """ Import Disps Links
 
     1) Drop all disps with matching importGroupHash
@@ -296,13 +325,6 @@ def _bulkLoadDispsTask(coordSet: ModelCoordSet, importGroupHash: str,
         ormSession.commit()
 
         ormSession.bulk_save_objects(disps, update_changed_only=False)
-
-        # Insert the Disp Group links
-        if dispGroupLinks:
-            ormSession.execute(
-                DispGroupItem.__table__.insert(),
-                [o.tupleToSqlaBulkInsertDict() for o in dispGroupLinks]
-            )
 
         ormSession.commit()
 
