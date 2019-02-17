@@ -149,10 +149,29 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
                                               modelSetId=coordSet.modelSetId,
                                               coordSetId=coordSet.id)
 
-        dispGroupIdByImportHash: Dict[str, int] = {}
         dispGroupPtrWithTargetHash: List[Tuple[DispGroupPointer, str]] = []
         dispGroupChildWithTargetHash: List[Tuple[DispBase, str]] = []
 
+        # Preload any groups our pointers may point to.
+
+        # Pre-import any DispGroup IDs we may need
+        dispGroupTargetImportHashes = [
+            o.targetDispGroupHash
+            for o in importDisps
+            if o.tupleType() == ImportDispGroupPtrTuple.tupleType()
+        ]
+
+        dispGroupIdByImportHash: Dict[str, int] = {
+            o.importHash: o.id
+            for o in
+            ormSession.query(DispGroup.importHash, DispGroup.id)
+                .filter(DispGroup.importHash.in_(dispGroupTargetImportHashes))
+                .filter(DispGroup.coordSetId == coordSet.id)
+        }
+
+        del dispGroupTargetImportHashes
+
+        # Sort the DispGroups first, so they are created before any FK references them
         sortedImportDisps = sorted(importDisps,
                                    key=lambda o: IMPORT_SORT_ORDER[o.tupleType()])
 

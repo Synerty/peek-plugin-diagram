@@ -13,15 +13,15 @@ class DiagramImporterStatusTuple(Tuple):
 
     gridCompilerQueueStatus: bool = TupleField(False)
     gridCompilerQueueSize: int = TupleField(0)
-    gridCompilerQueueProcessedTotal: int = TupleField(0)
-    gridCompilerQueueLastError: str = TupleField()
+    gridCompilerProcessedTotal: int = TupleField(0)
+    gridCompilerLastError: str = TupleField()
 
     locationIndexCompilerQueueStatus: bool = TupleField(False)
     locationIndexCompilerQueueSize: int = TupleField(0)
-    locationIndexCompilerQueueProcessedTotal: int = TupleField(0)
-    locationIndexCompilerQueueLastError: str = TupleField()
+    locationIndexCompilerProcessedTotal: int = TupleField(0)
+    locationIndexCompilerLastError: str = TupleField()
 
     branchIndexCompilerQueueStatus: bool = TupleField(False)
     branchIndexCompilerQueueSize: int = TupleField(0)
-    branchIndexCompilerQueueProcessedTotal: int = TupleField(0)
-    branchIndexCompilerQueueLastError: str = TupleField()
+    branchIndexCompilerProcessedTotal: int = TupleField(0)
+    branchIndexCompilerLastError: str = TupleField()

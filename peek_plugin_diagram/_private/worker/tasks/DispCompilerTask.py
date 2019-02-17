@@ -39,7 +39,7 @@ ModelSetIdIndexBucketData = namedtuple("ModelSetIdIndexBucketTuple",
 
 DispData = namedtuple('DispData', ['json', 'levelOrder', 'layerOrder'])
 
-PreparedDisp = namedtuple('PreparedDisp', ['disp', 'geomDict', 'dispDict'])
+PreparedDisp = namedtuple('PreparedDisp', ['disp', 'geomArray', 'dispDict'])
 
 
 @DeferrableTask
@@ -146,7 +146,7 @@ def compileDisps(self, queueIds, dispIds):
 
         # 5) DispGroups, take Disps as part of a disp group and load them into JSON in the
         #         DispGroup. PreparedDisp????
-        _compileDispGroups(preparedDisps)
+        _compileDispGroups(ormSession, preparedDisps)
 
         # ---------------
         # 6) Extract any new LocationIndex entries, of the Disp has a key
@@ -169,8 +169,8 @@ def compileDisps(self, queueIds, dispIds):
         # Commit the updates
         startTime = datetime.now(pytz.utc)
         ormSession.commit()
-        logger.debug("Committed %s disp objects in %s",
-                     len(disps), (datetime.now(pytz.utc) - startTime))
+        logger.info("Committed %s disp objects in %s",
+                    len(disps), (datetime.now(pytz.utc) - startTime))
 
     except Exception as e:
         ormSession.rollback()
@@ -213,6 +213,17 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
         dispGroupPointers: List[DispGroupPointer] = qry.all()
         del qry
 
+        # -----
+        # Delete any existing disps are in these pointers
+        # TODO: Queue grid compile of the related grids.
+        # FIXME:
+        ormSession.query(DispBase) \
+            .filter(DispBase.groupId.in_([o.id for o in dispGroupPointers])) \
+            .delete(synchronize_session=False)
+
+        ormSession.commit()
+
+        # -----
         # Query for the disp groups we'll need
         qry = ormSession.query(DispGroup) \
             .options(subqueryload(DispGroup.disps)) \
@@ -221,6 +232,8 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
         dispGroupById = {o.id: o for o in qry.all()}
         del qry
 
+        # -----
+        # Clone the child disps
         cloneDisps = []
         for dispPtr in dispGroupPointers:
             if not dispPtr.targetDispGroupId:
@@ -250,12 +263,15 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
                 # Assign the clone to the DispGroupPointer
                 cloneDisp.groupId = dispPtr.id
 
+        # -----
         # Preallocate the IDs for performance on PostGreSQL
         dispIdGen = CeleryDbConn.prefetchDeclarativeIds(DispBase, len(cloneDisps))
         for cloneDisp in cloneDisps:
             cloneDisp.id = next(dispIdGen)
             ormSession.add(cloneDisp)
 
+        # -----
+        # Create the new list of IDs to compile
         # Do this here, otherwise it will cause a DB refresh if it's after the commit.
         dispIdsIncludingClones = dispIds + [o.id for o in cloneDisps]
 
@@ -352,14 +368,14 @@ def _scaleDisp(disps, coordSetById):
         dispDict = disp.tupleToSmallJsonDict()
 
         # Get and Scale the Geometry
-        geomJson = None
+        geomArray = None
         # Disp Groups have no geometry
         if not isinstance(disp, DispGroup):
-            geomJson = json.loads(disp.geomJson)
-            geomJson = _scaleDispGeomWithCoordSet(geomJson, coordSet)
-            dispDict["g"] = geomJson
+            geomArray = json.loads(disp.geomJson)
+            geomArray = _scaleDispGeomWithCoordSet(geomArray, coordSet)
+            dispDict["g"] = geomArray
 
-        preparedDisps.append(PreparedDisp(disp, geomJson, dispDict))
+        preparedDisps.append(PreparedDisp(disp, geomArray, dispDict))
 
     logger.debug("Scaled %s disps in %s",
                  len(disps), (datetime.now(pytz.utc) - startTime))
@@ -367,10 +383,10 @@ def _scaleDisp(disps, coordSetById):
     return preparedDisps
 
 
-def _compileDispGroups(preparedDisps: List[PreparedDisp]):
+def _compileDispGroups(ormSession, preparedDisps: List[PreparedDisp]):
     """ Compile Disp Groups
 
-    This method will pack the clild disps into the disp group
+    This method will pack the child disps into the disp groups dispJson field.
 
     """
 
@@ -384,43 +400,34 @@ def _compileDispGroups(preparedDisps: List[PreparedDisp]):
 
     startTime = datetime.now(pytz.utc)
 
-    ormSession = CeleryDbConn.getDbSession()
-    try:
-        preparedDispGroupByIds: Dict[int, PreparedDisp] = {
-            o.disp.id: o
-            for o in preparedDisps
-            if isinstance(o.disp, DispGroup)
-        }
+    preparedDispGroupByIds: Dict[int, PreparedDisp] = {
+        o.disp.id: o
+        for o in preparedDisps
+        if isinstance(o.disp, DispGroup)
+    }
 
-        # Query for the disp groups with loaded child disps we'll need
-        qry = ormSession.query(DispGroup) \
-            .options(subqueryload(DispGroup.disps)) \
-            .filter(DispGroup.id.in_(list(preparedDispGroupByIds)))
+    # Query for the disp groups with loaded child disps we'll need
+    qry = ormSession.query(DispGroup) \
+        .options(subqueryload(DispGroup.disps)) \
+        .filter(DispGroup.id.in_(list(preparedDispGroupByIds)))
 
-        dispGroupById = {o.id: o for o in qry.all()}
-        del qry
+    dispGroupById = {o.id: o for o in qry.all()}
+    del qry
 
-        childDispCount = 0
+    childDispCount = 0
 
-        for dispGroup in dispGroupById.values():
-            preparedDispGroup = preparedDispGroupByIds[dispGroup.id]
+    for dispGroup in dispGroupById.values():
+        preparedDispGroup = preparedDispGroupByIds[dispGroup.id]
 
-            preparedDispGroup.dispDict['di'] = json.dumps([
-                packDisp(disp) for disp in dispGroup.disps
-            ])
+        preparedDispGroup.dispDict['di'] = json.dumps([
+            packDisp(disp) for disp in dispGroup.disps
+        ])
 
-            childDispCount += len(dispGroup.disps)
+        childDispCount += len(dispGroup.disps)
 
-        logger.debug("Packed %s disps into %s group objects in %s",
-                     childDispCount, len(dispGroupById),
-                     (datetime.now(pytz.utc) - startTime))
-
-    except Exception as e:
-        ormSession.rollback()
-        raise
-
-    finally:
-        ormSession.close()
+    logger.debug("Packed %s disps into %s group objects in %s",
+                 childDispCount, len(dispGroupById),
+                 (datetime.now(pytz.utc) - startTime))
 
 
 def _indexLocation(preparedDisps, coordSetById):
@@ -442,7 +449,7 @@ def _indexLocation(preparedDisps, coordSetById):
     count = 0
 
     for pdisp in preparedDisps:
-        if not pdisp.geomDict or not pdisp.disp.key:
+        if not pdisp.geomArray or not pdisp.disp.key:
             continue
         count += 1
 
@@ -450,7 +457,7 @@ def _indexLocation(preparedDisps, coordSetById):
         coordSet = coordSetById[pdisp.disp.coordSetId]
 
         # Create the location json for the LocationIndex
-        pdisp.disp.locationJson = makeLocationJson(pdisp.disp, pdisp.geomDict)
+        pdisp.disp.locationJson = makeLocationJson(pdisp.disp, pdisp.geomArray)
 
         # Create the index bucket
         indexBucket = dispKeyHashBucket(coordSet.modelSet.name, pdisp.disp.key)
@@ -516,7 +523,7 @@ def _calculateGridKeys(preparedDisps: List[PreparedDisp], coordSetById, textStyl
             continue
 
         # Calculate the grid keys
-        gridKeys = makeGridKeysForDisp(coordSet, pdisp.disp, pdisp.geomDict,
+        gridKeys = makeGridKeysForDisp(coordSet, pdisp.disp, pdisp.geomArray,
                                        textStyleById)
 
         for gridKey in gridKeys:

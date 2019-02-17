@@ -1,9 +1,10 @@
-import logging
-from typing import Optional
-
 from collections import namedtuple
 
-from peek_plugin_diagram._private.tuples.location_index.DispKeyLocationTuple import DispKeyLocationTuple
+import logging
+from typing import Optional, List
+
+from peek_plugin_diagram._private.tuples.location_index.DispKeyLocationTuple import \
+    DispKeyLocationTuple
 from peek_plugin_diagram._private.worker.tasks._CalcGridForDisp import _calcBounds
 
 logger = logging.getLogger(__name__)
@@ -12,12 +13,11 @@ CoordSetIdGridKeyTuple = namedtuple("CoordSetIdGridKeyTuple", ["coordSetId", "gr
 DispData = namedtuple('DispData', ['json', 'levelOrder', 'layerOrder'])
 
 
-def makeLocationJson(disp, geomJson) -> Optional[str]:
-
-    if geomJson is None:
+def makeLocationJson(disp, geomArray: List[float]) -> Optional[str]:
+    if geomArray is None:
         logger.critical("geomJson is None : %s ", disp)
 
-    minx, miny, maxx, maxy = _calcBounds(geomJson)
+    minx, miny, maxx, maxy = _calcBounds(geomArray)
 
     # Find the center point
     x = (minx + maxx) / 2
@@ -50,8 +50,8 @@ def dispKeyHashBucket(modelSetKey: str, dispKey: str) -> str:
     hash = 0
     for char in dispKey:
         hash = ((hash << 5) - hash) + ord(char)
-        hash = hash | 0 # This is in the javascript code.
+        hash = hash | 0  # This is in the javascript code.
 
-    hash = hash & 1023 # 1024 buckets
+    hash = hash & 1023  # 1024 buckets
 
     return "%s:%s" % (modelSetKey, hash)

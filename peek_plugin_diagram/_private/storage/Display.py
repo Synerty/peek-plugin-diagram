@@ -210,7 +210,7 @@ class DispBase(Tuple, DeclarativeBase):
     levelId = Column(Integer, ForeignKey('DispLevel.id'), doc='le')
     level = relationship(DispLevel)
 
-    zOrder = Column(Integer, server_default='0', nullable=False)
+    zOrder = Column(Integer, server_default='0', nullable=False, doc=JSON_EXCLUDE)
 
     # MAX_STR
     dispJson = Column(String, doc=JSON_EXCLUDE)
