@@ -158,7 +158,7 @@ def compileDisps(self, queueIds, dispIds):
         # 7) Determine which grids this disp will live in, and create GridKeyIndex entries
         #         for those grid keys for this disp.
         gridCompiledQueueItems, gridKeyIndexesByDispId = _calculateGridKeys(
-            disps, coordSetById, textStyleById
+            preparedDisps, coordSetById, textStyleById
         )
 
         # ---------------
@@ -192,7 +192,7 @@ def compileDisps(self, queueIds, dispIds):
         raise self.retry(exc=e, countdown=10)
 
 
-def _cloneDispsForDispGroupPointer(dispIds):
+def _cloneDispsForDispGroupPointer(dispIds: List[int]):
     """ Clone Disps for DispGroupPointer
 
     This method will clone "instances" of the disps in the disp groups for the
@@ -216,15 +216,26 @@ def _cloneDispsForDispGroupPointer(dispIds):
         # Query for the disp groups we'll need
         qry = ormSession.query(DispGroup) \
             .options(subqueryload(DispGroup.disps)) \
-            .filter(DispGroup.id.in_([o.groupdId for o in dispGroupPointers]))
+            .filter(DispGroup.id.in_([o.targetDispGroupId for o in dispGroupPointers]))
 
         dispGroupById = {o.id: o for o in qry.all()}
         del qry
 
         cloneDisps = []
         for dispPtr in dispGroupPointers:
-            dispGroup = dispGroupById[dispPtr.targetDispGroup]
-            x, y = json.dumps(dispPtr.geomJson)
+            if not dispPtr.targetDispGroupId:
+                logger.warning("Pointer has no targetGroupId id=%s", dispPtr.id)
+                continue
+
+            dispGroup = dispGroupById.get(dispPtr.targetDispGroupId)
+
+            if not dispGroup:
+                logger.warning("Pointer points to missing DispGroup,"
+                               " id=%s, targetGroupId", dispPtr.id,
+                               dispPtr.targetDispGroupId)
+                continue
+
+            x, y = json.loads(dispPtr.geomJson)
 
             for templateDisp in dispGroup.disps:
                 # Create the clone
@@ -233,8 +244,8 @@ def _cloneDispsForDispGroupPointer(dispIds):
 
                 # Offset the geometry
                 geom = json.loads(cloneDisp.geomJson)
-                _scaleDispGeom(geom, 0, 0, x, y)
-                cloneDisp.geomJson = json.dumps(cloneDisp.geomJson)
+                geom = _scaleDispGeom(geom, 0, 0, x, y)
+                cloneDisp.geomJson = json.dumps(geom)
 
                 # Assign the clone to the DispGroupPointer
                 cloneDisp.groupId = dispPtr.id
@@ -244,6 +255,9 @@ def _cloneDispsForDispGroupPointer(dispIds):
         for cloneDisp in cloneDisps:
             cloneDisp.id = next(dispIdGen)
             ormSession.add(cloneDisp)
+
+        # Do this here, otherwise it will cause a DB refresh if it's after the commit.
+        dispIdsIncludingClones = dispIds + [o.id for o in cloneDisps]
 
         ormSession.commit()
 
@@ -257,7 +271,7 @@ def _cloneDispsForDispGroupPointer(dispIds):
     finally:
         ormSession.close()
 
-    return dispIds + [o.id for o in cloneDisps]
+    return dispIdsIncludingClones
 
 
 def _loadDisps(ormSession, dispIdsIncludingClones: List[int]):
@@ -335,7 +349,7 @@ def _scaleDisp(disps, coordSetById):
         coordSet = coordSetById[disp.coordSetId]
 
         # Create the JSON Dict
-        jsonDict = disp.tupleToSmallJsonDict()
+        dispDict = disp.tupleToSmallJsonDict()
 
         # Get and Scale the Geometry
         geomJson = None
@@ -343,10 +357,7 @@ def _scaleDisp(disps, coordSetById):
         if not isinstance(disp, DispGroup):
             geomJson = json.loads(disp.geomJson)
             geomJson = _scaleDispGeomWithCoordSet(geomJson, coordSet)
-            jsonDict["g"] = geomJson
-
-        # Write the "compiled" disp JSON back to the disp.
-        dispDict = json.dumps(jsonDict)
+            dispDict["g"] = geomJson
 
         preparedDisps.append(PreparedDisp(disp, geomJson, dispDict))
 
@@ -458,7 +469,7 @@ def _indexLocation(preparedDisps, coordSetById):
         )
 
     logger.debug("Indexed %s disp Locations in %s",
-                 len(count), (datetime.now(pytz.utc) - startTime))
+                 count, (datetime.now(pytz.utc) - startTime))
 
     return locationCompiledQueueItems, locationIndexByDispId
 

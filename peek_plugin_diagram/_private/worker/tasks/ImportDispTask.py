@@ -50,7 +50,16 @@ IMPORT_FIELD_NAME_MAP = {
     'fillColorHash': 'fillColorId',
     'lineColorHash': 'lineColorId',
     'textStyleHash': 'textStyleId',
-    'dispGroupHash': 'groupId'
+    'targetDispGroupHash': 'targetDispGroupId'
+}
+
+IMPORT_SORT_ORDER = {
+    ImportDispGroupTuple.tupleType(): 0,
+    ImportDispGroupPtrTuple.tupleType(): 1,
+    ImportDispEllipseTuple.tupleType(): 2,
+    ImportDispPolygonTuple.tupleType(): 2,
+    ImportDispPolylineTuple.tupleType(): 2,
+    ImportDispTextTuple.tupleType(): 2
 }
 
 
@@ -144,7 +153,10 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
         dispGroupPtrWithTargetHash: List[Tuple[DispGroupPointer, str]] = []
         dispGroupChildWithTargetHash: List[Tuple[DispBase, str]] = []
 
-        for importDisp in importDisps:
+        sortedImportDisps = sorted(importDisps,
+                                   key=lambda o: IMPORT_SORT_ORDER[o.tupleType()])
+
+        for importDisp in sortedImportDisps:
             # Convert the geometry into the internal array format
             _convertGeom(importDisp)
 
@@ -213,7 +225,7 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
                 raise Exception(
                     "DispGroup with importHash %s doesn't exist" % groupHash)
 
-            ormDisp.targetDispGroup = groupOrmObjId
+            ormDisp.targetDispGroupId = groupOrmObjId
 
 
     finally:
