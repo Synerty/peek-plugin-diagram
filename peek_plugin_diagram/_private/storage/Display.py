@@ -11,7 +11,7 @@
  *
 """
 import typing
-from sqlalchemy import Column
+from sqlalchemy import Column, orm
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String, Boolean
 from sqlalchemy.orm import relationship
@@ -285,6 +285,11 @@ class DispText(DispBase):
         Index("idx_DispText_styleId", textStyleId, unique=False),
     )
 
+    # noinspection PyMissingConstructor
+    @orm.reconstructor
+    def __init__(self):
+        pass
+
 
 @addTupleType
 class DispPolygon(DispBase):
@@ -326,6 +331,11 @@ class DispPolygon(DispBase):
         Index("idx_DispPolygon_lineStyleId", lineStyleId, unique=False),
     )
 
+    # noinspection PyMissingConstructor
+    @orm.reconstructor
+    def __init__(self):
+        pass
+
 
 @addTupleType
 class DispPolyline(DispBase):
@@ -364,6 +374,11 @@ class DispPolyline(DispBase):
         Index("idx_DispPolyline_endKey", endKey, unique=False),
     )
 
+    # noinspection PyMissingConstructor
+    @orm.reconstructor
+    def __init__(self):
+        pass
+
 
 @addTupleType
 class DispEllipse(DispBase):
@@ -401,6 +416,11 @@ class DispEllipse(DispBase):
         Index("idx_DispEllipse_lineColorId", lineColorId, unique=False),
         Index("idx_DispEllipse_lineStyleId", lineStyleId, unique=False),
     )
+
+    # noinspection PyMissingConstructor
+    @orm.reconstructor
+    def __init__(self):
+        pass
 
 
 @addTupleType
@@ -461,3 +481,8 @@ class DispGroupPointer(DispBase):
     __table_args__ = (
         Index("idxDispGroupPointer_targetDispGroupId", targetDispGroupId, unique=False),
     )
+
+    # noinspection PyMissingConstructor
+    @orm.reconstructor
+    def __init__(self):
+        pass

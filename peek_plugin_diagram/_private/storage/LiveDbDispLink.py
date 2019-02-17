@@ -25,7 +25,7 @@ LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR = {
     'lineStyleId': LiveDbDisplayValueTuple.DATA_TYPE_LINE_STYLE,
     'lineWidth': LiveDbDisplayValueTuple.DATA_TYPE_LINE_WIDTH,
     'text': LiveDbDisplayValueTuple.DATA_TYPE_STRING_VALUE,
-    'groupId': LiveDbDisplayValueTuple.DATA_TYPE_GROUP_PTR,
+    'targetDispGroupId': LiveDbDisplayValueTuple.DATA_TYPE_GROUP_PTR,
 }
 
 

@@ -15,6 +15,7 @@ from peek_plugin_diagram._private.storage.Display import DispBase, DispTextStyle
     DispGroup, DispGroupPointer
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
     DispIndexerQueue, GridKeyCompilerQueue
+from peek_plugin_diagram._private.storage.LiveDbDispLink import LiveDbDispLink
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndex, \
     LocationIndexCompilerQueue
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, \
@@ -211,6 +212,8 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
             .filter(DispGroupPointer.id.in_(dispIds))
 
         dispGroupPointers: List[DispGroupPointer] = qry.all()
+        dispGroupPointersIds = [o.targetDispGroupId for o in dispGroupPointers]
+
         del qry
 
         # -----
@@ -225,35 +228,42 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
 
         # -----
         # Query for the disp groups we'll need
-        qry = ormSession.query(DispGroup) \
-            .options(subqueryload(DispGroup.disps)) \
-            .filter(DispGroup.id.in_([o.targetDispGroupId for o in dispGroupPointers]))
+        qry = ormSession.query(DispBase) \
+            .options(subqueryload(DispBase.liveDbLinks)) \
+            .filter(DispBase.groupId.in_(dispGroupPointersIds))
 
-        dispGroupById = {o.id: o for o in qry.all()}
+        dispGroupChildsByGroupId = defaultdict(list)
+        for o in qry.all():
+            dispGroupChildsByGroupId[o.groupId].append(o)
+
         del qry
 
         # -----
         # Clone the child disps
         cloneDisps = []
+        cloneLiveDbDispLinks = []
+
         for dispPtr in dispGroupPointers:
             if not dispPtr.targetDispGroupId:
                 logger.warning("Pointer has no targetGroupId id=%s", dispPtr.id)
                 continue
 
-            dispGroup = dispGroupById.get(dispPtr.targetDispGroupId)
+            dispGroupChilds = dispGroupChildsByGroupId.get(dispPtr.targetDispGroupId)
 
-            if not dispGroup:
+            if not dispGroupChilds:
                 logger.warning("Pointer points to missing DispGroup,"
-                               " id=%s, targetGroupId", dispPtr.id,
+                               " id=%s, targetGroupId=%s", dispPtr.id,
                                dispPtr.targetDispGroupId)
                 continue
 
             x, y = json.loads(dispPtr.geomJson)
 
-            for templateDisp in dispGroup.disps:
+            for templateDisp in dispGroupChilds:
                 # Create the clone
                 cloneDisp = templateDisp.tupleClone()
                 cloneDisps.append(cloneDisp)
+
+                cloneDisp.coordSetId = dispPtr.coordSetId
 
                 # Offset the geometry
                 geom = json.loads(cloneDisp.geomJson)
@@ -263,12 +273,29 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
                 # Assign the clone to the DispGroupPointer
                 cloneDisp.groupId = dispPtr.id
 
+                for dispLink in templateDisp.liveDbLinks:
+                    cloneDispLink = dispLink.tupleClone()
+                    cloneLiveDbDispLinks.append(cloneDispLink)
+
+                    cloneDispLink.id = None
+                    cloneDispLink.disp = cloneDisp
+                    cloneDispLink.coordSetId = dispPtr.coordSetId
+
         # -----
         # Preallocate the IDs for performance on PostGreSQL
         dispIdGen = CeleryDbConn.prefetchDeclarativeIds(DispBase, len(cloneDisps))
         for cloneDisp in cloneDisps:
             cloneDisp.id = next(dispIdGen)
-            ormSession.add(cloneDisp)
+
+        # Preallocate the IDs for performance on PostGreSQL
+        dispLinkIdGen = CeleryDbConn.prefetchDeclarativeIds(LiveDbDispLink,
+                                                            len(cloneLiveDbDispLinks))
+        for cloneDispLink in cloneLiveDbDispLinks:
+            cloneDispLink.id = next(dispLinkIdGen)
+            cloneDispLink.dispId = cloneDispLink.disp.id
+            cloneDispLink.disp = None
+
+        ormSession.bulk_save_objects(cloneDisps, update_changed_only=False)
 
         # -----
         # Create the new list of IDs to compile
@@ -529,8 +556,8 @@ def _calculateGridKeys(preparedDisps: List[PreparedDisp], coordSetById, textStyl
         for gridKey in gridKeys:
             addGridKey(pdisp.disp, gridKey)
 
-        logger.debug("Calculated GridKeys for %s disps in %s",
-                     len(pdisp), (datetime.now(pytz.utc) - startTime))
+    logger.debug("Calculated GridKeys for %s disps in %s",
+                 len(preparedDisps), (datetime.now(pytz.utc) - startTime))
 
     return gridCompiledQueueItems, gridKeyIndexesByDispId
 
