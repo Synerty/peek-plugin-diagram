@@ -78,3 +78,8 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
         Index("idx_LiveDbDLink_liveDbUpdate", dispId, liveDbKey,
               unique=False),
     )
+
+    # noinspection PyMissingConstructor
+    @orm.reconstructor
+    def __init__(self):
+        pass
