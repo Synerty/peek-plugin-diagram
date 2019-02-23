@@ -19,6 +19,14 @@ export function disableContextMenu(event) {
     return false;
 }
 
+export interface CanvasInputPos {
+    x: number,
+    y: number,
+    clientX: number,
+    clientY: number,
+    time: Date
+}
+
 /*
  * This class manages the currently selected tool
  * 
@@ -35,7 +43,7 @@ export abstract class PeekCanvasInputDelegate {
     /** The time it takes to do a click, VS a click that moved slighltly * */
     readonly DRAG_TIME_THRESHOLD = 200;
 
-    constructor(public NAME:string) {
+    constructor(public NAME: string) {
     }
 
     _hasPassedDragThreshold(m1, m2) {
@@ -58,31 +66,31 @@ export abstract class PeekCanvasInputDelegate {
     keyUp(event) {
     };
 
-    mouseSelectStart(event, mouse) {
+    // mouseSelectStart(event, mouse) {
+    // };
+
+    mouseDown(event: MouseEvent, mouse: CanvasInputPos) {
     };
 
-    mouseDown(event, mouse) {
+    mouseMove(event: MouseEvent, mouse: CanvasInputPos) {
     };
 
-    mouseMove(event, mouse) {
+    mouseUp(event: MouseEvent, mouse: CanvasInputPos) {
     };
 
-    mouseUp(event, mouse) {
+    mouseDoubleClick(event: MouseEvent, mouse: CanvasInputPos) {
     };
 
-    mouseDoubleClick(event, mouse) {
+    mouseWheel(event: MouseEvent, mouse: CanvasInputPos) {
     };
 
-    mouseWheel(event, mouse) {
+    touchStart(event: TouchEvent, mouse: CanvasInputPos) {
     };
 
-    touchStart(event:TouchEvent, mouse) {
+    touchMove(event: TouchEvent, mouse: CanvasInputPos) {
     };
 
-    touchMove(event:TouchEvent, mouse) {
-    };
-
-    touchEnd(event:TouchEvent, mouse) {
+    touchEnd(event: TouchEvent, mouse: CanvasInputPos) {
     };
 
     shutdown() {
