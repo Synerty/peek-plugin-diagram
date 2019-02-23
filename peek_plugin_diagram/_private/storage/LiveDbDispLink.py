@@ -1,16 +1,13 @@
-
 import logging
-
-from sqlalchemy import Column, text
+from sqlalchemy import Column, orm
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import relationship
-from sqlalchemy.orm.mapper import reconstructor
 from sqlalchemy.sql.schema import Index, Sequence
+from vortex.Tuple import Tuple, addTupleType
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from peek_plugin_livedb.tuples.LiveDbDisplayValueTuple import LiveDbDisplayValueTuple
-from vortex.Tuple import Tuple, addTupleType, JSON_EXCLUDE
 from .DeclarativeBase import DeclarativeBase
 from .Display import DispBase
 from .ModelSet import ModelCoordSet
@@ -41,11 +38,12 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
     id = Column(Integer, id_seq, server_default=id_seq.next_value(),
                 primary_key=True, autoincrement=False)
 
-    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete="CASCADE"), nullable=False)
+    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete="CASCADE"),
+                        nullable=False)
     coordSet = relationship(ModelCoordSet)
 
     dispId = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE'),
-                     nullable=False)
+                    nullable=False)
     disp = relationship(DispBase)
 
     # # comment="The attribute of the disp item to update"
@@ -81,5 +79,10 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
 
     # noinspection PyMissingConstructor
     @orm.reconstructor
-    def __init__(self):
-        pass
+    def __init__(self, **kwargs):
+
+        for name in self.__fieldNames__:
+            if name in kwargs:
+                setattr(self, name, kwargs.pop(name))
+
+        assert not kwargs, "LiveDbDispLink.__init__, %s remains" % kwargs

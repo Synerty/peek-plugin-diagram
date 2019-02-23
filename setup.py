@@ -64,7 +64,7 @@ setup(
     name=pip_package_name,
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     package_data={'': package_files},
-    install_requires=['peek-plugin-base'],
+    install_requires=['ujson', 'peek-plugin-base'],
     version=package_version,
     description=description,
     author=author,

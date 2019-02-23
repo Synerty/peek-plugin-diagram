@@ -1,4 +1,4 @@
-import json
+import ujson as json
 import logging
 import pytz
 from datetime import datetime
@@ -288,7 +288,7 @@ def _convertImportTuple(importDisp):
     disp = IMPORT_TUPLE_MAP[importDisp.tupleType()]()
 
     for importFieldName in importDisp.tupleFieldNames():
-        if importFieldName == "data":
+        if importFieldName == "data" and importDisp.data:
             disp.dataJson = json.dumps(importDisp.data)
             continue
 

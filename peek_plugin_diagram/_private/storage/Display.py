@@ -30,7 +30,8 @@ DISP_SHORT_ATTR_NAME_MAP = {'colorId': 'c',
                             'lineStyleId': 'ls',
                             'lineWidth': 'w',
                             'text': 'te',
-                            'groupId': 'gid',
+                            'groupId': 'gi',
+                            'targetGroupId': 'tg',
                             }
 
 
@@ -197,7 +198,7 @@ class DispBase(Tuple, DeclarativeBase):
 
     #: Used for disps that belong to either a DispGroup or a Disp
     groupId = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE'),
-                     doc=JSON_EXCLUDE)
+                     doc='gi')
 
     coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
                         doc=JSON_EXCLUDE,
@@ -471,7 +472,7 @@ class DispGroupPointer(DispBase):
     geomJson = Column(String, nullable=False, doc='g')
 
     targetDispGroupId = Column(Integer, ForeignKey('DispGroup.id', ondelete='SET NULL'),
-                               doc='gid', nullable=True)
+                               doc='tg', nullable=True)
 
     disps = relationship(DispBase,
                          primaryjoin='DispBase.groupId==DispGroupPointer.id',

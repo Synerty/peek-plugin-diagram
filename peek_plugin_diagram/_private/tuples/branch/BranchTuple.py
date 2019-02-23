@@ -1,4 +1,4 @@
-import json
+import ujson as json
 from typing import List, Any
 from vortex.Tuple import Tuple, addTupleType, TupleField
 

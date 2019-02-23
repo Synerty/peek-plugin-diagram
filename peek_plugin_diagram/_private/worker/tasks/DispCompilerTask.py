@@ -1,7 +1,7 @@
 from _collections import defaultdict
 from collections import namedtuple
 
-import json
+import ujson as json
 import logging
 import pytz
 from datetime import datetime
@@ -170,7 +170,7 @@ def compileDisps(self, queueIds, dispIds):
         # Commit the updates
         startTime = datetime.now(pytz.utc)
         ormSession.commit()
-        logger.info("Committed %s disp objects in %s",
+        logger.debug("Committed %s disp objects in %s",
                     len(disps), (datetime.now(pytz.utc) - startTime))
 
     except Exception as e:
@@ -185,12 +185,16 @@ def compileDisps(self, queueIds, dispIds):
     # 9) Run the bulk DB delete/insert methods
     try:
 
-        _insertToDb(dispIds, gridCompiledQueueItems, gridKeyIndexesByDispId,
+        _insertToDb(dispIdsIncludingClones,
+                    gridCompiledQueueItems, gridKeyIndexesByDispId,
                     locationCompiledQueueItems, locationIndexByDispId, queueIds)
 
     except Exception as e:
         logger.exception(e)
         raise self.retry(exc=e, countdown=10)
+
+    logger.info("Compiled %s disp objects in %s",
+                 len(dispIds), (datetime.now(pytz.utc) - startTime))
 
 
 def _cloneDispsForDispGroupPointer(dispIds: List[int]):
@@ -267,7 +271,7 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
 
                 # Offset the geometry
                 geom = json.loads(cloneDisp.geomJson)
-                geom = _scaleDispGeom(geom, 0, 0, x, y)
+                geom = _scaleDispGeom(geom, 1, 1, x, y)
                 cloneDisp.geomJson = json.dumps(geom)
 
                 # Assign the clone to the DispGroupPointer
@@ -295,12 +299,13 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
             cloneDispLink.dispId = cloneDispLink.disp.id
             cloneDispLink.disp = None
 
-        ormSession.bulk_save_objects(cloneDisps, update_changed_only=False)
-
         # -----
         # Create the new list of IDs to compile
         # Do this here, otherwise it will cause a DB refresh if it's after the commit.
         dispIdsIncludingClones = dispIds + [o.id for o in cloneDisps]
+
+        ormSession.bulk_save_objects(cloneDisps, update_changed_only=False)
+        ormSession.bulk_save_objects(cloneLiveDbDispLinks, update_changed_only=False)
 
         ormSession.commit()
 
@@ -564,8 +569,10 @@ def _calculateGridKeys(preparedDisps: List[PreparedDisp], coordSetById, textStyl
 
 def _updateDispJson(preparedDisps: List[PreparedDisp]):
     for pdisp in preparedDisps:
+        # Strip out the nulls, to make it even more compact
+        stripped = {k: v for k, v in pdisp.dispDict.items() if v is not None}
         # Write the "compiled" disp JSON back to the disp.
-        pdisp.disp.dispJson = json.dumps(pdisp.dispDict)
+        pdisp.disp.dispJson = json.dumps(stripped)
 
 
 def _insertToDb(dispIds, gridCompiledQueueItems, gridKeyIndexesByDispId,

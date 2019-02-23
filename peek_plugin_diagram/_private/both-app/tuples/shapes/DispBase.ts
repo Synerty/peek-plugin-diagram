@@ -1,5 +1,4 @@
-import {DispLevel} from "@peek/peek_plugin_diagram/lookups";
-import {DispLayer} from "@peek/peek_plugin_diagram/lookups";
+import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
 
 export interface PointI {
     x: number;
@@ -13,6 +12,10 @@ export abstract class DispBase {
 
     static id(disp): number {
         return disp.id;
+    }
+
+    static groupId(disp): number {
+        return disp.gi;
     }
 
     static level(disp): DispLevel {
