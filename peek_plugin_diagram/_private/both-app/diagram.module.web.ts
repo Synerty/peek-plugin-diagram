@@ -44,6 +44,10 @@ import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarSer
 import {PopupComponent} from "./popup-component/popup.component.mweb";
 import {ToolbarComponent} from "./toolbar-component/toolbar.component.web";
 import {LayerComponent} from "./layer-component/layer.component.web";
+import {EditContextComponent} from "./canvas-component/edit-context-component/edit-context.component.mweb";
+import {EditToolbarComponent} from "./canvas-component/edit-toolbar-component/edit-toolbar.component.web";
+import {EditShapePropertiesComponent} from "./canvas-component/edit-shape-properties-component/edit-shape-properties.component";
+import {EditDynamicPropertiesComponent} from "./canvas-component/edit-dynamic-properties-component/edit-dynamic-properties.component";
 
 
 // Define the root module for this plugin.
@@ -63,7 +67,10 @@ import {LayerComponent} from "./layer-component/layer.component.web";
         DispGroupCache,
         GridObservable
     ],
-    declarations: [DiagramComponent, CanvasComponent, PopupComponent, ToolbarComponent, LayerComponent]
+    declarations: [DiagramComponent, CanvasComponent, PopupComponent,
+        ToolbarComponent, LayerComponent,
+        EditContextComponent, EditToolbarComponent,
+        EditShapePropertiesComponent, EditDynamicPropertiesComponent]
 })
 export class PeekPluginDiagramModule {
 }

@@ -3,10 +3,16 @@ import {PeekCanvasModel} from "./PeekCanvasModel.web";
 
 import * as $ from "jquery";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
-import {disableContextMenu, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
+import {
+    CanvasInputPos,
+    disableContextMenu,
+    PeekCanvasInputDelegate
+} from "./PeekCanvasInputDelegate.web";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web";
+import {
+    PeekCanvasInputSelectDelegate
+} from "./PeekCanvasInputSelectDelegate.web";
 
 
 /** Peek Canvas Input
@@ -53,7 +59,7 @@ export class PeekCanvasInput {
 // the state's canvas
 // If you want to be super-correct this can be tricky, we have to worry about
 // padding and borders
-    _getMouse(e) {
+    _getMouse(e): CanvasInputPos {
 
         let pageX = e.pageX;
         let pageY = e.pageY;
@@ -135,6 +141,12 @@ export class PeekCanvasInput {
 
         }, true);
 
+        canvas.addEventListener('dblclick', (e) => {
+            if (!(e instanceof MouseEvent)) return;
+            this._delegate.mouseDoubleClick(e, this._getMouse(e));
+
+        }, true);
+
         canvas.addEventListener('mousewheel', (e) => {
             if (!(e instanceof MouseEvent)) return;
             this._delegate.mouseWheel(e, this._getMouse(e));
@@ -142,20 +154,6 @@ export class PeekCanvasInput {
             e.preventDefault();
             return false;
         }, true);
-
-        canvas.addEventListener('dblclick', (e) => {
-            if (!(e instanceof MouseEvent)) return;
-            this._delegate.mouseDoubleClick(e, this._getMouse(e));
-
-        }, true);
-
-        canvas.addEventListener('selectstart', (e) => {
-            //this_._delegate.mouseSelectStart(e, this_._getMouse(e));
-            e.preventDefault();
-            return false;
-        }, true);
-
-        canvas.addEventListener('contextmenu', disableContextMenu, true);
 
         canvas.addEventListener('touchstart', (e) => {
             if (!(e instanceof TouchEvent)) return;
@@ -177,6 +175,14 @@ export class PeekCanvasInput {
             disableContextMenu(e);
 
         }, true);
+
+        canvas.addEventListener('selectstart', (e) => {
+            //this_._delegate.mouseSelectStart(e, this_._getMouse(e));
+            e.preventDefault();
+            return false;
+        }, true);
+
+        canvas.addEventListener('contextmenu', disableContextMenu, true);
 
         this.config.canvas.windowChange
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)

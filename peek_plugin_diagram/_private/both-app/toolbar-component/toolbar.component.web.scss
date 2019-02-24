@@ -6,7 +6,7 @@
 
 $open_button_height: 20px;
 
-$toolbar_width:250px;
+$toolbar_width: 250px;
 
 .open-close-button {
   cursor: pointer;
@@ -25,7 +25,7 @@ $toolbar_width:250px;
   z-index: 1; /* Stay on top */
   background-color: #111; /* Black*/
   overflow-x: hidden; /* Disable horizontal scroll */
-  margin-top:   $general_margin_4;
+  margin-top: $general_margin_4;
   transition: 0.5s; /* 0.5 second transition effect to slide in the toolbar */
 }
 

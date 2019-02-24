@@ -1,6 +1,9 @@
 import {assert} from "../DiagramUtil";
 import {GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
-import {LookupCache} from "./LookupCache.web";
+import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
+import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
+import {DiagramDeltaBase} from "@peek/peek_plugin_diagram/branch/DiagramDeltaBase";
+
 /** Linked Grid
  *
  * This class represents a constructed grid of data, ready for use by a canvas model
@@ -11,9 +14,10 @@ export class LinkedGrid {
     lastUpdate = null;
     loadedFromServerDate = new Date();
     disps = [];
+    branchDeltasByBranchKey: { [key: string]: DiagramDeltaBase[] } = {};
 
     constructor(serverCompiledGridOrGridKey: string | GridTuple,
-                lookupStore: LookupCache | null = null) {
+                lookupStore: DiagramLookupService | null = null) {
 
         // initialise for empty grid keys
         if (typeof serverCompiledGridOrGridKey === "string") {
@@ -28,6 +32,7 @@ export class LinkedGrid {
         this.lastUpdate = serverCompiledGrid.lastUpdate;
         this.loadedFromServerDate = new Date();
 
+        // Reconstruct the disps
         this.disps = [];
         let disps = [];
 
@@ -48,10 +53,32 @@ export class LinkedGrid {
                 // including dips that had not yet had json assigned.
                 continue;
             }
-            if (lookupStore.linkDispLookups(disp) != null) {
+            if (lookupStore._linkDispLookups(disp) != null) {
                 this.disps.push(disp);
             }
         }
+
+        // Construct the branches
+        this.branchDeltasByBranchKey = {};
+        let branches = [];
+
+        if (serverCompiledGrid.branchJsonStr != null
+            && serverCompiledGrid.branchJsonStr.length != 0) {
+            try {
+                branches = JSON.parse(serverCompiledGrid.branchJsonStr);
+            } catch (e) {
+                console.error(e.toString());
+            }
+        }
+
+
+        // Resolve the lookups for the branch deltas
+        for (let branchJson of branches) {
+            let branch: BranchTuple = BranchTuple.unpackJson(branchJson);
+            this.branchDeltasByBranchKey[branch.key] = branch.deltas(lookupStore);
+        }
+
+
     }
 
     hasData() {

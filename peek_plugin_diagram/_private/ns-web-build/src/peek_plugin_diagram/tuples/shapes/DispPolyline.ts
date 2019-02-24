@@ -1,16 +1,16 @@
 import {DispBase, PointsT} from "./DispBase";
-import {DispColor} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
-import {DispLineStyle} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
+import {DispColor} from "@peek/peek_plugin_diagram/lookups";
+import {DispLineStyle} from "@peek/peek_plugin_diagram/lookups";
 
 export class DispPolyline extends DispBase {
 
     static lineColor(disp): DispColor {
-        // This is set from the short id in LookupCache.linkDispLookups
+        // This is set from the short id in DiagramLookupService._linkDispLookups
         return disp.lcl;
     }
 
     static lineStyle(disp): DispLineStyle {
-        // This is set from the short id in LookupCache.linkDispLookups
+        // This is set from the short id in DiagramLookupService._linkDispLookups
         return disp.lsl;
     }
 

@@ -16,7 +16,8 @@ export abstract class DiagramBranchService {
 
     abstract startEditing(modelSetKey: string,
                           coordSetKey: string,
-                          branchKey: string): void;
+                          branchKey: string,
+                          location: DiagramBranchLocation): void;
 
     abstract stopEditing(): void;
 

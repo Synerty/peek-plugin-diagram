@@ -1,6 +1,6 @@
 import {DispBase, PointI} from "./DispBase";
-import {DispTextStyle} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
-import {DispColor} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
+import {DispTextStyle} from "@peek/peek_plugin_diagram/lookups";
+import {DispColor} from "@peek/peek_plugin_diagram/lookups";
 
 export enum TextVerticalAlign {
     top = -1,
@@ -18,12 +18,12 @@ export enum TextHorizontalAlign {
 export class DispText extends DispBase {
 
     static textStyle(disp): DispTextStyle {
-        // This is set from the short id in LookupCache.linkDispLookups
+        // This is set from the short id in DiagramLookupService._linkDispLookups
         return disp.fsl;
     }
 
     static color(disp): DispColor {
-        // This is set from the short id in LookupCache.linkDispLookups
+        // This is set from the short id in DiagramLookupService._linkDispLookups
         return disp.cl;
     }
 

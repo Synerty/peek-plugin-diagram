@@ -1,4 +1,4 @@
-import {DiagramDeltaBase} from "./branch_deltas/DiagramDeltaBase";
+import {DiagramDeltaBase} from "./DiagramDeltaBase";
 
 
 /** Diagram Branch Service Enum
@@ -30,6 +30,12 @@ export abstract class DiagramBranchContext {
      * The key of this branch
      */
     abstract get key(): string;
+
+    /** Location
+     *
+     * The location of this branch
+     */
+    abstract get location(): DiagramBranchContext;
 
     /** Save
      *

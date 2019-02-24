@@ -7,8 +7,8 @@ export class DispKeyLocationTuple extends Tuple {
     public static readonly tupleName = diagramTuplePrefix + "DispKeyLocationTuple";
 
     coordSetKey: string;
-
     coordSetId: number;
+
     dispId: number;
 
     x: number;

@@ -1,5 +1,5 @@
 <GridLayout rows="auto, *" columns="auto">
-    <GridLayout rows="auto" columns="auto, auto, *">
+    <GridLayout rows="auto" columns="auto, auto, auto, *">
         <button row="0" col="0"
                 *ngIf="!isToolbarEmpty()"
                 class="fa open-close-button btn"
@@ -11,6 +11,12 @@
                 class="fa open-close-button btn"
                 (tap)="exitDiagramClicked()"
                 [text]=" 'fa-sign-out' | fonticon">
+        </button>
+        <button *ngIf="showEditDiagramButton()"
+                row="0" col="2"
+                class="fa open-close-button btn"
+                (tap)="editDiagramClicked()"
+                [text]=" 'fa-pencil-alt' | fonticon">
         </button>
     </GridLayout>
     <GridLayout class="toolbar" *ngIf="toolbarIsOpen" row="1" col="0" colSpan="2">

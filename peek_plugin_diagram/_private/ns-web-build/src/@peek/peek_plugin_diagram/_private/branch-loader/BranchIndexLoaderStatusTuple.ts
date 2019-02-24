@@ -3,8 +3,8 @@ import {diagramTuplePrefix} from "../PluginNames";
 
 
 @addTupleType
-export class PrivateDiagramBranchLoaderStatusTuple extends Tuple {
-    public static readonly tupleName = diagramTuplePrefix + "PrivateDiagramBranchLoaderStatusTuple";
+export class BranchIndexLoaderStatusTuple extends Tuple {
+    public static readonly tupleName = diagramTuplePrefix + "BranchIndexLoaderStatusTuple";
 
 
     cacheForOfflineEnabled: boolean = false;
@@ -14,6 +14,6 @@ export class PrivateDiagramBranchLoaderStatusTuple extends Tuple {
     lastCheck: Date;
 
     constructor() {
-        super(PrivateDiagramBranchLoaderStatusTuple.tupleName)
+        super(BranchIndexLoaderStatusTuple.tupleName)
     }
 }

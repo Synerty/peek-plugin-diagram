@@ -2,31 +2,33 @@ import {Injectable} from "@angular/core";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {VortexStatusService} from "@synerty/vortexjs";
-import {DiagramBranchService} from "../../DiagramBranchService";
-import {DiagramBranchTuple} from "./DiagramBranchTuple";
-import {DiagramBranchContext, DiagramBranchLocation} from "../../DiagramBranchContext";
+import {BranchTuple} from "./BranchTuple";
 import {DiagramDeltaBase} from "../../branch/DiagramDeltaBase";
+import {DiagramBranchContext} from "../../branch/DiagramBranchContext";
+import {DiagramLookupService} from "../../DiagramLookupService";
 
 /** Diagram Branch Service
  *
  * This is the implementation of the diagram branch service.
  *
  */
-@Injectable()
 export class PrivateDiagramBranchContext extends DiagramBranchContext {
 
 
-    constructor(private branch: DiagramBranchTuple) {
+    constructor(private lookupCache: DiagramLookupService,
+                private branch: BranchTuple,
+                private _modelSetKey: string,
+                private _coordSetKey: string) {
         super();
 
     }
 
     get modelSetKey(): string {
-        return this.branch.modelSetKey;
+        return this._modelSetKey;
     }
 
     get coordSetKey(): string {
-        return this.branch.coordSetKey;
+        return this._coordSetKey;
     }
 
     get key(): string {
@@ -34,21 +36,26 @@ export class PrivateDiagramBranchContext extends DiagramBranchContext {
     }
 
     get deltas(): DiagramDeltaBase[] {
-        return this.branch.deltas.slice();
+        return this.branch.deltas(this.lookupCache);
     }
 
     addDelta(delta: DiagramDeltaBase): void {
-        this.branch.deltas.push(delta);
+        this.branch.addDelta(delta);
 
     }
 
     save(): Promise<void> {
-        return Promise.reject("DiagramBranchContext.save is not implemented");
+        return Promise.reject("PrivateDiagramBranchContext.save is not implemented");
     }
 
     setVisible(visible: boolean): void {
         this.branch.visible = visible;
     }
+
+    get location(): DiagramBranchContext {
+        return undefined;
+    }
+
 
 
 }

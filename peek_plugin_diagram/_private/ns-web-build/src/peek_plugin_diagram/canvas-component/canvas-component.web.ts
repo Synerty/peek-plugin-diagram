@@ -8,7 +8,7 @@ import {PeekCanvasRenderer} from "../canvas/PeekCanvasRenderer.web";
 import {PeekCanvasInput} from "../canvas/PeekCanvasInput.web";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 import {GridObservable} from "../cache/GridObservable.web";
-import {LookupCache} from "../cache/LookupCache.web";
+import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {DispGroupCache} from "../cache/DispGroupCache.web";
 
 import {DispBase} from "../tuples/shapes/DispBase";
@@ -25,6 +25,8 @@ import {
     SelectedItemDetailsI
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {PrivateDiagramCoordSetService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
+import {DiagramBranchService} from "@peek/peek_plugin_diagram/plugin-module/DiagramBranchService";
 
 /** Canvas Component
  *
@@ -58,30 +60,38 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     private dispDelegate: PeekDispRenderFactory;
     private model: PeekCanvasModel;
     private input: PeekCanvasInput;
+    private editor: PeekCanvasEditor;
 
     // Private services
     private _privatePosService: PrivateDiagramPositionService;
 
 
     constructor(private gridObservable: GridObservable,
-                private lookupCache: LookupCache,
+                private lookupCache: DiagramLookupService,
                 private coordSetCache: PrivateDiagramCoordSetService,
                 private dispGroupCache: DispGroupCache,
                 positionService: DiagramPositionService,
-                private itemSelectService: PrivateDiagramItemSelectService) {
+                private itemSelectService: PrivateDiagramItemSelectService,
+                private branchService: DiagramBranchService) {
         super();
 
         // Cast the private services
-        this._privatePosService = <PrivateDiagramPositionService> positionService;
+        this._privatePosService = <PrivateDiagramPositionService>positionService;
 
         // The config for the canvas
         this.config = new PeekCanvasConfig();
 
+
+    }
+
+    private initCanvas(): void {
+        // this.lookupCache must not be null
+
         // The model view the viewable items on the canvas
-        this.model = new PeekCanvasModel(this.config, gridObservable, lookupCache, this);
+        this.model = new PeekCanvasModel(this.config, this.gridObservable, this.lookupCache, this);
 
         // The display renderer delegates
-        this.dispDelegate = new PeekDispRenderFactory(this.config, dispGroupCache);
+        this.dispDelegate = new PeekDispRenderFactory(this.config, this.dispGroupCache);
 
         // The user interaction handler.
         this.input = new PeekCanvasInput(
@@ -92,6 +102,9 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         this.renderer = new PeekCanvasRenderer(
             this.config, this.model, this.dispDelegate, this
         );
+
+        // The canvas renderer
+        this.editor = new PeekCanvasEditor(this.branchService, this);
 
         // Add the mouse class to the renderers draw list
         this.renderer.drawEvent
@@ -107,19 +120,19 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         // Hook up the outward notification of position updates
         this.connectPositionUpdateNotify();
 
-
     }
 
     isReady(): boolean {
         return this.coordSetCache.isReady()
             && this.gridObservable.isReady()
-            && this.lookupCache.isReady();
+            && this.lookupCache != null;
 
     }
 
     ngOnInit() {
+        this.initCanvas();
+
         this.dispGroupCache.setModelSetKey(this.modelSetKey);
-        this.lookupCache.setModelSetKey(this.modelSetKey);
 
         this.canvas = this.canvasView.nativeElement;
 

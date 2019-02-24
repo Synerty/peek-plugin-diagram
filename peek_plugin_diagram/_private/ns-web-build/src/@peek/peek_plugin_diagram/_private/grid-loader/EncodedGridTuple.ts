@@ -17,6 +17,9 @@ export class EncodedGridTuple extends Tuple {
     // string inflate (decompress)
     dispJsonStr: string | null;
 
+    // As per dispJsonStr, but for branches
+    branchJsonStr: string | null;
+
     constructor() {
         super(EncodedGridTuple.tupleName)
     }

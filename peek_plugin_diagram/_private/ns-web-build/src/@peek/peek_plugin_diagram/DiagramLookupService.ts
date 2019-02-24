@@ -1,25 +1,20 @@
-import { Injectable } from "@angular/core";
-import { TupleSelector } from "@synerty/vortexjs";
-import { dictKeysFromObject, dictValuesFromObject } from "../DiagramUtil";
-import { TupleDataOfflineObserverService } from "@synerty/vortexjs";
-import { DispLevel } from "@peek/peek_plugin_diagram/_private/tuples/lookups";
-import { DispLayer } from "@peek/peek_plugin_diagram/_private/tuples/lookups";
-import { DispColor } from "@peek/peek_plugin_diagram/_private/tuples/lookups";
-import { DispTextStyle } from "@peek/peek_plugin_diagram/_private/tuples/lookups";
-import { DispLineStyle } from "@peek/peek_plugin_diagram/_private/tuples/lookups";
-import { PrivateDiagramTupleService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
+import {Injectable} from "@angular/core";
+import {TupleDataOfflineObserverService, TupleSelector} from "@synerty/vortexjs";
+import {DispColor, DispLayer, DispLevel, DispLineStyle, DispTextStyle} from "./lookups";
+import {PrivateDiagramTupleService} from "./_private/services/PrivateDiagramTupleService";
+import {Observable, Subject} from "rxjs";
+
+let dictValuesFromObject = (dict) => Object.keys(dict).map(key => dict[key]);
 
 /** Lookup Cache
  *
- * This class is responsible for storing the lookup data from the server
+ * This class provides handy access to the lookup objects
  *
  * Typically there will be only a few hundred of these.
  *
  */
 @Injectable()
-export class LookupCache {
-
-    private modelSetKey: string = "";
+export class DiagramLookupService {
 
     private loadedCounter = {};
     private _lookupTargetCount = 5;
@@ -36,41 +31,33 @@ export class LookupCache {
     private subscriptions = [];
 
     private _isReady: boolean = false;
+    private _isReadySubject: Subject<boolean> = new Subject<boolean>();
 
 
     constructor(private tupleService: PrivateDiagramTupleService) {
 
-    }
-
-    setModelSetKey(modelSetKey: string) {
-        this.modelSetKey = modelSetKey;
-
-        this.initialLoad();
-    }
-
-    private initialLoad(): void {
-
-
         let sub = (lookupAttr, tupleName, callback = null) => {
+            let ts = new TupleSelector(tupleName, {});
             this.subscriptions.push(
-                this.tupleService.offlineObserver.subscribeToTupleSelector(
-                    new TupleSelector(tupleName, { modelSetKey: this.modelSetKey })
-                ).subscribe((tuples: any[]) => {
-                    if (!tuples.length)
-                        return;
+                this.tupleService.offlineObserver.subscribeToTupleSelector(ts)
+                    .subscribe((tuples: any[]) => {
+                        if (!tuples.length)
+                            return;
 
-                    this.loadedCounter[lookupAttr] = true;
-                    this[lookupAttr] = {};
+                        this.loadedCounter[lookupAttr] = true;
+                        this[lookupAttr] = {};
 
-                    for (let i = 0; i < tuples.length; i++) {
-                        let item = tuples[i];
-                        this[lookupAttr][item.id] = item;
-                    }
+                        for (let i = 0; i < tuples.length; i++) {
+                            let item = tuples[i];
+                            this[lookupAttr][item.id] = item;
+                        }
 
-                    if (callback != null) {
-                        callback();
-                    }
-                })
+                        if (callback != null) {
+                            callback();
+                        }
+
+                        this._isReadySubject.next(this.isReady());
+                    })
             );
         };
 
@@ -81,17 +68,21 @@ export class LookupCache {
         sub("_lineStyleById", DispLineStyle.tupleName, () => this._convertLineStyleDashPattern());
     };
 
-    isReady() {
+    isReady(): boolean {
         // isReady is used in a doCheck loop, so make if fast once it's true
         if (this._isReady)
             return true;
 
-        let loadedCount = dictKeysFromObject(this.loadedCounter, true).length;
+        let loadedCount = Object.keys(this.loadedCounter).length;
         if (this._lookupTargetCount != loadedCount)
             return false;
 
         this._isReady = true;
         return true;
+    };
+
+    isReadyObservable(): Observable<boolean> {
+        return this._isReadySubject;
     };
 
     shutdown() {
@@ -104,7 +95,7 @@ export class LookupCache {
     // ============================================================================
     // Load Callbacks
 
-    _validateColors() {
+    private _validateColors() {
 
 
         function validTextColor(stringToTest) {
@@ -145,28 +136,23 @@ export class LookupCache {
     // ============================================================================
     // Accessors
 
-    levelForId(levelId) {
-
+    levelForId(levelId: number): DispLevel {
         return this._levelsById[levelId];
     };
 
-    layerForId(layerId) {
-
+    layerForId(layerId: number): DispLayer {
         return this._layersById[layerId];
     };
 
-    colorForId(colorId) {
-
+    colorForId(colorId: number): DispColor {
         return this._colorsById[colorId];
     };
 
-    textStyleForId(textStyleId) {
-
+    textStyleForId(textStyleId: number): DispTextStyle {
         return this._textStyleById[textStyleId];
     };
 
-    lineStyleForId(lineStyleId) {
-
+    lineStyleForId(lineStyleId: number): DispLineStyle {
         return this._lineStyleById[lineStyleId];
     };
 
@@ -203,7 +189,7 @@ export class LookupCache {
     };
 
     /** Convert Line Style Dash Pattern
-     * 
+     *
      * This method converts the line style json into an array of numbers
      */
     private _convertLineStyleDashPattern() {
@@ -217,7 +203,7 @@ export class LookupCache {
     }
 
 
-    linkDispLookups(disp) {
+    _linkDispLookups(disp) {
 
         if (disp.le != null) {
             disp.lel = this._levelsById[disp.le];
@@ -257,8 +243,5 @@ export class LookupCache {
         return disp;
     };
 
-
-    // ============================================================================
-    // Create manage model single instance
 
 }

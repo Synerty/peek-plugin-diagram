@@ -12,6 +12,11 @@ import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/s
 import {ToolbarComponentBase} from "./toolbar.component";
 
 
+import {
+    DiagramBranchService
+} from "@peek/peek_plugin_diagram/DiagramBranchService";
+
+
 @Component({
     selector: 'pl-diagram-toolbar',
     templateUrl: 'toolbar.component.web.html',
@@ -20,8 +25,9 @@ import {ToolbarComponentBase} from "./toolbar.component";
 })
 export class ToolbarComponent extends ToolbarComponentBase {
 
-    constructor(abstractToolbarService: DiagramToolbarService) {
-        super(abstractToolbarService);
+    constructor(abstractToolbarService: DiagramToolbarService,
+                branchService: DiagramBranchService) {
+        super(abstractToolbarService, branchService);
 
     }
 

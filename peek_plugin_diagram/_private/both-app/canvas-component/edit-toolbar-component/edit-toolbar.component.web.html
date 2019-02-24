@@ -1,0 +1,89 @@
+<!--<div class="edit-toolbar"-->
+<!--[class.edit-toolbar-is-open]="canvasEditor.isEditing()"-->
+<!--[class.edit-toolbar-is-closed]="!canvasEditor.isEditing()">-->
+
+<div class="edit-toolbar">
+
+    <div class="btn-group edit-toolbar-button-group">
+        <button class="btn" (click)="canvasEditor.closeEditor()"
+                data-toggle="tooltip" data-placement="top"
+                title="Close Editor">
+            <fa name="times"></fa>
+        </button>
+        <button class="btn" (click)="canvasEditor.save()"
+                data-toggle="tooltip" data-placement="top"
+                title="Save Changes">
+            <fa name="save"></fa>
+        </button>
+    </div>
+
+    <div class="edit-toolbar-spacer"></div>
+
+    <div class="btn-group edit-toolbar-button-group">
+        <button class="btn"
+                data-toggle="tooltip" data-placement="top"
+                title="Select Tool">
+            <fa name="mouse-pointer"></fa>
+        </button>
+        <button class="btn"
+                data-toggle="tooltip" data-placement="top"
+                title="Select Options">
+            <fa name="vector-square"></fa>
+        </button>
+    </div>
+
+    <div class="edit-toolbar-spacer"></div>
+
+    <div class="btn-group edit-toolbar-button-group">
+        <button class="btn"
+                data-toggle="tooltip" data-placement="top"
+                title="Create Polygon">
+            <fa name="draw-polygon"></fa>
+        </button>
+        <button class="btn"
+                data-toggle="tooltip" data-placement="top"
+                title="Create PolyLine">
+            <fa name="project-diagram"></fa>
+        </button>
+        <button class="btn"
+                data-toggle="tooltip" data-placement="top"
+                title="Create Rectangle">
+            <fa name="square"></fa>
+        </button>
+        <button class="btn"
+                data-toggle="tooltip" data-placement="top"
+                title="Draw Circle, Ellipse or Arc">
+            <fa name="circle-notch"></fa>
+        </button>
+    </div>
+
+    <div class="edit-toolbar-spacer"></div>
+
+    <div class="btn-group edit-toolbar-button-group">
+        <button class="btn"
+                data-toggle="tooltip" data-placement="top"
+                title="Place Template">
+            <fa name="stamp"></fa>
+        </button>
+    </div>
+
+    <div class="edit-toolbar-spacer"></div>
+
+    <div class="btn-group edit-toolbar-button-group">
+        <button class="btn"
+                *ngIf="canvasEditor.isShapeSelected()"
+                (click)="canvasEditor.showShapeProperties()"
+                data-toggle="tooltip" data-placement="top"
+                title="Shape Properties">
+            <fa name="sliders-h"></fa>
+        </button>
+        <button class="btn"
+                *ngIf="canvasEditor.isShapeSelected()"
+                (click)="canvasEditor.showDynamicProperties()"
+                data-toggle="tooltip" data-placement="top"
+                title="Dynamic Properties">
+            <fa name="bolt"></fa>
+        </button>
+    </div>
+
+</div>

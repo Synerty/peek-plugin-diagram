@@ -11,6 +11,8 @@ import {
 import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 import {ToolbarComponentBase} from "./toolbar.component";
 
+import {DiagramBranchService} from "@peek/peek_plugin_diagram/DiagramBranchService";
+
 
 @Component({
     selector: 'pl-diagram-toolbar',
@@ -23,11 +25,9 @@ export class ToolbarComponent extends ToolbarComponentBase {
     @Output("toolbarRowspanEvent")
     toolbarRowspanEvent = new EventEmitter<number>();
 
-    constructor(abstractToolbarService: DiagramToolbarService) {
-        super(abstractToolbarService);
-
-
-
+    constructor(abstractToolbarService: DiagramToolbarService,
+                branchService: DiagramBranchService) {
+        super(abstractToolbarService, branchService);
     }
 
     nsToggleToolbar(): void {
@@ -36,7 +36,7 @@ export class ToolbarComponent extends ToolbarComponentBase {
 
     }
 
-    btnIcon(btn) :string {
+    btnIcon(btn): string {
         if (btn.icon == null)
             return 'none';
         return 'fa-' + btn.icon;

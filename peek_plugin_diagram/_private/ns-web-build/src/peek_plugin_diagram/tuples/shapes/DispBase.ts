@@ -1,5 +1,4 @@
-import {DispLevel} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
-import {DispLayer} from "@peek/peek_plugin_diagram/_private/tuples/lookups";
+import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
 
 export interface PointI {
     x: number;
@@ -15,18 +14,22 @@ export abstract class DispBase {
         return disp.id;
     }
 
+    static groupId(disp): number {
+        return disp.gi;
+    }
+
     static level(disp): DispLevel {
-        // This is set from the short id in LookupCache.linkDispLookups
+        // This is set from the short id in DiagramLookupService._linkDispLookups
         return disp.lel;
     }
 
     static layer(disp): DispLayer {
-        // This is set from the short id in LookupCache.linkDispLookups
+        // This is set from the short id in DiagramLookupService._linkDispLookups
         return disp.lal;
     }
 
     static isSelectable(disp): boolean {
-        // This is set from the short id in LookupCache.linkDispLookups
+        // This is set from the short id in DiagramLookupService._linkDispLookups
         return disp.s;
     }
 

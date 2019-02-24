@@ -25,6 +25,9 @@ import {
     SelectedItemDetailsI
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {PrivateDiagramCoordSetService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
+import {DiagramBranchService} from "@peek/peek_plugin_diagram/DiagramBranchService";
+import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 
 /** Canvas Component
  *
@@ -39,6 +42,7 @@ import {PrivateDiagramCoordSetService,} from "@peek/peek_plugin_diagram/_private
 })
 export class CanvasComponent extends ComponentLifecycleEventEmitter {
     // https://stackoverflow.com/questions/32693061/angular-2-typescript-get-hold-of-an-element-in-the-template
+    @ViewChild('edittoolbar') editToolbarView;
     @ViewChild('canvas') canvasView;
 
     @Input("modelSetKey")
@@ -58,17 +62,20 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     private dispDelegate: PeekDispRenderFactory;
     private model: PeekCanvasModel;
     private input: PeekCanvasInput;
+    private editor: PeekCanvasEditor;
 
     // Private services
     private _privatePosService: PrivateDiagramPositionService;
 
 
-    constructor(private gridObservable: GridObservable,
+    constructor(private balloonMsg: Ng2BalloonMsgService,
+                private gridObservable: GridObservable,
                 private lookupCache: DiagramLookupService,
                 private coordSetCache: PrivateDiagramCoordSetService,
                 private dispGroupCache: DispGroupCache,
                 positionService: DiagramPositionService,
-                private itemSelectService: PrivateDiagramItemSelectService) {
+                private itemSelectService: PrivateDiagramItemSelectService,
+                private branchService: DiagramBranchService) {
         super();
 
         // Cast the private services
@@ -98,6 +105,9 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         this.renderer = new PeekCanvasRenderer(
             this.config, this.model, this.dispDelegate, this
         );
+
+        // The canvas renderer
+        this.editor = new PeekCanvasEditor(this.balloonMsg, this.branchService, this);
 
         // Add the mouse class to the renderers draw list
         this.renderer.drawEvent
@@ -134,6 +144,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
         let jqCanvas = $(this.canvas);
 
+
         $("body").css("overflow", "hidden");
         // NOTE: If you're debugging diagram flickering, it might help to remove this.
         jqCanvas.parent().css("background-color", this.config.renderer.backgroundColor);
@@ -144,13 +155,15 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
             .subscribe(() => {
                 let frameSize = `${$(window).height()}`;
 
-                jqCanvas.parents()
-                    .filter(function () {
-                        return this.tagName.toLowerCase() != "html"
-                    })
-                    .map(function () {
-                        frameSize += `;${$(this).height()}`
-                    });
+                let editToolbarHeight = $(this.editToolbarView.nativeElement).height();
+
+                let titleBarHeight = $(".peek-title-bar").height();
+                let footerBarHeight = $(".peek-footer").height();
+                let isDesktop = $(".peek-ds-mh-title").height() != null;
+
+                frameSize += `;${titleBarHeight}`;
+                frameSize += `;${footerBarHeight}`;
+                frameSize += `;${editToolbarHeight}`;
 
                 if (this.lastFrameSize == frameSize)
                     return;
@@ -158,9 +171,19 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 this.lastFrameSize = frameSize;
 
                 console.log(this.lastFrameSize);
-                console.log(`${$(window).height()} - ${jqCanvas.offset().top}`);
+                console.log(`titleBarHeight=${titleBarHeight}`);
+                console.log(`footerBarHeight=${footerBarHeight}`);
+                console.log(`editToolbarView=${editToolbarHeight}`);
 
-                let newHeight = $(window).height() - jqCanvas.offset().top;
+                let newHeight = $(window).height() - editToolbarHeight;
+
+                if (isDesktop) {
+                    newHeight -= 6;
+                } else if (titleBarHeight != null && footerBarHeight != null) {
+                    newHeight -= (titleBarHeight + footerBarHeight + 6);
+                }
+
+                console.log(`newHeight=${newHeight}`);
 
                 jqCanvas.css("height", `${newHeight}px`);
                 jqCanvas.css("width", "100%");

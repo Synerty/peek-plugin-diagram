@@ -11,6 +11,9 @@ import {
 } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 
+import {DiagramBranchService} from "@peek/peek_plugin_diagram/DiagramBranchService";
+import {DiagramBranchLocation} from "@peek/peek_plugin_diagram/branch/DiagramBranchContext";
+
 
 export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
     implements OnInit {
@@ -28,10 +31,11 @@ export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
 
     toolbarIsOpen: boolean = false;
 
-    constructor(abstractToolbarService: DiagramToolbarService) {
+    constructor(private abstractToolbarService: DiagramToolbarService,
+                private branchService: DiagramBranchService) {
         super();
 
-        this.toolbarService = <PrivateDiagramToolbarService> abstractToolbarService;
+        this.toolbarService = <PrivateDiagramToolbarService>abstractToolbarService;
 
         this.toolbarService
             .toolButtonsUpdatedObservable()
@@ -49,8 +53,7 @@ export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
     buttonClicked(btn: DiagramToolButtonI): void {
         if (btn.callback != null) {
             btn.callback();
-        }
-        else {
+        } else {
             // Expand children?
         }
 
@@ -69,7 +72,19 @@ export class ToolbarComponentBase extends ComponentLifecycleEventEmitter
         return callable();
     }
 
-    isToolbarEmpty() : boolean {
+    showEditDiagramButton(): boolean {
+        // TODO, Get the coord set and add a field "allowEdits"
+        return true;
+    }
+
+    editDiagramClicked(): void {
+        this.branchService.startEditing(
+            this.modelSetKey, this.coordSetKey,
+            "TEST BRANCH", DiagramBranchLocation.LocalBranch
+        );
+    }
+
+    isToolbarEmpty(): boolean {
         return this.buttons.length == 0;
     }
 
