@@ -10,11 +10,21 @@ import {
     PrivateDiagramBranchContext
 } from "@peek/peek_plugin_diagram/_private/branch";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import {PeekCanvasInput} from "./PeekCanvasInput.web";
+import {PeekCanvasInputEditSelectDelegate} from "./PeekCanvasInputEditSelectDelegate.web";
+import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web";
+import {PeekCanvasModel} from "./PeekCanvasModel.web";
+import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 
 export enum EditorContextType {
     NONE,
     SHAPE_PROPERTIES,
     DYNAMIC_PROPERTIES
+}
+
+export enum EditorToolType {
+    NONE,
+    SELECT_TOOL,
 }
 
 /**
@@ -31,10 +41,14 @@ export class PeekCanvasEditor {
     private currentBranch: PrivateDiagramBranchContext | null = null;
 
     private currentContext: EditorContextType = EditorContextType.NONE;
+    private currentTool: EditorToolType = EditorToolType.SELECT_TOOL;
 
     private _contextPanelChangeSubject: Subject<EditorContextType> = new Subject<EditorContextType>();
 
     constructor(private balloonMsg: Ng2BalloonMsgService,
+                private canvasInput: PeekCanvasInput,
+                private canvasModel: PeekCanvasModel,
+                private canvasConfig: PeekCanvasConfig,
                 branchService: DiagramBranchService,
                 // private config: PeekCanvasConfig,
                 // private gridObservable: GridObservable,
@@ -48,6 +62,10 @@ export class PeekCanvasEditor {
             .takeUntil(lifecycleEventEmitter.onDestroyEvent)
             .subscribe((branch: PrivateDiagramBranchContext) => {
                 this.currentBranch = branch;
+                this.currentTool = EditorToolType.SELECT_TOOL;
+                this.canvasInput.setDelegate(PeekCanvasInputEditSelectDelegate);
+                this.canvasModel.clearSelection();
+                this.canvasConfig.editor.active = true;
             });
 
         this.branchService
@@ -55,6 +73,10 @@ export class PeekCanvasEditor {
             .takeUntil(lifecycleEventEmitter.onDestroyEvent)
             .subscribe(() => {
                 this.currentBranch = null;
+                this.currentContext = EditorContextType.NONE;
+                this.currentTool = EditorToolType.NONE;
+                this.canvasInput.setDelegate(PeekCanvasInputSelectDelegate);
+                this.canvasConfig.editor.active = false;
             });
 
     };
@@ -74,6 +96,10 @@ export class PeekCanvasEditor {
         return this.currentContext;
     }
 
+    selectedTool(): EditorToolType {
+        return this.currentTool;
+    }
+
     isShapeSelected(): boolean {
         return true;
     }
@@ -82,7 +108,8 @@ export class PeekCanvasEditor {
     // Methods called by toolbar
 
     closeEditor() {
-        this.currentBranch = null;
+        // TODO: Ask the user
+        this.branchService.stopEditing();
     }
 
     save() {
@@ -90,6 +117,7 @@ export class PeekCanvasEditor {
             .then(() => this.balloonMsg.showSuccess("Branch Save Successful"))
             .catch((e) => this.balloonMsg.showError("Failed to save branch\n" + e));
     }
+
 
     showShapeProperties() {
         this.currentContext = EditorContextType.SHAPE_PROPERTIES;

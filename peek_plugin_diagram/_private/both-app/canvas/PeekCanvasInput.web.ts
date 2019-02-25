@@ -45,6 +45,8 @@ export class PeekCanvasInput {
 
         this._delegate = new Delegate(this, this.config, this.model, this.dispDelegate);
         this.config.mouse.currentDelegateName = this._delegate.NAME;
+
+        console.log(`Delegate = ${this._delegate.NAME}`);
     };
 
 

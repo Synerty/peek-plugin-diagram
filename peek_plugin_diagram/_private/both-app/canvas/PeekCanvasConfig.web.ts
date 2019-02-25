@@ -63,7 +63,7 @@ export class PeekCanvasConfig {
     };
 
     mouse = {
-        currentDelegateName: null,
+        currentDelegateName: '',
         phUpDownZoomFactor: 20.0,
         currentViewPortPosition: {x: 0, y: 0},
         currentCanvasPosition: {x: 0, y: 0},
@@ -80,6 +80,13 @@ export class PeekCanvasConfig {
     model = {
         gridsWaitingForData: 0,
         dispOnScreen: 0
+    };
+
+    editor = {
+        active: false,
+        resizeHandleMargin: 3.0,
+        resizeHandleWidth: 6.0,
+        selectionHighlightColor: '#3399FF',
     };
 
     // Debug data

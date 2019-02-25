@@ -18,7 +18,7 @@ import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
  *
  */
 export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
-    static readonly TOOL_NAME: "SELECT";
+    static readonly TOOL_NAME = "SELECT";
 
     // CONSTANTS
     STATE_NONE = 0;
@@ -83,7 +83,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         // alert(charCode + "| pressed");
         let phUpDownZoomFactor = this.config.mouse.phUpDownZoomFactor;
 
-        // Delete the coord on the canvas
+        // Delete the disp on the canvas
         if (event.keyCode == 46) {
             // let coords = this.model.selectedDisps();
             // this.model.deleteDisp(coords);
@@ -369,11 +369,11 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                     // if (!this._passedDragThreshold)
                     // break;
 
-                    //let coord = this.model.selectedDisps()[0];
+                    //let disp = this.model.selectedDisps()[0];
 
                     //if (editorUi.grid.snapping()) {
                     //    let snapSize = editorUi.grid.snapSize();
-                    //    let snapDelta = coord.snap(snapSize);
+                    //    let snapDelta = disp.snap(snapSize);
                     //    // If any changes were made, then just skip self mouseMove
                     //    if (snapDelta.deltaApplied)
                     //        break;
@@ -384,7 +384,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                     let h = this._mouseDownOnHandle;
 
                     assert(h != null, "selected handler is null");
-                    h.coord.deltaMoveHandle(delta.dx, delta.dy, h.handle, h.handleIndex);
+                    h.disp.deltaMoveHandle(delta.dx, delta.dy, h.handle, h.handleIndex);
                 }
 
                 break;
@@ -559,9 +559,9 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     //    let snapSize = editorUi.grid.snapSize();
     //    let selectedCoords = this.model.selectedDisps();
     //    for (let i = selectedCoords.length - 1; i >= 0; i--) {
-    //        let coord = selectedCoords[i];
-    //        if (coord.snap(snapSize).deltaApplied) {
-    //            coord.storeState();
+    //        let disp = selectedCoords[i];
+    //        if (disp.snap(snapSize).deltaApplied) {
+    //            disp.storeState();
     //        }
     //    }
     //

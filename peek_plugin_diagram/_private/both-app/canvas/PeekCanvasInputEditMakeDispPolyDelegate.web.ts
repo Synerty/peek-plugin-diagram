@@ -13,7 +13,7 @@ import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
  *
  */
 export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
-    static readonly TOOL_NAME: "SELECT";
+    static readonly TOOL_NAME= "SELECT";
 
     // // CONSTANTS
     // STATE_NONE = 0;
@@ -27,7 +27,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     // _state = 0; // STATE_NONE;
     // _passedDragThreshold = false;
     // _mouseDownOnSelection = false;
-    // _mouseDownOnCoord = false;
+    // _mouseDownOnDisp = false;
     // _mouseDownWithShift = false;
     // _mouseDownWithCtrl = false;
     // _mouseDownMiddleButton = false;
@@ -136,8 +136,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     //         return;
     //
     //
-    //     let coord = this._coord(event, mouse);
-    //     this._creating.movePoint(this._creating.pointCount() - 1, coord.x, coord.y);
+    //     let disp = this._coord(event, mouse);
+    //     this._creating.movePoint(this._creating.pointCount() - 1, disp.x, disp.y);
     //     editorRenderer.invalidate();
     // }
     //
@@ -148,7 +148,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     //         return;
     //
     //     let dragged = this._hasPassedDragThreshold(this._startMousePos, mouse);
-    //     let coord = this._coord(event, this._startMousePos);
+    //     let disp = this._coord(event, this._startMousePos);
     //     this._startMousePos = null;
     //
     //     if (dragged)
@@ -160,12 +160,12 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     //     }
     //
     //     if (!this._creating) {
-    //         this._creating = new PolyRenderable(coord.x, coord.y);
+    //         this._creating = new PolyRenderable(disp.x, disp.y);
     //         //this._creating.setPage(editorPage.currentPageId());
     //         //this._creating.setLayer(this.newObjectLayer());
     //     }
     //
-    //     this._creating.addPoint(coord.x, coord.y);
+    //     this._creating.addPoint(disp.x, disp.y);
     //
     //     editorRenderer.invalidate();
     // }
@@ -193,7 +193,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     //     this._reset();
     //
     //     if (poly) {
-    //         let lastPointCoord = poly.lastPoint().coord(poly);
+    //         let lastPointCoord = poly.lastPoint().disp(poly);
     //         endNodeRend = this._nodeRendClickedOn(lastPointCoord);
     //     }
     //
@@ -208,27 +208,27 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     // }
     //
     // private _coord(event, mouse) {
-    //     let coord = new Coord(mouse.x, mouse.y);
+    //     let disp = new Coord(mouse.x, mouse.y);
     //
     //     //// Snap if required
     //     //if (editorUi.grid.snapping())
-    //     //    coord.snap(editorUi.grid.snapSize());
+    //     //    disp.snap(editorUi.grid.snapSize());
     //
     //     // When the shift key is pressed, we will align to x or y axis
     //     if (this._creating && event.shiftKey) {
     //         let lastCoord = this._creating
     //             .pointCoord(this._creating.pointCount() - 2);
-    //         let dx = Math.abs(coord.x - lastCoord.x);
-    //         let dy = Math.abs(coord.y - lastCoord.y);
+    //         let dx = Math.abs(disp.x - lastCoord.x);
+    //         let dy = Math.abs(disp.y - lastCoord.y);
     //
     //         if (dx > dy)
-    //             coord.y = lastCoord.y;
+    //             disp.y = lastCoord.y;
     //         else
-    //             coord.x = lastCoord.x;
+    //             disp.x = lastCoord.x;
     //     }
     //
     //     // return
-    //     return coord;
+    //     return disp;
     // }
 
 }

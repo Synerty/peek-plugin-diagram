@@ -21,6 +21,7 @@
 
     <div class="btn-group edit-toolbar-button-group">
         <button class="btn"
+                [class.active]="isSelectToolActive()"
                 data-toggle="tooltip" data-placement="top"
                 title="Select Tool">
             <fa name="mouse-pointer"></fa>

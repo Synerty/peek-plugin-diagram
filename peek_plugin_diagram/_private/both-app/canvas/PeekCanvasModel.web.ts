@@ -4,8 +4,7 @@ import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {LinkedGrid} from "../cache/LinkedGrid.web";
 import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
-import {DispLevel} from "@peek/peek_plugin_diagram/lookups";
-import {DispLayer} from "@peek/peek_plugin_diagram/lookups";
+import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
 import {DispBase} from "../tuples/shapes/DispBase";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
@@ -234,6 +233,41 @@ export class PeekCanvasModel {
         return this._selection;
     }
 
+    dispsInSelectedGroups(): any[] {
+        return this._dispsForGroups(this._selection);
+    }
+
+    dispsInSameGroup(refDisp): any[] {
+        return this._dispsForGroups([refDisp]);
+    }
+
+    private _dispsForGroups(disps: any[]): any[] {
+        let result = [];
+        let selectedGroupIds = {};
+        let groupIdsFound = false;
+
+        for (let disp of disps) {
+            // DispGroup and DispGroupPtrs are not selectable
+            if (DispBase.groupId(disp) != null) {
+                selectedGroupIds[DispBase.groupId(disp)] = true;
+                groupIdsFound = true;
+            }
+        }
+
+        if (!groupIdsFound)
+            return disps;
+
+        for (let disp of this._visableDisps) {
+            if (selectedGroupIds[DispBase.groupId(disp)] === true)
+                result.push(disp);
+
+            else if (selectedGroupIds[DispBase.id(disp)] === true)
+                result.push(disp);
+        }
+
+        return result;
+    }
+
     private _compileDisps() {
         if (!this.needsCompiling)
             return;
@@ -258,7 +292,7 @@ export class PeekCanvasModel {
         let viewableGrids = dictKeysFromObject(this._viewingGridKeysDict);
 
         for (let levelIndex = 0; levelIndex < levelsOrderedByOrder.length; levelIndex++) {
-            let level: DispLevel = <DispLevel> levelsOrderedByOrder[levelIndex];
+            let level: DispLevel = <DispLevel>levelsOrderedByOrder[levelIndex];
 
             // If it's not in the zoom area, continue
             // THIS is moved to the RendererFactor.draw method
@@ -266,7 +300,7 @@ export class PeekCanvasModel {
             //    continue;
 
             for (let layerIndex = 0; layerIndex < layersOrderedByOrder.length; layerIndex++) {
-                let layer: DispLayer = <DispLayer> layersOrderedByOrder[layerIndex];
+                let layer: DispLayer = <DispLayer>layersOrderedByOrder[layerIndex];
 
                 // If it's not visible (enabled), continue
                 if (!layer.visible)
@@ -345,19 +379,23 @@ export class PeekCanvasModel {
     addSelection(objectOrArray) {
         this._selection = this._selection.add(objectOrArray);
         this.config.invalidate();
-        this._selectionChangedSubject.next(this._selection);
+        if (!this.config.editor.active)
+            this._selectionChangedSubject.next(this._selection);
     }
 
     removeSelection(objectOrArray) {
         this._selection = this._selection.remove(objectOrArray);
         this.config.invalidate();
-        this._selectionChangedSubject.next(this._selection);
+        if (!this.config.editor.active)
+            this._selectionChangedSubject.next(this._selection);
     }
 
     clearSelection() {
         this._selection = [];
         this.config.invalidate();
-        this._selectionChangedSubject.next(this._selection);
+        if (!this.config.editor.active)
+            this._selectionChangedSubject.next(this._selection);
     }
+
 
 }

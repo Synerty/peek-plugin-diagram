@@ -10,7 +10,7 @@ import {
     DiagramToolButtonI
 } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
-import {PeekCanvasEditor} from "../../canvas/PeekCanvasEditor.web";
+import {EditorToolType, PeekCanvasEditor} from "../../canvas/PeekCanvasEditor.web";
 
 
 @Component({
@@ -27,6 +27,10 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     constructor() {
         super();
 
+    }
+
+    isSelectToolActive():boolean {
+        return this.canvasEditor.selectedTool() === EditorToolType.SELECT_TOOL;
     }
 
 

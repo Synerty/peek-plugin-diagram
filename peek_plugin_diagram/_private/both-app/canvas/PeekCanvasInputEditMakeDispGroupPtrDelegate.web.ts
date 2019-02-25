@@ -13,7 +13,7 @@ import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
  *
  */
 export class PeekCanvasInputMakeDispGroupPtrDelegateWeb extends PeekCanvasInputDelegate {
-    static readonly TOOL_NAME: "MAKE_DISP_GROUP";
+    static readonly TOOL_NAME= "MAKE_DISP_GROUP";
 
     // CONSTANTS
     // STATE_NONE = 0;
@@ -27,7 +27,7 @@ export class PeekCanvasInputMakeDispGroupPtrDelegateWeb extends PeekCanvasInputD
     // _state = 0; // STATE_NONE;
     // _passedDragThreshold = false;
     // _mouseDownOnSelection = false;
-    // _mouseDownOnCoord = false;
+    // _mouseDownOnDisp = false;
     // _mouseDownWithShift = false;
     // _mouseDownWithCtrl = false;
     // _mouseDownMiddleButton = false;

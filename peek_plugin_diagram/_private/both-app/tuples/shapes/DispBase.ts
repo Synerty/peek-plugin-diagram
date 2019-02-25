@@ -42,4 +42,23 @@ export abstract class DispBase {
             return {};
         return JSON.parse(disp.d);
     }
+
+    static deltaMove(disp, dx: number, dy: number) {
+        if (disp.g == null)
+            return;
+
+        for (let i = 0; i < disp.g.length; i += 2) {
+            disp.g[i] = disp.g[i] + dx;
+            disp.g[i + 1] = disp.g[i + 1] + dy;
+        }
+    }
+
+    static deltaMoveHandle(disp, handleIndex: number, dx: number, dy: number) {
+        if (disp.g == null)
+            return;
+
+        let pointIndex = handleIndex * 2;
+        disp.g[pointIndex] = disp.g[pointIndex] + dx;
+        disp.g[pointIndex + 1] = disp.g[pointIndex + 1] + dy;
+    }
 }
