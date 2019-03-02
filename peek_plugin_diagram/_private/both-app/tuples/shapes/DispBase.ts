@@ -37,6 +37,15 @@ export abstract class DispBase {
         return disp.k;
     }
 
+    static keys(disps: any[]): string[] {
+        let keys = [];
+        for (let disp of disps) {
+            if (DispBase.key(disp) != null)
+                keys.push(DispBase.key(disp));
+        }
+        return keys;
+    }
+
     static data(disp): {} {
         if (disp.d == null)
             return {};

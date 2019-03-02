@@ -262,7 +262,8 @@ def _convertGeom(importDisp):
 
     from shapely.geometry.polygon import Polygon
     if isinstance(shapelyShape, Polygon):
-        coords = shapelyShape.exterior.coords
+        # The last point equals the first point, get rid of it
+        coords = shapelyShape.exterior.coords[:-1]
     else:
         coords = shapelyShape.coords
 

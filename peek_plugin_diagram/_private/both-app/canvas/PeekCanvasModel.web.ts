@@ -8,11 +8,17 @@ import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
 import {DispBase} from "../tuples/shapes/DispBase";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
+import {DispPolyline} from "../tuples/shapes/DispPolyline";
 
 // import 'rxjs/add/operator/takeUntil';
 
 function now(): any {
     return new Date();
+}
+
+export interface PolylineEnd {
+    isStart: boolean,
+    polylineDisp: any
 }
 
 /**
@@ -229,7 +235,7 @@ export class PeekCanvasModel {
             .filter(disp => DispBase.isSelectable(disp));
     }
 
-    selectedDisps() {
+    selectedDisps(): any[] {
         return this._selection;
     }
 
@@ -264,6 +270,29 @@ export class PeekCanvasModel {
             else if (selectedGroupIds[DispBase.id(disp)] === true)
                 result.push(disp);
         }
+
+        return result;
+    }
+
+    polylinesConnectedToDispKey(keys: string[]): PolylineEnd[] {
+        let result: PolylineEnd[] = [];
+        let keysDict = {};
+
+        for (let key of keys) {
+            keysDict[key] = true;
+        }
+
+        for (let disp of this._visableDisps) {
+            let startKey = DispPolyline.startKey(disp);
+            let endKey = DispPolyline.endKey(disp);
+
+            if (startKey != null && keysDict[startKey] === true)
+                result.push({isStart: true, polylineDisp: disp});
+
+            else if (endKey != null && keysDict[endKey] === true)
+                result.push({isStart: false, polylineDisp: disp});
+        }
+
 
         return result;
     }

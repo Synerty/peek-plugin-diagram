@@ -250,7 +250,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         let p1x = pFirstX;
         let p1y = pFirstY;
 
-        // This will deliberatly run one more iteration after the last pointY
+        // This will deliberately run one more iteration after the last pointY
         for (let i = 2; i <= points.length; i += 2) {
             // Assume this is the last iteration by default
             let p2x = pFirstX;
@@ -271,54 +271,6 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
         // odd number of crossings?
         return (crossings % 2 == 1);
-
-    }
-
-    private xxx(): boolean {
-        function rayCrossesSegment(point, a, b) {
-            let px = point.x;
-            let py = point.y;
-            let swap = a.y > b.y;
-            let ax = swap ? b.x : a.x;
-            let ay = swap ? b.y : a.y;
-            let bx = swap ? a.x : b.x;
-            let by = swap ? a.y : b.y;
-
-            // alter longitude to cater for 180 degree crossings
-            if (px < 0)
-                px += 360;
-            if (ax < 0)
-                ax += 360;
-            if (bx < 0)
-                bx += 360;
-
-            if (py == ay || py == by) py += 0.00000001;
-            if ((py > by || py < ay) || (px > Math.max(ax, bx))) return false;
-            if (px < Math.min(ax, bx)) return true;
-
-            let red = (ax != bx) ? ((by - ay) / (bx - ax)) : Infinity;
-            let blue = (ax != px) ? ((py - ay) / (px - ax)) : Infinity;
-            return (blue >= red);
-        }
-
-        let crossings = 0;
-
-        // let p1 = {x: self.left, y: self.top};
-        // for (let i = 0; i <= self.points.length; ++i) {
-        //     let thisPoint = self.points[i];
-        //     let p2 = (i == self.points.length)
-        //             ? {x: self.left, y: self.top} // The closing point
-        //             : thisPoint.disp(self);
-        //
-        //     if (rayCrossesSegment({x: x, y: y}, p1, p2))
-        //         crossings++;
-        //
-        //     p1 = p2;
-        // }
-
-        // odd number of crossings?
-        return (crossings % 2 == 1);
-
 
     }
 

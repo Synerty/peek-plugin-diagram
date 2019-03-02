@@ -23,9 +23,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     // CONSTANTS
     STATE_NONE = 0;
     STATE_SELECTING = 1;
-    STATE_DRAG_SELECTING = 2;
-    STATE_MOVING_RENDERABLE = 3;
-    STATE_MOVING_HANDLE = 4;
     STATE_CANVAS_PANNING = 5;
     STATE_CANVAS_ZOOMING = 6;
 
@@ -77,19 +74,9 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     keyUp(event) {
 
-
-        // let charCode = (typeof event.which == "number") ? event.which :
-        // event.keyCode;
-        // alert(charCode + "| pressed");
         let phUpDownZoomFactor = this.config.mouse.phUpDownZoomFactor;
 
-        // Delete the disp on the canvas
-        if (event.keyCode == 46) {
-            // let coords = this.model.selectedDisps();
-            // this.model.deleteDisp(coords);
-            // this.model.clearSelection();
-
-        } else if (event.keyCode == 33) { // Page UP
+        if (event.keyCode == 33) { // Page UP
             let zoom = this.config.viewPort.zoom;
             zoom *= (1.0 + phUpDownZoomFactor / 100.0);
             this.config.updateViewPortZoom(zoom);
@@ -99,16 +86,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             zoom *= (1.0 - phUpDownZoomFactor / 100.0);
             this.config.updateViewPortZoom(zoom);
 
-            // } else if (event.keyCode == 67) { // the letter c
-            //     updateSelectedCoordNodesClosedState(true);
-
-
-            // } else if (event.keyCode == 79) { // the letter o
-            //     updateSelectedCoordNodesClosedState(false);
-
-            // Snap selected objects to grid
-            //} else if (String.fromCharCode(event.keyCode) == "S") {
-            //    this._snapSelectedCoords();
         }
 
 
@@ -147,23 +124,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
         let selectedDisps = this.model.selectedDisps();
 
-
-        for (let i = selectedDisps.length - 1; i >= 0; i--) {
-            let coord = selectedDisps[i];
-            let handles = this.dispDelegate.handles(coord);
-            for (let j = 0; j < handles.length; j++) {
-                let handle = handles[j];
-                if (handle.contains(mouse.x, mouse.y)) {
-                    this._mouseDownOnHandle = {
-                        coord: coord,
-                        handle: handle,
-                        handleIndex: j
-                    };
-                    break;
-                }
-            }
-        }
-
         let margin = this.config.mouse.selecting.margin;// * this.config.viewPort.zoom;
 
         for (let i = selectedDisps.length - 1; i >= 0; i--) {
@@ -193,15 +153,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             this._state = this.STATE_CANVAS_PANNING;
             this.model.clearSelection();
         }
-
-
-        /*
-         if (this._mouseDownOnHandle != null) {
-         this._state = this.STATE_MOVING_HANDLE;
-         }else {
-         this._state = this.STATE_SELECTING;
-         }
-         */
 
 
     };
@@ -309,17 +260,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
         // State conversion upon dragging
         if (this._state == this.STATE_SELECTING && this._passedDragThreshold) {
-            if (this._mouseDownOnSelection) {
-                this._state = this.STATE_MOVING_RENDERABLE;
-
-            } else if (this._mouseDownOnCoord) {
-                this._changeSelection(this._selectByPoint(this._startMousePos));
-                this._state = this.STATE_MOVING_RENDERABLE;
-
-            } else {
-                this._state = this.STATE_DRAG_SELECTING;
-
-            }
+            this._state = this.STATE_CANVAS_PANNING;
         }
 
         switch (this._state) {
@@ -334,59 +275,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                     y: oldPan.y - delta.dClientY / this.config.viewPort.zoom
                 };
                 this.config.updateViewPortPan(newPan);
-                break;
-            }
-
-            case this.STATE_DRAG_SELECTING: {
-                this._lastMousePos = mouse;
-                break;
-            }
-
-            case this.STATE_MOVING_RENDERABLE:
-            case this.STATE_MOVING_HANDLE: {
-
-                let selectedCoords = this.model.selectedDisps();
-
-                //if (selectedCoords.length == 1 && editorUi.grid.snapping()) {
-                //    let snapSize = editorUi.grid.snapSize();
-                //    // If any changes were made, then just skip self mouseMove
-                //    if (selectedCoords[0].snap(snapSize).deltaApplied)
-                //        break;
-                //}
-
-                let delta = this._setLastMousePos(mouse);
-
-                for (let i = selectedCoords.length - 1; i >= 0; --i) {
-                    this.dispDelegate.deltaMove(selectedCoords[i], delta.dx, delta.dy);
-                }
-
-                if (selectedCoords.length != 0) {
-                    this.config.invalidate();
-                    break;
-                }
-
-                if (this._state == this.STATE_MOVING_HANDLE) {
-                    // if (!this._passedDragThreshold)
-                    // break;
-
-                    //let disp = this.model.selectedDisps()[0];
-
-                    //if (editorUi.grid.snapping()) {
-                    //    let snapSize = editorUi.grid.snapSize();
-                    //    let snapDelta = disp.snap(snapSize);
-                    //    // If any changes were made, then just skip self mouseMove
-                    //    if (snapDelta.deltaApplied)
-                    //        break;
-                    //}
-
-                    let delta = this._setLastMousePos(mouse);
-
-                    let h = this._mouseDownOnHandle;
-
-                    assert(h != null, "selected handler is null");
-                    h.disp.deltaMoveHandle(delta.dx, delta.dy, h.handle, h.handleIndex);
-                }
-
                 break;
             }
 
@@ -405,34 +293,18 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
         // Store the change
         switch (this._state) {
-            case this.STATE_SELECTING:
-            case this.STATE_DRAG_SELECTING:
+            case this.STATE_SELECTING: {
 
                 let hits = [];
                 if (this._state == this.STATE_SELECTING)
                     hits = this._selectByPoint(this._startMousePos);
-                else if (this._state == this.STATE_DRAG_SELECTING)
-                    hits = this._selectByBox(this._startMousePos, mouse);
                 else
                     assert(false, "Invalid state");
 
                 this._changeSelection(hits);
                 break;
+            }
 
-            case this.STATE_MOVING_RENDERABLE:
-            case this.STATE_MOVING_HANDLE:
-                let selectedCoords = this.model.selectedDisps();
-                for (let i = selectedCoords.length - 1; i >= 0; i--) {
-                    console.log("TODO, Store node move states");
-                    // selectedCoords[i].storeState();
-                }
-
-                // TODO, Not a nice structure this is a hack
-                // We need a proper structure
-
-                console.log("TODO, this.canvasInput._notifyOfChange");
-                // this.canvasInput._notifyOfChange(selectedCoords);
-                break;
         }
 
         this._reset();
@@ -462,24 +334,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     draw(ctx) {
 
-
-        switch (this._state) {
-            case this.STATE_DRAG_SELECTING:
-                let zoom = this.config.viewPort.zoom;
-                let x = this._startMousePos.x;
-                let y = this._startMousePos.y;
-                let w = this._lastMousePos.x - this._startMousePos.x;
-                let h = this._lastMousePos.y - this._startMousePos.y;
-
-                ctx.strokeStyle = this.config.mouse.selecting.color;
-                ctx.lineWidth = this.config.mouse.selecting.width / zoom;
-                ctx.dashedRect(x, y, w, h, this.config.mouse.selecting.dashLen / zoom);
-                ctx.stroke();
-                break;
-
-            case this.STATE_NONE:
-                break;
-        }
     };
 
     _selectByPoint(mouse) {
@@ -501,16 +355,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             hits = [hits[hits.length - 1]];
 
         return hits;
-    };
-
-    _selectByBox(mouse1, mouse2) {
-        let coords = this.model.selectableDisps();
-
-        let b = PeekCanvasBounds.fromGeom([mouse1, mouse2]);
-
-        return coords.filter((i) => {
-            return this.dispDelegate.withIn(i, b.x, b.y, b.w, b.h);
-        });
     };
 
     _selectByTypeAndBounds(mouse) {
@@ -548,27 +392,5 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     };
 
-    //_snapSelectedCoords  () {
-    //
-    //
-    //    /**
-    //     * Snap Selected Coords
-    //     *
-    //     * Applies the current grid to all the selected coords
-    //     */
-    //    let snapSize = editorUi.grid.snapSize();
-    //    let selectedCoords = this.model.selectedDisps();
-    //    for (let i = selectedCoords.length - 1; i >= 0; i--) {
-    //        let disp = selectedCoords[i];
-    //        if (disp.snap(snapSize).deltaApplied) {
-    //            disp.storeState();
-    //        }
-    //    }
-    //
-    //    // TODO, Not a nice structure this is a hack
-    //    // We need a proper structure
-    //    this.canvasInput._notifyOfChange(selectedCoords);
-    //    editorRenderer.invalidate();
-    //};
 
 }
