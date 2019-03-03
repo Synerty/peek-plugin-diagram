@@ -551,7 +551,7 @@ def _calculateGridKeys(preparedDisps: List[PreparedDisp], coordSetById, textStyl
 
         if isinstance(pdisp.disp, DispGroup):
             if pdisp.disp.compileAsTemplate:
-                addGridKey(pdisp.disp, makeDispGroupGridKey(coordSetById.id))
+                addGridKey(pdisp.disp, makeDispGroupGridKey(coordSet.id))
             continue
 
         # Calculate the grid keys
