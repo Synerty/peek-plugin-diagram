@@ -2,8 +2,8 @@ import {MousePos, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekCanvasInput} from "./PeekCanvasInput.web";
-import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
+import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 
 /**
  * This input delegate handles :
@@ -12,8 +12,7 @@ import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
  * Selecting at a point (touch and mouse)
  *
  */
-export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
-    static readonly TOOL_NAME= "SELECT";
+export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDelegate {
 
     // // CONSTANTS
     // STATE_NONE = 0;
@@ -50,8 +49,9 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     constructor(private canvasInput: PeekCanvasInput,
                 private config: PeekCanvasConfig,
                 private model: PeekCanvasModel,
-                private dispDelegate: PeekDispRenderFactory) {
-        super(PeekCanvasInputSelectDelegate.TOOL_NAME);
+                private dispDelegate: PeekDispRenderFactory,
+                tool: EditorToolType) {
+        super(tool);
 
         this._reset();
     }
@@ -66,6 +66,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this._startMousePos = null;
         this._lastMousePos = null;
     }
+
     //
     //  keyUp(event) {
     //     if (!this._creating)
@@ -179,7 +180,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     //     //this._finaliseCreate();
     // }
     //
-    //  draw(ctx) {
+    //  draw(ctx, zoom, pan) {
     //     if (this._creating)
     //         this._creating.draw(ctx);
     // }

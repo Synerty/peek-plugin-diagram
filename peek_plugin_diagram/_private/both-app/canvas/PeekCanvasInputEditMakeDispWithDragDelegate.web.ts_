@@ -2,8 +2,8 @@ import {MousePos, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekCanvasInput} from "./PeekCanvasInput.web";
-import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
+import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 
 /**
  * This input delegate handles :
@@ -13,7 +13,7 @@ import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
  *
  */
 export class PeekCanvasInputMakeDispWithDragDelegateWeb extends PeekCanvasInputDelegate {
-    static readonly TOOL_NAME= "MAKE_DISP_WITH_DRAG";
+    static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_DISP_WITH_DRAG;
 
     // CONSTANTS
     // STATE_NONE = 0;
@@ -47,8 +47,9 @@ export class PeekCanvasInputMakeDispWithDragDelegateWeb extends PeekCanvasInputD
     constructor(private canvasInput: PeekCanvasInput,
                 private config: PeekCanvasConfig,
                 private model: PeekCanvasModel,
-                private dispDelegate: PeekDispRenderFactory) {
-        super(PeekCanvasInputMakeDispWithDragDelegateWeb.TOOL_NAME);
+                private dispDelegate: PeekDispRenderFactory,
+                toolName: EditorToolType) {
+        super(toolName);
 
         this._reset();
     }

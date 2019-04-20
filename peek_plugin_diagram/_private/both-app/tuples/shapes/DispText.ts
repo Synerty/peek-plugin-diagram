@@ -1,6 +1,5 @@
-import {DispBase, PointI} from "./DispBase";
-import {DispTextStyle} from "@peek/peek_plugin_diagram/lookups";
-import {DispColor} from "@peek/peek_plugin_diagram/lookups";
+import {DispBase} from "./DispBase";
+import {DispColor, DispTextStyle} from "@peek/peek_plugin_diagram/lookups";
 
 export enum TextVerticalAlign {
     top = -1,
@@ -16,6 +15,27 @@ export enum TextHorizontalAlign {
 }
 
 export class DispText extends DispBase {
+    static create(): any {
+        return {
+            // From BASE
+            '_tt': DispBase.TYPE_DT,
+            'lel': null, // DispLevel
+            'lal': null, // DispLayer
+            's': true, // boolean
+            'k': null, // string | null
+            'd': null, // {}
+            'g': [0,0], // []
+            // From Text
+            'fsl': null, // DispTextStyle
+            'cl': null, // DispColor
+            'va': TextVerticalAlign.center, // TextVerticalAlign.center
+            'ha': TextHorizontalAlign.center, // TextHorizontalAlign.center
+            'r': 0, // number
+            'te': '', // number
+            'th': 0, // number | null
+            'hs': 0, // number | null
+        }
+    }
 
     static textStyle(disp): DispTextStyle {
         // This is set from the short id in DiagramLookupService._linkDispLookups
@@ -67,6 +87,11 @@ export class DispText extends DispBase {
 
     static centerPointY(disp): number {
         return disp.g[1];
+    }
+
+    static setCenterPoint(disp, x:number, y:number ): void {
+        disp.g[0] = x;
+        disp.g[1] = y;
     }
 
 }

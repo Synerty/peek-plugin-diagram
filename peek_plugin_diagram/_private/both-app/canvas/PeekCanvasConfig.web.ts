@@ -2,6 +2,7 @@ import {Subject} from "rxjs/Subject";
 import {PanI} from "./PeekInterfaces.web";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
+import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 
 
 /**
@@ -63,7 +64,7 @@ export class PeekCanvasConfig {
     };
 
     mouse = {
-        currentDelegateName: '',
+        currentDelegateName: EditorToolType.SELECT_TOOL,
         phUpDownZoomFactor: 20.0,
         currentViewPortPosition: {x: 0, y: 0},
         currentCanvasPosition: {x: 0, y: 0},

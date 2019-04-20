@@ -15,16 +15,13 @@ import {PeekCanvasInputEditSelectDelegate} from "./PeekCanvasInputEditSelectDele
 import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
+import {PeekCanvasInputEditMakeTextDelegate} from "./PeekCanvasInputEditMakeTextDelegate.web";
+import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 
 export enum EditorContextType {
     NONE,
     SHAPE_PROPERTIES,
     DYNAMIC_PROPERTIES
-}
-
-export enum EditorToolType {
-    NONE,
-    SELECT_TOOL,
 }
 
 /**
@@ -41,7 +38,6 @@ export class PeekCanvasEditor {
     private currentBranch: PrivateDiagramBranchContext | null = null;
 
     private currentContext: EditorContextType = EditorContextType.NONE;
-    private currentTool: EditorToolType = EditorToolType.SELECT_TOOL;
 
     private _contextPanelChangeSubject: Subject<EditorContextType> = new Subject<EditorContextType>();
 
@@ -62,7 +58,6 @@ export class PeekCanvasEditor {
             .takeUntil(lifecycleEventEmitter.onDestroyEvent)
             .subscribe((branch: PrivateDiagramBranchContext) => {
                 this.currentBranch = branch;
-                this.currentTool = EditorToolType.SELECT_TOOL;
                 this.canvasInput.setDelegate(PeekCanvasInputEditSelectDelegate);
                 this.canvasModel.clearSelection();
                 this.canvasConfig.editor.active = true;
@@ -74,7 +69,6 @@ export class PeekCanvasEditor {
             .subscribe(() => {
                 this.currentBranch = null;
                 this.currentContext = EditorContextType.NONE;
-                this.currentTool = EditorToolType.NONE;
                 this.canvasInput.setDelegate(PeekCanvasInputSelectDelegate);
                 this.canvasConfig.editor.active = false;
             });
@@ -97,7 +91,7 @@ export class PeekCanvasEditor {
     }
 
     selectedTool(): EditorToolType {
-        return this.currentTool;
+        return this.canvasInput.selectedDelegate();
     }
 
     isShapeSelected(): boolean {

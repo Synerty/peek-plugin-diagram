@@ -31,20 +31,23 @@ export enum DispType {
  */
 export class DispFactory {
 
+
     private static typeMap = {
-        'DT':[DispType.text, DispText],
-        'DPG':[DispType.polygon, DispPolygon],
-        'DPL':[DispType.polyline, DispPolyline],
-        'DE':[DispType.ellipse, DispEllipse],
-        'DG':[DispType.group, DispGroup],
-        'DGP':[DispType.groupPointer, DispGroupPointer],
+        'DT': [DispType.text, DispText],
+        'DPG': [DispType.polygon, DispPolygon],
+        'DPL': [DispType.polyline, DispPolyline],
+        'DE': [DispType.ellipse, DispEllipse],
+        'DG': [DispType.group, DispGroup],
+        'DGP': [DispType.groupPointer, DispGroupPointer],
     };
 
-    static type(disp) : DispType {
+    static type(disp): DispType {
         return DispFactory.typeMap[disp._tt][0];
     }
 
-    static wrapper(disp)  {
+    static wrapper(disp) {
         return DispFactory.typeMap[disp._tt][1];
     }
+
+
 }

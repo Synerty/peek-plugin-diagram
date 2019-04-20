@@ -20,10 +20,7 @@ import {
     DiagramPositionI,
     PrivateDiagramPositionService
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
-import {
-    PrivateDiagramItemSelectService,
-    SelectedItemDetailsI
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
+import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {PrivateDiagramCoordSetService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DiagramBranchService} from "@peek/peek_plugin_diagram/DiagramBranchService";
@@ -61,8 +58,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     private renderer: PeekCanvasRenderer;
     private dispDelegate: PeekDispRenderFactory;
     private model: PeekCanvasModel;
-    private input: PeekCanvasInput;
-    private editor: PeekCanvasEditor;
+    input: PeekCanvasInput;
+    editor: PeekCanvasEditor;
 
     // Private services
     private _privatePosService: PrivateDiagramPositionService;
@@ -114,7 +111,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         // Add the mouse class to the renderers draw list
         this.renderer.drawEvent
             .takeUntil(this.onDestroyEvent)
-            .subscribe(ctx => this.input.draw(ctx));
+            .subscribe(({ctx, zoom, pan}) => this.input.draw(ctx, zoom, pan));
 
         // Hook up the item selection service
         this.connectItemSelectionService();

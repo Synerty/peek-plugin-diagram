@@ -1,6 +1,8 @@
 // ============================================================================
 // Editor Ui Mouse
 
+import {EditorToolType} from "./PeekCanvasEditorToolType.web";
+
 export class LastMousePos {
 
     x: number = 0;
@@ -43,7 +45,7 @@ export abstract class PeekCanvasInputDelegate {
     /** The time it takes to do a click, VS a click that moved slighltly * */
     readonly DRAG_TIME_THRESHOLD = 200;
 
-    constructor(public NAME: string) {
+    constructor(public NAME: EditorToolType) {
     }
 
     _hasPassedDragThreshold(m1, m2) {
@@ -96,7 +98,7 @@ export abstract class PeekCanvasInputDelegate {
     shutdown() {
     };
 
-    draw(ctx) {
+    draw(ctx, zoom, pan) {
     };
 
     /**

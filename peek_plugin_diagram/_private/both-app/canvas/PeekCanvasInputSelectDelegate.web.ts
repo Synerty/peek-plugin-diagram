@@ -9,6 +9,7 @@ import {PeekCanvasInput} from "./PeekCanvasInput.web";
 import * as assert from "assert";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
+import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 
 /**
  * This input delegate handles :
@@ -18,7 +19,7 @@ import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
  *
  */
 export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
-    static readonly TOOL_NAME = "SELECT";
+    static readonly TOOL_NAME = EditorToolType.SELECT_TOOL;
 
     // CONSTANTS
     STATE_NONE = 0;
@@ -332,7 +333,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this._zoomPan(mouse.clientX, mouse.clientY, delta);
     };
 
-    draw(ctx) {
+    draw(ctx, zoom, pan) {
 
     };
 

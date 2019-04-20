@@ -11,6 +11,7 @@ import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 import {assert} from "../DiagramUtil";
 import {DispBase} from "../tuples/shapes/DispBase";
 import {DispPolyline} from "../tuples/shapes/DispPolyline";
+import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 
 
 /**
@@ -21,7 +22,7 @@ import {DispPolyline} from "../tuples/shapes/DispPolyline";
  *
  */
 export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
-    static readonly TOOL_NAME = "EDIT_SELECT";
+    static readonly TOOL_NAME = EditorToolType.EDIT_SELECT_TOOL;
 
     // CONSTANTS
     STATE_NONE = 0;
@@ -466,7 +467,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     //     this._zoomPan(mouse.clientX, mouse.clientY, delta);
     // };
 
-    draw(ctx) {
+    draw(ctx, zoom, pan) {
 
 
         switch (this._state) {

@@ -2,8 +2,8 @@ import {MousePos, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekCanvasInput} from "./PeekCanvasInput.web";
-import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
+import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 
 /**
  * This input delegate handles :
@@ -12,8 +12,7 @@ import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
  * Selecting at a point (touch and mouse)
  *
  */
-export class PeekCanvasInputMakeDispGroupPtrDelegateWeb extends PeekCanvasInputDelegate {
-    static readonly TOOL_NAME= "MAKE_DISP_GROUP";
+export class PeekCanvasInputMakeDispGroupPtrDelegate extends PeekCanvasInputDelegate {
 
     // CONSTANTS
     // STATE_NONE = 0;
@@ -45,8 +44,9 @@ export class PeekCanvasInputMakeDispGroupPtrDelegateWeb extends PeekCanvasInputD
     constructor(private canvasInput: PeekCanvasInput,
                 private config: PeekCanvasConfig,
                 private model: PeekCanvasModel,
-                private dispDelegate: PeekDispRenderFactory) {
-        super(PeekCanvasInputMakeDispGroupPtrDelegateWeb.TOOL_NAME);
+                private dispDelegate: PeekDispRenderFactory,
+                tool: EditorToolType) {
+        super(tool);
 
         this._reset();
     }
@@ -147,7 +147,7 @@ export class PeekCanvasInputMakeDispGroupPtrDelegateWeb extends PeekCanvasInputD
 //         editorRenderer.invalidate();
 //     };
 //
-//     draw(ctx) {
+//     draw(ctx, zoom, pan) {
 //         if (this._creating)
 //             this._creating.draw(ctx);
 //     };

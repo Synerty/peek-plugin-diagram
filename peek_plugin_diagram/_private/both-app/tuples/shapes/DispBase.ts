@@ -10,6 +10,13 @@ export type PointsT = number[];
 
 export abstract class DispBase {
 
+    static TYPE_DT = 'DT';
+    static TYPE_DPG = 'DPG';
+    static TYPE_DPL = 'DPL';
+    static TYPE_DE = 'DE';
+    static TYPE_DG = 'DG';
+    static TYPE_DGP = 'DGP';
+
     static id(disp): number {
         return disp.id;
     }
