@@ -6,7 +6,7 @@ import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 import {
     CanvasInputPos,
     disableContextMenu,
-    PeekCanvasInputDelegate
+    PeekCanvasInputDelegate, InputDelegateConstructorArgs
 } from "./PeekCanvasInputDelegate.web";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
@@ -38,21 +38,18 @@ export class PeekCanvasInput {
     }
 
 
-    setDelegate(Delegate, editAgrs: any = null) {
+    setDelegate(Delegate, peekCanvasEditor: any | null = null) {
         if (this._delegate)
             this._delegate.shutdown();
 
-        let delegateArgs = {
+        let viewDelegateArgs: InputDelegateConstructorArgs = {
             input: this,
             config: this.config,
             model: this.model,
             renderFactory: this.renderFactory,
         };
-        if (editAgrs != null) {
-            delegateArgs = {...delegateArgs, ...editAgrs};
-        }
 
-        this._delegate = new Delegate(delegateArgs);
+        this._delegate = new Delegate(viewDelegateArgs, peekCanvasEditor);
 
         this.config.mouse.currentDelegateName = Delegate.TOOL_NAME;
 

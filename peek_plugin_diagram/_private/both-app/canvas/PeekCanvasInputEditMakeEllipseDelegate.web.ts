@@ -1,14 +1,7 @@
-import {
-    CanvasInputPos,
-    PeekCanvasInputDelegate, PeekCanvasInputDelegateConstructorArgs
-} from "./PeekCanvasInputDelegate.web";
-import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PeekCanvasModel} from "./PeekCanvasModel.web";
-import {PeekCanvasInput} from "./PeekCanvasInput.web";
-import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
+import {CanvasInputPos, InputDelegateConstructorArgs, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
 import {DispText} from "../tuples/shapes/DispText";
-import {DiagramBranchContext} from "@peek/peek_plugin_diagram";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
+import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 
 /**
  * This input delegate handles :
@@ -54,8 +47,9 @@ export class PeekCanvasInputEditMakeCircleArcEllipseDelegate extends PeekCanvasI
 
     //canvasInput._scope.pageData.modelRenderables;
 
-    constructor(cargs: PeekCanvasInputDelegateConstructorArgs) {
-        super(cargs, PeekCanvasInputEditMakeCircleArcEllipseDelegate.TOOL_NAME);
+    constructor(viewArgs: InputDelegateConstructorArgs,
+                canvasEditor: PeekCanvasEditor) {
+        super(viewArgs, canvasEditor, PeekCanvasInputEditMakeCircleArcEllipseDelegate.TOOL_NAME);
 
         // Stores the rectangle being created
         this._creating = null;
@@ -101,7 +95,7 @@ export class PeekCanvasInputEditMakeCircleArcEllipseDelegate extends PeekCanvasI
             else
                 this._enteredText = '';
             this._creating.setText(this._enteredText);
-            this.cargs.config.invalidate();
+            this.viewArgs.config.invalidate();
             return;
         }
 
@@ -113,7 +107,7 @@ export class PeekCanvasInputEditMakeCircleArcEllipseDelegate extends PeekCanvasI
         if (/[a-zA-Z0-9-_ .,`"'|~!@#$%^&*()-=+{}\[\]\\:;<>\/?]/.test(inp)) {
             this._enteredText = (this._enteredText || '') + inp;
             this._creating.setText(this._enteredText);
-            this.cargs.config.invalidate();
+            this.viewArgs.config.invalidate();
             return;
         }
     }
@@ -146,7 +140,7 @@ export class PeekCanvasInputEditMakeCircleArcEllipseDelegate extends PeekCanvasI
         // if (editorUi.grid.snapping())
         //     this._creating.snap(editorUi.grid.snapSize());
 
-        this.cargs.config.invalidate();
+        this.viewArgs.config.invalidate();
     }
 
     delegateWillBeTornDown() {
@@ -155,7 +149,7 @@ export class PeekCanvasInputEditMakeCircleArcEllipseDelegate extends PeekCanvasI
 
     draw(ctx, zoom, pan) {
         if (this._creating != null)
-            this.cargs.renderFactory.draw(this._creating, ctx, zoom, pan);
+            this.viewArgs.renderFactory.draw(this._creating, ctx, zoom, pan);
     }
 
     _finaliseCreate() {
@@ -166,7 +160,7 @@ export class PeekCanvasInputEditMakeCircleArcEllipseDelegate extends PeekCanvasI
         //     this._creating.storeState();
 
         this._reset();
-        this.cargs.config.invalidate();
+        this.viewArgs.config.invalidate();
     }
 
 }

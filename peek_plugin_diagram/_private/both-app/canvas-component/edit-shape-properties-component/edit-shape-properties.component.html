@@ -1,1 +1,8 @@
 <p>We're Editing Shape Properties</p>
+
+
+<div *ngFor="let prop of context.props">
+   {{prop.name}} : <input type="text" (ngModelChange)="writeVal(prop, $event)"
+           [ngModel]="readVal(prop)">
+    
+</div>

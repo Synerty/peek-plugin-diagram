@@ -6,7 +6,7 @@ import {PeekCanvasInput} from "./PeekCanvasInput.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
-import {DiagramLookupService, DiagramBranchContext} from "@peek/peek_plugin_diagram";
+import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 
 
 export function disableContextMenu(event) {
@@ -22,16 +22,11 @@ export class CanvasInputPos {
     time: Date = new Date();
 }
 
-export interface PeekCanvasInputDelegateConstructorArgs {
+export interface InputDelegateConstructorArgs {
     input: PeekCanvasInput;
     config: PeekCanvasConfig;
     model: PeekCanvasModel;
     renderFactory: PeekDispRenderFactory;
-}
-
-export interface PeekCanvasInputEditDelegateConstructorArgs {
-    lookupService: DiagramLookupService;
-    branchContext:DiagramBranchContext;
 }
 
 /*
@@ -50,8 +45,9 @@ export abstract class PeekCanvasInputDelegate {
     /** The time it takes to do a click, VS a click that moved slighltly * */
     readonly DRAG_TIME_THRESHOLD = 200;
 
-    constructor(protected cargs: PeekCanvasInputDelegateConstructorArgs,
-                public NAME: EditorToolType) {
+    protected constructor(protected viewArgs: InputDelegateConstructorArgs,
+                          protected canvasEditor: PeekCanvasEditor,
+                          public NAME: EditorToolType) {
     }
 
     _hasPassedDragThreshold(m1: CanvasInputPos, m2: CanvasInputPos) {

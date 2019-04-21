@@ -1,7 +1,3 @@
-import {Injectable} from "@angular/core";
-import {Subject} from "rxjs/Subject";
-import {Observable} from "rxjs/Observable";
-import {VortexStatusService} from "@synerty/vortexjs";
 import {BranchTuple} from "./BranchTuple";
 import {DiagramDeltaBase} from "../../branch/DiagramDeltaBase";
 import {DiagramBranchContext} from "../../branch/DiagramBranchContext";

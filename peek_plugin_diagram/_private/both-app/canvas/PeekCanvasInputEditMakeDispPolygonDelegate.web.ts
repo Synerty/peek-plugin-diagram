@@ -1,6 +1,7 @@
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasInputEditMakeDispPolyDelegate} from "./PeekCanvasInputEditMakeDispPolyDelegate.web";
-import {PeekCanvasInputDelegateConstructorArgs} from "./PeekCanvasInputDelegate.web";
+import {InputDelegateConstructorArgs} from "./PeekCanvasInputDelegate.web";
+import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 
 /**
  * This input delegate handles :
@@ -14,8 +15,9 @@ export class PeekCanvasInputEditMakeDispPolygonDelegate
     static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_POLYGON;
 
 
-    constructor(cargs: PeekCanvasInputDelegateConstructorArgs) {
-        super(cargs, PeekCanvasInputEditMakeDispPolygonDelegate.TOOL_NAME);
+    constructor(viewArgs: InputDelegateConstructorArgs,
+                canvasEditor: PeekCanvasEditor) {
+        super(viewArgs, canvasEditor, PeekCanvasInputEditMakeDispPolygonDelegate.TOOL_NAME);
 
         this._reset();
     }

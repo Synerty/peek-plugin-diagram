@@ -27,6 +27,7 @@ export class DiagramLookupService {
 
     private _levelsByCoordSetIdOrderedByOrder = {};
     private _layersOrderedByOrder = [];
+    private _colorsOrderedByName = [];
 
     private subscriptions = [];
 
@@ -130,6 +131,9 @@ export class DiagramLookupService {
             }
         }
 
+        this._colorsOrderedByName = dictValuesFromObject(this._colorsById)
+            .sort((o1, o2) => o1.name - o2.name);
+
     };
 
 
@@ -164,6 +168,10 @@ export class DiagramLookupService {
     levelsOrderedByOrder(coordSetId: number): DispLevel[] {
         let result = this._levelsByCoordSetIdOrderedByOrder[coordSetId];
         return result == null ? [] : result;
+    }
+
+    colorsOrderedByName(): DispColor[] {
+        return this._colorsOrderedByName;
     }
 
     private createLayersOrderedByOrder() {

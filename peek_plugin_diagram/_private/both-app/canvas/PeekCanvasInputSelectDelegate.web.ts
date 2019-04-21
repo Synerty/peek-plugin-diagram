@@ -1,14 +1,7 @@
-import {
-    CanvasInputPos,
-    PeekCanvasInputDelegate, PeekCanvasInputDelegateConstructorArgs
-} from "./PeekCanvasInputDelegate.web";
-import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PeekCanvasModel} from "./PeekCanvasModel.web";
-import {PeekCanvasInput} from "./PeekCanvasInput.web";
+import {CanvasInputPos, InputDelegateConstructorArgs, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
 import * as assert from "assert";
-import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
+import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 
 /**
  * This input delegate handles :
@@ -41,8 +34,9 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     // See mousedown and mousemove events for explanation
     _startMousePos: CanvasInputPos | null = null;
 
-    constructor(cargs: PeekCanvasInputDelegateConstructorArgs) {
-        super(cargs, PeekCanvasInputSelectDelegate.TOOL_NAME);
+    constructor(viewArgs: InputDelegateConstructorArgs,
+                canvasEditor: PeekCanvasEditor) {
+        super(viewArgs, canvasEditor, PeekCanvasInputSelectDelegate.TOOL_NAME);
 
         this._reset();
     }
@@ -71,17 +65,17 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     keyUp(event) {
 
-        let phUpDownZoomFactor = this.cargs.config.mouse.phUpDownZoomFactor;
+        let phUpDownZoomFactor = this.viewArgs.config.mouse.phUpDownZoomFactor;
 
         if (event.keyCode == 33) { // Page UP
-            let zoom = this.cargs.config.viewPort.zoom;
+            let zoom = this.viewArgs.config.viewPort.zoom;
             zoom *= (1.0 + phUpDownZoomFactor / 100.0);
-            this.cargs.config.updateViewPortZoom(zoom);
+            this.viewArgs.config.updateViewPortZoom(zoom);
 
         } else if (event.keyCode == 34) { // Page Down
-            let zoom = this.cargs.config.viewPort.zoom;
+            let zoom = this.viewArgs.config.viewPort.zoom;
             zoom *= (1.0 - phUpDownZoomFactor / 100.0);
-            this.cargs.config.updateViewPortZoom(zoom);
+            this.viewArgs.config.updateViewPortZoom(zoom);
 
         }
 
@@ -119,13 +113,13 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             return;
         }
 
-        let selectedDisps = this.cargs.model.selectedDisps();
+        let selectedDisps = this.viewArgs.model.selectedDisps();
 
-        let margin = this.cargs.config.mouse.selecting.margin;// * this.cargs.config.viewPort.zoom;
+        let margin = this.viewArgs.config.mouse.selecting.margin;// * this.viewArgs.config.viewPort.zoom;
 
         for (let i = selectedDisps.length - 1; i >= 0; i--) {
             let r = selectedDisps[i];
-            if (this.cargs.renderFactory.contains(r, mouse.x, mouse.y, margin)) {
+            if (this.viewArgs.renderFactory.contains(r, mouse.x, mouse.y, margin)) {
                 this._mouseDownOnSelection = true;
                 break;
             }
@@ -134,10 +128,10 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         if (this._mouseDownOnSelection) {
             this._mouseDownOnCoord = true;
         } else {
-            let disps = this.cargs.model.selectableDisps();
+            let disps = this.viewArgs.model.selectableDisps();
             for (let i = disps.length - 1; i >= 0; i--) {
                 let r = disps[i];
-                if (this.cargs.renderFactory.contains(r, mouse.x, mouse.y, margin)) {
+                if (this.viewArgs.renderFactory.contains(r, mouse.x, mouse.y, margin)) {
                     this._mouseDownOnCoord = true;
                     break;
                 }
@@ -148,7 +142,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             this._state = this.STATE_SELECTING;
         } else {
             this._state = this.STATE_CANVAS_PANNING;
-            this.cargs.model.clearSelection();
+            this.viewArgs.model.clearSelection();
         }
 
 
@@ -211,8 +205,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         delta = delta * -1; // Correct the zooming to match google maps, etc
 
         // begin
-        let zoom = this.cargs.config.viewPort.zoom;
-        let pan = this.cargs.config.viewPort.pan;
+        let zoom = this.viewArgs.config.viewPort.zoom;
+        let pan = this.viewArgs.config.viewPort.pan;
 
         // The PAN is always dead center of the view port.
         // The clientX/clientY are screen pixels relative to the center of the canvas
@@ -227,8 +221,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         zoom *= (1.0 + delta / 100.0);
 
         // If the zoom won't apply just exit
-        if (!(this.cargs.config.viewPort.minZoom < zoom
-            && zoom < this.cargs.config.viewPort.maxZoom)) {
+        if (!(this.viewArgs.config.viewPort.minZoom < zoom
+            && zoom < this.viewArgs.config.viewPort.maxZoom)) {
             return;
         }
 
@@ -243,8 +237,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             y: pan.y + (panStart.y - panEnd.y)
         };
 
-        this.cargs.config.updateViewPortPan(newPan);
-        this.cargs.config.updateViewPortZoom(zoom);
+        this.viewArgs.config.updateViewPortPan(newPan);
+        this.viewArgs.config.updateViewPortZoom(zoom);
     };
 
     mouseMove(event, mouse) {
@@ -266,18 +260,18 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                 let delta = this._setLastMousePos(mouse);
                 // Dragging the mouse left makes a negative delta, we increase X
                 // Dragging the mouse up makes a negative delta, we increase Y
-                let oldPan = this.cargs.config.viewPort.pan;
+                let oldPan = this.viewArgs.config.viewPort.pan;
                 let newPan = {
-                    x: oldPan.x - delta.dClientX / this.cargs.config.viewPort.zoom,
-                    y: oldPan.y - delta.dClientY / this.cargs.config.viewPort.zoom
+                    x: oldPan.x - delta.dClientX / this.viewArgs.config.viewPort.zoom,
+                    y: oldPan.y - delta.dClientY / this.viewArgs.config.viewPort.zoom
                 };
-                this.cargs.config.updateViewPortPan(newPan);
+                this.viewArgs.config.updateViewPortPan(newPan);
                 break;
             }
 
         }
 
-        this.cargs.config.invalidate()
+        this.viewArgs.config.invalidate()
     };
 
     touchEnd(event: TouchEvent, mouse) {
@@ -305,14 +299,14 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         }
 
         this._reset();
-        this.cargs.config.invalidate()
+        this.viewArgs.config.invalidate()
     };
 
     mouseDoubleClick(event, mouse) {
 
 
         let hits = this._selectByTypeAndBounds(mouse);
-        this.cargs.model.addSelection(hits);
+        this.viewArgs.model.addSelection(hits);
     };
 
     mouseWheel(event, mouse) {
@@ -336,16 +330,16 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     _selectByPoint(mouse) {
 
 
-        let margin = this.cargs.config.mouse.selecting.margin;//* this.cargs.config.viewPort.zoom;
+        let margin = this.viewArgs.config.mouse.selecting.margin;//* this.viewArgs.config.viewPort.zoom;
 
-        let coords = this.cargs.model.selectableDisps();
+        let coords = this.viewArgs.model.selectableDisps();
         let hits = coords.filter((i) => {
-            return this.cargs.renderFactory.contains(i, mouse.x, mouse.y, margin);
+            return this.viewArgs.renderFactory.contains(i, mouse.x, mouse.y, margin);
         }, this);
 
         // Sort by size, largest to smallest.
         // This ensures we can select smaller items when required.
-        hits.sort((a, b) => this.cargs.renderFactory.selectionPriotityCompare(a, b));
+        hits.sort((a, b) => this.viewArgs.renderFactory.selectionPriotityCompare(a, b));
 
         // Only select
         if (!this._mouseDownWithCtrl && hits.length)
@@ -362,10 +356,10 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             return [];
 
         let masterCoord = hits[hits.length - 1];
-        let coords = this.cargs.model.selectableDisps();
+        let coords = this.viewArgs.model.selectableDisps();
 
         return coords.filter((i) => {
-            return this.cargs.renderFactory.similarTo(i, masterCoord);
+            return this.viewArgs.renderFactory.similarTo(i, masterCoord);
         });
     };
 
@@ -374,17 +368,17 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
         // Remove clicked on thing
         if (this._mouseDownOnSelection && this._mouseDownWithShift) {
-            this.cargs.model.removeSelection(hits);
+            this.viewArgs.model.removeSelection(hits);
 
         } else {
             if (!this._mouseDownWithShift)
             // Remove all previous selection
-                this.cargs.model.clearSelection();
+                this.viewArgs.model.clearSelection();
 
             // // Selecting more
-            // this.cargs.model.clearSelection();
+            // this.viewArgs.model.clearSelection();
 
-            this.cargs.model.addSelection(hits);
+            this.viewArgs.model.addSelection(hits);
         }
 
     };

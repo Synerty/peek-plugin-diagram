@@ -1,14 +1,9 @@
-import {
-    CanvasInputPos,
-    PeekCanvasInputDelegate, PeekCanvasInputDelegateConstructorArgs
-} from "./PeekCanvasInputDelegate.web";
-import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PeekCanvasModel} from "./PeekCanvasModel.web";
-import {PeekCanvasInput} from "./PeekCanvasInput.web";
-import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
+import {CanvasInputPos, InputDelegateConstructorArgs, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
 import {DispText} from "../tuples/shapes/DispText";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {pointToPixel} from "../DiagramUtil";
+import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
+import {PeekCanvasShapePropsContext, ShapeProp, ShapePropType} from "./shape-props/PeekCanvasShapePropsContext";
 
 /**
  * This input delegate handles :
@@ -54,8 +49,9 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
 
     //canvasInput._scope.pageData.modelRenderables;
 
-    constructor(cargs: PeekCanvasInputDelegateConstructorArgs) {
-        super(cargs, PeekCanvasInputEditMakeTextDelegate.TOOL_NAME);
+    constructor(viewArgs: InputDelegateConstructorArgs,
+                canvasEditor: PeekCanvasEditor) {
+        super(viewArgs, canvasEditor, PeekCanvasInputEditMakeTextDelegate.TOOL_NAME);
 
         // Stores the rectangle being created
         this._creating = null;
@@ -101,7 +97,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
             else
                 this._enteredText = '';
             this._creating.setText(this._enteredText);
-            this.cargs.config.invalidate();
+            this.viewArgs.config.invalidate();
             return;
         }
 
@@ -113,7 +109,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         if (/[a-zA-Z0-9-_ .,`"'|~!@#$%^&*()-=+{}\[\]\\:;<>\/?]/.test(inp)) {
             this._enteredText = (this._enteredText || '') + inp;
             this._creating.setText(this._enteredText);
-            this.cargs.config.invalidate();
+            this.viewArgs.config.invalidate();
             return;
         }
     }
@@ -143,10 +139,19 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         this._creating = DispText.create();
         DispText.setCenterPoint(this._creating, mouse.x, mouse.y);
 
+
+        let shapePropsContext = new PeekCanvasShapePropsContext(
+            this._creating,  this.canvasEditor.lookupService,
+            this.canvasEditor.coordSetId
+        );
+        DispText.makeShapeContext(shapePropsContext);
+
+        this.canvasEditor.setShapePropertiesContext(shapePropsContext);
+
         // if (editorUi.grid.snapping())
         //     this._creating.snap(editorUi.grid.snapSize());
 
-        this.cargs.config.invalidate();
+        this.viewArgs.config.invalidate();
     }
 
     delegateWillBeTornDown() {
@@ -157,7 +162,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         if (this._creating == null)
             return;
 
-        //this.cargs.renderFactory.draw(this._creating, ctx, zoom, pan);
+        //this.viewArgs.renderFactory.draw(this._creating, ctx, zoom, pan);
 
         // Give meaning to our short names
         let rotationRadian = 0;
@@ -187,10 +192,8 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         ctx.textBaseline = textBaseline;
         ctx.font = font;
 
-            let unscale = 1.0 / zoom;
-            ctx.scale(unscale, unscale);
-
-
+        let unscale = 1.0 / zoom;
+        ctx.scale(unscale, unscale);
 
 
         let lines = DispText.text(this._creating).split("\n");
@@ -212,7 +215,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         //     this._creating.storeState();
 
         this._reset();
-        this.cargs.config.invalidate();
+        this.viewArgs.config.invalidate();
     }
 
 }

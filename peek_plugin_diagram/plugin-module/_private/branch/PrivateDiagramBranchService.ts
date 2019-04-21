@@ -1,16 +1,13 @@
 import {Injectable} from "@angular/core";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
-import {VortexStatusService} from "@synerty/vortexjs";
-import {
-    DiagramBranchContext,
-    DiagramBranchLocation
-} from "../../branch/DiagramBranchContext";
+import {DiagramBranchContext, DiagramBranchLocation} from "../../branch/DiagramBranchContext";
 import {PrivateDiagramBranchContext} from "../branch/PrivateDiagramBranchContext";
 import {BranchTuple} from "../branch/BranchTuple";
 import {BranchIndexLoaderServiceA} from "../branch-loader/BranchIndexLoaderServiceA";
 import {DiagramBranchService} from "../../DiagramBranchService";
 import {DiagramLookupService} from "../../DiagramLookupService";
+import {DiagramCoordSetService} from "../../DiagramCoordSetService";
 
 /** Diagram Branch Service
  *
@@ -24,6 +21,7 @@ export class PrivateDiagramBranchService extends DiagramBranchService {
     private _stopEditingObservable = new Subject<void>();
 
     constructor(private lookupService: DiagramLookupService,
+                private coordSetService: DiagramCoordSetService,
                 private branchLoader: BranchIndexLoaderServiceA) {
         super();
 
@@ -32,6 +30,7 @@ export class PrivateDiagramBranchService extends DiagramBranchService {
     getOrCreateBranch(modelSetKey: string, coordSetKey: string,
                       branchKey: string,
                       location: DiagramBranchLocation): Promise<DiagramBranchContext> {
+
         let prom: any = new Promise<DiagramBranchContext>((resolve, reject) => {
             if (location != DiagramBranchLocation.LocalBranch) {
                 reject("Only local branches are implemented");

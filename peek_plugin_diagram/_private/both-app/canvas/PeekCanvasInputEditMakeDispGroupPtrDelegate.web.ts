@@ -1,12 +1,6 @@
-import {
-    CanvasInputPos,
-    PeekCanvasInputDelegate, PeekCanvasInputDelegateConstructorArgs
-} from "./PeekCanvasInputDelegate.web";
-import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PeekCanvasModel} from "./PeekCanvasModel.web";
-import {PeekCanvasInput} from "./PeekCanvasInput.web";
-import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
+import {CanvasInputPos, InputDelegateConstructorArgs, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
+import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 
 /**
  * This input delegate handles :
@@ -44,9 +38,10 @@ export class PeekCanvasInputMakeDispGroupPtrDelegate extends PeekCanvasInputDele
     private _startMousePos: CanvasInputPos | null = null;
     private _dragThresholdPassed = false;
 
-    constructor( cargs: PeekCanvasInputDelegateConstructorArgs,
+    constructor(viewArgs: InputDelegateConstructorArgs,
+                canvasEditor: PeekCanvasEditor,
                 tool: EditorToolType) {
-        super(cargs, tool);
+        super(viewArgs, canvasEditor, tool);
 
         this._reset();
     }

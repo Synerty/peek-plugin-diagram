@@ -1,13 +1,7 @@
-import {
-    CanvasInputPos,
-    PeekCanvasInputDelegate, PeekCanvasInputDelegateConstructorArgs
-} from "./PeekCanvasInputDelegate.web";
-import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PeekCanvasModel} from "./PeekCanvasModel.web";
-import {PeekCanvasInput} from "./PeekCanvasInput.web";
-import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
+import {CanvasInputPos, InputDelegateConstructorArgs, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
 import {DispText} from "../tuples/shapes/DispText";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
+import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 
 /**
  * This input delegate handles :
@@ -53,8 +47,9 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
 
     //canvasInput._scope.pageData.modelRenderables;
 
-    constructor(cargs: PeekCanvasInputDelegateConstructorArgs) {
-        super(cargs, PeekCanvasInputEditMakeRectangleDelegate.TOOL_NAME);
+    constructor(viewArgs: InputDelegateConstructorArgs,
+                canvasEditor: PeekCanvasEditor) {
+        super(viewArgs, canvasEditor, PeekCanvasInputEditMakeRectangleDelegate.TOOL_NAME);
 
         // Stores the rectangle being created
         this._creating = null;
@@ -100,7 +95,7 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
             else
                 this._enteredText = '';
             this._creating.setText(this._enteredText);
-            this.cargs.config.invalidate();
+            this.viewArgs.config.invalidate();
             return;
         }
 
@@ -112,7 +107,7 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
         if (/[a-zA-Z0-9-_ .,`"'|~!@#$%^&*()-=+{}\[\]\\:;<>\/?]/.test(inp)) {
             this._enteredText = (this._enteredText || '') + inp;
             this._creating.setText(this._enteredText);
-            this.cargs.config.invalidate();
+            this.viewArgs.config.invalidate();
             return;
         }
     }
@@ -145,7 +140,7 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
         // if (editorUi.grid.snapping())
         //     this._creating.snap(editorUi.grid.snapSize());
 
-        this.cargs.config.invalidate();
+        this.viewArgs.config.invalidate();
     }
 
     delegateWillBeTornDown() {
@@ -154,7 +149,7 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
 
     draw(ctx, zoom, pan) {
         if (this._creating != null)
-            this.cargs.renderFactory.draw(this._creating, ctx, zoom, pan);
+            this.viewArgs.renderFactory.draw(this._creating, ctx, zoom, pan);
     }
 
     _finaliseCreate() {
@@ -165,7 +160,7 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
         //     this._creating.storeState();
 
         this._reset();
-        this.cargs.config.invalidate();
+        this.viewArgs.config.invalidate();
     }
 
 }
