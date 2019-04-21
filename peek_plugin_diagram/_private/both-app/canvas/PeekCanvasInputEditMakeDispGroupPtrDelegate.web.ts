@@ -1,4 +1,7 @@
-import {MousePos, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
+import {
+    CanvasInputPos,
+    PeekCanvasInputDelegate, PeekCanvasInputDelegateConstructorArgs
+} from "./PeekCanvasInputDelegate.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekCanvasInput} from "./PeekCanvasInput.web";
@@ -38,15 +41,12 @@ export class PeekCanvasInputMakeDispGroupPtrDelegate extends PeekCanvasInputDele
     // See mousedown and mousemove events for explanation
 
     private _creating = null;
-    private _startMousePos: MousePos | null = null;
+    private _startMousePos: CanvasInputPos | null = null;
     private _dragThresholdPassed = false;
 
-    constructor(private canvasInput: PeekCanvasInput,
-                private config: PeekCanvasConfig,
-                private model: PeekCanvasModel,
-                private dispDelegate: PeekDispRenderFactory,
+    constructor( cargs: PeekCanvasInputDelegateConstructorArgs,
                 tool: EditorToolType) {
-        super(tool);
+        super(cargs, tool);
 
         this._reset();
     }

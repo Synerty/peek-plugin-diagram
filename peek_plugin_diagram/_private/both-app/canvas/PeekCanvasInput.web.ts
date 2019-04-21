@@ -10,9 +10,7 @@ import {
 } from "./PeekCanvasInputDelegate.web";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {
-    PeekCanvasInputSelectDelegate
-} from "./PeekCanvasInputSelectDelegate.web";
+import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 
 
@@ -34,17 +32,28 @@ export class PeekCanvasInput {
 
     constructor(private config: PeekCanvasConfig,
                 private model: PeekCanvasModel,
-                private dispDelegate: PeekDispRenderFactory,
+                private renderFactory: PeekDispRenderFactory,
                 private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
         this.delegateFinished();
     }
 
 
-    setDelegate(Delegate) {
+    setDelegate(Delegate, editAgrs: any = null) {
         if (this._delegate)
             this._delegate.shutdown();
 
-        this._delegate = new Delegate(this, this.config, this.model, this.dispDelegate);
+        let delegateArgs = {
+            input: this,
+            config: this.config,
+            model: this.model,
+            renderFactory: this.renderFactory,
+        };
+        if (editAgrs != null) {
+            delegateArgs = {...delegateArgs, ...editAgrs};
+        }
+
+        this._delegate = new Delegate(delegateArgs);
+
         this.config.mouse.currentDelegateName = Delegate.TOOL_NAME;
 
         console.log(`Delegate = ${Delegate.TOOL_NAME}`);

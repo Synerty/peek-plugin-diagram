@@ -4,6 +4,7 @@ import {PeekCanvasInput} from "./PeekCanvasInput.web";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasInputMakeDispGroupPtrDelegate} from "./PeekCanvasInputEditMakeDispGroupPtrDelegate.web";
+import {PeekCanvasInputDelegateConstructorArgs} from "./PeekCanvasInputDelegate.web";
 
 /**
  * This input delegate handles :
@@ -16,11 +17,8 @@ export class PeekCanvasInputMakeDispGroupPtrEdgeDelegate extends PeekCanvasInput
     static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_DISP_GROUP_PTR_EDGE;
 
 
-    constructor(canvasInput: PeekCanvasInput,
-                config: PeekCanvasConfig,
-                model: PeekCanvasModel,
-                dispDelegate: PeekDispRenderFactory) {
-        super(canvasInput, config, model, dispDelegate,
+    constructor(cargs: PeekCanvasInputDelegateConstructorArgs) {
+        super(cargs,
             PeekCanvasInputMakeDispGroupPtrEdgeDelegate.TOOL_NAME);
 
         this._reset();

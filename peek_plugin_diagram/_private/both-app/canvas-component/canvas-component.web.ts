@@ -56,7 +56,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     config: PeekCanvasConfig;
 
     private renderer: PeekCanvasRenderer;
-    private dispDelegate: PeekDispRenderFactory;
+    private renderFactory: PeekDispRenderFactory;
     private model: PeekCanvasModel;
     input: PeekCanvasInput;
     editor: PeekCanvasEditor;
@@ -67,7 +67,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     constructor(private balloonMsg: Ng2BalloonMsgService,
                 private gridObservable: GridObservable,
-                private lookupCache: DiagramLookupService,
+                private lookupService: DiagramLookupService,
                 private coordSetCache: PrivateDiagramCoordSetService,
                 private dispGroupCache: DispGroupCache,
                 positionService: DiagramPositionService,
@@ -85,22 +85,22 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     }
 
     private initCanvas(): void {
-        // this.lookupCache must not be null
+        // this.lookupService must not be null
 
         // The model view the viewable items on the canvas
-        this.model = new PeekCanvasModel(this.config, this.gridObservable, this.lookupCache, this);
+        this.model = new PeekCanvasModel(this.config, this.gridObservable, this.lookupService, this);
 
         // The display renderer delegates
-        this.dispDelegate = new PeekDispRenderFactory(this.config, this.dispGroupCache);
+        this.renderFactory = new PeekDispRenderFactory(this.config, this.dispGroupCache);
 
         // The user interaction handler.
         this.input = new PeekCanvasInput(
-            this.config, this.model, this.dispDelegate, this
+            this.config, this.model, this.renderFactory, this
         );
 
         // The canvas renderer
         this.renderer = new PeekCanvasRenderer(
-            this.config, this.model, this.dispDelegate, this
+            this.config, this.model, this.renderFactory, this
         );
 
         // The canvas renderer
@@ -127,7 +127,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     isReady(): boolean {
         return this.coordSetCache.isReady()
             && this.gridObservable.isReady()
-            && this.lookupCache != null;
+            && this.lookupService != null;
 
     }
 

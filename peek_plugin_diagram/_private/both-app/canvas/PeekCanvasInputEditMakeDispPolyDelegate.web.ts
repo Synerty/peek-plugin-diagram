@@ -1,4 +1,7 @@
-import {MousePos, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
+import {
+    CanvasInputPos,
+    PeekCanvasInputDelegate, PeekCanvasInputDelegateConstructorArgs
+} from "./PeekCanvasInputDelegate.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekCanvasInput} from "./PeekCanvasInput.web";
@@ -40,18 +43,15 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     private _creating = null;
 
     // Used to detect dragging and its the mouse position we use
-    private _startMousePos: MousePos | null = null;
+    private _startMousePos: CanvasInputPos | null = null;
     private _startNodeRend = null;
     private _endNodeRend = null;
 
     private _nodes = []; //canvasInput._scope.pageData.modelRenderables;
 
-    constructor(private canvasInput: PeekCanvasInput,
-                private config: PeekCanvasConfig,
-                private model: PeekCanvasModel,
-                private dispDelegate: PeekDispRenderFactory,
+    constructor(cargs: PeekCanvasInputDelegateConstructorArgs,
                 tool: EditorToolType) {
-        super(tool);
+        super(cargs, tool);
 
         this._reset();
     }

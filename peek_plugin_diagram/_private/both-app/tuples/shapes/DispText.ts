@@ -31,7 +31,7 @@ export class DispText extends DispBase {
             'va': TextVerticalAlign.center, // TextVerticalAlign.center
             'ha': TextHorizontalAlign.center, // TextHorizontalAlign.center
             'r': 0, // number
-            'te': '', // number
+            'te': 'New Text', // string
             'th': 0, // number | null
             'hs': 0, // number | null
         }

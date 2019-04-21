@@ -2,15 +2,14 @@ import {Component, Input} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasEditor} from "../../canvas/PeekCanvasEditor.web";
 import {EditorToolType} from "../../canvas/PeekCanvasEditorToolType.web";
-import {PeekCanvasInputSelectDelegate} from "../../canvas/PeekCanvasInputSelectDelegate.web";
 import {PeekCanvasInputEditMakeTextDelegate} from "../../canvas/PeekCanvasInputEditMakeTextDelegate.web";
-import {PeekCanvasInput} from "../../canvas/PeekCanvasInput.web";
 import {PeekCanvasInputEditMakeRectangleDelegate} from "../../canvas/PeekCanvasInputEditMakeRectangleDelegate.web";
 import {PeekCanvasInputEditMakeCircleArcEllipseDelegate} from "../../canvas/PeekCanvasInputEditMakeEllipseDelegate.web";
 import {PeekCanvasInputEditMakeDispPolygonDelegate} from "../../canvas/PeekCanvasInputEditMakeDispPolygonDelegate.web";
 import {PeekCanvasInputEditMakeDispPolylinDelegate} from "../../canvas/PeekCanvasInputEditMakeDispPolylineDelegate.web";
 import {PeekCanvasInputMakeDispGroupPtrVertexDelegate} from "../../canvas/PeekCanvasInputEditMakeDispGroupPtrVertexDelegate.web";
 import {PeekCanvasInputMakeDispGroupPtrEdgeDelegate} from "../../canvas/PeekCanvasInputEditMakeDispGroupPtrEdgeDelegate.web";
+import {PeekCanvasInputEditSelectDelegate} from "../../canvas/PeekCanvasInputEditSelectDelegate.web";
 
 
 @Component({
@@ -24,9 +23,6 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     @Input("canvasEditor")
     canvasEditor: PeekCanvasEditor;
 
-    @Input("canvasInput")
-    canvasInput: PeekCanvasInput;
-
     constructor() {
         super();
 
@@ -34,16 +30,16 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
 
 
     private selectedTool(): EditorToolType {
-        if (this.canvasInput == null)
+        if (this.canvasEditor == null)
             return EditorToolType.SELECT_TOOL;
-        return this.canvasInput.selectedDelegate();
+        return this.canvasEditor.selectedTool();
     }
 
     // --------------------
     // Edit Select Tool
 
     selectEditSelectTool() {
-        this.canvasInput.setDelegate(PeekCanvasInputSelectDelegate);
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditSelectDelegate);
     }
 
     isEditSelectToolActive(): boolean {
@@ -55,7 +51,7 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     // Edit Make Text Tool
 
     selectEditMakeTextTool() {
-        this.canvasInput.setDelegate(PeekCanvasInputEditMakeTextDelegate);
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeTextDelegate);
     }
 
     isEditMakeTextActive(): boolean {
@@ -67,7 +63,7 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     // Edit Make Rectangle Tool
 
     selectEditMakeRectangleTool() {
-        this.canvasInput.setDelegate(PeekCanvasInputEditMakeRectangleDelegate);
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeRectangleDelegate);
     }
 
     isEditMakeRectangleActive(): boolean {
@@ -79,7 +75,7 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     // Edit Make Circle, Ellipse, Arc Tool
 
     selectEditMakeEllipseTool() {
-        this.canvasInput.setDelegate(PeekCanvasInputEditMakeCircleArcEllipseDelegate);
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeCircleArcEllipseDelegate);
     }
 
     isEditMakeEllipseActive(): boolean {
@@ -91,7 +87,7 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     // Edit Make Polygon Tool
 
     selectEditMakePolygonTool() {
-        this.canvasInput.setDelegate(PeekCanvasInputEditMakeDispPolygonDelegate);
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeDispPolygonDelegate);
     }
 
     isEditMakePolygonActive(): boolean {
@@ -103,7 +99,7 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     // Edit Make Polyline Tool
 
     selectEditMakePolylineTool() {
-        this.canvasInput.setDelegate(PeekCanvasInputEditMakeDispPolylinDelegate);
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeDispPolylinDelegate);
     }
 
     isEditMakePolylineActive(): boolean {
@@ -116,7 +112,7 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     // Edit Make Group Ptr Vertex Tool
 
     selectEditMakeGroupPtrVertexTool() {
-        this.canvasInput.setDelegate(PeekCanvasInputMakeDispGroupPtrVertexDelegate);
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputMakeDispGroupPtrVertexDelegate);
     }
 
     isEditMakeGroupPtrVertexActive(): boolean {
@@ -129,7 +125,7 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     // Edit Make Group Ptr Edge Tool
 
     selectEditMakeGroupPtrEdgeTool() {
-        this.canvasInput.setDelegate(PeekCanvasInputMakeDispGroupPtrEdgeDelegate);
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputMakeDispGroupPtrEdgeDelegate);
     }
 
     isEditMakeGroupPtrEdgeActive(): boolean {

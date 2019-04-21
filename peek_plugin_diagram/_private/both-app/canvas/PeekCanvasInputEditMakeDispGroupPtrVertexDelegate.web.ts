@@ -4,6 +4,7 @@ import {PeekCanvasInput} from "./PeekCanvasInput.web";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasInputMakeDispGroupPtrDelegate} from "./PeekCanvasInputEditMakeDispGroupPtrDelegate.web";
+import {PeekCanvasInputDelegateConstructorArgs} from "./PeekCanvasInputDelegate.web";
 
 /**
  * This input delegate handles :
@@ -16,12 +17,8 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate extends PeekCanvasInp
     static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_DISP_GROUP_PTR_VERTEX;
 
 
-    constructor(canvasInput: PeekCanvasInput,
-                config: PeekCanvasConfig,
-                model: PeekCanvasModel,
-                dispDelegate: PeekDispRenderFactory) {
-        super(canvasInput, config, model, dispDelegate,
-            PeekCanvasInputMakeDispGroupPtrVertexDelegate.TOOL_NAME);
+    constructor(cargs: PeekCanvasInputDelegateConstructorArgs) {
+        super(cargs, PeekCanvasInputMakeDispGroupPtrVertexDelegate.TOOL_NAME);
 
         this._reset();
     }

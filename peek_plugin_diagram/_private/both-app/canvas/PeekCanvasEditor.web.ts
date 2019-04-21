@@ -1,21 +1,15 @@
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
-import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {DiagramBranchService} from "@peek/peek_plugin_diagram/DiagramBranchService";
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
-import {
-    BranchTuple,
-    PrivateDiagramBranchContext
-} from "@peek/peek_plugin_diagram/_private/branch";
+import {PrivateDiagramBranchContext} from "@peek/peek_plugin_diagram/_private/branch";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 import {PeekCanvasInput} from "./PeekCanvasInput.web";
 import {PeekCanvasInputEditSelectDelegate} from "./PeekCanvasInputEditSelectDelegate.web";
 import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PeekCanvasInputEditMakeTextDelegate} from "./PeekCanvasInputEditMakeTextDelegate.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 
 export enum EditorContextType {
@@ -78,6 +72,9 @@ export class PeekCanvasEditor {
     // ---------------
     // Properties, used by UI mainly
 
+    // ---------------
+    // Properties, used by UI mainly
+
     isEditing(): boolean {
         return this.currentBranch != null;
     }
@@ -110,6 +107,12 @@ export class PeekCanvasEditor {
         this.currentBranch.save()
             .then(() => this.balloonMsg.showSuccess("Branch Save Successful"))
             .catch((e) => this.balloonMsg.showError("Failed to save branch\n" + e));
+    }
+
+
+    setInputEditDelegate(Delegate) {
+        let editDelegateArgs = {};
+        this.canvasInput.setDelegate(Delegate, editDelegateArgs);
     }
 
 

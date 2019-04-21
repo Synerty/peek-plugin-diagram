@@ -2,31 +2,36 @@
 // Editor Ui Mouse
 
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
+import {PeekCanvasInput} from "./PeekCanvasInput.web";
+import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
+import {PeekCanvasModel} from "./PeekCanvasModel.web";
+import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
+import {DiagramLookupService, DiagramBranchContext} from "@peek/peek_plugin_diagram";
 
-export class LastMousePos {
-
-    x: number = 0;
-    y: number = 0;
-    clientX: number = 0;
-    clientY: number = 0;
-}
-
-export class MousePos {
-    x: number = 0;
-    y: number = 0;
-}
 
 export function disableContextMenu(event) {
     event.preventDefault();
     return false;
 }
 
-export interface CanvasInputPos {
-    x: number,
-    y: number,
-    clientX: number,
-    clientY: number,
-    time: Date
+export class CanvasInputPos {
+    x: number = 0;
+    y: number = 0;
+    clientX: number = 0;
+    clientY: number = 0;
+    time: Date = new Date();
+}
+
+export interface PeekCanvasInputDelegateConstructorArgs {
+    input: PeekCanvasInput;
+    config: PeekCanvasConfig;
+    model: PeekCanvasModel;
+    renderFactory: PeekDispRenderFactory;
+}
+
+export interface PeekCanvasInputEditDelegateConstructorArgs {
+    lookupService: DiagramLookupService;
+    branchContext:DiagramBranchContext;
 }
 
 /*
@@ -37,7 +42,7 @@ export abstract class PeekCanvasInputDelegate {
 
     _CanvasInput = null;
 
-    _lastMousePos: LastMousePos = new LastMousePos();
+    _lastMousePos: CanvasInputPos = new CanvasInputPos();
 
     /** The distance to move before its a drag * */
     readonly DRAG_START_THRESHOLD = 5;
@@ -45,16 +50,17 @@ export abstract class PeekCanvasInputDelegate {
     /** The time it takes to do a click, VS a click that moved slighltly * */
     readonly DRAG_TIME_THRESHOLD = 200;
 
-    constructor(public NAME: EditorToolType) {
+    constructor(protected cargs: PeekCanvasInputDelegateConstructorArgs,
+                public NAME: EditorToolType) {
     }
 
-    _hasPassedDragThreshold(m1, m2) {
+    _hasPassedDragThreshold(m1: CanvasInputPos, m2: CanvasInputPos) {
         let d = false;
         // Time has passed
         d = d || ((m2.time.getTime() - m1.time.getTime()) > this.DRAG_TIME_THRESHOLD);
         // Mouse has moved
-        d = d || (Math.abs(m1.x - m2.x) > this.DRAG_START_THRESHOLD);
-        d = d || (Math.abs(m1.y - m2.y) > this.DRAG_START_THRESHOLD);
+        d = d || (Math.abs(m1.clientX - m2.clientX) > this.DRAG_START_THRESHOLD);
+        d = d || (Math.abs(m1.clientY - m2.clientY) > this.DRAG_START_THRESHOLD);
 
         return d;
     };

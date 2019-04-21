@@ -1,10 +1,6 @@
-import {MousePos, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
-import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PeekCanvasModel} from "./PeekCanvasModel.web";
-import {PeekCanvasInput} from "./PeekCanvasInput.web";
-import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasInputEditMakeDispPolyDelegate} from "./PeekCanvasInputEditMakeDispPolyDelegate.web";
+import {PeekCanvasInputDelegateConstructorArgs} from "./PeekCanvasInputDelegate.web";
 
 /**
  * This input delegate handles :
@@ -18,12 +14,8 @@ export class PeekCanvasInputEditMakeDispPolygonDelegate
     static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_POLYGON;
 
 
-    constructor(canvasInput: PeekCanvasInput,
-                config: PeekCanvasConfig,
-                model: PeekCanvasModel,
-                dispDelegate: PeekDispRenderFactory) {
-        super(canvasInput, config, model, dispDelegate,
-            PeekCanvasInputEditMakeDispPolygonDelegate.TOOL_NAME);
+    constructor(cargs: PeekCanvasInputDelegateConstructorArgs) {
+        super(cargs, PeekCanvasInputEditMakeDispPolygonDelegate.TOOL_NAME);
 
         this._reset();
     }

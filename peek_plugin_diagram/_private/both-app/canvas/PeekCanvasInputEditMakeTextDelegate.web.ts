@@ -1,11 +1,14 @@
-import {MousePos, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
+import {
+    CanvasInputPos,
+    PeekCanvasInputDelegate, PeekCanvasInputDelegateConstructorArgs
+} from "./PeekCanvasInputDelegate.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekCanvasInput} from "./PeekCanvasInput.web";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 import {DispText} from "../tuples/shapes/DispText";
-import {DiagramBranchContext} from "@peek/peek_plugin_diagram";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
+import {pointToPixel} from "../DiagramUtil";
 
 /**
  * This input delegate handles :
@@ -43,7 +46,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     private _creating = null;
 
     // Used to detect dragging and its the mouse position we use
-    private _startMousePos: MousePos | null = null;
+    private _startMousePos: CanvasInputPos | null = null;
     private _startNodeRend = null;
     private _endNodeRend = null;
 
@@ -51,11 +54,8 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
 
     //canvasInput._scope.pageData.modelRenderables;
 
-    constructor(private canvasInput: PeekCanvasInput,
-                private config: PeekCanvasConfig,
-                private model: PeekCanvasModel,
-                private dispDelegate: PeekDispRenderFactory) {
-        super(PeekCanvasInputEditMakeTextDelegate.TOOL_NAME);
+    constructor(cargs: PeekCanvasInputDelegateConstructorArgs) {
+        super(cargs, PeekCanvasInputEditMakeTextDelegate.TOOL_NAME);
 
         // Stores the rectangle being created
         this._creating = null;
@@ -101,7 +101,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
             else
                 this._enteredText = '';
             this._creating.setText(this._enteredText);
-            this.config.invalidate();
+            this.cargs.config.invalidate();
             return;
         }
 
@@ -113,7 +113,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         if (/[a-zA-Z0-9-_ .,`"'|~!@#$%^&*()-=+{}\[\]\\:;<>\/?]/.test(inp)) {
             this._enteredText = (this._enteredText || '') + inp;
             this._creating.setText(this._enteredText);
-            this.config.invalidate();
+            this.cargs.config.invalidate();
             return;
         }
     }
@@ -146,7 +146,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         // if (editorUi.grid.snapping())
         //     this._creating.snap(editorUi.grid.snapSize());
 
-        this.config.invalidate();
+        this.cargs.config.invalidate();
     }
 
     delegateWillBeTornDown() {
@@ -154,8 +154,54 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     }
 
     draw(ctx, zoom, pan) {
-        if (this._creating != null)
-            this.dispDelegate.draw(this._creating, ctx, zoom, pan);
+        if (this._creating == null)
+            return;
+
+        //this.cargs.renderFactory.draw(this._creating, ctx, zoom, pan);
+
+        // Give meaning to our short names
+        let rotationRadian = 0;
+
+
+        // TODO, Draw a box around the text, based on line style
+
+        let fontSize = 14;
+
+
+        let font = "14px Roboto ";
+
+
+        let lineHeight = pointToPixel(fontSize);
+
+        let textAlign = 'center';
+        let textBaseline = 'middle';
+
+
+        // save state
+        ctx.save();
+        ctx.translate(DispText.centerPointX(this._creating),
+            DispText.centerPointY(this._creating));
+        ctx.rotate(rotationRadian); // Degrees to radians
+
+        ctx.textAlign = textAlign;
+        ctx.textBaseline = textBaseline;
+        ctx.font = font;
+
+            let unscale = 1.0 / zoom;
+            ctx.scale(unscale, unscale);
+
+
+
+
+        let lines = DispText.text(this._creating).split("\n");
+        for (let lineIndex = 0; lineIndex < lines.length; ++lineIndex) {
+            let line = lines[lineIndex];
+            let yOffset = lineHeight * lineIndex;
+
+            ctx.fillStyle = 'green';
+            ctx.fillText(line, 0, yOffset);
+        }
+        ctx.restore();
     }
 
     _finaliseCreate() {
@@ -166,7 +212,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         //     this._creating.storeState();
 
         this._reset();
-        this.config.invalidate();
+        this.cargs.config.invalidate();
     }
 
 }
