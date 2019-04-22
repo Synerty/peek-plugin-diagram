@@ -3,7 +3,8 @@ import {DispText} from "../tuples/shapes/DispText";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {pointToPixel} from "../DiagramUtil";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
-import {PeekCanvasShapePropsContext, ShapeProp, ShapePropType} from "./shape-props/PeekCanvasShapePropsContext";
+import {PeekCanvasShapePropsContext, ShapeProp, ShapePropType} from "./PeekCanvasShapePropsContext";
+import {DiagramDeltaCreateDisp} from "@peek/peek_plugin_diagram/branch/DiagramDeltaCreateDisp";
 
 /**
  * This input delegate handles :
@@ -136,22 +137,35 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
             return;
         }
 
+        this.createDisp(mouse.x, mouse.y);
+    }
+
+    private createDisp(x: number, y: number) {
+
+        // Create the Disp
         this._creating = DispText.create();
-        DispText.setCenterPoint(this._creating, mouse.x, mouse.y);
+        DispText.setCenterPoint(this._creating, x, y);
 
-
+        // Setup the shape edit context
         let shapePropsContext = new PeekCanvasShapePropsContext(
-            this._creating,  this.canvasEditor.lookupService,
+            this._creating, this.canvasEditor.lookupService,
             this.canvasEditor.coordSetId
         );
-        DispText.makeShapeContext(shapePropsContext);
 
+        DispText.makeShapeContext(shapePropsContext);
         this.canvasEditor.setShapePropertiesContext(shapePropsContext);
 
+        // Add the shape to the branch
+        let delta: DiagramDeltaCreateDisp = this.canvasEditor.branchContext()
+            .createOrReuseDelta(DiagramDeltaCreateDisp);
+        delta.addDisp(this._creating);
+
+        // TODO, Snap the coordinates if requured
         // if (editorUi.grid.snapping())
         //     this._creating.snap(editorUi.grid.snapSize());
 
-        this.viewArgs.config.invalidate();
+        // Let the canvas editor know something has happened.
+        this.canvasEditor.dispPropsUpdated();
     }
 
     delegateWillBeTornDown() {

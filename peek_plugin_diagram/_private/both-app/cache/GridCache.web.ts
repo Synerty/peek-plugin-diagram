@@ -1,20 +1,11 @@
 import {Injectable} from "@angular/core";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {LinkedGrid} from "./LinkedGrid.web";
-import {
-    GridTuple,
-    PrivateDiagramGridLoaderServiceA
-} from "@peek/peek_plugin_diagram/_private/grid-loader";
+import {GridTuple, PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 
-import {
-    ComponentLifecycleEventEmitter,
-    TupleStorageServiceABC,
-    VortexService,
-    VortexStatusService
-} from "@synerty/vortexjs";
-import {diagramFilt, gridCacheStorageName} from "@peek/peek_plugin_diagram/_private";
+import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
 import {dictValuesFromObject} from "../DiagramUtil";
 

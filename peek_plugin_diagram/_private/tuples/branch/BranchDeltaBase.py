@@ -32,6 +32,7 @@ class BranchDeltaBase(metaclass=ABCMeta):
     __DELTA_TYPE_NUM = 0
 
     TYPE_COLOUR_OVERRIDE = 1
+    TYPE_CREATE_DISP = 2
 
     deltaType: int = None
 

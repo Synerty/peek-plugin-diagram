@@ -11,7 +11,7 @@ import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
-import {PeekCanvasShapePropsContext} from "./shape-props/PeekCanvasShapePropsContext";
+import {PeekCanvasShapePropsContext} from "./PeekCanvasShapePropsContext";
 
 export enum EditorContextType {
     NONE,

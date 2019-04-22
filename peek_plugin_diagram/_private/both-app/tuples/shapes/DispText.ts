@@ -4,7 +4,7 @@ import {
     PeekCanvasShapePropsContext,
     ShapeProp,
     ShapePropType
-} from "../../canvas/shape-props/PeekCanvasShapePropsContext";
+} from "../../canvas/PeekCanvasShapePropsContext";
 
 export enum TextVerticalAlign {
     top = -1,

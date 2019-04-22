@@ -63,6 +63,16 @@ export abstract class DiagramBranchContext {
      */
     abstract addDelta(delta: DiagramDeltaBase): void ;
 
+    /** Create or Reuse Delta
+     *
+     * Use this method to return a newly created delta or reuse the last delta
+     * if it's the same type.
+     *
+     * @param DiagramDeltaBase: A class deriving DiagramDeltaBase, not an instance.
+     * @returns An instance of the Delta class
+     */
+    abstract createOrReuseDelta(DiagramDeltaBase): DiagramDeltaBase;
+
 
     /** Set Visible
      *

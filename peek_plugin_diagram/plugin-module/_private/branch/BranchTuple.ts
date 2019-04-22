@@ -52,13 +52,16 @@ export class BranchTuple extends Tuple {
 
     deltas(lookupCache: DiagramLookupService): DiagramDeltaBase[] {
         let deltasJson = this.packedJson__[BranchTuple.__DELTAS_NUM];
+        if (deltasJson == null)
+            return [];
+
         let deltas = [];
         for (let deltaJson of deltasJson) {
             let deltaType = deltaJson[0];
             let Delta = BRANCH_DELTA_CLASSES_BY_TYPE[deltaType];
             let delta = new Delta();
             delta._jsonData = deltaJson;
-            delta._linkDispLookups(lookupCache);
+            delta.__linkDispLookups(lookupCache);
             deltas.push(delta);
         }
         return deltas;
@@ -67,7 +70,7 @@ export class BranchTuple extends Tuple {
     addDelta(delta: DiagramDeltaBase): void {
         if (this.packedJson__[BranchTuple.__DELTAS_NUM] == null)
             this.packedJson__[BranchTuple.__DELTAS_NUM] = [];
-        this.packedJson__[BranchTuple.__DELTAS_NUM].push(delta["_deltaJson"])
+        this.packedJson__[BranchTuple.__DELTAS_NUM].push(delta["_jsonData"])
     }
 
     set visible(value: boolean) {

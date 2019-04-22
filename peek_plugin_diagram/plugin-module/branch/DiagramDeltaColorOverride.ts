@@ -1,6 +1,5 @@
 import {addBranchDeltaType, DiagramDeltaBase} from "./DiagramDeltaBase";
 import {DispColor} from "../lookups";
-import {DeltaColorOverride} from "../_private/branch/deltas/DeltaColorOverride";
 import {DiagramLookupService} from "../DiagramLookupService";
 
 /** Diagram Delta Color Override Tuple
@@ -16,6 +15,11 @@ export class DiagramDeltaColorOverride extends DiagramDeltaBase {
     private _fillColor: DispColor | null = null;
     private _color: DispColor | null = null;
 
+    private static readonly __DISP_KEYS_NUM = 1;
+    private static readonly __LINE_COLOR_NUM = 2;
+    private static readonly __FILL_COLOR_NUM = 3;
+    private static readonly __COLOR_NUM = 4;
+
 
     constructor() {
         super(DiagramDeltaBase.TYPE_COLOUR_OVERRIDE);
@@ -28,10 +32,10 @@ export class DiagramDeltaColorOverride extends DiagramDeltaBase {
      * @param lookupCache
      * @private
      */
-    __link(lookupCache: DiagramLookupService): void {
-        let lineColorId = DeltaColorOverride.lineColor(this._jsonData);
-        let fillColorId = DeltaColorOverride.fillColor(this._jsonData);
-        let colorId = DeltaColorOverride.color(this._jsonData);
+    __linkDispLookups(lookupCache: DiagramLookupService): void {
+        let lineColorId = this._jsonData[DiagramDeltaColorOverride.__LINE_COLOR_NUM];
+        let fillColorId = this._jsonData[DiagramDeltaColorOverride.__FILL_COLOR_NUM];
+        let colorId = this._jsonData[DiagramDeltaColorOverride.__COLOR_NUM];
 
         if (lineColorId != null) this._lineColor = lookupCache.colorForId(lineColorId);
         if (fillColorId != null) this._fillColor = lookupCache.colorForId(fillColorId);
@@ -40,17 +44,13 @@ export class DiagramDeltaColorOverride extends DiagramDeltaBase {
 
     /** The Disp Keys to color */
     get dispKeys(): string[] {
-        return DeltaColorOverride.dispKeys(this._jsonData);
+        return this._jsonData[DiagramDeltaColorOverride.__DISP_KEYS_NUM];
     }
 
     addDispKeys(dispKeys: string[]): void {
-        DeltaColorOverride.addDispKeys(this._jsonData, dispKeys);
-    }
-
-    /** Set the Line Color apples to shape lines */
-    set lineColor(value: DispColor | null) {
-        this._lineColor = value;
-        DeltaColorOverride.setLineColor(value == null ? null : value.id, this._jsonData);
+        if (this._jsonData[DiagramDeltaColorOverride.__DISP_KEYS_NUM] == null)
+            this._jsonData[DiagramDeltaColorOverride.__DISP_KEYS_NUM] = [];
+        Array.prototype.push.apply(this._jsonData[DiagramDeltaColorOverride.__DISP_KEYS_NUM], dispKeys);
     }
 
     /** The Line Color apples to shape lines */
@@ -58,22 +58,32 @@ export class DiagramDeltaColorOverride extends DiagramDeltaBase {
         return this._lineColor;
     }
 
-    /** Set the Fill Color apples to shape lines */
-    set fillColor(value: DispColor | null) {
-        this._fillColor = value;
-        DeltaColorOverride.setFillColor(value == null ? null : value.id, this._jsonData);
+    /** Set the Line Color apples to shape lines */
+    set lineColor(value: DispColor | null ): void {
+        this._lineColor = value;
+        this._jsonData[DiagramDeltaColorOverride.__LINE_COLOR_NUM]
+            = value == null ? null : value.id;
     }
+
 
     /** The Fill Color applies to closed shapes */
     get fillColor(): DispColor | null {
         return this._fillColor;
+    }
 
+
+    /** Set the Fill Color apples to shape lines */
+    set fillColor(value: DispColor | null) {
+        this._fillColor = value;
+        this._jsonData[DiagramDeltaColorOverride.__FILL_COLOR_NUM]
+            = value == null ? null : value.id;
     }
 
     /** Set the Color apples to shape lines */
     set color(value: DispColor | null) {
         this._color = value;
-        DeltaColorOverride.setColor(value == null ? null : value.id, this._jsonData);
+        this._jsonData[DiagramDeltaColorOverride.__COLOR_NUM]
+            = value == null ? null : value.id;
     }
 
     /** This color applies to texts */

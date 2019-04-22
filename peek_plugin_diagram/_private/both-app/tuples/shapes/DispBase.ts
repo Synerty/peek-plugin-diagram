@@ -3,7 +3,7 @@ import {
     PeekCanvasShapePropsContext,
     ShapeProp,
     ShapePropType
-} from "../../canvas/shape-props/PeekCanvasShapePropsContext";
+} from "../../canvas/PeekCanvasShapePropsContext";
 
 export interface PointI {
     x: number;
