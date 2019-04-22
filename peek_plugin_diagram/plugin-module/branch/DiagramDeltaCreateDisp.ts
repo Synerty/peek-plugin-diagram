@@ -11,8 +11,6 @@ import {DiagramLookupService} from "../DiagramLookupService";
 @addBranchDeltaType(DiagramDeltaBase.TYPE_CREATE_DISP)
 export class DiagramDeltaCreateDisp extends DiagramDeltaBase {
 
-    private static readonly __DISPS_NUM = 1;
-
     constructor() {
         super(DiagramDeltaBase.TYPE_CREATE_DISP);
     }
@@ -35,13 +33,11 @@ export class DiagramDeltaCreateDisp extends DiagramDeltaBase {
 
     /** The list of Disps to create */
     get disps(): string[] {
-        return this._jsonData[DiagramDeltaCreateDisp.__DISPS_NUM];
+        return DeltaCreateDisp.disps(this._jsonData);
     }
 
     addDisp(disp: any): void {
-        if (this._jsonData[DiagramDeltaCreateDisp.__DISPS_NUM] == null)
-            this._jsonData[DiagramDeltaCreateDisp.__DISPS_NUM] = [];
-        this._jsonData[DiagramDeltaCreateDisp.__DISPS_NUM].push(disp);
+        DeltaCreateDisp.addDisp(this._jsonData, disp);
     }
 
 

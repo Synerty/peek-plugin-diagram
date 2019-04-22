@@ -25,24 +25,15 @@ export abstract class DiagramDeltaBase {
     static readonly TYPE_COLOUR_OVERRIDE = 1;
     static readonly TYPE_CREATE_DISP = 2;
 
-    /** The type of this delta */
-    public readonly type: number;
-    /** The type of this delta */
-    public static readonly deltaType: number = null;
-
-    private static readonly __DELTA_TYPE_NUM = 0;
+    private static readonly __TYPE_NUM = 0;
 
     _jsonData: any[] = [];
 
-    protected constructor(type: number) {
-        this.type = type;
+    protected constructor(public readonly type: number) {
+        this._jsonData[DiagramDeltaBase.__TYPE_NUM] = type;
     }
 
     abstract __linkDispLookups(lookupCache: DiagramLookupService): void;
-
-    deltaType(): string[] {
-        return this._jsonData[DiagramDeltaBase.__DELTA_TYPE_NUM];
-    }
 
 }
 
