@@ -23,16 +23,22 @@ import {
     BranchServiceBridgeWeb
 } from "../service-bridge/BranchLoaderServiceBridgeWeb";
 import {PrivateDiagramBranchLoaderServiceA} from "../@peek/peek_plugin_diagram/_private/branch-loader";
-import {DiagramBranchService, DiagramPositionService} from "../@peek/peek_plugin_diagram";
-import {PositionServiceBridgeWeb} from "../service-bridge-web/PositionServiceBridgeWeb";
-import {ItemPopupServiceBridgeWeb} from "../service-bridge-web/ItemSelectServiceBridgeWeb";
 import {
+    DiagramBranchService, DiagramItemPopupService,
+    DiagramLookupService,
+    DiagramPositionService
+} from "../@peek/peek_plugin_diagram";
+import {PositionServiceBridgeWeb} from "../service-bridge-web/PositionServiceBridgeWeb";
+import {ItemPopupServiceBridgeWeb} from "../service-bridge-web/ItemPopupServiceBridgeWeb";
+import {
+    PrivateDiagramCoordSetService,
     PrivateDiagramItemPopupService,
     PrivateDiagramItemSelectService
 } from "../@peek/peek_plugin_diagram/_private/services";
-import {PrivateDiagramBranchService} from "../@peek/peek_plugin_diagram/_private/branch";
 import {DiagramConfigService} from "../@peek/peek_plugin_diagram/DiagramConfigService";
 import {PrivateDiagramConfigService} from "../@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
+import {DispGroupCache} from "../peek_plugin_diagram/cache/DispGroupCache.web";
+import {PrivateDiagramBranchService} from "../@peek/peek_plugin_diagram/_private/branch";
 
 
 export function titleServiceFactory() {
@@ -49,6 +55,8 @@ export function titleServiceFactory() {
         PeekPluginDiagramModule
     ],
     providers: [
+
+
         {
             provide: TupleStorageFactoryService,
             useClass: TupleStorageFactoryServiceBridgeWeb
@@ -66,16 +74,12 @@ export function titleServiceFactory() {
             useClass: GridLoaderBridgeWeb
         },
         {
-            provide: PrivateDiagramItemPopupService,
+            provide: DiagramItemPopupService,
             useClass: ItemPopupServiceBridgeWeb
         },
         {
             provide: DiagramPositionService,
             useClass: PositionServiceBridgeWeb
-        },
-        {
-            provide: DiagramBranchService,
-            useClass: BranchServiceBridgeWeb
         },
         {
             provide: DiagramBranchService,
@@ -90,6 +94,10 @@ export function titleServiceFactory() {
             useClass: BranchLoaderServiceBridgeWeb
         },
         PrivateDiagramItemSelectService,
+        DiagramLookupService,
+        PrivateDiagramCoordSetService,
+        DispGroupCache,
+
         Ng2BalloonMsgService,
 
         // Vortex Services
@@ -100,4 +108,11 @@ export function titleServiceFactory() {
     bootstrap: [NsWebDiagramComponent]
 })
 export class NsWebDiagramModule {
+
+    // Define root services
+    constructor(
+        private diagramLookupService: DiagramLookupService,
+        private privateDiagramCoordSetService: PrivateDiagramCoordSetService,
+        private dispGroupCache: DispGroupCache) {
+    }
 }
