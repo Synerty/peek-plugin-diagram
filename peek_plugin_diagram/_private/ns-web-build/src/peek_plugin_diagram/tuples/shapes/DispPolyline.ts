@@ -1,6 +1,5 @@
 import {DispBase, PointsT} from "./DispBase";
-import {DispColor} from "@peek/peek_plugin_diagram/lookups";
-import {DispLineStyle} from "@peek/peek_plugin_diagram/lookups";
+import {DispColor, DispLineStyle} from "@peek/peek_plugin_diagram/lookups";
 
 export class DispPolyline extends DispBase {
 
@@ -38,4 +37,15 @@ export class DispPolyline extends DispBase {
         return disp.ek;
     }
 
+    static deltaMoveStart(disp: any, dx: number, dy: number) {
+        disp.g[0] += dx;
+        disp.g[1] += dy;
+
+    }
+
+    static deltaMoveEnd(disp: any, dx: number, dy: number) {
+        let len = disp.g.length;
+        disp.g[len - 2] += dx;
+        disp.g[len - 1] += dy;
+    }
 }

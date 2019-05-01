@@ -1,7 +1,3 @@
-import {Injectable} from "@angular/core";
-import {Subject} from "rxjs/Subject";
-import {Observable} from "rxjs/Observable";
-import {VortexStatusService} from "@synerty/vortexjs";
 import {BranchTuple} from "./BranchTuple";
 import {DiagramDeltaBase} from "../../branch/DiagramDeltaBase";
 import {DiagramBranchContext} from "../../branch/DiagramBranchContext";
@@ -44,6 +40,19 @@ export class PrivateDiagramBranchContext extends DiagramBranchContext {
 
     }
 
+    createOrReuseDelta(DeltaClass): any {
+        let newDelta = new DeltaClass();
+        let deltaType = newDelta.type;
+
+        if (this.deltas.length != 0 && this.deltas[this.deltas.length - 1].type == deltaType) {
+            let delta:any = this.deltas[this.deltas.length - 1];
+            return delta;
+        }
+
+        this.addDelta(newDelta);
+        return newDelta;
+    }
+
     save(): Promise<void> {
         return Promise.reject("PrivateDiagramBranchContext.save is not implemented");
     }
@@ -55,7 +64,6 @@ export class PrivateDiagramBranchContext extends DiagramBranchContext {
     get location(): DiagramBranchContext {
         return undefined;
     }
-
 
 
 }

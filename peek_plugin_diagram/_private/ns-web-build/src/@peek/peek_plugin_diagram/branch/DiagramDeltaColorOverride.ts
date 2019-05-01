@@ -28,7 +28,7 @@ export class DiagramDeltaColorOverride extends DiagramDeltaBase {
      * @param lookupCache
      * @private
      */
-    __link(lookupCache: DiagramLookupService): void {
+    __linkDispLookups(lookupCache: DiagramLookupService): void {
         let lineColorId = DeltaColorOverride.lineColor(this._jsonData);
         let fillColorId = DeltaColorOverride.fillColor(this._jsonData);
         let colorId = DeltaColorOverride.color(this._jsonData);

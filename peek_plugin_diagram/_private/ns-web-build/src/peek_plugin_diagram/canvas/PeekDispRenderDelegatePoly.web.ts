@@ -1,9 +1,10 @@
-import { PeekCanvasConfig } from "./PeekCanvasConfig.web";
-import { PeekDispRenderDelegateABC } from "./PeekDispRenderDelegateABC.web";
-import { DispPolygon } from "../tuples/shapes/DispPolygon";
-import { PointsT } from "../tuples/shapes/DispBase";
-import { DispFactory, DispType } from "../tuples/shapes/DispFactory";
-import { PeekCanvasBounds } from "./PeekCanvasBounds";
+import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
+import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
+import {DispPolygon} from "../tuples/shapes/DispPolygon";
+import {PointsT} from "../tuples/shapes/DispBase";
+import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
+import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {DispPolyline} from "../tuples/shapes/DispPolyline";
 
 export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
@@ -14,8 +15,8 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
 
     private _drawLine(ctx, x1: number, y1: number, x2: number, y2: number,
-        dashPattern:null | number[],
-        zoom: number, segmentNum: number) {
+                      dashPattern: null | number[],
+                      zoom: number, segmentNum: number) {
 
         if (dashPattern == null) {
             ctx.lineTo(x2, y2);
@@ -51,7 +52,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
         let dashPattern = null;
         if (lineStyle != null && lineStyle.dashPatternParsed != null)
-            dashPattern  = lineStyle.dashPatternParsed;
+            dashPattern = lineStyle.dashPatternParsed;
 
         // Null colors are also not drawn
         fillColor = (fillColor && fillColor.color) ? fillColor : null;
@@ -129,9 +130,9 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     };
 
     private _drawSquarePercentFill(ctx, bounds,
-        fillColor,
-        fillDirection,
-        fillPercentage) {
+                                   fillColor,
+                                   fillDirection,
+                                   fillPercentage) {
         let FILL_TOP_TO_BOTTOM = 0;
         let FILL_BOTTOM_TO_TOP = 1;
         let FILL_RIGHT_TO_LEFT = 2;
@@ -181,6 +182,13 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         ctx.strokeStyle = selectionConfig.color;
         ctx.lineWidth = selectionConfig.width / zoom;
         ctx.stroke();
+
+        // DRAW THE EDIT HANDLES
+        ctx.fillStyle = this.config.editor.selectionHighlightColor;
+        let handles = this.handles(dispPoly);
+        for (let handle of handles) {
+            ctx.fillRect(handle.x, handle.y, handle.w, handle.h);
+        }
     }
 
     /** Contains
@@ -203,12 +211,12 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     }
 
     private polygonContains(points: PointsT, dispPoly,
-        x: number, y: number, margin: number): boolean {
+                            x: number, y: number, margin: number): boolean {
 
 
         // Using the polygon line segment crossing algorithm.
         function rayCrossesSegment(axIn: number, ayIn: number,
-            bxIn: number, byIn: number) {
+                                   bxIn: number, byIn: number) {
             let swap = ayIn > byIn;
             let ax = swap ? bxIn : axIn;
             let ay = swap ? byIn : ayIn;
@@ -242,7 +250,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         let p1x = pFirstX;
         let p1y = pFirstY;
 
-        // This will deliberatly run one more iteration after the last pointY
+        // This will deliberately run one more iteration after the last pointY
         for (let i = 2; i <= points.length; i += 2) {
             // Assume this is the last iteration by default
             let p2x = pFirstX;
@@ -266,57 +274,9 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
     }
 
-    private xxx(): boolean {
-        function rayCrossesSegment(point, a, b) {
-            let px = point.x;
-            let py = point.y;
-            let swap = a.y > b.y;
-            let ax = swap ? b.x : a.x;
-            let ay = swap ? b.y : a.y;
-            let bx = swap ? a.x : b.x;
-            let by = swap ? a.y : b.y;
-
-            // alter longitude to cater for 180 degree crossings
-            if (px < 0)
-                px += 360;
-            if (ax < 0)
-                ax += 360;
-            if (bx < 0)
-                bx += 360;
-
-            if (py == ay || py == by) py += 0.00000001;
-            if ((py > by || py < ay) || (px > Math.max(ax, bx))) return false;
-            if (px < Math.min(ax, bx)) return true;
-
-            let red = (ax != bx) ? ((by - ay) / (bx - ax)) : Infinity;
-            let blue = (ax != px) ? ((py - ay) / (px - ax)) : Infinity;
-            return (blue >= red);
-        }
-
-        let crossings = 0;
-
-        // let p1 = {x: self.left, y: self.top};
-        // for (let i = 0; i <= self.points.length; ++i) {
-        //     let thisPoint = self.points[i];
-        //     let p2 = (i == self.points.length)
-        //             ? {x: self.left, y: self.top} // The closing point
-        //             : thisPoint.coord(self);
-        //
-        //     if (rayCrossesSegment({x: x, y: y}, p1, p2))
-        //         crossings++;
-        //
-        //     p1 = p2;
-        // }
-
-        // odd number of crossings?
-        return (crossings % 2 == 1);
-
-
-    }
-
 
     private polylineContains(points: PointsT, dispPoly,
-        x: number, y: number, margin: number): boolean {
+                             x: number, y: number, margin: number): boolean {
 
         // ELSE, POLYLINE
         let x1 = points[0];
@@ -368,78 +328,80 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     }
 
     handles(dispPoly) {
-        return [];
+        let result = [];
 
-        /*
-         let self = this;
-         let result = [];
+        let MARG = this.config.editor.resizeHandleMargin;
+        let WID = this.config.editor.resizeHandleWidth;
+        let HALF_WID = WID / 2.0;
 
-         let MARG = Renderable.RESIZE_HANDLE_MARGIN;
-         let WID = Renderable.RESIZE_HANDLE_WIDTH;
-         let HALF_WID = WID / 2.0;
+        let points = DispPolyline.geom(dispPoly);
 
-         function addHandle(p, ref) {
-         let adj = (p.x - ref.x);
-         let opp = (p.y - ref.y);
-         let hypot = Math.sqrt(Math.pow(adj, 2) + Math.pow(opp, 2));
+        function addHandle(p, ref) {
+            let adj = (p.x - ref.x);
+            let opp = (p.y - ref.y);
+            let hypot = Math.sqrt(Math.pow(adj, 2) + Math.pow(opp, 2));
 
-         let multiplier = (WID + MARG) / hypot;
+            let multiplier = (WID + MARG) / hypot;
 
-         result.push(new PeekCanvasBounds(p.x + adj * multiplier - HALF_WID,
-         p.y + opp * multiplier - HALF_WID,
-         WID,
-         WID));
-         }
+            result.push(new PeekCanvasBounds(p.x + adj * multiplier - HALF_WID,
+                p.y + opp * multiplier - HALF_WID,
+                WID,
+                WID));
+        }
 
-         //function rotatePoint(point, theta) {
-         //    // Rotates the given polygon which consists of corners represented as (x,y),
-         //    // around the ORIGIN, clock-wise, theta degrees
-         //    let simTheta = Math.sin(theta);
-         //    let cosTheta = Math.cos(theta);
-         //
-         //    return {
-         //        x: point.x * cosTheta - point.y * simTheta,
-         //        y: point.y = point.x * simTheta + point.y * cosTheta
-         //    };
-         //}
-         //
-         // //
-         // // Calculates the angle ABC (in radians)
-         // //
-         // // A first point
-         // // C second point
-         // // B center point
-         // //
-         //
-         //function findAngle(A, B, C) {
-         //    let AB = Math.sqrt(Math.pow(B.x - A.x, 2) + Math.pow(B.y - A.y, 2));
-         //    let BC = Math.sqrt(Math.pow(B.x - C.x, 2) + Math.pow(B.y - C.y, 2));
-         //    let AC = Math.sqrt(Math.pow(C.x - A.x, 2) + Math.pow(C.y - A.y, 2));
-         //    return Math.acos((BC * BC + AB * AB - AC * AC) / (2 * BC * AB));
-         //}
+        function coordForPoint(index: number) {
+            index *= 2;
+            return {x: points[index], y: points[index + 1]};
+        }
 
 
-         let firstXy = {x: this.left, y: this.top};
-         addHandle(firstXy, this.points[0].coord(self));
+        //function rotatePoint(point, theta) {
+        //    // Rotates the given polygon which consists of corners represented as (x,y),
+        //    // around the ORIGIN, clock-wise, theta degrees
+        //    let simTheta = Math.sin(theta);
+        //    let cosTheta = Math.cos(theta);
+        //
+        //    return {
+        //        x: point.x * cosTheta - point.y * simTheta,
+        //        y: point.y = point.x * simTheta + point.y * cosTheta
+        //    };
+        //}
+        //
+        // //
+        // // Calculates the angle ABC (in radians)
+        // //
+        // // A first point
+        // // C second point
+        // // B center point
+        // //
+        //
+        //function findAngle(A, B, C) {
+        //    let AB = Math.sqrt(Math.pow(B.x - A.x, 2) + Math.pow(B.y - A.y, 2));
+        //    let BC = Math.sqrt(Math.pow(B.x - C.x, 2) + Math.pow(B.y - C.y, 2));
+        //    let AC = Math.sqrt(Math.pow(C.x - A.x, 2) + Math.pow(C.y - A.y, 2));
+        //    return Math.acos((BC * BC + AB * AB - AC * AC) / (2 * BC * AB));
+        //}
 
-         let lastXy = firstXy;
-         for (let i = 0; i < this.points.length; ++i) {
-         let thisXy = this.points[i].coord(self);
-         let refXy = lastXy;
-         if (i + 1 < this.points.length) {
-         let nextXy = this.points[i + 1].coord(self);
+        let firstXy = {x: points[0], y: points[1]};
+        addHandle(coordForPoint(0), coordForPoint(1));
 
-         //let angle = findAngle(lastXy, thisXy, nextXy);
-         //refXy = rotatePoint({x:lastXy.x - this.left, y:lastXy.y - this.top}, angle / 2);
+        let lastXy = firstXy;
+        for (let i = 1; i < points.length / 2; ++i) {
+            let thisXy = coordForPoint(i);
+            let refXy = lastXy;
+            if (i + 2 < points.length / 2) {
+                let nextXy = coordForPoint(i + 1);
 
-         refXy.x = (lastXy.x + nextXy.x) / 2;
-         refXy.y = (lastXy.y + nextXy.y) / 2;
-         }
-         addHandle(thisXy, refXy);
-         }
+                //let angle = findAngle(lastXy, thisXy, nextXy);
+                //refXy = rotatePoint({x:lastXy.x - this.left, y:lastXy.y - this.top}, angle / 2);
 
-         return result;
-         */
+                refXy.x = (lastXy.x + nextXy.x) / 2;
+                refXy.y = (lastXy.y + nextXy.y) / 2;
+            }
+            addHandle(thisXy, refXy);
+        }
+
+        return result;
     }
 
     deltaMove(dispPoly, dx, dy) {

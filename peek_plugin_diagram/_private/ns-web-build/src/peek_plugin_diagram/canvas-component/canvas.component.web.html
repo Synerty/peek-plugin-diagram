@@ -1,7 +1,22 @@
 <div>
-    <p class="canvas-status-bar ">{{mouseInfo()}}</p>
+    <div #edittoolbar>
+        <pl-diagram-edit-toolbar
+                *ngIf="editor.isEditing()"
+                [canvasEditor]="editor"></pl-diagram-edit-toolbar>
+    </div>
 
-    <canvas #canvas class="canvas " >
-        Sorry, your browser doesn't support the &lt;canvas&gt; element.
-    </canvas>
+
+    <pl-diagram-edit-context
+            class="pl-canvas-edit-context"
+            *ngIf="editor.isEditing()"
+            [canvasEditor]="editor"></pl-diagram-edit-context>
+
+    <div class="pl-canvas-container">
+        <p class="canvas-status-bar ">{{mouseInfo()}}</p>
+
+        <canvas #canvas class="canvas ">
+            Sorry, your browser doesn't support the &lt;canvas&gt; element.
+        </canvas>
+    </div>
+
 </div>

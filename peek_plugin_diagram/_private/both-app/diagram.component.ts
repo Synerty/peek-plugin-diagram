@@ -13,13 +13,7 @@ import {TitleService} from "@synerty/peek-util";
 import {assert} from "./DiagramUtil";
 
 
-@Component({
-    selector: 'peek-plugin-diagram',
-    templateUrl: 'diagram.component.web.html',
-    styleUrls: ['diagram.component.web.scss'],
-    moduleId: module.id
-})
-export class DiagramComponent extends ComponentLifecycleEventEmitter {
+export class DiagramComponentBase extends ComponentLifecycleEventEmitter {
 
     @Input("modelSetKey")
     modelSetKey: string;
@@ -29,12 +23,12 @@ export class DiagramComponent extends ComponentLifecycleEventEmitter {
     nsToolbarRowSpan = 1;
     nsPopupRowSpan = 1;
 
-    private privateItemPopupService: PrivateDiagramItemPopupService;
-    private privatePositionService: PrivateDiagramPositionService;
-    private privateToolbarService: PrivateDiagramToolbarService;
+    protected privateItemPopupService: PrivateDiagramItemPopupService;
+    protected privatePositionService: PrivateDiagramPositionService;
+    protected privateToolbarService: PrivateDiagramToolbarService;
 
-    constructor(private titleService: TitleService,
-                private privateItemSelectService: PrivateDiagramItemSelectService,
+    constructor(protected titleService: TitleService,
+                protected privateItemSelectService: PrivateDiagramItemSelectService,
                 itemPopupService: DiagramItemPopupService,
                 positionService: DiagramPositionService,
                 toolbarService: DiagramToolbarService) {

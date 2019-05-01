@@ -11,6 +11,12 @@ export class PeekCanvasPan implements PanI {
     y: number = 0.0;
 }
 
+export interface RenderDrawArgs {
+    ctx:any;
+    zoom: number;
+    pan: PeekCanvasPan;
+}
+
 /**
  * Editor Renderer This class is responsible for rendering the editor model
  */
@@ -19,7 +25,7 @@ export class PeekCanvasRenderer {
     private canvas: any = null;
     private isValid = false;
 
-    drawEvent = new Subject<any>();
+    drawEvent = new Subject<RenderDrawArgs>();
 
     private _zoom = 1.0;
     private _pan = new PeekCanvasPan();
@@ -126,8 +132,8 @@ export class PeekCanvasRenderer {
         this.invalidate();
     }
 
-// While draw is called as often as the INTERVAL variable demands,
-// It only ever does something if the canvas gets invalidated by our code
+    // While draw is called as often as the INTERVAL variable demands,
+    // It only ever does something if the canvas gets invalidated by our code
     private draw() {
 
         // if our state is invalid, redraw and validate!
@@ -175,7 +181,7 @@ export class PeekCanvasRenderer {
 
         // ** Add stuff you want drawn on top all the time here **
         // Tell the canvas mouse handler to draw what ever its got going on.
-        this.drawEvent.next(ctx);
+        this.drawEvent.next({ctx, zoom: this._zoom, pan: this._pan});
 
         ctx.restore();
     }

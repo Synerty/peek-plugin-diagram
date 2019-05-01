@@ -1,6 +1,10 @@
-import {DispBase, PointI} from "./DispBase";
-import {DispTextStyle} from "@peek/peek_plugin_diagram/lookups";
-import {DispColor} from "@peek/peek_plugin_diagram/lookups";
+import {Disp, DispBase} from "./DispBase";
+import {DispColor, DispTextStyle} from "@peek/peek_plugin_diagram/lookups";
+import {
+    PeekCanvasShapePropsContext,
+    ShapeProp,
+    ShapePropType
+} from "../../canvas/PeekCanvasShapePropsContext";
 
 export enum TextVerticalAlign {
     top = -1,
@@ -17,17 +21,29 @@ export enum TextHorizontalAlign {
 
 export class DispText extends DispBase {
 
-    static textStyle(disp): DispTextStyle {
+    static textStyle(disp: Disp): DispTextStyle {
         // This is set from the short id in DiagramLookupService._linkDispLookups
         return disp.fsl;
     }
 
-    static color(disp): DispColor {
+    static setTextStyle(disp: Disp, val: DispTextStyle): void {
+        // This is set from the short id in DiagramLookupService._linkDispLookups
+        disp.fsl = val;
+        disp.fs = val == null ? null : val.id;
+    }
+
+    static color(disp: Disp): DispColor {
         // This is set from the short id in DiagramLookupService._linkDispLookups
         return disp.cl;
     }
 
-    static verticalAlign(disp): TextVerticalAlign {
+    static setColor(disp: Disp, val: DispColor): void {
+        // This is set from the short id in DiagramLookupService._linkDispLookups
+        disp.cl = val;
+        disp.c = val == null ? null : val.id;
+    }
+
+    static verticalAlign(disp: Disp): TextVerticalAlign {
         let val = disp.va;
         if (val == TextVerticalAlign.top)
             return TextVerticalAlign.top;
@@ -36,7 +52,7 @@ export class DispText extends DispBase {
         return TextVerticalAlign.center;
     }
 
-    static horizontalAlign(disp): TextHorizontalAlign {
+    static horizontalAlign(disp: Disp): TextHorizontalAlign {
         let val = disp.ha;
         if (val == TextHorizontalAlign.left)
             return TextHorizontalAlign.left;
@@ -45,28 +61,78 @@ export class DispText extends DispBase {
         return TextHorizontalAlign.center;
     }
 
-    static rotation(disp): number {
+    static rotation(disp: Disp): number {
         return disp.r;
     }
 
-    static text(disp): string {
+    static text(disp: Disp): string {
         return disp.te;
     }
 
-    static height(disp): number | null {
+    static setText(disp: Disp, val: string): void {
+        disp.te = val;
+    }
+
+    static height(disp: Disp): number | null {
         return disp.th;
     }
 
-    static horizontalStretch(disp): number {
+    static horizontalStretch(disp: Disp): number {
         return disp.hs;
     }
 
-    static centerPointX(disp): number {
+    static centerPointX(disp: Disp): number {
         return disp.g[0];
     }
 
-    static centerPointY(disp): number {
+    static centerPointY(disp: Disp): number {
         return disp.g[1];
+    }
+
+    static setCenterPoint(disp, x: number, y: number): void {
+        if (disp.g == null || disp.g.length != 2)
+            disp.g = [0, 0];
+
+        disp.g[0] = x;
+        disp.g[1] = y;
+    }
+
+    static create(): any {
+        let newDisp = {
+            ...DispBase.create(DispBase.TYPE_DT),
+            // From Text
+            'fsl': null, // DispTextStyle
+            'cl': null, // DispColor
+            'va': TextVerticalAlign.center, // TextVerticalAlign.center
+            'ha': TextHorizontalAlign.center, // TextHorizontalAlign.center
+            'r': 0, // number
+            'te': 'New Text', // string
+            'th': 0, // number | null
+            'hs': 0, // number | null
+        };
+
+        DispText.setText(newDisp, 'New Text');
+        DispText.setCenterPoint(newDisp, 0, 0);
+
+        return newDisp;
+    }
+
+    static makeShapeContext(context: PeekCanvasShapePropsContext): void {
+        DispBase.makeShapeContext(context);
+
+        context.addProp(new ShapeProp(
+            ShapePropType.String,
+            DispText.text,
+            DispText.setText,
+            "Text"
+        ));
+
+        context.addProp(new ShapeProp(
+            ShapePropType.Color,
+            DispText.color,
+            DispText.setColor,
+            "Color"
+        ));
     }
 
 }

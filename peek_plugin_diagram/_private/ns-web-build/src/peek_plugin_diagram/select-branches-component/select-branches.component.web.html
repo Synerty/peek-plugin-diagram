@@ -1,0 +1,48 @@
+<div #modalView class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="closePopup()"
+                        aria-label="Close">
+                    <fa name="times"></fa>
+                </button>
+                <h4 class="modal-title">View Branches</h4>
+            </div>
+            <div class="modal-body">
+                <p *ngIf="noDetails()">
+                    There are no branches at this time.
+                </p>
+                <div *ngIf="!noDetails()" class="peek-tables-section">
+                    <!--
+                    <table class="table">
+                        <thead>
+                        <tr class="tr">
+                            <th class="th">Property</th>
+                            <th class="th">Value</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="tr"
+                            *ngFor="let detail of details; odd as odd; even as even"
+                            [class.bg-odd]="odd"
+                            [class.bg-even]="even">
+                            <th class="td"
+                                [class.bg-odd]="odd"
+                                [class.bg-even]="even">{{detail.title}}
+                            </th>
+                            <th class="td"
+                                [class.bg-odd]="odd"
+                                [class.bg-even]="even">{{detail.value}}
+                            </th>
+                        </tr>
+                        </tbody>
+                    </table>
+                    -->
+                </div>
+
+
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

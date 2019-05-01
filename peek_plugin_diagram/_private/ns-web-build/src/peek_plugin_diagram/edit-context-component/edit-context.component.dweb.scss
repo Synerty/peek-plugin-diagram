@@ -1,0 +1,39 @@
+/* On the desktop, this slides in from the right.
+* https://www.w3schools.com/howto/howto_js_sidenav.asp
+*/
+@import '~@synerty/peek-theme/scss/_mixins.web';
+@import '~@synerty/peek-theme/scss/_variables.web';
+
+
+$panel_width: 400px;
+
+
+/* The side navigation menu */
+.edit-context-panel {
+  height: 100%; /* 100% Full-height */
+  position: fixed; /* Stay in place */
+  z-index: 4; /* Stay on top */
+  top: 46px;
+  right: 0;
+  overflow-x: hidden; /* Disable horizontal scroll */
+  transition: 0.5s; /* 0.5 second transition effect to slide in the toolbar */
+  background-color: white;
+}
+
+.edit-context-panel > .panel-header {
+  padding: 15px;
+}
+
+.edit-context-panel > .close {
+  padding: 6px;
+}
+
+/* Set the style for when the toolbar is open */
+.edit-context-is-open {
+  width: $panel_width;
+}
+
+/* Set the style for when the toolbar is closed */
+.edit-context-is-closed {
+  width: 0;
+}

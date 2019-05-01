@@ -82,6 +82,13 @@
                 "persistent": true
             },
             {
+                "file": "DiagramConfigService",
+                "class": "DiagramConfigService",
+                "useClassFile": "_private/branch/PrivateDiagramConfigService",
+                "useClassClass": "PrivateDiagramConfigService",
+                "persistent": true
+            },
+            {
                 "file": "_private/grid-loader/PrivateDiagramGridLoaderServiceA",
                 "class": "PrivateDiagramGridLoaderServiceA",
                 "useClassFile": "_private/grid-loader/PrivateDiagramGridLoaderService",
@@ -159,6 +166,13 @@
                 "class": "DiagramBranchService",
                 "useClassFile": "_private/branch/PrivateDiagramBranchService",
                 "useClassClass": "PrivateDiagramBranchService",
+                "persistent": true
+            },
+            {
+                "file": "DiagramConfigService",
+                "class": "DiagramConfigService",
+                "useClassFile": "_private/branch/PrivateDiagramConfigService",
+                "useClassClass": "PrivateDiagramConfigService",
                 "persistent": true
             },
             {
@@ -244,6 +258,13 @@
                 "class": "DiagramBranchService",
                 "useClassFile": "_private/branch/PrivateDiagramBranchService",
                 "useClassClass": "PrivateDiagramBranchService",
+                "persistent": true
+            },
+            {
+                "file": "DiagramConfigService",
+                "class": "DiagramConfigService",
+                "useClassFile": "_private/branch/PrivateDiagramConfigService",
+                "useClassClass": "PrivateDiagramConfigService",
                 "persistent": true
             },
             {

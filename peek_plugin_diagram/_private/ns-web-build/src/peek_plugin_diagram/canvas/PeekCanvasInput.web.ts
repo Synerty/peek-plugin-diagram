@@ -6,13 +6,12 @@ import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 import {
     CanvasInputPos,
     disableContextMenu,
-    PeekCanvasInputDelegate
+    PeekCanvasInputDelegate, InputDelegateConstructorArgs
 } from "./PeekCanvasInputDelegate.web";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {
-    PeekCanvasInputSelectDelegate
-} from "./PeekCanvasInputSelectDelegate.web";
+import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web";
+import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 
 
 /** Peek Canvas Input
@@ -33,18 +32,28 @@ export class PeekCanvasInput {
 
     constructor(private config: PeekCanvasConfig,
                 private model: PeekCanvasModel,
-                private dispDelegate: PeekDispRenderFactory,
+                private renderFactory: PeekDispRenderFactory,
                 private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
         this.delegateFinished();
     }
 
 
-    setDelegate(Delegate) {
+    setDelegate(Delegate, peekCanvasEditor: any | null = null) {
         if (this._delegate)
             this._delegate.shutdown();
 
-        this._delegate = new Delegate(this, this.config, this.model, this.dispDelegate);
-        this.config.mouse.currentDelegateName = this._delegate.NAME;
+        let viewDelegateArgs: InputDelegateConstructorArgs = {
+            input: this,
+            config: this.config,
+            model: this.model,
+            renderFactory: this.renderFactory,
+        };
+
+        this._delegate = new Delegate(viewDelegateArgs, peekCanvasEditor);
+
+        this.config.mouse.currentDelegateName = Delegate.TOOL_NAME;
+
+        console.log(`Delegate = ${Delegate.TOOL_NAME}`);
     };
 
 
@@ -54,6 +63,10 @@ export class PeekCanvasInput {
         //     require("PeekCanvasInputSelectDelegate")["PeekCanvasInputSelectDelegate"];
         this.setDelegate(PeekCanvasInputSelectDelegate);
     };
+
+    selectedDelegate(): EditorToolType {
+        return this.config.mouse.currentDelegateName;
+    }
 
 // Creates an object with x and y defined, set to the mouse position relative to
 // the state's canvas
@@ -234,9 +247,9 @@ export class PeekCanvasInput {
     /**
      * Draw Called by the renderer during a redraw.
      */
-    draw(ctx) {
+    draw(ctx, zoom, pan) {
         if (this._delegate)
-            this._delegate.draw(ctx);
+            this._delegate.draw(ctx, zoom, pan);
     };
 
 }

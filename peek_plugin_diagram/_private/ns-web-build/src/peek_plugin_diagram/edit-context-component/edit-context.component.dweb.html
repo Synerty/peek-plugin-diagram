@@ -1,0 +1,29 @@
+<div class="edit-context-panel"
+     [class.edit-context-is-open]="isContextShown"
+     [class.edit-context-is-closed]="!isContextShown">
+
+    <div class="panel-header">
+        <button type="button" class="close"
+                (click)="canvasEditor.closeContext()"
+                aria-label="Close">
+            <fa name="times"></fa>
+        </button>
+
+        <h4>{{title()}}</h4>
+    </div>
+    <div class="panel-body">
+
+        <pl-diagram-edit-shape-properties
+                *ngIf="isShowingShapePropertiesContext()"
+                [canvasEditor]="canvasEditor">
+
+        </pl-diagram-edit-shape-properties>
+
+        <pl-diagram-edit-dynamic-properties
+                *ngIf="isShowingDynamicPropertiesContext()"
+                [canvasEditor]="canvasEditor">
+
+        </pl-diagram-edit-dynamic-properties>
+
+    </div>
+</div>
