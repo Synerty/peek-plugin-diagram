@@ -28,7 +28,6 @@ export class DiagramComponentBase extends ComponentLifecycleEventEmitter {
     protected privateToolbarService: PrivateDiagramToolbarService;
 
     constructor(protected titleService: TitleService,
-                protected privateItemSelectService: PrivateDiagramItemSelectService,
                 itemPopupService: DiagramItemPopupService,
                 positionService: DiagramPositionService,
                 toolbarService: DiagramToolbarService) {

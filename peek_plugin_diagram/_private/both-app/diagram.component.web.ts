@@ -2,7 +2,6 @@ import {Component} from "@angular/core";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {DiagramItemPopupService} from "@peek/peek_plugin_diagram/DiagramItemPopupService";
 import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
-import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {TitleService} from "@synerty/peek-util";
 import {DiagramComponentBase} from "./diagram.component";
 
@@ -19,12 +18,10 @@ export class DiagramComponent extends DiagramComponentBase {
 
 
     constructor(titleService: TitleService,
-                privateItemSelectService: PrivateDiagramItemSelectService,
                 itemPopupService: DiagramItemPopupService,
                 positionService: DiagramPositionService,
                 toolbarService: DiagramToolbarService) {
-        super(titleService, privateItemSelectService,
-            itemPopupService, positionService, toolbarService);
+        super(titleService, itemPopupService, positionService, toolbarService);
 
 
     }

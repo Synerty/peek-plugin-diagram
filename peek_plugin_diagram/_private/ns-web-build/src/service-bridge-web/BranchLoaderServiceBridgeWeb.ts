@@ -1,115 +1,98 @@
 import {Injectable} from "@angular/core";
-import {Payload} from "@synerty/vortexjs";
 import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
 import {
-    GridTuple,
-    PrivateDiagramGridLoaderServiceA,
-    PrivateDiagramGridLoaderStatusTuple
-} from "../@peek/peek_plugin_diagram/_private/grid-loader";
+    BranchIndexLoaderServiceA,
+    BranchIndexLoaderStatusTuple,
+    BranchIndexResultI
+} from "../@peek/peek_plugin_diagram/_private/branch-loader";
+import {ServiceBridgeHandlerObserverSide} from "../peek_plugin_diagram/service-bridge-util/ServiceBridgeHandlerObservable";
+import {ServiceBridgeHandlerCallerSide} from "../peek_plugin_diagram/service-bridge-util/ServiceBridgeHandlerCall";
+import {window} from "@angular/platform-browser/src/browser/tools/browser";
+import {ServiceBridgeHandlerPromiseCallerSide} from "../peek_plugin_diagram/service-bridge-util/ServiceBridgeHandlerPromise";
+import {DiagramBranchContext} from "../@peek/peek_plugin_diagram";
 
 
 @Injectable({
     providedIn: 'root'
 })
-export class BranchLoaderServiceBridgeWeb extends PrivateDiagramBranchLoaderServiceA {
+export class BranchLoaderServiceBridgeWeb extends BranchIndexLoaderServiceA {
 
-    private updateSubject = new Subject<GridTuple[]>();
-    private readySubject = new Subject<boolean>();
-    private isReadyVal = false;
+    private iface: window["nsWebViewInterface"];
 
-    private _statusSubject = new Subject<PrivateDiagramGridLoaderStatusTuple>();
-    private _status = new PrivateDiagramGridLoaderStatusTuple();
+    private handlers = [];
 
-    private iface: any;
+    private readonly isReadyObservableHandler: ServiceBridgeHandlerObserverSide;
+    private readonly statusObservableHandler: ServiceBridgeHandlerObserverSide;
 
-    private isInitialised = false;
+    private readonly getBranchesHandler: ServiceBridgeHandlerPromiseCallerSide;
+    private readonly saveBranchHandler: ServiceBridgeHandlerPromiseCallerSide;
 
     constructor() {
         super();
+
+
+        // isReadyObservable
+        this.isReadyObservableHandler = new ServiceBridgeHandlerObserverSide(
+            'BranchLoaderBridge_isReadyObservable',
+            false,
+            true,
+            false
+        );
+        this.handlers.push(this.isReadyObservableHandler);
+
+
+        // statusObservable
+        this.statusObservableHandler = new ServiceBridgeHandlerObserverSide(
+            'BranchLoaderBridge_statusObservable',
+            true,
+            true,
+            new BranchIndexLoaderStatusTuple()
+        );
+        this.handlers.push(this.statusObservableHandler);
+
+        // getBranches
+        this.getBranchesHandler = new ServiceBridgeHandlerPromiseCallerSide(
+            'BranchLoaderBridge_getBranches',
+        );
+        this.handlers.push(this.getBranchesHandler);
+
+        // saveBranch
+        this.saveBranchHandler = new ServiceBridgeHandlerPromiseCallerSide(
+            'BranchLoaderBridge_saveBranch',
+        );
+        this.handlers.push(this.saveBranchHandler);
+
+
+        for (let handler of this.handlers) {
+            handler.start(this.iface);
+        }
+
     }
 
-    private initHandler(): void {
-        this.iface = window["nsWebViewInterface"];
-
-        this.iface.on(
-            'DiagramLoadBridge_observable',
-            (argObj: any) => {
-                let grids: any = new Payload().fromJsonDict(argObj).tuples;
-
-                console.log("WEB: Received DiagramLoadBridge_observable event");
-                this.updateSubject.next(grids);
-            }
-        );
-
-        this.iface.on(
-            'DiagramLoadBridge_isReadyObservable',
-            (val: boolean) => {
-                console.log("WEB: Received DiagramLoadBridge_isReadyObservable event");
-                this.isReadyVal = val;
-                this.readySubject.next(val);
-            }
-        );
-
-        this.iface.on(
-            'DiagramLoadBridge_statusObservable',
-            (argObj: any) => {
-                let status: any = new Payload().fromJsonDict(argObj).tuples[0];
-                console.log("WEB: Received DiagramLoadBridge_statusObservable event");
-                this._status = status;
-                this._statusSubject.next(status);
-            }
-        );
-
-
-        this.iface.emit("DiagramLoadBridge_start", "nothing");
-    }
-
-    get observable(): Observable<GridTuple[]> {
-        return this.updateSubject;
-
-    }
 
     isReady(): boolean {
-        this.initHandler();
-        return this.isReadyVal;
+        return this.isReadyObservableHandler.lastData;
     }
-
 
     isReadyObservable(): Observable<boolean> {
-        return this.readySubject;
+        return this.isReadyObservableHandler.observable;
     }
 
-    statusObservable(): Observable<PrivateDiagramGridLoaderStatusTuple> {
-        return this._statusSubject;
+    status(): BranchIndexLoaderStatusTuple {
+        return this.statusObservableHandler.lastData;
     }
 
-    status(): PrivateDiagramGridLoaderStatusTuple {
-        return this._status;
+    statusObservable(): Observable<BranchIndexLoaderStatusTuple> {
+        return this.statusObservableHandler.observable;
     }
 
-
-    loadGrids(currentGridUpdateTimes: { [gridKey: string]: string },
-              gridKeys: string[]): void {
-
-        let args: any = {
-            currentGridUpdateTimes: currentGridUpdateTimes,
-            gridKeys: gridKeys
-        };
-
-        let argObj = new Payload({}, args).toJsonDict();
-
-        // Send events from the nativescript side service to the <webview> side
-        console.log("WEB: Sending DiagramLoadBridge_loadGrids event");
-        this.iface.emit("DiagramLoadBridge_loadGrids", argObj);
+    getBranches(modelSetKey: string, keys: string[]): Promise<BranchIndexResultI> {
+        return this.getBranchesHandler.call(modelSetKey, keys);
     }
 
-    watchGrids(gridKeys: string[]): void {
-        let argObj = new Payload({}, gridKeys).toJsonDict();
-
-        // Send events from the nativescript side service to the <webview> side
-        console.log("WEB: Sending DiagramLoadBridge_watchGrids event");
-        this.iface.emit("DiagramLoadBridge_watchGrids", argObj);
+    saveBranch(context: DiagramBranchContext): Promise<void> {
+        // Send the branch, the context
+        return this.saveBranchHandler.call(context["branch"]);
     }
 
 

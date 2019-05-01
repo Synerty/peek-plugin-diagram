@@ -4,6 +4,7 @@ import {TupleOfflineStorageNameService} from "@synerty/vortexjs/src/vortex/stora
 import {TupleStorageFactoryService} from "@synerty/vortexjs/src/vortex/storage-factory/TupleStorageFactoryService";
 import {TupleActionStorageServiceABC} from "@synerty/vortexjs/src/vortex/action-storage/TupleActionStorageServiceABC";
 import {TupleStorageBridgeWeb} from "../service-bridge/TupleStorageBridgeWeb";
+import {TupleActionBridgeWeb} from "../service-bridge-web/TupleActionBridgeWeb";
 
 // import {TupleActionStorageIndexedDbService} from "@synerty/vortexjs/src/vortex/action-storage/TupleActionStorageIndexedDbService";
 
@@ -14,6 +15,8 @@ export class TupleStorageFactoryServiceBridgeWeb extends TupleStorageFactoryServ
 
     private offlineStorageNameServices
         : { [name: string]: TupleOfflineStorageNameService } = {};
+
+    private actionStorage:TupleActionStorageServiceABC = null;
 
     constructor() {
         let nothing: any = null;
@@ -29,7 +32,10 @@ export class TupleStorageFactoryServiceBridgeWeb extends TupleStorageFactoryServ
     }
 
     createActionStorage(): TupleActionStorageServiceABC {
-        throw new Error("Action storage not implemented yet");
+        if (this.actionStorage == null)
+            this.actionStorage = new TupleActionBridgeWeb();
+
+        return this.actionStorage;
     }
 }
 

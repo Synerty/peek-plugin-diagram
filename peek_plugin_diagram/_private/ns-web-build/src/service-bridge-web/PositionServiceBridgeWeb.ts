@@ -3,63 +3,95 @@ import {
     PositionUpdatedI
 } from "@peek/peek_plugin_diagram/DiagramPositionService";
 
-import {
-    DiagramPositionI,
-    PrivateDiagramPositionService
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
+import {DiagramPositionI} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {Injectable} from "@angular/core";
+import {ServiceBridgeHandlerObserverSide} from "../peek_plugin_diagram/service-bridge-util/ServiceBridgeHandlerObservable";
+import {ServiceBridgeHandlerCallerSide} from "../peek_plugin_diagram/service-bridge-util/ServiceBridgeHandlerCall";
 
 @Injectable({
     providedIn: 'root'
 })
 export class PositionServiceBridgeWeb extends ComponentLifecycleEventEmitter {
 
-    private iface= window["nsWebViewInterface"];
 
-    constructor() {
+    private handlers = [];
+
+    private readonly positionSubjectHandler: ServiceBridgeHandlerObserverSide;
+    private readonly positionByCoordSetSubjectHandler: ServiceBridgeHandlerObserverSide;
+
+    private readonly setReadyHandler: ServiceBridgeHandlerCallerSide;
+    private readonly positionUpdatedHandler: ServiceBridgeHandlerCallerSide;
+    private readonly setTitleHandler: ServiceBridgeHandlerCallerSide;
+
+    constructor(private service: DiagramPositionService) {
         super();
+        let iface = window["nsWebViewInterface"];
 
-        // Listen for calls from the NS site
-        this.iface.on(
-            'positionSubject',
-            (pos: DiagramPositionI) => {
-                console.log("WEB: Received positionSubject event");
-                service.position(pos.coordSetKey, pos.x, pos.y, pos.zoom, pos.highlightKey);
-            }
+        // positionSubject
+        this.positionSubjectHandler = new ServiceBridgeHandlerObserverSide(
+            'PositionServiceBridge.positionSubject',
+            false
         );
-
-        // Listen for calls from the NS site
-        this.iface.on(
-            'positionByCoordSetObservable',
-            (coordSetKey: string) => {
-                console.log("WEB: Received positionByCoordSetObservable event");
-                service.positionByCoordSet(coordSetKey);
-            }
-        );
-
-        this.onDestroyEvent
-            .subscribe(() => {
-                this.iface.off('positionSubject');
-                this.iface.off('positionByCoordSetObservable');
+        this.handlers.push(this.positionSubjectHandler);
+        this.positionSubjectHandler.observable
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((p: DiagramPositionI) => {
+                this.service.position(p.coordSetKey, p.x, p.y, p.zoom, p.highlightKey);
             });
+
+        // positionByCoordSetObservable
+        this.positionByCoordSetSubjectHandler = new ServiceBridgeHandlerObserverSide(
+            'PositionServiceBridge.positionByCoordSetObservable',
+            false
+        );
+        this.handlers.push(this.positionByCoordSetSubjectHandler);
+        this.positionByCoordSetSubjectHandler.observable
+            .takeUntil(this.onDestroyEvent)
+            .subscribe(service.positionByCoordSet);
+
+
+        // setReady
+        this.setReadyHandler = new ServiceBridgeHandlerCallerSide(
+            'PositionServiceBridge.setReady',
+            false,
+        );
+        this.handlers.push(this.setReadyHandler);
+
+
+        // positionUpdated
+        this.positionUpdatedHandler = new ServiceBridgeHandlerCallerSide(
+            'PositionServiceBridge.positionUpdated',
+            false,
+        );
+        this.handlers.push(this.positionUpdatedHandler);
+
+
+        // setTitle
+        this.setTitleHandler = new ServiceBridgeHandlerCallerSide(
+            'PositionServiceBridge.setTitle',
+            false,
+        );
+        this.handlers.push(this.setTitleHandler);
+
+
+        for (let handler of this.handlers) {
+            handler.start(iface);
+        }
 
     }
 
     setReady(value: boolean) {
-        console.log(`WEB: Sending isReadySubject ${val}`);
-        this.iface.emit("isReadySubject", val);
+        this.setReadyHandler.call(value);
     }
 
     positionUpdated(pos: PositionUpdatedI): void {
-        console.log(`WEB: Sending positionUpdated`);
-        this.iface.emit("positionUpdated", val);
+        this.positionUpdatedHandler.call(pos);
     }
 
     setTitle(value: string) {
-        console.log(`WEB: Sending titleUpdatedSubject ${val}`);
-        this.iface.emit("titleUpdatedSubject", val);
+        this.setTitleHandler.call(value);
     }
 
 }

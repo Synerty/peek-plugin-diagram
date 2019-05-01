@@ -1,7 +1,6 @@
 import {Injectable} from "@angular/core";
 
 import {
-    ComponentLifecycleEventEmitter,
     extend,
     Payload,
     PayloadEnvelope,
@@ -591,7 +590,8 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
     }
 
     saveBranch(context: DiagramBranchContext): Promise<void> {
-        return undefined;
+        let branch: BranchTuple = context["branch"];
+        throw new Error("saveBranch isn't implemented");
     }
 
 

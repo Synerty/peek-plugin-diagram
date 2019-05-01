@@ -10,24 +10,29 @@ import {
     VortexService,
     VortexStatusService
 } from "@synerty/vortexjs";
-
-import {
-    TupleStorageFactoryServiceWeb,
-    WebSqlBrowserFactoryService
-} from "@synerty/vortexjs/index-browser";
 import {GridLoaderBridgeWeb} from "../service-bridge/GridLoaderBridgeWeb";
 import {PrivateDiagramGridLoaderServiceA} from "../@peek/peek_plugin_diagram/_private/grid-loader/PrivateDiagramGridLoaderServiceA";
 
 import {TitleService} from "@synerty/peek-util";
 import {TupleStorageFactoryServiceBridgeWeb} from "./TupleStorageFactoryServiceBridgeWeb";
 import {PrivateDiagramTupleServiceWeb} from "./PrivateDiagramTupleServiceWeb";
-import {PrivateDiagramTupleService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
+import {PrivateDiagramTupleService} from "../@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
 
-import {BranchLoaderServiceBridgeWeb} from "../service-bridge/BranchLoaderServiceBridgeWeb";
-import {PrivateDiagramBranchLoaderServiceA} from "@peek/peek_plugin_diagram/_private/branch-loader";
-
-import {BranchServiceBridgeWeb} from "../service-bridge/BranchLoaderServiceBridgeWeb";
-import {DiagramBranchService} from "@peek/peek_plugin_diagram";
+import {
+    BranchLoaderServiceBridgeWeb,
+    BranchServiceBridgeWeb
+} from "../service-bridge/BranchLoaderServiceBridgeWeb";
+import {PrivateDiagramBranchLoaderServiceA} from "../@peek/peek_plugin_diagram/_private/branch-loader";
+import {DiagramBranchService, DiagramPositionService} from "../@peek/peek_plugin_diagram";
+import {PositionServiceBridgeWeb} from "../service-bridge-web/PositionServiceBridgeWeb";
+import {ItemPopupServiceBridgeWeb} from "../service-bridge-web/ItemSelectServiceBridgeWeb";
+import {
+    PrivateDiagramItemPopupService,
+    PrivateDiagramItemSelectService
+} from "../@peek/peek_plugin_diagram/_private/services";
+import {PrivateDiagramBranchService} from "../@peek/peek_plugin_diagram/_private/branch";
+import {DiagramConfigService} from "../@peek/peek_plugin_diagram/DiagramConfigService";
+import {PrivateDiagramConfigService} from "../@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
 
 
 export function titleServiceFactory() {
@@ -61,8 +66,8 @@ export function titleServiceFactory() {
             useClass: GridLoaderBridgeWeb
         },
         {
-            provide: PrivateDiagramItemSelectService,
-            useClass: ItemSelectServiceBridgeWeb
+            provide: PrivateDiagramItemPopupService,
+            useClass: ItemPopupServiceBridgeWeb
         },
         {
             provide: DiagramPositionService,
@@ -73,9 +78,18 @@ export function titleServiceFactory() {
             useClass: BranchServiceBridgeWeb
         },
         {
+            provide: DiagramBranchService,
+            useClass: PrivateDiagramBranchService
+        },
+        {
+            provide: DiagramConfigService,
+            useClass: PrivateDiagramConfigService
+        },
+        {
             provide: PrivateDiagramBranchLoaderServiceA,
             useClass: BranchLoaderServiceBridgeWeb
         },
+        PrivateDiagramItemSelectService,
         Ng2BalloonMsgService,
 
         // Vortex Services

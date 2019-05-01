@@ -44,7 +44,7 @@ export class ServiceBridgeHandlerObservableSide extends ServiceBridgeHandlerBase
  * This side is observing an observable defined in the other side
  * */
 export class ServiceBridgeHandlerObserverSide extends ServiceBridgeHandlerBase {
-    private _subject: Subject<any> | null = null;
+    private _subject: Subject<any>  = new Subject<any>();
 
     private _lastData: any;
 
@@ -58,9 +58,7 @@ export class ServiceBridgeHandlerObserverSide extends ServiceBridgeHandlerBase {
 
     }
 
-    get subject(): Subject<any> {
-        if (this._subject == null)
-            this._subject = new Subject<any>();
+    get observable(): Observable<any> {
         return this._subject;
     }
 
@@ -71,7 +69,7 @@ export class ServiceBridgeHandlerObserverSide extends ServiceBridgeHandlerBase {
     protected dataReceived(data: any): void {
         if (this.saveLastData)
             this._lastData = data;
-        this.subject.next(data);
+        this._subject.next(data);
     }
 
 

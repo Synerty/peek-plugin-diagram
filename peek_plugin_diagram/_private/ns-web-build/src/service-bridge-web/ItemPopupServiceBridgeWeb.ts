@@ -7,7 +7,7 @@ import {Injectable} from "@angular/core";
 @Injectable({
     providedIn: 'root'
 })
-export class ItemSelectServiceBridgeWeb extends ComponentLifecycleEventEmitter {
+export class ItemPopupServiceBridgeWeb extends ComponentLifecycleEventEmitter {
 
     private iface= window["nsWebViewInterface"];
 
@@ -17,9 +17,5 @@ export class ItemSelectServiceBridgeWeb extends ComponentLifecycleEventEmitter {
     }
 
 
-    selectItem(details: SelectedItemDetailsI): void {
-        console.log("WEB: Sending itemSelect event");
-        this.iface.emit("ItemSelectService.itemSelected", item);
-    }
 
 }

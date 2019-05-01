@@ -2,7 +2,6 @@ import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {DiagramItemPopupService} from "@peek/peek_plugin_diagram/DiagramItemPopupService";
 import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
-import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {TitleService} from "@synerty/peek-util";
 import {DiagramComponentBase} from "./diagram.component";
 
@@ -14,11 +13,10 @@ import {WebView} from 'ui/web-view';
 import {PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader";
 import {PrivateDiagramTupleService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
 import {PrivateDiagramBranchLoaderServiceA} from "@peek/peek_plugin_diagram/_private/branch-loader";
-import {DiagramBranchService} from "@peek/peek_plugin_diagram";
+import {DiagramBranchService, DiagramConfigService} from "@peek/peek_plugin_diagram";
 
 
 import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
-import {ItemSelectServiceBridgeNs} from "../service-bridge/ItemSelectServiceBridge.ns";
 import {PositionServiceBridgeNs} from "../service-bridge/PositionServiceBridge.ns";
 import {TupleStorageBridgeNs} from "../service-bridge/TupleStorageBridge.ns";
 import {GridLoaderBridgeNs} from "../service-bridge/GridLoaderBridge.ns";
@@ -26,6 +24,8 @@ import {BranchLoaderServiceBridgeNs} from "../service-bridge/BranchLoaderService
 import {BranchServiceBridgeNs} from "../service-bridge/BranchServiceBridge.ns";
 
 import * as fs from "tns-core-modules/file-system";
+import {TupleActionBridgeNs} from "./service-bridge-ns/TupleActionBridgeNs";
+import {ItemPopupServiceBridgeNs} from "./service-bridge-ns/ItemPopupServiceBridgeNs";
 
 @Component({
     selector: 'peek-plugin-diagram',
@@ -38,28 +38,27 @@ export class DiagramComponent extends DiagramComponentBase
 
     private oLangWebViewInterface: WebViewInterface;
 
-    private itemSelectServiceBridge: ItemSelectServiceBridgeNs | null = null;
+    private itemPopupServiceBridge: ItemPopupServiceBridgeNs | null = null;
     private positionServiceBridge: PositionServiceBridgeNs | null = null;
     private tupleStorageBridge: TupleStorageBridgeNs | null = null;
+    private tupleActionBridge: TupleActionBridgeNs | null = null;
     private gridLoaderBridge: GridLoaderBridgeNs | null = null;
     private branchLoaderServiceBridge: BranchLoaderServiceBridgeNs | null = null;
-    private branchServiceBridge: BranchServiceBridgeNs | null = null;
+    // private branchServiceBridge: BranchServiceBridgeNs | null = null;
+    private configServiceBridge: BranchServiceBridgeNs | null = null;
 
     @ViewChild('webView') webView;
 
 
     constructor(titleService: TitleService,
-                privateItemSelectService: PrivateDiagramItemSelectService,
-                itemPopupService: DiagramItemPopupService,
                 positionService: DiagramPositionService,
                 toolbarService: DiagramToolbarService,
+                private itemPopupService: DiagramItemPopupService,
                 private enrolmentService: DeviceEnrolmentService,
                 private tupleService: PrivateDiagramTupleService,
                 private gridLoader: PrivateDiagramGridLoaderServiceA,
-                private branchLoaderService: PrivateDiagramBranchLoaderServiceA,
-                private branchService: DiagramBranchService) {
-        super(titleService, privateItemSelectService,
-            itemPopupService, positionService, toolbarService);
+                private branchLoaderService: PrivateDiagramBranchLoaderServiceA) {
+        super(titleService, itemPopupService, positionService, toolbarService);
 
         this.privatePositionService = <PrivateDiagramPositionService>positionService;
 
@@ -74,8 +73,8 @@ export class DiagramComponent extends DiagramComponentBase
         this.onDestroyEvent
             .subscribe(() => this.oLangWebViewInterface.destroy());
 
-        this.itemSelectServiceBridge = new ItemSelectServiceBridgeNs(
-            this, this.zone, this.privateItemSelectService, this.oLangWebViewInterface
+        this.itemPopupServiceBridge = new ItemPopupServiceBridgeNs(
+            this, this.zone, this.itemPopupService, this.oLangWebViewInterface
         );
 
         this.positionServiceBridge = new PositionServiceBridgeNs(
@@ -83,6 +82,10 @@ export class DiagramComponent extends DiagramComponentBase
         );
 
         this.tupleStorageBridge = new TupleStorageBridgeNs(
+            this.tupleService, this.oLangWebViewInterface
+        );
+
+        this.tupleActionBridge = new TupleActionBridgeNs(
             this.tupleService, this.oLangWebViewInterface
         );
 
@@ -94,9 +97,13 @@ export class DiagramComponent extends DiagramComponentBase
             this, this.branchLoaderService, this.oLangWebViewInterface
         );
 
-        this.branchServiceBridge = new BranchServiceBridgeNs(
-            this, this.branchService, this.oLangWebViewInterface
-        );
+        // this.branchServiceBridge = new BranchServiceBridgeNs(
+        //     this, this.branchService, this.oLangWebViewInterface
+        // );
+
+        // this.configServiceBridge = new BranchServiceBridgeNs(
+        //     this, this.configService, this.oLangWebViewInterface
+        // );
 
     }
 

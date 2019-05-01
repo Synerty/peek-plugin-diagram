@@ -84,7 +84,7 @@ export class GridLoaderBridgeWeb extends PrivateDiagramGridLoaderServiceA {
     }
 
     get observable(): Observable<GridTuple[]> {
-        return this.gridObservableHandler.subject;
+        return this.gridObservableHandler.observable;
     }
 
     isReady(): boolean {
@@ -94,7 +94,7 @@ export class GridLoaderBridgeWeb extends PrivateDiagramGridLoaderServiceA {
 
 
     isReadyObservable(): Observable<boolean> {
-        return this.isReadyObservableHandler.subject;
+        return this.isReadyObservableHandler.observable;
     }
 
     status(): PrivateDiagramGridLoaderStatusTuple {
@@ -102,7 +102,7 @@ export class GridLoaderBridgeWeb extends PrivateDiagramGridLoaderServiceA {
     }
 
     statusObservable(): Observable<PrivateDiagramGridLoaderStatusTuple> {
-        return this.statusObservableHandler.subject;
+        return this.statusObservableHandler.observable;
     }
 
 
