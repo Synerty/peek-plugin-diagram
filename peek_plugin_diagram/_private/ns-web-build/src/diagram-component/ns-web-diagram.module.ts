@@ -28,13 +28,13 @@ import {
     DiagramLookupService,
     DiagramPositionService
 } from "../@peek/peek_plugin_diagram";
-import {PositionServiceBridgeWeb} from "../service-bridge-web/PositionServiceBridgeWeb";
-import {ItemPopupServiceBridgeWeb} from "../service-bridge-web/ItemPopupServiceBridgeWeb";
+import {PositionServiceBridgeWeb} from "../service-bridge-web/PositionServiceBridge.web";
+import {ItemPopupServiceBridgeWeb} from "../service-bridge-web/ItemPopupServiceBridge.web";
 import {
     PrivateDiagramCoordSetService,
-    PrivateDiagramItemPopupService,
     PrivateDiagramItemSelectService
 } from "../@peek/peek_plugin_diagram/_private/services";
+import {DiagramCoordSetService} from "../@peek/peek_plugin_diagram/DiagramCoordSetService";
 import {DiagramConfigService} from "../@peek/peek_plugin_diagram/DiagramConfigService";
 import {PrivateDiagramConfigService} from "../@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
 import {DispGroupCache} from "../peek_plugin_diagram/cache/DispGroupCache.web";
@@ -112,7 +112,7 @@ export class NsWebDiagramModule {
     // Define root services
     constructor(
         private diagramLookupService: DiagramLookupService,
-        private privateDiagramCoordSetService: PrivateDiagramCoordSetService,
+        private diagramCoordSetService: DiagramCoordSetService,
         private dispGroupCache: DispGroupCache) {
     }
 }

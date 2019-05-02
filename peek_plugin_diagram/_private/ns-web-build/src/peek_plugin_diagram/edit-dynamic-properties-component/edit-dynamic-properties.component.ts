@@ -12,7 +12,7 @@ import {
     DiagramMenuItemI
 } from "@peek/peek_plugin_diagram/DiagramItemPopupService";
 import {PrivateDiagramItemPopupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemPopupService";
-import {PeekCanvasEditor} from "../../canvas/PeekCanvasEditor.web";
+import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 
 
 @Component({

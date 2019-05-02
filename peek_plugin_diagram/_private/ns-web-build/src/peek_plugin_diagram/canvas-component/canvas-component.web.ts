@@ -24,6 +24,7 @@ import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_privat
 import {PrivateDiagramCoordSetService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DiagramBranchService} from "@peek/peek_plugin_diagram/DiagramBranchService";
+import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 
 /** Canvas Component
@@ -63,12 +64,12 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     // Private services
     private _privatePosService: PrivateDiagramPositionService;
-
+    private coordSetCache: PrivateDiagramCoordSetService;
 
     constructor(private balloonMsg: Ng2BalloonMsgService,
                 private gridObservable: GridObservable,
                 private lookupService: DiagramLookupService,
-                private coordSetCache: PrivateDiagramCoordSetService,
+                abstractCoordSetCache: DiagramCoordSetService,
                 private dispGroupCache: DispGroupCache,
                 positionService: DiagramPositionService,
                 private itemSelectService: PrivateDiagramItemSelectService,
@@ -76,6 +77,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         super();
 
         // Cast the private services
+        this.coordSetCache = <PrivateDiagramCoordSetService>abstractCoordSetCache;
         this._privatePosService = <PrivateDiagramPositionService>positionService;
 
         // The config for the canvas

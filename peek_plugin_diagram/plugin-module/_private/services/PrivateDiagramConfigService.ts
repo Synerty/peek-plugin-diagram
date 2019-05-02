@@ -3,12 +3,12 @@ import {PrivateDiagramTupleService} from "./PrivateDiagramTupleService";
 import {DiagramConfigService} from "../../DiagramConfigService";
 import {Observable, Subject} from "rxjs";
 
-export interface PopupLayerSelectionArgs {
+export interface PopupLayerSelectionArgsI {
     modelSetKey: string;
     coordSetKey: string;
 }
 
-export interface PopupBranchSelectionArgs {
+export interface PopupBranchSelectionArgsI {
     modelSetKey: string;
     coordSetKey: string;
 }
@@ -23,11 +23,11 @@ export interface PopupBranchSelectionArgs {
 @Injectable()
 export class PrivateDiagramConfigService extends DiagramConfigService {
 
-    private _popupLayerSelectionSubject: Subject<PopupLayerSelectionArgs>
-        = new Subject<PopupLayerSelectionArgs>();
+    private _popupLayerSelectionSubject: Subject<PopupLayerSelectionArgsI>
+        = new Subject<PopupLayerSelectionArgsI>();
 
-    private _popupBranchSelectionSubject: Subject<PopupBranchSelectionArgs>
-        = new Subject<PopupBranchSelectionArgs>();
+    private _popupBranchSelectionSubject: Subject<PopupBranchSelectionArgsI>
+        = new Subject<PopupBranchSelectionArgsI>();
 
 
     constructor(private tupleService: PrivateDiagramTupleService) {
@@ -45,7 +45,7 @@ export class PrivateDiagramConfigService extends DiagramConfigService {
     }
 
     /** This observable is subscribed to by the select layer popup */
-    popupLayerSelectionObservable(): Observable<PopupLayerSelectionArgs> {
+    popupLayerSelectionObservable(): Observable<PopupLayerSelectionArgsI> {
         return this._popupLayerSelectionSubject;
     }
 
@@ -60,7 +60,7 @@ export class PrivateDiagramConfigService extends DiagramConfigService {
     }
 
     /** This observable is subscribed to by the select branch popup */
-    popupBranchesSelectionObservable(): Observable<PopupBranchSelectionArgs> {
+    popupBranchesSelectionObservable(): Observable<PopupBranchSelectionArgsI> {
         return this._popupBranchSelectionSubject;
     }
 

@@ -128,6 +128,13 @@ export class DispText extends DispBase {
         ));
 
         context.addProp(new ShapeProp(
+            ShapePropType.TextStyle,
+            DispText.textStyle,
+            DispText.setTextStyle,
+            "Text Style"
+        ));
+
+        context.addProp(new ShapeProp(
             ShapePropType.Color,
             DispText.color,
             DispText.setColor,

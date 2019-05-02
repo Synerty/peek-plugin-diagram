@@ -94,11 +94,11 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
     }
 
     selectBranchesClicked(): void {
-        this.configService.startSelectingBranches(this.modelSetKey, this.coordSetKey);
+        this.configService.popupBranchesSelection(this.modelSetKey, this.coordSetKey);
     }
 
     selectLayersClicked(): void {
-        this.configService.startSelectingLayers(this.modelSetKey, this.coordSetKey);
+        this.configService.popupLayerSelection(this.modelSetKey, this.coordSetKey);
     }
 
     isToolbarEmpty(): boolean {

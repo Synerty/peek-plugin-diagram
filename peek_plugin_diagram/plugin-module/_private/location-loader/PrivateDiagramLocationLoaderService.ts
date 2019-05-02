@@ -17,6 +17,7 @@ import {
     diagramFilt,
     locationIndexCacheStorageName
 } from "@peek/peek_plugin_diagram/_private";
+import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
 
 
 import {LocationIndexUpdateDateTuple} from "./LocationIndexUpdateDateTuple";
@@ -125,12 +126,15 @@ export class PrivateDiagramLocationLoaderService extends ComponentLifecycleEvent
 
     private offlineConfig: OfflineConfigTuple = new OfflineConfigTuple();
 
+    private coordSetService: PrivateDiagramCoordSetService;
+
     constructor(private vortexService: VortexService,
                 private vortexStatusService: VortexStatusService,
                 storageFactory: TupleStorageFactoryService,
-                private coordSetService: PrivateDiagramCoordSetService,
+                abstractCoordSetService: DiagramCoordSetService,
                 private tupleService: PrivateDiagramTupleService) {
         super();
+        this.coordSetService = <PrivateDiagramCoordSetService>abstractCoordSetService;
 
         this.tupleService.offlineObserver
             .subscribeToTupleSelector(new TupleSelector(OfflineConfigTuple.tupleName, {}),

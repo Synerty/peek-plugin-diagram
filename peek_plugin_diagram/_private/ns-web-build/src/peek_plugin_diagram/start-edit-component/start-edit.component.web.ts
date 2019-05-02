@@ -1,5 +1,6 @@
-import {Component, ViewChild} from "@angular/core";
-import {EditContextComponentBase} from "./edit-context.component";
+import {Component, Input, OnInit, ViewChild} from "@angular/core";
+import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import {EditorContextType, PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 
 
 @Component({
@@ -8,7 +9,14 @@ import {EditContextComponentBase} from "./edit-context.component";
     styleUrls: ['start-edit.component.web.scss'],
     moduleId: module.id
 })
-export class StartEditComponent extends EditContextComponentBase {
+export class StartEditComponent extends ComponentLifecycleEventEmitter
+    implements OnInit {
+
+    @Input("canvasEditor")
+    canvasEditor: PeekCanvasEditor;
+
+    isContextShown: boolean = false;
+
     @ViewChild('modalView') modalView;
 
     private backdropId = 'div.modal-backdrop';
@@ -16,6 +24,34 @@ export class StartEditComponent extends EditContextComponentBase {
     constructor() {
         super();
 
+    }
+
+    ngOnInit() {
+        this.canvasEditor.contextPanelObservable()
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((val: EditorContextType) => {
+                if (val == EditorContextType.NONE) {
+                    this.closePopup();
+                    return;
+                }
+
+                this.openPopup();
+
+            });
+    }
+
+    protected openPopup() {
+        this.isContextShown = true;
+        this.platformOpen();
+    }
+
+
+    // --------------------
+    //
+
+    closePopup(): void {
+        this.isContextShown = false;
+        this.platformClose();
     }
 
     platformOpen(): void {

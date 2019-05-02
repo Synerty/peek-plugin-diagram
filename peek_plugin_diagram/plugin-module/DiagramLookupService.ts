@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {TupleDataOfflineObserverService, TupleSelector} from "@synerty/vortexjs";
+import {TupleSelector} from "@synerty/vortexjs";
 import {DispColor, DispLayer, DispLevel, DispLineStyle, DispTextStyle} from "./lookups";
 import {PrivateDiagramTupleService} from "./_private/services/PrivateDiagramTupleService";
 import {Observable, Subject} from "rxjs";
@@ -25,9 +25,11 @@ export class DiagramLookupService {
     private _textStyleById = {};
     private _lineStyleById = {};
 
-    private _levelsByCoordSetIdOrderedByOrder = {};
-    private _layersOrderedByOrder = [];
-    private _colorsOrderedByName = [];
+    private _levelsByCoordSetIdOrderedByOrder: { [id: number]: DispLevel[] } = {};
+    private _layersByModelSetIdOrderedByOrder: { [id: number]: DispLayer[] } = {};
+    private _colorsByModelSetIdOrderedByName: { [id: number]: DispColor[] } = {};
+    private _textStyleByModelSetIdOrderedByName: { [id: number]: DispTextStyle[] } = {};
+    private _lineStyleByModelSetIdOrderedByName: { [id: number]: DispLineStyle[] } = {};
 
     private subscriptions = [];
 
@@ -62,11 +64,20 @@ export class DiagramLookupService {
             );
         };
 
-        sub("_levelsById", DispLevel.tupleName, () => this.createLevelsOrderedByOrder());
-        sub("_layersById", DispLayer.tupleName, () => this.createLayersOrderedByOrder());
-        sub("_colorsById", DispColor.tupleName, () => this._validateColors());
-        sub("_textStyleById", DispTextStyle.tupleName);
-        sub("_lineStyleById", DispLineStyle.tupleName, () => this._convertLineStyleDashPattern());
+        sub("_levelsById", DispLevel.tupleName,
+            () => this.createLevelsOrderedByOrder());
+
+        sub("_layersById", DispLayer.tupleName,
+            () => this.createLayersOrderedByOrder());
+
+        sub("_colorsById", DispColor.tupleName,
+            () => this._validateColors());
+
+        sub("_textStyleById", DispTextStyle.tupleName,
+            () => this.createTextStyleOrderedByName());
+
+        sub("_lineStyleById", DispLineStyle.tupleName,
+            () => this._convertLineStyleDashPattern());
     };
 
     isReady(): boolean {
@@ -131,10 +142,71 @@ export class DiagramLookupService {
             }
         }
 
-        this._colorsOrderedByName = dictValuesFromObject(this._colorsById)
-            .sort((o1, o2) => o1.name - o2.name);
+        let ordered = dictValuesFromObject(this._colorsById)
+            .sort((o1, o2) => o1.name.localeCompare(o2.name));
+
+        this._colorsByModelSetIdOrderedByName =
+            this.groupByCommonId(ordered, "modelSetId");
 
     };
+
+    /** Convert Line Style Dash Pattern
+     *
+     * This method converts the line style json into an array of numbers
+     */
+    private _convertLineStyleDashPattern() {
+        let lineStyles: DispLineStyle[] = dictValuesFromObject(this._lineStyleById);
+
+        for (let lineStyle of lineStyles) {
+            if (lineStyle.dashPattern == null)
+                continue;
+
+            lineStyle.dashPatternParsed = JSON.parse('' + lineStyle.dashPattern);
+        }
+
+        let ordered = lineStyles
+            .sort((o1, o2) => o1.name.localeCompare(o2.name));
+
+        this._lineStyleByModelSetIdOrderedByName =
+            this.groupByCommonId(ordered, "modelSetId");
+    }
+
+    private createLayersOrderedByOrder() {
+        let ordered = dictValuesFromObject(this._layersById)
+            .sort((o1, o2) => o1.order - o2.order);
+
+        this._layersByModelSetIdOrderedByOrder =
+            this.groupByCommonId(ordered, "modelSetId");
+    }
+
+    private createLevelsOrderedByOrder() {
+        let ordered = dictValuesFromObject(this._levelsById)
+            .sort((o1, o2) => o1.order - o2.order);
+
+        this._levelsByCoordSetIdOrderedByOrder =
+            this.groupByCommonId(ordered, "coordSetId");
+    };
+
+    private createTextStyleOrderedByName() {
+        let ordered = dictValuesFromObject(this._textStyleById)
+            .sort((o1, o2) => o1.name.localeCompare(o2.name));
+
+        this._textStyleByModelSetIdOrderedByName =
+            this.groupByCommonId(ordered, "modelSetId");
+    };
+
+    private groupByCommonId(orderedItems: any[], groupAttrName: string): { [id: number]: any[] } {
+        let dict = {};
+
+        for (let item of orderedItems) {
+            let groupId = item[groupAttrName];
+            if (dict[groupId] == null)
+                dict[groupId] = [];
+
+            dict[groupId].push(item);
+        }
+        return dict;
+    }
 
 
     // ============================================================================
@@ -161,8 +233,9 @@ export class DiagramLookupService {
     };
 
 
-    layersOrderedByOrder(): DispLayer[] {
-        return this._layersOrderedByOrder;
+    layersOrderedByOrder(modelSetId: number): DispLayer[] {
+        let result = this._layersByModelSetIdOrderedByOrder[modelSetId];
+        return result == null ? [] : result;
     }
 
     levelsOrderedByOrder(coordSetId: number): DispLevel[] {
@@ -170,45 +243,24 @@ export class DiagramLookupService {
         return result == null ? [] : result;
     }
 
-    colorsOrderedByName(): DispColor[] {
-        return this._colorsOrderedByName;
+    colorsOrderedByName(modelSetId: number): DispColor[] {
+        let result = this._colorsByModelSetIdOrderedByName[modelSetId];
+        return result == null ? [] : result;
     }
 
-    private createLayersOrderedByOrder() {
-        this._layersOrderedByOrder = dictValuesFromObject(this._layersById)
-            .sort((o1, o2) => o1.order - o2.order);
+    textStylesOrderedByName(modelSetId: number): DispTextStyle[] {
+        let result = this._textStyleByModelSetIdOrderedByName[modelSetId];
+        return result == null ? [] : result;
     }
 
-    private createLevelsOrderedByOrder() {
-        let dict = {};
-        this._levelsByCoordSetIdOrderedByOrder = dict;
-
-        let ordered = dictValuesFromObject(this._levelsById)
-            .sort((o1, o2) => o1.order - o2.order);
-
-        for (let i = 0; i < ordered.length; i++) {
-            let level = ordered[i];
-
-            if (dict[level.coordSetId] == null)
-                dict[level.coordSetId] = [];
-
-            dict[level.coordSetId].push(level);
-        }
-    };
-
-    /** Convert Line Style Dash Pattern
-     *
-     * This method converts the line style json into an array of numbers
-     */
-    private _convertLineStyleDashPattern() {
-        let lineStyles: DispLineStyle[] = dictValuesFromObject(this._lineStyleById);
-        for (let lineStyle of lineStyles) {
-            if (lineStyle.dashPattern == null)
-                continue;
-
-            lineStyle.dashPatternParsed = JSON.parse('' + lineStyle.dashPattern);
-        }
+    lineStylesOrderedByName(modelSetId: number): DispLineStyle[] {
+        let result = this._lineStyleByModelSetIdOrderedByName[modelSetId];
+        return result == null ? [] : result;
     }
+
+
+    // ============================================================================
+    // Disp lookup assignments
 
 
     _linkDispLookups(disp) {

@@ -9,37 +9,29 @@
                 <h4 class="modal-title">Select Layers</h4>
             </div>
             <div class="modal-body">
-                <p *ngIf="noDetails()">
+                <p *ngIf="noItems()">
                     There are layers to view at this time.
                 </p>
-                <div *ngIf="!noDetails()" class="peek-tables-section">
-                    <!--
+                <div *ngIf="!noItems()" class="peek-tables-section">
                     <table class="table">
-                        <thead>
-                        <tr class="tr">
-                            <th class="th">Property</th>
-                            <th class="th">Value</th>
-                        </tr>
-                        </thead>
                         <tbody>
                         <tr class="tr"
-                            *ngFor="let detail of details; odd as odd; even as even"
-                            [class.bg-odd]="odd"
-                            [class.bg-even]="even">
+                            *ngFor="let item of items; odd as odd; even as even"
+                            [class.bg-success]="item.visible"
+                            [class.bg-warning]="!item.visible"
+                        (click)="toggleVisible(item)">
                             <th class="td"
-                                [class.bg-odd]="odd"
-                                [class.bg-even]="even">{{detail.title}}
+                                [class.bg-success]="item.visible"
+                                [class.bg-warning]="!item.visible">{{item.name}}
                             </th>
                             <th class="td"
-                                [class.bg-odd]="odd"
-                                [class.bg-even]="even">{{detail.value}}
+                                [class.bg-success]="item.visible"
+                                [class.bg-warning]="!item.visible">{{item.order}}
                             </th>
                         </tr>
                         </tbody>
                     </table>
-                    -->
                 </div>
-
 
 
             </div>

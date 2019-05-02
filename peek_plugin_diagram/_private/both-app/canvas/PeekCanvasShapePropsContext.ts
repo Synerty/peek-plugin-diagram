@@ -1,10 +1,9 @@
-
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 
 export enum ShapePropType {
     Layer,
     Level,
-    FontStyle,
+    TextStyle,
     Color,
     LineStyle,
     String,
@@ -42,6 +41,7 @@ export class PeekCanvasShapePropsContext {
 
     constructor(public disp: {} = {},
                 private lookupService: DiagramLookupService | null = null,
+                private modelSetId: number | null = null,
                 private coordSetId: number | null = null) {
 
     }
@@ -59,40 +59,40 @@ export class PeekCanvasShapePropsContext {
     }
 
     get levelOptions(): ShapeProp[] {
-        if (this.lookupService == null || this.coordSetId == null)
-            return [];
-
-        let opts: ShapePropOption[] = [];
-        for (let layer of this.lookupService.layersOrderedByOrder()) {
-            opts.push({
-                name: layer.name,
-                value: layer.id
-            });
-        }
+        return this.makeOptions(this.modelSetId,
+            this.lookupService.layersOrderedByOrder);
     }
 
     get layerOptions(): ShapeProp[] {
-        if (this.lookupService == null || this.coordSetId == null)
-            return [];
-
-        let opts: ShapePropOption[] = [];
-        for (let level of this.lookupService.levelsOrderedByOrder(this.coordSetId)) {
-            opts.push({
-                name: level.name,
-                value: level.id
-            });
-        }
+        return this.makeOptions(this.coordSetId,
+            this.lookupService.levelsOrderedByOrder);
     }
 
     get colorOptions(): ShapeProp[] {
-        if (this.lookupService == null || this.coordSetId == null)
+        return this.makeOptions(this.modelSetId,
+            this.lookupService.colorsOrderedByName);
+    }
+
+    get textStyleOptions(): ShapeProp[] {
+        return this.makeOptions(this.modelSetId,
+            this.lookupService.textStylesOrderedByName);
+    }
+
+    get lineStyleOptions(): ShapeProp[] {
+        return this.makeOptions(this.modelSetId,
+            this.lookupService.lineStylesOrderedByName);
+    }
+
+
+    private makeOptions(groupId: number, lookupServiceCallable): ShapeProp[] {
+        if (this.lookupService == null || groupId == null)
             return [];
 
         let opts: ShapePropOption[] = [];
-        for (let level of this.lookupService.colorsOrderedByName()) {
+        for (let item of lookupServiceCallable(groupId)) {
             opts.push({
-                name: level.name,
-                value: level.id
+                name: item.name,
+                value: item.id
             });
         }
     }

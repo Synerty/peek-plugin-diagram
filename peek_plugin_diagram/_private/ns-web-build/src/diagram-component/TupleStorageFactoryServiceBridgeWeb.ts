@@ -4,7 +4,7 @@ import {TupleOfflineStorageNameService} from "@synerty/vortexjs/src/vortex/stora
 import {TupleStorageFactoryService} from "@synerty/vortexjs/src/vortex/storage-factory/TupleStorageFactoryService";
 import {TupleActionStorageServiceABC} from "@synerty/vortexjs/src/vortex/action-storage/TupleActionStorageServiceABC";
 import {TupleStorageBridgeWeb} from "../service-bridge/TupleStorageBridgeWeb";
-import {TupleActionBridgeWeb} from "../service-bridge-web/TupleActionBridgeWeb";
+import {TupleActionBridgeWeb} from "../service-bridge-web/TupleActionBridge.web";
 
 // import {TupleActionStorageIndexedDbService} from "@synerty/vortexjs/src/vortex/action-storage/TupleActionStorageIndexedDbService";
 

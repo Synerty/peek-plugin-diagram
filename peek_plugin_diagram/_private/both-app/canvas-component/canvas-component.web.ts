@@ -21,7 +21,8 @@ import {
     PrivateDiagramPositionService
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
-import {PrivateDiagramCoordSetService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DiagramBranchService} from "@peek/peek_plugin_diagram/DiagramBranchService";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
@@ -47,7 +48,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     private canvas: any = null;
 
-    coordSetId: number | null = null;
+    coordSetKey: string | null = null;
 
     // DoCheck last value variables
     private lastCanvasSize: string = "";
@@ -63,12 +64,13 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     // Private services
     private _privatePosService: PrivateDiagramPositionService;
+    private coordSetCache: PrivateDiagramCoordSetService;
 
 
     constructor(private balloonMsg: Ng2BalloonMsgService,
                 private gridObservable: GridObservable,
                 private lookupService: DiagramLookupService,
-                private coordSetCache: PrivateDiagramCoordSetService,
+                abstractCoordSetCache: DiagramCoordSetService,
                 private dispGroupCache: DispGroupCache,
                 positionService: DiagramPositionService,
                 private itemSelectService: PrivateDiagramItemSelectService,
@@ -76,6 +78,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         super();
 
         // Cast the private services
+        this.coordSetCache = <PrivateDiagramCoordSetService>abstractCoordSetCache;
         this._privatePosService = <PrivateDiagramPositionService>positionService;
 
         // The config for the canvas
@@ -230,6 +233,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
         // Update
         this.config.updateCoordSet(coordSet);
+        this.coordSetKey = coordSetKey;
 
         // Inform the position service that it's ready to go.
         this._privatePosService.setReady(true);

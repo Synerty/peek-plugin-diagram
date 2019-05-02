@@ -1,27 +1,32 @@
-import {Input, NgZone, OnInit, ViewChild} from "@angular/core";
+import {Component, Input, OnInit, ViewChild} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {TitleService} from "@synerty/peek-util";
 
 
 import {
-    PrivateDiagramItemSelectService,
-    SelectedItemDetailsI
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
-import {
-    DiagramItemDetailI,
-    DiagramItemPopupService,
-    DiagramMenuItemI
-} from "@peek/peek_plugin_diagram/DiagramItemPopupService";
-import {PrivateDiagramItemPopupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemPopupService";
+    PopupLayerSelectionArgsI,
+    PrivateDiagramConfigService
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
+import {DiagramConfigService} from "@peek/peek_plugin_diagram/DiagramConfigService";
+import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
+import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
+import {DispLayer} from "@peek/peek_plugin_diagram/lookups";
 
+import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 
-export abstract class SelectLayersComponent extends ComponentLifecycleEventEmitter
+@Component({
+    selector: 'pl-diagram-select-layers',
+    templateUrl: 'select-layers.component.web.html',
+    styleUrls: ['select-layers.component.web.scss'],
+    moduleId: module.id
+})
+export class SelectLayersComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
     @ViewChild('modalView') modalView;
 
     private backdropId = 'div.modal-backdrop';
-
-    dispKey: string;
+    popupShown: boolean = false;
 
     @Input("coordSetKey")
     coordSetKey: string;
@@ -29,25 +34,27 @@ export abstract class SelectLayersComponent extends ComponentLifecycleEventEmitt
     @Input("modelSetKey")
     modelSetKey: string;
 
-    protected itemPopupService: PrivateDiagramItemPopupService;
+    @Input("config")
+    config: PeekCanvasConfig;
 
-    details: DiagramItemDetailI[] = [];
-    menuItems: DiagramMenuItemI[] = [];
+    private configService: PrivateDiagramConfigService;
+    private coordSetService: PrivateDiagramCoordSetService;
 
-    popupShown: boolean = false;
+    items: DispLayer[] = [];
 
-    constructor(protected titleService: TitleService,
-                protected itemSelectService: PrivateDiagramItemSelectService,
-                abstractItemPopupService: DiagramItemPopupService,
-                protected zone: NgZone) {
+    constructor(private titleService: TitleService,
+                private lookupService: DiagramLookupService,
+                abstractConfigService: DiagramConfigService,
+                abstractCoordSetService: DiagramCoordSetService) {
         super();
 
-        this.itemPopupService = <PrivateDiagramItemPopupService>abstractItemPopupService;
+        this.configService = <PrivateDiagramConfigService>abstractConfigService;
+        this.coordSetService = <PrivateDiagramCoordSetService>abstractCoordSetService;
 
-        this.itemSelectService
-            .itemSelectObservable()
+        this.configService
+            .popupLayerSelectionObservable()
             .takeUntil(this.onDestroyEvent)
-            .subscribe((v: SelectedItemDetailsI) => this.openPopup(v));
+            .subscribe((v: PopupLayerSelectionArgsI) => this.openPopup(v));
 
     }
 
@@ -55,43 +62,22 @@ export abstract class SelectLayersComponent extends ComponentLifecycleEventEmitt
 
     }
 
-    protected openPopup(itemDetails: SelectedItemDetailsI) {
-        console.log("Opening popup");
-        this.dispKey = itemDetails.dispKey;
-        this.details = [];
-        this.menuItems = [];
+    protected openPopup({coordSetKey, modelSetKey}) {
+        let coordSet = this.coordSetService.coordSetForKey(coordSetKey);
+        console.log("Opening Layer Select popup");
+
+        this.items = this.lookupService.layersOrderedByOrder(coordSet.modelSetId);
+
         this.popupShown = true;
-        this.itemPopupService.setPopupShown(true);
-
-        // Tell any observers that we're popping up
-        // Give them a chance to add their items
-        this.itemPopupService.emitPopupContext(
-            {
-                key: this.dispKey,
-                data: itemDetails.dispData || {},
-                coordSetKey: this.coordSetKey,
-                modelSetKey: this.modelSetKey,
-                addMenuItem: (item: DiagramMenuItemI) => {
-                    this.zone.run(() => this.menuItems.push(item));
-                },
-                addDetailItems: (items: DiagramItemDetailI[]) => {
-                    this.zone.run(() => this.details.add(items));
-                }
-            }
-        );
-
         this.platformOpen();
     }
 
     closePopup(): void {
         this.popupShown = false;
-        this.itemPopupService.setPopupShown(false);
         this.platformClose();
 
         // Discard the integration additions
-        this.details = [];
-        this.menuItems = [];
-        this.dispKey = '';
+        this.items = [];
     }
 
     platformOpen(): void {
@@ -113,22 +99,16 @@ export abstract class SelectLayersComponent extends ComponentLifecycleEventEmitt
         jqModal.modal('hide');
     }
 
-    menuItemClicked(item: DiagramMenuItemI): void {
-        if (item.callback == null) {
-            // Expand Children?
-        } else {
-            item.callback();
-        }
-        if (item.closeOnCallback)
-            this.closePopup();
+
+    noItems(): boolean {
+        return this.items.length == 0;
     }
 
-    noMenuItems(): boolean {
-        return this.menuItems.length == 0;
-    }
+    toggleVisible(layer: DispLayer): void {
+        layer.visible = !layer.visible;
+        if (this.config != null)
+            this.config.setModelNeedsCompiling();
 
-    noDetails(): boolean {
-        return this.details.length == 0;
     }
 
 

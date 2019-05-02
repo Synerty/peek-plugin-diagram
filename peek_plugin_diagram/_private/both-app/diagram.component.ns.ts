@@ -24,8 +24,8 @@ import {BranchLoaderServiceBridgeNs} from "../service-bridge/BranchLoaderService
 import {BranchServiceBridgeNs} from "../service-bridge/BranchServiceBridge.ns";
 
 import * as fs from "tns-core-modules/file-system";
-import {TupleActionBridgeNs} from "./service-bridge-ns/TupleActionBridgeNs";
-import {ItemPopupServiceBridgeNs} from "./service-bridge-ns/ItemPopupServiceBridgeNs";
+import {TupleActionBridgeNs} from "./service-bridge-ns/TupleActionBridge.ns";
+import {ItemPopupServiceBridgeNs} from "./service-bridge-ns/ItemPopupServiceBridge.ns";
 
 @Component({
     selector: 'peek-plugin-diagram',

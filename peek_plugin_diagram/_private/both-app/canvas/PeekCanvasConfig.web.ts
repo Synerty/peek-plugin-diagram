@@ -79,6 +79,7 @@ export class PeekCanvasConfig {
     };
 
     model = {
+        needsCompiling: new Subject<void>(), // Set this to true to cause the renderer to redraw
         gridsWaitingForData: 0,
         dispOnScreen: 0
     };
@@ -98,9 +99,12 @@ export class PeekCanvasConfig {
         this.canvasId = PeekCanvasConfig.canvasIdCounter++;
     }
 
-
     invalidate() {
         this.renderer.invalidate.next();
+    };
+
+    setModelNeedsCompiling() {
+        this.model.needsCompiling.next();
     };
 
     updateViewPortPan(newPan: PanI) {

@@ -3,25 +3,9 @@ import {NgModule} from "@angular/core";
 // Import a small abstraction library to switch between nativescript and web
 import {PeekModuleFactory} from "@synerty/peek-util-web";
 // Import the default route component
-import {DiagramComponent} from "./diagram.component";
+import {DiagramComponent} from "./diagram.component.web";
 // Import the required classes from VortexJS
-import {
-    TupleActionPushNameService,
-    TupleActionPushOfflineService,
-    TupleActionPushService,
-    TupleDataObservableNameService,
-    TupleDataObserverService,
-    TupleDataOfflineObserverService,
-    TupleOfflineStorageNameService,
-    TupleOfflineStorageService
-} from "@synerty/vortexjs";
 // Import the names we need for the vortexjs integrations
-import {
-    diagramActionProcessorName,
-    diagramFilt,
-    diagramObservableName,
-    diagramTupleOfflineServiceName
-} from "@peek/peek_plugin_diagram/_private/PluginNames";
 // Import global modules, for example, the canvas extensions.
 import "./canvas/PeekCanvasExtensions.web";
 // import {DisplayCanvasSplashScreen} from "./loading-splash/loading-splash.service";
@@ -29,25 +13,15 @@ import {GridCache} from "./cache/GridCache.web";
 import {GridObservable} from "./cache/GridObservable.web";
 import {DispGroupCache} from "./cache/DispGroupCache.web";
 import {CanvasComponent} from "./canvas-component/canvas-component.web";
-
-
-import {PrivateDiagramItemSelectService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
-import {PrivateDiagramPositionService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
-import {PrivateDiagramToolbarService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
-import {PrivateDiagramItemPopupService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemPopupService";
-import {PrivateDiagramCoordSetService,} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
-
-
-import {DiagramItemPopupService} from "@peek/peek_plugin_diagram/DiagramItemPopupService";
-import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {PopupComponent} from "./popup-component/popup.component.mweb";
 import {ToolbarComponent} from "./toolbar-component/toolbar.component.web";
-import {LayerComponent} from "./layer-component/layer.component.web";
-import {EditContextComponent} from "./canvas-component/edit-context-component/edit-context.component.mweb";
-import {EditToolbarComponent} from "./canvas-component/edit-toolbar-component/edit-toolbar.component.web";
-import {EditShapePropertiesComponent} from "./canvas-component/edit-shape-properties-component/edit-shape-properties.component";
-import {EditDynamicPropertiesComponent} from "./canvas-component/edit-dynamic-properties-component/edit-dynamic-properties.component";
+import {EditContextComponent} from "./edit-context-component/edit-context.component.mweb";
+import {EditToolbarComponent} from "./edit-toolbar-component/edit-toolbar.component.web";
+import {EditShapePropertiesComponent} from "./edit-shape-properties-component/edit-shape-properties.component";
+import {EditDynamicPropertiesComponent} from "./edit-dynamic-properties-component/edit-dynamic-properties.component";
+import {SelectBranchesComponent} from "./select-branches-component/select-branches.component.web";
+import {SelectLayersComponent} from "./select-layers-component/select-layers.component.web";
+import {StartEditComponent} from "./start-edit-component/start-edit.component.web";
 
 
 // Define the root module for this plugin.
@@ -68,9 +42,10 @@ import {EditDynamicPropertiesComponent} from "./canvas-component/edit-dynamic-pr
         GridObservable
     ],
     declarations: [DiagramComponent, CanvasComponent, PopupComponent,
-        ToolbarComponent, LayerComponent,
+        ToolbarComponent,
         EditContextComponent, EditToolbarComponent,
-        EditShapePropertiesComponent, EditDynamicPropertiesComponent]
+        EditShapePropertiesComponent, EditDynamicPropertiesComponent,
+        StartEditComponent, SelectLayersComponent, SelectBranchesComponent]
 })
 export class PeekPluginDiagramModule {
 }

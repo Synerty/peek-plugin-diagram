@@ -1,21 +1,6 @@
-import {Input, NgZone, OnInit} from "@angular/core";
-
-import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
+import {Input, OnInit} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {TitleService} from "@synerty/peek-util";
-
-
-import {
-    PrivateDiagramItemSelectService,
-    SelectedItemDetailsI
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
-import {
-    DiagramItemDetailI,
-    DiagramItemPopupService,
-    DiagramMenuItemI
-} from "@peek/peek_plugin_diagram/DiagramItemPopupService";
-import {PrivateDiagramItemPopupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemPopupService";
-import {EditorContextType, PeekCanvasEditor} from "../../canvas/PeekCanvasEditor.web";
+import {EditorContextType, PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 
 
 export abstract class EditContextComponentBase extends ComponentLifecycleEventEmitter

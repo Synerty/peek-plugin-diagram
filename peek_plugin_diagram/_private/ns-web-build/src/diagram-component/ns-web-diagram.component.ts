@@ -1,7 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {DiagramPositionService, PositionUpdatedI} from "../@peek/peek_plugin_diagram";
-import {PrivateDiagramPositionService} from "../@peek/peek_plugin_diagram/_private/services";
 
 @Component({
     selector: 'ns-web-diagram',
@@ -10,16 +8,9 @@ import {PrivateDiagramPositionService} from "../@peek/peek_plugin_diagram/_priva
 export class NsWebDiagramComponent extends ComponentLifecycleEventEmitter implements OnInit {
 
     modelSetKey: string | null = null;
-    coordSetKey: string | null = null;
 
-    constructor(private posService : DiagramPositionService) {
+    constructor() {
         super();
-
-        let privatePosService = <PrivateDiagramPositionService> posService;
-
-        privatePosService.positionUpdatedObservable()
-            .takeUntil(this.onDestroyEvent)
-            .subscribe((pos: PositionUpdatedI) => this.coordSetKey = pos.coordSetKey);
 
     }
 

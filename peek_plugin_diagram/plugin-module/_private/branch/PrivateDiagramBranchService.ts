@@ -9,8 +9,8 @@ import {DiagramBranchService} from "../../DiagramBranchService";
 import {DiagramLookupService} from "../../DiagramLookupService";
 import {DiagramCoordSetService} from "../../DiagramCoordSetService";
 import {
-    PopupBranchSelectionArgs,
-    PopupLayerSelectionArgs
+    PopupBranchSelectionArgsI,
+    PopupLayerSelectionArgsI
 } from "../services/PrivateDiagramConfigService";
 
 

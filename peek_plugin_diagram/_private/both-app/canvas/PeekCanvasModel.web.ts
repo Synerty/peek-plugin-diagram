@@ -31,6 +31,7 @@ export interface PolylineEnd {
 
 export class PeekCanvasModel {
 
+    private _modelSetId = null;
     private _coordSetId = null;
 
     // Grid Buffer
@@ -83,9 +84,13 @@ export class PeekCanvasModel {
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
             .subscribe((grid: LinkedGrid) => this._receiveGrid([grid]));
 
-        this.lifecycleEventEmitter.onDestroyEvent.subscribe(() => {
-            this.gridObservable.unsubscribeCanvas(this.config.canvasId);
-        });
+        this.lifecycleEventEmitter.onDestroyEvent
+            .subscribe(() => this.gridObservable.unsubscribeCanvas(this.config.canvasId));
+
+        // Hook up the trigger to recompile the model
+        this.config.model.needsCompiling
+            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .subscribe(() => this.needsCompiling = true);
 
 
         // Watch for changes to the config that effect us
@@ -95,6 +100,7 @@ export class PeekCanvasModel {
                 if (coordSet == null) {
                     this.config.updateViewPortPan({x: 0, y: 0});
                     this.config.updateViewPortZoom(1.0);
+                    this._modelSetId = null;
                     this._coordSetId = null;
 
                 } else {
@@ -102,6 +108,7 @@ export class PeekCanvasModel {
                         {x: coordSet.initialPanX, y: coordSet.initialPanY}
                     );
                     this.config.updateViewPortZoom(coordSet.initialZoom);
+                    this._modelSetId = coordSet.modelSetId;
                     this._coordSetId = coordSet.id;
                 }
 
@@ -303,13 +310,13 @@ export class PeekCanvasModel {
 
         this.needsCompiling = false;
 
-        if (this._coordSetId == null)
+        if (this._modelSetId == null || this._coordSetId == null)
             return;
 
         let startTime = now();
 
         let levelsOrderedByOrder = this.lookupCache.levelsOrderedByOrder(this._coordSetId);
-        let layersOrderedByOrder = this.lookupCache.layersOrderedByOrder();
+        let layersOrderedByOrder = this.lookupCache.layersOrderedByOrder(this._modelSetId);
 
         let zoom = this.config.viewPort.zoom;
 

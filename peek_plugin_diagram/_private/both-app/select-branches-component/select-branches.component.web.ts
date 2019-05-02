@@ -1,4 +1,4 @@
-import {Input, NgZone, OnInit, ViewChild} from "@angular/core";
+import {Component, Input, NgZone, OnInit, ViewChild} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {TitleService} from "@synerty/peek-util";
 
@@ -15,7 +15,13 @@ import {
 import {PrivateDiagramItemPopupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemPopupService";
 
 
-export abstract class SelectBranchesComponent extends ComponentLifecycleEventEmitter
+@Component({
+    selector: 'pl-diagram-select-branches',
+    templateUrl: 'select-branches.component.web.html',
+    styleUrls: ['select-branches.component.web.scss'],
+    moduleId: module.id
+})
+export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
    @ViewChild('modalView') modalView;
 

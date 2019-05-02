@@ -1,4 +1,13 @@
 <div>
+
+    <pl-diagram-toolbar *ngIf="coordSetKey != null"
+                        [coordSetKey]="coordSetKey"
+                        [modelSetKey]="modelSetKey"></pl-diagram-toolbar>
+
+    <pl-diagram-popup *ngIf="coordSetKey != null"
+                      [coordSetKey]="coordSetKey"
+                      [modelSetKey]="modelSetKey"></pl-diagram-popup>
+
     <div #edittoolbar>
         <pl-diagram-edit-toolbar
                 *ngIf="editor.isEditing()"
@@ -6,10 +15,23 @@
     </div>
 
 
+    <!-- This is the properties panel that appears, it can have dynamic properties
+    or shape properties -->
     <pl-diagram-edit-context
             class="pl-canvas-edit-context"
             *ngIf="editor.isEditing()"
             [canvasEditor]="editor"></pl-diagram-edit-context>
+
+    <pl-diagram-select-layers
+            [config]="config"
+            [coordSetKey]="coordSetKey"
+            [modelSetKey]="modelSetKey"></pl-diagram-select-layers>
+    <pl-diagram-select-branches
+            [coordSetKey]="coordSetKey"
+            [modelSetKey]="modelSetKey"></pl-diagram-select-branches>
+    <pl-diagram-start-edit
+            [canvasEditor]="editor"></pl-diagram-start-edit>
+
 
     <div class="pl-canvas-container">
         <p class="canvas-status-bar ">{{mouseInfo()}}</p>
