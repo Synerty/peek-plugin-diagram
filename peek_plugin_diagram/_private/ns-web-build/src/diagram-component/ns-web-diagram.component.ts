@@ -1,9 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ComponentLifecycleEventEmitter, VortexService} from "@synerty/vortexjs";
-import {PositionServiceBridgeWeb} from "../service-bridge/PositionServiceBridgeWeb";
-import {ItemSelectServiceBridgeWeb} from "../service-bridge/ItemSelectServiceBridgeWeb";
-import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
+import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
 @Component({
     selector: 'ns-web-diagram',
