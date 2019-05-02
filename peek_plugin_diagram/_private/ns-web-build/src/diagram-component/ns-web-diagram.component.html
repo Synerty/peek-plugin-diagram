@@ -1,11 +1,10 @@
 <pl-diagram-canvas *ngIf="modelSetKey != null"
-                   [coordSetKey]="coordSetKey"
                    [modelSetKey]="modelSetKey"></pl-diagram-canvas>
 
-<pl-diagram-toolbar *ngIf="modelSetKey != null"
+<pl-diagram-toolbar *ngIf="coordSetKey != null"
                     [coordSetKey]="coordSetKey"
                     [modelSetKey]="modelSetKey"></pl-diagram-toolbar>
 
-<pl-diagram-popup *ngIf="modelSetKey != null"
+<pl-diagram-popup *ngIf="coordSetKey != null"
                   [coordSetKey]="coordSetKey"
                   [modelSetKey]="modelSetKey"></pl-diagram-popup>
