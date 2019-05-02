@@ -2,9 +2,13 @@
 @import '~@synerty/peek-theme/scss/_variables.web';
 
 
+.modal-open.modal{
+  overflow-y: unset;
+}
 
-.edit-create-branch-body {
-  overflow-y: scroll;
+.modal-body {
+  overflow-y: auto;
+  max-height: 85vh;
 }
 
 .edit-create-branch-dialog {

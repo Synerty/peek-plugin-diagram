@@ -1,6 +1,16 @@
 import {Component, Input, OnInit, ViewChild} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {EditorContextType, PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
+import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
+import {DiagramBranchService} from "@peek/peek_plugin_diagram/DiagramBranchService";
+import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
+import {DispLayer} from "@peek/peek_plugin_diagram/lookups";
+
+import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+import {
+    PopupEditBranchSelectionArgs,
+    PrivateDiagramBranchService
+} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
+import {DiagramBranchLocation} from "@peek/peek_plugin_diagram/branch/DiagramBranchContext";
 
 
 @Component({
@@ -12,36 +22,52 @@ import {EditorContextType, PeekCanvasEditor} from "../canvas/PeekCanvasEditor.we
 export class StartEditComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
 
-    @Input("canvasEditor")
-    canvasEditor: PeekCanvasEditor;
-
-    isContextShown: boolean = false;
-
     @ViewChild('modalView') modalView;
 
     private backdropId = 'div.modal-backdrop';
+    popupShown: boolean = false;
 
-    constructor() {
+    @Input("coordSetKey")
+    coordSetKey: string;
+
+    @Input("modelSetKey")
+    modelSetKey: string;
+
+    @Input("canvasEditor")
+    canvasEditor: PeekCanvasEditor;
+
+    private branchService: PrivateDiagramBranchService;
+    private coordSetService: PrivateDiagramCoordSetService;
+
+
+    items: DispLayer[] = [];
+
+
+    constructor(abstractBranchService: DiagramBranchService,
+                abstractCoordSetService: DiagramCoordSetService) {
         super();
+
+        this.branchService = <PrivateDiagramBranchService>abstractBranchService;
+        this.coordSetService = <PrivateDiagramCoordSetService>abstractCoordSetService;
+
+        this.branchService
+            .popupEditBranchSelectionObservable
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((v: PopupEditBranchSelectionArgs) => this.openPopup(v));
 
     }
 
     ngOnInit() {
-        this.canvasEditor.contextPanelObservable()
-            .takeUntil(this.onDestroyEvent)
-            .subscribe((val: EditorContextType) => {
-                if (val == EditorContextType.NONE) {
-                    this.closePopup();
-                    return;
-                }
 
-                this.openPopup();
-
-            });
     }
 
-    protected openPopup() {
-        this.isContextShown = true;
+    protected openPopup({coordSetKey, modelSetKey}) {
+        let coordSet = this.coordSetService.coordSetForKey(coordSetKey);
+        console.log("Opening Layer Select popup");
+
+        this.items = [];
+
+        this.popupShown = true;
         this.platformOpen();
     }
 
@@ -50,8 +76,11 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
     //
 
     closePopup(): void {
-        this.isContextShown = false;
+        this.popupShown = false;
         this.platformClose();
+
+        // Discard the integration additions
+        this.items = [];
     }
 
     platformOpen(): void {
@@ -71,6 +100,19 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
     platformClose(): void {
         let jqModal: any = $(this.modalView.nativeElement);
         jqModal.modal('hide');
+    }
+
+
+    noItems(): boolean {
+        return this.items.length == 0;
+    }
+
+    startEditing(): void {
+        this.branchService.startEditing(
+            this.modelSetKey, this.coordSetKey, 'defaultBranchKey',
+            DiagramBranchLocation.LocalBranch
+        );
+        this.closePopup();
     }
 
 

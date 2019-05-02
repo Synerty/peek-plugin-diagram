@@ -50,6 +50,11 @@ $toolbar_width: 250px;
 
 }
 
+/* The edit toolbar buttons */
+.open-close-button > .btn {
+  margin-left: 1px; /* This will show a line between buttons in the groups */
+}
+
 /* On smaller screens, where height is less than 450px, change the style of the toolbar (less padding and a smaller font size) */
 @media screen and (max-height: 450px) {
   .toolbar {

@@ -23,6 +23,7 @@ import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 })
 export class SelectLayersComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
+
     @ViewChild('modalView') modalView;
 
     private backdropId = 'div.modal-backdrop';

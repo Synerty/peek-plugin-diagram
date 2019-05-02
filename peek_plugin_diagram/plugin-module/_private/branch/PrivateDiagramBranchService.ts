@@ -1,18 +1,16 @@
 import {Injectable} from "@angular/core";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
-import {DiagramBranchContext, DiagramBranchLocation} from "../../branch/DiagramBranchContext";
+import {
+    DiagramBranchContext,
+    DiagramBranchLocation
+} from "../../branch/DiagramBranchContext";
 import {PrivateDiagramBranchContext} from "../branch/PrivateDiagramBranchContext";
 import {BranchTuple} from "../branch/BranchTuple";
 import {BranchIndexLoaderServiceA} from "../branch-loader/BranchIndexLoaderServiceA";
 import {DiagramBranchService} from "../../DiagramBranchService";
 import {DiagramLookupService} from "../../DiagramLookupService";
 import {DiagramCoordSetService} from "../../DiagramCoordSetService";
-import {
-    PopupBranchSelectionArgsI,
-    PopupLayerSelectionArgsI
-} from "../services/PrivateDiagramConfigService";
-
 
 
 export interface PopupEditBranchSelectionArgs {
@@ -71,6 +69,11 @@ export class PrivateDiagramBranchService extends DiagramBranchService {
         })
     }
 
+    /** This observable is subscribed to by the select layer popup */
+    get popupEditBranchSelectionObservable(): Observable<PopupEditBranchSelectionArgs> {
+        return this._popupEditBranchSelectionSubject;
+    }
+
 
     startEditing(modelSetKey: string, coordSetKey: string,
                  branchKey: string, location: DiagramBranchLocation): void {
@@ -79,21 +82,16 @@ export class PrivateDiagramBranchService extends DiagramBranchService {
             .then((context: any) => this._startEditingObservable.next(context));
     }
 
-    stopEditing(): void {
-        this._stopEditingObservable.next();
-    }
-
     get startEditingObservable(): Observable<PrivateDiagramBranchContext> {
         return this._startEditingObservable;
     }
 
-    get stopEditingObservable(): Observable<void> {
-        return this._stopEditingObservable;
+    stopEditing(): void {
+        this._stopEditingObservable.next();
     }
 
-    /** This observable is subscribed to by the select layer popup */
-    get popupEditBranchSelectionObservable(): Observable<PopupEditBranchSelectionArgs> {
-        return this._popupEditBranchSelectionSubject;
+    get stopEditingObservable(): Observable<void> {
+        return this._stopEditingObservable;
     }
 
 

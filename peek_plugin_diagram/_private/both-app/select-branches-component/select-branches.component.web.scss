@@ -2,14 +2,20 @@
 @import '~@synerty/peek-theme/scss/_variables.web';
 
 
+.modal-open.modal {
+  overflow-y: unset;
+
+}
 
 .modal-body {
-  overflow-y: scroll;
+  overflow-y: auto;
+  max-height: 85vh;
 }
 
 .modal-dialog {
   padding: $general_padding_1;
   top: $title_bar_height;
+
 }
 
 /*

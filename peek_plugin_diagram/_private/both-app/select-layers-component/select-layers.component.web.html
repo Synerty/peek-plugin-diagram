@@ -1,5 +1,5 @@
 <div #modalView class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-md" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" (click)="closePopup()"
@@ -10,7 +10,7 @@
             </div>
             <div class="modal-body">
                 <p *ngIf="noItems()">
-                    There are layers to view at this time.
+                    There are no layers to view at this time.
                 </p>
                 <div *ngIf="!noItems()" class="peek-tables-section">
                     <table class="table">

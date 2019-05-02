@@ -1,6 +1,6 @@
 <div>
 
-    <pl-diagram-toolbar *ngIf="coordSetKey != null"
+    <pl-diagram-toolbar *ngIf="coordSetKey != null && !editor.isEditing()"
                         [coordSetKey]="coordSetKey"
                         [modelSetKey]="modelSetKey"></pl-diagram-toolbar>
 
@@ -27,6 +27,7 @@
             [coordSetKey]="coordSetKey"
             [modelSetKey]="modelSetKey"></pl-diagram-select-layers>
     <pl-diagram-select-branches
+            [config]="config"
             [coordSetKey]="coordSetKey"
             [modelSetKey]="modelSetKey"></pl-diagram-select-branches>
     <pl-diagram-start-edit
