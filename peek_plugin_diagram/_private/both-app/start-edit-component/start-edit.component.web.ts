@@ -41,6 +41,7 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
 
 
     items: DispLayer[] = [];
+    barIndex: number = 0;
 
 
     constructor(abstractBranchService: DiagramBranchService,
@@ -65,7 +66,7 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
         let coordSet = this.coordSetService.coordSetForKey(coordSetKey);
         console.log("Opening Layer Select popup");
 
-        this.items = [];
+        this.items = [new ];
 
         this.popupShown = true;
         this.platformOpen();

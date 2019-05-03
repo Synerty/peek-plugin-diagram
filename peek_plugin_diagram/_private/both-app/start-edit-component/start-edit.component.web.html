@@ -8,17 +8,33 @@
                     <fa name="times"></fa>
                 </button>
 
-                <h4 class="modal-title">Create Diagram Branch</h4>
-                TODO Tab for New, Tab for Existing
+                <h4 class="modal-title">Create or Edit Diagram Branch</h4>
             </div>
             <div class="modal-body edit-create-branch-body">
+                Create branch here.
 
-              Create branch here.
+                <div class="peek-tabs-section">
+                    <div class="btn-group" role="group">
+                        <Button class="tabs-section-btn"
+                                [class.active]="barIndex == 0"
+                                (click)="barIndex = 0">
+                            Create New
+                        </Button>
+                        <Button class="tabs-section-btn"
+                                [class.active]="barIndex == 1"
+                                (click)="barIndex = 1">
+                            Edit Existing
+                        </Button>
+                    </div>
+                </div>
 
-                <button class="btn btn-success" type="button"
-                        (click)="startEditing()">
-                    Start Editing
-                </button>
+                <div *ngIf="barIndex == 0">
+                    <button class="btn btn-success" type="button"
+                            (click)="startEditing()">
+                        Start Editing
+                    </button>
+                </div>
+
 
             </div>
         </div><!-- /.modal-content -->

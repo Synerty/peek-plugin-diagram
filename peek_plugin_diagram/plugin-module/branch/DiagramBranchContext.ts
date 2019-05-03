@@ -1,19 +1,10 @@
 import {DiagramDeltaBase} from "./DiagramDeltaBase";
-
 // Ensure the deltas are registered
 import "./DiagramDeltaColorOverride";
 import "./DiagramDeltaCreateDisp"
 
-/** Diagram Branch Service Enum
- *
- * This enum describes the location of the branch,
- * is the branch local to the UI, or is it persisted on the server.
- *
- */
-export enum DiagramBranchLocation {
-    ServerBranch,
-    LocalBranch
-}
+
+import {BranchLocation} from "@peek/peek_plugin_branch"
 
 /** Diagram Branch Context
  *
@@ -38,7 +29,7 @@ export abstract class DiagramBranchContext {
      *
      * The location of this branch
      */
-    abstract get location(): DiagramBranchContext;
+    abstract get location(): BranchLocation;
 
     /** Save
      *
