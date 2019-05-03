@@ -1,6 +1,7 @@
 import {Component, Input, OnInit, ViewChild} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {TitleService} from "@synerty/peek-util";
+import {BranchService, BranchDetailTuple} from "@peek/peek_plugin_branch";
 
 
 import {
@@ -41,12 +42,13 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
     private configService: PrivateDiagramConfigService;
     private coordSetService: PrivateDiagramCoordSetService;
 
-    items: DispLayer[] = [];
+    items: BranchDetailTuple[] = [];
 
     constructor(private titleService: TitleService,
                 private lookupService: DiagramLookupService,
                 abstractConfigService: DiagramConfigService,
-                abstractCoordSetService: DiagramCoordSetService) {
+                abstractCoordSetService: DiagramCoordSetService,
+                private globalBranchService:BranchService) {
         super();
 
         this.configService = <PrivateDiagramConfigService>abstractConfigService;
@@ -64,10 +66,14 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
     }
 
     protected openPopup({coordSetKey, modelSetKey}) {
-        let coordSet = this.coordSetService.coordSetForKey(coordSetKey);
-        console.log("Opening Layer Select popup");
+        // let coordSet = this.coordSetService.coordSetForKey(coordSetKey);
+        console.log("Opening Branch Select popup");
 
-        this.items = this.lookupService.layersOrderedByOrder(coordSet.modelSetId);
+        this.globalBranchService.branches(this.modelSetKey)
+            .then((tuples:BranchDetailTuple[]) => {
+                this.items = tuples;
+            });
+        this.items = [];
 
         this.popupShown = true;
         this.platformOpen();

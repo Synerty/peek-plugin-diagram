@@ -4,6 +4,7 @@ import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DiagramBranchService} from "@peek/peek_plugin_diagram/DiagramBranchService";
 import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
 import {DispLayer} from "@peek/peek_plugin_diagram/lookups";
+import {BranchService, BranchDetailTuple} from "@peek/peek_plugin_branch";
 
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {
@@ -11,6 +12,7 @@ import {
     PrivateDiagramBranchService
 } from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 import {DiagramBranchLocation} from "@peek/peek_plugin_diagram/branch/DiagramBranchContext";
+import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 
 
 @Component({
@@ -40,16 +42,22 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
     private coordSetService: PrivateDiagramCoordSetService;
 
 
-    items: DispLayer[] = [];
+    items: BranchDetailTuple[] = [];
     barIndex: number = 0;
+
+    selectedBranch: BranchDetailTuple = null;
+    newBranch: BranchDetailTuple = new BranchDetailTuple();
 
 
     constructor(abstractBranchService: DiagramBranchService,
-                abstractCoordSetService: DiagramCoordSetService) {
+                abstractCoordSetService: DiagramCoordSetService,
+                private globalBranchService: BranchService,
+                private balloonMsg: Ng2BalloonMsgService) {
         super();
 
         this.branchService = <PrivateDiagramBranchService>abstractBranchService;
         this.coordSetService = <PrivateDiagramCoordSetService>abstractCoordSetService;
+
 
         this.branchService
             .popupEditBranchSelectionObservable
@@ -63,10 +71,23 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
     }
 
     protected openPopup({coordSetKey, modelSetKey}) {
-        let coordSet = this.coordSetService.coordSetForKey(coordSetKey);
-        console.log("Opening Layer Select popup");
 
-        this.items = [new ];
+        this.newBranch = new BranchDetailTuple();
+        this.newBranch.modelSetKey = this.modelSetKey;
+        this.newBranch.createdDate = new Date();
+        this.newBranch.updatedDate = new Date();
+        this.newBranch.userName = "A user name";
+
+        // let coordSet = this.coordSetService.coordSetForKey(coordSetKey);
+        console.log("Opening Start Edit popup");
+
+        this.globalBranchService.branches(this.modelSetKey)
+            .then((tuples: BranchDetailTuple[]) => {
+                this.items = tuples;
+            })
+            .catch((e) => `Failed to load branches ${e}`);
+
+        this.items = [];
 
         this.popupShown = true;
         this.platformOpen();
@@ -108,10 +129,31 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
         return this.items.length == 0;
     }
 
-    startEditing(): void {
+    isBranchSelected(item: BranchDetailTuple): boolean {
+        return item != null && this.selectedBranch != null && item.id == this.selectedBranch.id;
+    }
+
+    selectBranch(item: BranchDetailTuple): void {
+        this.selectedBranch = item;
+    }
+
+    startEditing() {
+
+        if (this.barIndex == 0) {
+            let nb = this.newBranch;
+            if (nb.name == null || nb.name.length == 0) {
+                this.balloonMsg.showWarning("Name must be supplied to create a branch");
+                return;
+            }
+
+            nb.key = `${nb.userName}|${nb.createdDate}|${nb.name}`;
+        }
+
+        let branchToEdit = this.barIndex == 0 ? this.newBranch : this.selectedBranch;
+
         this.branchService.startEditing(
-            this.modelSetKey, this.coordSetKey, 'defaultBranchKey',
-            DiagramBranchLocation.LocalBranch
+            this.modelSetKey, this.coordSetKey, branchToEdit.key,
+            DiagramBranchLocation.ServerBranch
         );
         this.closePopup();
     }

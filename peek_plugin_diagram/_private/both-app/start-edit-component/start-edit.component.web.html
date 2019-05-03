@@ -5,10 +5,12 @@
                 <button type="button" class="close"
                         (click)="closePopup()"
                         aria-label="Close">
-                    <fa name="times"></fa>
-                </button>
+                    <button type="button bg-default"
+                            (click)="startEditing()">
+                        Start Editing
+                    </button>
 
-                <h4 class="modal-title">Create or Edit Diagram Branch</h4>
+                    <h4 class="modal-title">Create or Edit Diagram Branch</h4>
             </div>
             <div class="modal-body edit-create-branch-body">
                 Create branch here.
@@ -31,8 +33,65 @@
                 <div *ngIf="barIndex == 0">
                     <button class="btn btn-success" type="button"
                             (click)="startEditing()">
-                        Start Editing
+                        <div class="peek-nav-bar-padding peek-details-section">
+                            <div class="container-fluid">
+
+                                <!--Displayed form data -->
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="details-section-title">
+                                            Name
+                                        </div>
+                                        <div class="details-section-value">
+                                            <input class="editable" type="text" [(ngModel)]="newBranch.name">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="details-section-title">
+                                            Comment
+                                        </div>
+                                        <div class="details-section-value">
+                                            <div class="details-section-value">
+                                            <textarea class="multiline editable" type="text"
+                                                      [(ngModel)]="newBranch.comment">
+                                            </textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                     </button>
+                </div>
+
+                <div *ngIf="barIndex == 1">
+                    <p *ngIf="noItems()">
+                        There are no existing branches.
+                    </p>
+                    <div *ngIf="!noItems()" class="peek-tables-section">
+                        <table class="table">
+                            <tbody>
+                            <tr class="tr"
+                                *ngFor="let item of items; odd as odd; even as even"
+                                [class.bg-odd]="odd"
+                                [class.bg-even]="even"
+                                [class.bd-active]="isBranchSelected(item)"
+                                (click)="selectBranch(item)">
+                                <th class="td"
+                                    [class.bg-odd]="odd"
+                                    [class.bg-even]="even"
+                                    [class.bd-active]="isBranchSelected(item)">{{item.name}}
+                                </th>
+                                <th class="td"
+                                    [class.bg-odd]="odd"
+                                    [class.bg-even]="even"
+                                    [class.bd-active]="isBranchSelected(item)">{{item.order}}
+                                </th>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
 
