@@ -1,10 +1,13 @@
-import {CanvasInputPos, InputDelegateConstructorArgs, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
+import {
+    CanvasInputPos,
+    InputDelegateConstructorArgs,
+    PeekCanvasInputDelegate
+} from "./PeekCanvasInputDelegate.web";
 import {DispText} from "../tuples/shapes/DispText";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {pointToPixel} from "../DiagramUtil";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
-import {PeekCanvasShapePropsContext, ShapeProp, ShapePropType} from "./PeekCanvasShapePropsContext";
-import {DiagramDeltaCreateDisp} from "@peek/peek_plugin_diagram/branch/DiagramDeltaCreateDisp";
+import {PeekCanvasShapePropsContext} from "./PeekCanvasShapePropsContext";
 
 /**
  * This input delegate handles :
@@ -106,7 +109,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
             this._finaliseCreate();
         }
 
-        var inp = String.fromCharCode(event.keyCode);
+        let inp = String.fromCharCode(event.keyCode);
         if (/[a-zA-Z0-9-_ .,`"'|~!@#$%^&*()-=+{}\[\]\\:;<>\/?]/.test(inp)) {
             this._enteredText = (this._enteredText || '') + inp;
             this._creating.setText(this._enteredText);
@@ -145,10 +148,13 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         // Create the Disp
         this._creating = DispText.create();
         DispText.setCenterPoint(this._creating, x, y);
+        this.canvasEditor.lookupService._linkDispLookups(this._creating);
+
 
         // Setup the shape edit context
         let shapePropsContext = new PeekCanvasShapePropsContext(
             this._creating, this.canvasEditor.lookupService,
+            this.canvasEditor.modelSetId,
             this.canvasEditor.coordSetId
         );
 
@@ -156,11 +162,10 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         this.canvasEditor.setShapePropertiesContext(shapePropsContext);
 
         // Add the shape to the branch
-        let delta: DiagramDeltaCreateDisp = this.canvasEditor.branchContext()
-            .createOrReuseDelta(DiagramDeltaCreateDisp);
-        delta.addDisp(this._creating);
+        this.canvasEditor.branchContext.createOrUpdateDisp(this._creating);
+        this.viewArgs.config.setModelNeedsCompiling();
 
-        // TODO, Snap the coordinates if requured
+        // TODO, Snap the coordinates if required
         // if (editorUi.grid.snapping())
         //     this._creating.snap(editorUi.grid.snapSize());
 
@@ -173,6 +178,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     }
 
     draw(ctx, zoom, pan) {
+        /*
         if (this._creating == null)
             return;
 
@@ -181,20 +187,16 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         // Give meaning to our short names
         let rotationRadian = 0;
 
-
         // TODO, Draw a box around the text, based on line style
 
         let fontSize = 14;
 
-
         let font = "14px Roboto ";
-
 
         let lineHeight = pointToPixel(fontSize);
 
         let textAlign = 'center';
         let textBaseline = 'middle';
-
 
         // save state
         ctx.save();
@@ -219,6 +221,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
             ctx.fillText(line, 0, yOffset);
         }
         ctx.restore();
+        */
     }
 
     _finaliseCreate() {

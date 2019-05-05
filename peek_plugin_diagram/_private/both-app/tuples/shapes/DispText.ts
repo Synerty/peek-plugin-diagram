@@ -101,8 +101,6 @@ export class DispText extends DispBase {
         let newDisp = {
             ...DispBase.create(DispBase.TYPE_DT),
             // From Text
-            'fsl': null, // DispTextStyle
-            'cl': null, // DispColor
             'va': TextVerticalAlign.center, // TextVerticalAlign.center
             'ha': TextHorizontalAlign.center, // TextHorizontalAlign.center
             'r': 0, // number
@@ -110,6 +108,15 @@ export class DispText extends DispBase {
             'th': 0, // number | null
             'hs': 0, // number | null
         };
+
+        let dispTextStyle = new DispTextStyle();
+        dispTextStyle.id = 30;
+
+        let dispColor = new DispColor();
+        dispColor.id = 7;
+
+        DispText.setTextStyle(newDisp, dispTextStyle);
+        DispText.setColor(newDisp, dispColor);
 
         DispText.setText(newDisp, 'New Text');
         DispText.setCenterPoint(newDisp, 0, 0);

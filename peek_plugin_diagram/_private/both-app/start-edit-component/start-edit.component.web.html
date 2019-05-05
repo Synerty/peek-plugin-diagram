@@ -2,38 +2,39 @@
     <div class="edit-create-branch-dialog modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close"
-                        (click)="closePopup()"
-                        aria-label="Close">
-                    <button type="button bg-default"
+                <div class="btn-group pull-right">
+
+                    <button type="button" class="btn  bg-success "
                             (click)="startEditing()">
                         Start Editing
                     </button>
-
-                    <h4 class="modal-title">Create or Edit Diagram Branch</h4>
+                    <button type="button" class="btn" (click)="closePopup()">
+                        <fa name="times"></fa>
+                    </button>
+                </div>
+                <h4 class="modal-title">Create or Edit Diagram Branch</h4>
             </div>
             <div class="modal-body edit-create-branch-body">
-                Create branch here.
 
                 <div class="peek-tabs-section">
                     <div class="btn-group" role="group">
                         <Button class="tabs-section-btn"
-                                [class.active]="barIndex == 0"
-                                (click)="barIndex = 0">
+                                [class.active]="barIndex == NEW_TAB"
+                                (click)="barIndex = NEW_TAB">
                             Create New
                         </Button>
                         <Button class="tabs-section-btn"
-                                [class.active]="barIndex == 1"
-                                (click)="barIndex = 1">
+                                [class.active]="barIndex == EXISTING_TAB"
+                                (click)="barIndex = EXISTING_TAB">
                             Edit Existing
                         </Button>
                     </div>
                 </div>
 
-                <div *ngIf="barIndex == 0">
-                    <button class="btn btn-success" type="button"
-                            (click)="startEditing()">
-                        <div class="peek-nav-bar-padding peek-details-section">
+                <div class="peek-nav-bar-padding">
+
+                    <div *ngIf="barIndex == NEW_TAB">
+                        <div class="peek-details-section">
                             <div class="container-fluid">
 
                                 <!--Displayed form data -->
@@ -43,7 +44,8 @@
                                             Name
                                         </div>
                                         <div class="details-section-value">
-                                            <input class="editable" type="text" [(ngModel)]="newBranch.name">
+                                            <input class="editable" type="text"
+                                                   [(ngModel)]="newBranch.name">
                                         </div>
                                     </div>
                                 </div>
@@ -54,43 +56,48 @@
                                         </div>
                                         <div class="details-section-value">
                                             <div class="details-section-value">
-                                            <textarea class="multiline editable" type="text"
+                                            <textarea class="multiline editable"
+                                                      type="text"
                                                       [(ngModel)]="newBranch.comment">
                                             </textarea>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
 
-                    </button>
-                </div>
+                    </div>
 
-                <div *ngIf="barIndex == 1">
-                    <p *ngIf="noItems()">
-                        There are no existing branches.
-                    </p>
-                    <div *ngIf="!noItems()" class="peek-tables-section">
-                        <table class="table">
-                            <tbody>
-                            <tr class="tr"
-                                *ngFor="let item of items; odd as odd; even as even"
-                                [class.bg-odd]="odd"
-                                [class.bg-even]="even"
-                                [class.bd-active]="isBranchSelected(item)"
-                                (click)="selectBranch(item)">
-                                <th class="td"
+                    <div *ngIf="barIndex == EXISTING_TAB">
+                        <p *ngIf="noItems()">
+                            There are no existing branches.
+                        </p>
+                        <div *ngIf="!noItems()" class="peek-tables-section">
+                            <table class="table">
+                                <tbody>
+                                <tr class="tr"
+                                    *ngFor="let item of items; odd as odd; even as even"
                                     [class.bg-odd]="odd"
                                     [class.bg-even]="even"
-                                    [class.bd-active]="isBranchSelected(item)">{{item.name}}
-                                </th>
-                                <th class="td"
-                                    [class.bg-odd]="odd"
-                                    [class.bg-even]="even"
-                                    [class.bd-active]="isBranchSelected(item)">{{item.order}}
-                                </th>
-                            </tr>
-                            </tbody>
-                        </table>
+                                    [class.bg-info]="isBranchSelected(item)"
+                                    (click)="selectBranch(item)">
+                                    <th class="td"
+                                        [class.bg-odd]="odd"
+                                        [class.bg-even]="even"
+                                        [class.bg-info]="isBranchSelected(item)">
+                                        {{item.name}}
+                                    </th>
+                                    <th class="td"
+                                        [class.bg-odd]="odd"
+                                        [class.bg-even]="even"
+                                        [class.bg-info]="isBranchSelected(item)">
+                                        {{item.order}}
+                                    </th>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 

@@ -1,8 +1,46 @@
 <p>We're Editing Shape Properties</p>
 
 
-<div *ngFor="let prop of context.props">
-   {{prop.name}} : <input type="text" (ngModelChange)="writeVal(prop, $event)"
-           [ngModel]="readVal(prop)">
-    
+<div>
+    <table class="table">
+        <tbody>
+        <tr class="tr"
+            *ngFor="let prop of context.props(); odd as odd; even as even"
+            [class.bg-odd]="odd"
+            [class.bg-even]="even">
+            <th class="th"
+                [class.bg-odd]="odd"
+                [class.bg-even]="even">{{prop.name}}
+            </th>
+            <td *ngIf="showInput(prop)"
+                class="td"
+                [class.bg-odd]="odd"
+                [class.bg-even]="even">
+                <input type="text"
+                       (ngModelChange)="writeVal(prop, $event)"
+                       [ngModel]="readVal(prop)">
+            </td>
+            <td *ngIf="showBoolean(prop)"
+                class="td"
+                [class.bg-odd]="odd"
+                [class.bg-even]="even">
+                <input type="checkbox"
+                       (ngModelChange)="writeVal(prop, $event)"
+                       [ngModel]="readVal(prop)">
+            </td>
+            <td *ngIf="showSelectOption(prop)"
+                class="td"
+                [class.bg-odd]="odd"
+                [class.bg-even]="even">
+                <select (ngModelChange)="writeVal(prop, $event)"
+                        [ngModel]="readVal(prop)">
+                    <option *ngFor="let option of prop.options"
+                            [value]="option.value">{{option.name}}
+                    </option>
+                </select>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
 </div>

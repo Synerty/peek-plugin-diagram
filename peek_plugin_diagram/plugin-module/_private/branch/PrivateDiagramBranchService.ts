@@ -1,17 +1,20 @@
 import {Injectable} from "@angular/core";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
-import {
-    DiagramBranchContext,
-    DiagramBranchLocation
-} from "../../branch/DiagramBranchContext";
+import {DiagramBranchContext} from "../../branch/DiagramBranchContext";
+import {BranchLocation} from "@peek/peek_plugin_branch/";
 import {PrivateDiagramBranchContext} from "../branch/PrivateDiagramBranchContext";
 import {BranchTuple} from "../branch/BranchTuple";
 import {BranchIndexLoaderServiceA} from "../branch-loader/BranchIndexLoaderServiceA";
 import {DiagramBranchService} from "../../DiagramBranchService";
 import {DiagramLookupService} from "../../DiagramLookupService";
 import {DiagramCoordSetService} from "../../DiagramCoordSetService";
+import {BranchIndexResultI, LocalBranchStorageService} from "../branch-loader";
+import {ModelCoordSet} from "../tuples";
+import {PrivateDiagramCoordSetService, PrivateDiagramTupleService} from "../services";
 
+import * as moment from "moment";
+import {BranchUpdateTupleAction} from "./BranchUpdateTupleAction";
 
 export interface PopupEditBranchSelectionArgs {
     modelSetKey: string;
@@ -32,31 +35,98 @@ export class PrivateDiagramBranchService extends DiagramBranchService {
     private _popupEditBranchSelectionSubject: Subject<PopupEditBranchSelectionArgs>
         = new Subject<PopupEditBranchSelectionArgs>();
 
+
+    private coordSetService: PrivateDiagramCoordSetService;
+
     constructor(private lookupService: DiagramLookupService,
-                private coordSetService: DiagramCoordSetService,
-                private branchLoader: BranchIndexLoaderServiceA) {
+                coordSetService: DiagramCoordSetService,
+                private branchLocalLoader: LocalBranchStorageService,
+                private branchIndexLoader: BranchIndexLoaderServiceA,
+                private tupleService: PrivateDiagramTupleService) {
         super();
+
+        this.coordSetService = <PrivateDiagramCoordSetService>coordSetService;
 
     }
 
     getOrCreateBranch(modelSetKey: string, coordSetKey: string,
                       branchKey: string,
-                      location: DiagramBranchLocation): Promise<DiagramBranchContext> {
+                      location: BranchLocation): Promise<DiagramBranchContext> {
+        if (!this.coordSetService.isReady())
+            throw new Error("CoordSet service is not initialised yet");
 
-        let prom: any = new Promise<DiagramBranchContext>((resolve, reject) => {
-            if (location != DiagramBranchLocation.LocalBranch) {
-                reject("Only local branches are implemented");
-                return;
-            }
+        let coordSet: ModelCoordSet = this.coordSetService
+            .coordSetForKey(modelSetKey, coordSetKey);
 
-            let branch = new BranchTuple();
-            let val: DiagramBranchContext = new PrivateDiagramBranchContext(
-                this.lookupService,
-                branch, modelSetKey, coordSetKey
+        let indexBranch: BranchTuple | null = null;
+        let localBranch: BranchTuple | null = null;
+
+        let promises = [];
+
+        // Load the branch from the index
+        if (location == BranchLocation.ServerBranch) {
+            promises.push(
+                this.branchIndexLoader.getBranches(modelSetKey, coordSet.id, [branchKey])
+                    .then((results: BranchIndexResultI) => {
+                        // This will be null if it didn't find one.
+                        if (results[branchKey] != null)
+                            indexBranch = results[branchKey][0];
+                    })
             );
-            resolve(val);
-        });
+        }
+
+        // Load
+        promises.push(
+            this.branchLocalLoader.loadBranch(modelSetKey, coordSet.id, branchKey)
+                .then((branch: BranchTuple | null) => {
+                    localBranch = branch;
+                })
+        );
+
+        let prom: any = Promise.all(promises)
+            .then(() => {
+                let branch = null;
+                if (localBranch != null && indexBranch != null) {
+                    if (moment(localBranch.updatedDate).isAfter(indexBranch.updatedDate))
+                        branch = localBranch;
+                    else
+                        branch = indexBranch;
+
+                } else if (localBranch != null) {
+                    branch = localBranch;
+                } else if (indexBranch != null) {
+                    branch = indexBranch;
+                } else {
+                    branch = BranchTuple.createBranch(coordSet.id, branchKey);
+                }
+
+                let val: DiagramBranchContext = new PrivateDiagramBranchContext(
+                    this.lookupService,
+                    branch, modelSetKey, coordSetKey,
+                    (context) => this.saveBranch(coordSet.modelSetId, context)
+                );
+                return val;
+
+            });
+
         return prom;
+    }
+
+    private saveBranch(modelSetId:number, branchContext: PrivateDiagramBranchContext): Promise<void> {
+        let promises = [];
+
+        promises.push(this.branchLocalLoader.saveBranch(branchContext));
+
+        if (branchContext.location == BranchLocation.ServerBranch) {
+            let action = new BranchUpdateTupleAction();
+            action.modelSetId = modelSetId;
+            action.branchTuple = branchContext.branchTuple;
+            this.tupleService.offlineAction.pushAction(action);
+        }
+
+        let prom: any = Promise.all(promises);
+        return prom;
+
     }
 
     // ---------------
@@ -76,7 +146,7 @@ export class PrivateDiagramBranchService extends DiagramBranchService {
 
 
     startEditing(modelSetKey: string, coordSetKey: string,
-                 branchKey: string, location: DiagramBranchLocation): void {
+                 branchKey: string, location: BranchLocation): void {
         this.getOrCreateBranch(modelSetKey, coordSetKey, branchKey, location)
             .catch(e => this._startEditingObservable.error(e))
             .then((context: any) => this._startEditingObservable.next(context));

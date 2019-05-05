@@ -318,22 +318,25 @@ export class PeekCanvasModel {
         let levelsOrderedByOrder = this.lookupCache.levelsOrderedByOrder(this._coordSetId);
         let layersOrderedByOrder = this.lookupCache.layersOrderedByOrder(this._modelSetId);
 
-        let zoom = this.config.viewPort.zoom;
-
         let dispIndexByGridKey = {};
 
         let disps = [];
         let dispIdsAdded = {};
+
+        let activeBranch = this.config.editor.activeBranchTuple;
+        if (activeBranch != null) {
+            for (let dispId of activeBranch.renderDispIdsToExclude)
+                dispIdsAdded[dispId] = true;
+
+            // TODO, HACK Fix this so that it renders correctly
+            Array.prototype.push.apply(disps, activeBranch.renderDispsToInclude);
+        }
 
         let viewableGrids = dictKeysFromObject(this._viewingGridKeysDict);
 
         for (let levelIndex = 0; levelIndex < levelsOrderedByOrder.length; levelIndex++) {
             let level: DispLevel = <DispLevel>levelsOrderedByOrder[levelIndex];
 
-            // If it's not in the zoom area, continue
-            // THIS is moved to the RendererFactor.draw method
-            //if (!(level.minZoom <= zoom && zoom < level.maxZoom))
-            //    continue;
 
             for (let layerIndex = 0; layerIndex < layersOrderedByOrder.length; layerIndex++) {
                 let layer: DispLayer = <DispLayer>layersOrderedByOrder[layerIndex];
@@ -342,8 +345,7 @@ export class PeekCanvasModel {
                 if (!layer.visible)
                     continue;
 
-                for (let gridKeyIndex = 0; gridKeyIndex < viewableGrids.length; gridKeyIndex++) {
-                    let gridKey = viewableGrids[gridKeyIndex];
+                for (let gridKey of viewableGrids) {
                     let grid = this._gridBuffer[gridKey];
 
                     if (grid == null)

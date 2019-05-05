@@ -58,6 +58,10 @@
                 "class": "PrivateDiagramTupleService"
             },
             {
+                "file": "_private/branch-loader/LocalBranchStorageService",
+                "class": "LocalBranchStorageService"
+            },
+            {
                 "file": "DiagramLookupService",
                 "class": "DiagramLookupService",
                 "persistent": true
@@ -138,6 +142,10 @@
         "cfgDir": "_private/both-cfg",
         "cfgModule": "diagram-cfg.module#DiagramCfgModule",
         "rootServices": [
+            {
+                "file": "_private/branch-loader/LocalBranchStorageService",
+                "class": "LocalBranchStorageService"
+            },
             {
                 "file": "_private/services/PrivateDiagramTupleService",
                 "class": "PrivateDiagramTupleService"
@@ -228,6 +236,10 @@
         "assetDir": "_private/both-assets",
         "moduleDir": "plugin-module",
         "rootServices": [
+            {
+                "file": "_private/branch-loader/LocalBranchStorageService",
+                "class": "LocalBranchStorageService"
+            },
             {
                 "file": "_private/services/PrivateDiagramTupleService",
                 "class": "PrivateDiagramTupleService"

@@ -64,7 +64,7 @@ export class SelectLayersComponent extends ComponentLifecycleEventEmitter
     }
 
     protected openPopup({coordSetKey, modelSetKey}) {
-        let coordSet = this.coordSetService.coordSetForKey(coordSetKey);
+        let coordSet = this.coordSetService.coordSetForKey(modelSetKey, coordSetKey);
         console.log("Opening Layer Select popup");
 
         this.items = this.lookupService.layersOrderedByOrder(coordSet.modelSetId);

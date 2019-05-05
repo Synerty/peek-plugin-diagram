@@ -1,4 +1,5 @@
 from typing import List
+
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
@@ -30,6 +31,15 @@ class ImportBranchTuple(Tuple):
 
     #:  The alt color
     deltas: List = TupleField([])
+
+    #:  The alt color
+    addedDisps: List = TupleField([])
+
+    #:  The alt color
+    updatedDisps: List = TupleField([])
+
+    #:  The alt color
+    deletedDispKeys: List = TupleField([])
 
     #:  Is this branch Visible by default
     visible: bool = TupleField()

@@ -28,6 +28,7 @@ class BranchTupleProvider(TuplesProviderABC):
     def makeVortexMsg(self, filt: dict,
                       tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
         modelSetKey = tupleSelector.selector["modelSetKey"]
+        coordSetId = tupleSelector.selector["coordSetId"]
         keys = tupleSelector.selector["keys"]
 
         keysByChunkKey = defaultdict(list)
@@ -37,7 +38,7 @@ class BranchTupleProvider(TuplesProviderABC):
         for key in keys:
             keysByChunkKey[makeChunkKeyForBranchIndex(modelSetKey, key)].append(key)
 
-        for chunkKey, subKeys in keysByChunkKey.items():
+        for chunkKey, branchKeys in keysByChunkKey.items():
             chunk: BranchIndexEncodedChunk = self._cacheHandler.branchIndexChunk(chunkKey)
 
             if not chunk:
@@ -47,19 +48,21 @@ class BranchTupleProvider(TuplesProviderABC):
             resultsByKeyStr = Payload().fromEncodedPayload(chunk.encodedData).tuples[0]
             resultsByKey = json.loads(resultsByKeyStr)
 
-            for subKey in subKeys:
-                if subKey not in resultsByKey:
+            for branchKey in branchKeys:
+                if branchKey not in resultsByKey:
                     logger.warning(
                         "Branch %s is missing from index, chunkKey %s",
-                        subKey, chunkKey
+                        branchKey, chunkKey
                     )
                     continue
 
-                packedJson = resultsByKey[subKey]
+                packedJsons = resultsByKey[branchKey]
 
-                result = BranchTuple()
-                result.packedJson__ = json.loads(packedJson)
-                results.append(results)
+                for packedJson  in packedJsons:
+                    result = BranchTuple()
+                    result.packedJson__ = json.loads(packedJson)
+                    if result.coordSetId == coordSetId or coordSetId is None:
+                        results.append(result)
 
         # Create the vortex message
         return Payload(filt, tuples=results).makePayloadEnvelope().toVortexMsg()

@@ -2,6 +2,12 @@ import {BranchTuple} from "./BranchTuple";
 import {DiagramDeltaBase} from "../../branch/DiagramDeltaBase";
 import {DiagramBranchContext} from "../../branch/DiagramBranchContext";
 import {DiagramLookupService} from "../../DiagramLookupService";
+import {BranchLocation} from "@peek/peek_plugin_branch";
+
+
+export interface _BranchContextSaveCallback {
+    (context: any): Promise<void>;
+}
 
 /** Diagram Branch Service
  *
@@ -14,9 +20,14 @@ export class PrivateDiagramBranchContext extends DiagramBranchContext {
     constructor(private lookupCache: DiagramLookupService,
                 private branch: BranchTuple,
                 private _modelSetKey: string,
-                private _coordSetKey: string) {
+                private _coordSetKey: string,
+                private saveCallback: _BranchContextSaveCallback) {
         super();
 
+    }
+
+    get branchTuple(): BranchTuple {
+        return this.branch;
     }
 
     get modelSetKey(): string {
@@ -45,7 +56,7 @@ export class PrivateDiagramBranchContext extends DiagramBranchContext {
         let deltaType = newDelta.type;
 
         if (this.deltas.length != 0 && this.deltas[this.deltas.length - 1].type == deltaType) {
-            let delta:any = this.deltas[this.deltas.length - 1];
+            let delta: any = this.deltas[this.deltas.length - 1];
             return delta;
         }
 
@@ -53,15 +64,23 @@ export class PrivateDiagramBranchContext extends DiagramBranchContext {
         return newDelta;
     }
 
+    createOrUpdateDisp(disp: any): void {
+        this.branchTuple.createOrUpdateDisp(disp);
+    }
+
+    deleteDisp(dispId: number): void {
+        this.branchTuple.deleteDisp(dispId);
+    }
+
     save(): Promise<void> {
-        return Promise.reject("PrivateDiagramBranchContext.save is not implemented");
+        return this.saveCallback(this);
     }
 
     setVisible(visible: boolean): void {
         this.branch.visible = visible;
     }
 
-    get location(): DiagramBranchContext {
+    get location(): BranchLocation {
         return undefined;
     }
 

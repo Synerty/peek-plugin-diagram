@@ -89,6 +89,7 @@ export class PeekCanvasConfig {
         resizeHandleMargin: 3.0,
         resizeHandleWidth: 6.0,
         selectionHighlightColor: '#3399FF',
+        activeBranchTuple: null,
     };
 
     // Debug data

@@ -54,48 +54,49 @@ export class PeekCanvasShapePropsContext {
         this._props.push(prop);
     }
 
-    get props(): ShapeProp[] {
+    props(): ShapeProp[] {
         return this._props;
     }
 
-    get levelOptions(): ShapeProp[] {
-        return this.makeOptions(this.modelSetId,
-            this.lookupService.layersOrderedByOrder);
-    }
-
-    get layerOptions(): ShapeProp[] {
+    get levelOptions(): ShapePropOption[] {
         return this.makeOptions(this.coordSetId,
-            this.lookupService.levelsOrderedByOrder);
+            this.lookupService.levelsOrderedByOrder(this.coordSetId));
     }
 
-    get colorOptions(): ShapeProp[] {
+    get layerOptions(): ShapePropOption[] {
         return this.makeOptions(this.modelSetId,
-            this.lookupService.colorsOrderedByName);
+            this.lookupService.layersOrderedByOrder(this.modelSetId));
     }
 
-    get textStyleOptions(): ShapeProp[] {
+    get colorOptions(): ShapePropOption[] {
         return this.makeOptions(this.modelSetId,
-            this.lookupService.textStylesOrderedByName);
+            this.lookupService.colorsOrderedByName(this.modelSetId));
     }
 
-    get lineStyleOptions(): ShapeProp[] {
+    get textStyleOptions(): ShapePropOption[] {
         return this.makeOptions(this.modelSetId,
-            this.lookupService.lineStylesOrderedByName);
+            this.lookupService.textStylesOrderedByName(this.modelSetId));
     }
 
+    get lineStyleOptions(): ShapePropOption[] {
+        return this.makeOptions(this.modelSetId,
+            this.lookupService.lineStylesOrderedByName(this.modelSetId));
+    }
 
-    private makeOptions(groupId: number, lookupServiceCallable): ShapeProp[] {
+    private makeOptions(groupId: number, items): ShapePropOption[] {
         if (this.lookupService == null || groupId == null)
             return [];
 
         let opts: ShapePropOption[] = [];
-        for (let item of lookupServiceCallable(groupId)) {
+        for (let item of items) {
             opts.push({
                 name: item.name,
                 value: item.id
             });
         }
+        return opts;
     }
+
 
 
 }

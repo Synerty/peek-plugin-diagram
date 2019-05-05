@@ -1,7 +1,6 @@
 import {DiagramDeltaBase} from "./DiagramDeltaBase";
 // Ensure the deltas are registered
 import "./DiagramDeltaColorOverride";
-import "./DiagramDeltaCreateDisp"
 
 
 import {BranchLocation} from "@peek/peek_plugin_branch"

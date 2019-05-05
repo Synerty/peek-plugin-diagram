@@ -3,7 +3,10 @@ import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {DiagramBranchService} from "@peek/peek_plugin_diagram/DiagramBranchService";
-import {PrivateDiagramBranchContext, PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch";
+import {
+    PrivateDiagramBranchContext,
+    PrivateDiagramBranchService
+} from "@peek/peek_plugin_diagram/_private/branch";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 import {PeekCanvasInput} from "./PeekCanvasInput.web";
 import {PeekCanvasInputEditSelectDelegate} from "./PeekCanvasInputEditSelectDelegate.web";
@@ -59,7 +62,7 @@ export class PeekCanvasEditor {
             .startEditingObservable
             .takeUntil(lifecycleEventEmitter.onDestroyEvent)
             .subscribe((branch: PrivateDiagramBranchContext) => {
-                this._currentBranch = branch;
+                this.branchContext = branch;
                 this.canvasInput.setDelegate(PeekCanvasInputEditSelectDelegate);
                 this.canvasModel.clearSelection();
                 this.canvasConfig.editor.active = true;
@@ -69,13 +72,19 @@ export class PeekCanvasEditor {
             .stopEditingObservable
             .takeUntil(lifecycleEventEmitter.onDestroyEvent)
             .subscribe(() => {
-                this._currentBranch = null;
+                this.branchContext = null;
                 this.currentContext = EditorContextType.NONE;
                 this.canvasInput.setDelegate(PeekCanvasInputSelectDelegate);
                 this.canvasConfig.editor.active = false;
             });
 
     };
+
+    get modelSetId(): null | number {
+        let cs = this.canvasConfig.controller.coordSet;
+        return cs == null ? null : cs.modelSetId;
+    }
+
 
     get coordSetId(): null | number {
         let cs = this.canvasConfig.controller.coordSet;
@@ -107,8 +116,15 @@ export class PeekCanvasEditor {
     // ---------------
     // Branch Context
 
-    branchContext(): PrivateDiagramBranchContext {
+    get branchContext(): PrivateDiagramBranchContext {
         return this._currentBranch;
+    }
+
+    set branchContext(val: PrivateDiagramBranchContext | null) {
+        this.canvasConfig.editor.activeBranchTuple = null;
+        this._currentBranch = val;
+        if (val != null)
+            this.canvasConfig.editor.activeBranchTuple = val.branchTuple;
     }
 
     // ---------------

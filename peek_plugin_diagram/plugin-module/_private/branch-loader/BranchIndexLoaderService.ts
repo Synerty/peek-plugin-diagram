@@ -31,7 +31,7 @@ import {DiagramBranchContext} from "../../branch/DiagramBranchContext";
 // ----------------------------------------------------------------------------
 
 export interface BranchIndexResultI {
-    [key: string]: BranchTuple
+    [key: string]: BranchTuple[]
 }
 
 // ----------------------------------------------------------------------------
@@ -442,8 +442,15 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
      *
      * Get the objects with matching keywords from the index..
      *
+     * @param: modelSetKey: The model set that the branches live in
+     * @param: coordSetId: Get the branch that lives in this coordSet, or null to return
+     *          branches living in all coord sets.
+     * @param: keys: The keys to load the branches for.
+     *
      */
-    getBranches(modelSetKey: string, keys: string[]): Promise<BranchIndexResultI> {
+    getBranches(modelSetKey: string,
+                coordSetId: number | null,
+                keys: string[]): Promise<BranchIndexResultI> {
         if (modelSetKey == null || modelSetKey.length == 0) {
             Promise.reject("We've been passed a null/empty modelSetKey");
         }
@@ -457,6 +464,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
             || this.vortexStatusService.snapshot.isOnline) {
             let ts = new TupleSelector(BranchTuple.tupleName, {
                 "modelSetKey": modelSetKey,
+                "coordSetId": coordSetId,
                 "keys": keys
             });
 
@@ -475,13 +483,13 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
         // If we do have offline support
         if (this.isReady())
-            return this.getBranchesWhenReady(modelSetKey, keys)
+            return this.getBranchesWhenReady(modelSetKey, coordSetId, keys)
                 .then(docs => this._populateAndIndexObjectTypes(docs));
 
         return this.isReadyObservable()
             .first()
             .toPromise()
-            .then(() => this.getBranchesWhenReady(modelSetKey, keys))
+            .then(() => this.getBranchesWhenReady(modelSetKey, coordSetId, keys))
             .then(docs => this._populateAndIndexObjectTypes(docs));
     }
 
@@ -492,7 +500,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
      *
      */
     private getBranchesWhenReady(
-        modelSetKey: string, keys: string[]): Promise<BranchTuple[]> {
+        modelSetKey: string, coordSetId: number, keys: string[]): Promise<BranchTuple[]> {
 
         let keysByChunkKey: { [key: string]: string[]; } = {};
         let chunkKeys: string[] = [];
@@ -510,7 +518,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
         for (let chunkKey of chunkKeys) {
             let keysForThisChunk = keysByChunkKey[chunkKey];
             promises.push(
-                this.getBranchesForKeys(keysForThisChunk, chunkKey)
+                this.getBranchesForKeys(coordSetId, keysForThisChunk, chunkKey)
             );
         }
 
@@ -532,7 +540,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
      * Get the objects with matching keywords from the index..
      *
      */
-    private getBranchesForKeys(keys: string[], chunkKey: string): Promise<BranchTuple[]> {
+    private getBranchesForKeys(coordSetId: number, keys: string[], chunkKey: string): Promise<BranchTuple[]> {
 
         if (!this.index.updateDateByChunkKey.hasOwnProperty(chunkKey)) {
             console.log(`ObjectIDs: ${keys} doesn't appear in the index`);
@@ -564,9 +572,12 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
                                 continue;
                             }
 
-                            let packedJson = chunkData[key];
-                            foundBranchIndexs
-                                .push(BranchTuple.unpackJson(packedJson));
+                            let packedJsons = chunkData[key];
+                            for (let packedJson of packedJsons) {
+                                let branch = BranchTuple.unpackJson(packedJson);
+                                if (branch.coordSetId == coordSetId || coordSetId == null)
+                                    foundBranchIndexs.push(branch);
+                            }
 
                         }
 
@@ -581,17 +592,13 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
     private _populateAndIndexObjectTypes(results: BranchTuple[]): BranchIndexResultI {
 
-        let objects: { [key: string]: BranchTuple } = {};
+        let objects: { [key: string]: BranchTuple[] } = {};
         for (let result of results) {
-            objects[result.key] = result;
-            // result.coordSetKey = this.modelSetByIds[result.modelSet.id];
+            if (objects[result.key] == null)
+                objects[result.key] = [];
+            objects[result.key].push(result);
         }
         return objects;
-    }
-
-    saveBranch(context: DiagramBranchContext): Promise<void> {
-        let branch: BranchTuple = context["branch"];
-        throw new Error("saveBranch isn't implemented");
     }
 
 

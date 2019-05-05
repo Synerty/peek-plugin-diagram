@@ -30,7 +30,8 @@ class BranchUpdateController(TupleActionProcessorDelegateABC):
 
     @inlineCallbacks
     def updateBranch(self, branchEncodedPayload: bytes):
-        liveDbItemsToImport = yield update.delay(branchEncodedPayload)
+        yield None
+        raise NotImplemented("BranchUpdateController.updateBranch")
 
     @inlineCallbacks
     def importBranches(self, branchesEncodedPayload: bytes):

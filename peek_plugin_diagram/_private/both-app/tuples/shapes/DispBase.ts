@@ -52,8 +52,8 @@ export abstract class DispBase {
 
     static setLayer(disp: Disp, val: DispLayer): void {
         // This is set from the short id in DiagramLookupService._linkDispLookups
-         disp.lal = val;
-         disp.la = val == null ? null : val.id;
+        disp.lal = val;
+        disp.la = val == null ? null : val.id;
     }
 
     static isSelectable(disp: Disp): boolean {
@@ -124,9 +124,14 @@ export abstract class DispBase {
         let newDisp = {
             '_tt': type,
         };
+        let level = new DispLevel();
+        level.id = 724;
 
-        DispBase.setLevel(newDisp, null);
-        DispBase.setLevel(newDisp, null);
+        let layer = new DispLayer();
+        layer.id = 1;
+
+        DispBase.setLayer(newDisp, layer);
+        DispBase.setLevel(newDisp, level);
         DispBase.setSelectable(newDisp, true);
         DispBase.setKey(newDisp, null);
         DispBase.setData(newDisp, null);

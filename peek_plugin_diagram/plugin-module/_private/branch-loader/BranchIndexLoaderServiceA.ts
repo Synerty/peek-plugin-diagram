@@ -1,9 +1,7 @@
-import {Injectable} from "@angular/core";
-import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {BranchIndexLoaderStatusTuple} from "./BranchIndexLoaderStatusTuple";
-import {DiagramBranchContext} from "../../branch/DiagramBranchContext";
+import {BranchIndexResultI} from "./BranchIndexLoaderService";
 
 
 export abstract class BranchIndexLoaderServiceA extends ComponentLifecycleEventEmitter {
@@ -16,19 +14,15 @@ export abstract class BranchIndexLoaderServiceA extends ComponentLifecycleEventE
 
     abstract isReadyObservable(): Observable<boolean>;
 
-    // abstract observable: Observable<BranchTuple[]>;
-
     abstract statusObservable(): Observable<BranchIndexLoaderStatusTuple> ;
 
     abstract status(): BranchIndexLoaderStatusTuple ;
 
-    // abstract watchGrids(gridKeys: string[]): void;
-    //
-    // abstract loadGrids(currentGridUpdateTimes: { [gridKey: string]: string },
-    //                    gridKeys: string[]): void;
-
-    abstract saveBranch(context: DiagramBranchContext): Promise<void>;
-
-
+    abstract getBranches(modelSetKey: string,
+                         coordSetId: number | null,
+                         keys: string[]): Promise<BranchIndexResultI> ;
 }
+
+
+
 

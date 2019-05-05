@@ -1,5 +1,8 @@
-import ujson as json
+from datetime import datetime
 from typing import List, Any
+
+import pytz
+import ujson as json
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
@@ -21,7 +24,12 @@ class BranchTuple(Tuple):
     __COORD_SET_ID_NUM = 1
     __KEY_NUM = 2
     __VISIBLE_NUM = 3
-    __DELTAS_JSON_NUM = 4
+    __UPDATED_DATE = 4
+    __CREATED_DATE = 5
+    __DELTAS_JSON_NUM = 6
+    __UPDATED_DISPS_JSON_NUM = 7
+    __NEW_DISPS_JSON_NUM = 8
+    __DELETED_DISP_IDS_NUM = 9
 
     __tupleType__ = diagramTuplePrefix + 'BranchTuple'
 
@@ -39,7 +47,7 @@ class BranchTuple(Tuple):
         This is used by the import worker to pack this object into the index.
 
         """
-
+        raise NotImplementedError("BranchTuple.loadFromImportTuple")
         deltasJson = []
         for importDelta in importBranchTuple.deltas:
             delta = BranchDeltaBase.loadFromImportTuple(
@@ -54,7 +62,12 @@ class BranchTuple(Tuple):
             coordSetId,  # __COORD_SET_NUM
             importBranchTuple.key,  # __KEY_NUM
             importBranchTuple.visible,  # __VISIBLE_NUM
-            deltasJson,  # __DELTAS_JSON
+            datetime.now(pytz.utc),  # __UPDATED_DATE
+            datetime.now(pytz.utc),  # __CREATED_DATE
+            deltasJson,  # __DELTAS_JSON_NUM
+            importBranchTuple.updatedDisps,  # __UPDATED_DISPS_JSON_NUM
+            importBranchTuple.addedDisps,  # __NEW_DISPS_JSON_NUM
+            importBranchTuple.deletedDispKeys,  # __DELETED_DISP_IDS_NUM
         ]
         return self
 
@@ -86,5 +99,21 @@ class BranchTuple(Tuple):
         return branchDeltaClasses
 
     @property
+    def deltas(self) -> List[BranchDeltaBase]:
+        branchDeltasJson = self.packedJson__[self.__DELTAS_JSON_NUM]
+        branchDeltaClasses = [BranchDeltaBase.createFromDeltaJson(deltaJson)
+                              for deltaJson in branchDeltasJson]
+
+        return branchDeltaClasses
+
+    @property
     def visible(self) -> bool:
         return self.packedJson__[self.__VISIBLE_NUM]
+
+    @property
+    def updatedDate(self):
+        return self.packedJson__[self.__UPDATED_DATE]
+
+    @property
+    def createdDate(self):
+        return self.packedJson__[self.__CREATED_DATE]

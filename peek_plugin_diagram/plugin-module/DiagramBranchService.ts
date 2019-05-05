@@ -1,5 +1,6 @@
 import {Observable} from "rxjs/Observable";
-import {DiagramBranchContext, DiagramBranchLocation} from "./branch/DiagramBranchContext";
+import {DiagramBranchContext} from "./branch/DiagramBranchContext";
+import {BranchLocation} from "@peek/peek_plugin_branch/";
 
 /** Diagram Branch Service
  *
@@ -11,13 +12,13 @@ export abstract class DiagramBranchService {
     abstract getOrCreateBranch(modelSetKey: string,
                                coordSetKey: string,
                                branchKey: string,
-                               location: DiagramBranchLocation): Promise<DiagramBranchContext>;
+                               location: BranchLocation): Promise<DiagramBranchContext>;
 
 
     abstract startEditing(modelSetKey: string,
                           coordSetKey: string,
                           branchKey: string,
-                          location: DiagramBranchLocation): void;
+                          location: BranchLocation): void;
 
     abstract stopEditing(): void;
 

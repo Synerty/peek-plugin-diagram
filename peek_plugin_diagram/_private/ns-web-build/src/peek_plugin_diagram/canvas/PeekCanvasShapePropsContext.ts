@@ -54,7 +54,7 @@ export class PeekCanvasShapePropsContext {
         this._props.push(prop);
     }
 
-    get props(): ShapeProp[] {
+    props(): ShapeProp[] {
         return this._props;
     }
 

@@ -1,7 +1,11 @@
 import {Component, Input, OnInit} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
-import {PeekCanvasShapePropsContext, ShapeProp} from "../canvas/PeekCanvasShapePropsContext";
+import {
+    PeekCanvasShapePropsContext,
+    ShapeProp,
+    ShapePropType
+} from "../canvas/PeekCanvasShapePropsContext";
 
 
 @Component({
@@ -28,7 +32,11 @@ export class EditShapePropertiesComponent extends ComponentLifecycleEventEmitter
         this.context = this.canvasEditor.shapePanelContext();
         this.canvasEditor.shapePanelContextObservable()
             .takeUntil(this.onDestroyEvent)
-            .subscribe((context: PeekCanvasShapePropsContext) => this.context = context);
+            .subscribe((context: PeekCanvasShapePropsContext) => {
+                this.context = context;
+                this.processContext(context);
+            });
+        this.processContext(this.context);
     }
 
     readVal(prop: ShapeProp): any {
@@ -40,5 +48,53 @@ export class EditShapePropertiesComponent extends ComponentLifecycleEventEmitter
         this.canvasEditor.dispPropsUpdated();
     }
 
+    showInput(prop: ShapeProp) {
+        return prop.type == ShapePropType.String;
+    }
+
+    showBoolean(prop: ShapeProp) {
+        return prop.type == ShapePropType.Boolean;
+    }
+
+    showSelectOption(prop: ShapeProp) {
+        return prop.type == ShapePropType.Layer
+            || prop.type == ShapePropType.Level
+            || prop.type == ShapePropType.TextStyle
+            || prop.type == ShapePropType.Color
+            || prop.type == ShapePropType.LineStyle
+            || prop.type == ShapePropType.Option;
+    }
+
+
+    private processContext(context: PeekCanvasShapePropsContext): void {
+        for (let prop of context.props()) {
+            switch (prop.type) {
+                case ShapePropType.Layer:
+                    prop.options = this.context.layerOptions;
+                    break;
+
+                case ShapePropType.Level:
+                    prop.options = this.context.levelOptions;
+                    break;
+
+                case ShapePropType.TextStyle:
+                    prop.options = this.context.textStyleOptions;
+                    break;
+
+                case ShapePropType.Color:
+                    prop.options = this.context.colorOptions;
+                    break;
+
+                case ShapePropType.LineStyle:
+                    prop.options = this.context.lineStyleOptions;
+                    break;
+
+                default:
+                    break;
+
+            }
+        }
+
+    }
 
 }

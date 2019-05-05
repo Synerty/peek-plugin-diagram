@@ -149,6 +149,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         // Setup the shape edit context
         let shapePropsContext = new PeekCanvasShapePropsContext(
             this._creating, this.canvasEditor.lookupService,
+            this.canvasEditor.modelSetId,
             this.canvasEditor.coordSetId
         );
 
@@ -156,7 +157,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         this.canvasEditor.setShapePropertiesContext(shapePropsContext);
 
         // Add the shape to the branch
-        let delta: DiagramDeltaCreateDisp = this.canvasEditor.branchContext()
+        let delta: DiagramDeltaCreateDisp = this.canvasEditor.branchContext
             .createOrReuseDelta(DiagramDeltaCreateDisp);
         delta.addDisp(this._creating);
 

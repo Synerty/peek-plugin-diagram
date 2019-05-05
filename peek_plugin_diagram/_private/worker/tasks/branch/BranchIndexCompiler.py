@@ -1,5 +1,4 @@
 import hashlib
-import ujson as json
 import logging
 from base64 import b64encode
 from collections import defaultdict
@@ -7,17 +6,18 @@ from datetime import datetime
 from typing import List, Dict
 
 import pytz
+import ujson as json
 from sqlalchemy import select
 from txcelery.defer import DeferrableTask
+from vortex.Payload import Payload
 
 from peek_plugin_base.worker import CeleryDbConn
+from peek_plugin_diagram._private.storage.branch.BranchIndex import BranchIndex
 from peek_plugin_diagram._private.storage.branch.BranchIndexCompilerQueue import \
     BranchIndexCompilerQueue
-from peek_plugin_diagram._private.storage.branch.BranchIndex import BranchIndex
 from peek_plugin_diagram._private.storage.branch.BranchIndexEncodedChunk import \
     BranchIndexEncodedChunk
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
-from vortex.Payload import Payload
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ def compileBranchIndexChunk(self, queueItems) -> List[int]:
 
 
 def _compileBranchIndexChunk(modelSetId: int,
-                          queueItems: List[BranchIndexCompilerQueue]) -> None:
+                             queueItems: List[BranchIndexCompilerQueue]) -> None:
     chunkKeys = list(set([i.chunkKey for i in queueItems]))
 
     queueTable = BranchIndexCompilerQueue.__table__
@@ -170,20 +170,20 @@ def _buildIndex(chunkKeys) -> Dict[str, bytes]:
                 .all()
         )
 
-        # Create the ChunkKey -> {id -> packedJson, id -> packedJson, ....]
-        packagedJsonByObjIdByChunkKey = defaultdict(dict)
+        # Create the ChunkKey -> {key -> packedJson, key -> packedJson, ....]
+        packagedJsonsByObjKeyByChunkKey = defaultdict(lambda: defaultdict(list))
 
         for item in indexQry:
-            packagedJsonByObjIdByChunkKey[item.chunkKey][item.key] = item.packedJson
+            packagedJsonsByObjKeyByChunkKey[item.chunkKey][item.key].append(item.packedJson)
 
         encPayloadByChunkKey = {}
 
         # Sort each bucket by the key
-        for chunkKey, packedJsonByKey in packagedJsonByObjIdByChunkKey.items():
-            tuples = json.dumps(packedJsonByKey, sort_keys=True)
+        for chunkKey, packedJsonsByKey in packagedJsonsByObjKeyByChunkKey.items():
+            tuples = json.dumps(packedJsonsByKey, sort_keys=True)
 
             # Create the blob data for this index.
-            # It will be index-blueprintd by a binary sort
+            # It will be index-blueprint by a binary sort
             encPayloadByChunkKey[chunkKey] = Payload(tuples=tuples).toEncodedPayload()
 
         return encPayloadByChunkKey

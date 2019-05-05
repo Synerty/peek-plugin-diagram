@@ -4,16 +4,6 @@ import {DiagramDeltaBase} from "./DiagramDeltaBase";
 import "./DiagramDeltaColorOverride";
 import "./DiagramDeltaCreateDisp"
 
-/** Diagram Branch Service Enum
- *
- * This enum describes the location of the branch,
- * is the branch local to the UI, or is it persisted on the server.
- *
- */
-export enum DiagramBranchLocation {
-    ServerBranch,
-    LocalBranch
-}
 
 /** Diagram Branch Context
  *

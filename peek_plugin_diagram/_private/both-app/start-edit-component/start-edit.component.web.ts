@@ -11,7 +11,8 @@ import {
     PopupEditBranchSelectionArgs,
     PrivateDiagramBranchService
 } from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
-import {DiagramBranchLocation} from "@peek/peek_plugin_diagram/branch/DiagramBranchContext";
+
+import {BranchLocation} from "@peek/peek_plugin_branch/";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 
 
@@ -43,7 +44,10 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
 
 
     items: BranchDetailTuple[] = [];
-    barIndex: number = 0;
+
+    NEW_TAB = 1;
+    EXISTING_TAB = 2;
+    barIndex: number = 1;
 
     selectedBranch: BranchDetailTuple = null;
     newBranch: BranchDetailTuple = new BranchDetailTuple();
@@ -77,6 +81,7 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
         this.newBranch.createdDate = new Date();
         this.newBranch.updatedDate = new Date();
         this.newBranch.userName = "A user name";
+        this.newBranch.location = BranchLocation.ServerBranch;
 
         // let coordSet = this.coordSetService.coordSetForKey(coordSetKey);
         console.log("Opening Start Edit popup");
@@ -139,7 +144,7 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
 
     startEditing() {
 
-        if (this.barIndex == 0) {
+        if (this.barIndex == this.NEW_TAB) {
             let nb = this.newBranch;
             if (nb.name == null || nb.name.length == 0) {
                 this.balloonMsg.showWarning("Name must be supplied to create a branch");
@@ -147,13 +152,17 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
             }
 
             nb.key = `${nb.userName}|${nb.createdDate}|${nb.name}`;
+
+            this.globalBranchService.createBranch(nb)
+                .catch(e => this.balloonMsg.showError(`Failed to create branch : ${e}`));
+
         }
 
-        let branchToEdit = this.barIndex == 0 ? this.newBranch : this.selectedBranch;
+        let branchToEdit = this.barIndex == this.NEW_TAB ? this.newBranch : this.selectedBranch;
 
         this.branchService.startEditing(
             this.modelSetKey, this.coordSetKey, branchToEdit.key,
-            DiagramBranchLocation.ServerBranch
+            BranchLocation.ServerBranch
         );
         this.closePopup();
     }

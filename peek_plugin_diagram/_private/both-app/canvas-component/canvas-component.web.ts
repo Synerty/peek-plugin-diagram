@@ -226,7 +226,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         if (!this.isReady())
             return;
 
-        let coordSet = this.coordSetCache.coordSetForKey(coordSetKey);
+        let coordSet = this.coordSetCache.coordSetForKey(this.modelSetKey, coordSetKey);
         this.config.updateCoordSet(coordSet);
 
         this._privatePosService.setTitle(`Viewing ${coordSet.name}`);
