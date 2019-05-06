@@ -48,6 +48,19 @@ export class EditShapePropertiesComponent extends ComponentLifecycleEventEmitter
         this.canvasEditor.dispPropsUpdated();
     }
 
+    readOptionVal(prop: ShapeProp): any {
+        let obj = prop.getter(this.context.disp);
+        if (obj.id == null)
+            throw new Error(`Prop ${prop.name} getter result doesn't have an ID`);
+        return obj.id;
+    }
+
+    writeOptionVal(prop: ShapeProp, value: string): void {
+        let obj = prop.getOptionObject(value);
+        prop.setter(this.context.disp, obj);
+        this.canvasEditor.dispPropsUpdated();
+    }
+
     showInput(prop: ShapeProp) {
         return prop.type == ShapePropType.String;
     }

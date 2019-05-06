@@ -15,6 +15,7 @@ import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasShapePropsContext} from "./PeekCanvasShapePropsContext";
+import {DispText} from "../tuples/shapes/DispText";
 
 export enum EditorContextType {
     NONE,
@@ -172,6 +173,20 @@ export class PeekCanvasEditor {
 
     showShapeProperties() {
         this.currentContext = EditorContextType.SHAPE_PROPERTIES;
+
+
+        //
+        // // Setup the shape edit context
+        // let shapePropsContext = new PeekCanvasShapePropsContext(
+        //     this.canvasModel.selectedDisps()[0],
+        //     this.lookupService,
+        //     this.modelSetId,
+        //     this.coordSetId
+        // );
+        //
+        //   DispText.makeShapeContext(shapePropsContext);
+        //   this.setShapePropertiesContext(shapePropsContext);
+
         this._contextPanelChangeSubject.next(this.currentContext);
     }
 

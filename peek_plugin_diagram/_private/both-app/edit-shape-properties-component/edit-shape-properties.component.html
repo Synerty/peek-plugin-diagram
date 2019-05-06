@@ -32,8 +32,8 @@
                 class="td"
                 [class.bg-odd]="odd"
                 [class.bg-even]="even">
-                <select (ngModelChange)="writeVal(prop, $event)"
-                        [ngModel]="readVal(prop)">
+                <select (ngModelChange)="writeOptionVal(prop, $event)"
+                        [ngModel]="readOptionVal(prop)">
                     <option *ngFor="let option of prop.options"
                             [value]="option.value">{{option.name}}
                     </option>

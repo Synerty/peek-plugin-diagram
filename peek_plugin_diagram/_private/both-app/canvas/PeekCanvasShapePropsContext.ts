@@ -12,6 +12,7 @@ export enum ShapePropType {
 }
 
 export interface ShapePropOption {
+    object: any;
     name: string;
     value: any;
 }
@@ -25,13 +26,36 @@ export interface ShapePropSetter {
 }
 
 export class ShapeProp {
+    private _optionByValue: { [value: string]: any } = {};
+    private _options: ShapePropOption[] | null = null;
+
     constructor(public type: ShapePropType,
                 public getter: ShapePropGetter,
                 public setter: ShapePropSetter,
                 public name: string,
                 public comment: string = '',
-                public options: ShapePropOption[] | null = null) {
+                options: ShapePropOption[] | null = null) {
+        this.options = options;
 
+    }
+
+    get options(): ShapePropOption[] {
+        return this._options;
+    }
+
+    set options(options: ShapePropOption[]) {
+        this._optionByValue = {};
+        this._options = options;
+        if (options != null) {
+            for (let op of options) {
+                op.value = op.value.toString();
+                this._optionByValue[op.value.toString()] = op;
+            }
+        }
+    }
+
+    getOptionObject(value: string): any {
+        return this._optionByValue[value].item;
     }
 }
 
@@ -90,13 +114,13 @@ export class PeekCanvasShapePropsContext {
         let opts: ShapePropOption[] = [];
         for (let item of items) {
             opts.push({
+                object: item,
                 name: item.name,
                 value: item.id
             });
         }
         return opts;
     }
-
 
 
 }
