@@ -143,6 +143,16 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         this.createDisp(mouse.x, mouse.y);
     }
 
+    touchStart(event: TouchEvent, mouse: CanvasInputPos) {
+        this.mouseDown(event, mouse);
+    };
+
+    touchEnd(event: TouchEvent, mouse: CanvasInputPos) {
+        this.mouseUp(event, mouse);
+    };
+
+
+
     private createDisp(x: number, y: number) {
 
         // Create the Disp

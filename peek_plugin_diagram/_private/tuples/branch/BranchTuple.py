@@ -3,6 +3,7 @@ from typing import List, Any, Optional
 
 import pytz
 import ujson as json
+from vortex import SerialiseUtil
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
@@ -71,8 +72,8 @@ class BranchTuple(Tuple):
             coordSetId,  # __COORD_SET_NUM
             importBranchTuple.key,  # __KEY_NUM
             importBranchTuple.visible,  # __VISIBLE_NUM
-            datetime.now(pytz.utc),  # __UPDATED_DATE
-            datetime.now(pytz.utc),  # __CREATED_DATE
+            SerialiseUtil.toStr(datetime.now(pytz.utc)),  # __UPDATED_DATE
+            SerialiseUtil.toStr(datetime.now(pytz.utc)),  # __CREATED_DATE
             deltasJson,  # __DELTAS_JSON_NUM
             importBranchTuple.updatedDisps,  # __UPDATED_DISPS_JSON_NUM
             importBranchTuple.addedDisps,  # __NEW_DISPS_JSON_NUM
@@ -127,8 +128,10 @@ class BranchTuple(Tuple):
 
     @property
     def updatedDate(self):
-        return self.packedJson__[self.__UPDATED_DATE]
+        return SerialiseUtil.fromStr(self.packedJson__[self.__UPDATED_DATE],
+                                     SerialiseUtil.T_DATETIME)
 
     @property
     def createdDate(self):
-        return self.packedJson__[self.__CREATED_DATE]
+        return SerialiseUtil.fromStr(self.packedJson__[self.__CREATED_DATE],
+                                     SerialiseUtil.T_DATETIME)

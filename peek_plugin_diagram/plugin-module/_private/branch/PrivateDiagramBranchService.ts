@@ -100,6 +100,8 @@ export class PrivateDiagramBranchService extends DiagramBranchService {
                     branch = BranchTuple.createBranch(coordSet.id, branchKey);
                 }
 
+                branch.linkDisps(this.lookupService);
+
                 let val: DiagramBranchContext = new PrivateDiagramBranchContext(
                     this.lookupService,
                     branch, modelSetKey, coordSetKey,

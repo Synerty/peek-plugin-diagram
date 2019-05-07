@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Index, ForeignKey
+from sqlalchemy import Column, Index, ForeignKey, DateTime
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import relationship
 from vortex.Tuple import Tuple, addTupleType
@@ -44,6 +44,9 @@ class BranchIndex(Tuple, DeclarativeBase):
     #:  The chunk that this branchIndex fits into
     chunkKey = Column(String, nullable=False)
 
+    updatedDate = Column(DateTime(timezone=True), nullable=False);
+    createdDate = Column(DateTime(timezone=True), nullable=False);
+
     #:  The JSON ready for the Compiler to use
     packedJson = Column(String, nullable=False)
 
@@ -51,5 +54,6 @@ class BranchIndex(Tuple, DeclarativeBase):
         Index("idx_BranchIndex_key", coordSetId, key, unique=True),
         Index("idx_BranchIndex_chunkKey", chunkKey, unique=False),
         Index("idx_BranchIndex_importHash", coordSetId, importHash, unique=True),
-        Index("idx_BranchIndex_importGroupHash", coordSetId, importGroupHash, unique=False),
+        Index("idx_BranchIndex_importGroupHash", coordSetId, importGroupHash,
+              unique=False),
     )

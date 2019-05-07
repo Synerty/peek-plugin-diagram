@@ -6,6 +6,9 @@ import {
 } from "../../branch/DiagramDeltaBase";
 import {DiagramLookupService} from "../../DiagramLookupService";
 import {deepCopy} from "@synerty/vortexjs/src/vortex/UtilMisc";
+import SerialiseUtil from "@synerty/vortexjs/src/vortex/SerialiseUtil";
+
+let serUril = new SerialiseUtil();
 
 /** Diagram Branch Tuple
  *
@@ -47,7 +50,7 @@ export class BranchTuple extends Tuple {
     }
 
     static createBranch(coordSetId: number, branchKey: string): any {
-        let date = new Date();
+        let date = serUril.toStr(new Date());
         let branch = new BranchTuple();
         branch.packedJson__[BranchTuple.__ID_NUM] = null;
         branch.packedJson__[BranchTuple.__COORD_SET_ID_NUM] = coordSetId;
@@ -164,7 +167,7 @@ export class BranchTuple extends Tuple {
     }
 
     touchUpdateDate(): void {
-        this.packedJson__[BranchTuple.__UPDATED_DATE] = new Date();
+        this.packedJson__[BranchTuple.__UPDATED_DATE] = serUril.toStr(new Date());
     }
 
     set visible(value: boolean) {
@@ -176,11 +179,13 @@ export class BranchTuple extends Tuple {
     }
 
     get updatedDate(): Date {
-        return this.packedJson__[BranchTuple.__UPDATED_DATE];
+        return serUril.fromStr(this.packedJson__[BranchTuple.__UPDATED_DATE],
+            SerialiseUtil.T_DATETIME);
     }
 
     get createdDate(): Date {
-        return this.packedJson__[BranchTuple.__CREATED_DATE];
+        return serUril.fromStr(this.packedJson__[BranchTuple.__CREATED_DATE],
+            SerialiseUtil.T_DATETIME);
     }
 
     /** These methods are used to help render the branch */
@@ -239,5 +244,11 @@ export class BranchTuple extends Tuple {
             jsonDict[name] = convertedValue;
 
         return convertedValue;
+    }
+
+    linkDisps(lookupService: DiagramLookupService) {
+        for (let disp of this.renderDispsToInclude) {
+            lookupService._linkDispLookups(disp);
+        }
     }
 }
