@@ -53,7 +53,7 @@ export class PeekCanvasInput {
 
         this.config.mouse.currentDelegateName = Delegate.TOOL_NAME;
 
-        console.log(`Delegate = ${Delegate.TOOL_NAME}`);
+        // console.log(`Delegate = ${Delegate.TOOL_NAME}`);
     };
 
 

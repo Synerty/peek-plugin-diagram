@@ -1,14 +1,14 @@
 import {Injectable} from "@angular/core";
 
 import {
-    ComponentLifecycleEventEmitter,
+    ComponentLifecycleEventEmitter, Payload,
     TupleOfflineStorageNameService,
     TupleOfflineStorageService,
     TupleSelector,
     TupleStorageFactoryService
 } from "@synerty/vortexjs";
 
-import {branchCacheStorageName, diagramTuplePrefix} from "../PluginNames";
+import {branchLocalStorageName, diagramTuplePrefix} from "../PluginNames";
 import {BranchTuple} from "../branch/BranchTuple";
 import {DiagramBranchContext} from "../../branch/DiagramBranchContext";
 
@@ -31,13 +31,6 @@ class LocallyStoredBranchTupleSelector extends TupleSelector {
 
 }
 
-/** The interface of the stored data
- *
- */
-type StoredBranchT = {
-    [coordSetId: number]: {}
-};
-
 // ----------------------------------------------------------------------------
 /** Local Branch Storage Service
  *
@@ -56,7 +49,7 @@ export class LocalBranchStorageService extends ComponentLifecycleEventEmitter {
 
         this.storage = new TupleOfflineStorageService(
             storageFactory,
-            new TupleOfflineStorageNameService(branchCacheStorageName)
+            new TupleOfflineStorageNameService(branchLocalStorageName)
         );
 
 
@@ -87,30 +80,40 @@ export class LocalBranchStorageService extends ComponentLifecycleEventEmitter {
      */
     loadBranches(modelSetKey: string, key: string): Promise<BranchTuple[]> {
         let ts = new LocallyStoredBranchTupleSelector(modelSetKey, key);
-        let prom: any = this.storage.loadTuples(ts)
-            .then((loadedData) => {
-                let items: StoredBranchT = loadedData;
-                let branches = [];
-                for (key of Object.keys(items))
-                    branches.push(items[key]);
-                return branches;
+        let prom: any = this.storage.loadTuples(ts);
+
+        this.storage.loadTuplesEncoded(ts)
+            .then((encodedPayload) => Payload.fromEncodedPayload(encodedPayload))
+            .then((xxx) => {
+                console.log(xxx);
             });
         return prom;
     }
 
 
     saveBranch(branchContext: DiagramBranchContext): Promise<void> {
-        let branchTuple: BranchTuple = branchContext["branch"];
+        let branchToSave: BranchTuple = branchContext["branch"];
         let ts = new LocallyStoredBranchTupleSelector(
             branchContext.modelSetKey,
             branchContext.key);
-        let prom: any = this.storage.loadTuples(ts)
-            .then((loadedData) => {
-                let items: StoredBranchT = loadedData;
-                if (items == null)
-                    items = {};
-                items[branchTuple.coordSetId] = branchTuple;
-                return this.storage.saveTuples(ts, <any>items);
+        let prom: any = this.loadBranches(branchContext.modelSetKey, branchToSave.key)
+            .then((branches: BranchTuple[]) => {
+                // Iterate though and update
+                let updated = false;
+                for (let i = 0; i < branches.length; i++) {
+                    if (branches[i].key == branchToSave.key) {
+                        branches[i] = branchToSave;
+                        updated = true;
+                        break;
+                    }
+                }
+
+                // If we couldn't find it, then add it
+                if (!updated)
+                    branches.push(branchToSave);
+
+                console.log(new Payload({}, branches).toJsonDict());
+                return this.storage.saveTuples(ts, branches);
             });
         return prom;
     }

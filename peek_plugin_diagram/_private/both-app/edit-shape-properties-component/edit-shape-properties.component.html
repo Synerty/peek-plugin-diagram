@@ -1,6 +1,3 @@
-<p>We're Editing Shape Properties</p>
-
-
 <div>
     <table class="table">
         <tbody>
@@ -20,6 +17,14 @@
                        (ngModelChange)="writeVal(prop, $event)"
                        [ngModel]="readVal(prop)">
             </td>
+            <td *ngIf="showTextArea(prop)"
+                class="td"
+                [class.bg-odd]="odd"
+                [class.bg-even]="even">
+                <textarea
+                        (ngModelChange)="writeVal(prop, $event)"
+                        [ngModel]="readVal(prop)"></textarea>
+            </td>
             <td *ngIf="showBoolean(prop)"
                 class="td"
                 [class.bg-odd]="odd"
@@ -38,6 +43,12 @@
                             [value]="option.value">{{option.name}}
                     </option>
                 </select>
+                <div *ngIf="showLevelNotVisible(prop)" class="bg-warning">
+                    This level is not currently visible at this zoom level.
+                </div>
+                <div *ngIf="showLayerNotVisible(prop)" class="bg-warning">
+                    This layer is not currently visible, it's diabled in layer settings.
+                </div>
             </td>
         </tr>
         </tbody>

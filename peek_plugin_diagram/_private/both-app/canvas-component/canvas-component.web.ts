@@ -172,10 +172,10 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
                 this.lastFrameSize = frameSize;
 
-                console.log(this.lastFrameSize);
-                console.log(`titleBarHeight=${titleBarHeight}`);
-                console.log(`footerBarHeight=${footerBarHeight}`);
-                console.log(`editToolbarView=${editToolbarHeight}`);
+                // console.log(this.lastFrameSize);
+                // console.log(`titleBarHeight=${titleBarHeight}`);
+                // console.log(`footerBarHeight=${footerBarHeight}`);
+                // console.log(`editToolbarView=${editToolbarHeight}`);
 
                 let newHeight = $(window).height() - editToolbarHeight;
 

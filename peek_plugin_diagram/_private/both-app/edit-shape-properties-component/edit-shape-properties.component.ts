@@ -6,6 +6,7 @@ import {
     ShapeProp,
     ShapePropType
 } from "../canvas/PeekCanvasShapePropsContext";
+import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
 
 
 @Component({
@@ -50,12 +51,17 @@ export class EditShapePropertiesComponent extends ComponentLifecycleEventEmitter
 
     readOptionVal(prop: ShapeProp): any {
         let obj = prop.getter(this.context.disp);
+        if (obj == null) {
+            console.log(`ERROR Prop ${prop.name} getter returned null`);
+            return null;
+        }
         if (obj.id == null)
             throw new Error(`Prop ${prop.name} getter result doesn't have an ID`);
         return obj.id;
     }
 
     writeOptionVal(prop: ShapeProp, value: string): void {
+        prop.__lastShowValue = null;
         let obj = prop.getOptionObject(value);
         prop.setter(this.context.disp, obj);
         this.canvasEditor.dispPropsUpdated();
@@ -63,6 +69,10 @@ export class EditShapePropertiesComponent extends ComponentLifecycleEventEmitter
 
     showInput(prop: ShapeProp) {
         return prop.type == ShapePropType.String;
+    }
+
+    showTextArea(prop: ShapeProp) {
+        return prop.type == ShapePropType.MultilineString;
     }
 
     showBoolean(prop: ShapeProp) {
@@ -108,6 +118,32 @@ export class EditShapePropertiesComponent extends ComponentLifecycleEventEmitter
             }
         }
 
+    }
+
+    showLayerNotVisible(prop: ShapeProp): boolean {
+        if (prop.type != ShapePropType.Layer)
+            return false;
+
+        // Optimise the change detection
+        if (prop.__lastShowValue != null)
+            return prop.__lastShowValue;
+
+        let layer: DispLayer = prop.getter(this.context.disp);
+        prop.__lastShowValue =  !layer.visible;
+        return prop.__lastShowValue;
+    }
+
+    showLevelNotVisible(prop: ShapeProp): boolean {
+        if (prop.type != ShapePropType.Level)
+            return false;
+
+        // Optimise the change detection
+        if (prop.__lastShowValue != null)
+            return prop.__lastShowValue;
+
+        let level: DispLevel = prop.getter(this.context.disp);
+        prop.__lastShowValue =  !this.canvasEditor.isLevelVisible(level);
+        return prop.__lastShowValue;
     }
 
 }

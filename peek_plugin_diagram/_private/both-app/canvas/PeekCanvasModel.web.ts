@@ -329,7 +329,13 @@ export class PeekCanvasModel {
                 dispIdsAdded[dispId] = true;
 
             // TODO, HACK Fix this so that it renders correctly
-            Array.prototype.push.apply(disps, activeBranch.renderDispsToInclude);
+            this._visableDisps = [];
+            this._selection = [];
+            Array.prototype.push.apply(this._visableDisps, activeBranch.renderDispsToInclude);
+            Array.prototype.push.apply(this._selection, this._visableDisps);
+            this.config.model.dispOnScreen = this._visableDisps.length;
+            this.config.invalidate();
+            return;
         }
 
         let viewableGrids = dictKeysFromObject(this._viewingGridKeysDict);
@@ -412,6 +418,12 @@ export class PeekCanvasModel {
 
     tryToSelectKeys(keys: string[]) {
         this._keysToTryToSelect = keys;
+    }
+
+    HACKaddBranchDisp(disp) {
+        this._visableDisps.push(disp);
+        this._selection.push(disp);
+        this.config.invalidate();
     }
 
     addSelection(objectOrArray) {

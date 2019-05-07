@@ -1,4 +1,5 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
+import {PeekCanvasBounds} from "./PeekCanvasBounds";
 
 export abstract class PeekDispRenderDelegateABC {
 
@@ -6,19 +7,19 @@ export abstract class PeekDispRenderDelegateABC {
 
     }
 
-    abstract draw(dispAction, ctx, zoom, pan) ;
+    abstract draw(disp, ctx, zoom, pan): void;
 
-    abstract drawSelected(actObj, ctx, zoom, pan) ;
+    abstract drawSelected(disp, ctx, zoom, pan): void;
 
-    abstract contains(actObj, x, y, margin) ;
+    abstract contains(disp, x, y, margin): boolean;
 
-    abstract withIn(actObj, x, y, w, h) ;
+    abstract withIn(disp, x, y, w, h): boolean ;
 
-    abstract handles(actObj);
+    abstract handles(disp): PeekCanvasBounds[];
 
-    abstract deltaMove(actObj, dx, dy) ;
+    abstract deltaMove(disp, dx, dy): void;
 
-    abstract area(actObj);
+    abstract area(disp): number;
 
 
 }

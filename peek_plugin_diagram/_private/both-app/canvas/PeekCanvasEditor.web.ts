@@ -16,6 +16,7 @@ import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasShapePropsContext} from "./PeekCanvasShapePropsContext";
 import {DispText} from "../tuples/shapes/DispText";
+import {DispLevel} from "@peek/peek_plugin_diagram/lookups";
 
 export enum EditorContextType {
     NONE,
@@ -124,8 +125,10 @@ export class PeekCanvasEditor {
     set branchContext(val: PrivateDiagramBranchContext | null) {
         this.canvasConfig.editor.activeBranchTuple = null;
         this._currentBranch = val;
-        if (val != null)
+        if (val != null) {
             this.canvasConfig.editor.activeBranchTuple = val.branchTuple;
+            this.canvasConfig.setModelNeedsCompiling();
+        }
     }
 
     // ---------------
@@ -149,6 +152,11 @@ export class PeekCanvasEditor {
 
     isShapeSelected(): boolean {
         return true;
+    }
+
+    isLevelVisible(level: DispLevel): boolean {
+        return level.minZoom <= this.canvasConfig.viewPort.zoom
+            && this.canvasConfig.viewPort.zoom <= level.maxZoom;
     }
 
     // ---------------

@@ -2,10 +2,13 @@ import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {
     DispText,
+    DispTextT,
     TextHorizontalAlign,
     TextVerticalAlign
 } from "../tuples/shapes/DispText";
 import {pointToPixel} from "../DiagramUtil";
+import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {DispBase} from "../tuples/shapes/DispBase";
 
 export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 
@@ -19,7 +22,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
      * NOTE: The way the text is scaled and drawn must match _calcTextSize(..)
      * in python module DispCompilerTask.py
      */
-    draw(disp, ctx, zoom, pan) {
+    draw(disp: DispTextT, ctx, zoom, pan) {
 
         // Give meaning to our short names
         let rotationRadian = DispText.rotation(disp) / 180.0 * Math.PI;
@@ -64,10 +67,13 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
         else if (verticalAlignEnum == TextVerticalAlign.bottom)
             textBaseline = 'bottom';
 
+        const centerX = DispText.centerPointX(disp);
+        const centerY = DispText.centerPointY(disp);
+
 
         // save state
         ctx.save();
-        ctx.translate(DispText.centerPointX(disp), DispText.centerPointY(disp));
+        ctx.translate(centerX, centerY);
         ctx.rotate(rotationRadian); // Degrees to radians
 
         ctx.textAlign = textAlign;
@@ -84,10 +90,21 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
         }
 
 
+        if (disp.bounds == null)
+            disp.bounds = new PeekCanvasBounds();
+        else
+            disp.bounds.w = 0;
+
+
         let lines = DispText.text(disp).split("\n");
         for (let lineIndex = 0; lineIndex < lines.length; ++lineIndex) {
             let line = lines[lineIndex];
             let yOffset = lineHeight * lineIndex;
+
+            // Measure the width
+            let thisWidth = ctx.measureText(line).width / zoom;
+            if (disp.bounds.w < thisWidth)
+                disp.bounds.w = thisWidth;
 
             if (fillColor) {
                 ctx.fillStyle = fillColor.color;
@@ -101,47 +118,89 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
             //}
         }
 
-//    self._bounds.w = ctx.measureText(self.text).width;
-//    self._bounds.h = lineHeight * lines.length;
-//
+        let singleLineHeight = lineHeight / zoom;
+        disp.bounds.h = singleLineHeight * lines.length;
+
         // restore to original state
         ctx.restore();
-//
-//    if (self.ha == -1)
-//        self._bounds.x = left;
-//    else if (self.ha == 0)
-//        self._bounds.x = left - self._bounds.w / 2;
-//    else if (self.ha == 1)
-//        self._bounds.x = left - self._bounds.w;
-//
-//    if (self.va == -1)
-//        self._bounds.y = top;
-//    else if (self.va == 0)
-//        self._bounds.y = top - self._bounds.h / 2;
-//    else if (self.va == 1)
-//        self._bounds.y = top - self._bounds.h;
+
+        if (horizontalAlignEnum == TextHorizontalAlign.left)
+            disp.bounds.x = centerX;
+        else if (horizontalAlignEnum == TextHorizontalAlign.center)
+            disp.bounds.x = centerX - disp.bounds.w / 2;
+        else if (horizontalAlignEnum == TextHorizontalAlign.right)
+            disp.bounds.x = centerX - disp.bounds.w;
+
+        if (verticalAlignEnum == TextVerticalAlign.top)
+            disp.bounds.y = centerY;
+        else if (verticalAlignEnum == TextVerticalAlign.center)
+            disp.bounds.y = centerY - singleLineHeight / 2;
+        else if (verticalAlignEnum == TextVerticalAlign.bottom)
+            disp.bounds.y = centerY - singleLineHeight;
     };
+
 
     drawSelected(dispText, ctx, zoom, pan) {
+
+        let selectionConfig = this.config.renderer.selection;
+
+        // DRAW THE SELECTED BOX
+        let bounds = dispText.bounds;
+        if (bounds == null)
+            return;
+
+        // Move the selection line a bit away from the object
+        let offset = (selectionConfig.width + selectionConfig.lineGap) / zoom;
+
+        let twiceOffset = 2 * offset;
+        let x = bounds.x - offset;
+        let y = bounds.y - offset;
+        let w = bounds.w + twiceOffset;
+        let h = bounds.h + twiceOffset;
+
+        ctx.dashedRect(x, y, w, h, selectionConfig.dashLen / zoom);
+        ctx.strokeStyle = selectionConfig.color;
+        ctx.lineWidth = selectionConfig.width / zoom;
+        ctx.stroke();
+
+        /*
+         // DRAW THE EDIT HANDLES
+         ctx.fillStyle = CanvasRenderer.SELECTION_COLOR;
+         let handles = this.handles();
+         for (let i = 0; i < handles.length; ++i) {
+         let handle = handles[i];
+         ctx.fillRect(handle.x, handle.y, handle.w, handle.h);
+         }
+         */
     };
 
-    contains(dispText, x, y, margin) {
-        return false;
+    contains(dispText: DispTextT, x, y, margin) {
+        if (dispText.bounds == null)
+            return false;
+
+        return dispText.bounds.contains(x, y, margin);
     };
 
-    withIn(dispText, x, y, w, h) {
-        return false;
+    withIn(dispText: DispTextT, x, y, w, h): boolean {
+        if (dispText.bounds == null)
+            return false;
+
+        return dispText.bounds.withIn(x, y, w, h);
     };
 
-    handles(dispText) {
+    handles(dispText: DispTextT): PeekCanvasBounds[] {
         return [];
     };
 
-    deltaMove(dispText, dx, dy) {
+    deltaMove(dispText: DispTextT, dx, dy): void {
+        DispBase.deltaMove(dispText, dx, dy);
     };
 
-    area(dispText) {
-        return 0;
+    area(dispText: DispTextT): number {
+        if (dispText.bounds == null)
+            return 0;
+
+        return dispText.bounds.area();
     };
 
 }

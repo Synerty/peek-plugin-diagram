@@ -4,6 +4,7 @@ import {
     ShapeProp,
     ShapePropType
 } from "../../canvas/PeekCanvasShapePropsContext";
+import {PeekCanvasBounds} from "../../canvas/PeekCanvasBounds";
 
 export interface PointI {
     x: number;
@@ -14,6 +15,37 @@ export interface PointI {
 export type PointsT = number[];
 
 export type Disp = any;
+
+export interface DispBaseT {
+    id: number;
+
+    // Key
+    k: string | null;
+
+    // Group ID
+    gi: number;
+
+    // Level
+    le: number;
+    lel: DispLevel;
+
+    // Layer
+    la: number;
+    lal: DispLayer;
+
+    // Is Selectable
+    s: boolean;
+
+    // Data
+    d: {} | null;
+
+    // Geomoetry
+    g: number[];
+
+    // bounds, this is assigned during the rendering process
+    bounds: PeekCanvasBounds | null;
+
+}
 
 export abstract class DispBase {
 
@@ -125,7 +157,7 @@ export abstract class DispBase {
             '_tt': type,
         };
         let level = new DispLevel();
-        level.id = 724;
+        level.id = 735;
 
         let layer = new DispLayer();
         layer.id = 1;

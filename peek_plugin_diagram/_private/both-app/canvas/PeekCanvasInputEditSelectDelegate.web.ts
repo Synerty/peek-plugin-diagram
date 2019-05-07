@@ -1,5 +1,9 @@
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {CanvasInputPos, InputDelegateConstructorArgs, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
+import {
+    CanvasInputPos,
+    InputDelegateConstructorArgs,
+    PeekCanvasInputDelegate
+} from "./PeekCanvasInputDelegate.web";
 import {PolylineEnd} from "./PeekCanvasModel.web";
 import {assert} from "../DiagramUtil";
 import {DispBase} from "../tuples/shapes/DispBase";
@@ -508,9 +512,9 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
         let b = PeekCanvasBounds.fromGeom([mouse1, mouse2]);
 
-        return coords.filter((i) => {
-            return this.viewArgs.renderFactory.withIn(i, b.x, b.y, b.w, b.h);
-        });
+        return coords.filter(
+            i => this.viewArgs.renderFactory.withIn(i, b.x, b.y, b.w, b.h)
+        );
     };
 
     _selectByTypeAndBounds(mouse) {

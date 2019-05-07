@@ -30,6 +30,7 @@ class BranchTuple(Tuple):
     __UPDATED_DISPS_JSON_NUM = 7
     __NEW_DISPS_JSON_NUM = 8
     __DELETED_DISP_IDS_NUM = 9
+    __LAST_INDEX_NUM = 9
 
     __tupleType__ = diagramTuplePrefix + 'BranchTuple'
 
@@ -37,6 +38,10 @@ class BranchTuple(Tuple):
 
     #:  The packed JSON data for this object
     packedJson__: List[Any] = TupleField([])
+
+    def __init__(self, **kwargs):
+        Tuple.__init__(self, **kwargs)
+        self.packedJson__ = [None] * (BranchTuple.__LAST_INDEX_NUM + 1)
 
     @classmethod
     def loadFromImportTuple(cls, importBranchTuple: ImportBranchTuple,

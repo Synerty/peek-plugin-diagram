@@ -1,7 +1,10 @@
 import {Component, Input, OnInit} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
-import {PeekCanvasShapePropsContext, ShapeProp} from "../canvas/PeekCanvasShapePropsContext";
+import {
+    PeekCanvasShapePropsContext,
+    ShapeProp
+} from "../canvas/PeekCanvasShapePropsContext";
 
 
 @Component({

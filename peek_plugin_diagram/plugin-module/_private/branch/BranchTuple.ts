@@ -16,6 +16,8 @@ import {DiagramLookupService} from "../../DiagramLookupService";
 export class BranchTuple extends Tuple {
     public static readonly tupleName = diagramTuplePrefix + "BranchTuple";
 
+    protected _rawJonableFields = ['packedJson__'];
+
     // The list of deltas for this branch
     packedJson__: any[] = [];
 
@@ -29,6 +31,8 @@ export class BranchTuple extends Tuple {
     private static readonly __UPDATED_DISPS_JSON_NUM = 7;
     private static readonly __NEW_DISPS_JSON_NUM = 8;
     private static readonly __DELETED_DISP_IDS_NUM = 9;
+    private static readonly __LAST_INDEX_NUM = 9;
+
 
     private _newDispNextTempId = 1;
 
@@ -36,12 +40,15 @@ export class BranchTuple extends Tuple {
     private _updatedDispIds = {};
 
     constructor() {
-        super(BranchTuple.tupleName)
+        super(BranchTuple.tupleName);
+        for (let i = this.packedJson__.length; i < BranchTuple.__LAST_INDEX_NUM + 1; i++)
+            this.packedJson__.push(null);
     }
 
     static createBranch(coordSetId: number, branchKey: string): any {
         let date = new Date();
         let branch = new BranchTuple();
+        branch.packedJson__[BranchTuple.__ID_NUM] = null;
         branch.packedJson__[BranchTuple.__COORD_SET_ID_NUM] = coordSetId;
         branch.packedJson__[BranchTuple.__KEY_NUM] = branchKey;
         branch.packedJson__[BranchTuple.__VISIBLE_NUM] = true;
@@ -138,8 +145,8 @@ export class BranchTuple extends Tuple {
     }
 
     private addNewDisp(disp: any): void {
-        let array = this._array(BranchTuple.__NEW_DISPS_JSON_NUM);
         this.touchUpdateDate();
+        let array = this._array(BranchTuple.__NEW_DISPS_JSON_NUM);
 
         // If the ID has already been added, then an update isn't needed.
         if (disp.__newTempId != null)
@@ -180,7 +187,7 @@ export class BranchTuple extends Tuple {
     /** RENDER DispIDs to Exlucde
      *
      */
-    get renderDispIdsToExclude():number[] {
+    get renderDispIdsToExclude(): number[] {
         return [...Object.keys(this._updatedDispIds),
             ...this._array(BranchTuple.__DELETED_DISP_IDS_NUM)];
     }
@@ -188,7 +195,7 @@ export class BranchTuple extends Tuple {
     /** RENDER Disps to Include
      *
      */
-    get renderDispsToInclude():number[] {
+    get renderDispsToInclude(): number[] {
         return this._array(BranchTuple.__NEW_DISPS_JSON_NUM);
     }
 }

@@ -7,6 +7,7 @@ export enum ShapePropType {
     Color,
     LineStyle,
     String,
+    MultilineString,
     Option,
     Boolean,
 }
@@ -29,6 +30,8 @@ export class ShapeProp {
     private _optionByValue: { [value: string]: any } = {};
     private _options: ShapePropOption[] | null = null;
 
+    __lastShowValue = null;
+
     constructor(public type: ShapePropType,
                 public getter: ShapePropGetter,
                 public setter: ShapePropSetter,
@@ -49,13 +52,13 @@ export class ShapeProp {
         if (options != null) {
             for (let op of options) {
                 op.value = op.value.toString();
-                this._optionByValue[op.value.toString()] = op;
+                this._optionByValue[op.value] = op;
             }
         }
     }
 
     getOptionObject(value: string): any {
-        return this._optionByValue[value].item;
+        return this._optionByValue[value].object;
     }
 }
 
