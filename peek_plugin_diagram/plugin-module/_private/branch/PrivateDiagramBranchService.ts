@@ -103,7 +103,8 @@ export class PrivateDiagramBranchService extends DiagramBranchService {
                 let val: DiagramBranchContext = new PrivateDiagramBranchContext(
                     this.lookupService,
                     branch, modelSetKey, coordSetKey,
-                    (context) => this.saveBranch(coordSet.modelSetId, context)
+                    (context) => this.saveBranch(coordSet.modelSetId, context),
+                    location
                 );
                 return val;
 
@@ -112,7 +113,7 @@ export class PrivateDiagramBranchService extends DiagramBranchService {
         return prom;
     }
 
-    private saveBranch(modelSetId:number, branchContext: PrivateDiagramBranchContext): Promise<void> {
+    private saveBranch(modelSetId: number, branchContext: PrivateDiagramBranchContext): Promise<void> {
         let promises = [];
 
         promises.push(this.branchLocalLoader.saveBranch(branchContext));
@@ -121,7 +122,7 @@ export class PrivateDiagramBranchService extends DiagramBranchService {
             let action = new BranchUpdateTupleAction();
             action.modelSetId = modelSetId;
             action.branchTuple = branchContext.branchTuple;
-            this.tupleService.offlineAction.pushAction(action);
+            promises.push(this.tupleService.offlineAction.pushAction(action));
         }
 
         let prom: any = Promise.all(promises);

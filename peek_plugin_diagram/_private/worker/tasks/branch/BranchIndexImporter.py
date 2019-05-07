@@ -69,6 +69,7 @@ def createOrUpdateBranches(self, importBranchesEncodedPayload: bytes) -> None:
             coordSet = coordSetById[coordSetId]
             _insertOrUpdateBranches(conn, modelSetKey, modelSetId, branches)
             _insertOrUpdateBranchGrids(conn, coordSet, textStylesById, branches)
+
             transaction.commit()
 
             logger.debug("Completed importing %s branches for coordSetId %s in %s",

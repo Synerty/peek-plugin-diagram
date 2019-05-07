@@ -89,11 +89,11 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
             ctx.scale(horizontalStretchFactor, 1);
         }
 
-
-        if (disp.bounds == null)
+        // Bounds can get serliased in branches, so check to see if it's actually the
+        // class or just the restored object that it serialises to.
+        if (disp.bounds == null || disp.bounds.contains == null)
             disp.bounds = new PeekCanvasBounds();
-        else
-            disp.bounds.w = 0;
+        disp.bounds.w = 0;
 
 
         let lines = DispText.text(disp).split("\n");
@@ -141,13 +141,12 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 
 
     drawSelected(dispText, ctx, zoom, pan) {
-
-        let selectionConfig = this.config.renderer.selection;
-
-        // DRAW THE SELECTED BOX
         let bounds = dispText.bounds;
         if (bounds == null)
             return;
+
+        // DRAW THE SELECTED BOX
+        let selectionConfig = this.config.renderer.selection;
 
         // Move the selection line a bit away from the object
         let offset = (selectionConfig.width + selectionConfig.lineGap) / zoom;

@@ -82,11 +82,6 @@ export class LocalBranchStorageService extends ComponentLifecycleEventEmitter {
         let ts = new LocallyStoredBranchTupleSelector(modelSetKey, key);
         let prom: any = this.storage.loadTuples(ts);
 
-        this.storage.loadTuplesEncoded(ts)
-            .then((encodedPayload) => Payload.fromEncodedPayload(encodedPayload))
-            .then((xxx) => {
-                console.log(xxx);
-            });
         return prom;
     }
 
@@ -112,7 +107,6 @@ export class LocalBranchStorageService extends ComponentLifecycleEventEmitter {
                 if (!updated)
                     branches.push(branchToSave);
 
-                console.log(new Payload({}, branches).toJsonDict());
                 return this.storage.saveTuples(ts, branches);
             });
         return prom;

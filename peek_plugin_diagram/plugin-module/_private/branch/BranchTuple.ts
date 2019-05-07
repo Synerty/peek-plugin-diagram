@@ -5,6 +5,7 @@ import {
     DiagramDeltaBase
 } from "../../branch/DiagramDeltaBase";
 import {DiagramLookupService} from "../../DiagramLookupService";
+import {deepCopy} from "@synerty/vortexjs/src/vortex/UtilMisc";
 
 /** Diagram Branch Tuple
  *
@@ -195,7 +196,48 @@ export class BranchTuple extends Tuple {
     /** RENDER Disps to Include
      *
      */
-    get renderDispsToInclude(): number[] {
-        return this._array(BranchTuple.__NEW_DISPS_JSON_NUM);
+    get renderDispsToInclude(): any[] {
+        return [...this._array(BranchTuple.__NEW_DISPS_JSON_NUM),
+            ...this._array(BranchTuple.__UPDATED_DISPS_JSON_NUM)];
+
+    }
+
+
+    toJsonField(value: any,
+                jsonDict: {} | null = null,
+                name: string | null = null): any {
+        if (name != "packedJson__")
+            return Tuple.prototype.toJsonField(value, jsonDict, name);
+
+        let convertedValue = deepCopy(value);
+
+        let disps = [];
+        if (convertedValue[BranchTuple.__UPDATED_DISPS_JSON_NUM] != null)
+            disps.add(convertedValue[BranchTuple.__UPDATED_DISPS_JSON_NUM]);
+
+        if (convertedValue[BranchTuple.__NEW_DISPS_JSON_NUM] != null)
+            disps.add(convertedValue[BranchTuple.__NEW_DISPS_JSON_NUM]);
+
+
+        for (let disp of disps) {
+            for (let key of Object.keys(disp)) {
+                let dispval = disp[key];
+                if (dispval == null) // Nulls are not included
+                    delete disp[key];
+                else if (dispval['__rst'] != null) // VortexJS Serialise Class Type
+                    delete disp[key];
+                else if (key == '__newTempId')
+                    delete disp[key];
+                else if (key == 'bounds')
+                    delete disp[key];
+
+            }
+        }
+
+        /* Now assign the value and it's value type if applicable */
+        if (name != null && jsonDict != null)
+            jsonDict[name] = convertedValue;
+
+        return convertedValue;
     }
 }

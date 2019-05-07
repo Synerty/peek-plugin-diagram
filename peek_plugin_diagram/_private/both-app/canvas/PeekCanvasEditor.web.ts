@@ -15,7 +15,6 @@ import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasShapePropsContext} from "./PeekCanvasShapePropsContext";
-import {DispText} from "../tuples/shapes/DispText";
 import {DispLevel} from "@peek/peek_plugin_diagram/lookups";
 
 export enum EditorContextType {
@@ -81,6 +80,16 @@ export class PeekCanvasEditor {
             });
 
     };
+
+
+    // ---------------
+    // reset
+    private reset() {
+    };
+
+
+    // ---------------
+    // Getters
 
     get modelSetId(): null | number {
         let cs = this.canvasConfig.controller.coordSet;
@@ -210,12 +219,5 @@ export class PeekCanvasEditor {
         this.currentContext = EditorContextType.NONE;
         this._contextPanelChangeSubject.next(this.currentContext);
     }
-
-
-    // ---------------------------------------------------------------------------------
-    // reset
-    // ---------------------------------------------------------------------------------
-    private reset() {
-    };
 
 }

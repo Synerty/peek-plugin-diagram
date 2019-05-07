@@ -30,8 +30,7 @@ export class PeekCanvasConfig {
             color: 'white',
             width: 8,
             lineGap: 6,
-            dashLen: 3,
-            snapSize: 4
+            dashLen: 3
         },
         grid: {
             show: false,
@@ -73,7 +72,6 @@ export class PeekCanvasConfig {
             width: 2,
             lineGap: 2,
             dashLen: 3,
-            snapSize: 4,
             margin: 5, // The distance distance that the click can happen from the shape
         },
     };
@@ -90,6 +88,8 @@ export class PeekCanvasConfig {
         resizeHandleWidth: 6.0,
         selectionHighlightColor: '#3399FF',
         activeBranchTuple: null,
+        snapToGrid: true,
+        snapSize: 4
     };
 
     // Debug data

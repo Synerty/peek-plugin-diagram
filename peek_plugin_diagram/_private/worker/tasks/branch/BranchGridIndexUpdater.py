@@ -38,10 +38,11 @@ def removeBranchGridIndexes(conn, branchIndexIds: List[int]) -> None:
         whereclause=branchGridIndexTable.c.branchIndexId.in_(branchIndexIds)
     )).fetchall()
 
-    conn.execute(
-        queueTable.insert(),
-        [dict(coordSetId=item.coordSetId, gridKey=item.gridKey) for item in results]
-    )
+    if results:
+        conn.execute(
+            queueTable.insert(),
+            [dict(coordSetId=item.coordSetId, gridKey=item.gridKey) for item in results]
+        )
 
 
 """ Branch Grid Index Updater
@@ -55,7 +56,7 @@ This module is called from the BranchGridIndexUpdater method.
 1.2) Use the makeGridKeysForDisp method to work out the grid keys
 2) Delete the old entries from the BranchGridIndex
 3) Insert the new entries into the BranchGridIndex
-4) Insert the grid keys into the GridKeyCompuler Queue
+4) Insert the grid keys into the GridKeyCompiler Queue
 """
 
 

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Any
+from typing import List, Any, Optional
 
 import pytz
 import ujson as json
@@ -39,6 +39,10 @@ class BranchTuple(Tuple):
     #:  The packed JSON data for this object
     packedJson__: List[Any] = TupleField([])
 
+    # This field is server side only
+    importHash: str = TupleField()
+    importGroupHash: str = TupleField()
+
     def __init__(self, **kwargs):
         Tuple.__init__(self, **kwargs)
         self.packedJson__ = [None] * (BranchTuple.__LAST_INDEX_NUM + 1)
@@ -74,6 +78,8 @@ class BranchTuple(Tuple):
             importBranchTuple.addedDisps,  # __NEW_DISPS_JSON_NUM
             importBranchTuple.deletedDispKeys,  # __DELETED_DISP_IDS_NUM
         ]
+        self.importHash = importBranchTuple.importHash
+        self.importGroupHash = importBranchTuple.importGroupHash
         return self
 
     def packJson(self) -> str:
@@ -82,6 +88,10 @@ class BranchTuple(Tuple):
     @property
     def id(self):
         return self.packedJson__[self.__ID_NUM]
+
+    @id.setter
+    def id(self, value: Optional[int]):
+        self.packedJson__[self.__ID_NUM] = value
 
     @id.setter
     def setId(self, id_: int):

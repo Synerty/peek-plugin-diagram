@@ -134,10 +134,13 @@ export class DispText extends DispBase {
             'va': TextVerticalAlign.center, // TextVerticalAlign.center
             'ha': TextHorizontalAlign.center, // TextHorizontalAlign.center
             'r': 0, // number
-            'te': 'New Text', // string
             'th': null, // number | null
             'hs': 1, // number | null
         };
+
+        DispText.setSelectable(newDisp, true);
+        DispText.setText(newDisp, 'New Text');
+
 
         let dispTextStyle = new DispTextStyle();
         dispTextStyle.id = 30;

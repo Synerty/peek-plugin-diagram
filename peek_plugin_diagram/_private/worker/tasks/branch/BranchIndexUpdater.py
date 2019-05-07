@@ -4,13 +4,14 @@ import logging
 import pytz
 from datetime import datetime
 from sqlalchemy import select, and_
+from sqlalchemy.orm.exc import NoResultFound
 from txcelery.defer import DeferrableTask
 from typing import List, Set, Tuple, Dict
 from vortex.Payload import Payload
 
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.storage.Display import DispTextStyle
-from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
+from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
 from peek_plugin_diagram._private.storage.branch.BranchIndex import \
     BranchIndex
 from peek_plugin_diagram._private.storage.branch.BranchIndexCompilerQueue import \
@@ -49,10 +50,13 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
     branchesByCoordSetId: Dict[int, List[BranchTuple]] = defaultdict(list)
     chunkKeys: Set[str] = set()
 
+    newBranchesToInsert = []
+
     # Create a lookup of CoordSets by ID
     dbSession = CeleryDbConn.getDbSession()
     try:
         # Get the latest lookups
+        modelSet = dbSession.query(ModelSet).filter(ModelSet.id == modelSetId).one()
         coordSetById = {i.id: i for i in dbSession.query(ModelCoordSet).all()}
         textStylesById = {i.id: i for i in dbSession.query(DispTextStyle).all()}
         dbSession.expunge_all()
@@ -62,13 +66,18 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
         # however, on first writing this will just be used by the UI for updating
         # individual branches.
         for branch in updatedBranches:
-            branchIndex = dbSession.query(BranchIndex) \
-                .filter(BranchIndex.id == branch.id) \
-                .one()
-            branchIndex.packedJson = branch.packJson()
+            try:
+                branchIndex = dbSession.query(BranchIndex) \
+                    .filter(BranchIndex.id == branch.id) \
+                    .one()
+                branchIndex.packedJson = branch.packJson()
+
+            except NoResultFound:
+                newBranchesToInsert.append(branch)
 
             branchesByCoordSetId[branch.coordSetId].append(branch)
-            chunkKeys.add(branchIndex.chunkKey)
+
+            chunkKeys.add(makeChunkKeyForBranchIndex(modelSet.key, branch.key))
 
         dbSession.commit()
 
@@ -86,9 +95,10 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
     transaction = conn.begin()
 
     try:
+        _insertOrUpdateBranches(conn, modelSet.key, modelSet.id, newBranchesToInsert)
 
         # Recompile the BranchGridIndexes
-        for coordSetId, branches in branchesByCoordSetId:
+        for coordSetId, branches in branchesByCoordSetId.items():
             coordSet = coordSetById[coordSetId]
             assert coordSet.modelSetId == modelSetId, "Branches not all from one model"
 
@@ -100,9 +110,11 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
             [dict(modelSetId=modelSetId, chunkKey=c) for c in chunkKeys]
         )
 
+        transaction.commit()
         logger.debug("Updated %s BranchIndexes queued %s chunks in %s",
                      len(updatedBranches), len(chunkKeys),
                      (datetime.now(pytz.utc) - startTime))
+
 
     except Exception as e:
         transaction.rollback()
@@ -169,6 +181,7 @@ def removeBranches(self, modelSetKey: str, coordSetKey: str, keys: List[str]) ->
             [dict(modelSetId=coordSet.modelSetId, chunkKey=c) for c in chunkKeys]
         )
 
+        transaction.commit()
         logger.debug("Deleted %s BranchIndexes queued %s chunks in %s",
                      len(branchIndexIds), len(chunkKeys),
                      (datetime.now(pytz.utc) - startTime))

@@ -44,7 +44,8 @@ def upgrade():
     op.create_table('BranchIndex',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('coordSetId', sa.Integer(), nullable=False),
-    sa.Column('importGroupHash', sa.String(), nullable=False),
+    sa.Column('importGroupHash', sa.String(), nullable=True),
+    sa.Column('importHash', sa.String(), nullable=True),
     sa.Column('key', sa.String(), nullable=False),
     sa.Column('chunkKey', sa.String(), nullable=False),
     sa.Column('packedJson', sa.String(), nullable=False),
@@ -53,7 +54,8 @@ def upgrade():
     schema='pl_diagram'
     )
     op.create_index('idx_BranchIndex_chunkKey', 'BranchIndex', ['chunkKey'], unique=False, schema='pl_diagram')
-    op.create_index('idx_BranchIndex_importGroupHash', 'BranchIndex', ['importGroupHash'], unique=False, schema='pl_diagram')
+    op.create_index('idx_BranchIndex_importGroupHash', 'BranchIndex', ['coordSetId', 'importGroupHash'], unique=False, schema='pl_diagram')
+    op.create_index('idx_BranchIndex_importHash', 'BranchIndex', ['coordSetId', 'importHash'], unique=True, schema='pl_diagram')
     op.create_index('idx_BranchIndex_key', 'BranchIndex', ['coordSetId', 'key'], unique=True, schema='pl_diagram')
     op.create_table('BranchGridIndex',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),

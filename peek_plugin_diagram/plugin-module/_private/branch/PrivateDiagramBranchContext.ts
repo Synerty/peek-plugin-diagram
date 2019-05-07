@@ -21,7 +21,8 @@ export class PrivateDiagramBranchContext extends DiagramBranchContext {
                 private branch: BranchTuple,
                 private _modelSetKey: string,
                 private _coordSetKey: string,
-                private saveCallback: _BranchContextSaveCallback) {
+                private saveCallback: _BranchContextSaveCallback,
+                private _location: BranchLocation) {
         super();
 
     }
@@ -81,7 +82,7 @@ export class PrivateDiagramBranchContext extends DiagramBranchContext {
     }
 
     get location(): BranchLocation {
-        return undefined;
+        return this._location;
     }
 
 
