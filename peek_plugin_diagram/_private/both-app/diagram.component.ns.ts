@@ -13,7 +13,6 @@ import {WebView} from 'ui/web-view';
 import {PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader";
 import {PrivateDiagramTupleService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
 import {PrivateDiagramBranchLoaderServiceA} from "@peek/peek_plugin_diagram/_private/branch-loader";
-import {DiagramBranchService, DiagramConfigService} from "@peek/peek_plugin_diagram";
 
 
 import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
@@ -21,7 +20,6 @@ import {PositionServiceBridgeNs} from "../service-bridge/PositionServiceBridge.n
 import {TupleStorageBridgeNs} from "../service-bridge/TupleStorageBridge.ns";
 import {GridLoaderBridgeNs} from "../service-bridge/GridLoaderBridge.ns";
 import {BranchLoaderServiceBridgeNs} from "../service-bridge/BranchLoaderServiceBridge.ns";
-import {BranchServiceBridgeNs} from "../service-bridge/BranchServiceBridge.ns";
 
 import * as fs from "tns-core-modules/file-system";
 import {TupleActionBridgeNs} from "./service-bridge-ns/TupleActionBridge.ns";
@@ -44,8 +42,6 @@ export class DiagramComponent extends DiagramComponentBase
     private tupleActionBridge: TupleActionBridgeNs | null = null;
     private gridLoaderBridge: GridLoaderBridgeNs | null = null;
     private branchLoaderServiceBridge: BranchLoaderServiceBridgeNs | null = null;
-    // private branchServiceBridge: BranchServiceBridgeNs | null = null;
-    private configServiceBridge: BranchServiceBridgeNs | null = null;
 
     @ViewChild('webView') webView;
 
@@ -96,14 +92,6 @@ export class DiagramComponent extends DiagramComponentBase
         this.branchLoaderServiceBridge = new BranchLoaderServiceBridgeNs(
             this, this.branchLoaderService, this.oLangWebViewInterface
         );
-
-        // this.branchServiceBridge = new BranchServiceBridgeNs(
-        //     this, this.branchService, this.oLangWebViewInterface
-        // );
-
-        // this.configServiceBridge = new BranchServiceBridgeNs(
-        //     this, this.configService, this.oLangWebViewInterface
-        // );
 
     }
 

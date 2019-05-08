@@ -2,7 +2,6 @@ import {assert} from "../DiagramUtil";
 import {GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
-import {DiagramDeltaBase} from "@peek/peek_plugin_diagram/branch/DiagramDeltaBase";
 
 /** Linked Grid
  *
@@ -14,10 +13,11 @@ export class LinkedGrid {
     lastUpdate = null;
     loadedFromServerDate = new Date();
     disps = [];
-    branchDeltasByBranchKey: { [key: string]: DiagramDeltaBase[] } = {};
+    // TODO, Fix branch support
+    branchDeltasByBranchKey: { [key: string]: any[] } = {};
 
     constructor(serverCompiledGridOrGridKey: string | GridTuple,
-                lookupStore: DiagramLookupService | null = null) {
+                lookupService: DiagramLookupService | null = null) {
 
         // initialise for empty grid keys
         if (typeof serverCompiledGridOrGridKey === "string") {
@@ -26,7 +26,7 @@ export class LinkedGrid {
         }
 
         let serverCompiledGrid = <GridTuple>serverCompiledGridOrGridKey;
-        assert(lookupStore != null, "lookupStore can not be null");
+        assert(lookupService != null, "lookupStore can not be null");
 
         this.gridKey = serverCompiledGrid.gridKey;
         this.lastUpdate = serverCompiledGrid.lastUpdate;
@@ -53,7 +53,7 @@ export class LinkedGrid {
                 // including dips that had not yet had json assigned.
                 continue;
             }
-            if (lookupStore._linkDispLookups(disp) != null) {
+            if (lookupService._linkDispLookups(disp) != null) {
                 this.disps.push(disp);
             }
         }
@@ -75,7 +75,8 @@ export class LinkedGrid {
         // Resolve the lookups for the branch deltas
         for (let branchJson of branches) {
             let branch: BranchTuple = BranchTuple.unpackJson(branchJson);
-            this.branchDeltasByBranchKey[branch.key] = branch.deltas(lookupStore);
+            branch.linkDisps(lookupService);
+            this.branchDeltasByBranchKey[branch.key] = branch.deltas(lookupService);
         }
 
 

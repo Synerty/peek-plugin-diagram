@@ -2,7 +2,6 @@ import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
-import {DiagramBranchService} from "@peek/peek_plugin_diagram/DiagramBranchService";
 import {
     PrivateDiagramBranchContext,
     PrivateDiagramBranchService
@@ -32,7 +31,6 @@ export enum EditorContextType {
 export class PeekCanvasEditor {
 
 
-    private branchService: PrivateDiagramBranchService;
 
     private _currentBranch: PrivateDiagramBranchContext | null = null;
 
@@ -51,14 +49,12 @@ export class PeekCanvasEditor {
                 private canvasModel: PeekCanvasModel,
                 private canvasConfig: PeekCanvasConfig,
                 public lookupService: DiagramLookupService,
-                branchService: DiagramBranchService,
+                private branchService: PrivateDiagramBranchService,
                 // private config: PeekCanvasConfig,
                 // private gridObservable: GridObservable,
                 // private lookupCache: DiagramLookupService,
                 private lifecycleEventEmitter: ComponentLifecycleEventEmitter
     ) {
-        this.branchService = <PrivateDiagramBranchService>branchService;
-
         this.branchService
             .startEditingObservable
             .takeUntil(lifecycleEventEmitter.onDestroyEvent)

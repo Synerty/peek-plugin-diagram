@@ -1,6 +1,4 @@
 import {BranchTuple} from "./BranchTuple";
-import {DiagramDeltaBase} from "../../branch/DiagramDeltaBase";
-import {DiagramBranchContext} from "../../branch/DiagramBranchContext";
 import {DiagramLookupService} from "../../DiagramLookupService";
 import {BranchLocation} from "@peek/peek_plugin_branch";
 
@@ -14,7 +12,7 @@ export interface _BranchContextSaveCallback {
  * This is the implementation of the diagram branch service.
  *
  */
-export class PrivateDiagramBranchContext extends DiagramBranchContext {
+export class PrivateDiagramBranchContext {
 
 
     constructor(private lookupCache: DiagramLookupService,
@@ -23,7 +21,6 @@ export class PrivateDiagramBranchContext extends DiagramBranchContext {
                 private _coordSetKey: string,
                 private saveCallback: _BranchContextSaveCallback,
                 private _location: BranchLocation) {
-        super();
 
     }
 
@@ -41,28 +38,6 @@ export class PrivateDiagramBranchContext extends DiagramBranchContext {
 
     get key(): string {
         return this.branch.key;
-    }
-
-    get deltas(): DiagramDeltaBase[] {
-        return this.branch.deltas(this.lookupCache);
-    }
-
-    addDelta(delta: DiagramDeltaBase): void {
-        this.branch.addDelta(delta);
-
-    }
-
-    createOrReuseDelta(DeltaClass): any {
-        let newDelta = new DeltaClass();
-        let deltaType = newDelta.type;
-
-        if (this.deltas.length != 0 && this.deltas[this.deltas.length - 1].type == deltaType) {
-            let delta: any = this.deltas[this.deltas.length - 1];
-            return delta;
-        }
-
-        this.addDelta(newDelta);
-        return newDelta;
     }
 
     createOrUpdateDisp(disp: any): void {

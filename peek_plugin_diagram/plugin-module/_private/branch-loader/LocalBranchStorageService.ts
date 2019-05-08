@@ -10,7 +10,7 @@ import {
 
 import {branchLocalStorageName, diagramTuplePrefix} from "../PluginNames";
 import {BranchTuple} from "../branch/BranchTuple";
-import {DiagramBranchContext} from "../../branch/DiagramBranchContext";
+import {PrivateDiagramBranchContext} from "../branch";
 
 
 // ----------------------------------------------------------------------------
@@ -86,7 +86,7 @@ export class LocalBranchStorageService extends ComponentLifecycleEventEmitter {
     }
 
 
-    saveBranch(branchContext: DiagramBranchContext): Promise<void> {
+    saveBranch(branchContext: PrivateDiagramBranchContext): Promise<void> {
         let branchToSave: BranchTuple = branchContext["branch"];
         let ts = new LocallyStoredBranchTupleSelector(
             branchContext.modelSetKey,

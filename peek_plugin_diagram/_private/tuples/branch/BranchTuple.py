@@ -7,8 +7,6 @@ from vortex import SerialiseUtil
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from peek_plugin_diagram._private.tuples.branch.BranchDeltaBase import \
-    BranchDeltaBase
 from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
     LookupHashConverter
 from peek_plugin_diagram.tuples.branches.ImportBranchTuple import ImportBranchTuple
@@ -27,7 +25,7 @@ class BranchTuple(Tuple):
     __VISIBLE_NUM = 3
     __UPDATED_DATE = 4
     __CREATED_DATE = 5
-    __DELTAS_JSON_NUM = 6
+    __UNUSED_NUM = 6
     __UPDATED_DISPS_JSON_NUM = 7
     __NEW_DISPS_JSON_NUM = 8
     __DELETED_DISP_IDS_NUM = 9
@@ -58,13 +56,13 @@ class BranchTuple(Tuple):
 
         """
         raise NotImplementedError("BranchTuple.loadFromImportTuple")
-        deltasJson = []
-        for importDelta in importBranchTuple.deltas:
-            delta = BranchDeltaBase.loadFromImportTuple(
-                importDeltaTuple=importDelta,
-                lookupHashConverter=lookupHashConverter
-            )
-            deltasJson.append(delta._jsonData)
+        # deltasJson = []
+        # for importDelta in importBranchTuple.deltas:
+        #     delta = BranchDeltaBase.loadFromImportTuple(
+        #         importDeltaTuple=importDelta,
+        #         lookupHashConverter=lookupHashConverter
+        #     )
+        #     deltasJson.append(delta._jsonData)
 
         self = cls()
         self.packedJson__ = [
@@ -74,7 +72,7 @@ class BranchTuple(Tuple):
             importBranchTuple.visible,  # __VISIBLE_NUM
             SerialiseUtil.toStr(datetime.now(pytz.utc)),  # __UPDATED_DATE
             SerialiseUtil.toStr(datetime.now(pytz.utc)),  # __CREATED_DATE
-            deltasJson,  # __DELTAS_JSON_NUM
+            None,  # __DELTAS_JSON_NUM
             importBranchTuple.updatedDisps,  # __UPDATED_DISPS_JSON_NUM
             importBranchTuple.addedDisps,  # __NEW_DISPS_JSON_NUM
             importBranchTuple.deletedDispKeys,  # __DELETED_DISP_IDS_NUM
@@ -106,21 +104,21 @@ class BranchTuple(Tuple):
     def key(self):
         return self.packedJson__[self.__KEY_NUM]
 
-    @property
-    def deltas(self) -> List[BranchDeltaBase]:
-        branchDeltasJson = self.packedJson__[self.__DELTAS_JSON_NUM]
-        branchDeltaClasses = [BranchDeltaBase.createFromDeltaJson(deltaJson)
-                              for deltaJson in branchDeltasJson]
-
-        return branchDeltaClasses
-
-    @property
-    def deltas(self) -> List[BranchDeltaBase]:
-        branchDeltasJson = self.packedJson__[self.__DELTAS_JSON_NUM]
-        branchDeltaClasses = [BranchDeltaBase.createFromDeltaJson(deltaJson)
-                              for deltaJson in branchDeltasJson]
-
-        return branchDeltaClasses
+    # @property
+    # def deltas(self) -> List[BranchDeltaBase]:
+    #     branchDeltasJson = self.packedJson__[self.__DELTAS_JSON_NUM]
+    #     branchDeltaClasses = [BranchDeltaBase.createFromDeltaJson(deltaJson)
+    #                           for deltaJson in branchDeltasJson]
+    #
+    #     return branchDeltaClasses
+    #
+    # @property
+    # def deltas(self) -> List[BranchDeltaBase]:
+    #     branchDeltasJson = self.packedJson__[self.__DELTAS_JSON_NUM]
+    #     branchDeltaClasses = [BranchDeltaBase.createFromDeltaJson(deltaJson)
+    #                           for deltaJson in branchDeltasJson]
+    #
+    #     return branchDeltaClasses
 
     @property
     def visible(self) -> bool:

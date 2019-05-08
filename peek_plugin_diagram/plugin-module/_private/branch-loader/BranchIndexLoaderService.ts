@@ -26,7 +26,6 @@ import {BranchIndexLoaderStatusTuple} from "./BranchIndexLoaderStatusTuple";
 import {OfflineConfigTuple} from "../tuples/OfflineConfigTuple";
 import {ModelSet} from "../tuples/ModelSet";
 import {BranchIndexLoaderServiceA} from "./BranchIndexLoaderServiceA";
-import {DiagramBranchContext} from "../../branch/DiagramBranchContext";
 
 // ----------------------------------------------------------------------------
 

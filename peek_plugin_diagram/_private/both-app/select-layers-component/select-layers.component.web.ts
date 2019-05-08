@@ -7,7 +7,6 @@ import {
     PopupLayerSelectionArgsI,
     PrivateDiagramConfigService
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
-import {DiagramConfigService} from "@peek/peek_plugin_diagram/DiagramConfigService";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
 import {DispLayer} from "@peek/peek_plugin_diagram/lookups";
@@ -38,18 +37,16 @@ export class SelectLayersComponent extends ComponentLifecycleEventEmitter
     @Input("config")
     config: PeekCanvasConfig;
 
-    private configService: PrivateDiagramConfigService;
     private coordSetService: PrivateDiagramCoordSetService;
 
     items: DispLayer[] = [];
 
     constructor(private titleService: TitleService,
                 private lookupService: DiagramLookupService,
-                abstractConfigService: DiagramConfigService,
+                private configService: PrivateDiagramConfigService,
                 abstractCoordSetService: DiagramCoordSetService) {
         super();
 
-        this.configService = <PrivateDiagramConfigService>abstractConfigService;
         this.coordSetService = <PrivateDiagramCoordSetService>abstractCoordSetService;
 
         this.configService

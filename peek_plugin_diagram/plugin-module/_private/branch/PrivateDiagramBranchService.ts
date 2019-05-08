@@ -1,12 +1,10 @@
 import {Injectable} from "@angular/core";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
-import {DiagramBranchContext} from "../../branch/DiagramBranchContext";
 import {BranchLocation} from "@peek/peek_plugin_branch/";
 import {PrivateDiagramBranchContext} from "../branch/PrivateDiagramBranchContext";
 import {BranchTuple} from "../branch/BranchTuple";
 import {BranchIndexLoaderServiceA} from "../branch-loader/BranchIndexLoaderServiceA";
-import {DiagramBranchService} from "../../DiagramBranchService";
 import {DiagramLookupService} from "../../DiagramLookupService";
 import {DiagramCoordSetService} from "../../DiagramCoordSetService";
 import {BranchIndexResultI, LocalBranchStorageService} from "../branch-loader";
@@ -15,6 +13,7 @@ import {PrivateDiagramCoordSetService, PrivateDiagramTupleService} from "../serv
 
 import * as moment from "moment";
 import {BranchUpdateTupleAction} from "./BranchUpdateTupleAction";
+import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
 export interface PopupEditBranchSelectionArgs {
     modelSetKey: string;
@@ -27,7 +26,7 @@ export interface PopupEditBranchSelectionArgs {
  *
  */
 @Injectable()
-export class PrivateDiagramBranchService extends DiagramBranchService {
+export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter {
 
     private _startEditingObservable = new Subject<PrivateDiagramBranchContext>();
     private _stopEditingObservable = new Subject<void>();
@@ -51,7 +50,7 @@ export class PrivateDiagramBranchService extends DiagramBranchService {
 
     getOrCreateBranch(modelSetKey: string, coordSetKey: string,
                       branchKey: string,
-                      location: BranchLocation): Promise<DiagramBranchContext> {
+                      location: BranchLocation): Promise<PrivateDiagramBranchContext> {
         if (!this.coordSetService.isReady())
             throw new Error("CoordSet service is not initialised yet");
 
@@ -102,13 +101,12 @@ export class PrivateDiagramBranchService extends DiagramBranchService {
 
                 branch.linkDisps(this.lookupService);
 
-                let val: DiagramBranchContext = new PrivateDiagramBranchContext(
+                return new PrivateDiagramBranchContext(
                     this.lookupService,
                     branch, modelSetKey, coordSetKey,
                     (context) => this.saveBranch(coordSet.modelSetId, context),
                     location
                 );
-                return val;
 
             });
 

@@ -7,8 +7,6 @@ import {
 } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 
-import {DiagramBranchService} from "@peek/peek_plugin_diagram/DiagramBranchService";
-import {DiagramConfigService} from "@peek/peek_plugin_diagram/DiagramConfigService";
 import {PrivateDiagramConfigService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 
@@ -33,21 +31,17 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
 
 
     protected toolbarService: PrivateDiagramToolbarService;
-    protected branchService: PrivateDiagramBranchService;
-    protected configService: PrivateDiagramConfigService;
 
     buttons: DiagramToolButtonI[] = [];
 
     toolbarIsOpen: boolean = false;
 
     constructor(private abstractToolbarService: DiagramToolbarService,
-                abstractBranchService: DiagramBranchService,
-                abstractConfigService: DiagramConfigService) {
+                private branchService: PrivateDiagramBranchService,
+                private configService: PrivateDiagramConfigService) {
         super();
 
         this.toolbarService = <PrivateDiagramToolbarService>abstractToolbarService;
-        this.branchService = <PrivateDiagramBranchService>abstractBranchService;
-        this.configService = <PrivateDiagramConfigService>abstractConfigService;
 
         this.toolbarService
             .toolButtonsUpdatedObservable()

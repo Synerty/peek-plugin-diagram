@@ -1,9 +1,5 @@
 import {addTupleType, Tuple} from "@synerty/vortexjs";
 import {diagramTuplePrefix} from "../PluginNames";
-import {
-    BRANCH_DELTA_CLASSES_BY_TYPE,
-    DiagramDeltaBase
-} from "../../branch/DiagramDeltaBase";
 import {DiagramLookupService} from "../../DiagramLookupService";
 import {deepCopy} from "@synerty/vortexjs/src/vortex/UtilMisc";
 import SerialiseUtil from "@synerty/vortexjs/src/vortex/SerialiseUtil";
@@ -31,7 +27,7 @@ export class BranchTuple extends Tuple {
     private static readonly __VISIBLE_NUM = 3;
     private static readonly __UPDATED_DATE = 4;
     private static readonly __CREATED_DATE = 5;
-    private static readonly __DELTAS_JSON_NUM = 6;
+    private static readonly __UNUSED_NUM = 6;
     private static readonly __UPDATED_DISPS_JSON_NUM = 7;
     private static readonly __NEW_DISPS_JSON_NUM = 8;
     private static readonly __DELETED_DISP_IDS_NUM = 9;
@@ -58,7 +54,7 @@ export class BranchTuple extends Tuple {
         branch.packedJson__[BranchTuple.__VISIBLE_NUM] = true;
         branch.packedJson__[BranchTuple.__UPDATED_DATE] = date;
         branch.packedJson__[BranchTuple.__CREATED_DATE] = date;
-        branch.packedJson__[BranchTuple.__DELTAS_JSON_NUM] = [];
+        branch.packedJson__[BranchTuple.__UNUSED_NUM] = null;
         branch.packedJson__[BranchTuple.__UPDATED_DISPS_JSON_NUM] = [];
         branch.packedJson__[BranchTuple.__NEW_DISPS_JSON_NUM] = [];
         branch.packedJson__[BranchTuple.__DELETED_DISP_IDS_NUM] = [];
@@ -102,34 +98,12 @@ export class BranchTuple extends Tuple {
         return this.packedJson__[BranchTuple.__KEY_NUM];
     }
 
-    deltas(lookupCache: DiagramLookupService): DiagramDeltaBase[] {
-        let deltasJson = this.packedJson__[BranchTuple.__DELTAS_JSON_NUM];
-        if (deltasJson == null)
-            return [];
-
-        let deltas = [];
-        for (let deltaJson of deltasJson) {
-            let deltaType = deltaJson[0];
-            let Delta = BRANCH_DELTA_CLASSES_BY_TYPE[deltaType];
-            let delta = new Delta();
-            delta._jsonData = deltaJson;
-            delta.__linkDispLookups(lookupCache);
-            deltas.push(delta);
-        }
-        return deltas;
-    }
-
     createOrUpdateDisp(disp: any): void {
         if (disp.id == null)
             this.addNewDisp(disp);
         else
             this.addUpdatedDisp(disp);
 
-    }
-
-    addDelta(delta: DiagramDeltaBase): void {
-        this.touchUpdateDate();
-        this._array(BranchTuple.__DELTAS_JSON_NUM).push(delta["_jsonData"]);
     }
 
     deleteDisp(dispId: number): void {

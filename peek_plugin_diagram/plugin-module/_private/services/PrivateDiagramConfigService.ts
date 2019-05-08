@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {PrivateDiagramTupleService} from "./PrivateDiagramTupleService";
-import {DiagramConfigService} from "../../DiagramConfigService";
 import {Observable, Subject} from "rxjs";
+import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
 export interface PopupLayerSelectionArgsI {
     modelSetKey: string;
@@ -21,7 +21,7 @@ export interface PopupBranchSelectionArgsI {
  *
  */
 @Injectable()
-export class PrivateDiagramConfigService extends DiagramConfigService {
+export class PrivateDiagramConfigService extends ComponentLifecycleEventEmitter {
 
     private _popupLayerSelectionSubject: Subject<PopupLayerSelectionArgsI>
         = new Subject<PopupLayerSelectionArgsI>();

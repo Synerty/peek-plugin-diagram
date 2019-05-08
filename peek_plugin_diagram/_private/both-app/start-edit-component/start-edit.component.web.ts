@@ -1,10 +1,8 @@
 import {Component, Input, OnInit, ViewChild} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
-import {DiagramBranchService} from "@peek/peek_plugin_diagram/DiagramBranchService";
 import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
-import {DispLayer} from "@peek/peek_plugin_diagram/lookups";
-import {BranchService, BranchDetailTuple} from "@peek/peek_plugin_branch";
+import {BranchDetailTuple, BranchService} from "@peek/peek_plugin_branch";
 
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {
@@ -39,7 +37,6 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
     @Input("canvasEditor")
     canvasEditor: PeekCanvasEditor;
 
-    private branchService: PrivateDiagramBranchService;
     private coordSetService: PrivateDiagramCoordSetService;
 
 
@@ -53,13 +50,12 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
     newBranch: BranchDetailTuple = new BranchDetailTuple();
 
 
-    constructor(abstractBranchService: DiagramBranchService,
+    constructor(private branchService: PrivateDiagramBranchService,
                 abstractCoordSetService: DiagramCoordSetService,
                 private globalBranchService: BranchService,
                 private balloonMsg: Ng2BalloonMsgService) {
         super();
 
-        this.branchService = <PrivateDiagramBranchService>abstractBranchService;
         this.coordSetService = <PrivateDiagramCoordSetService>abstractCoordSetService;
 
 
