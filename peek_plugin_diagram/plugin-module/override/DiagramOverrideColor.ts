@@ -1,0 +1,60 @@
+import {DiagramOverrideBase, DiagramOverrideTypeE} from "./DiagramOverrideBase";
+import {addTupleType} from "@synerty/vortexjs";
+import {DispColor} from "../lookups";
+import {diagramTuplePrefix} from "../_private/PluginNames";
+
+/** Diagram Delta Color Override Tuple
+ *
+ * This delta applies an override colour to a set of display keys
+ *
+ */
+@addTupleType
+export class DiagramOverrideColor extends DiagramOverrideBase {
+    public static readonly tupleName = diagramTuplePrefix + "DiagramOverrideColor";
+
+    private dispKeys_ = [];
+    private lineColor_: DispColor | null = null;
+    private fillColor_: DispColor | null = null;
+    private color_: DispColor | null = null;
+
+    constructor() {
+        super(DiagramOverrideColor.tupleName, DiagramOverrideTypeE.Color);
+    }
+
+    get dispKeys(): string[] {
+        return this.dispKeys_;
+    }
+
+    addDispKeys(dispKeys: string[]): void {
+        this.dispKeys_.add(dispKeys);
+    }
+
+    // Line Color
+    setLineColor(value: DispColor | null): void {
+        this.lineColor_;
+    }
+
+    get lineColor(): DispColor {
+        return this.lineColor_;
+    }
+
+    // Fill Color
+    setFillColor(value: DispColor | null): void {
+        this.fillColor_ = value;
+    }
+
+    get fillColor(): DispColor {
+        return this.fillColor_;
+    }
+
+    // Color
+    setColor(value: DispColor | null): void {
+        this.color_ = value;
+    }
+
+    get color(): DispColor {
+        return this.color_;
+    }
+
+
+}

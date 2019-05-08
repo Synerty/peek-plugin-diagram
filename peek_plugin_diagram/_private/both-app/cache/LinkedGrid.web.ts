@@ -76,7 +76,7 @@ export class LinkedGrid {
         for (let branchJson of branches) {
             let branch: BranchTuple = BranchTuple.unpackJson(branchJson);
             branch.linkDisps(lookupService);
-            this.branchDeltasByBranchKey[branch.key] = branch.deltas(lookupService);
+            // this.branchDeltasByBranchKey[branch.key] = branch.deltas(lookupService);
         }
 
 

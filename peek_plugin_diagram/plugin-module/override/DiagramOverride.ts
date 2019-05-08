@@ -2,6 +2,7 @@ import "./DiagramDeltaColorOverride";
 
 import {diagramTuplePrefix} from "../_private";
 import {addTupleType, Tuple} from "@synerty/vortexjs";
+import {DiagramOverrideBase} from "./DiagramOverrideBase";
 
 
 /** Diagram Override Tuple
@@ -11,29 +12,29 @@ import {addTupleType, Tuple} from "@synerty/vortexjs";
  *
  */
 @addTupleType
-export class DiagramOverrideTuple extends Tuple {
+export class DiagramOverride extends Tuple {
     public static readonly tupleName = diagramTuplePrefix + "DiagramOverrideTuple";
 
+    private modelSetKey_: string;
+    private coordSetKey_: string;
+    private overrides_: DiagramOverrideBase[] = [];
+
     /** Model Set Key */
-    abstract get modelSetKey(): string;
+    get modelSetKey(): string {
+        return this.modelSetKey_;
+
+    }
 
     /** Coord Set Key */
-    abstract get coordSetKey(): string;
+    get coordSetKey(): string {
+        return this.coordSetKey_;
 
-    /** Key
-     *
-     * The key of this branch
-     */
-    abstract get key(): string;
+    }
 
+    addOverride(override: DiagramOverrideBase): void {
+        this.overrides_.push(override);
 
-    /** Set Visible
-     *
-     * Set
-     *
-     * @param enabled: Is this branch visib
-     */
-    abstract setVisible(visible: boolean): void;
+    }
 
 
 }
