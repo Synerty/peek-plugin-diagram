@@ -67,6 +67,13 @@
                 "persistent": true
             },
             {
+                "file": "DiagramOverrideService",
+                "class": "DiagramOverrideService",
+                "useClassFile": "_private/services/PrivateDiagramOverrideService",
+                "useClassClass": "PrivateDiagramOverrideService",
+                "persistent": true
+            },
+            {
                 "file": "DiagramCoordSetService",
                 "class": "DiagramCoordSetService",
                 "useClassFile": "_private/services/PrivateDiagramCoordSetService",
@@ -149,6 +156,13 @@
             {
                 "file": "DiagramLookupService",
                 "class": "DiagramLookupService",
+                "persistent": true
+            },
+            {
+                "file": "DiagramOverrideService",
+                "class": "DiagramOverrideService",
+                "useClassFile": "_private/services/PrivateDiagramOverrideService",
+                "useClassClass": "PrivateDiagramOverrideService",
                 "persistent": true
             },
             {
@@ -239,6 +253,13 @@
             {
                 "file": "DiagramLookupService",
                 "class": "DiagramLookupService",
+                "persistent": true
+            },
+            {
+                "file": "DiagramOverrideService",
+                "class": "DiagramOverrideService",
+                "useClassFile": "_private/services/PrivateDiagramOverrideService",
+                "useClassClass": "PrivateDiagramOverrideService",
                 "persistent": true
             },
             {

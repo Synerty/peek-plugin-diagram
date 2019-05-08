@@ -1,6 +1,7 @@
-import "./DiagramDeltaColorOverride";
+import "./DiagramOverrideBase";
+import "./DiagramOverrideColor";
 
-import {diagramTuplePrefix} from "../_private";
+import {diagramTuplePrefix} from "../_private/PluginNames";
 import {addTupleType, Tuple} from "@synerty/vortexjs";
 import {DiagramOverrideBase} from "./DiagramOverrideBase";
 
