@@ -96,8 +96,8 @@ export class PeekDispRenderFactory {
         //     return 1;
 
 
-        return this._delegatesByType[dispObj2._tt].area()
-            - this._delegatesByType[dispObj1._tt].area();
+        return this._delegatesByType[dispObj2._tt].area(dispObj2)
+            - this._delegatesByType[dispObj1._tt].area(dispObj1);
 
     };
 }

@@ -4,7 +4,20 @@ import {DiagramLookupService} from "../../DiagramLookupService";
 import {deepCopy} from "@synerty/vortexjs/src/vortex/UtilMisc";
 import SerialiseUtil from "@synerty/vortexjs/src/vortex/SerialiseUtil";
 
+
+import {DispBase} from "peek_plugin_diagram/tuples/shapes/DispBase";
+
 let serUril = new SerialiseUtil();
+
+export enum BranchDispChangeE {
+    create = 2,
+    delete = 3
+}
+
+export interface BranchDispT {
+    type: BranchDispChangeE,
+    disp: any
+}
 
 /** Diagram Branch Tuple
  *
@@ -27,17 +40,13 @@ export class BranchTuple extends Tuple {
     private static readonly __VISIBLE_NUM = 3;
     private static readonly __UPDATED_DATE = 4;
     private static readonly __CREATED_DATE = 5;
-    private static readonly __UNUSED_NUM = 6;
-    private static readonly __UPDATED_DISPS_JSON_NUM = 7;
-    private static readonly __NEW_DISPS_JSON_NUM = 8;
-    private static readonly __DELETED_DISP_IDS_NUM = 9;
-    private static readonly __LAST_INDEX_NUM = 9;
+    private static readonly __DISPS_NUM = 6;
+    private static readonly __LAST_INDEX_NUM = 6;
 
 
-    private _newDispNextTempId = 1;
+    private _dispsById = {};
+    private _lastStage = 1;
 
-    private _newDispByTempId = {};
-    private _updatedDispIds = {};
 
     constructor() {
         super(BranchTuple.tupleName);
@@ -54,30 +63,28 @@ export class BranchTuple extends Tuple {
         branch.packedJson__[BranchTuple.__VISIBLE_NUM] = true;
         branch.packedJson__[BranchTuple.__UPDATED_DATE] = date;
         branch.packedJson__[BranchTuple.__CREATED_DATE] = date;
-        branch.packedJson__[BranchTuple.__UNUSED_NUM] = null;
-        branch.packedJson__[BranchTuple.__UPDATED_DISPS_JSON_NUM] = [];
-        branch.packedJson__[BranchTuple.__NEW_DISPS_JSON_NUM] = [];
-        branch.packedJson__[BranchTuple.__DELETED_DISP_IDS_NUM] = [];
+        branch.packedJson__[BranchTuple.__DISPS_NUM] = [];
         return branch;
     }
 
     static unpackJson(packedJsonStr: string): BranchTuple {
-
         // Create the new object
         let newSelf = new BranchTuple();
         newSelf.packedJson__ = JSON.parse(packedJsonStr);
 
-        for (let disp of newSelf._array(BranchTuple.__NEW_DISPS_JSON_NUM)) {
-            disp.__newTempId = newSelf._newDispNextTempId++;
-            newSelf._newDispByTempId[disp.__newTempId] = disp;
-        }
-
-        for (let disp of newSelf._array(BranchTuple.__UPDATED_DISPS_JSON_NUM)) {
-            newSelf._updatedDispIds[disp.id] = true;
+        for (let disp of newSelf._array(BranchTuple.__DISPS_NUM)) {
+            BranchTuple._setNewDispId(disp);
+            newSelf._dispsById[DispBase.id(disp)] = disp;
+            if (newSelf._lastStage < DispBase.branchStage(disp))
+                newSelf._lastStage = DispBase.branchStage(disp);
         }
 
         return newSelf;
+    }
 
+    private static _setNewDispId(disp): void {
+        if (DispBase.id(disp) == null)
+            DispBase.setId(disp, <any>`NEW_${(new Date()).getTime()}`);
     }
 
     private _array(num: number): any[] {
@@ -98,47 +105,58 @@ export class BranchTuple extends Tuple {
         return this.packedJson__[BranchTuple.__KEY_NUM];
     }
 
-    createOrUpdateDisp(disp: any): void {
-        if (disp.id == null)
-            this.addNewDisp(disp);
-        else
-            this.addUpdatedDisp(disp);
-
-    }
-
     deleteDisp(dispId: number): void {
-        this.addDeletedDispId(dispId);
+        // TODO
+        // this._array(BranchTuple.__DELETED_DISP_IDS_NUM).push(dispId);
+        // this.touchUpdateDate();
     }
 
-    private addUpdatedDisp(disp: any): void {
+    addStage(): number {
+        return this._lastStage++;
+    }
+
+    /** Add Disp
+     *
+     * This method adds the disp to the branch if it's new.
+     *
+     * If the disp is existing, but in a different stage, it clones and returns the disp
+     * in the new stage.
+     *
+     * @param disp
+     */
+    addOrUpdateDisp(disp: any): any {
+
         this.touchUpdateDate();
-        let array = this._array(BranchTuple.__UPDATED_DISPS_JSON_NUM);
+        let array = this._array(BranchTuple.__DISPS_NUM);
 
-        // If the ID has already been added, then an update isn't needed.
-        if (this._updatedDispIds[disp.id] != null)
-            return;
+        BranchTuple._setNewDispId(disp);
+        let dispInBranch = this._dispsById[DispBase.id(disp)];
 
-        this._updatedDispIds[disp.id] = true;
-        array.push(disp);
+        if (dispInBranch == null) {
+            DispBase.setBranchStage(disp, this._lastStage);
+            this._dispsById[DispBase.id(disp)] = disp;
+            array.push(disp);
+            return disp;
+        }
+
+        if (DispBase.branchStage(dispInBranch) == DispBase.branchStage(disp)) {
+            return disp;
+        }
+
+        // Else, it's a new stage, clone the disp.
+
+        if (dispInBranch == null) {
+            this._dispsById[DispBase.id(disp)] = disp;
+            array.push(disp);
+            return disp;
+        }
+
     }
 
-    private addNewDisp(disp: any): void {
-        this.touchUpdateDate();
-        let array = this._array(BranchTuple.__NEW_DISPS_JSON_NUM);
-
-        // If the ID has already been added, then an update isn't needed.
-        if (disp.__newTempId != null)
-            return;
-
-        disp.__newTempId = this._newDispNextTempId++;
-        this._newDispByTempId[disp.__newTempId] = disp;
-        array.push(disp);
+    get disps(): any[] {
+        return this._array(BranchTuple.__DISPS_NUM);
     }
 
-    private addDeletedDispId(dispId: number): void {
-        this._array(BranchTuple.__DELETED_DISP_IDS_NUM).push(dispId);
-        this.touchUpdateDate();
-    }
 
     touchUpdateDate(): void {
         this.packedJson__[BranchTuple.__UPDATED_DATE] = serUril.toStr(new Date());
@@ -168,17 +186,8 @@ export class BranchTuple extends Tuple {
      *
      */
     get renderDispIdsToExclude(): number[] {
-        return [...Object.keys(this._updatedDispIds),
-            ...this._array(BranchTuple.__DELETED_DISP_IDS_NUM)];
-    }
-
-    /** RENDER Disps to Include
-     *
-     */
-    get renderDispsToInclude(): any[] {
-        return [...this._array(BranchTuple.__NEW_DISPS_JSON_NUM),
-            ...this._array(BranchTuple.__UPDATED_DISPS_JSON_NUM)];
-
+        // TODO
+        return [];
     }
 
 
@@ -190,24 +199,26 @@ export class BranchTuple extends Tuple {
 
         let convertedValue = deepCopy(value);
 
-        let disps = [];
-        if (convertedValue[BranchTuple.__UPDATED_DISPS_JSON_NUM] != null)
-            disps.add(convertedValue[BranchTuple.__UPDATED_DISPS_JSON_NUM]);
-
-        if (convertedValue[BranchTuple.__NEW_DISPS_JSON_NUM] != null)
-            disps.add(convertedValue[BranchTuple.__NEW_DISPS_JSON_NUM]);
-
+        let disps = convertedValue[BranchTuple.__DISPS_NUM];
 
         for (let disp of disps) {
             for (let key of Object.keys(disp)) {
                 let dispval = disp[key];
-                if (dispval == null) // Nulls are not included
+
+                // Nulls are not included
+                if (dispval == null)
                     delete disp[key];
+
+                // Delete all the linked lookups, we just want the IDs
                 else if (dispval['__rst'] != null) // VortexJS Serialise Class Type
                     delete disp[key];
-                else if (key == '__newTempId')
-                    delete disp[key];
+
+                // Delete Bounds this is UI only
                 else if (key == 'bounds')
+                    delete disp[key];
+
+                // Reset temp ID
+                else if (key == "id" && dispval != null && dispval.indexOf("NEW_") == 0)
                     delete disp[key];
 
             }
@@ -221,7 +232,7 @@ export class BranchTuple extends Tuple {
     }
 
     linkDisps(lookupService: DiagramLookupService) {
-        for (let disp of this.renderDispsToInclude) {
+        for (let disp of this.disps) {
             lookupService._linkDispLookups(disp);
         }
     }

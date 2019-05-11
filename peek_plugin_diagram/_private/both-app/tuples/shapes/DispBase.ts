@@ -14,16 +14,30 @@ export interface PointI {
 /** This type defines the list of points for geometry **/
 export type PointsT = number[];
 
-export type Disp = any;
-
 export interface DispBaseT {
+    // The type of the disp
+    _tt: string,
+
+    // The ID of the disp
     id: number;
+
+    // This is the unique hash of the contents of this disp within this coordSetId.
+    hid: string;
 
     // Key
     k: string | null;
 
     // Group ID
-    gi: number;
+    gi: number | null;
+
+    // Branch ID
+    bi: number | null;
+
+    // Branch Stage
+    bs: number | null;
+
+    // Replaces DispID
+    rid: string | null;
 
     // Level
     le: number;
@@ -36,8 +50,8 @@ export interface DispBaseT {
     // Is Selectable
     s: boolean;
 
-    // Data
-    d: {} | null;
+    // Data (stringified JSON)
+    d: string | null;
 
     // Geomoetry
     g: number[];
@@ -57,51 +71,70 @@ export abstract class DispBase {
     static TYPE_DG = 'DG';
     static TYPE_DGP = 'DGP';
 
-    static id(disp: Disp): number {
+
+    static setId(disp: DispBaseT, value: number): void {
+        disp.id = value;
+    }
+
+    static id(disp: DispBaseT): number {
         return disp.id;
     }
 
-    static groupId(disp: Disp): number {
+    static groupId(disp: DispBaseT): number {
         return disp.gi;
     }
 
-    static level(disp: Disp): DispLevel {
+
+    static branchId(disp: DispBaseT): number {
+        return disp.bi;
+    }
+
+    static setBranchStage(disp: DispBaseT, value: number): void {
+        disp.bs = value;
+    }
+
+
+    static branchStage(disp: DispBaseT): number {
+        return disp.bs;
+    }
+
+    static level(disp: DispBaseT): DispLevel {
         // This is set from the short id in DiagramLookupService._linkDispLookups
         return disp.lel;
     }
 
 
-    static setLevel(disp: Disp, val: DispLevel): void {
+    static setLevel(disp: DispBaseT, val: DispLevel): void {
         // This is set from the short id in DiagramLookupService._linkDispLookups
         disp.lel = val;
         disp.le = val == null ? null : val.id;
     }
 
-    static layer(disp: Disp): DispLayer {
+    static layer(disp: DispBaseT): DispLayer {
         // This is set from the short id in DiagramLookupService._linkDispLookups
         return disp.lal;
     }
 
-    static setLayer(disp: Disp, val: DispLayer): void {
+    static setLayer(disp: DispBaseT, val: DispLayer): void {
         // This is set from the short id in DiagramLookupService._linkDispLookups
         disp.lal = val;
         disp.la = val == null ? null : val.id;
     }
 
-    static isSelectable(disp: Disp): boolean {
+    static isSelectable(disp: DispBaseT): boolean {
         // This is set from the short id in DiagramLookupService._linkDispLookups
         return disp.s;
     }
 
-    static setSelectable(disp: Disp, val: boolean): void {
+    static setSelectable(disp: DispBaseT, val: boolean): void {
         disp.s = val;
     }
 
-    static key(disp: Disp): string | null {
+    static key(disp: DispBaseT): string | null {
         return disp.k;
     }
 
-    static setKey(disp: Disp, val: string | null): void {
+    static setKey(disp: DispBaseT, val: string | null): void {
         disp.k = val;
     }
 
@@ -114,13 +147,13 @@ export abstract class DispBase {
         return keys;
     }
 
-    static data(disp: Disp): {} {
+    static data(disp: DispBaseT): {} {
         if (disp.d == null)
             return {};
         return JSON.parse(disp.d);
     }
 
-    static setData(disp: Disp, val: {} | null): void {
+    static setData(disp: DispBaseT, val: {} | null): void {
         if (val == null)
             disp.d = null;
         else
@@ -153,7 +186,7 @@ export abstract class DispBase {
     // Create Method
 
     static create(type): any {
-        let newDisp = {
+        let newDisp: any = {
             '_tt': type,
         };
         let level = new DispLevel();

@@ -172,7 +172,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         this.canvasEditor.setShapePropertiesContext(shapePropsContext);
 
         // Add the shape to the branch
-        this.canvasEditor.branchContext.createOrUpdateDisp(this._creating);
+        this._creating = this.canvasEditor.branchContext.addOrUpdateDisp(this._creating);
         this.viewArgs.config.setModelNeedsCompiling();
 
         // TODO, Snap the coordinates if required

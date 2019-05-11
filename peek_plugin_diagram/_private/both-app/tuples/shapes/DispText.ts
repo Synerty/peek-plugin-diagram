@@ -1,4 +1,4 @@
-import {Disp, DispBase, DispBaseT} from "./DispBase";
+import {DispBase, DispBaseT} from "./DispBase";
 import {DispColor, DispTextStyle} from "@peek/peek_plugin_diagram/lookups";
 import {
     PeekCanvasShapePropsContext,
@@ -119,12 +119,8 @@ export class DispText extends DispBase {
         return disp.g[1];
     }
 
-    static setCenterPoint(disp:DispTextT, x: number, y: number): void {
-        if (disp.g == null || disp.g.length != 2)
-            disp.g = [0, 0];
-
-        disp.g[0] = x;
-        disp.g[1] = y;
+    static setCenterPoint(disp: DispTextT, x: number, y: number): void {
+        disp.g = [x, y];
     }
 
     static create(): DispTextT {

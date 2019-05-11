@@ -118,8 +118,20 @@ class DispCompilerQueueController:
     def queueDisps(self, dispIds):
         return self.queueDispIdsToCompile(dispIds, self._ormSessionCreator)
 
+    @classmethod
+    def queueDispIdsToCompile(cls, dispIdsToCompile: List[int], ormSessionCreator):
+        if not dispIdsToCompile:
+            return
+
+        ormSession = ormSessionCreator()
+        try:
+            cls.queueDispIdsToCompileWithSession(dispIdsToCompile, ormSession)
+            ormSession.commit()
+        finally:
+            ormSession.close()
+
     @staticmethod
-    def queueDispIdsToCompile(dispIdsToCompile: List[int], ormSessionCreator):
+    def queueDispIdsToCompileWithSession(dispIdsToCompile: List[int], ormSession):
         if not dispIdsToCompile:
             return
 
@@ -129,9 +141,4 @@ class DispCompilerQueueController:
         for dispId in dispIdsToCompile:
             inserts.append(dict(dispId=dispId))
 
-        ormSession = ormSessionCreator()
-        try:
-            ormSession.execute(DispIndexerQueueTable.__table__.insert(), inserts)
-            ormSession.commit()
-        finally:
-            ormSession.close()
+        ormSession.execute(DispIndexerQueueTable.__table__.insert(), inserts)

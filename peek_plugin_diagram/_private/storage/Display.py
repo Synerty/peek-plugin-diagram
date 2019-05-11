@@ -11,6 +11,7 @@
  *
 """
 import typing
+
 from sqlalchemy import Column, orm
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String, Boolean
@@ -200,17 +201,38 @@ class DispBase(Tuple, DeclarativeBase):
     groupId = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE'),
                      doc='gi')
 
+    # ===== START BRANCH
+
+    #: The branch that this Disp belongs to.
+    branchId = Column(Integer, ForeignKey('BranchIndex.id', ondelete='CASCADE'),
+                      doc='bi')
+
+    #: The stage of the branch that this DISP
+    branchStage = Column(Integer, doc='bs')
+
+    #: The coordSetId+hashId that this disp replaces (for branches)
+    replacesHashId = Column(Integer, ForeignKey('DispBase.id', ondelete='SET NULL'),
+                            doc='rid')
+
+    # ===== END BRANCH
+
     coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
                         doc=JSON_EXCLUDE,
                         nullable=False)
     coordSet = relationship(ModelCoordSet)
 
+    #: This is the unique hash of the contents of this disp within this coordSetId.
+    hashId = Column(Integer, doc='hid')
+
+    #: Layer
     layerId = Column(Integer, ForeignKey('DispLayer.id'), doc='la')
     layer = relationship(DispLayer)
 
+    #: Layer
     levelId = Column(Integer, ForeignKey('DispLevel.id'), doc='le')
     level = relationship(DispLevel)
 
+    #: Order
     zOrder = Column(Integer, server_default='0', nullable=False, doc=JSON_EXCLUDE)
 
     # MAX_STR
@@ -247,6 +269,9 @@ class DispBase(Tuple, DeclarativeBase):
         Index("idx_Disp_levelId", levelId, unique=False),
         Index("idx_Disp_coordSetId_", coordSetId, unique=False),
         Index("idx_Disp_groupId", groupId, unique=False),
+        Index("idx_Disp_groupId", groupId, unique=False),
+        Index("idx_Disp_branchId", branchId, unique=False),
+        Index("idx_Disp_replacesHashId", coordSetId, hashId, unique=True),
     )
 
 

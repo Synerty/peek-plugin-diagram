@@ -25,11 +25,8 @@ class BranchTuple(Tuple):
     __VISIBLE_NUM = 3
     __UPDATED_DATE = 4
     __CREATED_DATE = 5
-    __UNUSED_NUM = 6
-    __UPDATED_DISPS_JSON_NUM = 7
-    __NEW_DISPS_JSON_NUM = 8
-    __DELETED_DISP_IDS_NUM = 9
-    __LAST_INDEX_NUM = 9
+    __DISPS_NUM = 6
+    __LAST_INDEX_NUM = 6
 
     __tupleType__ = diagramTuplePrefix + 'BranchTuple'
 
@@ -104,21 +101,9 @@ class BranchTuple(Tuple):
     def key(self):
         return self.packedJson__[self.__KEY_NUM]
 
-    # @property
-    # def deltas(self) -> List[BranchDeltaBase]:
-    #     branchDeltasJson = self.packedJson__[self.__DELTAS_JSON_NUM]
-    #     branchDeltaClasses = [BranchDeltaBase.createFromDeltaJson(deltaJson)
-    #                           for deltaJson in branchDeltasJson]
-    #
-    #     return branchDeltaClasses
-    #
-    # @property
-    # def deltas(self) -> List[BranchDeltaBase]:
-    #     branchDeltasJson = self.packedJson__[self.__DELTAS_JSON_NUM]
-    #     branchDeltaClasses = [BranchDeltaBase.createFromDeltaJson(deltaJson)
-    #                           for deltaJson in branchDeltasJson]
-    #
-    #     return branchDeltaClasses
+    @property
+    def disps(self) -> List:
+        return self.packedJson__[self.__DISPS_NUM][:]
 
     @property
     def visible(self) -> bool:

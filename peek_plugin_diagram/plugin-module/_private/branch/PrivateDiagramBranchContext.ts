@@ -40,8 +40,12 @@ export class PrivateDiagramBranchContext {
         return this.branch.key;
     }
 
-    createOrUpdateDisp(disp: any): void {
-        this.branchTuple.createOrUpdateDisp(disp);
+    addStage(): number {
+        return this.branchTuple.addStage();
+    }
+
+    addOrUpdateDisp(disp: any): any {
+        return this.branchTuple.addOrUpdateDisp(disp);
     }
 
     deleteDisp(dispId: number): void {

@@ -322,14 +322,18 @@ export class PeekCanvasModel {
 
         let disps = [];
         let dispIdsAdded = {};
+        let branchIdsActive = {};
 
         let activeBranch = this.config.editor.activeBranchTuple;
         if (activeBranch != null) {
-            for (let dispId of activeBranch.renderDispIdsToExclude)
+            for (let dispId of activeBranch.disps)
                 dispIdsAdded[dispId] = true;
 
             // TODO, HACK Fix this so that it renders correctly
-            Array.prototype.push.apply(disps, activeBranch.renderDispsToInclude);
+            Array.prototype.push.apply(disps, activeBranch.disps);
+        } else {
+            // HACK
+            branchIdsActive[309] = true;
         }
 
         let viewableGrids = dictKeysFromObject(this._viewingGridKeysDict);
@@ -380,7 +384,13 @@ export class PeekCanvasModel {
                         if (dispIdsAdded[disp.id] === true)
                             continue;
 
-                        disps.push(disp);
+
+                        if (disp.bi == null)
+                            disps.push(disp);
+
+                        else if (branchIdsActive[disp.bi] == true)
+                            disps.push(disp);
+
                         dispIdsAdded[disp.id] = true;
                     }
 

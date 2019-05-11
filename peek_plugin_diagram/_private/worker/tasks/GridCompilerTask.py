@@ -1,14 +1,14 @@
-from _collections import defaultdict
-from collections import namedtuple
-
 import hashlib
 import logging
-import pytz
+from _collections import defaultdict
 from base64 import b64encode
+from collections import namedtuple
 from datetime import datetime
 from functools import cmp_to_key
-from txcelery.defer import DeferrableTask
 from typing import List
+
+import pytz
+from txcelery.defer import DeferrableTask
 from vortex.Payload import Payload
 
 from peek_plugin_base.storage.StorageUtil import makeCoreValuesSubqueryCondition, \
@@ -18,8 +18,6 @@ from peek_plugin_diagram._private.storage.Display import DispLevel, DispBase, Di
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled, \
     GridKeyCompilerQueue, \
     GridKeyIndex
-from peek_plugin_diagram._private.storage.branch.BranchGridIndex import BranchGridIndex
-from peek_plugin_diagram._private.storage.branch.BranchIndex import BranchIndex
 from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 
@@ -66,7 +64,6 @@ def compileGrids(self, queueItems) -> List[str]:
 
         total = 0
         dispData = _qryDispData(session, gridKeys)
-        branchData = _qryBranchData(session, gridKeys)
 
         conn.execute(gridTable.delete(
             makeCoreValuesSubqueryCondition(engine, gridTable.c.gridKey, gridKeys)
@@ -75,20 +72,15 @@ def compileGrids(self, queueItems) -> List[str]:
         transaction = conn.begin()
 
         inserts = []
-        for gridKey in gridKeys:
-            dispJsonStr = dispData.get(gridKey)
-            branchJsonStr = branchData.get(gridKey)
-
+        for gridKey, dispJsonStr in dispData.items():
             m = hashlib.sha256()
             m.update(gridKey.encode())
-            if dispJsonStr: m.update(dispJsonStr.encode())
-            if branchJsonStr: m.update(branchJsonStr.encode())
+            m.update(dispJsonStr.encode())
             gridTupleHash = b64encode(m.digest()).decode()
 
             gridTuple = GridTuple(
                 gridKey=gridKey,
                 dispJsonStr=dispJsonStr,
-                branchJsonStr=branchJsonStr,
                 lastUpdate=gridTupleHash
             )
 
@@ -155,6 +147,7 @@ def _qryDispData(session, gridKeys):
     )
 
     dispsByGridKeys = defaultdict(list)
+    dispJsonByGridKey = {}
 
     for item in indexQry:
         dispsByGridKeys[item[0]].append(DispData(*item[1:]))
@@ -165,26 +158,6 @@ def _qryDispData(session, gridKeys):
                                            key=cmp_to_key(_dispBaseSortCmp))
                            if d.json]
 
-        dispsByGridKeys[gridKey] = '[' + ','.join(dispsDumpedJson) + ']'
+        dispJsonByGridKey[gridKey] = '[' + ','.join(dispsDumpedJson) + ']'
 
-    return dispsByGridKeys
-
-
-def _qryBranchData(session, gridKeys):
-    indexQry = (
-        session.query(BranchGridIndex.gridKey, BranchIndex.packedJson, BranchIndex.key)
-            .join(BranchIndex, BranchIndex.id == BranchGridIndex.branchIndexId)
-            .filter(makeOrmValuesSubqueryCondition(
-            session, BranchGridIndex.gridKey, gridKeys
-        ))
-    )
-
-    branchesByGridKeys = defaultdict(list)
-
-    for item in indexQry:
-        branchesByGridKeys[item[0]].append(item[1])
-
-    for gridKey, branchJsons in list(branchesByGridKeys.items()):
-        branchesByGridKeys[gridKey] = '[' + ','.join(branchJsons) + ']'
-
-    return branchesByGridKeys
+    return dispJsonByGridKey

@@ -1,12 +1,12 @@
-from collections import defaultdict
-
 import logging
-import pytz
+from collections import defaultdict
 from datetime import datetime
+from typing import List, Set, Tuple, Dict
+
+import pytz
 from sqlalchemy import select, and_
 from sqlalchemy.orm.exc import NoResultFound
 from txcelery.defer import DeferrableTask
-from typing import List, Set, Tuple, Dict
 from vortex.Payload import Payload
 
 from peek_plugin_base.worker import CeleryDbConn
@@ -19,8 +19,8 @@ from peek_plugin_diagram._private.storage.branch.BranchIndexCompilerQueue import
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import \
     BranchTuple
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
-from peek_plugin_diagram._private.worker.tasks.branch.BranchGridIndexUpdater import \
-    removeBranchGridIndexes, _insertOrUpdateBranchGrids
+from peek_plugin_diagram._private.worker.tasks.branch.BranchDispUpdater import \
+    _deleteBranchDisps, _insertBranchDisps
 from peek_plugin_diagram._private.worker.tasks.branch._BranchIndexCalcChunkKey import \
     makeChunkKeyForBranchIndex
 
@@ -90,6 +90,8 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
     finally:
         dbSession.close()
 
+    dbSession = CeleryDbConn.getDbSession()
+
     engine = CeleryDbConn.getDbEngine()
     conn = engine.connect()
     transaction = conn.begin()
@@ -102,7 +104,9 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
             coordSet = coordSetById[coordSetId]
             assert coordSet.modelSetId == modelSetId, "Branches not all from one model"
 
-            _insertOrUpdateBranchGrids(conn, coordSet, textStylesById, branches)
+            _deleteBranchDisps(conn, [b.id for b in branches])
+            _insertBranchDisps(dbSession, coordSet, branches)
+
 
         # 3) Queue chunks for recompile
         conn.execute(
@@ -111,10 +115,11 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
         )
 
         transaction.commit()
+        dbSession.commit()
+
         logger.debug("Updated %s BranchIndexes queued %s chunks in %s",
                      len(updatedBranches), len(chunkKeys),
                      (datetime.now(pytz.utc) - startTime))
-
 
     except Exception as e:
         transaction.rollback()
@@ -123,6 +128,7 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
         raise self.retry(exc=e, countdown=3)
 
     finally:
+        dbSession.close()
         conn.close()
 
 
@@ -168,7 +174,7 @@ def removeBranches(self, modelSetKey: str, coordSetKey: str, keys: List[str]) ->
         branchIndexIds = [i.id for i in items]
         chunkKeys = set([i.chunkKey for i in items])
 
-        removeBranchGridIndexes(conn, branchIndexIds)
+        _deleteBranchDisps(conn, branchIndexIds)
 
         # 1) Delete existing branches
         conn.execute(
@@ -257,8 +263,6 @@ def _insertOrUpdateBranches(conn,
                 whereclause=branchIndexTable.c.importGroupHash.in_(importHashSet)
             ))
         ]
-
-        removeBranchGridIndexes(conn, branchIndexIdsBeingDeleted)
 
         conn.execute(
             branchIndexTable.delete(branchIndexTable.c.importGroupHash.in_(importHashSet))

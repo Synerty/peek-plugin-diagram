@@ -65,7 +65,8 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
         // Load the branch from the index
         if (location == BranchLocation.ServerBranch) {
             promises.push(
-                this.branchIndexLoader.getBranches(modelSetKey, coordSet.id, [branchKey])
+                this.branchIndexLoader
+                    .getBranches(modelSetKey, coordSet.id, [branchKey])
                     .then((results: BranchIndexResultI) => {
                         // This will be null if it didn't find one.
                         if (results[branchKey] != null)

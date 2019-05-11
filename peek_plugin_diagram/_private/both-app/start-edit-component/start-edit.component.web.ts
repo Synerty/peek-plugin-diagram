@@ -147,7 +147,7 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
                 return;
             }
 
-            nb.key = `${nb.userName}|${nb.createdDate}|${nb.name}`;
+            nb.key = `${nb.userName}|${nb.createdDate.getTime()}|${nb.name}`;
 
             this.globalBranchService.createBranch(nb)
                 .catch(e => this.balloonMsg.showError(`Failed to create branch : ${e}`));

@@ -1,15 +1,14 @@
-from collections import defaultdict
-
 import logging
-import pytz
 import typing
+from collections import defaultdict
 from datetime import datetime
-from txcelery.defer import DeferrableTask
 from typing import List, Dict
+
+import pytz
+from txcelery.defer import DeferrableTask
 from vortex.Payload import Payload
 
 from peek_plugin_base.worker import CeleryDbConn
-from peek_plugin_diagram._private.storage.Display import DispTextStyle
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
@@ -17,8 +16,8 @@ from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
     LookupHashConverter
 from peek_plugin_diagram._private.worker.tasks._ModelSetUtil import \
     getModelSetIdCoordSetId
-from peek_plugin_diagram._private.worker.tasks.branch.BranchGridIndexUpdater import \
-    _insertOrUpdateBranchGrids
+from peek_plugin_diagram._private.worker.tasks.branch.BranchDispUpdater import \
+    _insertBranchDisps
 from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexUpdater import \
     _insertOrUpdateBranches
 from peek_plugin_diagram.tuples.branches.ImportBranchTuple import ImportBranchTuple
@@ -52,13 +51,14 @@ def createOrUpdateBranches(self, importBranchesEncodedPayload: bytes) -> None:
     dbSession = CeleryDbConn.getDbSession()
     try:
         coordSetById = {i.id: i for i in dbSession.query(ModelCoordSet).all()}
-        textStylesById = {i.id: i for i in dbSession.query(DispTextStyle).all()}
         dbSession.expunge_all()
 
     finally:
         dbSession.close()
 
     startTime = datetime.now(pytz.utc)
+
+    dbSession = CeleryDbConn.getDbSession()
 
     engine = CeleryDbConn.getDbEngine()
     conn = engine.connect()
@@ -68,9 +68,10 @@ def createOrUpdateBranches(self, importBranchesEncodedPayload: bytes) -> None:
         for (modelSetKey, modelSetId, coordSetId), branches in groupedBranches.items():
             coordSet = coordSetById[coordSetId]
             _insertOrUpdateBranches(conn, modelSetKey, modelSetId, branches)
-            _insertOrUpdateBranchGrids(conn, coordSet, textStylesById, branches)
+            _insertBranchDisps(dbSession, coordSet, branches)
 
             transaction.commit()
+            dbSession.commit()
 
             logger.debug("Completed importing %s branches for coordSetId %s in %s",
                          len(branches),
@@ -84,6 +85,7 @@ def createOrUpdateBranches(self, importBranchesEncodedPayload: bytes) -> None:
         raise self.retry(exc=e, countdown=3)
 
     finally:
+        dbSession.close()
         conn.close()
 
 

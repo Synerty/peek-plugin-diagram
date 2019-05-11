@@ -11,7 +11,7 @@ import {GridObservable} from "../cache/GridObservable.web";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {DispGroupCache} from "../cache/DispGroupCache.web";
 
-import {DispBase} from "../tuples/shapes/DispBase";
+import {DispBase, DispBaseT} from "../tuples/shapes/DispBase";
 
 import * as $ from "jquery";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
@@ -271,7 +271,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     connectItemSelectionService(): void {
         this.model.selectionChangedObservable()
             .takeUntil(this.onDestroyEvent)
-            .subscribe((disps: {}[]) => {
+            .subscribe((disps: DispBaseT[]) => {
 
                 if (disps.length != 1)
                     return;
