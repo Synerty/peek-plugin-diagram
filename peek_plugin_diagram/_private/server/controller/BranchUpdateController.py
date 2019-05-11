@@ -1,9 +1,14 @@
 import logging
+
 from twisted.internet.defer import inlineCallbacks, Deferred
 from vortex.Payload import Payload
 from vortex.TupleAction import TupleActionABC
+from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleActionProcessor import TupleActionProcessorDelegateABC
+from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
 
+from peek_plugin_diagram._private.tuples.branch.BranchKeyToIdMapTuple import \
+    BranchKeyToIdMapTuple
 from peek_plugin_diagram._private.tuples.branch.BranchUpdateTupleAction import \
     BranchUpdateTupleAction
 from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexImporter import \
@@ -22,8 +27,10 @@ class BranchUpdateController(TupleActionProcessorDelegateABC):
 
     """
 
-    def __init__(self, liveDbWriteApi: LiveDBWriteApiABC):
+    def __init__(self, liveDbWriteApi: LiveDBWriteApiABC,
+                 tupleObservable: TupleDataObservableHandler):
         self._liveDbWriteApi = liveDbWriteApi
+        self._tupleObservable = tupleObservable
 
     def shutdown(self):
         self._liveDbWriteApi = None
@@ -37,6 +44,8 @@ class BranchUpdateController(TupleActionProcessorDelegateABC):
     def importBranches(self, branchesEncodedPayload: bytes):
         yield createOrUpdateBranches.delay(branchesEncodedPayload)
 
+        self._updateBranchKeyToIdMap()
+
     @inlineCallbacks
     def processTupleAction(self, tupleAction: TupleActionABC) -> Deferred:
         if not isinstance(tupleAction, BranchUpdateTupleAction):
@@ -46,3 +55,10 @@ class BranchUpdateController(TupleActionProcessorDelegateABC):
             .toEncodedPayloadDefer()
 
         yield updateBranches.delay(tupleAction.modelSetId, encodedPayload)
+
+        self._updateBranchKeyToIdMap()
+
+    def _updateBranchKeyToIdMap(self):
+        self._tupleObservable.notifyOfTupleUpdate(
+            TupleSelector(BranchKeyToIdMapTuple.tupleType(), {})
+        )

@@ -17,16 +17,16 @@
                         <tbody>
                         <tr class="tr"
                             *ngFor="let item of items; odd as odd; even as even"
-                            [class.bg-success]="item.visible"
-                            [class.bg-warning]="!item.visible"
-                            (click)="toggleVisible(item)">
+                            [class.bg-success]="item.__enabled"
+                            [class.bg-warning]="!item.__enabled"
+                            (click)="toggleEnabled(item)">
                             <th class="td"
-                                [class.bg-success]="item.visible"
-                                [class.bg-warning]="!item.visible">{{item.name}}
+                                [class.bg-success]="item.__enabled"
+                                [class.bg-warning]="!item.__enabled">{{item.name}}
                             </th>
                             <th class="td"
-                                [class.bg-success]="item.visible"
-                                [class.bg-warning]="!item.visible">{{item.order}}
+                                [class.bg-success]="item.__enabled"
+                                [class.bg-warning]="!item.__enabled">{{item.order}}
                             </th>
                         </tr>
                         </tbody>

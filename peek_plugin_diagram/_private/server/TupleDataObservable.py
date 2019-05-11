@@ -2,6 +2,8 @@ from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.PluginNames import diagramObservableName
 from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
+from peek_plugin_diagram._private.server.tuple_providers.BranchKeyToIdMapProvider import \
+    BranchKeyToIdMapTupleProvider
 from peek_plugin_diagram._private.server.tuple_providers.DiagramLoaderStatusTupleProvider import \
     DiagramLoaderStatusTupleProvider
 from peek_plugin_diagram._private.server.tuple_providers.ServerCoordSetTupleProvider import \
@@ -16,6 +18,9 @@ from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSe
 from peek_plugin_diagram._private.tuples.DiagramImporterStatusTuple import \
     DiagramImporterStatusTuple
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
+
+from peek_plugin_diagram._private.tuples.branch.BranchKeyToIdMapTuple import \
+    BranchKeyToIdMapTuple
 
 
 def makeTupleDataObservableHandler(ormSessionCreator,
@@ -45,6 +50,10 @@ def makeTupleDataObservableHandler(ormSessionCreator,
     # Register TupleProviders here
     tupleObservable.addTupleProvider(ModelCoordSet.tupleName(),
                                      ServerCoordSetTupleProvider(ormSessionCreator))
+
+    # Register TupleProviders here
+    tupleObservable.addTupleProvider(BranchKeyToIdMapTuple.tupleName(),
+                                     BranchKeyToIdMapTupleProvider(ormSessionCreator))
 
     # Register TupleProviders here
     lookupTupleProvider = ServerLookupTupleProvider(ormSessionCreator)

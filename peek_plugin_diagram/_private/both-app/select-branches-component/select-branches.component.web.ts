@@ -1,7 +1,7 @@
 import {Component, Input, OnInit, ViewChild} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {TitleService} from "@synerty/peek-util";
-import {BranchService, BranchDetailTuple} from "@peek/peek_plugin_branch";
+import {BranchDetailTuple, BranchService} from "@peek/peek_plugin_branch";
 
 
 import {
@@ -10,10 +10,10 @@ import {
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
-import {DispLayer} from "@peek/peek_plugin_diagram/lookups";
 
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
+import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch";
 
 
 @Component({
@@ -24,7 +24,7 @@ import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 })
 export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
-   @ViewChild('modalView') modalView;
+    @ViewChild('modalView') modalView;
 
     private backdropId = 'div.modal-backdrop';
     popupShown: boolean = false;
@@ -42,11 +42,15 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
 
     items: BranchDetailTuple[] = [];
 
+    enabledBranches: { [branchKey: string]: BranchDetailTuple } = {}
+
+
     constructor(private titleService: TitleService,
                 private lookupService: DiagramLookupService,
                 private configService: PrivateDiagramConfigService,
+                private branchService: PrivateDiagramBranchService,
                 abstractCoordSetService: DiagramCoordSetService,
-                private globalBranchService:BranchService) {
+                private globalBranchService: BranchService) {
         super();
 
         this.coordSetService = <PrivateDiagramCoordSetService>abstractCoordSetService;
@@ -67,8 +71,11 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
         console.log("Opening Branch Select popup");
 
         this.globalBranchService.branches(this.modelSetKey)
-            .then((tuples:BranchDetailTuple[]) => {
+            .then((tuples: BranchDetailTuple[]) => {
                 this.items = tuples;
+                for (let item of tuples) {
+                    item["__enabled"] = this.enabledBranches[item.key] != null;
+                }
             });
         this.items = [];
 
@@ -77,6 +84,13 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
     }
 
     closePopup(): void {
+        let branches = [];
+        for (let key of Object.keys(this.enabledBranches)) {
+            branches.push(this.enabledBranches[key]);
+        }
+        this.branchService.setVisibleBranches(branches);
+        this.config.setModelNeedsCompiling();
+
         this.popupShown = false;
         this.platformClose();
 
@@ -108,11 +122,14 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
         return this.items.length == 0;
     }
 
-    toggleVisible(layer: DispLayer): void {
-        layer.visible = !layer.visible;
-        if (this.config != null)
-            this.config.setModelNeedsCompiling();
-
+    toggleEnabled(branchDetail: BranchDetailTuple): void {
+        if (this.enabledBranches[branchDetail.key] == null) {
+            this.enabledBranches[branchDetail.key] = branchDetail;
+            branchDetail["__enabled"] = true;
+        } else {
+            delete this.enabledBranches[branchDetail.key];
+            branchDetail["__enabled"] = false;
+        }
     }
 
 

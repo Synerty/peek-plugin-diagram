@@ -13,6 +13,7 @@ import {
     DispLineStyle,
     DispTextStyle
 } from "../../lookups";
+import {BranchKeyToIdMapTuple} from "../branch/BranchKeyToIdMapTuple";
 
 
 /** Diagram Lookups offline cacher
@@ -66,6 +67,7 @@ export class PrivateDiagramOfflineCacherService extends ComponentLifecycleEventE
             .then(() => {
                 this.loadModelSet();
                 this.loadModelCoordSet();
+                this.loadBranchToIdMap();
             });
 
     }
@@ -107,6 +109,25 @@ export class PrivateDiagramOfflineCacherService extends ComponentLifecycleEventE
             .subscribeToTupleSelector(tupleSelector)
             .takeUntil(this.onDestroyEvent)
             .subscribe((tuples: ModelCoordSet[]) => {
+                this.tupleService.offlineObserver.flushCache(tupleSelector);
+            });
+
+    }
+
+    /**
+     * Cache Branch KeyToIdMap Tuple
+     *
+     * This method caches the coord sets
+     *
+     */
+    private loadBranchToIdMap() {
+
+        let tupleSelector = new TupleSelector(BranchKeyToIdMapTuple.tupleName, {});
+
+        this.tupleService.offlineObserver
+            .subscribeToTupleSelector(tupleSelector)
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((tuples: BranchKeyToIdMapTuple[]) => {
                 this.tupleService.offlineObserver.flushCache(tupleSelector);
             });
 

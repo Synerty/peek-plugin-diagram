@@ -13,7 +13,9 @@ import {PrivateDiagramCoordSetService, PrivateDiagramTupleService} from "../serv
 
 import * as moment from "moment";
 import {BranchUpdateTupleAction} from "./BranchUpdateTupleAction";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import {ComponentLifecycleEventEmitter, TupleSelector} from "@synerty/vortexjs";
+import {BranchKeyToIdMapTuple} from "./BranchKeyToIdMapTuple";
+import {BranchDetailTuple} from "@peek/peek_plugin_branch";
 
 export interface PopupEditBranchSelectionArgs {
     modelSetKey: string;
@@ -37,6 +39,10 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
 
     private coordSetService: PrivateDiagramCoordSetService;
 
+    private branchIdMapByCoordSetId: { [coordSetId: number]: BranchKeyToIdMapTuple } = {};
+
+    private enabledBranches: BranchDetailTuple[] = [];
+
     constructor(private lookupService: DiagramLookupService,
                 coordSetService: DiagramCoordSetService,
                 private branchLocalLoader: LocalBranchStorageService,
@@ -46,6 +52,37 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
 
         this.coordSetService = <PrivateDiagramCoordSetService>coordSetService;
 
+        let tupleSelector = new TupleSelector(BranchKeyToIdMapTuple.tupleName, {});
+
+        this.tupleService.offlineObserver
+            .subscribeToTupleSelector(tupleSelector)
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((tuples: BranchKeyToIdMapTuple[]) => {
+                this.branchIdMapByCoordSetId = {};
+                for (let tuple of tuples) {
+                    this.branchIdMapByCoordSetId[tuple.coordSetId] = tuple;
+                }
+            });
+
+    }
+
+    setVisibleBranches(commonBranches: BranchDetailTuple[]): void {
+        this.enabledBranches = commonBranches;
+
+    }
+
+    getVisibleBranchIds(coordSetId: number): number[] {
+        let keyIdMapTuple = this.branchIdMapByCoordSetId[coordSetId];
+        if (keyIdMapTuple == null)
+            return [];
+
+        let ids = [];
+        for (let branch of this.enabledBranches) {
+            let branchId = keyIdMapTuple.keyIdMap[branch.key];
+            if (branchId != null)
+                ids.push(branchId);
+        }
+        return ids;
     }
 
     getOrCreateBranch(modelSetKey: string, coordSetKey: string,

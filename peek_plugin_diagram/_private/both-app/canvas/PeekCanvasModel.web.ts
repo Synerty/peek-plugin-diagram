@@ -9,6 +9,7 @@ import {DispBase} from "../tuples/shapes/DispBase";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {DispPolyline} from "../tuples/shapes/DispPolyline";
+import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch";
 
 // import 'rxjs/add/operator/takeUntil';
 
@@ -65,6 +66,7 @@ export class PeekCanvasModel {
     constructor(private config: PeekCanvasConfig,
                 private gridObservable: GridObservable,
                 private lookupCache: DiagramLookupService,
+                private branchService: PrivateDiagramBranchService,
                 private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
 
         this.needsUpdate = false;
@@ -324,6 +326,10 @@ export class PeekCanvasModel {
         let dispIdsAdded = {};
         let branchIdsActive = {};
 
+        for (let id of this.branchService.getVisibleBranchIds(this._coordSetId)) {
+             branchIdsActive[id] = true;
+        }
+
         let activeBranch = this.config.editor.activeBranchTuple;
         if (activeBranch != null) {
             for (let dispId of activeBranch.disps)
@@ -331,9 +337,9 @@ export class PeekCanvasModel {
 
             // TODO, HACK Fix this so that it renders correctly
             Array.prototype.push.apply(disps, activeBranch.disps);
-        } else {
-            // HACK
-            branchIdsActive[309] = true;
+
+            // Make sure it's not showing when we edit the branch
+            delete branchIdsActive[activeBranch.id];
         }
 
         let viewableGrids = dictKeysFromObject(this._viewingGridKeysDict);

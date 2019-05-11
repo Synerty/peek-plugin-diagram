@@ -34,8 +34,8 @@ import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/br
  */
 @Component({
     selector: 'pl-diagram-canvas',
-    templateUrl: 'canvas.component.web.html',
-    styleUrls: ['canvas.component.web.scss'],
+    templateUrl: 'canvas-component.web.html',
+    styleUrls: ['canvas-component.web.scss'],
     moduleId: module.id
 })
 export class CanvasComponent extends ComponentLifecycleEventEmitter {
@@ -91,7 +91,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         // this.lookupService must not be null
 
         // The model view the viewable items on the canvas
-        this.model = new PeekCanvasModel(this.config, this.gridObservable, this.lookupService, this);
+        this.model = new PeekCanvasModel(this.config, this.gridObservable,
+            this.lookupService, this.branchService, this);
 
         // The display renderer delegates
         this.renderFactory = new PeekDispRenderFactory(this.config, this.dispGroupCache);
