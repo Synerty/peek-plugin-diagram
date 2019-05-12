@@ -8,7 +8,16 @@
                 </button>
                 <h4 class="modal-title">View Branches</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body"
+                 *ngIf="showBranchDetails()">
+                <pl-diagram-branch-detail
+                        [globalBranch]="selectedGlobalBranch"
+                        [diagramBranch]="selectedDiagramBranch"
+                        (close)="clearBranchDetails()"></pl-diagram-branch-detail>
+            </div>
+
+            <div class="modal-body"
+                 *ngIf="!showBranchDetails()">
                 <p *ngIf="noItems()">
                     There are no branches at this time.
                 </p>
@@ -16,25 +25,23 @@
                     <table class="table">
                         <tbody>
                         <tr class="tr"
-                            *ngFor="let item of items; odd as odd; even as even"
-                            [class.bg-success]="item.__enabled"
-                            [class.bg-warning]="!item.__enabled"
-                            (click)="toggleEnabled(item)">
+                            *ngFor="let item of items; odd as odd; even as even">
                             <th class="td"
                                 [class.bg-success]="item.__enabled"
-                                [class.bg-warning]="!item.__enabled">{{item.name}}
+                                [class.bg-warning]="!item.__enabled"
+                                (click)="toggleEnabled(item)">{{item.name}}
                             </th>
-                            <th class="td"
+                            <th class="td bar-left"
                                 [class.bg-success]="item.__enabled"
-                                [class.bg-warning]="!item.__enabled">{{item.order}}
+                                [class.bg-warning]="!item.__enabled"
+                                (click)="branchSelected(item)">
+                                <fa name="chevron-right"></fa>
                             </th>
                         </tr>
                         </tbody>
                     </table>
                 </div>
-
-
             </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+        </div>
+    </div>
+</div>

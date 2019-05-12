@@ -1,11 +1,10 @@
-import logging
-from datetime import datetime
-from typing import List, Dict, Tuple, Optional
-
-import pytz
 import ujson as json
+import logging
+import pytz
+from datetime import datetime
 from geoalchemy2.shape import to_shape
 from txcelery.defer import DeferrableTask
+from typing import List, Dict, Tuple
 from vortex.Payload import Payload
 
 from peek_plugin_base.worker import CeleryDbConn
@@ -85,7 +84,7 @@ def importDispsTask(self, modelSetKey: str, coordSetKey: str,
             coordSet, disps
         )
 
-        _bulkLoadDispsTask(coordSet, ormDisps, importGroupHash)
+        _bulkLoadDispsTask(coordSet, importGroupHash, ormDisps)
 
         liveDbImportTuples = importDispLinks(
             coordSet, importGroupHash, dispLinkImportTuples
@@ -318,9 +317,7 @@ def _convertImportTuple(importDisp):
     return disp
 
 
-def _bulkLoadDispsTask(coordSet: ModelCoordSet, disps: List,
-                       importGroupHash: Optional[str] = None,
-                       ormSession=None):
+def _bulkLoadDispsTask(coordSet: ModelCoordSet, importGroupHash: str, disps: List):
     """ Import Disps Links
 
     1) Drop all disps with matching importGroupHash
@@ -337,15 +334,11 @@ def _bulkLoadDispsTask(coordSet: ModelCoordSet, disps: List,
 
     dispTable = DispBase.__table__
 
-    closeOrmSession = bool(ormSession)
-    if closeOrmSession:
-        ormSession = CeleryDbConn.getDbSession()
-
+    ormSession = CeleryDbConn.getDbSession()
     try:
-        if importGroupHash:
-            ormSession.execute(dispTable
-                               .delete()
-                               .where(dispTable.c.importGroupHash == importGroupHash))
+        ormSession.execute(dispTable
+                           .delete()
+                           .where(dispTable.c.importGroupHash == importGroupHash))
 
         # Initialise the ModelCoordSet initial position if it's not set
         if (not coordSet.initialPanX
@@ -371,5 +364,4 @@ def _bulkLoadDispsTask(coordSet: ModelCoordSet, disps: List,
                     len(disps), (datetime.now(pytz.utc) - startTime))
 
     finally:
-        if closeOrmSession:
-            ormSession.close()
+        ormSession.close()

@@ -1,6 +1,5 @@
 import {BranchTuple} from "./BranchTuple";
 import {DiagramLookupService} from "../../DiagramLookupService";
-import {BranchLocation} from "@peek/peek_plugin_branch";
 
 
 export interface _BranchContextSaveCallback {
@@ -19,8 +18,7 @@ export class PrivateDiagramBranchContext {
                 private branch: BranchTuple,
                 private _modelSetKey: string,
                 private _coordSetKey: string,
-                private saveCallback: _BranchContextSaveCallback,
-                private _location: BranchLocation) {
+                private saveCallback: _BranchContextSaveCallback) {
 
     }
 
@@ -58,10 +56,6 @@ export class PrivateDiagramBranchContext {
 
     setVisible(visible: boolean): void {
         this.branch.visible = visible;
-    }
-
-    get location(): BranchLocation {
-        return this._location;
     }
 
 

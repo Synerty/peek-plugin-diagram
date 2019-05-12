@@ -13,7 +13,11 @@ import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetS
 
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
-import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch";
+import {
+    BranchTuple,
+    PrivateDiagramBranchContext,
+    PrivateDiagramBranchService
+} from "@peek/peek_plugin_diagram/_private/branch";
 
 
 @Component({
@@ -42,7 +46,10 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
 
     items: BranchDetailTuple[] = [];
 
-    enabledBranches: { [branchKey: string]: BranchDetailTuple } = {}
+    enabledBranches: { [branchKey: string]: BranchDetailTuple } = {};
+
+    selectedGlobalBranch: BranchDetailTuple | null = null;
+    selectedDiagramBranch: BranchTuple | null = null;
 
 
     constructor(private titleService: TitleService,
@@ -58,7 +65,7 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
         this.configService
             .popupBranchesSelectionObservable()
             .takeUntil(this.onDestroyEvent)
-            .subscribe((v: PopupLayerSelectionArgsI) => this.openPopup(v));
+            .subscribe(() => this.openPopup());
 
     }
 
@@ -66,14 +73,26 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
 
     }
 
-    protected openPopup({coordSetKey, modelSetKey}) {
-        // let coordSet = this.coordSetService.coordSetForKey(coordSetKey);
+    protected openPopup() {
+        let coordSet = this.coordSetService
+            .coordSetForKey(this.modelSetKey, this.coordSetKey);
         console.log("Opening Branch Select popup");
+
+        // Get a list of existing diagram branches, if there are no matching diagram
+        // branches, then don't show them
+        let diagramKeys = this.branchService.getDiagramBranchKeys(coordSet.id);
+        let diagramKeyDict = {};
+        for (let key of diagramKeys) {
+            diagramKeyDict[key] = true;
+        }
 
         this.globalBranchService.branches(this.modelSetKey)
             .then((tuples: BranchDetailTuple[]) => {
-                this.items = tuples;
+                this.items = [];
                 for (let item of tuples) {
+                    if (diagramKeyDict[item.key] == null)
+                        continue;
+                    this.items.push(item);
                     item["__enabled"] = this.enabledBranches[item.key] != null;
                 }
             });
@@ -84,6 +103,11 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
     }
 
     closePopup(): void {
+        if (this.showBranchDetails()) {
+            this.clearBranchDetails();
+            return;
+        }
+
         let branches = [];
         for (let key of Object.keys(this.enabledBranches)) {
             branches.push(this.enabledBranches[key]);
@@ -132,5 +156,30 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
         }
     }
 
+    branchSelected(branchDetail: BranchDetailTuple): void {
+        this.selectedGlobalBranch = branchDetail;
+        this.selectedDiagramBranch = null;
+
+        if (branchDetail == null)
+            return;
+
+        this.branchService
+            .getBranch(this.modelSetKey, this.coordSetKey, branchDetail.key)
+            .then((diagramBranch: PrivateDiagramBranchContext) => {
+
+                this.selectedDiagramBranch = diagramBranch.branchTuple;
+            });
+    }
+
+
+    clearBranchDetails(): void {
+        this.selectedGlobalBranch = null;
+        this.selectedDiagramBranch = null;
+    }
+
+
+    showBranchDetails(): boolean {
+        return this.selectedGlobalBranch != null && this.selectedDiagramBranch != null;
+    }
 
 }

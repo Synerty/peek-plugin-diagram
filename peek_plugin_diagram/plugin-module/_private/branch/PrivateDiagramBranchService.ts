@@ -1,7 +1,6 @@
 import {Injectable} from "@angular/core";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
-import {BranchLocation} from "@peek/peek_plugin_branch/";
 import {PrivateDiagramBranchContext} from "../branch/PrivateDiagramBranchContext";
 import {BranchTuple} from "../branch/BranchTuple";
 import {BranchIndexLoaderServiceA} from "../branch-loader/BranchIndexLoaderServiceA";
@@ -85,9 +84,29 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
         return ids;
     }
 
+    getDiagramBranchKeys(coordSetId: number): string[] {
+        let keyIdMapTuple = this.branchIdMapByCoordSetId[coordSetId];
+        if (keyIdMapTuple == null)
+            return [];
+
+        return Object.keys(keyIdMapTuple.keyIdMap);
+    }
+
+
+    getBranch(modelSetKey: string, coordSetKey: string,
+              branchKey: string): Promise<PrivateDiagramBranchContext | null> {
+        return this._loadBranch(modelSetKey, coordSetKey, branchKey, false);
+    }
+
     getOrCreateBranch(modelSetKey: string, coordSetKey: string,
-                      branchKey: string,
-                      location: BranchLocation): Promise<PrivateDiagramBranchContext> {
+                      branchKey: string): Promise<PrivateDiagramBranchContext> {
+        return this._loadBranch(modelSetKey, coordSetKey, branchKey, true);
+
+    }
+
+    private _loadBranch(modelSetKey: string, coordSetKey: string,
+                        branchKey: string,
+                        createIfMissing: boolean): Promise<PrivateDiagramBranchContext | null> {
         if (!this.coordSetService.isReady())
             throw new Error("CoordSet service is not initialised yet");
 
@@ -100,17 +119,15 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
         let promises = [];
 
         // Load the branch from the index
-        if (location == BranchLocation.ServerBranch) {
-            promises.push(
-                this.branchIndexLoader
-                    .getBranches(modelSetKey, coordSet.id, [branchKey])
-                    .then((results: BranchIndexResultI) => {
-                        // This will be null if it didn't find one.
-                        if (results[branchKey] != null)
-                            indexBranch = results[branchKey][0];
-                    })
-            );
-        }
+        promises.push(
+            this.branchIndexLoader
+                .getBranches(modelSetKey, coordSet.id, [branchKey])
+                .then((results: BranchIndexResultI) => {
+                    // This will be null if it didn't find one.
+                    if (results[branchKey] != null)
+                        indexBranch = results[branchKey][0];
+                })
+        );
 
         // Load
         promises.push(
@@ -131,9 +148,14 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
 
                 } else if (localBranch != null) {
                     branch = localBranch;
+
                 } else if (indexBranch != null) {
                     branch = indexBranch;
+
                 } else {
+                    if (!createIfMissing)
+                        return null;
+
                     branch = BranchTuple.createBranch(coordSet.id, branchKey);
                 }
 
@@ -142,8 +164,7 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
                 return new PrivateDiagramBranchContext(
                     this.lookupService,
                     branch, modelSetKey, coordSetKey,
-                    (context) => this.saveBranch(coordSet.modelSetId, context),
-                    location
+                    (context) => this.saveBranch(coordSet.modelSetId, context)
                 );
 
             });
@@ -156,12 +177,10 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
 
         promises.push(this.branchLocalLoader.saveBranch(branchContext));
 
-        if (branchContext.location == BranchLocation.ServerBranch) {
-            let action = new BranchUpdateTupleAction();
-            action.modelSetId = modelSetId;
-            action.branchTuple = branchContext.branchTuple;
-            promises.push(this.tupleService.offlineAction.pushAction(action));
-        }
+        let action = new BranchUpdateTupleAction();
+        action.modelSetId = modelSetId;
+        action.branchTuple = branchContext.branchTuple;
+        promises.push(this.tupleService.offlineAction.pushAction(action));
 
         let prom: any = Promise.all(promises);
         return prom;
@@ -185,8 +204,8 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
 
 
     startEditing(modelSetKey: string, coordSetKey: string,
-                 branchKey: string, location: BranchLocation): void {
-        this.getOrCreateBranch(modelSetKey, coordSetKey, branchKey, location)
+                 branchKey: string): void {
+        this.getOrCreateBranch(modelSetKey, coordSetKey, branchKey)
             .catch(e => this._startEditingObservable.error(e))
             .then((context: any) => this._startEditingObservable.next(context));
     }

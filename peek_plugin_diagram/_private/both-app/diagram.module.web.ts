@@ -22,6 +22,7 @@ import {EditDynamicPropertiesComponent} from "./edit-dynamic-properties-componen
 import {SelectBranchesComponent} from "./select-branches-component/select-branches.component.web";
 import {SelectLayersComponent} from "./select-layers-component/select-layers.component.web";
 import {StartEditComponent} from "./start-edit-component/start-edit.component.web";
+import {BranchDetailComponent} from "./branch-detail-component/branch-detail.component.web";
 
 
 // Define the root module for this plugin.
@@ -45,7 +46,8 @@ import {StartEditComponent} from "./start-edit-component/start-edit.component.we
         ToolbarComponent,
         EditContextComponent, EditToolbarComponent,
         EditShapePropertiesComponent, EditDynamicPropertiesComponent,
-        StartEditComponent, SelectLayersComponent, SelectBranchesComponent]
+        StartEditComponent, SelectLayersComponent, SelectBranchesComponent,
+        BranchDetailComponent]
 })
 export class PeekPluginDiagramModule {
 }

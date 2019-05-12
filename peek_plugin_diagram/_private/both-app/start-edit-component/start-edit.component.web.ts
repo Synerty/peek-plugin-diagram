@@ -10,7 +10,6 @@ import {
     PrivateDiagramBranchService
 } from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 
-import {BranchLocation} from "@peek/peek_plugin_branch/";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 
 
@@ -77,7 +76,6 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
         this.newBranch.createdDate = new Date();
         this.newBranch.updatedDate = new Date();
         this.newBranch.userName = "A user name";
-        this.newBranch.location = BranchLocation.ServerBranch;
 
         // let coordSet = this.coordSetService.coordSetForKey(coordSetKey);
         console.log("Opening Start Edit popup");
@@ -157,8 +155,7 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
         let branchToEdit = this.barIndex == this.NEW_TAB ? this.newBranch : this.selectedBranch;
 
         this.branchService.startEditing(
-            this.modelSetKey, this.coordSetKey, branchToEdit.key,
-            BranchLocation.ServerBranch
+            this.modelSetKey, this.coordSetKey, branchToEdit.key
         );
         this.closePopup();
     }

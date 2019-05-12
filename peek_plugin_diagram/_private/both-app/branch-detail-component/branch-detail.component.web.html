@@ -1,0 +1,84 @@
+<div>
+    <div class="row">
+        <div class="col-xs-5"
+             *ngIf="globalBranch != null">
+
+            <div class="row">
+                <div class="col-xs-4">
+                    <div class="details-section-title">
+                        Name
+                    </div>
+                </div>
+                <div class="col-xs-8">
+                    <div class="details-section-value">
+                        <span>{{globalBranch.name}}</span>
+                    </div>
+                </div>
+            </div>
+            <hr>
+
+            <div class="row">
+                <div class="col-xs-4">
+                    <div class="details-section-title">
+                        Created by
+                    </div>
+                </div>
+                <div class="col-xs-8">
+                    <div class="details-section-value">
+                        <span>{{globalBranch.userName}}</span>
+                    </div>
+                </div>
+            </div>
+            <hr>
+
+            <div class="row">
+                <div class="col-xs-4">
+                    <div class="details-section-title">
+                        Updated
+                    </div>
+                </div>
+                <div class="col-xs-8">
+                    <div class="details-section-value">
+                        <span>{{globalBranch.updatedDate | date:'HH:mm EE dd-MMM'}}</span>
+                    </div>
+                </div>
+            </div>
+            <hr>
+
+            <div class="row">
+                <div class="col-xs-4">
+                    <div class="details-section-title">
+                        Comment
+                    </div>
+                </div>
+                <div class="col-xs-8">
+                    <div class="details-section-value">
+                        <span>{{globalBranch.comment}}</span>
+                    </div>
+                </div>
+            </div>
+            <hr>
+        </div>
+
+        <div class="col-xs-7">
+            <div>
+                <p *ngIf="noDisps()">
+                    There are no items in this branch.
+                </p>
+                <div *ngIf="!noDisps()" class="peek-tables-section">
+                    <table class="table">
+                        <tbody>
+                        <tr class="tr"
+                            *ngFor="let disp of disps; odd as odd; even as even">
+                            <th class="td">{{disp._tt}}, {{disp.te}}<br>
+                                {{disp.g}}
+                            </th>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

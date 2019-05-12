@@ -58,7 +58,6 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
         # Get the latest lookups
         modelSet = dbSession.query(ModelSet).filter(ModelSet.id == modelSetId).one()
         coordSetById = {i.id: i for i in dbSession.query(ModelCoordSet).all()}
-        textStylesById = {i.id: i for i in dbSession.query(DispTextStyle).all()}
         dbSession.expunge_all()
 
         # Update the branches
@@ -92,29 +91,24 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
 
     dbSession = CeleryDbConn.getDbSession()
 
-    engine = CeleryDbConn.getDbEngine()
-    conn = engine.connect()
-    transaction = conn.begin()
-
     try:
-        _insertOrUpdateBranches(conn, modelSet.key, modelSet.id, newBranchesToInsert)
+        _insertOrUpdateBranches(dbSession, modelSet.key, modelSet.id, newBranchesToInsert)
 
         # Recompile the BranchGridIndexes
         for coordSetId, branches in branchesByCoordSetId.items():
             coordSet = coordSetById[coordSetId]
             assert coordSet.modelSetId == modelSetId, "Branches not all from one model"
 
-            _deleteBranchDisps(conn, [b.id for b in branches])
+            _deleteBranchDisps(dbSession, [b.id for b in branches])
             _insertBranchDisps(dbSession, coordSet, branches)
 
 
         # 3) Queue chunks for recompile
-        conn.execute(
+        dbSession.execute(
             queueTable.insert(),
             [dict(modelSetId=modelSetId, chunkKey=c) for c in chunkKeys]
         )
 
-        transaction.commit()
         dbSession.commit()
 
         logger.debug("Updated %s BranchIndexes queued %s chunks in %s",
@@ -122,14 +116,13 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
                      (datetime.now(pytz.utc) - startTime))
 
     except Exception as e:
-        transaction.rollback()
+        dbSession.rollback()
         logger.debug("Retrying updateBranch, %s", e)
         logger.exception(e)
         raise self.retry(exc=e, countdown=3)
 
     finally:
         dbSession.close()
-        conn.close()
 
 
 @DeferrableTask

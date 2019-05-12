@@ -16,7 +16,6 @@ from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyCompilerQue
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import \
     BranchTuple
-from peek_plugin_diagram._private.worker.tasks.ImportDispTask import _bulkLoadDispsTask
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +83,7 @@ def _insertBranchDisps(ormSession,
         dispIdsToCompile.append(disp.id)
 
     # Bulk load the Disps
-    _bulkLoadDispsTask(coordSet, newDisps, ormSession=ormSession)
+    ormSession.bulk_save_objects(newDisps, update_changed_only=False)
 
     # Queue the compiler
     DispCompilerQueueController.queueDispIdsToCompileWithSession(
@@ -98,9 +97,11 @@ def _insertBranchDisps(ormSession,
                  (datetime.now(pytz.utc) - startTime))
 
 
-def _convertJsonDispsToTuples(branchTuple: BranchTuple) -> List[DispBase]:
-    """ Con"""
-    disps: [DispBase] = []
+def _convertJsonDispsToTuples(branchTuple: BranchTuple) -> List:
+    """ Convert Json Disps to Tuples
+
+     """
+    disps: List = []
     for jsonDisp in branchTuple.disps:
         disp = Tuple.smallJsonDictToTuple(jsonDisp)
         disp.coordSetId = branchTuple.coordSetId

@@ -5,8 +5,6 @@ import {deepCopy} from "@synerty/vortexjs/src/vortex/UtilMisc";
 import SerialiseUtil from "@synerty/vortexjs/src/vortex/SerialiseUtil";
 
 
-import {DispBase} from "peek_plugin_diagram/tuples/shapes/DispBase";
-
 let serUril = new SerialiseUtil();
 
 export enum BranchDispChangeE {
@@ -68,6 +66,7 @@ export class BranchTuple extends Tuple {
     }
 
     static unpackJson(packedJsonStr: string): BranchTuple {
+        let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
         // Create the new object
         let newSelf = new BranchTuple();
         newSelf.packedJson__ = JSON.parse(packedJsonStr);
@@ -83,6 +82,7 @@ export class BranchTuple extends Tuple {
     }
 
     private static _setNewDispId(disp): void {
+        let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
         if (DispBase.id(disp) == null)
             DispBase.setId(disp, <any>`NEW_${(new Date()).getTime()}`);
     }
@@ -125,6 +125,7 @@ export class BranchTuple extends Tuple {
      * @param disp
      */
     addOrUpdateDisp(disp: any): any {
+        let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
 
         this.touchUpdateDate();
         let array = this._array(BranchTuple.__DISPS_NUM);
@@ -154,7 +155,7 @@ export class BranchTuple extends Tuple {
     }
 
     get disps(): any[] {
-        return this._array(BranchTuple.__DISPS_NUM);
+        return this._array(BranchTuple.__DISPS_NUM).slice();
     }
 
 
@@ -175,9 +176,17 @@ export class BranchTuple extends Tuple {
             SerialiseUtil.T_DATETIME);
     }
 
+    set updatedDate(value: Date) {
+        this.packedJson__[BranchTuple.__UPDATED_DATE] = serUril.toStr(value);
+    }
+
     get createdDate(): Date {
         return serUril.fromStr(this.packedJson__[BranchTuple.__CREATED_DATE],
             SerialiseUtil.T_DATETIME);
+    }
+
+    set createdDate(value: Date) {
+        this.packedJson__[BranchTuple.__CREATED_DATE] = serUril.toStr(value);
     }
 
     /** These methods are used to help render the branch */
