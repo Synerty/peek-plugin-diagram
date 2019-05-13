@@ -5,6 +5,7 @@ import {
     ShapePropType
 } from "../../canvas/PeekCanvasShapePropsContext";
 import {PeekCanvasBounds} from "../../canvas/PeekCanvasBounds";
+import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 
 export interface PointI {
     x: number;
@@ -185,15 +186,15 @@ export abstract class DispBase {
     // ---------------
     // Create Method
 
-    static create(type): any {
+    static create(type, coordSet:ModelCoordSet): any {
         let newDisp: any = {
             '_tt': type,
         };
         let level = new DispLevel();
-        level.id = 735;
+        level.id = coordSet.editDefaultLevelId;
 
         let layer = new DispLayer();
-        layer.id = 1;
+        layer.id = coordSet.editDefaultLayerId;
 
         DispBase.setLayer(newDisp, layer);
         DispBase.setLevel(newDisp, level);

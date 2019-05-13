@@ -5,6 +5,7 @@ import {
     ShapeProp,
     ShapePropType
 } from "../../canvas/PeekCanvasShapePropsContext";
+import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 
 export enum TextVerticalAlign {
     top = -1,
@@ -123,9 +124,9 @@ export class DispText extends DispBase {
         disp.g = [x, y];
     }
 
-    static create(): DispTextT {
+    static create(coordSet: ModelCoordSet): DispTextT {
         let newDisp = {
-            ...DispBase.create(DispBase.TYPE_DT),
+            ...DispBase.create(DispBase.TYPE_DT, coordSet),
             // From Text
             'va': TextVerticalAlign.center, // TextVerticalAlign.center
             'ha': TextHorizontalAlign.center, // TextHorizontalAlign.center
@@ -139,10 +140,10 @@ export class DispText extends DispBase {
 
 
         let dispTextStyle = new DispTextStyle();
-        dispTextStyle.id = 30;
+        dispTextStyle.id = coordSet.editDefaultTextStyleId;
 
         let dispColor = new DispColor();
-        dispColor.id = 7;
+        dispColor.id = coordSet.editDefaultColorId;
 
         DispText.setTextStyle(newDisp, dispTextStyle);
         DispText.setColor(newDisp, dispColor);

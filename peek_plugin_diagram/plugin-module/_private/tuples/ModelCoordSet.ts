@@ -28,6 +28,27 @@ export class ModelCoordSet extends Tuple {
     // Misc data holder
     data: { [key: string]: any } | null;
 
+    // Show "Select Branches" button
+    branchesEnabled: boolean;
+
+    // Edit fields
+    editEnabled: boolean;
+
+    // Default Layer for new shapes
+    editDefaultLayerId: number;
+
+    // Default Level for new shapes
+    editDefaultLevelId: number;
+
+    // Default Color for new shapes
+    editDefaultColorId: number;
+
+    // Default Line for new shapes
+    editDefaultLineStyleId: number;
+
+    // Default Text for new shapes
+    editDefaultTextStyleId: number;
+
     constructor() {
         super(ModelCoordSet.tupleName)
     }

@@ -84,12 +84,41 @@ class ModelCoordSet(Tuple, DeclarativeBase):
     #: Misc data holder
     data = TupleField()
 
+    #: Is Editing enabled? (Also ensure ALL editDefault fields are set.
+    branchesEnabled = Column(Boolean, nullable=False, server_default="false")
+
+    #: Is Editing enabled? (Also ensure ALL editDefault fields are set.
+    editEnabled = Column(Boolean, nullable=False, server_default="false")
+
+    #: Default Layer for new shapes
+    editDefaultLayerId = Column(Integer, ForeignKey('DispLayer.id'))
+
+    #: Default Level for new shapes
+    editDefaultLevelId = Column(Integer, ForeignKey('DispLevel.id'))
+
+    #: Default Color for new shapes
+    editDefaultColorId = Column(Integer, ForeignKey('DispColor.id'))
+
+    #: Default Line for new shapes
+    editDefaultLineStyleId = Column(Integer, ForeignKey('DispLineStyle.id'))
+
+    #: Default Text for new shapes
+    editDefaultTextStyleId = Column(Integer, ForeignKey('DispTextStyle.id'))
+
     __table_args__ = (
         Index("idxCoordSetModelName", modelSetId, name, unique=True),
         Index("idxCoordSetImportId1", importId1, unique=False),
         Index("idxCoordSetImportId2", importId2, unique=False),
 
         Index("idxCoordModelSetId", modelSetId, unique=False),
+
+        Index("idxCoordModel_editDefaultLayerId", editDefaultLayerId, unique=False),
+        Index("idxCoordModel_editDefaultLevelId", editDefaultLevelId, unique=False),
+        Index("idxCoordModel_editDefaultColorId", editDefaultColorId, unique=False),
+        Index("idxCoordModel_editDefaultLineStyleId", editDefaultLineStyleId,
+              unique=False),
+        Index("idxCoordModel_editDefaultTextStyleId", editDefaultTextStyleId,
+              unique=False),
     )
 
 

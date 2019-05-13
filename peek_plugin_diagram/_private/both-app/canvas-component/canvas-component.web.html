@@ -1,6 +1,7 @@
 <div>
 
     <pl-diagram-toolbar *ngIf="coordSetKey != null && !editor.isEditing()"
+                        [config]="config"
                         [coordSetKey]="coordSetKey"
                         [modelSetKey]="modelSetKey"></pl-diagram-toolbar>
 

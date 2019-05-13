@@ -11,6 +11,8 @@ import {PrivateDiagramConfigService} from "@peek/peek_plugin_diagram/_private/se
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
+import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 
 
 @Component({
@@ -29,6 +31,10 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
     @Input("modelSetKey")
     modelSetKey: string;
 
+    @Input("config")
+    config: PeekCanvasConfig;
+
+    coordSet: ModelCoordSet = new ModelCoordSet();
 
     protected toolbarService: PrivateDiagramToolbarService;
 
@@ -54,6 +60,13 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
 
     ngOnInit() {
 
+        if (this.config.coordSet != null)
+            this.coordSet = this.config.coordSet;
+
+        this.config.controller.coordSetChange
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((cs) => this.coordSet = cs);
+
     }
 
     buttonClicked(btn: DiagramToolButtonI): void {
@@ -69,6 +82,10 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
         this.toolbarIsOpen = !this.toolbarIsOpen;
     }
 
+    showSelectBranchesButton(): boolean {
+        return this.coordSet.branchesEnabled == true;
+    }
+
     showExitDiagramButton(): boolean {
         return this.toolbarService.exitDiagramCallable(this.modelSetKey) != null;
     }
@@ -79,8 +96,12 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
     }
 
     showEditDiagramButton(): boolean {
-        // TODO, Get the coord set and add a field "allowEdits"
-        return true;
+        return this.coordSet.editEnabled == true
+            && this.coordSet.editDefaultLayerId != null
+            && this.coordSet.editDefaultLevelId != null
+            && this.coordSet.editDefaultColorId != null
+            && this.coordSet.editDefaultLineStyleId != null
+            && this.coordSet.editDefaultTextStyleId != null;
     }
 
     editDiagramClicked(): void {

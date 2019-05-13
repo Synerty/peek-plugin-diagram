@@ -78,9 +78,10 @@ class DispLevel(Tuple, DeclarativeBase):
     minZoom = Column(Float)
     maxZoom = Column(Float)
 
-    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
+    coordSetId = Column(Integer,
+                        ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
                         nullable=False)
-    coordSet = relationship(ModelCoordSet)
+    coordSet = relationship(ModelCoordSet, foreign_keys=[coordSetId])
 
     importHash = Column(String(100), doc=JSON_EXCLUDE)
 

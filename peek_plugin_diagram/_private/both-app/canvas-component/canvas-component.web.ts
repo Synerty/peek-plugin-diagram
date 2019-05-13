@@ -39,7 +39,6 @@ import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/br
     moduleId: module.id
 })
 export class CanvasComponent extends ComponentLifecycleEventEmitter {
-    // https://stackoverflow.com/questions/32693061/angular-2-typescript-get-hold-of-an-element-in-the-template
     @ViewChild('edittoolbar') editToolbarView;
     @ViewChild('canvas') canvasView;
 

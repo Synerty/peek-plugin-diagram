@@ -89,6 +89,7 @@ export class PrivateDiagramCoordSetService extends ComponentLifecycleEventEmitte
             let item = new DiagramCoordSetTuple();
             item.name = tuple.name;
             item.key = tuple.key;
+            item.enabled = tuple.enabled;
             coordSetsByModelSetKey[tuple.data.modelSetKey].push(item);
         }
 

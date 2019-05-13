@@ -8,6 +8,7 @@ export class DiagramCoordSetTuple extends Tuple {
 
     key: string;
     name: string;
+    enabled: boolean;
 
     constructor() {
         super(DiagramCoordSetTuple.tupleName)

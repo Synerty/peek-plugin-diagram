@@ -156,7 +156,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     private createDisp(x: number, y: number) {
 
         // Create the Disp
-        this._creating = DispText.create();
+        this._creating = DispText.create(this.viewArgs.config.coordSet);
         DispText.setCenterPoint(this._creating, x, y);
         this.canvasEditor.lookupService._linkDispLookups(this._creating);
 

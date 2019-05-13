@@ -134,8 +134,6 @@ export class PeekCanvasInputEditMakeCircleArcEllipseDelegate extends PeekCanvasI
             return;
         }
 
-        this._creating = DispText.create();
-        DispText.setCenterPoint(this._creating, mouse.x, mouse.y);
 
         // if (editorUi.grid.snapping())
         //     this._creating.snap(editorUi.grid.snapSize());
