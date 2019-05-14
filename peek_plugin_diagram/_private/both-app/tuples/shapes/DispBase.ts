@@ -72,6 +72,9 @@ export abstract class DispBase {
     static TYPE_DG = 'DG';
     static TYPE_DGP = 'DGP';
 
+    static type(disp: DispBaseT): string {
+        return disp._tt;
+    }
 
     static setId(disp: DispBaseT, value: number): void {
         disp.id = value;
@@ -85,7 +88,6 @@ export abstract class DispBase {
         return disp.gi;
     }
 
-
     static branchId(disp: DispBaseT): number {
         return disp.bi;
     }
@@ -93,7 +95,6 @@ export abstract class DispBase {
     static setBranchStage(disp: DispBaseT, value: number): void {
         disp.bs = value;
     }
-
 
     static branchStage(disp: DispBaseT): number {
         return disp.bs;
@@ -103,7 +104,6 @@ export abstract class DispBase {
         // This is set from the short id in DiagramLookupService._linkDispLookups
         return disp.lel;
     }
-
 
     static setLevel(disp: DispBaseT, val: DispLevel): void {
         // This is set from the short id in DiagramLookupService._linkDispLookups
@@ -186,7 +186,7 @@ export abstract class DispBase {
     // ---------------
     // Create Method
 
-    static create(type, coordSet:ModelCoordSet): any {
+    static create(type, coordSet: ModelCoordSet): any {
         let newDisp: any = {
             '_tt': type,
         };
@@ -237,6 +237,20 @@ export abstract class DispBase {
             DispBase.setSelectable,
             "Selectable"
         ));
+    }
 
+    // ---------------
+    // Represent the disp as a user friendly string
+
+    static makeShapeStr(disp: DispBaseT): string {
+        let nameMap = {};
+        nameMap[DispBase.TYPE_DT] = 'Text';
+        nameMap[DispBase.TYPE_DPG] = 'Polygon';
+        nameMap[DispBase.TYPE_DPL] = 'Polyline';
+        nameMap[DispBase.TYPE_DE] = 'Ellipse';
+        nameMap[DispBase.TYPE_DG] = 'Group';
+        nameMap[DispBase.TYPE_DGP] = 'GroupPointer';
+
+        return `Type : ${nameMap[DispBase.type(disp)]}`;
     }
 }

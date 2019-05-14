@@ -8,8 +8,9 @@ import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
 import {DispBase} from "../tuples/shapes/DispBase";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
-import {DispPolyline} from "../tuples/shapes/DispPolyline";
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch";
+import {PeekCanvasModelQuery} from "./PeekCanvasModelQuery.web";
+import {PeekCanvasModelSelection} from "./PeekCanvasModelSelection.web";
 
 // import 'rxjs/add/operator/takeUntil';
 
@@ -17,10 +18,6 @@ function now(): any {
     return new Date();
 }
 
-export interface PolylineEnd {
-    isStart: boolean,
-    polylineDisp: any
-}
 
 /**
  * Peek Canvas Model
@@ -47,13 +44,6 @@ export class PeekCanvasModel {
     // Objects to be drawn on the display
     private _visableDisps = [];
 
-    // The currently selected coords
-    private _selection: {}[] = [];
-
-    private _selectionChangedSubject = new Subject<{}[]>();
-
-    private _keysToTryToSelect: string[] = [];
-
     // Does the model need an update?
     private needsUpdate = false;
 
@@ -63,11 +53,16 @@ export class PeekCanvasModel {
     // Is the model currently updating
     private isUpdating = false;
 
+    private _query: PeekCanvasModelQuery;
+    private _selection: PeekCanvasModelSelection;
+
     constructor(private config: PeekCanvasConfig,
                 private gridObservable: GridObservable,
                 private lookupCache: DiagramLookupService,
                 private branchService: PrivateDiagramBranchService,
                 private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
+        this._query = new PeekCanvasModelQuery(this);
+        this._selection = new PeekCanvasModelSelection(this, this.config);
 
         this.needsUpdate = false;
 
@@ -115,6 +110,7 @@ export class PeekCanvasModel {
                 }
 
                 this.reset();
+                this.selection.reset();
                 this.needsUpdate = true;
             });
 
@@ -127,11 +123,6 @@ export class PeekCanvasModel {
 
     };
 
-    selectionChangedObservable(): Observable<{}[]> {
-        return this._selectionChangedSubject;
-    }
-
-
 // -------------------------------------------------------------------------------------
 // reset
 // -------------------------------------------------------------------------------------
@@ -139,15 +130,11 @@ export class PeekCanvasModel {
         this.needsUpdate = false;
         this.isUpdating = false;
 
-        this._selection = []; // The currently selected coords
-
         this._visableDisps = []; // Objects to be drawn on the display
         this._gridBuffer = {}; // Store grids from the server by gridKey.
 
         this._viewingGridKeysDict = {};
         this._viewingGridKeysStr = "";
-
-        this._keysToTryToSelect = [];
     };
 
 
@@ -235,76 +222,17 @@ export class PeekCanvasModel {
 // Display Items
 // -------------------------------------------------------------------------------------
 
+    get query(): PeekCanvasModelQuery {
+        return this._query;
+    }
+    get selection(): PeekCanvasModelSelection {
+        return this._selection;
+    }
+
     viewableDisps() {
         return this._visableDisps;
     }
 
-    selectableDisps() {
-        return this.viewableDisps()
-            .filter(disp => DispBase.isSelectable(disp));
-    }
-
-    selectedDisps(): any[] {
-        return this._selection;
-    }
-
-    dispsInSelectedGroups(): any[] {
-        return this._dispsForGroups(this._selection);
-    }
-
-    dispsInSameGroup(refDisp): any[] {
-        return this._dispsForGroups([refDisp]);
-    }
-
-    private _dispsForGroups(disps: any[]): any[] {
-        let result = [];
-        let selectedGroupIds = {};
-        let groupIdsFound = false;
-
-        for (let disp of disps) {
-            // DispGroup and DispGroupPtrs are not selectable
-            if (DispBase.groupId(disp) != null) {
-                selectedGroupIds[DispBase.groupId(disp)] = true;
-                groupIdsFound = true;
-            }
-        }
-
-        if (!groupIdsFound)
-            return disps;
-
-        for (let disp of this._visableDisps) {
-            if (selectedGroupIds[DispBase.groupId(disp)] === true)
-                result.push(disp);
-
-            else if (selectedGroupIds[DispBase.id(disp)] === true)
-                result.push(disp);
-        }
-
-        return result;
-    }
-
-    polylinesConnectedToDispKey(keys: string[]): PolylineEnd[] {
-        let result: PolylineEnd[] = [];
-        let keysDict = {};
-
-        for (let key of keys) {
-            keysDict[key] = true;
-        }
-
-        for (let disp of this._visableDisps) {
-            let startKey = DispPolyline.startKey(disp);
-            let endKey = DispPolyline.endKey(disp);
-
-            if (startKey != null && keysDict[startKey] === true)
-                result.push({isStart: true, polylineDisp: disp});
-
-            else if (endKey != null && keysDict[endKey] === true)
-                result.push({isStart: false, polylineDisp: disp});
-        }
-
-
-        return result;
-    }
 
     private _compileDisps() {
         if (!this.needsCompiling)
@@ -327,7 +255,7 @@ export class PeekCanvasModel {
         let branchIdsActive = {};
 
         for (let id of this.branchService.getVisibleBranchIds(this._coordSetId)) {
-             branchIdsActive[id] = true;
+            branchIdsActive[id] = true;
         }
 
         let activeBranch = this.config.editor.activeBranchTuple;
@@ -405,18 +333,8 @@ export class PeekCanvasModel {
             }
         }
 
-
-        for (let key of this._keysToTryToSelect) {
-            for (let disp of disps) {
-                if (DispBase.key(disp) == key) {
-                    this._selection.add(disp); // Don't notify of item select
-                    this._keysToTryToSelect.remove(key);
-                    break;
-                }
-            }
-        }
-
         this._visableDisps = disps;
+        this.selection.applyTryToSelect();
         this.config.model.dispOnScreen = disps.length;
         this.config.invalidate();
 
@@ -424,31 +342,6 @@ export class PeekCanvasModel {
 
         console.log(`${dateStr()} Model: compileDisps took ${timeTaken}ms`
             + ` for ${disps.length} disps and ${viewableGrids.length} grids`);
-    }
-
-    tryToSelectKeys(keys: string[]) {
-        this._keysToTryToSelect = keys;
-    }
-
-    addSelection(objectOrArray) {
-        this._selection = this._selection.add(objectOrArray);
-        this.config.invalidate();
-        if (!this.config.editor.active)
-            this._selectionChangedSubject.next(this._selection);
-    }
-
-    removeSelection(objectOrArray) {
-        this._selection = this._selection.remove(objectOrArray);
-        this.config.invalidate();
-        if (!this.config.editor.active)
-            this._selectionChangedSubject.next(this._selection);
-    }
-
-    clearSelection() {
-        this._selection = [];
-        this.config.invalidate();
-        if (!this.config.editor.active)
-            this._selectionChangedSubject.next(this._selection);
     }
 
 

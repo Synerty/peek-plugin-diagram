@@ -127,6 +127,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             }
         }
 
+        disp.bounds = PeekCanvasBounds.fromGeom(points);
     };
 
     private _drawSquarePercentFill(ctx, bounds,

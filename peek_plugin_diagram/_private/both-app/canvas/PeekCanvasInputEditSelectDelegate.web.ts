@@ -4,7 +4,7 @@ import {
     InputDelegateConstructorArgs,
     PeekCanvasInputDelegate
 } from "./PeekCanvasInputDelegate.web";
-import {PolylineEnd} from "./PeekCanvasModel.web";
+import {PolylineEnd} from "./PeekCanvasModelQuery.web";
 import {assert} from "../DiagramUtil";
 import {DispBase} from "../tuples/shapes/DispBase";
 import {DispPolyline} from "../tuples/shapes/DispPolyline";
@@ -88,7 +88,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
         // Delete the disp on the canvas
         if (event.keyCode == 46) {
-            // let coords = this.viewArgs.model.selectedDisps();
+            // let coords = this.viewArgs.model.selection.selectedDisps();
             // this.viewArgs.model.deleteDisp(coords);
             // this.viewArgs.model.clearSelection();
 
@@ -148,7 +148,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             return;
         }
 
-        let selectedDisps = this.viewArgs.model.selectedDisps();
+        let selectedDisps = this.viewArgs.model.selection.selectedDisps();
         let margin = this.viewArgs.config.mouse.selecting.margin;// * this.viewArgs.config.viewPort.zoom;
 
 
@@ -192,7 +192,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             this._state = this.STATE_SELECTING;
         } else {
             this._state = this.STATE_CANVAS_PANNING;
-            this.viewArgs.model.clearSelection();
+            this.viewArgs.model.selection.clearSelection();
         }
 
 
@@ -425,7 +425,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
             case this.STATE_MOVING_RENDERABLE:
             case this.STATE_MOVING_HANDLE:
-                let selectedCoords = this.viewArgs.model.selectedDisps();
+                let selectedCoords = this.viewArgs.model.selection.selectedDisps();
                 for (let i = selectedCoords.length - 1; i >= 0; i--) {
                     console.log("TODO, Store node move states");
                     // selectedCoords[i].storeState();
@@ -447,7 +447,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
 
         let hits = this._selectByTypeAndBounds(mouse);
-        this.viewArgs.model.addSelection(hits);
+        this.viewArgs.model.selection.addSelection(hits);
     };
 
     // mouseWheel(event, mouse) {
@@ -537,20 +537,20 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
         // Remove clicked on thing
         if (this._mouseDownOnSelection && this._mouseDownWithShift) {
-            this.viewArgs.model.removeSelection(hits);
+            this.viewArgs.model.selection.removeSelection(hits);
 
         } else {
             // Remove all previous selection
             if (!this._mouseDownWithShift) {
-                this.viewArgs.model.clearSelection();
+                this.viewArgs.model.selection.clearSelection();
             }
 
-            this.viewArgs.model.addSelection(hits);
+            this.viewArgs.model.selection.addSelection(hits);
         }
 
-        this._selectedDisps = this.viewArgs.model.dispsInSelectedGroups();
+        this._selectedDisps = this.viewArgs.model.query.dispsInSelectedGroups;
 
-        this._selectedPolylineEnds = this.viewArgs.model
+        this._selectedPolylineEnds = this.viewArgs.model.query
             .polylinesConnectedToDispKey(DispBase.keys(this._selectedDisps));
 
 

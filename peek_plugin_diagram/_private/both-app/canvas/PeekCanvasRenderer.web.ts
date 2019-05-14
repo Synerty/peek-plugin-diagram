@@ -145,7 +145,7 @@ export class PeekCanvasRenderer {
         let ctx = this.canvas.getContext('2d');
 
         let dispObjs = this.model.viewableDisps();
-        let selectedCoords = this.model.selectedDisps();
+        let selectedCoords = this.model.selection.selectedDisps();
 
         // Clear canvas
         let w = this.canvas.width / this._zoom;

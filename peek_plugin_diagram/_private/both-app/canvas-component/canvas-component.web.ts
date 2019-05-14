@@ -269,7 +269,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     }
 
     connectItemSelectionService(): void {
-        this.model.selectionChangedObservable()
+        this.model.selection.selectionChangedObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe((disps: DispBaseT[]) => {
 
@@ -326,7 +326,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 this.config.updateViewPortZoom(pos.zoom);
 
                 if (pos.highlightKey != null)
-                    this.model.tryToSelectKeys([pos.highlightKey]);
+                    this.model.selection.tryToSelectKeys([pos.highlightKey]);
             });
 
     }

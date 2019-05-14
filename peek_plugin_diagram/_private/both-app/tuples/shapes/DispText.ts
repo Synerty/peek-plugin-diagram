@@ -6,6 +6,7 @@ import {
     ShapePropType
 } from "../../canvas/PeekCanvasShapePropsContext";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
+import {PeekCanvasPoint} from "../../canvas/PeekCanvasBounds";
 
 export enum TextVerticalAlign {
     top = -1,
@@ -120,6 +121,11 @@ export class DispText extends DispBase {
         return disp.g[1];
     }
 
+
+    static center(disp: DispTextT): PeekCanvasPoint {
+        return {x: disp.g[0], y: disp.g[1]};
+    }
+
     static setCenterPoint(disp: DispTextT, x: number, y: number): void {
         disp.g = [x, y];
     }
@@ -177,6 +183,16 @@ export class DispText extends DispBase {
             DispText.setColor,
             "Color"
         ));
+    }
+
+    // ---------------
+    // Represent the disp as a user friendly string
+
+    static makeShapeStr(disp: DispTextT): string {
+        let center = DispText.center(disp);
+        return DispBase.makeShapeStr(disp)
+            + `\nText : ${DispText.text(disp)}`
+            + `\nAt : ${parseInt(<any>center.x)}x${parseInt(<any>center.y)}`;
     }
 
 }

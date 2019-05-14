@@ -1,3 +1,8 @@
+export interface PeekCanvasPoint {
+    x: number,
+    y: number
+}
+
 // ---------------------------------------------------------------------------
 // PeekCanvasBounds
 // ---------------------------------------------------------------------------
@@ -127,6 +132,21 @@ export class PeekCanvasBounds {
     area() {
         return this.w * this.h;
     };
+
+    center(): PeekCanvasPoint {
+        return {
+            x: this.x + this.w / 2,
+            y: this.y + this.y / 2
+        };
+    };
+
+    distanceFromPoint(point: PeekCanvasPoint): number {
+        let center = this.center();
+        return Math.sqrt(
+            Math.pow(center.x - point.x, 2)
+            + Math.pow(center.y - point.y, 2)
+        )
+    }
 
     toString() {
         return `${this.x}x,${this.y}y,${this.w}w,${this.h}h`;

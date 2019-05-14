@@ -70,6 +70,7 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
                     .filter(BranchIndex.id == branch.id) \
                     .one()
                 branchIndex.packedJson = branch.packJson()
+                branchIndex.updatedDate = branch.updatedDate
 
             except NoResultFound:
                 newBranchesToInsert.append(branch)

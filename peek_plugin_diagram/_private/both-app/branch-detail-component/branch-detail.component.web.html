@@ -1,7 +1,26 @@
 <div>
-    <div class="row">
-        <div class="col-xs-5"
-             *ngIf="globalBranch != null">
+    <div class="peek-tabs-section">
+        <div class="btn-group" role="group">
+            <Button class="tabs-section-btn"
+                    [class.active]="barIndex == DETAILS_TAB"
+                    (click)="barIndex = DETAILS_TAB">
+                Branch Details
+            </Button>
+            <Button class="tabs-section-btn"
+                    [class.active]="barIndex == ANCHORS_TAB"
+                    (click)="barIndex = ANCHORS_TAB">
+                Anchor Points
+            </Button>
+            <Button class="tabs-section-btn"
+                    [class.active]="barIndex == EDITED_ITEMS_TAB"
+                    (click)="barIndex = EDITED_ITEMS_TAB">
+                Edited Items
+            </Button>
+        </div>
+    </div>
+
+    <div>
+        <div class="peek-nav-bar-padding" *ngIf="barIndex == DETAILS_TAB">
 
             <div class="row">
                 <div class="col-xs-4">
@@ -60,19 +79,54 @@
             <hr>
         </div>
 
-        <div class="col-xs-7">
+        <div class="peek-nav-bar-padding" *ngIf="barIndex == ANCHORS_TAB">
+            <div>
+                <p *ngIf="noAnchors()">
+                    There are no anchor points in this branch.
+                </p>
+                <div *ngIf="!noAnchors()" class="peek-tables-section">
+                    <table class="table">
+                        <tbody>
+                        <tr class="tr"
+                            *ngFor="let anchorDoc of anchorDocs; odd as odd; even as even">
+                            <td class="td">
+                                <Button class="btn"
+                                        (click)="positonAnchorOnDiagram(anchorDoc)">
+                                    <fa name="map-marker"></fa>
+                                </Button>
+                            </td>
+                            <td class="td" *ngFor="let prop of anchorDoc">{{prop.title}}<br>{{prop.value}}</td>
+
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="peek-nav-bar-padding" *ngIf="barIndex == EDITED_ITEMS_TAB">
             <div>
                 <p *ngIf="noDisps()">
-                    There are no items in this branch.
+                    There are no anchor points in this branch.
                 </p>
                 <div *ngIf="!noDisps()" class="peek-tables-section">
                     <table class="table">
                         <tbody>
                         <tr class="tr"
                             *ngFor="let disp of disps; odd as odd; even as even">
-                            <th class="td">{{disp._tt}}, {{disp.te}}<br>
-                                {{disp.g}}
-                            </th>
+
+                            <td class="td">
+                                <Button class="btn"
+                                        (click)="positonDispOnDiagram(disp)">
+                                    <fa name="map-marker"></fa>
+                                </Button>
+                            </td>
+                            <td class="td">
+                                <span *ngFor="let line of dispDesc(disp)">
+                                     {{line}},
+                                </span>
+                            </td>
                         </tr>
                         </tbody>
                     </table>

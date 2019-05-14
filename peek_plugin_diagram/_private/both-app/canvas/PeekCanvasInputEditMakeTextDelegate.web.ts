@@ -5,7 +5,6 @@ import {
 } from "./PeekCanvasInputDelegate.web";
 import {DispText} from "../tuples/shapes/DispText";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
-import {pointToPixel} from "../DiagramUtil";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 import {PeekCanvasShapePropsContext} from "./PeekCanvasShapePropsContext";
 
@@ -152,7 +151,6 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     };
 
 
-
     private createDisp(x: number, y: number) {
 
         // Create the Disp
@@ -172,7 +170,9 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         this.canvasEditor.setShapePropertiesContext(shapePropsContext);
 
         // Add the shape to the branch
-        this._creating = this.canvasEditor.branchContext.addOrUpdateDisp(this._creating);
+        this._creating = this.canvasEditor.branchContext.branchTuple
+            .addOrUpdateDisp(this._creating);
+
         this.viewArgs.config.setModelNeedsCompiling();
 
         // TODO, Snap the coordinates if required
@@ -181,6 +181,8 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
 
         // Let the canvas editor know something has happened.
         // this.canvasEditor.dispPropsUpdated();
+
+        this._addBranchAnchor(x, y);
     }
 
     delegateWillBeTornDown() {

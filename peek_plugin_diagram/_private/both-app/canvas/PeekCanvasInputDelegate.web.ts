@@ -7,6 +7,7 @@ import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
+import {DispBase} from "../tuples/shapes/DispBase";
 
 
 export function disableContextMenu(event) {
@@ -50,7 +51,7 @@ export abstract class PeekCanvasInputDelegate {
                           public NAME: EditorToolType) {
     }
 
-    _hasPassedDragThreshold(m1: CanvasInputPos, m2: CanvasInputPos) {
+    protected _hasPassedDragThreshold(m1: CanvasInputPos, m2: CanvasInputPos) {
         let d = false;
         // Time has passed
         d = d || ((m2.time.getTime() - m1.time.getTime()) > this.DRAG_TIME_THRESHOLD);
@@ -112,7 +113,7 @@ export abstract class PeekCanvasInputDelegate {
      *            current mouse object
      * @return An object containing the delta
      */
-    _setLastMousePos(mouse) {
+    protected _setLastMousePos(mouse) {
 
         let dx = mouse.x - this._lastMousePos.x;
         let dy = mouse.y - this._lastMousePos.y;
@@ -138,15 +139,24 @@ export abstract class PeekCanvasInputDelegate {
         };
     };
 
-    /*
-    newObjectLayer() {
-        let selectedLayers = editorLayer.selectedLayers();
-        if (selectedLayers.length)
-            return selectedLayers[selectedLayers.length - 1].id;
+    protected _addBranchAnchor(x: number, y: number): void {
+        if (this.canvasEditor.branchContext == null)
+            return;
 
-        return editorLayer.lastLayer().id;
+        let closestDisp = this.viewArgs.model.query
+            .closestDispToPoint(
+                x, y, (disp) => {
+                    let key = DispBase.key(disp);
+                    return key != null && key.length != 0;
+                }
+            );
 
-    };
-    */
+        // TODO, See how close it is to other disps.
+        if (closestDisp != null) {
+            this.canvasEditor.branchContext.branchTuple
+                .addAnchorDispKey(DispBase.key(closestDisp));
+        }
+
+    }
 
 }

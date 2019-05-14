@@ -26,7 +26,8 @@ class BranchTuple(Tuple):
     __UPDATED_DATE = 4
     __CREATED_DATE = 5
     __DISPS_NUM = 6
-    __LAST_INDEX_NUM = 6
+    __ANCHOR_DISP_KEYS_NUM = 7
+    __LAST_INDEX_NUM = 7
 
     __tupleType__ = diagramTuplePrefix + 'BranchTuple'
 
@@ -103,7 +104,13 @@ class BranchTuple(Tuple):
 
     @property
     def disps(self) -> List:
-        return self.packedJson__[self.__DISPS_NUM][:]
+        val = self.packedJson__[self.__DISPS_NUM][:]
+        return val if val else []
+
+    @property
+    def anchorDispKeys(self) -> List[str]:
+        val = self.packedJson__[self.__ANCHOR_DISP_KEYS_NUM][:]
+        return val if val else []
 
     @property
     def visible(self) -> bool:

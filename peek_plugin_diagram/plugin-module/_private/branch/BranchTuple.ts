@@ -39,7 +39,8 @@ export class BranchTuple extends Tuple {
     private static readonly __UPDATED_DATE = 4;
     private static readonly __CREATED_DATE = 5;
     private static readonly __DISPS_NUM = 6;
-    private static readonly __LAST_INDEX_NUM = 6;
+    private static readonly __ANCHOR_DISP_KEYS_NUM = 7;
+    private static readonly __LAST_INDEX_NUM = 7;
 
 
     private _dispsById = {};
@@ -62,6 +63,7 @@ export class BranchTuple extends Tuple {
         branch.packedJson__[BranchTuple.__UPDATED_DATE] = date;
         branch.packedJson__[BranchTuple.__CREATED_DATE] = date;
         branch.packedJson__[BranchTuple.__DISPS_NUM] = [];
+        branch.packedJson__[BranchTuple.__ANCHOR_DISP_KEYS_NUM] = [];
         return branch;
     }
 
@@ -154,8 +156,22 @@ export class BranchTuple extends Tuple {
 
     }
 
+
     get disps(): any[] {
         return this._array(BranchTuple.__DISPS_NUM).slice();
+    }
+
+    addAnchorDispKey(key: string): void {
+        let anchors = this._array(BranchTuple.__ANCHOR_DISP_KEYS_NUM);
+        if (anchors.filter(k => k == key).length != 0)
+            return;
+
+        this.touchUpdateDate();
+        anchors.push(key);
+    }
+
+    get anchorDispKeys(): string[] {
+        return this._array(BranchTuple.__ANCHOR_DISP_KEYS_NUM).slice();
     }
 
 

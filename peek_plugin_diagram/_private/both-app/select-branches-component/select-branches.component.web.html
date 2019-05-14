@@ -11,6 +11,8 @@
             <div class="modal-body"
                  *ngIf="showBranchDetails()">
                 <pl-diagram-branch-detail
+                        [modelSetKey]="modelSetKey"
+                        [coordSetKey]="coordSetKey"
                         [globalBranch]="selectedGlobalBranch"
                         [diagramBranch]="selectedDiagramBranch"
                         (close)="clearBranchDetails()"></pl-diagram-branch-detail>

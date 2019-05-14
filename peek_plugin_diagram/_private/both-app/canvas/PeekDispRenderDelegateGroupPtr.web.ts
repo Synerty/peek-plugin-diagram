@@ -2,6 +2,7 @@ import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {DispGroupCache} from "../cache/DispGroupCache.web";
 import {DispGroupPointer} from "../tuples/shapes/DispGroupPointer";
+import {PeekCanvasBounds} from "./PeekCanvasBounds";
 
 export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 
@@ -12,21 +13,21 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 
     }
 
-    draw(dispGroupPtr, ctx, zoom, pan) {
+    draw(disp, ctx, zoom, pan) {
 
         let dispGroup = this.dispGroupCache.dispGroupForId(
-            DispGroupPointer.targetGroupId(dispGroupPtr)
+            DispGroupPointer.targetGroupId(disp)
         );
 
         if (dispGroup == null)
             return;
 
         // Give more meaning to our short field names
-        let pointX = dispGroupPtr.g[0];
-        let pointY = dispGroupPtr.g[1];
-        let rotation = dispGroupPtr.r / 180.0 * Math.PI;
-        let verticalScale = DispGroupPointer.verticalScale(dispGroupPtr);
-        let horizontalScale = DispGroupPointer.horizontalScale(dispGroupPtr);
+        let pointX = disp.g[0];
+        let pointY = disp.g[1];
+        let rotation = disp.r / 180.0 * Math.PI;
+        let verticalScale = DispGroupPointer.verticalScale(disp);
+        let horizontalScale = DispGroupPointer.horizontalScale(disp);
 
         ctx.save();
         ctx.translate(pointX, pointY);
@@ -40,6 +41,8 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
         }
 
         ctx.restore();
+
+        disp.bounds = PeekCanvasBounds.fromGeom(disp.g);
 
     };
 

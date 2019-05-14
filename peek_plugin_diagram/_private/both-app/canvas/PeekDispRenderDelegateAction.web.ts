@@ -1,5 +1,6 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
+import {PeekCanvasBounds} from "./PeekCanvasBounds";
 
 export class PeekDispRenderDelegateAction extends PeekDispRenderDelegateABC{
 
@@ -9,7 +10,9 @@ export class PeekDispRenderDelegateAction extends PeekDispRenderDelegateABC{
     }
 
 
-    draw(dispAction, ctx, zoom, pan) {
+    draw(disp, ctx, zoom, pan) {
+
+        disp.bounds = PeekCanvasBounds.fromGeom(disp.g);
 
         return;
 

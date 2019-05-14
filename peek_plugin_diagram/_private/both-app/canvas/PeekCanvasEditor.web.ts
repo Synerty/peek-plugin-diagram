@@ -61,7 +61,7 @@ export class PeekCanvasEditor {
             .subscribe((branch: PrivateDiagramBranchContext) => {
                 this.branchContext = branch;
                 this.canvasInput.setDelegate(PeekCanvasInputEditSelectDelegate);
-                this.canvasModel.clearSelection();
+                this.canvasModel.selection.clearSelection();
                 this.canvasConfig.editor.active = true;
                 this.canvasConfig.setModelNeedsCompiling();
             });
@@ -193,7 +193,7 @@ export class PeekCanvasEditor {
         //
         // // Setup the shape edit context
         // let shapePropsContext = new PeekCanvasShapePropsContext(
-        //     this.canvasModel.selectedDisps()[0],
+        //     this.canvasModel.selection.selectedDisps()[0],
         //     this.lookupService,
         //     this.modelSetId,
         //     this.coordSetId

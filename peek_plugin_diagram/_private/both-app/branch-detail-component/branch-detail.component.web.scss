@@ -1,2 +1,14 @@
 @import '~@synerty/peek-theme/scss/_mixins.web';
 @import '~@synerty/peek-theme/scss/_variables.web';
+
+
+
+.peek-tabs-section {
+  width: unset;
+}
+
+
+.peek-tabs-section-body {
+  padding: $general_padding_1;
+  top: $title_bar_height;
+}

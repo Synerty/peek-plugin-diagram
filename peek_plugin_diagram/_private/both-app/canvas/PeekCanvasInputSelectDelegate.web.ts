@@ -113,7 +113,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             return;
         }
 
-        let selectedDisps = this.viewArgs.model.selectedDisps();
+        let selectedDisps = this.viewArgs.model.selection.selectedDisps();
 
         let margin = this.viewArgs.config.mouse.selecting.margin;// * this.viewArgs.config.viewPort.zoom;
 
@@ -128,7 +128,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         if (this._mouseDownOnSelection) {
             this._mouseDownOnCoord = true;
         } else {
-            let disps = this.viewArgs.model.selectableDisps();
+            let disps = this.viewArgs.model.query.selectableDisps;
             for (let i = disps.length - 1; i >= 0; i--) {
                 let r = disps[i];
                 if (this.viewArgs.renderFactory.contains(r, mouse.x, mouse.y, margin)) {
@@ -142,7 +142,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             this._state = this.STATE_SELECTING;
         } else {
             this._state = this.STATE_CANVAS_PANNING;
-            this.viewArgs.model.clearSelection();
+            this.viewArgs.model.selection.clearSelection();
         }
 
 
@@ -306,7 +306,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
 
         let hits = this._selectByTypeAndBounds(mouse);
-        this.viewArgs.model.addSelection(hits);
+        this.viewArgs.model.selection.addSelection(hits);
     };
 
     mouseWheel(event, mouse) {
@@ -332,7 +332,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
         let margin = this.viewArgs.config.mouse.selecting.margin;//* this.viewArgs.config.viewPort.zoom;
 
-        let coords = this.viewArgs.model.selectableDisps();
+        let coords = this.viewArgs.model.query.selectableDisps;
         let hits = coords.filter((i) => {
             return this.viewArgs.renderFactory.contains(i, mouse.x, mouse.y, margin);
         }, this);
@@ -356,7 +356,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             return [];
 
         let masterCoord = hits[hits.length - 1];
-        let coords = this.viewArgs.model.selectableDisps();
+        let coords = this.viewArgs.model.query.selectableDisps;
 
         return coords.filter((i) => {
             return this.viewArgs.renderFactory.similarTo(i, masterCoord);
@@ -368,17 +368,17 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
         // Remove clicked on thing
         if (this._mouseDownOnSelection && this._mouseDownWithShift) {
-            this.viewArgs.model.removeSelection(hits);
+            this.viewArgs.model.selection.removeSelection(hits);
 
         } else {
             if (!this._mouseDownWithShift)
             // Remove all previous selection
-                this.viewArgs.model.clearSelection();
+                this.viewArgs.model.selection.clearSelection();
 
             // // Selecting more
             // this.viewArgs.model.clearSelection();
 
-            this.viewArgs.model.addSelection(hits);
+            this.viewArgs.model.selection.addSelection(hits);
         }
 
     };
