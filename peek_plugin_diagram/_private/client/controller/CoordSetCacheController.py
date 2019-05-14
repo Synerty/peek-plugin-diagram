@@ -20,7 +20,7 @@ class CoordSetCacheController:
         #: This stores the cache of grid data for the clients
         self._coordSetCache: Dict[int, ModelCoordSet] = {}
 
-    def setTupleObserable(self, tupleObservable: TupleDataObservableHandler):
+    def setTupleObservable(self, tupleObservable: TupleDataObservableHandler):
         self._tupleObservable = tupleObservable
 
     def start(self):

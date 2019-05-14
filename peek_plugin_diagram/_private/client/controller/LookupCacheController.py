@@ -30,7 +30,7 @@ class LookupCacheController:
         self._tupleObserver = tupleObserver
         self._tupleObservable = None
 
-    def setTupleObserable(self, tupleObservable: TupleDataObservableHandler):
+    def setTupleObservable(self, tupleObservable: TupleDataObservableHandler):
         self._tupleObservable = tupleObservable
 
     def start(self):

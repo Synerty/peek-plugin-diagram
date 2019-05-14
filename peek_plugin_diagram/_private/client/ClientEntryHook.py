@@ -158,7 +158,6 @@ class ClientEntryHook(PluginClientEntryHookABC):
         self._loadedObjects.append(branchIndexHandler)
         branchIndexCacheController.setBranchIndexCacheHandler(branchIndexHandler)
 
-
         # -----
         # Create the Tuple Observer
         tupleObservable = makeClientTupleDataObservableHandler(
@@ -172,12 +171,11 @@ class ClientEntryHook(PluginClientEntryHookABC):
         )
         # This is already in the _loadedObjects, it's tupleDataObservableProxyHandler
 
-
         # ----------------
         # Set the caches reference to the handler
-        lookupCacheController.setTupleObserable(tupleObservable)
-        modelSetCacheController.setTupleObserable(tupleObservable)
-        coordSetCacheController.setTupleObserable(tupleObservable)
+        lookupCacheController.setTupleObservable(tupleObservable)
+        modelSetCacheController.setTupleObservable(tupleObservable)
+        coordSetCacheController.setTupleObservable(tupleObservable)
 
         yield locationIndexCacheController.start()
         yield branchIndexCacheController.start()
