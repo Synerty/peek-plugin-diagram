@@ -77,7 +77,8 @@ export class PeekCanvasConfig {
     };
 
     model = {
-        needsCompiling: new Subject<void>(), // Set this to true to cause the renderer to redraw
+        // Set this to true to cause the model to rebuild
+        needsCompiling: new Subject<void>(),
         gridsWaitingForData: 0,
         dispOnScreen: 0
     };

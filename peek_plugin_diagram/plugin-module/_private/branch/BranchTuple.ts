@@ -3,6 +3,7 @@ import {diagramTuplePrefix} from "../PluginNames";
 import {DiagramLookupService} from "../../DiagramLookupService";
 import {deepCopy} from "@synerty/vortexjs/src/vortex/UtilMisc";
 import SerialiseUtil from "@synerty/vortexjs/src/vortex/SerialiseUtil";
+import * as moment from "moment";
 
 
 let serUril = new SerialiseUtil();
@@ -10,11 +11,6 @@ let serUril = new SerialiseUtil();
 export enum BranchDispChangeE {
     create = 2,
     delete = 3
-}
-
-export interface BranchDispT {
-    type: BranchDispChangeE,
-    disp: any
 }
 
 /** Diagram Branch Tuple
@@ -45,6 +41,7 @@ export class BranchTuple extends Tuple {
 
     private _dispsById = {};
     private _lastStage = 1;
+    private _contextUpdateCallback: (() => void) | null;
 
 
     constructor() {
@@ -54,33 +51,35 @@ export class BranchTuple extends Tuple {
     }
 
     static createBranch(coordSetId: number, branchKey: string): any {
-        let date = serUril.toStr(new Date());
+        let date = new Date();
         let branch = new BranchTuple();
         branch.packedJson__[BranchTuple.__ID_NUM] = null;
         branch.packedJson__[BranchTuple.__COORD_SET_ID_NUM] = coordSetId;
         branch.packedJson__[BranchTuple.__KEY_NUM] = branchKey;
         branch.packedJson__[BranchTuple.__VISIBLE_NUM] = true;
-        branch.packedJson__[BranchTuple.__UPDATED_DATE] = date;
-        branch.packedJson__[BranchTuple.__CREATED_DATE] = date;
+        branch.setUpdatedDate(date);
+        branch.setCreatedDate(date);
         branch.packedJson__[BranchTuple.__DISPS_NUM] = [];
         branch.packedJson__[BranchTuple.__ANCHOR_DISP_KEYS_NUM] = [];
         return branch;
     }
 
     static unpackJson(packedJsonStr: string): BranchTuple {
-        let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
         // Create the new object
         let newSelf = new BranchTuple();
         newSelf.packedJson__ = JSON.parse(packedJsonStr);
-
-        for (let disp of newSelf._array(BranchTuple.__DISPS_NUM)) {
-            BranchTuple._setNewDispId(disp);
-            newSelf._dispsById[DispBase.id(disp)] = disp;
-            if (newSelf._lastStage < DispBase.branchStage(disp))
-                newSelf._lastStage = DispBase.branchStage(disp);
-        }
-
+        newSelf.assignIdsToDisps();
         return newSelf;
+    }
+
+    private assignIdsToDisps(): void {
+        let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
+        for (let disp of this._array(BranchTuple.__DISPS_NUM)) {
+            BranchTuple._setNewDispId(disp);
+            this._dispsById[DispBase.id(disp)] = disp;
+            if (this._lastStage < DispBase.branchStage(disp))
+                this._lastStage = DispBase.branchStage(disp);
+        }
     }
 
     private static _setNewDispId(disp): void {
@@ -126,10 +125,14 @@ export class BranchTuple extends Tuple {
      *
      * @param disp
      */
-    addOrUpdateDisp(disp: any): any {
-        let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
 
+    addOrUpdateDisp(disp: any): any {
+        this._addOrUpdateDisp(disp);
         this.touchUpdateDate();
+    }
+
+    private _addOrUpdateDisp(disp: any): any {
+        let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
         let array = this._array(BranchTuple.__DISPS_NUM);
 
         BranchTuple._setNewDispId(disp);
@@ -148,11 +151,9 @@ export class BranchTuple extends Tuple {
 
         // Else, it's a new stage, clone the disp.
 
-        if (dispInBranch == null) {
-            this._dispsById[DispBase.id(disp)] = disp;
-            array.push(disp);
-            return disp;
-        }
+        this._dispsById[DispBase.id(disp)] = disp;
+        array.push(disp);
+        return disp;
 
     }
 
@@ -176,7 +177,10 @@ export class BranchTuple extends Tuple {
 
 
     touchUpdateDate(): void {
+        this.setUpdatedDate(new Date());
         this.packedJson__[BranchTuple.__UPDATED_DATE] = serUril.toStr(new Date());
+        if (this._contextUpdateCallback != null)
+            this._contextUpdateCallback();
     }
 
     set visible(value: boolean) {
@@ -192,7 +196,7 @@ export class BranchTuple extends Tuple {
             SerialiseUtil.T_DATETIME);
     }
 
-    set updatedDate(value: Date) {
+    private setUpdatedDate(value: Date): void {
         this.packedJson__[BranchTuple.__UPDATED_DATE] = serUril.toStr(value);
     }
 
@@ -201,7 +205,7 @@ export class BranchTuple extends Tuple {
             SerialiseUtil.T_DATETIME);
     }
 
-    set createdDate(value: Date) {
+    private setCreatedDate(value: Date): void {
         this.packedJson__[BranchTuple.__CREATED_DATE] = serUril.toStr(value);
     }
 
@@ -260,5 +264,19 @@ export class BranchTuple extends Tuple {
         for (let disp of this.disps) {
             lookupService._linkDispLookups(disp);
         }
+    }
+
+    setContextUpdateCallback(contextUpdateCallback: (() => void) | null) {
+        this._contextUpdateCallback = contextUpdateCallback;
+
+    }
+
+    applyLiveUpdate(liveUpdateTuple: BranchTuple): boolean {
+        if (moment(this.updatedDate).isBefore(liveUpdateTuple.updatedDate)) {
+            this.packedJson__ = liveUpdateTuple.packedJson__;
+            this.assignIdsToDisps();
+            return true;
+        }
+        return false;
     }
 }

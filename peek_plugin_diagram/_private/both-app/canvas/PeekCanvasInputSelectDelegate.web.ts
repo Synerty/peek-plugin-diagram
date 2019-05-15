@@ -339,7 +339,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
         // Sort by size, largest to smallest.
         // This ensures we can select smaller items when required.
-        hits.sort((a, b) => this.viewArgs.renderFactory.selectionPriotityCompare(a, b));
+        hits.sort((a, b) => this.viewArgs.renderFactory.selectionPriorityCompare(a, b));
 
         // Only select
         if (!this._mouseDownWithCtrl && hits.length)

@@ -31,7 +31,6 @@ export enum EditorContextType {
 export class PeekCanvasEditor {
 
 
-
     private _currentBranch: PrivateDiagramBranchContext | null = null;
 
     private currentContext: EditorContextType = EditorContextType.NONE;
@@ -58,9 +57,17 @@ export class PeekCanvasEditor {
         this.branchService
             .startEditingObservable
             .takeUntil(lifecycleEventEmitter.onDestroyEvent)
-            .subscribe((branch: PrivateDiagramBranchContext) => {
-                this.branchContext = branch;
-                this.canvasInput.setDelegate(PeekCanvasInputEditSelectDelegate);
+            .subscribe((branchContext: PrivateDiagramBranchContext) => {
+                if (this.branchContext)
+                    this.branchContext.close();
+
+                this.branchContext = branchContext;
+                this.branchContext.open(() => {
+                    this.canvasModel.compileBranchDisps();
+                    this.canvasModel.selection.clearSelection();
+                });
+
+                this.canvasInput.setDelegate(PeekCanvasInputEditSelectDelegate, this);
                 this.canvasModel.selection.clearSelection();
                 this.canvasConfig.editor.active = true;
                 this.canvasConfig.setModelNeedsCompiling();
@@ -70,6 +77,9 @@ export class PeekCanvasEditor {
             .stopEditingObservable
             .takeUntil(lifecycleEventEmitter.onDestroyEvent)
             .subscribe(() => {
+                if (this.branchContext)
+                    this.branchContext.close();
+
                 this.branchContext = null;
                 this.currentContext = EditorContextType.NONE;
                 this.canvasInput.setDelegate(PeekCanvasInputSelectDelegate);
@@ -120,6 +130,8 @@ export class PeekCanvasEditor {
 
     dispPropsUpdated(): void {
         this.canvasConfig.invalidate();
+        if (this._currentBranch != null)
+            this._currentBranch.branchTuple.touchUpdateDate();
     }
 
     // ---------------

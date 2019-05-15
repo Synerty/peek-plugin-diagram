@@ -22,6 +22,8 @@ from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexUpda
     ClientLocationIndexUpdateHandler
 from peek_plugin_diagram._private.server.controller.BranchIndexCompilerController import \
     BranchIndexCompilerController
+from peek_plugin_diagram._private.server.controller.BranchLiveEditController import \
+    BranchLiveEditController
 from peek_plugin_diagram._private.server.controller.BranchUpdateController import \
     BranchUpdateController
 from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
@@ -141,6 +143,12 @@ class ServerEntryHook(PluginServerEntryHookABC,
         self._loadedObjects.append(dispCompilerQueueController)
 
         # ----------------
+        # Branch Live Edit Controller
+
+        branchLiveEditController = BranchLiveEditController()
+        self._loadedObjects.append(branchLiveEditController)
+
+        # ----------------
         # Branch Index Compiler Controller
         branchIndexCompilerController = BranchIndexCompilerController(
             dbSessionCreator=self.dbSessionCreator,
@@ -152,13 +160,15 @@ class ServerEntryHook(PluginServerEntryHookABC,
         # ----------------
         # Create the Tuple Observer
         tupleObservable = makeTupleDataObservableHandler(
-            self.dbSessionCreator, statusController
+            self.dbSessionCreator, statusController,
+            branchLiveEditController
         )
         self._loadedObjects.append(tupleObservable)
 
         # ----------------
         # Tell the status controller about the Tuple Observable
         statusController.setTupleObservable(tupleObservable)
+        branchLiveEditController.setTupleObservable(tupleObservable)
 
         # ----------------
         # Initialise the handlers for the admin interface
@@ -229,7 +239,9 @@ class ServerEntryHook(PluginServerEntryHookABC,
         # ----------------
         # Create the Action Processor
         self._loadedObjects.append(
-            makeTupleActionProcessorHandler(statusController, branchUpdateController)
+            makeTupleActionProcessorHandler(statusController,
+                                            branchUpdateController,
+                                            branchLiveEditController)
         )
 
         # ----------------

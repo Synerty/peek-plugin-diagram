@@ -11,10 +11,15 @@ import {ModelCoordSet} from "../tuples";
 import {PrivateDiagramCoordSetService, PrivateDiagramTupleService} from "../services";
 
 import * as moment from "moment";
-import {BranchUpdateTupleAction} from "./BranchUpdateTupleAction";
-import {ComponentLifecycleEventEmitter, TupleSelector} from "@synerty/vortexjs";
+import {
+    ComponentLifecycleEventEmitter,
+    TupleSelector,
+    VortexStatusService
+} from "@synerty/vortexjs";
 import {BranchKeyToIdMapTuple} from "./BranchKeyToIdMapTuple";
 import {BranchDetailTuple} from "@peek/peek_plugin_branch";
+import {UserService} from "@peek/peek_plugin_user";
+import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 
 export interface PopupEditBranchSelectionArgs {
     modelSetKey: string;
@@ -42,7 +47,10 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
 
     private enabledBranches: BranchDetailTuple[] = [];
 
-    constructor(private lookupService: DiagramLookupService,
+    constructor(private vortexStatusService: VortexStatusService,
+                private balloonMsg: Ng2BalloonMsgService,
+                private userService: UserService,
+                private lookupService: DiagramLookupService,
                 coordSetService: DiagramCoordSetService,
                 private branchLocalLoader: LocalBranchStorageService,
                 private branchIndexLoader: BranchIndexLoaderServiceA,
@@ -162,29 +170,18 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
                 branch.linkDisps(this.lookupService);
 
                 return new PrivateDiagramBranchContext(
-                    this.lookupService,
-                    branch, modelSetKey, coordSetKey,
-                    (context) => this.saveBranch(coordSet.modelSetId, context)
+                    this.vortexStatusService,
+                    this.balloonMsg,
+                    this.lookupService, branch,
+                    coordSet.modelSetId, modelSetKey, coordSetKey,
+                    this.tupleService,
+                    this.branchLocalLoader,
+                    this.userService.userDetails
                 );
 
             });
 
         return prom;
-    }
-
-    private saveBranch(modelSetId: number, branchContext: PrivateDiagramBranchContext): Promise<void> {
-        let promises = [];
-
-        promises.push(this.branchLocalLoader.saveBranch(branchContext));
-
-        let action = new BranchUpdateTupleAction();
-        action.modelSetId = modelSetId;
-        action.branchTuple = branchContext.branchTuple;
-        promises.push(this.tupleService.offlineAction.pushAction(action));
-
-        let prom: any = Promise.all(promises);
-        return prom;
-
     }
 
     // ---------------

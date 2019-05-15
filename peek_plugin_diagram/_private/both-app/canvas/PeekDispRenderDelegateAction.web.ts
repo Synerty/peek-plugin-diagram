@@ -2,7 +2,7 @@ import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
 
-export class PeekDispRenderDelegateAction extends PeekDispRenderDelegateABC{
+export class PeekDispRenderDelegateAction extends PeekDispRenderDelegateABC {
 
     constructor(config: PeekCanvasConfig) {
         super(config);
@@ -72,14 +72,13 @@ export class PeekDispRenderDelegateAction extends PeekDispRenderDelegateABC{
         //this._bounds.h = uy - ly;
     };
 
-    drawSelected(actObj, ctx, zoom, pan) {
-
+    drawSelected(disp, ctx, zoom: number, pan) {
 
 
         let selectionConfig = this.config.renderer.selection;
 
         // DRAW THE SELECTED BOX
-        let bounds = actObj.bounds;
+        let bounds = disp.bounds;
 
         // Move the selection line a bit away from the object
         let offset = (selectionConfig.width + selectionConfig.lineGap) / zoom;
@@ -94,6 +93,10 @@ export class PeekDispRenderDelegateAction extends PeekDispRenderDelegateABC{
         ctx.strokeStyle = selectionConfig.color;
         ctx.lineWidth = selectionConfig.width / zoom;
         ctx.stroke();
+    };
+
+    drawSelectedForEdit(disp, ctx, zoom: number, pan) {
+        this.drawSelected(disp, ctx, zoom, pan);
 
         /*
          // DRAW THE EDIT HANDLES
@@ -106,24 +109,24 @@ export class PeekDispRenderDelegateAction extends PeekDispRenderDelegateABC{
          */
     };
 
-    contains(actObj, x, y, margin) {
-        return actObj.bounds.contains(x, y, margin);
+    contains(disp, x, y, margin) {
+        return disp.bounds.contains(x, y, margin);
     };
 
-    withIn(actObj, x, y, w, h) {
-        return actObj.bounds.withIn(x, y, w, h);
+    withIn(disp, x, y, w, h) {
+        return disp.bounds.withIn(x, y, w, h);
     };
 
-    handles(actObj) {
+    handles(disp) {
         return [];
     };
 
-    deltaMove(actObj, dx, dy) {
+    deltaMove(disp, dx, dy) {
     };
 
-    area(actObj) {
+    area(disp) {
 
-        return actObj.bounds.area();
+        return disp.bounds.area();
     };
 
 

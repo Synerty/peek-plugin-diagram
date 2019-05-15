@@ -162,8 +162,8 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
     }
 
-    drawSelected(dispPoly, ctx, zoom, pan) {
-        let points = DispPolygon.geom(dispPoly);
+    drawSelected(disp, ctx, zoom: number, pan) {
+        let points = DispPolygon.geom(disp);
 
         let selectionConfig = this.config.renderer.selection;
 
@@ -184,9 +184,14 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         ctx.lineWidth = selectionConfig.width / zoom;
         ctx.stroke();
 
+    }
+
+    drawSelectedForEdit(disp, ctx, zoom: number, pan) {
+        this.drawSelected(disp, ctx, zoom, pan);
+
         // DRAW THE EDIT HANDLES
         ctx.fillStyle = this.config.editor.selectionHighlightColor;
-        let handles = this.handles(dispPoly);
+        let handles = this.handles(disp);
         for (let handle of handles) {
             ctx.fillRect(handle.x, handle.y, handle.w, handle.h);
         }

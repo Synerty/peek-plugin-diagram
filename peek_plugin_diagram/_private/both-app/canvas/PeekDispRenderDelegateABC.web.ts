@@ -9,7 +9,9 @@ export abstract class PeekDispRenderDelegateABC {
 
     abstract draw(disp, ctx, zoom, pan): void;
 
-    abstract drawSelected(disp, ctx, zoom, pan): void;
+    abstract drawSelected(disp, ctx, zoom:number, pan): void;
+
+    abstract drawSelectedForEdit(disp, ctx, zoom:number, pan): void;
 
     abstract contains(disp, x, y, margin): boolean;
 

@@ -35,69 +35,73 @@ export class PeekDispRenderFactory {
     }
 
 
-    _initBounds(dispObj) {
-        if (dispObj.bounds == null) {
-            dispObj.bounds = PeekCanvasBounds.fromGeom(dispObj.g);
+    _initBounds(disp) {
+        if (disp.bounds == null) {
+            disp.bounds = PeekCanvasBounds.fromGeom(disp.g);
         }
     };
 
 
-    draw(dispObj, ctx, zoom, pan) {
-        let level = DispBase.level(dispObj);
+    draw(disp, ctx, zoom, pan) {
+        let level = DispBase.level(disp);
         if (!(level.minZoom <= zoom && zoom <= level.maxZoom))
             return;
 
-        if (this._delegatesByType[dispObj._tt] == null)
-            console.log(dispObj._tt);
-        this._delegatesByType[dispObj._tt].draw(dispObj, ctx, zoom, pan);
+        if (this._delegatesByType[disp._tt] == null)
+            console.log(disp._tt);
+        this._delegatesByType[disp._tt].draw(disp, ctx, zoom, pan);
     };
 
-    drawSelected(dispObj, ctx, zoom, pan) {
-        this._delegatesByType[dispObj._tt].drawSelected(dispObj, ctx, zoom, pan);
+    drawSelected(disp, ctx, zoom:number, pan) {
+        this._delegatesByType[disp._tt].drawSelected(disp, ctx, zoom, pan);
     };
 
-    contains(dispObj, x, y, margin) {
-
-        this._initBounds(dispObj);
-        return this._delegatesByType[dispObj._tt].contains(dispObj, x, y, margin);
+    drawSelectedForEdit(disp, ctx, zoom: number, pan) {
+        this.drawSelected(disp, ctx, zoom, pan);
     };
 
-    withIn(dispObj, x, y, w, h) {
-        this._initBounds(dispObj);
-        return this._delegatesByType[dispObj._tt].withIn(dispObj, x, y, w, h);
+    contains(disp, x, y, margin) {
+
+        this._initBounds(disp);
+        return this._delegatesByType[disp._tt].contains(disp, x, y, margin);
     };
 
-    similarTo(dispObj, otherDispObj) {
+    withIn(disp, x, y, w, h) {
+        this._initBounds(disp);
+        return this._delegatesByType[disp._tt].withIn(disp, x, y, w, h);
+    };
+
+    similarTo(disp, otherDispObj) {
         return false;
     };
 
-    handles(dispObj) {
-        return this._delegatesByType[dispObj._tt].handles(dispObj);
+    handles(disp) {
+        return this._delegatesByType[disp._tt].handles(disp);
     };
 
-    deltaMove(dispObj, dx, dy) {
-        this._initBounds(dispObj);
-        return this._delegatesByType[dispObj._tt].deltaMove(dx, dy);
+    deltaMove(disp, dx, dy) {
+        this._initBounds(disp);
+        return this._delegatesByType[disp._tt].deltaMove(dx, dy);
     };
 
-    area(dispObj) {
-        this._initBounds(dispObj);
-        return this._delegatesByType[dispObj._tt].area(dispObj);
+    area(disp) {
+        this._initBounds(disp);
+        return this._delegatesByType[disp._tt].area(disp);
     };
 
-    selectionPriotityCompare(dispObj1, dispObj2): number {
+    selectionPriorityCompare(disp1, disp2): number {
 
-        if (DispFactory.type(dispObj1) == DispType.polygon
-            && DispFactory.type(dispObj2) != DispType.polygon)
+        if (DispFactory.type(disp1) == DispType.polygon
+            && DispFactory.type(disp2) != DispType.polygon)
             return 1;
 
-        // if (DispFactory.type(dispObj1) == DispType.polyline
-        //     && DispFactory.type(dispObj2) == DispType.polygon)
+        // if (DispFactory.type(disp1) == DispType.polyline
+        //     && DispFactory.type(disp2) == DispType.polygon)
         //     return 1;
 
 
-        return this._delegatesByType[dispObj2._tt].area(dispObj2)
-            - this._delegatesByType[dispObj1._tt].area(dispObj1);
+        return this._delegatesByType[disp2._tt].area(disp2)
+            - this._delegatesByType[disp1._tt].area(disp1);
 
     };
 }

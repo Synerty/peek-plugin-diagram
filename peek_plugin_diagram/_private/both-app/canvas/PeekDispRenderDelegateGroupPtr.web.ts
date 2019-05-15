@@ -46,23 +46,27 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 
     };
 
-    drawSelected(polyObj, ctx, zoom, pan) {
+    drawSelected(disp, ctx, zoom:number, pan) {
+    };
+
+    drawSelectedForEdit(disp, ctx, zoom: number, pan) {
+        this.drawSelected(disp, ctx, zoom, pan);
 
     };
 
-    contains(polyObj, x, y, margin) {
+    contains(disp, x, y, margin) {
         return false;
     };
 
-    withIn(polyObj, x, y, w, h) {
+    withIn(disp, x, y, w, h) {
         return false;
     };
 
-    handles(polyObj) {
+    handles(disp) {
         return [];
     };
 
-    deltaMove(polyObj, dx, dy) {
+    deltaMove(disp, dx, dy) {
     };
 
     area(dispEllipse) {

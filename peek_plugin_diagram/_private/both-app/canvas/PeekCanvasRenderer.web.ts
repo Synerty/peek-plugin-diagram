@@ -12,7 +12,7 @@ export class PeekCanvasPan implements PanI {
 }
 
 export interface RenderDrawArgs {
-    ctx:any;
+    ctx: any;
     zoom: number;
     pan: PeekCanvasPan;
 }
@@ -147,6 +147,8 @@ export class PeekCanvasRenderer {
         let dispObjs = this.model.viewableDisps();
         let selectedCoords = this.model.selection.selectedDisps();
 
+        let forEdit = this.config.editor.active;
+
         // Clear canvas
         let w = this.canvas.width / this._zoom;
         let h = this.canvas.height / this._zoom;
@@ -176,7 +178,13 @@ export class PeekCanvasRenderer {
         // right now this is just a stroke along the edge of the selected Shape
         for (let i = 0; i < selectedCoords.length; i++) {
             let dispObj = selectedCoords[i];
-            this.dispDelegate.drawSelected(dispObj, ctx, this._zoom, this._pan);
+            if (forEdit) {
+                this.dispDelegate
+                    .drawSelected(dispObj, ctx, this._zoom, this._pan);
+            } else {
+                this.dispDelegate
+                    .drawSelectedForEdit(dispObj, ctx, this._zoom, this._pan);
+            }
         }
 
         // ** Add stuff you want drawn on top all the time here **

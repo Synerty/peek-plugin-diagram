@@ -111,9 +111,9 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
                 ctx.fillText(line, 0, yOffset);
             }
 
-            //if (dispText.lineColor) {
-            //    ctx.lineWidth = dispText.lineSize;
-            //    ctx.strokeStyle = dispText.lineColor;
+            //if (disp.lineColor) {
+            //    ctx.lineWidth = disp.lineSize;
+            //    ctx.strokeStyle = disp.lineColor;
             //    ctx.strokeText(line, 0, yOffset);
             //}
         }
@@ -140,8 +140,8 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
     };
 
 
-    drawSelected(dispText, ctx, zoom, pan) {
-        let bounds = dispText.bounds;
+    drawSelected(disp, ctx, zoom:number, pan) {
+        let bounds = disp.bounds;
         if (bounds == null)
             return;
 
@@ -161,6 +161,10 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
         ctx.strokeStyle = selectionConfig.color;
         ctx.lineWidth = selectionConfig.width / zoom;
         ctx.stroke();
+    };
+
+    drawSelectedForEdit(disp, ctx, zoom: number, pan) {
+        this.drawSelected(disp, ctx, zoom, pan);
 
         /*
          // DRAW THE EDIT HANDLES
@@ -173,33 +177,33 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
          */
     };
 
-    contains(dispText: DispTextT, x, y, margin) {
-        if (dispText.bounds == null)
+    contains(disp: DispTextT, x, y, margin) {
+        if (disp.bounds == null)
             return false;
 
-        return dispText.bounds.contains(x, y, margin);
+        return disp.bounds.contains(x, y, margin);
     };
 
-    withIn(dispText: DispTextT, x, y, w, h): boolean {
-        if (dispText.bounds == null)
+    withIn(disp: DispTextT, x, y, w, h): boolean {
+        if (disp.bounds == null)
             return false;
 
-        return dispText.bounds.withIn(x, y, w, h);
+        return disp.bounds.withIn(x, y, w, h);
     };
 
-    handles(dispText: DispTextT): PeekCanvasBounds[] {
+    handles(disp: DispTextT): PeekCanvasBounds[] {
         return [];
     };
 
-    deltaMove(dispText: DispTextT, dx, dy): void {
-        DispBase.deltaMove(dispText, dx, dy);
+    deltaMove(disp: DispTextT, dx, dy): void {
+        DispBase.deltaMove(disp, dx, dy);
     };
 
-    area(dispText: DispTextT): number {
-        if (dispText.bounds == null)
+    area(disp: DispTextT): number {
+        if (disp.bounds == null)
             return 0;
 
-        return dispText.bounds.area();
+        return disp.bounds.area();
     };
 
 }

@@ -43,6 +43,7 @@ export class PeekCanvasModel {
 
     // Objects to be drawn on the display
     private _visableDisps = [];
+    private _gridDisps = [];
 
     // Does the model need an update?
     private needsUpdate = false;
@@ -88,7 +89,6 @@ export class PeekCanvasModel {
         this.config.model.needsCompiling
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
             .subscribe(() => this.needsCompiling = true);
-
 
         // Watch for changes to the config that effect us
         this.config.controller.coordSetChange
@@ -263,9 +263,6 @@ export class PeekCanvasModel {
             for (let dispId of activeBranch.disps)
                 dispIdsAdded[dispId] = true;
 
-            // TODO, HACK Fix this so that it renders correctly
-            Array.prototype.push.apply(disps, activeBranch.disps);
-
             // Make sure it's not showing when we edit the branch
             delete branchIdsActive[activeBranch.id];
         }
@@ -333,7 +330,15 @@ export class PeekCanvasModel {
             }
         }
 
+        this._gridDisps = disps.slice();
+
+        if (activeBranch != null) {
+            // TODO, HACK Fix this so that it renders correctly
+            Array.prototype.push.apply(disps, activeBranch.disps);
+        }
+
         this._visableDisps = disps;
+
         this.selection.applyTryToSelect();
         this.config.model.dispOnScreen = disps.length;
         this.config.invalidate();
@@ -342,6 +347,21 @@ export class PeekCanvasModel {
 
         console.log(`${dateStr()} Model: compileDisps took ${timeTaken}ms`
             + ` for ${disps.length} disps and ${viewableGrids.length} grids`);
+    }
+
+     compileBranchDisps():void {
+        let disps = this._gridDisps.slice();
+
+        let activeBranch = this.config.editor.activeBranchTuple;
+        if (activeBranch != null) {
+            // TODO, HACK Fix this so that it renders correctly
+            Array.prototype.push.apply(disps, activeBranch.disps);
+        }
+
+        this._visableDisps = disps;
+        this.selection.applyTryToSelect();
+        this.config.model.dispOnScreen = disps.length;
+        this.config.invalidate();
     }
 
 

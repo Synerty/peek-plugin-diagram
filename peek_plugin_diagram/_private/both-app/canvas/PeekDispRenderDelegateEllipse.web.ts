@@ -63,27 +63,31 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
         //self._bounds.h = self.height;
     };
 
-    drawSelected(dispEllipse, ctx, zoom) {
+    drawSelected(disp, ctx, zoom, pan) {
     };
 
-    contains(dispEllipse, x, y, margin) {
+    drawSelectedForEdit(disp, ctx, zoom: number, pan) {
+        this.drawSelected(disp, ctx, zoom, pan);
+    };
+
+    contains(disp, x, y, margin) {
         return false;
     };
 
-    withIn(dispEllipse, x, y, w, h) {
+    withIn(disp, x, y, w, h) {
         return false;
     };
 
-    handles(dispEllipse) {
+    handles(disp) {
         return [];
     };
 
-    deltaMove(dispEllipse, dx, dy) {
+    deltaMove(disp, dx, dy) {
     };
 
-    area(dispEllipse) {
+    area(disp) {
 
-        return dispEllipse.bounds.area();
+        return disp.bounds.area();
     };
 
 

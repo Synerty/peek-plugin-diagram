@@ -354,6 +354,8 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
                 for (let disp of this._selectedDisps) {
                     DispBase.deltaMove(disp, delta.dx, delta.dy);
+        this.canvasEditor.branchContext.branchTuple
+            .addOrUpdateDisp(disp);
                 }
 
                 for (let dispPolylineEnd of this._selectedPolylineEnds) {
@@ -498,7 +500,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         // Sort by size, largest to smallest.
         // This ensures we can select smaller items when required.
         hits.sort((a, b) => this.viewArgs.renderFactory
-            .selectionPriotityCompare(a, b));
+            .selectionPriorityCompare(a, b));
 
         // Only select
         if (!this._mouseDownWithCtrl && hits.length)
