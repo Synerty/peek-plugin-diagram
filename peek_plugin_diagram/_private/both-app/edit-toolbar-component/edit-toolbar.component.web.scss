@@ -12,14 +12,11 @@ $edit_toolbar_height: $edit_toolbar_button_height + 2 * $edit-toolbar-margin;
 
 /* The side navigation menu */
 .edit-toolbar {
-  width: 100%; /* 100% Full-width */
-  //position: fixed; /* Stay in place */
-  background-color: #111; /* Black*/
-  overflow-x: scroll; /* Disable horizontal scroll */
-  transition: 0.5s; /* 0.5 second transition effect to slide in the toolbar */
-
-  padding: $general_margin_1 / 3;
+  background-color: #111;
+  overflow-x: scroll;
+  transition: 0.5s;
   margin-top: 0px;
+
 }
 
 /* Set the style for when the toolbar is open */
@@ -36,7 +33,6 @@ $edit_toolbar_height: $edit_toolbar_button_height + 2 * $edit-toolbar-margin;
 
 /* The spacer between the buttons */
 .edit-toolbar-spacer {
-  z-index: 5; /* Stay on top of the other toolbars exit button */
   padding: $edit-toolbar-margin;
   display: inline-block;
   vertical-align: middle;
@@ -46,7 +42,7 @@ $edit_toolbar_height: $edit_toolbar_button_height + 2 * $edit-toolbar-margin;
 
 /* The toolbar button group */
 .edit-toolbar-button-group {
-  z-index: 5; /* Stay on top of the other toolbars exit button */
+  padding: $general_margin_1 / 3;
 }
 
 /* The edit toolbar buttons */

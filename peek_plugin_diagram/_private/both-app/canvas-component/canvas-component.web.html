@@ -1,13 +1,9 @@
 <div>
 
-    <pl-diagram-toolbar *ngIf="coordSetKey != null && !editor.isEditing()"
+    <pl-diagram-view-toolbar *ngIf="coordSetKey != null && !editor.isEditing()"
                         [config]="config"
                         [coordSetKey]="coordSetKey"
-                        [modelSetKey]="modelSetKey"></pl-diagram-toolbar>
-
-    <pl-diagram-popup *ngIf="coordSetKey != null"
-                      [coordSetKey]="coordSetKey"
-                      [modelSetKey]="modelSetKey"></pl-diagram-popup>
+                        [modelSetKey]="modelSetKey"></pl-diagram-view-toolbar>
 
     <div #edittoolbar>
         <pl-diagram-edit-toolbar
@@ -15,22 +11,35 @@
                 [canvasEditor]="editor"></pl-diagram-edit-toolbar>
     </div>
 
+    <pl-diagram-edit-props-toolbar
+            *ngIf="editor.isEditing()"
+            [canvasEditor]="editor">
+
+    </pl-diagram-edit-props-toolbar>
+
 
     <!-- This is the properties panel that appears, it can have dynamic properties
     or shape properties -->
-    <pl-diagram-edit-context
+    <pl-diagram-edit-props
             class="pl-canvas-edit-context"
             *ngIf="editor.isEditing()"
-            [canvasEditor]="editor"></pl-diagram-edit-context>
+            [canvasEditor]="editor"></pl-diagram-edit-props>
 
-    <pl-diagram-select-layers
+    <pl-diagram-view-popup *ngIf="coordSetKey != null && !editor.isEditing()"
+                      [coordSetKey]="coordSetKey"
+                      [modelSetKey]="modelSetKey"></pl-diagram-view-popup>
+
+
+    <pl-diagram-view-select-layers
             [config]="config"
             [coordSetKey]="coordSetKey"
-            [modelSetKey]="modelSetKey"></pl-diagram-select-layers>
-    <pl-diagram-select-branches
+            [modelSetKey]="modelSetKey"></pl-diagram-view-select-layers>
+
+    <pl-diagram-view-select-branches
             [config]="config"
             [coordSetKey]="coordSetKey"
-            [modelSetKey]="modelSetKey"></pl-diagram-select-branches>
+            [modelSetKey]="modelSetKey"></pl-diagram-view-select-branches>
+
     <pl-diagram-start-edit
             [coordSetKey]="coordSetKey"
             [modelSetKey]="modelSetKey"

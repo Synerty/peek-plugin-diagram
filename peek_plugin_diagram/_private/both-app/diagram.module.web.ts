@@ -13,16 +13,17 @@ import {GridCache} from "./cache/GridCache.web";
 import {GridObservable} from "./cache/GridObservable.web";
 import {DispGroupCache} from "./cache/DispGroupCache.web";
 import {CanvasComponent} from "./canvas-component/canvas-component.web";
-import {PopupComponent} from "./popup-component/popup.component.mweb";
-import {ToolbarComponent} from "./toolbar-component/toolbar.component.web";
-import {EditContextComponent} from "./edit-context-component/edit-context.component.mweb";
+import {PopupComponent} from "./view-popup-component/popup.component.web";
+import {ToolbarComponent} from "./view-toolbar-component/toolbar.component.web";
 import {EditToolbarComponent} from "./edit-toolbar-component/edit-toolbar.component.web";
-import {EditShapePropertiesComponent} from "./edit-shape-properties-component/edit-shape-properties.component";
-import {EditDynamicPropertiesComponent} from "./edit-dynamic-properties-component/edit-dynamic-properties.component";
-import {SelectBranchesComponent} from "./select-branches-component/select-branches.component.web";
-import {SelectLayersComponent} from "./select-layers-component/select-layers.component.web";
+import {SelectBranchesComponent} from "./view-select-branches-component/select-branches.component.web";
+import {SelectLayersComponent} from "./view-select-layers-component/select-layers.component.web";
 import {StartEditComponent} from "./start-edit-component/start-edit.component.web";
 import {BranchDetailComponent} from "./branch-detail-component/branch-detail.component.web";
+import {EditPropsLivedbComponent} from "./edit-props-livedb-component/edit-props-livedb.component";
+import {EditPropsShapeComponent} from "./edit-props-shape-component/edit-props-shape.component";
+import {EditPropsComponent} from "./edit-props-component/edit-props.component.web";
+import {EditPropsToolbarComponent} from "./edit-props-toolbar-component/edit-props-toolbar.component.web";
 
 
 // Define the root module for this plugin.
@@ -44,10 +45,11 @@ import {BranchDetailComponent} from "./branch-detail-component/branch-detail.com
     ],
     declarations: [DiagramComponent, CanvasComponent, PopupComponent,
         ToolbarComponent,
-        EditContextComponent, EditToolbarComponent,
-        EditShapePropertiesComponent, EditDynamicPropertiesComponent,
+        EditToolbarComponent,
         StartEditComponent, SelectLayersComponent, SelectBranchesComponent,
-        BranchDetailComponent]
+        BranchDetailComponent,
+        EditPropsComponent, EditPropsLivedbComponent,
+        EditPropsShapeComponent, EditPropsToolbarComponent]
 })
 export class PeekPluginDiagramModule {
 }

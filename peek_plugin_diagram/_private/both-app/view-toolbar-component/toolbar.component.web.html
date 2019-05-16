@@ -1,0 +1,42 @@
+<div class="view-toolbar ">
+    <div class="btn-group">
+        <button class="btn"
+                *ngIf="!isToolbarEmpty()"
+                (click)="toggleToolbar()">
+            <fa *ngIf="!toolbarIsOpen" name="navicon"></fa>
+            <fa *ngIf="toolbarIsOpen" name="times"></fa>
+        </button>
+        <button class="btn"
+                *ngIf="showExitDiagramButton()"
+                (click)="exitDiagramClicked()">
+            <fa name="sign-out"></fa>
+        </button>
+        <button class="btn"
+                *ngIf="showEditDiagramButton()"
+                (click)="editDiagramClicked()">
+            <fa name="pencil-alt"></fa>
+        </button>
+        <button class="btn"
+                *ngIf="showSelectBranchesButton()"
+                (click)="selectBranchesClicked()">
+            <fa name="code-branch"></fa>
+        </button>
+        <button class="btn"
+                (click)="selectLayersClicked()">
+            <fa name="layer-group"></fa>
+        </button>
+    </div>
+
+    <div class="view-toolbar-spacer"></div>
+
+    <div class="btn-group">
+        <button *ngFor="let btn of buttons"
+                class="btn tool-button"
+                (click)="buttonClicked(btn)">
+            <fa *ngIf="btn.icon" [name]="btn.icon"></fa>
+            {{btn.name}}
+        </button>
+    </div>
+</div>
+
+

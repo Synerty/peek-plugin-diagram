@@ -21,7 +21,7 @@ import {
 
 
 @Component({
-    selector: 'pl-diagram-select-branches',
+    selector: 'pl-diagram-view-select-branches',
     templateUrl: 'select-branches.component.web.html',
     styleUrls: ['select-branches.component.web.scss'],
     moduleId: module.id

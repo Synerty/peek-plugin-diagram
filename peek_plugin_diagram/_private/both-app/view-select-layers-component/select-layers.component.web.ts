@@ -15,7 +15,7 @@ import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/
 import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 
 @Component({
-    selector: 'pl-diagram-select-layers',
+    selector: 'pl-diagram-view-select-layers',
     templateUrl: 'select-layers.component.web.html',
     styleUrls: ['select-layers.component.web.scss'],
     moduleId: module.id

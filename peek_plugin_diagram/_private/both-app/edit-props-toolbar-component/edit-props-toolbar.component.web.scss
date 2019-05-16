@@ -1,0 +1,54 @@
+/* SideNav how-to from :
+ * https://www.w3schools.com/howto/howto_js_sidenav.asp
+ */
+@import '~@synerty/peek-theme/scss/_mixins.web';
+@import '~@synerty/peek-theme/scss/_variables.web';
+
+$edit-props-toolbar-margin: 6px;
+
+$edit_toolbar_button_width: 20px;
+$edit_toolbar_width: $edit_toolbar_button_width + 2 * $edit-props-toolbar-margin;
+
+
+/* The side navigation menu */
+.edit-props-toolbar {
+  position: fixed; /* Stay in place */
+  z-index: 5; /* Stay on top of the popup */
+  right: 0;
+  overflow-x: hidden; /* Disable horizontal scroll */
+  transition: 0.5s; /* 0.5 second transition effect to slide in the toolbar */
+  padding-top:20px;
+}
+
+/* Set the style for when the toolbar is open */
+.edit-props-toolbar-is-open {
+  max-width: $edit_toolbar_width;
+}
+
+/* The spacer between the buttons */
+.edit-props-toolbar-spacer {
+  z-index: 1; /* Stay on top of the other toolbars exit button */
+  padding: $edit-props-toolbar-margin;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  float: left;
+}
+
+
+/* The edit toolbar buttons */
+.btn {
+  //min-height: $general_button_min_width;
+  margin-top: $edit-props-toolbar-margin;
+}
+
+/* On smaller screens, where width is less than 450px,
+    change the style of the toolbar (less padding and a smaller font size) */
+@media screen and (max-width: 450px) {
+  .edit-props-toolbar {
+    padding-top: 15px;
+  }
+  .edit-props-toolbar a {
+    font-size: 18px;
+  }
+}

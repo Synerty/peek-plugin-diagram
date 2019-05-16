@@ -1,7 +1,4 @@
-import {Input, OnInit, NgZone} from "@angular/core";
-
-import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import {Component, Input, NgZone, OnInit} from "@angular/core";
 import {TitleService} from "@synerty/peek-util";
 
 
@@ -14,10 +11,17 @@ import {
     DiagramItemPopupService,
     DiagramMenuItemI
 } from "@peek/peek_plugin_diagram/DiagramItemPopupService";
+import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PrivateDiagramItemPopupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemPopupService";
 
 
-export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
+@Component({
+    selector: 'pl-diagram-view-popup',
+    templateUrl: 'popup.component.web.html',
+    styleUrls: ['popup.component.web.scss'],
+    moduleId: module.id
+})
+export class PopupComponent  extends ComponentLifecycleEventEmitter
     implements OnInit {
 
     dispKey: string;
@@ -38,10 +42,10 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
     constructor(protected titleService: TitleService,
                 protected itemSelectService: PrivateDiagramItemSelectService,
                 abstractItemPopupService: DiagramItemPopupService,
-                protected zone:NgZone) {
+                protected zone: NgZone) {
         super();
 
-        this.itemPopupService = <PrivateDiagramItemPopupService> abstractItemPopupService;
+        this.itemPopupService = <PrivateDiagramItemPopupService>abstractItemPopupService;
 
         this.itemSelectService
             .itemSelectObservable()
@@ -65,19 +69,19 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
         // Tell any observers that we're popping up
         // Give them a chance to add their items
         this.itemPopupService.emitPopupContext(
-                {
-                    key: this.dispKey,
-                    data: itemDetails.dispData || {},
-                    coordSetKey: this.coordSetKey,
-                    modelSetKey: this.modelSetKey,
-                    addMenuItem: (item: DiagramMenuItemI) => {
-                        this.zone.run(() => this.menuItems.push(item));
-                    },
-                    addDetailItems: (items: DiagramItemDetailI[]) => {
-                        this.zone.run(() => this.details.add(items));
-                    }
+            {
+                key: this.dispKey,
+                data: itemDetails.dispData || {},
+                coordSetKey: this.coordSetKey,
+                modelSetKey: this.modelSetKey,
+                addMenuItem: (item: DiagramMenuItemI) => {
+                    this.zone.run(() => this.menuItems.push(item));
+                },
+                addDetailItems: (items: DiagramItemDetailI[]) => {
+                    this.zone.run(() => this.details.add(items));
                 }
-            );
+            }
+        );
 
         this.platformOpen();
     }
@@ -93,11 +97,13 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
         this.dispKey = '';
     }
 
-    protected abstract platformOpen(): void;
+    platformOpen(): void {
+    }
 
-    protected abstract platformClose(): void;
+    platformClose(): void {
+    }
 
-    menuItemClicked(item:DiagramMenuItemI):void {
+    menuItemClicked(item: DiagramMenuItemI): void {
         if (item.callback == null) {
             // Expand Children?
         } else {
@@ -107,13 +113,12 @@ export abstract class PopupComponentBase extends ComponentLifecycleEventEmitter
             this.closePopup();
     }
 
-    noMenuItems():boolean {
+    noMenuItems(): boolean {
         return this.menuItems.length == 0;
     }
 
-    noDetails():boolean {
+    noDetails(): boolean {
         return this.details.length == 0;
     }
-
 
 }

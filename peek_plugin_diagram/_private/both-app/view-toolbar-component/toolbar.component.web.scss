@@ -1,0 +1,49 @@
+/* SideNav how-to from :
+ * https://www.w3schools.com/howto/howto_js_sidenav.asp
+ */
+@import '~@synerty/peek-theme/scss/_mixins.web';
+@import '~@synerty/peek-theme/scss/_variables.web';
+
+$view-toolbar-margin: 6px;
+
+$open_button_height: 20px;
+
+$toolbar_width: 250px;
+
+.view-toolbar {
+  cursor: pointer;
+  display: block;
+  z-index: 3;
+  position: fixed;
+  font-size: $open_button_height;
+}
+
+.btn-group {
+  margin: $general_margin_1 / 3;
+}
+
+/* The spacer between the buttons */
+.view-toolbar-spacer {
+  z-index: 5; /* Stay on top of the other toolbars exit button */
+  padding: $view-toolbar-margin;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  float: left;
+}
+
+/* The edit toolbar buttons */
+.btn {
+  margin-left: 1px !important ; /* This will show a line between buttons in the groups */
+}
+
+/* On smaller screens, where height is less than 450px,
+ * change the style of the toolbar (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+  .toolbar {
+    padding-top: 15px;
+  }
+  .toolbar a {
+    font-size: 18px;
+  }
+}

@@ -16,7 +16,7 @@ import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 
 
 @Component({
-    selector: 'pl-diagram-toolbar',
+    selector: 'pl-diagram-view-toolbar',
     templateUrl: 'toolbar.component.web.html',
     styleUrls: ['toolbar.component.web.scss'],
     moduleId: module.id

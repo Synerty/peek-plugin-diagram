@@ -1,9 +1,15 @@
-import {Input, OnInit} from "@angular/core";
+import {Component, Input, OnInit} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {EditorContextType, PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 
 
-export abstract class EditContextComponentBase extends ComponentLifecycleEventEmitter
+@Component({
+    selector: 'pl-diagram-edit-props',
+    templateUrl: 'edit-props.component.web.html',
+    styleUrls: ['edit-props.component.web.scss'],
+    moduleId: module.id
+})
+export class EditPropsComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
 
     @Input("canvasEditor")
@@ -48,9 +54,11 @@ export abstract class EditContextComponentBase extends ComponentLifecycleEventEm
         this.platformClose();
     }
 
-    protected abstract platformOpen(): void;
+    platformOpen(): void {
+    }
 
-    protected abstract platformClose(): void;
+    platformClose(): void {
+    }
 
 
     isShowingShapePropertiesContext(): boolean {

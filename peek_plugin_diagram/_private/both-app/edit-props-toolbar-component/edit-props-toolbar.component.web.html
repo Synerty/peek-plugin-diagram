@@ -1,0 +1,36 @@
+<div *ngIf="isToolbarShown()"
+     class="edit-props-toolbar">
+
+    <!--    <div class="edit-props-toolbar-spacer"></div>-->
+    <!--    <br>-->
+
+    <button class="btn"
+            [class.btn-primary]="isBranchPropertiesActive()"
+            (click)="showBranchProperties()"
+            data-toggle="tooltip" data-placement="top"
+            title="Shape Properties">
+        <fa name="code-branch"></fa>
+    </button>
+    <br>
+
+    <button class="btn"
+            *ngIf="isShapePropertiesShown()"
+            [class.btn-primary]="isShapePropertiesActive()"
+            (click)="showShapeProperties()"
+            data-toggle="tooltip" data-placement="top"
+            title="Shape Properties">
+        <fa name="sliders-h"></fa>
+    </button>
+    <br>
+
+    <button class="btn"
+            *ngIf="isLiveDbPropertiesShown()"
+            [class.btn-primary]="isLiveDbPropertiesActive()"
+            (click)="showLiveDbProperties()"
+            data-toggle="tooltip" data-placement="top"
+            title="Dynamic Properties">
+        <fa name="bolt"></fa>
+    </button>
+    <br>
+
+</div>

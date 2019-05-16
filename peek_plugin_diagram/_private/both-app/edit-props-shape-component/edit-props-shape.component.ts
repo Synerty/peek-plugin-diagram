@@ -10,12 +10,12 @@ import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
 
 
 @Component({
-    selector: 'pl-diagram-edit-shape-properties',
-    templateUrl: 'edit-shape-properties.component.html',
-    styleUrls: ['edit-shape-properties.component.scss'],
+    selector: 'pl-diagram-edit-props-shape',
+    templateUrl: 'edit-props-shape.component.html',
+    styleUrls: ['edit-props-shape.component.scss'],
     moduleId: module.id
 })
-export class EditShapePropertiesComponent extends ComponentLifecycleEventEmitter
+export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
 
     @Input("canvasEditor")

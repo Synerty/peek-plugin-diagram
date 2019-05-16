@@ -5,28 +5,52 @@
 @import '~@synerty/peek-theme/scss/_variables.web';
 
 
+$panel_width: 400px;
+
+$edit_toolbar_button_height: 20px;
+$edit_toolbar_height: $edit_toolbar_button_height + 2 * $panel_width;
 
 
-$panel_width : 250px;
+
+.peek-tabs-section {
+  width: unset;
+}
+
+
+.peek-tabs-section-body {
+  padding: $general_padding_1;
+  top: $title_bar_height;
+}
 
 
 /* The side navigation menu */
-.panel {
+.edit-props-panel {
   height: 100%; /* 100% Full-height */
   position: fixed; /* Stay in place */
   z-index: 4; /* Stay on top */
-  top: 0;
+  //top: 46px;
   right: 0;
   overflow-x: hidden; /* Disable horizontal scroll */
   transition: 0.5s; /* 0.5 second transition effect to slide in the toolbar */
+  background-color: white;
+}
+
+.edit-props-panel > .panel-header {
+  padding: 15px;
+}
+
+.edit-props-panel > .close {
+  padding: 6px;
 }
 
 /* Set the style for when the toolbar is open */
-.is-open {
-  width: $panel_width;
+.edit-props-is-open {
+  min-width: 60px;
+  padding-right: 60px;
 }
 
 /* Set the style for when the toolbar is closed */
-.is-closed {
+.edit-props-is-closed {
   width: 0;
+  padding-right: 0;
 }
