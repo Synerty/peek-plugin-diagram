@@ -1,5 +1,5 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {DispBase} from "../tuples/shapes/DispBase";
+import {DispBase, DispBaseT} from "../tuples/shapes/DispBase";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
@@ -22,9 +22,9 @@ function now(): any {
 export class PeekCanvasModelSelection {
 
     // The currently selected coords
-    private _selection: {}[] = [];
+    private _selection: DispBaseT[] = [];
 
-    private _selectionChangedSubject = new Subject<{}[]>();
+    private _selectionChangedSubject = new Subject<DispBaseT[]>();
 
     private _keysToTryToSelect: string[] = [];
 
@@ -42,11 +42,11 @@ export class PeekCanvasModelSelection {
         this._keysToTryToSelect = [];
     };
 
-    selectionChangedObservable(): Observable<{}[]> {
+    selectionChangedObservable(): Observable<DispBaseT[]> {
         return this._selectionChangedSubject;
     }
 
-    selectedDisps(): any[] {
+    selectedDisps(): DispBaseT[] {
         return this._selection;
     }
 
@@ -71,22 +71,19 @@ export class PeekCanvasModelSelection {
     addSelection(objectOrArray) {
         this._selection = this._selection.add(objectOrArray);
         this.config.invalidate();
-        if (!this.config.editor.active)
-            this._selectionChangedSubject.next(this._selection);
+        this._selectionChangedSubject.next(this._selection);
     }
 
     removeSelection(objectOrArray) {
         this._selection = this._selection.remove(objectOrArray);
         this.config.invalidate();
-        if (!this.config.editor.active)
-            this._selectionChangedSubject.next(this._selection);
+        this._selectionChangedSubject.next(this._selection);
     }
 
     clearSelection() {
         this._selection = [];
         this.config.invalidate();
-        if (!this.config.editor.active)
-            this._selectionChangedSubject.next(this._selection);
+        this._selectionChangedSubject.next(this._selection);
     }
 
 

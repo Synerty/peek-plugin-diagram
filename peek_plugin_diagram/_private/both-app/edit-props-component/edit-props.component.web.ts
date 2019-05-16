@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {EditorContextType, PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
+import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
+import {EditorContextType} from "../canvas/PeekCanvasEditorProps";
 
 
 @Component({
@@ -15,6 +16,8 @@ export class EditPropsComponent extends ComponentLifecycleEventEmitter
     @Input("canvasEditor")
     canvasEditor: PeekCanvasEditor;
 
+    currentContext: EditorContextType = EditorContextType.NONE;
+
     isContextShown: boolean = false;
 
     constructor() {
@@ -23,16 +26,11 @@ export class EditPropsComponent extends ComponentLifecycleEventEmitter
     }
 
     ngOnInit() {
-        this.canvasEditor.contextPanelObservable()
+        this.canvasEditor.props.contextPanelObservable
             .takeUntil(this.onDestroyEvent)
             .subscribe((val: EditorContextType) => {
-                if (val == EditorContextType.NONE) {
-                    this.closePopup();
-                    return;
-                }
-
-                this.openPopup();
-
+                this.isContextShown = (val !== EditorContextType.NONE);
+                this.currentContext = val;
             });
     }
 
@@ -41,33 +39,42 @@ export class EditPropsComponent extends ComponentLifecycleEventEmitter
         lookup[EditorContextType.NONE] = "No Panel";
         lookup[EditorContextType.SHAPE_PROPERTIES] = "Shape Properties";
         lookup[EditorContextType.DYNAMIC_PROPERTIES] = "Dynamic Properties";
-        return lookup[this.canvasEditor.contextPanelState()];
+        return lookup[this.currentContext];
     }
 
-    protected openPopup() {
-        this.isContextShown = true;
-        this.platformOpen();
+    modelSetKey(): string {
+        if (this.canvasEditor.branchContext == null)
+            return null;
+        return this.canvasEditor.branchContext.modelSetKey;
     }
+
+    coordSetKey(): string {
+        if (this.canvasEditor.branchContext == null)
+            return null;
+        return this.canvasEditor.branchContext.coordSetKey;
+    }
+
+    globalBranchKey(): string {
+        if (this.canvasEditor.branchContext == null)
+            return null;
+        return this.canvasEditor.branchContext.key;
+    }
+
 
     closePopup(): void {
-        this.isContextShown = false;
-        this.platformClose();
+        this.canvasEditor.props.closeContext();
     }
 
-    platformOpen(): void {
+    isShowingBranchPropertiesContext(): boolean {
+        return this.currentContext === EditorContextType.BRANCH_PROPERTIES;
     }
-
-    platformClose(): void {
-    }
-
 
     isShowingShapePropertiesContext(): boolean {
-        return this.canvasEditor.contextPanelState() === EditorContextType.SHAPE_PROPERTIES;
+        return this.currentContext === EditorContextType.SHAPE_PROPERTIES;
     }
 
     isShowingDynamicPropertiesContext(): boolean {
-        return this.canvasEditor.contextPanelState() === EditorContextType.DYNAMIC_PROPERTIES;
+        return this.currentContext === EditorContextType.DYNAMIC_PROPERTIES;
     }
-
 
 }

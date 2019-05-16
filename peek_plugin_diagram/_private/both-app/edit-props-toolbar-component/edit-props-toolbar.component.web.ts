@@ -1,6 +1,7 @@
-import {Component, Input} from "@angular/core";
+import {Component, Input, OnInit} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
+import {EditorContextType} from "../canvas/PeekCanvasEditorProps";
 
 
 @Component({
@@ -9,13 +10,26 @@ import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
     styleUrls: ['edit-props-toolbar.component.web.scss'],
     moduleId: module.id
 })
-export class EditPropsToolbarComponent extends ComponentLifecycleEventEmitter {
+export class EditPropsToolbarComponent extends ComponentLifecycleEventEmitter
+    implements OnInit {
 
     @Input("canvasEditor")
     canvasEditor: PeekCanvasEditor;
 
+    currentContext: EditorContextType = EditorContextType.NONE;
+
     constructor() {
         super();
+
+    }
+
+    ngOnInit() {
+
+        this.canvasEditor.props.contextPanelObservable
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((val: EditorContextType) => {
+                this.currentContext = val;
+            });
 
     }
 
@@ -24,43 +38,31 @@ export class EditPropsToolbarComponent extends ComponentLifecycleEventEmitter {
         return this.canvasEditor.isEditing();
     }
 
-
-    /*
-
-
-                *ngIf="canvasEditor.isShapeSelected()"
-                (click)="canvasEditor.showShapeProperties()"
-
-                *ngIf="canvasEditor.isShapeSelected()"
-                (click)="canvasEditor.showDynamicProperties()"
-
-     */
-
     // Branch Properties
     showBranchProperties(): void {
-
+        this.canvasEditor.props.showBranchProperties();
     }
 
     isBranchPropertiesActive(): boolean {
-        return false;
+        return this.currentContext == EditorContextType.BRANCH_PROPERTIES;
     }
 
     // Shape Properties
     showShapeProperties(): void {
-        this.canvasEditor.showShapeProperties();
+        this.canvasEditor.props.showShapeProperties();
     }
 
     isShapePropertiesActive(): boolean {
-        return false;
+        return this.currentContext == EditorContextType.SHAPE_PROPERTIES;
     }
 
     isShapePropertiesShown(): boolean {
-        return this.canvasEditor.isShapeSelected();
+        return this.canvasEditor.props.shapePanelContext != null;
     }
 
     // LiveDB Properties
     showLiveDbProperties(): void {
-        this.canvasEditor.showDynamicProperties();
+        this.canvasEditor.props.showDynamicProperties();
     }
 
     isLiveDbPropertiesActive(): boolean {
@@ -70,112 +72,4 @@ export class EditPropsToolbarComponent extends ComponentLifecycleEventEmitter {
     isLiveDbPropertiesShown(): boolean {
         return false; //this.canvasEditor.isShapeSelected();
     }
-
-    /*
-
-        private selectedTool(): EditorToolType {
-            if (this.canvasEditor == null)
-                return EditorToolType.SELECT_TOOL;
-            return this.canvasEditor.selectedTool();
-        }
-
-        // --------------------
-        // Edit Select Tool
-
-        selectEditSelectTool() {
-            this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditSelectDelegate);
-        }
-
-        isEditSelectToolActive(): boolean {
-            // console.log(`Tool=${this.selectedTool()}`);
-            return this.selectedTool() === EditorToolType.EDIT_SELECT_TOOL;
-        }
-
-        // --------------------
-        // Edit Make Text Tool
-
-        selectEditMakeTextTool() {
-            this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeTextDelegate);
-        }
-
-        isEditMakeTextActive(): boolean {
-            // console.log(`Tool=${this.selectedTool()}`);
-            return this.selectedTool() === EditorToolType.EDIT_MAKE_TEXT;
-        }
-
-        // --------------------
-        // Edit Make Rectangle Tool
-
-        selectEditMakeRectangleTool() {
-            this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeRectangleDelegate);
-        }
-
-        isEditMakeRectangleActive(): boolean {
-            // console.log(`Tool=${this.selectedTool()}`);
-            return this.selectedTool() === EditorToolType.EDIT_MAKE_RECTANGLE;
-        }
-
-        // --------------------
-        // Edit Make Circle, Ellipse, Arc Tool
-
-        selectEditMakeEllipseTool() {
-            this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeCircleArcEllipseDelegate);
-        }
-
-        isEditMakeEllipseActive(): boolean {
-            // console.log(`Tool=${this.selectedTool()}`);
-            return this.selectedTool() === EditorToolType.EDIT_MAKE_CIRCLE_ELLIPSE_ARC;
-        }
-
-        // --------------------
-        // Edit Make Polygon Tool
-
-        selectEditMakePolygonTool() {
-            this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeDispPolygonDelegate);
-        }
-
-        isEditMakePolygonActive(): boolean {
-            // console.log(`Tool=${this.selectedTool()}`);
-            return this.selectedTool() === EditorToolType.EDIT_MAKE_POLYGON;
-        }
-
-        // --------------------
-        // Edit Make Polyline Tool
-
-        selectEditMakePolylineTool() {
-            this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeDispPolylinDelegate);
-        }
-
-        isEditMakePolylineActive(): boolean {
-            // console.log(`Tool=${this.selectedTool()}`);
-            return this.selectedTool() === EditorToolType.EDIT_MAKE_POLYLINE;
-        }
-
-
-        // --------------------
-        // Edit Make Group Ptr Vertex Tool
-
-        selectEditMakeGroupPtrVertexTool() {
-            this.canvasEditor.setInputEditDelegate(PeekCanvasInputMakeDispGroupPtrVertexDelegate);
-        }
-
-        isEditMakeGroupPtrVertexActive(): boolean {
-            // console.log(`Tool=${this.selectedTool()}`);
-            return this.selectedTool() === EditorToolType.EDIT_MAKE_DISP_GROUP_PTR_VERTEX;
-        }
-
-
-        // --------------------
-        // Edit Make Group Ptr Edge Tool
-
-        selectEditMakeGroupPtrEdgeTool() {
-            this.canvasEditor.setInputEditDelegate(PeekCanvasInputMakeDispGroupPtrEdgeDelegate);
-        }
-
-        isEditMakeGroupPtrEdgeActive(): boolean {
-            // console.log(`Tool=${this.selectedTool()}`);
-            return this.selectedTool() === EditorToolType.EDIT_MAKE_DISP_GROUP_PTR_EDGE;
-        }
-
-    */
 }

@@ -14,6 +14,7 @@ import {
     DispTextStyle
 } from "../../lookups";
 import {BranchKeyToIdMapTuple} from "../branch/BranchKeyToIdMapTuple";
+import {BranchDetailTuple, BranchService} from "@peek/peek_plugin_branch";
 
 
 /** Diagram Lookups offline cacher
@@ -38,7 +39,8 @@ export class PrivateDiagramOfflineCacherService extends ComponentLifecycleEventE
     private lookupSubs = [];
 
     constructor(private tupleService: PrivateDiagramTupleService,
-                vortexStatusService: VortexStatusService) {
+                vortexStatusService: VortexStatusService,
+                private globalBranchService: BranchService) {
         super();
 
         // Delete data older than 7 days
@@ -90,6 +92,9 @@ export class PrivateDiagramOfflineCacherService extends ComponentLifecycleEventE
 
                 for (let modelSet of tuples) {
                     this.loadLookup(modelSet);
+
+                    // force the global branch service to cache it's stuff
+                    this.globalBranchService.branches(modelSet.key);
                 }
 
             });

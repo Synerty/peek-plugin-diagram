@@ -1,6 +1,4 @@
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {Subject} from "rxjs/Subject";
-import {Observable} from "rxjs/Observable";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {
     PrivateDiagramBranchContext,
@@ -13,14 +11,8 @@ import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
-import {PeekCanvasShapePropsContext} from "./PeekCanvasShapePropsContext";
 import {DispLevel} from "@peek/peek_plugin_diagram/lookups";
-
-export enum EditorContextType {
-    NONE,
-    SHAPE_PROPERTIES,
-    DYNAMIC_PROPERTIES
-}
+import {PeekCanvasEditorProps} from "./PeekCanvasEditorProps";
 
 /**
  * Peek Canvas Editor
@@ -33,15 +25,7 @@ export class PeekCanvasEditor {
 
     private _currentBranch: PrivateDiagramBranchContext | null = null;
 
-    private currentContext: EditorContextType = EditorContextType.NONE;
-
-    private _contextPanelChangeSubject: Subject<EditorContextType>
-        = new Subject<EditorContextType>();
-
-    private _shapePanelContextSubject: Subject<PeekCanvasShapePropsContext>
-        = new Subject<PeekCanvasShapePropsContext>();
-    private _shapePanelContext: PeekCanvasShapePropsContext
-        = new PeekCanvasShapePropsContext();
+    private readonly _props: PeekCanvasEditorProps;
 
     constructor(private balloonMsg: Ng2BalloonMsgService,
                 private canvasInput: PeekCanvasInput,
@@ -49,15 +33,13 @@ export class PeekCanvasEditor {
                 private canvasConfig: PeekCanvasConfig,
                 public lookupService: DiagramLookupService,
                 private branchService: PrivateDiagramBranchService,
-                // private config: PeekCanvasConfig,
-                // private gridObservable: GridObservable,
-                // private lookupCache: DiagramLookupService,
-                private lifecycleEventEmitter: ComponentLifecycleEventEmitter
-    ) {
+                private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
         this.branchService
             .startEditingObservable
             .takeUntil(lifecycleEventEmitter.onDestroyEvent)
             .subscribe((branchContext: PrivateDiagramBranchContext) => {
+                this._props.setCanvasData(this.modelSetId, this.coordSetId);
+
                 if (this.branchContext)
                     this.branchContext.close();
 
@@ -81,18 +63,17 @@ export class PeekCanvasEditor {
                     this.branchContext.close();
 
                 this.branchContext = null;
-                this.currentContext = EditorContextType.NONE;
+                this.props.closeContext();
                 this.canvasInput.setDelegate(PeekCanvasInputSelectDelegate);
                 this.canvasConfig.editor.active = false;
                 this.canvasConfig.setModelNeedsCompiling();
             });
 
-    };
+        this._props = new PeekCanvasEditorProps(this.lookupService);
 
-
-    // ---------------
-    // reset
-    private reset() {
+        this.canvasModel.selection.selectionChangedObservable()
+            .takeUntil(lifecycleEventEmitter.onDestroyEvent)
+            .subscribe(disps => this._props.setSelectedShapes(disps));
     };
 
 
@@ -104,29 +85,17 @@ export class PeekCanvasEditor {
         return cs == null ? null : cs.modelSetId;
     }
 
-
     get coordSetId(): null | number {
         let cs = this.canvasConfig.controller.coordSet;
         return cs == null ? null : cs.id;
     }
 
+    get props(): PeekCanvasEditorProps {
+        return this._props;
+    }
+
     // ---------------
     // Shape Props
-
-
-    shapePanelContextObservable(): Observable<PeekCanvasShapePropsContext> {
-        return this._shapePanelContextSubject;
-    }
-
-    shapePanelContext(): PeekCanvasShapePropsContext {
-        return this._shapePanelContext;
-    }
-
-    setShapePropertiesContext(context: PeekCanvasShapePropsContext) {
-        this.showShapeProperties();
-        this._shapePanelContext = context;
-        this._shapePanelContextSubject.next(context);
-    }
 
     dispPropsUpdated(): void {
         this.canvasConfig.invalidate();
@@ -155,14 +124,6 @@ export class PeekCanvasEditor {
 
     isEditing(): boolean {
         return this._currentBranch != null;
-    }
-
-    contextPanelObservable(): Observable<EditorContextType> {
-        return this._contextPanelChangeSubject;
-    }
-
-    contextPanelState(): EditorContextType {
-        return this.currentContext;
     }
 
     selectedTool(): EditorToolType {
@@ -195,39 +156,6 @@ export class PeekCanvasEditor {
 
     setInputEditDelegate(Delegate) {
         this.canvasInput.setDelegate(Delegate, this);
-    }
-
-
-    showShapeProperties() {
-        this.currentContext = EditorContextType.SHAPE_PROPERTIES;
-
-
-        //
-        // // Setup the shape edit context
-        // let shapePropsContext = new PeekCanvasShapePropsContext(
-        //     this.canvasModel.selection.selectedDisps()[0],
-        //     this.lookupService,
-        //     this.modelSetId,
-        //     this.coordSetId
-        // );
-        //
-        //   DispText.makeShapeContext(shapePropsContext);
-        //   this.setShapePropertiesContext(shapePropsContext);
-
-        this._contextPanelChangeSubject.next(this.currentContext);
-    }
-
-    showDynamicProperties() {
-        this.currentContext = EditorContextType.DYNAMIC_PROPERTIES;
-        this._contextPanelChangeSubject.next(this.currentContext);
-    }
-
-    // ---------------
-    // Methods called by Context
-
-    closeContext() {
-        this.currentContext = EditorContextType.NONE;
-        this._contextPanelChangeSubject.next(this.currentContext);
     }
 
 }

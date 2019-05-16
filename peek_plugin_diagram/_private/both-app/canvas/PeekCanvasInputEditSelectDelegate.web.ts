@@ -559,22 +559,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             .polylinesConnectedToDispKey(DispBase.keys(this._selectedDisps));
 
 
-        // SET THE POPUP
-        if (this.viewArgs.model.selection.selectedDisps().length == 1) {
-            let disp = this.viewArgs.model.selection.selectedDisps()[0];
-
-            // Setup the shape edit context
-            let shapePropsContext = new PeekCanvasShapePropsContext(
-                disp, this.canvasEditor.lookupService,
-                this.canvasEditor.modelSetId,
-                this.canvasEditor.coordSetId
-            );
-
-            DispFactory.wrapper(disp).makeShapeContext(shapePropsContext);
-            this.canvasEditor.setShapePropertiesContext(shapePropsContext);
-        }
-
-
     };
 
     //_snapSelectedCoords  () {

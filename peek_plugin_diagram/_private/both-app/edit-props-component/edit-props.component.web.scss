@@ -11,7 +11,6 @@ $edit_toolbar_button_height: 20px;
 $edit_toolbar_height: $edit_toolbar_button_height + 2 * $panel_width;
 
 
-
 .peek-tabs-section {
   width: unset;
 }
@@ -46,6 +45,7 @@ $edit_toolbar_height: $edit_toolbar_button_height + 2 * $panel_width;
 /* Set the style for when the toolbar is open */
 .edit-props-is-open {
   min-width: 60px;
+  max-width: 50vw;
   padding-right: 60px;
 }
 
@@ -54,3 +54,12 @@ $edit_toolbar_height: $edit_toolbar_button_height + 2 * $panel_width;
   width: 0;
   padding-right: 0;
 }
+
+//
+///* On smaller screens, where width is less than 450px,
+//    change the style of the toolbar (less padding and a smaller font size) */
+//@media screen and (max-width: 450px) {
+//  .edit-props-is-open {
+//    max-width: 70vw;
+//  }
+//}

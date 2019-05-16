@@ -30,12 +30,13 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
     }
 
     ngOnInit() {
-        this.context = this.canvasEditor.shapePanelContext();
-        this.canvasEditor.shapePanelContextObservable()
+        this.context = this.canvasEditor.props.shapePanelContext;
+        this.canvasEditor.props.shapePanelContextObservable
             .takeUntil(this.onDestroyEvent)
             .subscribe((context: PeekCanvasShapePropsContext) => {
                 this.context = context;
-                this.processContext(context);
+                if (context != null)
+                    this.processContext(context);
             });
         this.processContext(this.context);
     }
@@ -129,7 +130,7 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
             return prop.__lastShowValue;
 
         let layer: DispLayer = prop.getter(this.context.disp);
-        prop.__lastShowValue =  !layer.visible;
+        prop.__lastShowValue = !layer.visible;
         return prop.__lastShowValue;
     }
 
@@ -142,7 +143,7 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
             return prop.__lastShowValue;
 
         let level: DispLevel = prop.getter(this.context.disp);
-        prop.__lastShowValue =  !this.canvasEditor.isLevelVisible(level);
+        prop.__lastShowValue = !this.canvasEditor.isLevelVisible(level);
         return prop.__lastShowValue;
     }
 

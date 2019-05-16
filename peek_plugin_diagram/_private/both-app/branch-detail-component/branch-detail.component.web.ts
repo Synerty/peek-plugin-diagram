@@ -1,6 +1,6 @@
-import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
+import {Component, Input, OnInit} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {BranchDetailTuple} from "@peek/peek_plugin_branch";
+import {BranchDetailTuple, BranchService} from "@peek/peek_plugin_branch";
 
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
 
@@ -8,6 +8,8 @@ import {DocDbService, DocumentResultI} from "@peek/peek_plugin_docdb";
 import {DispFactory} from "../tuples/shapes/DispFactory";
 import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
+import {PrivateDiagramBranchContext} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchContext";
+import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 
 
 @Component({
@@ -26,13 +28,14 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
     coordSetKey: string;
 
     @Input("globalBranch")
+    inputGlobalBranch: BranchDetailTuple;
+
+    @Input("globalBranchKey")
+    globalBranchKey: string;
+
     globalBranch: BranchDetailTuple;
 
-    @Input("diagramBranch")
     diagramBranch: BranchTuple;
-
-    @Output("close")
-    closeEvent = new EventEmitter();
 
     DETAILS_TAB = 1;
     ANCHORS_TAB = 2;
@@ -46,7 +49,9 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
     private diagramPosService: PrivateDiagramPositionService;
 
     constructor(private docDbService: DocDbService,
-                diagramPosService: DiagramPositionService) {
+                diagramPosService: DiagramPositionService,
+                private branchService: PrivateDiagramBranchService,
+                private globalBranchService: BranchService) {
         super();
 
         this.diagramPosService = <PrivateDiagramPositionService>diagramPosService;
@@ -54,7 +59,36 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
     }
 
     ngOnInit() {
-        this.disps = this.diagramBranch.disps;
+        if (this.inputGlobalBranch != null) {
+            this.globalBranch = this.inputGlobalBranch;
+            this.globalBranchKey = this.inputGlobalBranch.key;
+            this.loadData();
+            return;
+        }
+
+        this.globalBranchService.getBranch(this.modelSetKey, this.globalBranchKey)
+            .then((globalBranch: BranchDetailTuple | null) => {
+                if (globalBranch == null) {
+                    console.log(`ERROR: Could not load global branch for ${this.globalBranchKey}`);
+                    return;
+                }
+                this.globalBranch = globalBranch;
+                this.loadData();
+            })
+    }
+
+    private loadData() {
+
+        this.branchService
+            .getBranch(this.modelSetKey, this.coordSetKey, this.globalBranchKey)
+            .then((diagramBranch: PrivateDiagramBranchContext) => {
+                this.diagramBranch = diagramBranch.branchTuple;
+                this.disps = this.diagramBranch.disps;
+                this.loadAnchorKeys();
+            });
+    }
+
+    private loadAnchorKeys() {
 
         this.docDbService
             .getObjects(this.modelSetKey, this.diagramBranch.anchorDispKeys)
@@ -78,10 +112,6 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
 
     noDisps(): boolean {
         return this.disps.length == 0;
-    }
-
-    closeClicked(): void {
-        this.closeEvent.emit();
     }
 
     dispDesc(disp): string[] {

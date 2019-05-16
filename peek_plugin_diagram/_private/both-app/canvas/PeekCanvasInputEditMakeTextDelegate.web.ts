@@ -18,28 +18,6 @@ import {PeekCanvasShapePropsContext} from "./PeekCanvasShapePropsContext";
 export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate {
     static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_TEXT;
 
-    // // CONSTANTS
-    // STATE_NONE = 0;
-    // STATE_SELECTING = 1;
-    // STATE_DRAG_SELECTING = 2;
-    // STATE_MOVING_RENDERABLE = 3;
-    // STATE_MOVING_HANDLE = 4;
-    // STATE_CANVAS_PANNING = 5;
-    // STATE_CANVAS_ZOOMING = 6;
-
-    // _state = 0; // STATE_NONE;
-    // _passedDragThreshold = false;
-    // _mouseDownOnSelection = false;
-    // _mouseDownOnDisp = false;
-    // _mouseDownWithShift = false;
-    // _mouseDownWithCtrl = false;
-    // _mouseDownMiddleButton = false;
-    // _mouseDownRightButton = false;
-    // _mouseDownOnHandle = null;
-
-    // _lastPinchDist = null;
-
-
     // Stores the text disp being created
     private _creating = null;
 
@@ -49,8 +27,6 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     private _endNodeRend = null;
 
     private _enteredText: string = '';
-
-    //canvasInput._scope.pageData.modelRenderables;
 
     constructor(viewArgs: InputDelegateConstructorArgs,
                 canvasEditor: PeekCanvasEditor) {
@@ -82,12 +58,6 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     // ============================================================================
     // Editor Ui Mouse
 
-    // fixes a problem where double clicking causes
-    // text to get selected on the canvas
-    // mouseSelectStart =
-    // function(event,
-    // mouse) {
-    // };
 
     keyPress(event) {
         if (!this._creating)
@@ -158,22 +128,9 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         DispText.setCenterPoint(this._creating, x, y);
         this.canvasEditor.lookupService._linkDispLookups(this._creating);
 
-
-        // Setup the shape edit context
-        let shapePropsContext = new PeekCanvasShapePropsContext(
-            this._creating, this.canvasEditor.lookupService,
-            this.canvasEditor.modelSetId,
-            this.canvasEditor.coordSetId
-        );
-
-        DispText.makeShapeContext(shapePropsContext);
-        this.canvasEditor.setShapePropertiesContext(shapePropsContext);
-
         // Add the shape to the branch
         this._creating = this.canvasEditor.branchContext.branchTuple
             .addOrUpdateDisp(this._creating);
-
-        this.viewArgs.config.setModelNeedsCompiling();
 
         // TODO, Snap the coordinates if required
         // if (this.viewArgs.config.editor.snapToGrid)
@@ -181,6 +138,12 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
 
         // Let the canvas editor know something has happened.
         // this.canvasEditor.dispPropsUpdated();
+
+        this.viewArgs.model.compileBranchDisps();
+
+        this.viewArgs.model.selection.clearSelection();
+        this.viewArgs.model.selection.addSelection(this._creating);
+        this.canvasEditor.props.showShapeProperties();
 
         this._addBranchAnchor(x, y);
     }

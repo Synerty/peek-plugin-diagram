@@ -4,20 +4,13 @@ import {TitleService} from "@synerty/peek-util";
 import {BranchDetailTuple, BranchService} from "@peek/peek_plugin_branch";
 
 
-import {
-    PopupLayerSelectionArgsI,
-    PrivateDiagramConfigService
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
+import {PrivateDiagramConfigService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
 
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
-import {
-    BranchTuple,
-    PrivateDiagramBranchContext,
-    PrivateDiagramBranchService
-} from "@peek/peek_plugin_diagram/_private/branch";
+import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch";
 
 
 @Component({
@@ -49,7 +42,6 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
     enabledBranches: { [branchKey: string]: BranchDetailTuple } = {};
 
     selectedGlobalBranch: BranchDetailTuple | null = null;
-    selectedDiagramBranch: BranchTuple | null = null;
 
 
     constructor(private titleService: TitleService,
@@ -158,28 +150,16 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
 
     branchSelected(branchDetail: BranchDetailTuple): void {
         this.selectedGlobalBranch = branchDetail;
-        this.selectedDiagramBranch = null;
-
-        if (branchDetail == null)
-            return;
-
-        this.branchService
-            .getBranch(this.modelSetKey, this.coordSetKey, branchDetail.key)
-            .then((diagramBranch: PrivateDiagramBranchContext) => {
-
-                this.selectedDiagramBranch = diagramBranch.branchTuple;
-            });
     }
 
 
     clearBranchDetails(): void {
         this.selectedGlobalBranch = null;
-        this.selectedDiagramBranch = null;
     }
 
 
     showBranchDetails(): boolean {
-        return this.selectedGlobalBranch != null && this.selectedDiagramBranch != null;
+        return this.selectedGlobalBranch != null;
     }
 
 }
