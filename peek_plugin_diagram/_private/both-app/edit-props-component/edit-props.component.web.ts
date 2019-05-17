@@ -2,6 +2,8 @@ import {Component, Input, OnInit} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {EditorContextType} from "../canvas/PeekCanvasEditorProps";
+import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
+import {Observable} from "rxjs";
 
 
 @Component({
@@ -37,6 +39,7 @@ export class EditPropsComponent extends ComponentLifecycleEventEmitter
     title() {
         let lookup = [];
         lookup[EditorContextType.NONE] = "No Panel";
+        lookup[EditorContextType.BRANCH_PROPERTIES] = "Branch Properties";
         lookup[EditorContextType.SHAPE_PROPERTIES] = "Shape Properties";
         lookup[EditorContextType.DYNAMIC_PROPERTIES] = "Dynamic Properties";
         return lookup[this.currentContext];
@@ -60,6 +63,17 @@ export class EditPropsComponent extends ComponentLifecycleEventEmitter
         return this.canvasEditor.branchContext.key;
     }
 
+    diagramBranchTuple(): BranchTuple | null {
+        if (this.canvasEditor.branchContext == null)
+            return null;
+        return this.canvasEditor.branchContext.branchTuple;
+    }
+
+    diagramBranchUpdatedObservable(): Observable<boolean> | null {
+        if (this.canvasEditor.branchContext == null)
+            return null;
+        return this.canvasEditor.branchContext.branchUpdatedObservable;
+    }
 
     closePopup(): void {
         this.canvasEditor.props.closeContext();

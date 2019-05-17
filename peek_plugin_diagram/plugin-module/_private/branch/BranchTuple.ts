@@ -41,7 +41,7 @@ export class BranchTuple extends Tuple {
 
     private _dispsById = {};
     private _lastStage = 1;
-    private _contextUpdateCallback: (() => void) | null;
+    private _contextUpdateCallback: ((modelUpdateRequired: boolean) => void) | null;
 
 
     constructor() {
@@ -51,14 +51,13 @@ export class BranchTuple extends Tuple {
     }
 
     static createBranch(coordSetId: number, branchKey: string): any {
-        let date = new Date();
         let branch = new BranchTuple();
         branch.packedJson__[BranchTuple.__ID_NUM] = null;
         branch.packedJson__[BranchTuple.__COORD_SET_ID_NUM] = coordSetId;
         branch.packedJson__[BranchTuple.__KEY_NUM] = branchKey;
         branch.packedJson__[BranchTuple.__VISIBLE_NUM] = true;
-        branch.setUpdatedDate(date);
-        branch.setCreatedDate(date);
+        branch.setUpdatedDate(null);
+        branch.setCreatedDate(new Date());
         branch.packedJson__[BranchTuple.__DISPS_NUM] = [];
         branch.packedJson__[BranchTuple.__ANCHOR_DISP_KEYS_NUM] = [];
         return branch;
@@ -127,11 +126,6 @@ export class BranchTuple extends Tuple {
      */
 
     addOrUpdateDisp(disp: any): any {
-        this._addOrUpdateDisp(disp);
-        this.touchUpdateDate();
-    }
-
-    private _addOrUpdateDisp(disp: any): any {
         let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
         let array = this._array(BranchTuple.__DISPS_NUM);
 
@@ -142,10 +136,12 @@ export class BranchTuple extends Tuple {
             DispBase.setBranchStage(disp, this._lastStage);
             this._dispsById[DispBase.id(disp)] = disp;
             array.push(disp);
+            this.touchUpdateDate(true);
             return disp;
         }
 
         if (DispBase.branchStage(dispInBranch) == DispBase.branchStage(disp)) {
+            this.touchUpdateDate(false);
             return disp;
         }
 
@@ -153,6 +149,7 @@ export class BranchTuple extends Tuple {
 
         this._dispsById[DispBase.id(disp)] = disp;
         array.push(disp);
+        this.touchUpdateDate(true);
         return disp;
 
     }
@@ -167,7 +164,7 @@ export class BranchTuple extends Tuple {
         if (anchors.filter(k => k == key).length != 0)
             return;
 
-        this.touchUpdateDate();
+        this.touchUpdateDate(false);
         anchors.push(key);
     }
 
@@ -176,11 +173,10 @@ export class BranchTuple extends Tuple {
     }
 
 
-    touchUpdateDate(): void {
+    touchUpdateDate(modelUpdateRequired: boolean = false): void {
         this.setUpdatedDate(new Date());
-        this.packedJson__[BranchTuple.__UPDATED_DATE] = serUril.toStr(new Date());
         if (this._contextUpdateCallback != null)
-            this._contextUpdateCallback();
+            this._contextUpdateCallback(modelUpdateRequired);
     }
 
     set visible(value: boolean) {
@@ -191,13 +187,19 @@ export class BranchTuple extends Tuple {
         return this.packedJson__[BranchTuple.__VISIBLE_NUM];
     }
 
-    get updatedDate(): Date {
-        return serUril.fromStr(this.packedJson__[BranchTuple.__UPDATED_DATE],
-            SerialiseUtil.T_DATETIME);
+    get updatedDate(): Date | null {
+        let packedDate = this.packedJson__[BranchTuple.__UPDATED_DATE];
+        if (packedDate == null)
+            return packedDate;
+
+        return serUril.fromStr(packedDate, SerialiseUtil.T_DATETIME);
     }
 
-    private setUpdatedDate(value: Date): void {
-        this.packedJson__[BranchTuple.__UPDATED_DATE] = serUril.toStr(value);
+    private setUpdatedDate(value: Date | null): void {
+        if (value == null)
+            this.packedJson__[BranchTuple.__UPDATED_DATE] = null;
+        else
+            this.packedJson__[BranchTuple.__UPDATED_DATE] = serUril.toStr(value);
     }
 
     get createdDate(): Date {
@@ -266,13 +268,14 @@ export class BranchTuple extends Tuple {
         }
     }
 
-    setContextUpdateCallback(contextUpdateCallback: (() => void) | null) {
+    setContextUpdateCallback(contextUpdateCallback: ((modelUpdateRequired: boolean) => void) | null) {
         this._contextUpdateCallback = contextUpdateCallback;
 
     }
 
     applyLiveUpdate(liveUpdateTuple: BranchTuple): boolean {
-        if (moment(this.updatedDate).isBefore(liveUpdateTuple.updatedDate)) {
+        if (this.updatedDate == null
+            || moment(this.updatedDate).isBefore(liveUpdateTuple.updatedDate)) {
             this.packedJson__ = liveUpdateTuple.packedJson__;
             this.assignIdsToDisps();
             return true;

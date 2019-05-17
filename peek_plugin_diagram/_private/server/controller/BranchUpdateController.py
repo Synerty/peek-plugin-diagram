@@ -51,12 +51,16 @@ class BranchUpdateController(TupleActionProcessorDelegateABC):
         if not isinstance(tupleAction, BranchUpdateTupleAction):
             raise Exception("Unhandled tuple action %s" % tupleAction)
 
-        encodedPayload = yield Payload(tuples=[tupleAction.branchTuple]) \
-            .toEncodedPayloadDefer()
+        try:
+            encodedPayload = yield Payload(tuples=[tupleAction.branchTuple]) \
+                .toEncodedPayloadDefer()
 
-        yield updateBranches.delay(tupleAction.modelSetId, encodedPayload)
+            yield updateBranches.delay(tupleAction.modelSetId, encodedPayload)
 
-        self._updateBranchKeyToIdMap()
+            self._updateBranchKeyToIdMap()
+
+        except Exception as e:
+            logger.exception(e)
 
     def _updateBranchKeyToIdMap(self):
         self._tupleObservable.notifyOfTupleUpdate(

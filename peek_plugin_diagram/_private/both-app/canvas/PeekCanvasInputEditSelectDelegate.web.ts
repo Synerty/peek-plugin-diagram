@@ -10,9 +10,6 @@ import {DispBase} from "../tuples/shapes/DispBase";
 import {DispPolyline} from "../tuples/shapes/DispPolyline";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
-import {PeekCanvasShapePropsContext} from "./PeekCanvasShapePropsContext";
-import {DispText} from "../tuples/shapes/DispText";
-import {DispFactory} from "../tuples/shapes/DispFactory";
 
 
 /**
@@ -357,8 +354,8 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
                 for (let disp of this._selectedDisps) {
                     DispBase.deltaMove(disp, delta.dx, delta.dy);
-        this.canvasEditor.branchContext.branchTuple
-            .addOrUpdateDisp(disp);
+                    this.canvasEditor.branchContext.branchTuple
+                        .addOrUpdateDisp(disp);
                 }
 
                 for (let dispPolylineEnd of this._selectedPolylineEnds) {
@@ -455,18 +452,18 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this.viewArgs.model.selection.addSelection(hits);
     };
 
-    // mouseWheel(event, mouse) {
-    //     let delta = event.deltaY || event.wheelDelta;
-    //
-    //     // Overcome windows zoom multipliers
-    //     if (15 < delta)
-    //         delta = 15;
-    //
-    //     if (delta < -15)
-    //         delta = -15;
-    //
-    //     this._zoomPan(mouse.clientX, mouse.clientY, delta);
-    // };
+    mouseWheel(event, mouse) {
+        let delta = event.deltaY || event.wheelDelta;
+
+        // Overcome windows zoom multipliers
+        if (15 < delta)
+            delta = 15;
+
+        if (delta < -15)
+            delta = -15;
+
+        this._zoomPan(mouse.clientX, mouse.clientY, delta);
+    };
 
     draw(ctx, zoom, pan) {
 
@@ -546,11 +543,10 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
         } else {
             // Remove all previous selection
-            if (!this._mouseDownWithShift) {
-                this.viewArgs.model.selection.clearSelection();
-            }
-
-            this.viewArgs.model.selection.addSelection(hits);
+            if (this._mouseDownWithShift)
+                this.viewArgs.model.selection.addSelection(hits);
+            else
+                this.viewArgs.model.selection.replaceSelection(hits);
         }
 
         this._selectedDisps = this.viewArgs.model.query.dispsInSelectedGroups;

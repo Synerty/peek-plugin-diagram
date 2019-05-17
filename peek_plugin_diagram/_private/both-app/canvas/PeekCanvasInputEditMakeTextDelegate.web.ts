@@ -141,8 +141,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
 
         this.viewArgs.model.compileBranchDisps();
 
-        this.viewArgs.model.selection.clearSelection();
-        this.viewArgs.model.selection.addSelection(this._creating);
+        this.viewArgs.model.selection.replaceSelection(this._creating);
         this.canvasEditor.props.showShapeProperties();
 
         this._addBranchAnchor(x, y);

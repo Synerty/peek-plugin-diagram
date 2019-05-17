@@ -371,14 +371,10 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             this.viewArgs.model.selection.removeSelection(hits);
 
         } else {
-            if (!this._mouseDownWithShift)
-            // Remove all previous selection
-                this.viewArgs.model.selection.clearSelection();
-
-            // // Selecting more
-            // this.viewArgs.model.clearSelection();
-
-            this.viewArgs.model.selection.addSelection(hits);
+            if (this._mouseDownWithShift)
+                this.viewArgs.model.selection.addSelection(hits);
+            else
+                this.viewArgs.model.selection.replaceSelection(hits);
         }
 
     };

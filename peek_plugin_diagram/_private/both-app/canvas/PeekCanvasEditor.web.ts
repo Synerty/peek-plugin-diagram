@@ -44,10 +44,17 @@ export class PeekCanvasEditor {
                     this.branchContext.close();
 
                 this.branchContext = branchContext;
-                this.branchContext.open(() => {
-                    this.canvasModel.compileBranchDisps();
-                    this.canvasModel.selection.clearSelection();
-                });
+
+                this.branchContext
+                    .branchUpdatedObservable
+                    .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+                    .subscribe((modelUpdateRequired: boolean) => {
+                        this.canvasModel.compileBranchDisps();
+                        if (modelUpdateRequired)
+                            this.canvasModel.selection.clearSelection();
+                    });
+
+                this.branchContext.open();
 
                 this.canvasInput.setDelegate(PeekCanvasInputEditSelectDelegate, this);
                 this.canvasModel.selection.clearSelection();

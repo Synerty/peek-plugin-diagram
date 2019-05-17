@@ -10,6 +10,8 @@ import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {PrivateDiagramBranchContext} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchContext";
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
+import {assert} from "../DiagramUtil";
+import {Observable} from "rxjs";
 
 
 @Component({
@@ -27,15 +29,25 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
     @Input("coordSetKey")
     coordSetKey: string;
 
+    // Set in VIEW mode from select-branches
     @Input("globalBranch")
     inputGlobalBranch: BranchDetailTuple;
 
+    // Set in EDIT mode from edit-props
     @Input("globalBranchKey")
     globalBranchKey: string;
 
     globalBranch: BranchDetailTuple;
 
+    // Set in EDIT mode from edit-props
+    @Input("diagramBranchTuple")
     diagramBranch: BranchTuple;
+
+    // Set in EDIT mode from edit-props
+    @Input("diagramBranchUpdatedObservable")
+    diagramBranchUpdatedObservable: Observable<void>;
+
+    isEditMode: boolean = false;
 
     DETAILS_TAB = 1;
     ANCHORS_TAB = 2;
@@ -62,40 +74,71 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
         if (this.inputGlobalBranch != null) {
             this.globalBranch = this.inputGlobalBranch;
             this.globalBranchKey = this.inputGlobalBranch.key;
-            this.loadData();
+            this.loadDiagramBranch();
             return;
         }
 
-        this.globalBranchService.getBranch(this.modelSetKey, this.globalBranchKey)
+        assert(this.diagramBranch != null, "diagramBranch is not set");
+        assert(this.globalBranchKey != null, "globalBranchKey is not set");
+
+        this.isEditMode = true;
+        this.loadGlobalBranch();
+        this.loadDiagramBranchDisps();
+        this.loadDiagramBranchAnchorKeys();
+
+        if (this.diagramBranchUpdatedObservable != null) {
+            this.diagramBranchUpdatedObservable
+                .takeUntil(this.onDestroyEvent)
+                .subscribe(() => {
+                    this.loadDiagramBranchDisps();
+                    this.loadDiagramBranchAnchorKeys();
+                });
+        }
+    }
+
+    private loadGlobalBranch() {
+        this.globalBranch = new BranchDetailTuple();
+
+        this.globalBranchService
+            .getBranch(this.modelSetKey, this.globalBranchKey)
             .then((globalBranch: BranchDetailTuple | null) => {
                 if (globalBranch == null) {
                     console.log(`ERROR: Could not load global branch for ${this.globalBranchKey}`);
                     return;
                 }
                 this.globalBranch = globalBranch;
-                this.loadData();
             })
+
     }
 
-    private loadData() {
+    private loadDiagramBranch() {
+        this.diagramBranch = new BranchTuple();
+        this.disps = [];
 
         this.branchService
             .getBranch(this.modelSetKey, this.coordSetKey, this.globalBranchKey)
             .then((diagramBranch: PrivateDiagramBranchContext) => {
                 this.diagramBranch = diagramBranch.branchTuple;
-                this.disps = this.diagramBranch.disps;
-                this.loadAnchorKeys();
+                this.loadDiagramBranchDisps();
+                this.loadDiagramBranchAnchorKeys();
             });
     }
 
-    private loadAnchorKeys() {
+    private loadDiagramBranchDisps() {
+        this.disps = this.diagramBranch.disps;
+    }
+
+    private loadDiagramBranchAnchorKeys() {
+        let anchorKeys = this.diagramBranch.anchorDispKeys;
+        if (anchorKeys == null || anchorKeys.length == 0)
+            return;
 
         this.docDbService
-            .getObjects(this.modelSetKey, this.diagramBranch.anchorDispKeys)
+            .getObjects(this.modelSetKey, anchorKeys)
             .then((docs: DocumentResultI) => {
                 this.anchorDocs = [];
 
-                for (let anchorDispKey of this.diagramBranch.anchorDispKeys) {
+                for (let anchorDispKey of anchorKeys) {
                     let doc = docs[anchorDispKey];
                     let props = [{title: "Key", value: anchorDispKey}];
                     if (doc != null) {

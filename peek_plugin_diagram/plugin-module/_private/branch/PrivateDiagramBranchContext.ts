@@ -5,7 +5,7 @@ import {UserListItemTuple} from "@peek/peek_plugin_user";
 import {LocalBranchStorageService} from "../branch-loader";
 import {BranchUpdateTupleAction} from "./BranchUpdateTupleAction";
 import {PrivateDiagramTupleService} from "../services";
-import {Subject} from "rxjs";
+import {Observable, Subject} from "rxjs";
 import {TupleSelector, VortexStatusService} from "@synerty/vortexjs";
 import {BranchLiveEditTuple} from "./BranchLiveEditTuple";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
@@ -18,9 +18,8 @@ import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
  */
 export class PrivateDiagramBranchContext {
 
-    private shutdownSubject: Subject<void> = new Subject<void>();
-
-    private updateModelCallback: (() => void) | null = null;
+    private readonly shutdownSubject = new Subject<void>();
+    private readonly _branchUpdatedSubject = new Subject<boolean>();
 
     private static readonly SEND_UPDATE_PERIOD = 1000;
     private updateTimerNum = null;
@@ -55,6 +54,14 @@ export class PrivateDiagramBranchContext {
         return this.branch.key;
     }
 
+    /** Branch Update Observable
+     *
+     * The observable will be emitted with an
+     */
+    get branchUpdatedObservable(): Observable<boolean> {
+        return this._branchUpdatedSubject.takeUntil(this.shutdownSubject);
+    }
+
     save(): Promise<void> {
         let promises = [];
 
@@ -69,10 +76,12 @@ export class PrivateDiagramBranchContext {
         return prom;
     }
 
-    open(updateModelCallback: () => void): void {
+    open(): void {
         this.sendLiveUpdate(BranchLiveEditTupleAction.EDITING_STARTED);
-        this.updateModelCallback = updateModelCallback;
-        this.branch.setContextUpdateCallback(() => this.needsLiveUpdateSend = true);
+        this.branch.setContextUpdateCallback((modelUpdateRequired) => {
+            this._branchUpdatedSubject.next(modelUpdateRequired);
+            this.needsLiveUpdateSend = true;
+        });
 
         let ts = new TupleSelector(BranchLiveEditTuple.tupleName, {
             coordSetId: this.branch.coordSetId,
@@ -93,10 +102,7 @@ export class PrivateDiagramBranchContext {
 
                 if (this.branch.applyLiveUpdate(update.branchTuple)) {
                     this.branch.linkDisps(this.lookupCache);
-                    // this.balloonMsg
-                    //     .showInfo(`Branch has been updated by ${update.updatedByUser}`);
-                    if (this.updateModelCallback != null)
-                        this.updateModelCallback();
+                    this._branchUpdatedSubject.next(true);
                 }
             });
 
@@ -112,7 +118,6 @@ export class PrivateDiagramBranchContext {
     close(): void {
         clearTimeout(this.updateTimerNum);
         this.sendLiveUpdate(BranchLiveEditTupleAction.EDITING_FINISHED);
-        this.updateModelCallback = null;
         this.branch.setContextUpdateCallback(null);
         this.shutdownSubject.next();
     }
@@ -122,6 +127,7 @@ export class PrivateDiagramBranchContext {
     }
 
     private sendLiveUpdate(updateType: number | null = null): void {
+
         if (updateType == null)
             updateType = BranchLiveEditTupleAction.EDITING_UPDATED;
 
@@ -133,11 +139,13 @@ export class PrivateDiagramBranchContext {
 
         let promise = null;
         if (updateType == BranchLiveEditTupleAction.EDITING_UPDATED) {
+            // All updates are only sent when the device is online
             if (this.vortexStatusService.snapshot.isOnline)
                 promise = this.tupleService.action.pushAction(action);
 
 
         } else {
+            // ALL Start and Finish updates are sent
             promise = this.tupleService.offlineAction.pushAction(action);
         }
 
@@ -146,6 +154,7 @@ export class PrivateDiagramBranchContext {
                 e => console.log(`Failed to send live update for branch: ${e}`)
             );
         }
+
 
     }
 

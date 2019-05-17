@@ -35,8 +35,7 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
             .takeUntil(this.onDestroyEvent)
             .subscribe((context: PeekCanvasShapePropsContext) => {
                 this.context = context;
-                if (context != null)
-                    this.processContext(context);
+                this.processContext(context);
             });
         this.processContext(this.context);
     }
@@ -91,6 +90,10 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
 
 
     private processContext(context: PeekCanvasShapePropsContext): void {
+        if (context == null) {
+            return;
+        }
+
         for (let prop of context.props()) {
             switch (prop.type) {
                 case ShapePropType.Layer:

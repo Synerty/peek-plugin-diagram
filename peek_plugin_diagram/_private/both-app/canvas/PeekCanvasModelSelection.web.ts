@@ -68,22 +68,27 @@ export class PeekCanvasModelSelection {
         this._keysToTryToSelect = keys;
     }
 
+    replaceSelection(objectOrArray = []) {
+        this._selection = [];
+        this._selection = this._selection.add(objectOrArray);
+        this._selectionChangedSubject.next(this._selection);
+        this.config.invalidate();
+    }
+
     addSelection(objectOrArray) {
         this._selection = this._selection.add(objectOrArray);
-        this.config.invalidate();
         this._selectionChangedSubject.next(this._selection);
+        this.config.invalidate();
     }
 
     removeSelection(objectOrArray) {
         this._selection = this._selection.remove(objectOrArray);
-        this.config.invalidate();
         this._selectionChangedSubject.next(this._selection);
+        this.config.invalidate();
     }
 
     clearSelection() {
-        this._selection = [];
-        this.config.invalidate();
-        this._selectionChangedSubject.next(this._selection);
+        this.replaceSelection();
     }
 
 

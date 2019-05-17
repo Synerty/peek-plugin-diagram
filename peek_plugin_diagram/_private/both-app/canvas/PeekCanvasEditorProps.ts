@@ -26,13 +26,6 @@ export class PeekCanvasEditorProps {
     private _contextPanelState: EditorContextType = EditorContextType.NONE;
 
     // ---------------
-    // Branch variables
-
-    private readonly _branchPanelContextSubject = new Subject<string | null>();
-
-    branchPanelContext: string | null = null;
-
-    // ---------------
     // Shape Props
 
     private readonly _shapePanelContextSubject = new Subject<PeekCanvasShapePropsContext | null>();
@@ -68,10 +61,6 @@ export class PeekCanvasEditorProps {
         return this._contextPanelChangeSubject;
     }
 
-    get branchPanelContextObservable(): Observable<string | null> {
-        return this._branchPanelContextSubject;
-    }
-
     get shapePanelContextObservable(): Observable<PeekCanvasShapePropsContext | null> {
         return this._shapePanelContextSubject;
     }
@@ -81,30 +70,55 @@ export class PeekCanvasEditorProps {
     }
 
     // ---------------
-    // Methods called by toolbar
+    // Properties, used by UI mainly
 
-    private changeContextPanel(newState: EditorContextType): void {
+    private setContextPanel(newState: EditorContextType): void {
         this._contextPanelState = newState;
         this._contextPanelChangeSubject.next(newState);
     }
 
+
+    private setShapePanelContextObservable(val: PeekCanvasShapePropsContext | null): void {
+        this.shapePanelContext = val;
+        this._shapePanelContextSubject.next(val);
+    }
+
+    private setLiveDbPanelContextObservable(): void {
+        // this._liveDbPanelContextSubject;
+    }
+
+    // ---------------
+    // Methods called by toolbar
+
     showBranchProperties() {
-        this.changeContextPanel(EditorContextType.BRANCH_PROPERTIES);
+        this.setContextPanel(
+            this._contextPanelState == EditorContextType.BRANCH_PROPERTIES
+                ? EditorContextType.NONE
+                : EditorContextType.BRANCH_PROPERTIES
+        );
     }
 
     showShapeProperties() {
-        this.changeContextPanel(EditorContextType.SHAPE_PROPERTIES);
+        this.setContextPanel(
+            this._contextPanelState == EditorContextType.SHAPE_PROPERTIES
+                ? EditorContextType.NONE
+                : EditorContextType.SHAPE_PROPERTIES
+        );
     }
 
     showDynamicProperties() {
-        this.changeContextPanel(EditorContextType.DYNAMIC_PROPERTIES);
+        this.setContextPanel(
+            this._contextPanelState == EditorContextType.DYNAMIC_PROPERTIES
+                ? EditorContextType.NONE
+                : EditorContextType.DYNAMIC_PROPERTIES
+        );
     }
 
     // ---------------
     // Methods called by Context
 
     closeContext() {
-        this.changeContextPanel(EditorContextType.NONE);
+        this.setContextPanel(EditorContextType.NONE);
     }
 
     // ---------------
@@ -117,8 +131,7 @@ export class PeekCanvasEditorProps {
             if (this._contextPanelState == EditorContextType.SHAPE_PROPERTIES)
                 this.closeContext();
 
-            this.shapePanelContext = null;
-            this._shapePanelContextSubject.next(null);
+            this.setShapePanelContextObservable(null);
             return;
         }
 
@@ -131,8 +144,7 @@ export class PeekCanvasEditorProps {
 
         DispFactory.wrapper(disp).makeShapeContext(shapePropsContext);
 
-        this.shapePanelContext = shapePropsContext;
-        this._shapePanelContextSubject.next(shapePropsContext);
+        this.setShapePanelContextObservable(shapePropsContext);
 
     }
 
