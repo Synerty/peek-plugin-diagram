@@ -1,12 +1,10 @@
-import ujson as json
 import logging
-import pytz
 from datetime import datetime
-from geoalchemy2.shape import to_shape
-from txcelery.defer import DeferrableTask
 from typing import List, Dict, Tuple
-from vortex.Payload import Payload
 
+import pytz
+import ujson as json
+from geoalchemy2.shape import to_shape
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
     DispCompilerQueueController
@@ -30,6 +28,9 @@ from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
     ImportDispPolylineTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispTextTuple import ImportDispTextTuple
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
+from sqlalchemy.orm.attributes import InstrumentedAttribute
+from txcelery.defer import DeferrableTask
+from vortex.Payload import Payload
 
 logger = logging.getLogger(__name__)
 
@@ -330,38 +331,112 @@ def _bulkLoadDispsTask(coordSet: ModelCoordSet, importGroupHash: str, disps: Lis
     :return:
     """
 
+    _updateCoordSetPosition(coordSet, disps)
+
+    INSERT_MAP = (
+        (DispGroup, (DispBase, DispGroup)),
+        (DispGroupPointer, (DispBase, DispGroupPointer)),
+        (DispEllipse, (DispBase, DispEllipse)),
+        (DispPolyline, (DispBase, DispPolyline)),
+        (DispPolygon, (DispBase, DispPolygon)),
+        (DispText, (DispBase, DispText)),
+    )
+
     startTime = datetime.now(pytz.utc)
 
     dispTable = DispBase.__table__
 
-    ormSession = CeleryDbConn.getDbSession()
+    engine = CeleryDbConn.getDbEngine()
+    conn = engine.connect()
+    transaction = conn.begin()
+
     try:
-        ormSession.execute(dispTable
-                           .delete()
-                           .where(dispTable.c.importGroupHash == importGroupHash))
+        conn.execute(dispTable
+                     .delete()
+                     .where(dispTable.c.importGroupHash == importGroupHash))
 
-        # Initialise the ModelCoordSet initial position if it's not set
-        if (not coordSet.initialPanX
-                and not coordSet.initialPanY
-                and not coordSet.initialZoom):
-            for disp in disps:
-                if not hasattr(disp, 'geomJson'):
-                    continue
-                coords = json.loads(disp.geomJson)
-                coordSet.initialPanX = coords[0]
-                coordSet.initialPanY = coords[1]
-                coordSet.initialZoom = 0.05
-                ormSession.merge(coordSet)
-                break
+        for DispType, Tables in INSERT_MAP:
+            inserts = [_convertToDbInsert(disp, DispType)
+                       for disp in disps
+                       if isinstance(disp, DispType)]
 
-        ormSession.commit()
+            if not inserts:
+                continue
 
-        ormSession.bulk_save_objects(disps, update_changed_only=False)
+            for Table in Tables:
+                conn.execute(Table.__table__.insert(), inserts)
 
-        ormSession.commit()
+        transaction.commit()
 
         logger.info("Inserted %s Disps in %s",
                     len(disps), (datetime.now(pytz.utc) - startTime))
+
+    except Exception:
+        transaction.rollback()
+        raise
+
+    finally:
+        conn.close()
+
+
+def _convertToDbInsert(disp, DispType):
+    insertDict = dict()
+
+    for fieldName in DispType.tupleFieldNames():
+        value = getattr(disp, fieldName)
+
+        if value is None:
+            Col = getattr(DispType, fieldName)
+            if isinstance(Col, InstrumentedAttribute):
+                value = Col.server_default.arg if Col.server_default else None
+                if value == 'false':
+                    value = False
+
+                elif value == 'true':
+                    value = True
+
+        insertDict[fieldName] = value
+
+    insertDict['type'] = DispType.RENDERABLE_TYPE
+    return insertDict
+
+
+def _updateCoordSetPosition(coordSet: ModelCoordSet, disps: List):
+    """ Update CoordSet Position
+
+    1) Drop all disps with matching importGroupHash
+
+    2) set the  coordSetId
+
+    :param coordSet:
+    :param disps: An array of disp objects to import
+    :return:
+    """
+
+    if coordSet.initialPanX or coordSet.initialPanY or coordSet.initialZoom:
+        return
+
+    startTime = datetime.now(pytz.utc)
+
+    ormSession = CeleryDbConn.getDbSession()
+
+    try:
+
+        # Initialise the ModelCoordSet initial position if it's not set
+        for disp in disps:
+            if not hasattr(disp, 'geomJson'):
+                continue
+            coords = json.loads(disp.geomJson)
+            coordSet.initialPanX = coords[0]
+            coordSet.initialPanY = coords[1]
+            coordSet.initialZoom = 0.05
+            ormSession.merge(coordSet)
+            break
+
+        ormSession.commit()
+
+        logger.info("Updated coordset position in %s",
+                    (datetime.now(pytz.utc) - startTime))
 
     finally:
         ormSession.close()

@@ -134,6 +134,7 @@ class LookupImportController:
             except Exception as e:
                 ormSession.rollback()
                 logger.exception(e)
+                raise
 
             logger.info("Updates for %s received, Added %s, Updated %s, Deleted %s",
                         tupleType, addCount, updateCount, deleteCount)

@@ -246,7 +246,7 @@ class DispBase(Tuple, DeclarativeBase):
     key = Column(String, doc='k')
 
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
-    selectable = Column(Boolean, doc='s', nullable=False, server_default='0')
+    selectable = Column(Boolean, doc='s', nullable=False, server_default='false')
 
     #: Data, Generic data that is passed in the context for the item select popup
     dataJson = Column(String, doc='d')
@@ -254,7 +254,6 @@ class DispBase(Tuple, DeclarativeBase):
     importUpdateDate = Column(DateTime(True), doc=JSON_EXCLUDE)
     importHash = Column(String(100), doc=JSON_EXCLUDE)
     importGroupHash = Column(String(200), doc=JSON_EXCLUDE)
-    importLiveDbDispLinks = TupleField([])
 
     liveDbLinks = relationship("LiveDbDispLink")
 
@@ -270,9 +269,9 @@ class DispBase(Tuple, DeclarativeBase):
         Index("idx_Disp_levelId", levelId, unique=False),
         Index("idx_Disp_coordSetId_", coordSetId, unique=False),
         Index("idx_Disp_groupId", groupId, unique=False),
-        Index("idx_Disp_groupId", groupId, unique=False),
         Index("idx_Disp_branchId", branchId, unique=False),
-        Index("idx_Disp_replacesHashId", coordSetId, hashId, unique=True),
+        Index("idx_Disp_hashId", coordSetId, hashId, unique=True),
+        Index("idx_Disp_replacesHashId", replacesHashId),
     )
 
 
@@ -462,8 +461,9 @@ class DispGroup(DispBase):
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
                 , primary_key=True, autoincrement=False)
 
-    name = Column(String, doc=JSON_EXCLUDE, nullable=False, unique=True)
-    compileAsTemplate = Column(Boolean, nullable=False, server_default='false')
+    name = Column(String, doc='n', nullable=False, unique=True)
+    compileAsTemplate = Column(Boolean, doc=JSON_EXCLUDE,
+                               nullable=False, server_default='false')
 
     disps = relationship(DispBase,
                          primaryjoin='DispBase.groupId==DispGroup.id',

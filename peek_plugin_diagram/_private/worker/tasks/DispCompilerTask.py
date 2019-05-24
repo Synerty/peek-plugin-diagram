@@ -312,7 +312,7 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
         logger.debug("Cloned %s disp group objects in %s",
                      len(cloneDisps), (datetime.now(pytz.utc) - startTime))
 
-    except Exception as e:
+    except Exception:
         ormSession.rollback()
         raise
 

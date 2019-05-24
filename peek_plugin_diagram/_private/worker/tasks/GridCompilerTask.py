@@ -8,11 +8,6 @@ from functools import cmp_to_key
 from typing import List
 
 import pytz
-from txcelery.defer import DeferrableTask
-from vortex.Payload import Payload
-
-from peek_plugin_base.storage.StorageUtil import makeCoreValuesSubqueryCondition, \
-    makeOrmValuesSubqueryCondition
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.storage.Display import DispLevel, DispBase, DispLayer
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled, \
@@ -20,6 +15,8 @@ from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompil
     GridKeyIndex
 from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
+from txcelery.defer import DeferrableTask
+from vortex.Payload import Payload
 
 logger = logging.getLogger(__name__)
 
@@ -60,14 +57,13 @@ def compileGrids(self, queueItems) -> List[str]:
     try:
 
         logger.debug("Staring compile of %s queueItems in %s",
-                     len(queueItems), (datetime.now(pytz.utc) - startTime))
+                    len(queueItems), (datetime.now(pytz.utc) - startTime))
 
         total = 0
         dispData = _qryDispData(session, gridKeys)
 
-        conn.execute(gridTable.delete(
-            makeCoreValuesSubqueryCondition(engine, gridTable.c.gridKey, gridKeys)
-        ))
+        conn.execute(gridTable.delete(gridTable.c.gridKey.in_(gridKeys)))
+
         transaction.commit()
         transaction = conn.begin()
 
@@ -95,19 +91,17 @@ def compileGrids(self, queueItems) -> List[str]:
             conn.execute(gridTable.insert(), inserts)
 
         logger.debug("Compiled %s gridKeys, %s missing, in %s",
-                     len(inserts),
-                     len(gridKeys) - len(inserts), (datetime.now(pytz.utc) - startTime))
+                    len(inserts),
+                    len(gridKeys) - len(inserts), (datetime.now(pytz.utc) - startTime))
 
         total += len(inserts)
 
         queueItemIds = [o.id for o in queueItems]
-        conn.execute(queueTable.delete(
-            makeCoreValuesSubqueryCondition(engine, queueTable.c.id, queueItemIds)
-        ))
+        conn.execute(queueTable.delete(queueTable.c.id.in_(queueItemIds)))
 
         transaction.commit()
-        logger.debug("Compiled and Comitted %s GridKeyIndexCompileds in %s",
-                     total, (datetime.now(pytz.utc) - startTime))
+        logger.debug("Compiled and Committed %s GridKeyIndexCompileds in %s",
+                    total, (datetime.now(pytz.utc) - startTime))
 
         return gridKeys
 
@@ -122,6 +116,18 @@ def compileGrids(self, queueItems) -> List[str]:
 
 
 def _dispBaseSortCmp(dispData1, dispData2):
+    isData1None = dispData1.levelOrder is None or dispData1.levelOrder is None
+    isData2None = dispData2.levelOrder is None or dispData2.levelOrder is None
+
+    if isData1None and isData2None:
+        return 0
+
+    elif isData1None:
+        return -1
+
+    elif isData2None:
+        return 1
+
     levelDiff = dispData1.levelOrder - dispData2.levelOrder
     if levelDiff != 0:
         return levelDiff
@@ -139,11 +145,9 @@ def _qryDispData(session, gridKeys):
                       DispBase.id, DispBase.zOrder,
                       DispLevel.order, DispLayer.order)
             .join(DispBase, DispBase.id == GridKeyIndex.dispId)
-            .join(DispLevel)
-            .join(DispLayer)
-            .filter(makeOrmValuesSubqueryCondition(
-            session, GridKeyIndex.gridKey, gridKeys
-        ))
+            .outerjoin(DispLevel)
+            .outerjoin(DispLayer)
+            .filter(GridKeyIndex.gridKey.in_(gridKeys))
     )
 
     dispsByGridKeys = defaultdict(list)
@@ -153,10 +157,11 @@ def _qryDispData(session, gridKeys):
         dispsByGridKeys[item[0]].append(DispData(*item[1:]))
 
     for gridKey, dispDatas in list(dispsByGridKeys.items()):
-        dispsDumpedJson = [d.json
-                           for d in sorted(dispDatas,
-                                           key=cmp_to_key(_dispBaseSortCmp))
-                           if d.json]
+        dispsDumpedJson = [
+            d.json
+            for d in sorted(dispDatas, key=cmp_to_key(_dispBaseSortCmp))
+            if d.json
+        ]
 
         dispJsonByGridKey[gridKey] = '[' + ','.join(dispsDumpedJson) + ']'
 

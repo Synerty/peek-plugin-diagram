@@ -85,6 +85,9 @@ class ModelCoordSet(Tuple, DeclarativeBase):
     data = TupleField()
 
     #: Is Editing enabled? (Also ensure ALL editDefault fields are set.
+    dispGroupTemplatesEnabled = Column(Boolean, nullable=False, server_default="false")
+
+    #: Is Editing enabled? (Also ensure ALL editDefault fields are set.
     branchesEnabled = Column(Boolean, nullable=False, server_default="false")
 
     #: Is Editing enabled? (Also ensure ALL editDefault fields are set.
