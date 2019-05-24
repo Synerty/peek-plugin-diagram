@@ -1,6 +1,4 @@
-import {Injectable} from "@angular/core";
 import {GridTuple} from "./GridTuple";
-import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PrivateDiagramGridLoaderStatusTuple} from "./PrivateDiagramGridLoaderStatusTuple";

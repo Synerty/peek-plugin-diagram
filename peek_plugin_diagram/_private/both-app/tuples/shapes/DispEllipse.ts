@@ -1,6 +1,7 @@
 import {DispBase, PointI} from "./DispBase";
 import {DispColor} from "@peek/peek_plugin_diagram/lookups";
 import {DispLineStyle} from "@peek/peek_plugin_diagram/lookups";
+import {PeekCanvasPoint} from "../../canvas/PeekCanvasBounds";
 
 export class DispEllipse extends DispBase {
 
@@ -49,6 +50,10 @@ export class DispEllipse extends DispBase {
 
     static endAngle(disp): number {
         return disp.ea;
+    }
+
+    static center(disp): PeekCanvasPoint {
+        return {x: disp.g[0], y: disp.g[1]};
     }
 
 

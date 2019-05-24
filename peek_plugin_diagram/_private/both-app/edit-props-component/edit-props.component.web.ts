@@ -91,4 +91,8 @@ export class EditPropsComponent extends ComponentLifecycleEventEmitter
         return this.currentContext === EditorContextType.DYNAMIC_PROPERTIES;
     }
 
+    isShowingGroupPtrPropertiesContext(): boolean {
+        return this.currentContext === EditorContextType.GROUP_PTR_PROPERTIES;
+    }
+
 }

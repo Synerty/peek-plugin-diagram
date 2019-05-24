@@ -1,3 +1,5 @@
+from vortex.handler.TupleDataObservableProxyHandler import TupleDataObservableProxyHandler
+
 from peek_plugin_diagram._private.client.controller.BranchIndexCacheController import \
     BranchIndexCacheController
 from peek_plugin_diagram._private.client.controller.CoordSetCacheController import \
@@ -18,6 +20,8 @@ from peek_plugin_diagram._private.client.tuple_providers.ClientCoordSetTupleProv
     ClientCoordSetTupleProvider
 from peek_plugin_diagram._private.client.tuple_providers.ClientDispKeyLocationTupleProvider import \
     ClientDispKeyLocationTupleProvider
+from peek_plugin_diagram._private.client.tuple_providers.ClientGroupDispsTupleProvider import \
+    ClientGroupDispsTupleProvider
 from peek_plugin_diagram._private.client.tuple_providers.ClientLocationIndexUpdateDateTupleProvider import \
     ClientLocationIndexUpdateDateTupleProvider
 from peek_plugin_diagram._private.client.tuple_providers.ClientLookupTupleProvider import \
@@ -29,6 +33,7 @@ from peek_plugin_diagram._private.client.tuple_providers.GridCacheIndexTupleProv
 from peek_plugin_diagram._private.storage.Display import DispLevel, DispTextStyle, \
     DispLineStyle, DispColor, DispLayer
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
+from peek_plugin_diagram._private.tuples.GroupDispsTuple import GroupDispsTuple
 from peek_plugin_diagram._private.tuples.branch.BranchIndexUpdateDateTuple import \
     BranchIndexUpdateDateTuple
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import \
@@ -39,7 +44,6 @@ from peek_plugin_diagram._private.tuples.location_index.DispKeyLocationTuple imp
     DispKeyLocationTuple
 from peek_plugin_diagram._private.tuples.location_index.LocationIndexUpdateDateTuple import \
     LocationIndexUpdateDateTuple
-from vortex.handler.TupleDataObservableProxyHandler import TupleDataObservableProxyHandler
 
 
 def makeClientTupleDataObservableHandler(tupleObservable: TupleDataObservableProxyHandler,
@@ -100,5 +104,10 @@ def makeClientTupleDataObservableHandler(tupleObservable: TupleDataObservablePro
     tupleObservable.addTupleProvider(BranchIndexUpdateDateTuple.tupleName(),
                                      BranchIndexUpdateDateTupleProvider(
                                          branchCacheController))
+
+    tupleObservable.addTupleProvider(
+        GroupDispsTuple.tupleName(),
+        ClientGroupDispsTupleProvider(gridCacheController)
+    )
 
     return tupleObservable

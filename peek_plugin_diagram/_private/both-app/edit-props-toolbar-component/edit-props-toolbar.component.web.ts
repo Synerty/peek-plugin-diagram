@@ -62,7 +62,7 @@ export class EditPropsToolbarComponent extends ComponentLifecycleEventEmitter
 
     // LiveDB Properties
     showLiveDbProperties(): void {
-        this.canvasEditor.props.showDynamicProperties();
+        this.canvasEditor.props.showLiveDbProperties();
     }
 
     isLiveDbPropertiesActive(): boolean {

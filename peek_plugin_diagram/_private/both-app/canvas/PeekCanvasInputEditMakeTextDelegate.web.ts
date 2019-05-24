@@ -6,7 +6,7 @@ import {
 import {DispText} from "../tuples/shapes/DispText";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
-import {PeekCanvasShapePropsContext} from "./PeekCanvasShapePropsContext";
+import {DispGroup} from "../tuples/shapes/DispGroup";
 
 /**
  * This input delegate handles :
@@ -25,8 +25,6 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     private _startMousePos: CanvasInputPos | null = null;
     private _startNodeRend = null;
     private _endNodeRend = null;
-
-    private _enteredText: string = '';
 
     constructor(viewArgs: InputDelegateConstructorArgs,
                 canvasEditor: PeekCanvasEditor) {
@@ -51,7 +49,6 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         this._startMousePos = null;
         this._lastMousePos = null;
 
-        this._enteredText = '';
     }
 
 
@@ -63,13 +60,15 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         if (!this._creating)
             return;
 
+        let enteredText = DispText.text(this._creating);
+
         if (event.keyCode == 8) { // Backspace
-            if (this._enteredText && this._enteredText.length)
-                this._enteredText = this._enteredText.substr(0,
-                    this._enteredText.length - 1);
+            if (enteredText && enteredText.length)
+                enteredText = enteredText.substr(0,
+                    enteredText.length - 1);
             else
-                this._enteredText = '';
-            this._creating.setText(this._enteredText);
+                enteredText = '';
+            this._creating.setText(enteredText);
             this.viewArgs.config.invalidate();
             return;
         }
@@ -80,8 +79,8 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
 
         let inp = String.fromCharCode(event.keyCode);
         if (/[a-zA-Z0-9-_ .,`"'|~!@#$%^&*()-=+{}\[\]\\:;<>\/?]/.test(inp)) {
-            this._enteredText = (this._enteredText || '') + inp;
-            this._creating.setText(this._enteredText);
+            enteredText = (enteredText || '') + inp;
+            this._creating.setText(enteredText);
             this.viewArgs.config.invalidate();
             return;
         }
@@ -152,57 +151,13 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     }
 
     draw(ctx, zoom, pan) {
-        /*
-        if (this._creating == null)
-            return;
-
-        //this.viewArgs.renderFactory.draw(this._creating, ctx, zoom, pan);
-
-        // Give meaning to our short names
-        let rotationRadian = 0;
-
-        // TODO, Draw a box around the text, based on line style
-
-        let fontSize = 14;
-
-        let font = "14px Roboto ";
-
-        let lineHeight = pointToPixel(fontSize);
-
-        let textAlign = 'center';
-        let textBaseline = 'middle';
-
-        // save state
-        ctx.save();
-        ctx.translate(DispText.centerPointX(this._creating),
-            DispText.centerPointY(this._creating));
-        ctx.rotate(rotationRadian); // Degrees to radians
-
-        ctx.textAlign = textAlign;
-        ctx.textBaseline = textBaseline;
-        ctx.font = font;
-
-        let unscale = 1.0 / zoom;
-        ctx.scale(unscale, unscale);
-
-
-        let lines = DispText.text(this._creating).split("\n");
-        for (let lineIndex = 0; lineIndex < lines.length; ++lineIndex) {
-            let line = lines[lineIndex];
-            let yOffset = lineHeight * lineIndex;
-
-            ctx.fillStyle = 'green';
-            ctx.fillText(line, 0, yOffset);
-        }
-        ctx.restore();
-        */
     }
 
     _finaliseCreate() {
         // DiagramBranchContext
 
         // TODO, Add to branch context
-        // if (this._enteredText && this._creating)
+        // if (enteredText && this._creating)
         //     this._creating.storeState();
 
         this._reset();

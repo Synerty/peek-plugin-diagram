@@ -28,7 +28,7 @@ export class PeekCanvasEditor {
     private readonly _props: PeekCanvasEditorProps;
 
     constructor(private balloonMsg: Ng2BalloonMsgService,
-                private canvasInput: PeekCanvasInput,
+                public canvasInput: PeekCanvasInput,
                 private canvasModel: PeekCanvasModel,
                 private canvasConfig: PeekCanvasConfig,
                 public lookupService: DiagramLookupService,

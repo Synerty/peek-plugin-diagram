@@ -8,6 +8,7 @@ import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupServi
 export enum EditorContextType {
     NONE,
     BRANCH_PROPERTIES,
+    GROUP_PTR_PROPERTIES,
     SHAPE_PROPERTIES,
     DYNAMIC_PROPERTIES
 }
@@ -40,6 +41,13 @@ export class PeekCanvasEditorProps {
     liveDbPanelContext: undefined | null = null;
 
     // ---------------
+    // Group Ptr Props
+
+    private readonly _groupPtrPanelContextSubject = new Subject<undefined | null>();
+
+    groupPtrPanelContext: undefined | null = null;
+
+    // ---------------
     // General things
 
     private modelSetId: number = -1;
@@ -69,6 +77,10 @@ export class PeekCanvasEditorProps {
         return this._liveDbPanelContextSubject;
     }
 
+    get groupPtrPanelContextObservable(): Observable<undefined | null> {
+        return this._groupPtrPanelContextSubject;
+    }
+
     // ---------------
     // Properties, used by UI mainly
 
@@ -85,6 +97,10 @@ export class PeekCanvasEditorProps {
 
     private setLiveDbPanelContextObservable(): void {
         // this._liveDbPanelContextSubject;
+    }
+
+    private setGroupPtrPanelContextObservable(): void {
+        this._groupPtrPanelContextSubject.next();
     }
 
     // ---------------
@@ -106,11 +122,19 @@ export class PeekCanvasEditorProps {
         );
     }
 
-    showDynamicProperties() {
+    showLiveDbProperties() {
         this.setContextPanel(
             this._contextPanelState == EditorContextType.DYNAMIC_PROPERTIES
                 ? EditorContextType.NONE
                 : EditorContextType.DYNAMIC_PROPERTIES
+        );
+    }
+
+    showGroupPtrProperties() {
+        this.setContextPanel(
+            this._contextPanelState == EditorContextType.GROUP_PTR_PROPERTIES
+                ? EditorContextType.NONE
+                : EditorContextType.GROUP_PTR_PROPERTIES
         );
     }
 

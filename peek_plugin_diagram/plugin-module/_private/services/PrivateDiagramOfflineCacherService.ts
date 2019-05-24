@@ -5,7 +5,7 @@ import {
     VortexStatusService
 } from "@synerty/vortexjs";
 import {PrivateDiagramTupleService} from "./PrivateDiagramTupleService";
-import {ModelCoordSet, ModelSet} from "../tuples";
+import {GroupDispsTuple, ModelCoordSet, ModelSet} from "../tuples";
 import {
     DispColor,
     DispLayer,
@@ -14,7 +14,7 @@ import {
     DispTextStyle
 } from "../../lookups";
 import {BranchKeyToIdMapTuple} from "../branch/BranchKeyToIdMapTuple";
-import {BranchDetailTuple, BranchService} from "@peek/peek_plugin_branch";
+import {BranchService} from "@peek/peek_plugin_branch";
 
 
 /** Diagram Lookups offline cacher
@@ -37,6 +37,7 @@ export class PrivateDiagramOfflineCacherService extends ComponentLifecycleEventE
     ];
 
     private lookupSubs = [];
+    private dispGroupSubs = [];
 
     constructor(private tupleService: PrivateDiagramTupleService,
                 vortexStatusService: VortexStatusService,
@@ -87,12 +88,13 @@ export class PrivateDiagramOfflineCacherService extends ComponentLifecycleEventE
         this.tupleService.offlineObserver
             .subscribeToTupleSelector(tupleSelector)
             .takeUntil(this.onDestroyEvent)
-            .subscribe((tuples: ModelSet[]) => {
+            .subscribe((modelSets: ModelSet[]) => {
                 this.tupleService.offlineObserver.flushCache(tupleSelector);
+                this.loadLookups(modelSets);
 
-                for (let modelSet of tuples) {
-                    this.loadLookup(modelSet);
+                for (let modelSet of modelSets) {
 
+                    // HACK!!!
                     // force the global branch service to cache it's stuff
                     this.globalBranchService.branches(modelSet.key);
                 }
@@ -115,6 +117,7 @@ export class PrivateDiagramOfflineCacherService extends ComponentLifecycleEventE
             .takeUntil(this.onDestroyEvent)
             .subscribe((tuples: ModelCoordSet[]) => {
                 this.tupleService.offlineObserver.flushCache(tupleSelector);
+                this.loadDispGroups(tuples);
             });
 
     }
@@ -144,13 +147,48 @@ export class PrivateDiagramOfflineCacherService extends ComponentLifecycleEventE
      * This method caches the lookups for a model set
      *
      */
-    private loadLookup(modelSet: ModelSet) {
+    private loadLookups(modelSets: ModelSet[]) {
+
         while (this.lookupSubs.length)
             this.lookupSubs.pop().unsubscribe();
 
-        for (let LookupTuple of PrivateDiagramOfflineCacherService.LookupTuples) {
-            let tupleSelector = new TupleSelector(LookupTuple.tupleName, {
-                "modelSetKey": modelSet.key
+        for (let modelSet of modelSets) {
+            for (let LookupTuple of PrivateDiagramOfflineCacherService.LookupTuples) {
+                let tupleSelector = new TupleSelector(LookupTuple.tupleName, {
+                    "modelSetKey": modelSet.key
+                });
+
+                let sub = this.tupleService.offlineObserver
+                    .subscribeToTupleSelector(tupleSelector)
+                    .takeUntil(this.onDestroyEvent)
+                    .subscribe((tuples: any[]) => {
+                        this.tupleService.offlineObserver.flushCache(tupleSelector);
+                    });
+
+                this.lookupSubs.push(sub);
+            }
+        }
+    }
+
+    /**
+     * Load Disp Groups
+     *
+     * This method caches the DispGroups for coord sets.
+     *
+     */
+    private loadDispGroups(coordSets: ModelCoordSet[]) {
+
+        let subs = this.dispGroupSubs;
+
+        while (subs.length)
+            subs.pop().unsubscribe();
+
+        for (let coordSet of coordSets) {
+            if (coordSet.dispGroupTemplatesEnabled !== true)
+                continue;
+
+            let tupleSelector = new TupleSelector(GroupDispsTuple.tupleName, {
+                "coordSetId": coordSet.id
             });
 
             let sub = this.tupleService.offlineObserver
@@ -160,7 +198,7 @@ export class PrivateDiagramOfflineCacherService extends ComponentLifecycleEventE
                     this.tupleService.offlineObserver.flushCache(tupleSelector);
                 });
 
-            this.lookupSubs.push(sub);
+            subs.push(sub);
         }
 
     }

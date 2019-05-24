@@ -1,0 +1,42 @@
+<div>
+    <table class="table">
+        <tbody>
+        <tr class="tr">
+            <th class="th">Select Group :
+            </th>
+            <td class="td">
+                <select (ngModelChange)="selectedCoordSetIdChanged($event)"
+                        [(ngModel)]="selectedCoordSetId">
+                    <option *ngFor="let option of templateCoordSets"
+                            [value]="option.id">{{option.name}}
+                    </option>
+                </select>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+{{selectedDispGroupId}}
+    <p *ngIf="noDispGroups()">
+        There are no template groups at this time.
+    </p>
+    <div *ngIf="!noDispGroups()" class="peek-tables-section">
+        <table class="table">
+            <tbody>
+            <tr class="tr"
+                *ngFor="let item of dispGroups; odd as odd; even as even">
+                <th class="td"
+                    [class.bg-success]="isSelectedDispGroup(item)"
+                    [class.bg-warning]="!isSelectedDispGroup(item)"
+                    (click)="toggleEnabled(item)">{{dispName(item)}}
+                </th>
+<!--                <th class="td bar-left"-->
+<!--                    [class.bg-success]="item === selectedDispGroup"-->
+<!--                    [class.bg-warning]="item !== selectedDispGroup"-->
+<!--                    (click)="branchSelected(item)">-->
+<!--                    <fa name="chevron-right"></fa>-->
+<!--                </th>-->
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

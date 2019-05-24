@@ -55,6 +55,7 @@ export class PrivateDiagramCoordSetService extends ComponentLifecycleEventEmitte
             .takeUntil(this.onDestroyEvent)
             .subscribe((tuples: ModelCoordSet[]) => {
                 this._coordSetByKeyByModelSetKey = {};
+                this._coordSetsByModelSetKey = {};
 
                 for (let item of tuples) {
                     // Coord Set by Coord Set Key, by Model Set Key
@@ -131,6 +132,11 @@ export class PrivateDiagramCoordSetService extends ComponentLifecycleEventEmitte
             return null;
 
         return coordSetsByCoordSetKey[coordSetKey];
+    };
+
+    coordSets(modelSetKey: string): ModelCoordSet[] {
+        let coordSets = this._coordSetsByModelSetKey[modelSetKey];
+        return coordSets == null ? [] : coordSets;
     };
 
     coordSetForId(id: number): ModelCoordSet {

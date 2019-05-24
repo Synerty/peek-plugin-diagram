@@ -1,6 +1,8 @@
 import {DispBase, PointsT} from "./DispBase";
 import {DispColor} from "@peek/peek_plugin_diagram/lookups";
 import {DispLineStyle} from "@peek/peek_plugin_diagram/lookups";
+import {PeekCanvasPoint} from "../../canvas/PeekCanvasBounds";
+import {DispGroupPointerT} from "./DispGroupPointer";
 
 export enum PolygonFillDirection {
     fillTopToBottom = 0,
@@ -55,6 +57,10 @@ export class DispPolygon extends DispBase {
 
     static fillPercent(disp): number {
         return disp.fp;
+    }
+
+    static center(disp): PeekCanvasPoint {
+        return {x: disp.g[0], y: disp.g[1]};
     }
 
 }

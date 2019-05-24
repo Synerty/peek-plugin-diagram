@@ -10,5 +10,4 @@ class GridTuple(Tuple):
 
     gridKey: str = TupleField()
     dispJsonStr: str = TupleField()
-    branchJsonStr: str = TupleField()
     lastUpdate: datetime = TupleField()

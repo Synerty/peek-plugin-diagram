@@ -1,5 +1,6 @@
 import {DispBase, PointsT} from "./DispBase";
 import {DispColor, DispLineStyle} from "@peek/peek_plugin_diagram/lookups";
+import {PeekCanvasPoint} from "../../canvas/PeekCanvasBounds";
 
 export class DispPolyline extends DispBase {
 
@@ -47,5 +48,9 @@ export class DispPolyline extends DispBase {
         let len = disp.g.length;
         disp.g[len - 2] += dx;
         disp.g[len - 1] += dy;
+    }
+
+    static center(disp): PeekCanvasPoint {
+        return {x: disp.g[0], y: disp.g[1]};
     }
 }

@@ -5,12 +5,9 @@ import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 
 import {
-    addTupleType,
-    ComponentLifecycleEventEmitter,
     extend,
     Payload,
     PayloadEnvelope,
-    Tuple,
     TupleOfflineStorageNameService,
     TupleSelector,
     TupleStorageFactoryService,
@@ -18,15 +15,13 @@ import {
     VortexService,
     VortexStatusService
 } from "@synerty/vortexjs";
-
-
-import {FooterService} from "@synerty/peek-util";
 import {diagramFilt, gridCacheStorageName} from "../PluginNames";
 import {GridUpdateDateTuple} from "./GridUpdateDateTuple";
 import {PrivateDiagramTupleService} from "../services";
 import {OfflineConfigTuple} from "../tuples";
 import {PrivateDiagramGridLoaderStatusTuple} from "./PrivateDiagramGridLoaderStatusTuple";
 import {EncodedGridTuple} from "./EncodedGridTuple";
+import {makeDispGroupGridKey} from "../tuples/ModelCoordSet";
 
 
 // ----------------------------------------------------------------------------
@@ -533,7 +528,6 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
      * Updates our running tab of the update dates of the cached grids
      *
      */
-
     private saveGridCacheIndex(force = false, transaction = null): Promise<void> {
 
         if (this.chunksSavedSinceLastIndexSave <= this.SAVE_POINT_ITERATIONS && !force)

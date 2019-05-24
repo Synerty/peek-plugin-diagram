@@ -24,6 +24,7 @@ import {EditPropsLivedbComponent} from "./edit-props-livedb-component/edit-props
 import {EditPropsShapeComponent} from "./edit-props-shape-component/edit-props-shape.component";
 import {EditPropsComponent} from "./edit-props-component/edit-props.component.web";
 import {EditPropsToolbarComponent} from "./edit-props-toolbar-component/edit-props-toolbar.component.web";
+import {EditPropsGroupPtrComponent} from "./edit-props-group-ptr-component/edit-props-group-ptr.component";
 
 
 // Define the root module for this plugin.
@@ -49,7 +50,8 @@ import {EditPropsToolbarComponent} from "./edit-props-toolbar-component/edit-pro
         StartEditComponent, SelectLayersComponent, SelectBranchesComponent,
         BranchDetailComponent,
         EditPropsComponent, EditPropsLivedbComponent,
-        EditPropsShapeComponent, EditPropsToolbarComponent]
+        EditPropsShapeComponent, EditPropsToolbarComponent,
+        EditPropsGroupPtrComponent]
 })
 export class PeekPluginDiagramModule {
 }

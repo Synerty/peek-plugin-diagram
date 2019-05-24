@@ -4,6 +4,17 @@ import {ModelCoordSetGridSize} from "./ModelCoordSetGridSize";
 import {PeekCanvasBounds} from "../PeekCanvasBounds";
 
 
+/* Make Disp Group Grid Key
+
+    Make the special disp group grid key name.
+    This is used to store all of the DispGroups that are not specifically stored in a
+    grid, with the DispGroupPtr that uses it.
+
+*/
+export function makeDispGroupGridKey(coordSetId: number): string {
+    return `${coordSetId}|dispgroup`;
+}
+
 @addTupleType
 export class ModelCoordSet extends Tuple {
     public static readonly tupleName = diagramTuplePrefix + "ModelCoordSet";
@@ -27,6 +38,9 @@ export class ModelCoordSet extends Tuple {
 
     // Misc data holder
     data: { [key: string]: any } | null;
+
+    // Show this Coord Set as a group of DispGroups to choose from in the Editor
+    dispGroupTemplatesEnabled: boolean;
 
     // Show "Select Branches" button
     branchesEnabled: boolean;
