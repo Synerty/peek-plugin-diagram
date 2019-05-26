@@ -500,6 +500,8 @@ class DispGroupPointer(DispBase):
     targetDispGroupId = Column(Integer, ForeignKey('DispGroup.id', ondelete='SET NULL'),
                                doc='tg', nullable=True)
 
+    targetDispGroupName = Column(String, doc='tn', nullable=False)
+
     disps = relationship(DispBase,
                          primaryjoin='DispBase.groupId==DispGroupPointer.id',
                          foreign_keys=[DispBase.groupId],

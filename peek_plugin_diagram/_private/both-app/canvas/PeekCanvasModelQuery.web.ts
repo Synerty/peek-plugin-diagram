@@ -1,6 +1,7 @@
 import {DispBase, DispBaseT} from "../tuples/shapes/DispBase";
 import {DispPolyline} from "../tuples/shapes/DispPolyline";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
+import {DispGroupPointerT} from "../tuples/shapes/DispGroupPointer";
 
 // import 'rxjs/add/operator/takeUntil';
 
@@ -48,8 +49,32 @@ export class PeekCanvasModelQuery {
         return this.model.selection.selectedDisps();
     }
 
+    get selectedDispGroupPtrs(): any[] {
+        return this.model.selection.selectedDisps();
+    }
+
     get dispsInSelectedGroups(): any[] {
         return this._dispsForGroups(this.selectedDisps);
+    }
+
+
+    /** Disp Group for Disp
+     *
+     * Return the DispGroupPointer that a disp belongs to.
+     * NOTE: This is an O(N) approach
+     * @param disp
+     */
+    dispGroupForDisp(disp:DispBaseT): DispGroupPointerT | null {
+        let groupId = DispBase.groupId(disp);
+
+        if (groupId == null)
+            return null;
+
+        for (let iterDisp of this.model.viewableDisps()) {
+            if (DispBase.id(iterDisp) == groupId)
+                return iterDisp;
+        }
+        return null;
     }
 
     dispsInSameGroup(refDisp): any[] {

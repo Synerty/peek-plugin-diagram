@@ -332,16 +332,7 @@ export class PeekCanvasModel {
 
         this._gridDisps = disps.slice();
 
-        if (activeBranch != null) {
-            // TODO, HACK Fix this so that it renders correctly
-            Array.prototype.push.apply(disps, activeBranch.disps);
-        }
-
-        this._visableDisps = disps;
-
-        this.selection.applyTryToSelect();
-        this.config.model.dispOnScreen = disps.length;
-        this.config.invalidate();
+        this.compileBranchDisps();
 
         let timeTaken = now() - startTime;
 

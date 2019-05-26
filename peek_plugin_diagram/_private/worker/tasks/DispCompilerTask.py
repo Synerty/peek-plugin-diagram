@@ -1,15 +1,11 @@
+import logging
 from _collections import defaultdict
 from collections import namedtuple
-
-import ujson as json
-import logging
-import pytz
 from datetime import datetime
-from sqlalchemy.orm import subqueryload
-from sqlalchemy.sql.selectable import Select
-from txcelery.defer import DeferrableTask
 from typing import List, Dict
 
+import pytz
+import ujson as json
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.storage.Display import DispBase, DispTextStyle, \
     DispGroup, DispGroupPointer
@@ -29,6 +25,9 @@ from peek_plugin_diagram._private.worker.tasks._CalcGridForDisp import makeGridK
 from peek_plugin_diagram._private.worker.tasks._CalcLocation import makeLocationJson, \
     dispKeyHashBucket
 from peek_plugin_livedb.worker.WorkerApi import WorkerApi
+from sqlalchemy.orm import subqueryload
+from sqlalchemy.sql.selectable import Select
+from txcelery.defer import DeferrableTask
 
 logger = logging.getLogger(__name__)
 
@@ -171,7 +170,7 @@ def compileDisps(self, queueIds, dispIds):
         startTime = datetime.now(pytz.utc)
         ormSession.commit()
         logger.debug("Committed %s disp objects in %s",
-                    len(disps), (datetime.now(pytz.utc) - startTime))
+                     len(disps), (datetime.now(pytz.utc) - startTime))
 
     except Exception as e:
         ormSession.rollback()
@@ -194,7 +193,7 @@ def compileDisps(self, queueIds, dispIds):
         raise self.retry(exc=e, countdown=10)
 
     logger.info("Compiled %s disp objects in %s",
-                 len(dispIds), (datetime.now(pytz.utc) - startTime))
+                len(dispIds), (datetime.now(pytz.utc) - startTime))
 
 
 def _cloneDispsForDispGroupPointer(dispIds: List[int]):
@@ -216,7 +215,9 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
             .filter(DispGroupPointer.id.in_(dispIds))
 
         dispGroupPointers: List[DispGroupPointer] = qry.all()
-        dispGroupPointersIds = [o.targetDispGroupId for o in dispGroupPointers]
+        dispGroupPointersIds = [o.targetDispGroupId
+                                for o in dispGroupPointers
+                                if o.targetDispGroupId is not None]
 
         del qry
 
@@ -243,6 +244,17 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
         del qry
 
         # -----
+        # Query for the disp groups names
+        qry = ormSession.query(DispGroup.id, DispGroup.name, DispBase.coordSetId) \
+            .join(DispBase, DispBase.id == DispGroup.id) \
+            .filter(DispGroup.id.in_(dispGroupPointersIds))
+
+        dispGroupNameByGroupId = {o.id: '%s|%s' % (o.coordSetId, o.name)
+                                  for o in qry.all()}
+
+        del qry
+
+        # -----
         # Clone the child disps
         cloneDisps = []
         cloneLiveDbDispLinks = []
@@ -261,6 +273,8 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
                 continue
 
             x, y = json.loads(dispPtr.geomJson)
+            dispPtr.targetDispGroupName = \
+                dispGroupNameByGroupId[dispPtr.targetDispGroupId]
 
             for templateDisp in dispGroupChilds:
                 # Create the clone
@@ -569,8 +583,10 @@ def _calculateGridKeys(preparedDisps: List[PreparedDisp], coordSetById, textStyl
 
 def _updateDispJson(preparedDisps: List[PreparedDisp]):
     for pdisp in preparedDisps:
-        # Strip out the nulls, to make it even more compact
-        stripped = {k: v for k, v in pdisp.dispDict.items() if v is not None}
+        # Strip out the nulls and falses, to make it even more compact
+        stripped = {k: v
+                    for k, v in pdisp.dispDict.items()
+                    if v is not None and v is not False}
         # Write the "compiled" disp JSON back to the disp.
         pdisp.disp.dispJson = json.dumps(stripped)
 

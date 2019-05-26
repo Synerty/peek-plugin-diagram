@@ -10,6 +10,7 @@
  *  Synerty Pty Ltd
  *
 """
+from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
@@ -19,7 +20,6 @@ from sqlalchemy.sql.sqltypes import Boolean
 from sqlalchemy.types import Float
 from vortex.Tuple import addTupleType, Tuple, TupleField
 
-from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from .DeclarativeBase import DeclarativeBase
 
 
@@ -108,6 +108,14 @@ class ModelCoordSet(Tuple, DeclarativeBase):
     #: Default Text for new shapes
     editDefaultTextStyleId = Column(Integer, ForeignKey('DispTextStyle.id'))
 
+    #: Default Vertex/Node/Equipment Coord Set
+    editDefaultVertexCoordSetId = Column(Integer, ForeignKey('ModelCoordSet.id'))
+    editDefaultVertexGroupName = Column(String)
+
+    #: Default Edge/Conductor Coord Set
+    editDefaultEdgeCoordSetId = Column(Integer, ForeignKey('ModelCoordSet.id'))
+    editDefaultEdgeGroupName = Column(String)
+
     __table_args__ = (
         Index("idxCoordSetModelName", modelSetId, name, unique=True),
         Index("idxCoordSetImportId1", importId1, unique=False),
@@ -122,6 +130,9 @@ class ModelCoordSet(Tuple, DeclarativeBase):
               unique=False),
         Index("idxCoordModel_editDefaultTextStyleId", editDefaultTextStyleId,
               unique=False),
+        Index("idxCoordModel_editDefaultVertexCoordSetId", editDefaultVertexCoordSetId,
+              unique=False),
+        Index("idxCoordModel_editDefaultEdgeCoordSetId", editDefaultEdgeCoordSetId, unique=False),
     )
 
 

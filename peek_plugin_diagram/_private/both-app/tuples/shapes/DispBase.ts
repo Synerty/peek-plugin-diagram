@@ -6,6 +6,7 @@ import {
 } from "../../canvas/PeekCanvasShapePropsContext";
 import {PeekCanvasBounds} from "../../canvas/PeekCanvasBounds";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
+import {extend} from "@synerty/vortexjs";
 
 export interface PointI {
     x: number;
@@ -86,6 +87,10 @@ export abstract class DispBase {
 
     static groupId(disp: DispBaseT): number {
         return disp.gi;
+    }
+
+    static setGroupId(disp: DispBaseT, val: number): void {
+        disp.gi = val;
     }
 
     static branchId(disp: DispBaseT): number {
@@ -252,5 +257,13 @@ export abstract class DispBase {
         nameMap[DispBase.TYPE_DGP] = 'GroupPointer';
 
         return `Type : ${nameMap[DispBase.type(disp)]}`;
+    }
+
+    static copyAndClearDisp(disp: DispBaseT): DispBaseT {
+        disp = extend({}, disp);
+        DispBase.setSelectable(disp, false);
+        DispBase.setKey(disp, null);
+        DispBase.setId(disp, null);
+        return disp;
     }
 }

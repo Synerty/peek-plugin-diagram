@@ -4,9 +4,6 @@ from typing import List
 
 import pytz
 import ujson as json
-from sqlalchemy import select
-from vortex.Tuple import Tuple
-
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
     DispCompilerQueueController
@@ -16,6 +13,8 @@ from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyCompilerQue
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import \
     BranchTuple
+from sqlalchemy import select
+from vortex.Tuple import Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -71,16 +70,35 @@ def _insertBranchDisps(ormSession,
 
     # Convert the branch disps into database disps
     for newBranch in newBranches:
-        newDisps.extend(_convertJsonDispsToTuples(newBranch))
 
-    if not newDisps:
-        return
+        branchDisps = _convertJsonDispsToTuples(newBranch)
 
-    # Set the IDs of the new Disps
-    newIdGen = CeleryDbConn.prefetchDeclarativeIds(DispBase, len(newDisps))
-    for disp in newDisps:
-        disp.id = next(newIdGen)
-        dispIdsToCompile.append(disp.id)
+        if not branchDisps:
+            continue
+
+        # Create the map from the UI temp ID to the DB ID
+        oldDispIdMap = {}
+
+        # Set the IDs of the new Disps
+        newIdGen = CeleryDbConn.prefetchDeclarativeIds(DispBase, len(branchDisps))
+        for _, disp in branchDisps:
+            oldDispId = disp.id
+            disp.id = next(newIdGen)
+            oldDispIdMap[oldDispId] = disp.id
+            dispIdsToCompile.append(disp.id)
+
+            newDisps.append(disp)
+
+        # Update the group IDs
+        for _, disp in branchDisps:
+            if disp.groupId in oldDispIdMap:
+                disp.groupId = oldDispIdMap[disp.groupId]
+
+        # Update the jsonDisp stored in the branch
+        for jsonDisp, disp in branchDisps:
+            jsonDisp['id'] = disp.id
+            jsonDisp['gi'] = disp.groupId
+
 
     # Bulk load the Disps
     ormSession.bulk_save_objects(newDisps, update_changed_only=False)
@@ -108,5 +126,5 @@ def _convertJsonDispsToTuples(branchTuple: BranchTuple) -> List:
         disp.branchId = branchTuple.id
         if hasattr(disp, "geomJson"):
             disp.geomJson = json.dumps(disp.geomJson)
-        disps.append(disp)
+        disps.append((jsonDisp, disp))
     return disps

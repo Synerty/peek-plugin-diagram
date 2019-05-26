@@ -44,6 +44,10 @@ export class PeekDispRenderFactory {
 
     draw(disp, ctx, zoom, pan) {
         let level = DispBase.level(disp);
+        if (level == null) {
+            console.log("HERE");
+            return;
+        }
         if (!(level.minZoom <= zoom && zoom <= level.maxZoom))
             return;
 
@@ -91,13 +95,14 @@ export class PeekDispRenderFactory {
 
     selectionPriorityCompare(disp1, disp2): number {
 
+        if (DispFactory.type(disp1) == DispType.groupPointer
+            && DispFactory.type(disp2) != DispType.groupPointer)
+            return 1;
+
         if (DispFactory.type(disp1) == DispType.polygon
             && DispFactory.type(disp2) != DispType.polygon)
             return 1;
 
-        // if (DispFactory.type(disp1) == DispType.polyline
-        //     && DispFactory.type(disp2) == DispType.polygon)
-        //     return 1;
 
 
         return this._delegatesByType[disp2._tt].area(disp2)

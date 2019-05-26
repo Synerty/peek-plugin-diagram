@@ -73,18 +73,20 @@ export class BranchTuple extends Tuple {
 
     private assignIdsToDisps(): void {
         let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
-        for (let disp of this._array(BranchTuple.__DISPS_NUM)) {
-            BranchTuple._setNewDispId(disp);
+        let array = this._array(BranchTuple.__DISPS_NUM);
+        for (let i = 0; i < array.length; ++i) {
+            let disp = array[i];
+            BranchTuple._setNewDispId(disp, i);
             this._dispsById[DispBase.id(disp)] = disp;
             if (this._lastStage < DispBase.branchStage(disp))
                 this._lastStage = DispBase.branchStage(disp);
         }
     }
 
-    private static _setNewDispId(disp): void {
+    private static _setNewDispId(disp, index): void {
         let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
         if (DispBase.id(disp) == null)
-            DispBase.setId(disp, <any>`NEW_${(new Date()).getTime()}`);
+            DispBase.setId(disp, <any>`NEW_${(new Date()).getTime()}_${index}`);
     }
 
     private _array(num: number): any[] {
@@ -124,12 +126,11 @@ export class BranchTuple extends Tuple {
      *
      * @param disp
      */
-
     addOrUpdateDisp(disp: any): any {
         let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
         let array = this._array(BranchTuple.__DISPS_NUM);
 
-        BranchTuple._setNewDispId(disp);
+        BranchTuple._setNewDispId(disp, array.length);
         let dispInBranch = this._dispsById[DispBase.id(disp)];
 
         if (dispInBranch == null) {
@@ -152,6 +153,44 @@ export class BranchTuple extends Tuple {
         this.touchUpdateDate(true);
         return disp;
 
+    }
+
+    /** Add New Disps
+     *
+     * This method adds newly created disps to tbe branch in bulk.
+     *
+     * @param disps
+     */
+    addNewDisps(disps: any[]): void {
+        let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
+        let array = this._array(BranchTuple.__DISPS_NUM);
+
+        for (let disp of disps) {
+            BranchTuple._setNewDispId(disp, array.length);
+            DispBase.setBranchStage(disp, this._lastStage);
+            this._dispsById[DispBase.id(disp)] = disp;
+            array.push(disp);
+        }
+        this.touchUpdateDate(true);
+
+    }
+
+    removeDisps(disps: any[]): void {
+        let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
+
+        let dispIdsToRemove = {};
+        for (let disp of disps) {
+            dispIdsToRemove[DispBase.id(disp)] = true;
+        }
+
+        let array = this._array(BranchTuple.__DISPS_NUM);
+
+        this.packedJson__[BranchTuple.__DISPS_NUM] = array
+            .filter(disp => dispIdsToRemove[DispBase.id(disp)] !== true);
+
+        this.assignIdsToDisps();
+
+        this.touchUpdateDate();
     }
 
 
@@ -248,9 +287,9 @@ export class BranchTuple extends Tuple {
                 else if (key == 'bounds')
                     delete disp[key];
 
-                // Reset temp ID
-                else if (key == "id" && dispval != null && dispval.indexOf("NEW_") == 0)
-                    delete disp[key];
+                // // Reset temp ID
+                // else if (key == "id" && dispval != null && dispval.indexOf("NEW_") == 0)
+                //     delete disp[key];
 
             }
         }

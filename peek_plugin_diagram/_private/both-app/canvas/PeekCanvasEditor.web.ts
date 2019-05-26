@@ -13,6 +13,7 @@ import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {DispLevel} from "@peek/peek_plugin_diagram/lookups";
 import {PeekCanvasEditorProps} from "./PeekCanvasEditorProps";
+import {PeekCanvasInputEditMakeTextDelegate} from "./PeekCanvasInputEditMakeTextDelegate.web";
 
 /**
  * Peek Canvas Editor
@@ -80,7 +81,9 @@ export class PeekCanvasEditor {
 
         this.canvasModel.selection.selectionChangedObservable()
             .takeUntil(lifecycleEventEmitter.onDestroyEvent)
-            .subscribe(disps => this._props.setSelectedShapes(disps));
+            .subscribe(() => this._props.setSelectedShapes(
+                this.canvasModel, this._currentBranch.branchTuple
+            ));
     };
 
 
@@ -144,6 +147,10 @@ export class PeekCanvasEditor {
     isLevelVisible(level: DispLevel): boolean {
         return level.minZoom <= this.canvasConfig.viewPort.zoom
             && this.canvasConfig.viewPort.zoom <= level.maxZoom;
+    }
+
+    setEditorSelectTool(): void {
+        this.setInputEditDelegate(PeekCanvasInputEditSelectDelegate);
     }
 
     // ---------------

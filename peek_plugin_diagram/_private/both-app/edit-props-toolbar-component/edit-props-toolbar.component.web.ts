@@ -60,6 +60,19 @@ export class EditPropsToolbarComponent extends ComponentLifecycleEventEmitter
         return this.canvasEditor.props.shapePanelContext != null;
     }
 
+    // GroupPtr Properties
+    showGroupPtrProperties(): void {
+        this.canvasEditor.props.showGroupPtrProperties();
+    }
+
+    isGroupPtrPropertiesActive(): boolean {
+        return this.currentContext == EditorContextType.GROUP_PTR_PROPERTIES;
+    }
+
+    isGroupPtrPropertiesShown(): boolean {
+        return this.canvasEditor.props.groupPtrPanelContext != null;
+    }
+
     // LiveDB Properties
     showLiveDbProperties(): void {
         this.canvasEditor.props.showLiveDbProperties();

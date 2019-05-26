@@ -24,6 +24,16 @@
     <br>
 
     <button class="btn"
+            *ngIf="isGroupPtrPropertiesShown()"
+            [class.btn-primary]="isGroupPtrPropertiesActive()"
+            (click)="showGroupPtrProperties()"
+            data-toggle="tooltip" data-placement="top"
+            title="Template Selection">
+        <fa name="stamp"></fa>
+    </button>
+    <br>
+
+    <button class="btn"
             *ngIf="isLiveDbPropertiesShown()"
             [class.btn-primary]="isLiveDbPropertiesActive()"
             (click)="showLiveDbProperties()"

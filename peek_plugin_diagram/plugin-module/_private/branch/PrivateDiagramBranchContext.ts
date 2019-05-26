@@ -21,7 +21,7 @@ export class PrivateDiagramBranchContext {
     private readonly shutdownSubject = new Subject<void>();
     private readonly _branchUpdatedSubject = new Subject<boolean>();
 
-    private static readonly SEND_UPDATE_PERIOD = 1000;
+    private static readonly SEND_UPDATE_PERIOD = 2000;
     private updateTimerNum = null;
     private needsLiveUpdateSend = false;
 
@@ -136,7 +136,6 @@ export class PrivateDiagramBranchContext {
         action.branchTuple = this.branch;
         action.actionType = updateType;
 
-
         let promise = null;
         if (updateType == BranchLiveEditTupleAction.EDITING_UPDATED) {
             // All updates are only sent when the device is online
@@ -154,7 +153,6 @@ export class PrivateDiagramBranchContext {
                 e => console.log(`Failed to send live update for branch: ${e}`)
             );
         }
-
 
     }
 

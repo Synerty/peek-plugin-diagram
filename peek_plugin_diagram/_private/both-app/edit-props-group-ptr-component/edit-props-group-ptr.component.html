@@ -1,4 +1,4 @@
-<div>
+<div *ngIf="context != null">
     <table class="table">
         <tbody>
         <tr class="tr">
@@ -15,7 +15,6 @@
         </tr>
         </tbody>
     </table>
-{{selectedDispGroupId}}
     <p *ngIf="noDispGroups()">
         There are no template groups at this time.
     </p>

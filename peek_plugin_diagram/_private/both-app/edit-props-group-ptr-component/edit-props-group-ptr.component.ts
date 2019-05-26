@@ -12,6 +12,7 @@ import {GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader/GridTupl
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {LinkedGrid} from "../cache/LinkedGrid.web";
 import {DispGroup, DispGroupT} from "../tuples/shapes/DispGroup";
+import {PeekCanvasGroupPtrPropsContext} from "../canvas/PeekCanvasGroupPtrPropsContext";
 
 
 @Component({
@@ -26,6 +27,8 @@ export class EditPropsGroupPtrComponent extends ComponentLifecycleEventEmitter
     @Input("canvasEditor")
     canvasEditor: PeekCanvasEditor;
 
+    context: PeekCanvasGroupPtrPropsContext;
+
     private coordSetCache: PrivateDiagramCoordSetService;
 
     templateCoordSets: ModelCoordSet[] = [];
@@ -35,6 +38,8 @@ export class EditPropsGroupPtrComponent extends ComponentLifecycleEventEmitter
     selectedDispGroup = null;
 
     private unsubSubject = new Subject<void>();
+
+    coordSet: ModelCoordSet = new ModelCoordSet();
 
     constructor(private tupleService: PrivateDiagramTupleService,
                 abstractCoordSetCache: DiagramCoordSetService,
@@ -51,10 +56,27 @@ export class EditPropsGroupPtrComponent extends ComponentLifecycleEventEmitter
         let coordSets = this.coordSetCache
             .coordSets(this.canvasEditor.branchContext.modelSetKey);
 
+
+        for (let coordSet of coordSets) {
+            if (coordSet.id === this.canvasEditor.coordSetId) {
+                this.coordSet = coordSet;
+                break;
+            }
+        }
+
         for (let coordSet of coordSets) {
             if (coordSet.dispGroupTemplatesEnabled === true)
                 this.templateCoordSets.push(coordSet);
         }
+
+        this.context = this.canvasEditor.props.groupPtrPanelContext;
+        this.canvasEditor.props.groupPtrPanelContextObservable
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((context: PeekCanvasGroupPtrPropsContext) => {
+                this.context = context;
+                this.initSelectedCoordSetId();
+            });
+        this.initSelectedCoordSetId();
     }
 
     noDispGroups(): boolean {
@@ -92,6 +114,7 @@ export class EditPropsGroupPtrComponent extends ComponentLifecycleEventEmitter
                         let gridTuple: GridTuple = payload.tuples[0];
                         let linkedGrid = new LinkedGrid(gridTuple, this.lookupService);
                         this.dispGroups = linkedGrid.disps;
+                        this.initSelectedDispGroup();
                     })
                     .catch((err) => {
                         console.log(`GridLoader.emitEncodedGridTuples decode error: ${err}`);
@@ -104,8 +127,59 @@ export class EditPropsGroupPtrComponent extends ComponentLifecycleEventEmitter
     }
 
     toggleEnabled(disp: DispGroupT): void {
-        //this.selectedDispGroup = disp;
-        //this.canvasEditor.canvasInput["_delegate"]["HACK_setDispGroup"](this.selectedDispGroup)
+        this.selectedDispGroup = disp;
+        this.context.setDispGroup(
+            this.selectedDispGroup, parseInt(this.selectedCoordSetId)
+        );
+    }
+
+
+    private initSelectedCoordSetId(): void {
+        if (this.context == null)
+            return;
+
+        let coordSetId = this.context.targetDispGroupCoordSetId;
+
+        if (coordSetId != null) {
+            this.selectedCoordSetId = coordSetId.toString();
+            this.selectedCoordSetIdChanged(this.selectedCoordSetId);
+
+        } else if (this.coordSet.editDefaultVertexCoordSetId != null) {
+            this.selectedCoordSetId = this.coordSet
+                .editDefaultVertexCoordSetId.toString();
+            this.selectedCoordSetIdChanged(this.selectedCoordSetId);
+
+        } else if (this.templateCoordSets.length != 0) {
+            this.selectedCoordSetId = this.templateCoordSets[0].id.toString();
+            this.selectedCoordSetIdChanged(this.selectedCoordSetId);
+
+        }
+
+    }
+
+
+    private initSelectedDispGroup(): void {
+        if (this.context == null)
+            return;
+
+        let setName = (name) => {
+            for (let dispGroup of this.dispGroups) {
+                if (DispGroup.groupName(dispGroup) == name) {
+                    this.selectedDispGroup = dispGroup;
+                    break;
+                }
+            }
+        };
+
+        let name = this.context.targetDispGroupName;
+
+        if (name != null)
+            setName(name);
+
+        else if (this.coordSet.editDefaultVertexGroupName != null)
+            setName(this.coordSet.editDefaultVertexGroupName);
+
+
     }
 
 

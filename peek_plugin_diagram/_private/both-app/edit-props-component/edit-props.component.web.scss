@@ -32,6 +32,8 @@ $edit_toolbar_height: $edit_toolbar_button_height + 2 * $panel_width;
   overflow-x: hidden; /* Disable horizontal scroll */
   transition: 0.5s; /* 0.5 second transition effect to slide in the toolbar */
   background-color: white;
+
+  margin-bottom: $mobile_footer_bar_height;
 }
 
 .edit-props-panel > .panel-header {

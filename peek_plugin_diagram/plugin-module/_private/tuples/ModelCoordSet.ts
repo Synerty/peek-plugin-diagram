@@ -63,6 +63,14 @@ export class ModelCoordSet extends Tuple {
     // Default Text for new shapes
     editDefaultTextStyleId: number;
 
+    // Default Vertex/Node/Equipment Coord Set
+    editDefaultVertexCoordSetId: number;
+    editDefaultVertexGroupName: string;
+
+    // Default Edge/Conductor Coord Set
+    editDefaultEdgeCoordSetId: number;
+    editDefaultEdgeGroupName: string;
+
     constructor() {
         super(ModelCoordSet.tupleName)
     }

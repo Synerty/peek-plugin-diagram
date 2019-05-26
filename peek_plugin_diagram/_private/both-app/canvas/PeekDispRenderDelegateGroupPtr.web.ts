@@ -1,8 +1,8 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {DispGroupCache} from "../cache/DispGroupCache.web";
-import {DispGroupPointer} from "../tuples/shapes/DispGroupPointer";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {DispGroupPointer} from "../tuples/shapes/DispGroupPointer";
 
 export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 
@@ -13,40 +13,58 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 
     }
 
-    draw(disp, ctx, zoom, pan) {
+    draw(dispGroup, ctx, zoom, pan) {
+        // let b = dispGroup.bounds;
+        //
+        // if (b == null || b.w == 0 || b.w == 0) {
+        //     let geom = [];
+        //     // Draw the items for the group we point to
+        //     for (let dispItem in DispGroupPointer.items(dispGroup)) {
+        //         if (dispItem["g"] != null)
+        //             geom.add(dispItem["g"]);
+        //     }
+        //
+        //     if (geom.length == 0)
+        //         return;
+        //     dispGroup.bounds = PeekCanvasBounds.fromGeom(geom);
+        // }
+        //
+        //
+        // ctx.beginPath();
+        // ctx.moveTo(b.x, b.y);
+        // ctx.lineTo(b.x, b.y + b.h);
+        // ctx.lineTo(b.x + b.w, b.y + b.h);
+        // ctx.lineTo(b.x + b.w, b.y);
+        // ctx.lineTo(b.x, b.y);
+        // ctx.strokeStyle = 'red';
+        // ctx.lineWidth = 5.0 / zoom;
+        // ctx.stroke();
 
-        let dispGroup = this.dispGroupCache.dispGroupForId(
-            DispGroupPointer.targetGroupId(disp)
-        );
-
-        if (dispGroup == null)
-            return;
-
-        // Give more meaning to our short field names
-        let pointX = disp.g[0];
-        let pointY = disp.g[1];
-        let rotation = disp.r / 180.0 * Math.PI;
-        let verticalScale = DispGroupPointer.verticalScale(disp);
-        let horizontalScale = DispGroupPointer.horizontalScale(disp);
-
-        ctx.save();
-        ctx.translate(pointX, pointY);
-        ctx.rotate(rotation);
-        ctx.scale(verticalScale, horizontalScale);
-
-        // Draw the items for the group we point to
-        for (let i = 0; i < dispGroup.length; i++) {
-            let dispItem = dispGroup[i];
-            this.renderFactory.draw(dispItem, ctx, zoom, pan);
-        }
-
-        ctx.restore();
-
-        disp.bounds = PeekCanvasBounds.fromGeom(disp.g);
+        //
+        // // Give more meaning to our short field names
+        // let pointX = dispGroup.g[0];
+        // let pointY = dispGroup.g[1];
+        // let rotation = dispGroup.r / 180.0 * Math.PI;
+        // let verticalScale = DispGroupPointer.verticalScale(dispGroup);
+        // let horizontalScale = DispGroupPointer.horizontalScale(dispGroup);
+        //
+        // ctx.save();
+        // ctx.translate(pointX, pointY);
+        // ctx.rotate(rotation);
+        // ctx.scale(verticalScale, horizontalScale);
+        //
+        // // Draw the items for the group we point to
+        // for (let dispItem in DispGroupPointer.items(dispGroup)) {
+        //     this.renderFactory.draw(dispItem, ctx, zoom, pan);
+        // }
+        //
+        // ctx.restore();
+        //
+        // disp.bounds = PeekCanvasBounds.fromGeom(disp.g);
 
     };
 
-    drawSelected(disp, ctx, zoom:number, pan) {
+    drawSelected(disp, ctx, zoom: number, pan) {
     };
 
     drawSelectedForEdit(disp, ctx, zoom: number, pan) {

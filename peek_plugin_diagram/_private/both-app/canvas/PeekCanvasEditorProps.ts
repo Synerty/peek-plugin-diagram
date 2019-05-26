@@ -1,9 +1,12 @@
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {PeekCanvasShapePropsContext} from "./PeekCanvasShapePropsContext";
-import {DispBaseT} from "../tuples/shapes/DispBase";
-import {DispFactory} from "../tuples/shapes/DispFactory";
+import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
+import {PeekCanvasGroupPtrPropsContext} from "./PeekCanvasGroupPtrPropsContext";
+import {PeekCanvasModel} from "./PeekCanvasModel.web";
+import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
+import {DispGroupPointerT} from "../tuples/shapes/DispGroupPointer";
 
 export enum EditorContextType {
     NONE,
@@ -29,7 +32,8 @@ export class PeekCanvasEditorProps {
     // ---------------
     // Shape Props
 
-    private readonly _shapePanelContextSubject = new Subject<PeekCanvasShapePropsContext | null>();
+    private readonly _shapePanelContextSubject
+        = new Subject<PeekCanvasShapePropsContext | null>();
 
     shapePanelContext: PeekCanvasShapePropsContext | null = null;
 
@@ -43,9 +47,10 @@ export class PeekCanvasEditorProps {
     // ---------------
     // Group Ptr Props
 
-    private readonly _groupPtrPanelContextSubject = new Subject<undefined | null>();
+    private readonly _groupPtrPanelContextSubject
+        = new Subject<PeekCanvasGroupPtrPropsContext | null>();
 
-    groupPtrPanelContext: undefined | null = null;
+    groupPtrPanelContext: PeekCanvasGroupPtrPropsContext | null = null;
 
     // ---------------
     // General things
@@ -77,7 +82,7 @@ export class PeekCanvasEditorProps {
         return this._liveDbPanelContextSubject;
     }
 
-    get groupPtrPanelContextObservable(): Observable<undefined | null> {
+    get groupPtrPanelContextObservable(): Observable<PeekCanvasGroupPtrPropsContext | null> {
         return this._groupPtrPanelContextSubject;
     }
 
@@ -95,12 +100,18 @@ export class PeekCanvasEditorProps {
         this._shapePanelContextSubject.next(val);
     }
 
-    private setLiveDbPanelContextObservable(): void {
-        // this._liveDbPanelContextSubject;
+
+    private setGroupPtrPanelContextObservable(val: PeekCanvasGroupPtrPropsContext | null): void {
+        if (val == null
+            && this._contextPanelState == EditorContextType.GROUP_PTR_PROPERTIES) {
+            this.closeContext();
+        }
+        this.groupPtrPanelContext = val;
+        this._groupPtrPanelContextSubject.next(val);
     }
 
-    private setGroupPtrPanelContextObservable(): void {
-        this._groupPtrPanelContextSubject.next();
+    private setLiveDbPanelContextObservable(): void {
+        // this._liveDbPanelContextSubject;
     }
 
     // ---------------
@@ -148,18 +159,29 @@ export class PeekCanvasEditorProps {
     // ---------------
     // The shape selection has been updated
 
-    setSelectedShapes(disps: DispBaseT[]): void {
+    /** Set Selected Shapes
+     *
+     * @param disps
+     */
+    setSelectedShapes(model: PeekCanvasModel,
+                      branchTuple: BranchTuple): void {
+
+        let selectedDisps = model.selection.selectedDisps();
 
         // SET THE POPUP
-        if (disps.length != 1) {
+        if (selectedDisps.length != 1) {
             if (this._contextPanelState == EditorContextType.SHAPE_PROPERTIES)
                 this.closeContext();
 
             this.setShapePanelContextObservable(null);
+            this.setGroupPtrPanelContextObservable(null);
             return;
         }
 
-        let disp = disps[0];
+        let disp = selectedDisps[0];
+        let dispGroupPtr = DispFactory.type(disp) == DispType.groupPointer
+            ? <DispGroupPointerT>disp
+            : model.query.dispGroupForDisp(disp);
 
         // Setup the shape edit context
         let shapePropsContext = new PeekCanvasShapePropsContext(
@@ -167,8 +189,19 @@ export class PeekCanvasEditorProps {
         );
 
         DispFactory.wrapper(disp).makeShapeContext(shapePropsContext);
-
         this.setShapePanelContextObservable(shapePropsContext);
+
+
+        if (dispGroupPtr == null) {
+            this.setGroupPtrPanelContextObservable(null);
+
+        } else {
+            let groupPtrPropsContext = new PeekCanvasGroupPtrPropsContext(
+                model, dispGroupPtr, this.lookupService, branchTuple
+            );
+
+            this.setGroupPtrPanelContextObservable(groupPtrPropsContext);
+        }
 
     }
 
