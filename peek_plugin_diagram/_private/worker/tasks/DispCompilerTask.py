@@ -25,6 +25,7 @@ from peek_plugin_diagram._private.worker.tasks._CalcGridForDisp import makeGridK
 from peek_plugin_diagram._private.worker.tasks._CalcLocation import makeLocationJson, \
     dispKeyHashBucket
 from peek_plugin_livedb.worker.WorkerApi import WorkerApi
+from sqlalchemy import select, join
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.sql.selectable import Select
 from txcelery.defer import DeferrableTask
@@ -196,6 +197,18 @@ def compileDisps(self, queueIds, dispIds):
                 len(dispIds), (datetime.now(pytz.utc) - startTime))
 
 
+def _queryDispsForGroup(ormSession, dispGroupIds) -> Dict[int, List]:
+    qry = ormSession.query(DispBase) \
+        .options(subqueryload(DispBase.liveDbLinks)) \
+        .filter(DispBase.groupId.in_(dispGroupIds))
+
+    dispsByGroupId = defaultdict(list)
+    for o in qry.all():
+        dispsByGroupId[o.groupId].append(o)
+
+    return dispsByGroupId
+
+
 def _cloneDispsForDispGroupPointer(dispIds: List[int]):
     """ Clone Disps for DispGroupPointer
 
@@ -233,24 +246,24 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
 
         # -----
         # Query for the disp groups we'll need
-        qry = ormSession.query(DispBase) \
-            .options(subqueryload(DispBase.liveDbLinks)) \
-            .filter(DispBase.groupId.in_(dispGroupPointersIds))
-
-        dispGroupChildsByGroupId = defaultdict(list)
-        for o in qry.all():
-            dispGroupChildsByGroupId[o.groupId].append(o)
-
-        del qry
+        dispGroupChildsByGroupId = _queryDispsForGroup(ormSession, dispGroupPointersIds)
 
         # -----
         # Query for the disp groups names
-        qry = ormSession.query(DispGroup.id, DispGroup.name, DispBase.coordSetId) \
-            .join(DispBase, DispBase.id == DispGroup.id) \
-            .filter(DispGroup.id.in_(dispGroupPointersIds))
+        dispBaseTable = DispBase.__table__
+        dispGroupTable = DispGroup.__table__
+
+        qry = ormSession.execute(
+            select(columns=[dispBaseTable.c.id,
+                            dispBaseTable.c.coordSetId,
+                            dispGroupTable.c.name],
+                   whereclause=dispBaseTable.c.id.in_(dispGroupPointersIds))
+                .select_from(join(dispGroupTable, dispBaseTable,
+                                  dispGroupTable.c.id == dispBaseTable.c.id))
+        )
 
         dispGroupNameByGroupId = {o.id: '%s|%s' % (o.coordSetId, o.name)
-                                  for o in qry.all()}
+                                  for o in qry.fetchall()}
 
         del qry
 
@@ -440,7 +453,7 @@ def _compileDispGroups(ormSession, preparedDisps: List[PreparedDisp]):
         """ Pack Disp
 
         """
-        dispDict = disp.tupleToSmallJsonDict()
+        dispDict = disp.tupleToSmallJsonDict(includeFalse=False, includeNones=False)
         dispDict["g"] = json.loads(disp.geomJson)
         return dispDict
 
@@ -453,26 +466,23 @@ def _compileDispGroups(ormSession, preparedDisps: List[PreparedDisp]):
     }
 
     # Query for the disp groups with loaded child disps we'll need
-    qry = ormSession.query(DispGroup) \
-        .options(subqueryload(DispGroup.disps)) \
-        .filter(DispGroup.id.in_(list(preparedDispGroupByIds)))
 
-    dispGroupById = {o.id: o for o in qry.all()}
-    del qry
+    childDispsByGroupId =  _queryDispsForGroup(ormSession, preparedDispGroupByIds)
 
     childDispCount = 0
 
-    for dispGroup in dispGroupById.values():
-        preparedDispGroup = preparedDispGroupByIds[dispGroup.id]
+    for groupId in preparedDispGroupByIds:
+        preparedDispGroup = preparedDispGroupByIds[groupId]
+        childDisps = childDispsByGroupId[groupId]
 
         preparedDispGroup.dispDict['di'] = json.dumps([
-            packDisp(disp) for disp in dispGroup.disps
+            packDisp(disp) for disp in childDisps
         ])
 
-        childDispCount += len(dispGroup.disps)
+        childDispCount += len(childDisps)
 
     logger.debug("Packed %s disps into %s group objects in %s",
-                 childDispCount, len(dispGroupById),
+                 childDispCount, len(preparedDispGroupByIds),
                  (datetime.now(pytz.utc) - startTime))
 
 
