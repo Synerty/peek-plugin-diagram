@@ -6,7 +6,6 @@ import {
 } from "./PeekCanvasInputDelegate.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 import {DispGroupPointer} from "../tuples/shapes/DispGroupPointer";
-import {PeekCanvasGroupPtrPropsContext} from "./PeekCanvasGroupPtrPropsContext";
 
 /**
  * This input delegate handles :
@@ -25,10 +24,8 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate
 
     constructor(viewArgs: InputDelegateConstructorArgs,
                 canvasEditor: PeekCanvasEditor) {
-        super(viewArgs, canvasEditor, PeekCanvasInputMakeDispGroupPtrVertexDelegate.TOOL_NAME);
-
-        // See mousedown and mousemove events for explanation
-        this._startMousePos = null;
+        super(viewArgs, canvasEditor,
+            PeekCanvasInputMakeDispGroupPtrVertexDelegate.TOOL_NAME);
 
         this._reset();
     }
@@ -61,11 +58,17 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate
     }
 
     touchStart(event: TouchEvent, mouse: CanvasInputPos) {
-        this.mouseDown(event, mouse);
+        this._finaliseCreate();
+        this._startMousePos = mouse;
     };
 
     touchEnd(event: TouchEvent, mouse: CanvasInputPos) {
-        this.mouseUp(event, mouse);
+        if (this._hasPassedDragThreshold(this._startMousePos, mouse)) {
+            this._reset();
+            return;
+        }
+
+        this.createDisp(mouse.x, mouse.y);
     };
 
 

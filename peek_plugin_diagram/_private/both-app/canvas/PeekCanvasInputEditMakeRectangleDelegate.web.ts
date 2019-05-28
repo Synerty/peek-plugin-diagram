@@ -13,27 +13,6 @@ import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDelegate {
     static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_RECTANGLE;
 
-    // // CONSTANTS
-    // STATE_NONE = 0;
-    // STATE_SELECTING = 1;
-    // STATE_DRAG_SELECTING = 2;
-    // STATE_MOVING_RENDERABLE = 3;
-    // STATE_MOVING_HANDLE = 4;
-    // STATE_CANVAS_PANNING = 5;
-    // STATE_CANVAS_ZOOMING = 6;
-
-    // _state = 0; // STATE_NONE;
-    // _passedDragThreshold = false;
-    // _mouseDownOnSelection = false;
-    // _mouseDownOnDisp = false;
-    // _mouseDownWithShift = false;
-    // _mouseDownWithCtrl = false;
-    // _mouseDownMiddleButton = false;
-    // _mouseDownRightButton = false;
-    // _mouseDownOnHandle = null;
-
-    // _lastPinchDist = null;
-
 
     // Stores the text disp being created
     private _creating = null;
@@ -77,51 +56,8 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
     // ============================================================================
     // Editor Ui Mouse
 
-    // fixes a problem where double clicking causes
-    // text to get selected on the canvas
-    // mouseSelectStart =
-    // function(event,
-    // mouse) {
-    // };
 
-    keyPress(event) {
-        if (!this._creating)
-            return;
 
-        if (event.keyCode == 8) { // Backspace
-            if (this._enteredText && this._enteredText.length)
-                this._enteredText = this._enteredText.substr(0,
-                    this._enteredText.length - 1);
-            else
-                this._enteredText = '';
-            this._creating.setText(this._enteredText);
-            this.viewArgs.config.invalidate();
-            return;
-        }
-
-        if (event.keyCode == 13) { // Enter
-            this._finaliseCreate();
-        }
-
-        var inp = String.fromCharCode(event.keyCode);
-        if (/[a-zA-Z0-9-_ .,`"'|~!@#$%^&*()-=+{}\[\]\\:;<>\/?]/.test(inp)) {
-            this._enteredText = (this._enteredText || '') + inp;
-            this._creating.setText(this._enteredText);
-            this.viewArgs.config.invalidate();
-            return;
-        }
-    }
-
-    keyUp(event) {
-        if (!this._creating)
-            return;
-
-        if (event.keyCode == 46 // delete
-            || event.keyCode == 27) { // escape
-            this._reset();
-            return;
-        }
-    }
 
     mouseDown(event, mouse) {
         this._finaliseCreate();

@@ -8,7 +8,6 @@ import {
 } from "../tuples/shapes/DispText";
 import {pointToPixel} from "../DiagramUtil";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {DispBase} from "../tuples/shapes/DispBase";
 
 export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 
@@ -140,7 +139,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
     };
 
 
-    drawSelected(disp, ctx, zoom:number, pan) {
+    drawSelected(disp, ctx, zoom: number, pan) {
         let bounds = disp.bounds;
         if (bounds == null)
             return;
@@ -178,32 +177,19 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
     };
 
     contains(disp: DispTextT, x, y, margin) {
-        if (disp.bounds == null)
-            return false;
-
-        return disp.bounds.contains(x, y, margin);
+        return disp.bounds == null ? false : disp.bounds.contains(x, y, margin);
     };
 
     withIn(disp: DispTextT, x, y, w, h): boolean {
-        if (disp.bounds == null)
-            return false;
-
-        return disp.bounds.withIn(x, y, w, h);
+        return disp.bounds == null ? false : disp.bounds.withIn(x, y, w, h);
     };
 
     handles(disp: DispTextT): PeekCanvasBounds[] {
         return [];
     };
 
-    deltaMove(disp: DispTextT, dx, dy): void {
-        DispBase.deltaMove(disp, dx, dy);
-    };
-
-    area(disp: DispTextT): number {
-        if (disp.bounds == null)
-            return 0;
-
-        return disp.bounds.area();
+    area(disp) {
+        return disp.bounds == null ? 0 : disp.bounds.area();
     };
 
 }

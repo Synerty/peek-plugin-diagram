@@ -121,9 +121,6 @@ export class PeekDispRenderDelegateAction extends PeekDispRenderDelegateABC {
         return [];
     };
 
-    deltaMove(disp, dx, dy) {
-    };
-
     area(disp) {
 
         return disp.bounds.area();

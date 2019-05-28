@@ -89,7 +89,8 @@ export abstract class DispPoly extends DispBase {
     static create(coordSet: ModelCoordSet, type): DispPolyT {
         let newDisp = {
             ...DispBase.create(coordSet, type),
-            'g': [] // PointsT[]
+            'g': [], // PointsT[]
+            'w': 2
         };
 
         DispBase.setSelectable(newDisp, true);
@@ -125,7 +126,7 @@ export abstract class DispPoly extends DispBase {
         ));
 
         context.addProp(new ShapeProp(
-            ShapePropType.Number,
+            ShapePropType.Integer,
             DispPoly.lineWidth,
             DispPoly.setLineWidth,
             "Line Width"

@@ -1,6 +1,8 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {DispEllipse} from "../tuples/shapes/DispEllipse";
+import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {DispTextT} from "../tuples/shapes/DispText";
 
 export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
 
@@ -27,6 +29,9 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
         let lineWidth = DispEllipse.lineWidth(disp);
 
         let yScale = yRadius / xRadius;
+
+        let centerX = DispEllipse.centerPointX(disp);
+        let centerY = DispEllipse.centerPointY(disp);
 
         // save state
         ctx.save();
@@ -56,38 +61,59 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
         // restore to original state
         ctx.restore();
 
-
         //self._bounds.x = self.left;
         //self._bounds.y = self.top;
         //self._bounds.w = self.width;
         //self._bounds.h = self.height;
+        disp.bounds = new PeekCanvasBounds(
+            centerX - xRadius,
+            centerY - yRadius,
+            2 * xRadius,
+            2 * yRadius
+        );
     };
 
     drawSelected(disp, ctx, zoom, pan) {
+        let bounds = disp.bounds;
+        if (bounds == null)
+            return;
+
+        // DRAW THE SELECTED BOX
+        let selectionConfig = this.config.renderer.selection;
+
+        // Move the selection line a bit away from the object
+        let offset = (selectionConfig.width + selectionConfig.lineGap) / zoom;
+
+        let twiceOffset = 2 * offset;
+        let x = bounds.x - offset;
+        let y = bounds.y - offset;
+        let w = bounds.w + twiceOffset;
+        let h = bounds.h + twiceOffset;
+
+        ctx.dashedRect(x, y, w, h, selectionConfig.dashLen / zoom);
+        ctx.strokeStyle = selectionConfig.color;
+        ctx.lineWidth = selectionConfig.width / zoom;
+        ctx.stroke();
     };
 
     drawSelectedForEdit(disp, ctx, zoom: number, pan) {
         this.drawSelected(disp, ctx, zoom, pan);
     };
 
-    contains(disp, x, y, margin) {
-        return false;
+    contains(disp: DispTextT, x, y, margin) {
+        return disp.bounds == null ? false : disp.bounds.contains(x, y, margin);
     };
 
-    withIn(disp, x, y, w, h) {
-        return false;
+    withIn(disp: DispTextT, x, y, w, h): boolean {
+        return disp.bounds == null ? false : disp.bounds.withIn(x, y, w, h);
     };
 
     handles(disp) {
         return [];
     };
 
-    deltaMove(disp, dx, dy) {
-    };
-
     area(disp) {
-
-        return disp.bounds.area();
+        return disp.bounds == null ? 0 : disp.bounds.area();
     };
 
 

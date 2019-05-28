@@ -79,6 +79,10 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
         return prop.type == ShapePropType.Boolean;
     }
 
+    showInteger(prop: ShapeProp) {
+        return prop.type == ShapePropType.Integer;
+    }
+
     showSelectOption(prop: ShapeProp) {
         return prop.type == ShapePropType.Layer
             || prop.type == ShapePropType.Level

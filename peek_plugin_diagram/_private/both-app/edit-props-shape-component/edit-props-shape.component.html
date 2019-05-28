@@ -17,6 +17,15 @@
                        (ngModelChange)="writeVal(prop, $event)"
                        [ngModel]="readVal(prop)">
             </td>
+            <td *ngIf="showInteger(prop)"
+                class="td"
+                [class.bg-odd]="odd"
+                [class.bg-even]="even">
+                <input type="number"
+                       min="0"
+                       (ngModelChange)="writeVal(prop, $event)"
+                       [ngModel]="readVal(prop)">
+            </td>
             <td *ngIf="showTextArea(prop)"
                 class="td"
                 [class.bg-odd]="odd"

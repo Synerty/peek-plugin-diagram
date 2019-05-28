@@ -138,14 +138,14 @@ export class DispPolygon extends DispPoly {
         ));
 
         context.addProp(new ShapeProp(
-            ShapePropType.Number,
+            ShapePropType.Integer,
             DispPolygon.fillPercent,
             DispPolygon.setFillPercent,
             "Fill Percent"
         ));
 
         context.addProp(new ShapeProp(
-            ShapePropType.Number,
+            ShapePropType.Integer,
             DispPolygon.cornerRadius,
             DispPolygon.setCornerRadius,
             "Corner Radius"

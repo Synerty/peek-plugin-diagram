@@ -1,5 +1,5 @@
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
-import {PeekCanvasInputEditMakeDispPolyDelegate} from "./PeekCanvasInputEditMakeDispPolyDelegate.web";
+import {PeekCanvasInputEditMakeDispPolyDelegate} from "./PeekCanvasInputEditMakePolyDelegate.web";
 import {InputDelegateConstructorArgs} from "./PeekCanvasInputDelegate.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 
@@ -10,14 +10,14 @@ import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
  * Selecting at a point (touch and mouse)
  *
  */
-export class PeekCanvasInputEditMakeDispPolygonDelegate
+export class PeekCanvasInputEditMakeDispPolylinDelegate
     extends PeekCanvasInputEditMakeDispPolyDelegate {
-    static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_POLYGON;
+    static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_POLYLINE;
 
 
     constructor(viewArgs: InputDelegateConstructorArgs,
                 canvasEditor: PeekCanvasEditor) {
-        super(viewArgs, canvasEditor, PeekCanvasInputEditMakeDispPolygonDelegate.TOOL_NAME);
+        super(viewArgs, canvasEditor, PeekCanvasInputEditMakeDispPolylinDelegate.TOOL_NAME);
 
         this._reset();
     }

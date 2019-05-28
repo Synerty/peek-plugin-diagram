@@ -19,26 +19,6 @@ import {DispPolyline} from "../tuples/shapes/DispPolyline";
  */
 export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDelegate {
 
-    // // CONSTANTS
-    // STATE_NONE = 0;
-    // STATE_SELECTING = 1;
-    // STATE_DRAG_SELECTING = 2;
-    // STATE_MOVING_RENDERABLE = 3;
-    // STATE_MOVING_HANDLE = 4;
-    // STATE_CANVAS_PANNING = 5;
-    // STATE_CANVAS_ZOOMING = 6;
-
-    // _state = 0; // STATE_NONE;
-    // _passedDragThreshold = false;
-    // _mouseDownOnSelection = false;
-    // _mouseDownOnDisp = false;
-    // _mouseDownWithShift = false;
-    // _mouseDownWithCtrl = false;
-    // _mouseDownMiddleButton = false;
-    // _mouseDownRightButton = false;
-    // _mouseDownOnHandle = null;
-
-    // _lastPinchDist = null;
 
 
     // Stores the rectangle being created
@@ -113,56 +93,62 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     }
 
 
-    mouseDown(event: MouseEvent, mouse: CanvasInputPos) {
-        this.inputStart(mouse);
+    // ---------------
+    // Map mouse events
+    mouseDown(event: MouseEvent, inputPos: CanvasInputPos) {
+        this.inputStart(inputPos);
     }
 
 
-    mouseMove(event: MouseEvent, mouse: CanvasInputPos) {
-        this.inputMove(mouse);
+    mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
+        this.inputMove(inputPos);
     }
 
-    mouseUp(event: MouseEvent, mouse: CanvasInputPos) {
+    mouseUp(event: MouseEvent, inputPos: CanvasInputPos) {
         if (event.button == 2) {
             this._finaliseCreate();
             return;
         }
-        this.inputEnd(mouse);
+        this.inputEnd(inputPos, event.shiftKey);
     }
 
-    mouseDoubleClick(event: MouseEvent, mouse: CanvasInputPos) {
+    mouseDoubleClick(event: MouseEvent, inputPos: CanvasInputPos) {
         this._finaliseCreate();
     }
 
 
-    touchStart(event: TouchEvent, mouse: CanvasInputPos) {
+    // ---------------
+    // Map touch events
+    touchStart(event: TouchEvent, inputPos: CanvasInputPos) {
         if (event.touches.length == 2) {
             this._finaliseCreate();
             return;
         }
 
-        this.inputStart(mouse);
+        this.inputStart(inputPos);
     };
 
-    touchMove(event: TouchEvent, mouse: CanvasInputPos) {
-        this.inputMove(mouse);
+    touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
+        this.inputMove(inputPos);
     };
 
-    touchEnd(event: TouchEvent, mouse: CanvasInputPos) {
-        this.inputEnd(mouse);
+    touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
+        this.inputEnd(inputPos);
     };
 
 
-    private inputStart(mouse: CanvasInputPos) {
+    // ---------------
+    // Start logic
+    private inputStart(inputPos: CanvasInputPos) {
 
         /*
                 if (this._startNodeDisp) {
-                    this._startMousePos = mouse;
+                    this._startMousePos = inputPos;
                     return;
                 }
 
 
-                this._startNodeDisp = this._nodeDispClickedOn(mouse);
+                this._startNodeDisp = this._nodeDispClickedOn(inputPos);
 
                 if (!this._startNodeDisp) {
                     this.canvasEditor.balloonMsg.showWarning("A conductor must start on a node");
@@ -171,15 +157,15 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
                     return;
                 }
         */
-        this._startMousePos = mouse;
+        this._startMousePos = inputPos;
     }
 
 
-    private inputMove(mouse: CanvasInputPos) {
+    private inputMove(inputPos: CanvasInputPos) {
         if (!this._creating)
             return;
 
-        let delta = this._setLastMousePos(mouse);
+        let delta = this._setLastMousePos(inputPos);
         DispPoly.deltaMoveHandle(
             this._creating,
             DispPoly.pointCount(this._creating) - 1,
@@ -188,21 +174,21 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         this.viewArgs.config.invalidate();
     }
 
-    private inputEnd(mouse: CanvasInputPos) {
+    private inputEnd(inputPos: CanvasInputPos, shiftKey: boolean = false) {
 
 
         if (!this._startMousePos)
             return;
 
-        let dragged = this._hasPassedDragThreshold(this._startMousePos, mouse);
-        let point = this._coord(event, this._startMousePos);
+        let dragged = this._hasPassedDragThreshold(this._startMousePos, inputPos);
+        let point = this._coord(this._startMousePos, shiftKey);
         this._startMousePos = null;
 
         if (dragged)
             return;
 
         if (!this._creating) {
-            this.createDisp(mouse);
+            this.createDisp(inputPos);
 
         }
 
@@ -218,55 +204,6 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     }
 
     draw(ctx, zoom, pan) {
-    }
-
-    private _finaliseCreate() {
-        if (this._creating == null)
-            return;
-
-        let poly = this._creating;
-        let startNodeDisp = this._startNodeDisp;
-        let endNodeDisp = null;
-
-        this._reset();
-
-        if (poly) {
-            let lastPointCoord = DispPoly.lastPoint(poly);
-            endNodeDisp = this._nodeDispClickedOn(lastPointCoord);
-        }
-
-        if (!endNodeDisp) {
-            // this.canvasEditor.balloonMsg.showWarning("A conductor must end on a node");
-            poly = null;
-        }
-
-        // this.canvasInput._scope.pageMethods.cableCreateCallback(poly, startNodeDisp, endNodeDisp);
-
-        this.viewArgs.config.invalidate();
-        this.canvasEditor.setEditorSelectTool();
-    }
-
-    private _coord(event, mouse: CanvasInputPos): PointI {
-        let point = {x: mouse.x, y: mouse.y};
-
-        //// Snap if required
-        //if (editorUi.grid.snapping())
-        //    disp.snap(editorUi.grid.snapSize());
-
-        // When the shift key is pressed, we will align to x or y axis
-        if (this._creating != null && event.shiftKey) {
-            let lastPoint = DispPoly.lastPoint(this._creating);
-            let dx = Math.abs(point.x - lastPoint.x);
-            let dy = Math.abs(point.y - lastPoint.y);
-
-            if (dx > dy)
-                point.y = lastPoint.y;
-            else
-                point.x = lastPoint.x;
-        }
-
-        // return
-        return point;
     }
 
 
@@ -301,6 +238,55 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         this.canvasEditor.props.showShapeProperties();
 
         this._addBranchAnchor(inputPos.x, inputPos.y);
+    }
+
+    private _finaliseCreate() {
+        if (this._creating == null)
+            return;
+
+        let poly = this._creating;
+        let startNodeDisp = this._startNodeDisp;
+        let endNodeDisp = null;
+
+        this._reset();
+
+        if (poly) {
+            let lastPointCoord = DispPoly.lastPoint(poly);
+            endNodeDisp = this._nodeDispClickedOn(lastPointCoord);
+        }
+
+        if (!endNodeDisp) {
+            // this.canvasEditor.balloonMsg.showWarning("A conductor must end on a node");
+            poly = null;
+        }
+
+        // this.canvasInput._scope.pageMethods.cableCreateCallback(poly, startNodeDisp, endNodeDisp);
+
+        this.viewArgs.config.invalidate();
+        this.canvasEditor.setEditorSelectTool();
+    }
+
+    private _coord(mouse: CanvasInputPos, shiftKey: boolean = false): PointI {
+        let point = {x: mouse.x, y: mouse.y};
+
+        //// Snap if required
+        //if (editorUi.grid.snapping())
+        //    disp.snap(editorUi.grid.snapSize());
+
+        // When the shift key is pressed, we will align to x or y axis
+        if (this._creating != null && shiftKey) {
+            let lastPoint = DispPoly.lastPoint(this._creating);
+            let dx = Math.abs(point.x - lastPoint.x);
+            let dy = Math.abs(point.y - lastPoint.y);
+
+            if (dx > dy)
+                point.y = lastPoint.y;
+            else
+                point.x = lastPoint.x;
+        }
+
+        // return
+        return point;
     }
 
 }

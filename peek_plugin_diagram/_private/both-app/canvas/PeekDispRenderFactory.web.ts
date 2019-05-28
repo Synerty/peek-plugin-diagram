@@ -83,11 +83,6 @@ export class PeekDispRenderFactory {
         return this._delegatesByType[disp._tt].handles(disp);
     };
 
-    deltaMove(disp, dx, dy) {
-        this._initBounds(disp);
-        return this._delegatesByType[disp._tt].deltaMove(dx, dy);
-    };
-
     area(disp) {
         this._initBounds(disp);
         return this._delegatesByType[disp._tt].area(disp);

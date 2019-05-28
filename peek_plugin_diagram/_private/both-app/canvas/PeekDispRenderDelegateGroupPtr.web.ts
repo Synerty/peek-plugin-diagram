@@ -84,9 +84,6 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
         return [];
     };
 
-    deltaMove(disp, dx, dy) {
-    };
-
     area(dispEllipse) {
         return 0;
     };

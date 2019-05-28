@@ -144,7 +144,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         }
 
         let selectedDisps = this.viewArgs.model.selection.selectedDisps();
-        let margin = this.viewArgs.config.mouse.selecting.margin;// * this.viewArgs.config.viewPort.zoom;
+        let margin = this.viewArgs.config.mouse.selecting.margin / this.viewArgs.config.viewPort.zoom;
 
 
         for (let disp of selectedDisps) {
@@ -485,7 +485,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     _selectByPoint(mouse) {
 
 
-        let margin = this.viewArgs.config.mouse.selecting.margin;//* this.viewArgs.config.viewPort.zoom;
+        let margin = this.viewArgs.config.mouse.selecting.margin / this.viewArgs.config.viewPort.zoom;
 
         let coords = this.viewArgs.model.viewableDisps();
         let hits = coords.filter((i) => {

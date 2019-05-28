@@ -410,9 +410,6 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         return result;
     }
 
-    deltaMove(dispPoly, dx, dy) {
-    }
-
     area(dispPoly) {
         return 0;
     }

@@ -3,11 +3,11 @@ import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
 import {PeekCanvasInputEditMakeRectangleDelegate} from "../canvas/PeekCanvasInputEditMakeRectangleDelegate.web";
-import {PeekCanvasInputEditMakeCircleArcEllipseDelegate} from "../canvas/PeekCanvasInputEditMakeEllipseDelegate.web";
-import {PeekCanvasInputEditMakeDispPolygonDelegate} from "../canvas/PeekCanvasInputEditMakeDispPolygonDelegate.web";
-import {PeekCanvasInputEditMakeDispPolylinDelegate} from "../canvas/PeekCanvasInputEditMakeDispPolylineDelegate.web";
-import {PeekCanvasInputMakeDispGroupPtrVertexDelegate} from "../canvas/PeekCanvasInputEditMakeDispGroupPtrVertexDelegate.web";
-import {PeekCanvasInputMakeDispGroupPtrEdgeDelegate} from "../canvas/PeekCanvasInputEditMakeDispGroupPtrEdgeDelegate.web";
+import {PeekCanvasInputEditMakeEllipseDelegate} from "../canvas/PeekCanvasInputEditMakeEllipseDelegate.web";
+import {PeekCanvasInputEditMakeDispPolygonDelegate} from "../canvas/PeekCanvasInputEditMakePolygonDelegate.web";
+import {PeekCanvasInputEditMakeDispPolylinDelegate} from "../canvas/PeekCanvasInputEditMakePolylineDelegate.web";
+import {PeekCanvasInputMakeDispGroupPtrVertexDelegate} from "../canvas/PeekCanvasInputEditMakeGroupPtrVertexDelegate.web";
+import {PeekCanvasInputMakeDispGroupPtrEdgeDelegate} from "../canvas/PeekCanvasInputEditMakeGroupPtrEdgeDelegate.web";
 import {PeekCanvasInputEditSelectDelegate} from "../canvas/PeekCanvasInputEditSelectDelegate.web";
 import {PeekCanvasInputEditMakeTextDelegate} from "../canvas/PeekCanvasInputEditMakeTextDelegate.web";
 
@@ -84,7 +84,7 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     // Edit Make Circle, Ellipse, Arc Tool
 
     selectEditMakeEllipseTool() {
-        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeCircleArcEllipseDelegate);
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeEllipseDelegate);
     }
 
     isEditMakeEllipseActive(): boolean {

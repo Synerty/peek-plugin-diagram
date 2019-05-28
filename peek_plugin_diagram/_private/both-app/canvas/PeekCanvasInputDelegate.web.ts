@@ -113,12 +113,12 @@ export abstract class PeekCanvasInputDelegate {
      *            current mouse object
      * @return An object containing the delta
      */
-    protected _setLastMousePos(mouse) {
+    protected _setLastMousePos(inputPos: CanvasInputPos) {
 
-        let dx = mouse.x - this._lastMousePos.x;
-        let dy = mouse.y - this._lastMousePos.y;
-        let dClientX = mouse.clientX - this._lastMousePos.clientX;
-        let dClientY = mouse.clientY - this._lastMousePos.clientY;
+        let dx = inputPos.x - this._lastMousePos.x;
+        let dy = inputPos.y - this._lastMousePos.y;
+        let dClientX = inputPos.clientX - this._lastMousePos.clientX;
+        let dClientY = inputPos.clientY - this._lastMousePos.clientY;
 
         //if (editorUi.grid.snapping()) {
         //	let snapSize = editorUi.grid.snapSize();
