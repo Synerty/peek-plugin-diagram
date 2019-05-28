@@ -1,4 +1,4 @@
-import {DispBase, DispBaseT} from "./DispBase";
+import {DispBase, DispBaseT, PointI} from "./DispBase";
 import {DispColor, DispTextStyle} from "@peek/peek_plugin_diagram/lookups";
 import {
     PeekCanvasShapePropsContext,
@@ -6,7 +6,6 @@ import {
     ShapePropType
 } from "../../canvas/PeekCanvasShapePropsContext";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
-import {PeekCanvasPoint} from "../../canvas/PeekCanvasBounds";
 
 export enum TextVerticalAlign {
     top = -1,
@@ -122,7 +121,7 @@ export class DispText extends DispBase {
     }
 
 
-    static center(disp: DispTextT): PeekCanvasPoint {
+    static center(disp: DispTextT): PointI {
         return {x: disp.g[0], y: disp.g[1]};
     }
 
@@ -132,7 +131,7 @@ export class DispText extends DispBase {
 
     static create(coordSet: ModelCoordSet): DispTextT {
         let newDisp = {
-            ...DispBase.create(DispBase.TYPE_DT, coordSet),
+            ...DispBase.create(coordSet, DispBase.TYPE_DT),
             // From Text
             'va': TextVerticalAlign.center, // TextVerticalAlign.center
             'ha': TextHorizontalAlign.center, // TextHorizontalAlign.center

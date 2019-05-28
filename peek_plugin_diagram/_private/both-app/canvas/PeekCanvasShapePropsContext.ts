@@ -7,6 +7,7 @@ export enum ShapePropType {
     Color,
     LineStyle,
     String,
+    Number,
     MultilineString,
     Option,
     Boolean,

@@ -87,10 +87,12 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         let phUpDownZoomFactor = this.viewArgs.config.mouse.phUpDownZoomFactor;
 
         // Delete the disp on the canvas
-        if (event.keyCode == 46) {
-            // let coords = this.viewArgs.model.selection.selectedDisps();
-            // this.viewArgs.model.deleteDisp(coords);
-            // this.viewArgs.model.clearSelection();
+        if (event.keyCode == 46 // delete?
+            || event.keyCode == 91 // macOS command+delete
+            || event.keyCode == 8) { // macOS "delete"
+            let disps = this.viewArgs.model.selection.selectedDisps();
+            this.viewArgs.model.selection.clearSelection();
+            this.canvasEditor.branchContext.branchTuple.removeDisps(disps);
 
         } else if (event.keyCode == 33) { // Page UP
             let zoom = this.viewArgs.config.viewPort.zoom;
@@ -101,13 +103,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             let zoom = this.viewArgs.config.viewPort.zoom;
             zoom *= (1.0 - phUpDownZoomFactor / 100.0);
             this.viewArgs.config.updateViewPortZoom(zoom);
-
-            // } else if (event.keyCode == 67) { // the letter c
-            //     updateSelectedCoordNodesClosedState(true);
-
-
-            // } else if (event.keyCode == 79) { // the letter o
-            //     updateSelectedCoordNodesClosedState(false);
 
             // Snap selected objects to grid
             //} else if (String.fromCharCode(event.keyCode) == "S") {

@@ -23,8 +23,6 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
 
     // Used to detect dragging and its the mouse position we use
     private _startMousePos: CanvasInputPos | null = null;
-    private _startNodeRend = null;
-    private _endNodeRend = null;
 
     constructor(viewArgs: InputDelegateConstructorArgs,
                 canvasEditor: PeekCanvasEditor) {
@@ -42,12 +40,10 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     _reset() {
         this._creating = null;
         this._startMousePos = null;
-        this._startNodeRend = null;
-        this._endNodeRend = null;
 
         // See mousedown and mousemove events for explanation
         this._startMousePos = null;
-        this._lastMousePos = null;
+        this._lastMousePos = new CanvasInputPos();
 
     }
 
@@ -144,6 +140,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         this.canvasEditor.props.showShapeProperties();
 
         this._addBranchAnchor(x, y);
+        this.canvasEditor.setEditorSelectTool();
     }
 
     delegateWillBeTornDown() {

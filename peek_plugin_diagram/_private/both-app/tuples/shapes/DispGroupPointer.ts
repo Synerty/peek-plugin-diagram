@@ -1,5 +1,4 @@
-import {DispBase, DispBaseT} from "./DispBase";
-import {PeekCanvasPoint} from "../../canvas/PeekCanvasBounds";
+import {DispBase, DispBaseT, PointI} from "./DispBase";
 import {PeekCanvasShapePropsContext} from "../../canvas/PeekCanvasShapePropsContext";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 import {DispGroup, DispGroupT} from "./DispGroup";
@@ -53,7 +52,7 @@ export class DispGroupPointer extends DispBase {
         return disp.hs;
     }
 
-    static center(disp: DispGroupPointerT): PeekCanvasPoint {
+    static center(disp: DispGroupPointerT): PointI {
         return {x: disp.g[0], y: disp.g[1]};
     }
 
@@ -64,7 +63,7 @@ export class DispGroupPointer extends DispBase {
 
     static create(coordSet: ModelCoordSet): DispGroupPointerT {
         let newDisp = {
-            ...DispBase.create(DispBase.TYPE_DGP, coordSet),
+            ...DispBase.create(coordSet, DispBase.TYPE_DGP),
             // From Text
             'tg': null, // TextVerticalAlign.targetGroupId
             'vs': 1.0, // TextHorizontalAlign.verticalScale

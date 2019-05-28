@@ -191,7 +191,7 @@ export abstract class DispBase {
     // ---------------
     // Create Method
 
-    static create(type, coordSet: ModelCoordSet): any {
+    static create(coordSet: ModelCoordSet, type): any {
         let newDisp: any = {
             '_tt': type,
         };

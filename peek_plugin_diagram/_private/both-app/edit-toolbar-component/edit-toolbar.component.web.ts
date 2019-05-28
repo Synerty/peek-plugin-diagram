@@ -2,7 +2,6 @@ import {Component, Input} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
-import {PeekCanvasInputEditMakeTextDelegate} from "../canvas/PeekCanvasInputEditMakeTextDelegate.web";
 import {PeekCanvasInputEditMakeRectangleDelegate} from "../canvas/PeekCanvasInputEditMakeRectangleDelegate.web";
 import {PeekCanvasInputEditMakeCircleArcEllipseDelegate} from "../canvas/PeekCanvasInputEditMakeEllipseDelegate.web";
 import {PeekCanvasInputEditMakeDispPolygonDelegate} from "../canvas/PeekCanvasInputEditMakeDispPolygonDelegate.web";
@@ -10,6 +9,7 @@ import {PeekCanvasInputEditMakeDispPolylinDelegate} from "../canvas/PeekCanvasIn
 import {PeekCanvasInputMakeDispGroupPtrVertexDelegate} from "../canvas/PeekCanvasInputEditMakeDispGroupPtrVertexDelegate.web";
 import {PeekCanvasInputMakeDispGroupPtrEdgeDelegate} from "../canvas/PeekCanvasInputEditMakeDispGroupPtrEdgeDelegate.web";
 import {PeekCanvasInputEditSelectDelegate} from "../canvas/PeekCanvasInputEditSelectDelegate.web";
+import {PeekCanvasInputEditMakeTextDelegate} from "../canvas/PeekCanvasInputEditMakeTextDelegate.web";
 
 
 @Component({
@@ -45,6 +45,15 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     isEditSelectToolActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
         return this.selectedTool() === EditorToolType.EDIT_SELECT_TOOL;
+    }
+
+    // --------------------
+    // Delete Shape
+
+    deleteShape() {
+        let disps = this.canvasEditor.canvasModel.selection.selectedDisps();
+        this.canvasEditor.canvasModel.selection.clearSelection();
+        this.canvasEditor.branchContext.branchTuple.removeDisps(disps);
     }
 
     // --------------------
