@@ -1,9 +1,14 @@
 import logging
 from datetime import datetime
 from typing import Dict, Optional, Tuple
-from twisted.internet import task
 
 import pytz
+from peek_plugin_diagram._private.tuples.branch.BranchLiveEditTuple import \
+    BranchLiveEditTuple
+from peek_plugin_diagram._private.tuples.branch.BranchLiveEditTupleAction import \
+    BranchLiveEditTupleAction
+from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
+from twisted.internet import task
 from twisted.internet.defer import Deferred, inlineCallbacks
 from vortex.DeferUtil import vortexLogFailure
 from vortex.TupleAction import TupleActionABC
@@ -11,12 +16,8 @@ from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleActionProcessor import TupleActionProcessorDelegateABC
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
 
-from peek_plugin_diagram._private.tuples.branch.BranchLiveEditTuple import \
-    BranchLiveEditTuple
-from peek_plugin_diagram._private.tuples.branch.BranchLiveEditTupleAction import \
-    BranchLiveEditTupleAction
-
 logger = logging.getLogger(__name__)
+
 
 class BranchLiveEditController(TupleActionProcessorDelegateABC):
     """ Branch Live Edit
@@ -60,6 +61,26 @@ class BranchLiveEditController(TupleActionProcessorDelegateABC):
     def setTupleObservable(self, tupleObservable: TupleDataObservableHandler):
         self._tupleObservable = tupleObservable
 
+    def updateBranch(self, branchTuple: BranchTuple):
+        ts = TupleSelector(
+            BranchLiveEditTuple.tupleType(), dict(
+                coordSetId=branchTuple.coordSetId,
+                key=branchTuple.key
+            )
+        )
+
+        if not self._tupleObservable.hasTupleSubscribers(ts):
+            return
+
+        cacheKey = (branchTuple.coordSetId, branchTuple.key)
+
+        liveEditTuple = BranchLiveEditTuple()
+        liveEditTuple.branchTuple = branchTuple
+        liveEditTuple.uiUpdateDate = branchTuple.updatedDate
+        liveEditTuple.serverUpdateDate = datetime.now(pytz.utc)
+        liveEditTuple.updateFromSave = True
+        self._cache[cacheKey] = liveEditTuple
+
     @inlineCallbacks
     def processTupleAction(self, tupleAction: TupleActionABC) -> Deferred:
         yield None
@@ -79,6 +100,7 @@ class BranchLiveEditController(TupleActionProcessorDelegateABC):
         tuple_.updatedByUser = tupleAction.updatedByUser
         tuple_.uiUpdateDate = tupleAction.dateTime
         tuple_.serverUpdateDate = datetime.now(pytz.utc)
+        tuple_.updateFromSave = False
 
         self._cache[(coordSetId, key)] = tuple_
 

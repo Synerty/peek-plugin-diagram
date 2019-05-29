@@ -95,7 +95,9 @@
                                     <fa name="map-marker"></fa>
                                 </Button>
                             </td>
-                            <td class="td" *ngFor="let prop of anchorDoc">{{prop.title}}<br>{{prop.value}}</td>
+                            <td class="td" *ngFor="let prop of anchorDoc">
+                                {{prop.title}}<br>{{prop.value}}
+                            </td>
 
                         </tr>
                         </tbody>
@@ -123,8 +125,8 @@
                                 </Button>
                             </td>
                             <td class="td">
-                                <span *ngFor="let line of dispDesc(disp)">
-                                     {{line}},
+                                <span *ngFor="let line of dispDesc(disp); let last = last">
+                                     {{line}} <br *ngIf="!last"/>
                                 </span>
                             </td>
                         </tr>

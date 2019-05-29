@@ -12,6 +12,7 @@
 """
 import typing
 
+from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from sqlalchemy import Column, orm
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String, Boolean
@@ -21,7 +22,6 @@ from sqlalchemy.sql.schema import Index, Sequence
 from sqlalchemy.sql.sqltypes import Float, DateTime
 from vortex.Tuple import Tuple, addTupleType, TupleField, JSON_EXCLUDE
 
-from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from .DeclarativeBase import DeclarativeBase
 from .ModelSet import ModelCoordSet, ModelSet
 
@@ -189,6 +189,7 @@ class DispBase(Tuple, DeclarativeBase):
     POLYGON = 50
     POLYLINE = 51
     ELLIPSE = 60
+    NULL = 70
 
     id_seq = Sequence('DispBase_id_seq',
                       metadata=DeclarativeBase.metadata,
@@ -212,7 +213,7 @@ class DispBase(Tuple, DeclarativeBase):
     branchStage = Column(Integer, doc='bs')
 
     #: The coordSetId+hashId that this disp replaces (for branches)
-    replacesHashId = Column(Integer, ForeignKey('DispBase.id', ondelete='SET NULL'),
+    replacesHashId = Column(String, ForeignKey('DispBase.id', ondelete='SET NULL'),
                             doc='rid')
 
     # ===== END BRANCH
@@ -223,7 +224,7 @@ class DispBase(Tuple, DeclarativeBase):
     coordSet = relationship(ModelCoordSet)
 
     #: This is the unique hash of the contents of this disp within this coordSetId.
-    hashId = Column(Integer, doc='hid')
+    hashId = Column(String, doc='hid')
 
     #: Layer
     layerId = Column(Integer, ForeignKey('DispLayer.id'), doc='la')
@@ -273,6 +274,45 @@ class DispBase(Tuple, DeclarativeBase):
         Index("idx_Disp_hashId", coordSetId, hashId, unique=True),
         Index("idx_Disp_replacesHashId", replacesHashId),
     )
+
+
+@addTupleType
+class DispNull(DispBase):
+    """ Disp Null
+
+    This display type does not display at all, It's an object that marks the deletion
+    of a prior Disp by a branch.
+
+    Disps in branches replace existing disps, thats how the store the change.
+    This disp replaces an existing disp with nothing, with the effect of deleting it.
+
+    This disp does have a geometry, which is equivilent to the bounding box of the shape
+    it replaces.
+
+    This whole approach allows the branch delete mechanism to slot into the existing
+    diagram structures.
+
+    """
+    __tablename__ = 'DispNull'
+    __tupleTypeShort__ = 'DN'
+    __tupleType__ = diagramTuplePrefix + __tablename__
+
+    RENDERABLE_TYPE = DispBase.NULL
+
+    __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
+
+    id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
+                , primary_key=True, autoincrement=False)
+
+    geomJson = Column(String, nullable=False, doc='g')
+
+    __table_args__: typing.Tuple = (
+    )
+
+    # noinspection PyMissingConstructor
+    @orm.reconstructor
+    def __init__(self):
+        pass
 
 
 @addTupleType
@@ -500,7 +540,7 @@ class DispGroupPointer(DispBase):
     targetDispGroupId = Column(Integer, ForeignKey('DispGroup.id', ondelete='SET NULL'),
                                doc='tg', nullable=True)
 
-    targetDispGroupName = Column(String, doc='tn', nullable=False)
+    targetDispGroupName = Column(String, doc='tn')
 
     disps = relationship(DispBase,
                          primaryjoin='DispBase.groupId==DispGroupPointer.id',

@@ -47,15 +47,6 @@ def createOrUpdateBranches(self, importBranchesEncodedPayload: bytes) -> None:
     # Do the import
     groupedBranches = _convertImportBranchTuples(importBranches)
 
-    # Create a lookup of CoordSets by ID
-    dbSession = CeleryDbConn.getDbSession()
-    try:
-        coordSetById = {i.id: i for i in dbSession.query(ModelCoordSet).all()}
-        dbSession.expunge_all()
-
-    finally:
-        dbSession.close()
-
     startTime = datetime.now(pytz.utc)
 
     dbSession = CeleryDbConn.getDbSession()
@@ -66,9 +57,9 @@ def createOrUpdateBranches(self, importBranchesEncodedPayload: bytes) -> None:
 
     try:
         for (modelSetKey, modelSetId, coordSetId), branches in groupedBranches.items():
-            coordSet = coordSetById[coordSetId]
             _insertOrUpdateBranches(conn, modelSetKey, modelSetId, branches)
-            _insertBranchDisps(dbSession, coordSet, branches)
+
+            _insertBranchDisps(conn, dbSession, branches)
 
             transaction.commit()
             dbSession.commit()
@@ -79,6 +70,7 @@ def createOrUpdateBranches(self, importBranchesEncodedPayload: bytes) -> None:
                          (datetime.now(pytz.utc) - startTime))
 
     except Exception as e:
+        dbSession.rollback()
         transaction.rollback()
         logger.debug("Retrying createOrUpdateBranches, %s", e)
         logger.exception(e)

@@ -1,6 +1,7 @@
 import logging
-from typing import List
+from typing import List, Dict
 
+import ujson
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 
 logger = logging.getLogger(__name__)
@@ -26,3 +27,45 @@ def _scaleDispGeom(points: List[float],
         newGeom += [x, y]
 
     return newGeom
+
+
+def _createHashId(dispDict: Dict) -> str:
+    # Copy the input dict and pop the ID (we don't hash it)
+    hashIdDict = dispDict.copy()
+    del hashIdDict['id']
+
+    # Hash the actual content of the disp, and convert the integer to a string
+    hashId = hash(ujson.dumps(hashIdDict, sort_keys=True))
+    hashIdStr = __num_encode(hashId)
+
+    # Return the hash
+    return hashIdStr
+
+
+import string
+
+ALPHABET = string.ascii_uppercase + string.ascii_lowercase + \
+           string.digits + '-_'
+ALPHABET_REVERSE = dict((c, i) for (i, c) in enumerate(ALPHABET))
+BASE = len(ALPHABET)
+SIGN_CHARACTER = '$'
+
+
+def __num_encode(n):
+    if n < 0:
+        return SIGN_CHARACTER + __num_encode(-n)
+    s = []
+    while True:
+        n, r = divmod(n, BASE)
+        s.append(ALPHABET[r])
+        if n == 0: break
+    return ''.join(reversed(s))
+
+
+def __num_decode(s):
+    if s[0] == SIGN_CHARACTER:
+        return -__num_decode(s[1:])
+    n = 0
+    for c in s:
+        n = n * BASE + ALPHABET_REVERSE[c]
+    return n

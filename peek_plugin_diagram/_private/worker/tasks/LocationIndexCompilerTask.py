@@ -171,3 +171,6 @@ def _buildIndex(session, indexBuckets) -> Dict[str, str]:
         jsonByIndexBucket[indexBucket] = '[' + ','.join(indexStructure) + ']'
 
     return jsonByIndexBucket
+
+
+

@@ -100,6 +100,14 @@ export class PrivateDiagramBranchContext {
                 // if (update.updatedByUser == this.userKey())
                 //     return;
 
+                if (update.updateFromSave) {
+                    this.branchLocalLoader.saveBranch(this)
+                        .catch(
+                            e => console
+                                .log(`Failed to locally save update from server: ${e}`)
+                        );
+                }
+
                 if (this.branch.applyLiveUpdate(update.branchTuple)) {
                     this.branch.linkDisps(this.lookupCache);
                     this._branchUpdatedSubject.next(true);

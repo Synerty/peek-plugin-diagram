@@ -251,7 +251,7 @@ export class PeekCanvasModel {
         let dispIndexByGridKey = {};
 
         let disps = [];
-        let dispIdsAdded = {};
+        let dispHashIdsAdded = {};
         let branchIdsActive = {};
 
         for (let id of this.branchService.getVisibleBranchIds(this._coordSetId)) {
@@ -260,8 +260,8 @@ export class PeekCanvasModel {
 
         let activeBranch = this.config.editor.activeBranchTuple;
         if (activeBranch != null) {
-            for (let dispId of activeBranch.disps)
-                dispIdsAdded[dispId] = true;
+            for (let branchDisp of activeBranch.disps)
+                dispHashIdsAdded[DispBase.hashId(branchDisp)] = true;
 
             // Make sure it's not showing when we edit the branch
             delete branchIdsActive[activeBranch.id];
@@ -312,17 +312,15 @@ export class PeekCanvasModel {
                         if (layer.order < DispBase.layer(disp).order)
                             break;
 
-                        if (dispIdsAdded[disp.id] === true)
+                        if (dispHashIdsAdded[DispBase.hashId(disp)] === true)
                             continue;
 
 
-                        if (disp.bi == null)
+                        // BranchId
+                        if (disp.bi == null || branchIdsActive[disp.bi] == true)
                             disps.push(disp);
 
-                        else if (branchIdsActive[disp.bi] == true)
-                            disps.push(disp);
-
-                        dispIdsAdded[disp.id] = true;
+                        dispHashIdsAdded[DispBase.hashId(disp)] = true;
                     }
 
                     dispIndexByGridKey[gridKey] = nextIndex;

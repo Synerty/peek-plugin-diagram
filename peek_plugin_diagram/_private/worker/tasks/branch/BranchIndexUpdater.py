@@ -4,13 +4,7 @@ from datetime import datetime
 from typing import List, Set, Tuple, Dict
 
 import pytz
-from sqlalchemy import select, and_
-from sqlalchemy.orm.exc import NoResultFound
-from txcelery.defer import DeferrableTask
-from vortex.Payload import Payload
-
 from peek_plugin_base.worker import CeleryDbConn
-from peek_plugin_diagram._private.storage.Display import DispTextStyle
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
 from peek_plugin_diagram._private.storage.branch.BranchIndex import \
     BranchIndex
@@ -23,6 +17,10 @@ from peek_plugin_diagram._private.worker.tasks.branch.BranchDispUpdater import \
     _deleteBranchDisps, _insertBranchDisps
 from peek_plugin_diagram._private.worker.tasks.branch._BranchIndexCalcChunkKey import \
     makeChunkKeyForBranchIndex
+from sqlalchemy import select, and_, bindparam
+from sqlalchemy.orm.exc import NoResultFound
+from txcelery.defer import DeferrableTask
+from vortex.Payload import Payload
 
 logger = logging.getLogger(__name__)
 
@@ -66,9 +64,16 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
         # individual branches.
         for branch in updatedBranches:
             try:
-                branchIndex = dbSession.query(BranchIndex) \
-                    .filter(BranchIndex.id == branch.id) \
-                    .one()
+                if branch.id is None:
+                    branchIndex = dbSession.query(BranchIndex) \
+                        .filter(BranchIndex.coordSetId == branch.coordSetId) \
+                        .filter(BranchIndex.key == branch.key) \
+                        .one()
+                else:
+                    branchIndex = dbSession.query(BranchIndex) \
+                        .filter(BranchIndex.id == branch.id) \
+                        .one()
+                branch.id = branchIndex.id
                 branchIndex.packedJson = branch.packJson()
                 branchIndex.updatedDate = branch.updatedDate
 
@@ -93,16 +98,29 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
     dbSession = CeleryDbConn.getDbSession()
 
     try:
-        _insertOrUpdateBranches(dbSession, modelSet.key, modelSet.id, newBranchesToInsert)
+        if newBranchesToInsert:
+            _insertOrUpdateBranches(dbSession, modelSet.key, modelSet.id,
+                                    newBranchesToInsert)
+            dbSession.commit()
 
+        packedJsonUpdates = []
         # Recompile the BranchGridIndexes
         for coordSetId, branches in branchesByCoordSetId.items():
             coordSet = coordSetById[coordSetId]
             assert coordSet.modelSetId == modelSetId, "Branches not all from one model"
 
             _deleteBranchDisps(dbSession, [b.id for b in branches])
-            _insertBranchDisps(dbSession, coordSet, branches)
+            _insertBranchDisps(dbSession, dbSession, branches)
 
+            packedJsonUpdates += [
+                dict(b_id=b.id, b_packedJson=b.packJson()) for b in branches
+            ]
+
+        # Update the JSON again back into the grid index.
+        stmt = BranchIndex.__table__.update(). \
+            where(BranchIndex.__table__.c.id == bindparam('b_id')) \
+            .values(packedJson=bindparam('b_packedJson'))
+        dbSession.execute(stmt, packedJsonUpdates)
 
         # 3) Queue chunks for recompile
         dbSession.execute(
@@ -249,6 +267,7 @@ def _insertOrUpdateBranches(conn,
     # 1) Delete existing branches
     if importHashSet:
         # Make note of the IDs being deleted
+        # FIXME : Unused
         branchIndexIdsBeingDeleted = [
             item.id for item in
             conn.execute(select(

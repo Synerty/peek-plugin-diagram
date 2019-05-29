@@ -11,7 +11,6 @@ import "./canvas/PeekCanvasExtensions.web";
 // import {DisplayCanvasSplashScreen} from "./loading-splash/loading-splash.service";
 import {GridCache} from "./cache/GridCache.web";
 import {GridObservable} from "./cache/GridObservable.web";
-import {DispGroupCache} from "./cache/DispGroupCache.web";
 import {CanvasComponent} from "./canvas-component/canvas-component.web";
 import {PopupComponent} from "./view-popup-component/popup.component.web";
 import {ToolbarComponent} from "./view-toolbar-component/toolbar.component.web";
@@ -41,7 +40,6 @@ import {EditPropsGroupPtrComponent} from "./edit-props-group-ptr-component/edit-
     ],
     providers: [
         GridCache,
-        DispGroupCache,
         GridObservable
     ],
     declarations: [DiagramComponent, CanvasComponent, PopupComponent,

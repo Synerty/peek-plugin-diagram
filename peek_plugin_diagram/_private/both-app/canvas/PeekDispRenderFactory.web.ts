@@ -4,24 +4,23 @@ import {PeekDispRenderDelegateText} from "./PeekDispRenderDelegateText.web";
 import {PeekDispRenderDelegateEllipse} from "./PeekDispRenderDelegateEllipse.web";
 import {PeekDispRenderDelegateAction} from "./PeekDispRenderDelegateAction.web";
 import {PeekDispRenderDelegateGroupPtr} from "./PeekDispRenderDelegateGroupPtr.web";
-import {DispGroupCache} from "../cache/DispGroupCache.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {DispBase} from "../tuples/shapes/DispBase";
 import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
+import {PeekDispRenderDelegateNull} from "./PeekDispRenderDelegateNull.web";
 
 
 export class PeekDispRenderFactory {
     private _delegatesByType: {};
 
-    constructor(config: PeekCanvasConfig, dispGroupCache: DispGroupCache) {
+    constructor(config: PeekCanvasConfig) {
 
         let polyDelegate = new PeekDispRenderDelegatePoly(config);
         let textDelegate = new PeekDispRenderDelegateText(config);
         let ellipseDelegate = new PeekDispRenderDelegateEllipse(config);
         let actionDelegate = new PeekDispRenderDelegateAction(config);
-        let groupPtrDelegate = new PeekDispRenderDelegateGroupPtr(
-            config, this, dispGroupCache
-        );
+        let groupPtrDelegate = new PeekDispRenderDelegateGroupPtr(config);
+        let nullDelegate = new PeekDispRenderDelegateNull(config);
 
         this._delegatesByType = {
             'DT': textDelegate,
@@ -29,7 +28,8 @@ export class PeekDispRenderFactory {
             'DPL': polyDelegate,
             'DE': ellipseDelegate,
             'DA': actionDelegate,
-            'DGP': groupPtrDelegate
+            'DGP': groupPtrDelegate,
+            'DU': nullDelegate
         };
 
     }

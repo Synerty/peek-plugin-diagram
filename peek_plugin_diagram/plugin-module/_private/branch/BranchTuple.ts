@@ -1,4 +1,4 @@
-import {addTupleType, Tuple} from "@synerty/vortexjs";
+import {addTupleType, extend, Tuple} from "@synerty/vortexjs";
 import {diagramTuplePrefix} from "../PluginNames";
 import {DiagramLookupService} from "../../DiagramLookupService";
 import {deepCopy} from "@synerty/vortexjs/src/vortex/UtilMisc";
@@ -117,7 +117,38 @@ export class BranchTuple extends Tuple {
         return this._lastStage++;
     }
 
-    /** Add Disp
+    /** Add or Update Disps
+     *
+     * This method adds an array of disps to the branch.
+     *
+     * @param disps: An array of disps to add.
+     */
+    addOrUpdateDisps(disps: any): any[] {
+        let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
+
+        let modelUpdateRequired = false;
+        let returnedDisps = [];
+
+        let oldDispIdMap = {};
+
+        for (let disp of disps) {
+            let result = this.addOrUpdateSingleDisp(disp);
+            oldDispIdMap[disp.id] = result.disp.id;
+            modelUpdateRequired = modelUpdateRequired || result.modelUpdateRequired;
+            returnedDisps.push(result.disp);
+        }
+
+        for (let disp of returnedDisps) {
+            let groupId = DispBase.groupId(disp);
+            if (oldDispIdMap[groupId] != null)
+                DispBase.setGroupId(disp, oldDispIdMap[groupId]);
+        }
+
+        this.touchUpdateDate(modelUpdateRequired);
+        return returnedDisps;
+    }
+
+    /** Add or Update Disp
      *
      * This method adds the disp to the branch if it's new.
      *
@@ -127,31 +158,47 @@ export class BranchTuple extends Tuple {
      * @param disp
      */
     addOrUpdateDisp(disp: any): any {
+        let result = this.addOrUpdateSingleDisp(disp);
+        this.touchUpdateDate(result.modelUpdateRequired);
+        return result.disp;
+    }
+
+    private addOrUpdateSingleDisp(disp: any): { disp: any, modelUpdateRequired: boolean } {
         let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
+        let DispGroupPointer = require("peek_plugin_diagram/tuples/shapes/DispGroupPointer")["DispGroupPointer"];
         let array = this._array(BranchTuple.__DISPS_NUM);
 
-        BranchTuple._setNewDispId(disp, array.length);
         let dispInBranch = this._dispsById[DispBase.id(disp)];
+
+        // If the Disp has an ID and it's not in this branch, then:
+        // 1) we make a copy of the disp
+        // 2) we set its "replacesHashId" to the "hashId" it's replacing.
+        if (DispBase.id(disp) != null && dispInBranch == null) {
+            let branchDisp = extend({}, disp);
+            DispBase.setReplacesHashId(branchDisp, DispBase.hashId(disp));
+            DispGroupPointer.setTargetGroupId(branchDisp, null);
+            DispBase.setId(branchDisp, null);
+            disp = branchDisp;
+        }
+
+        BranchTuple._setNewDispId(disp, array.length);
 
         if (dispInBranch == null) {
             DispBase.setBranchStage(disp, this._lastStage);
             this._dispsById[DispBase.id(disp)] = disp;
             array.push(disp);
-            this.touchUpdateDate(true);
-            return disp;
+            return {disp: disp, modelUpdateRequired: true};
         }
 
         if (DispBase.branchStage(dispInBranch) == DispBase.branchStage(disp)) {
-            this.touchUpdateDate(false);
-            return disp;
+            return {disp: disp, modelUpdateRequired: false};
         }
 
         // Else, it's a new stage, clone the disp.
 
         this._dispsById[DispBase.id(disp)] = disp;
         array.push(disp);
-        this.touchUpdateDate(true);
-        return disp;
+        return {disp: disp, modelUpdateRequired: true};
 
     }
 
@@ -177,20 +224,60 @@ export class BranchTuple extends Tuple {
 
     removeDisps(disps: any[]): void {
         let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
+        let DispNull = require("peek_plugin_diagram/tuples/shapes/DispNull")["DispNull"];
 
         let dispIdsToRemove = {};
         for (let disp of disps) {
-            dispIdsToRemove[DispBase.id(disp)] = true;
+            dispIdsToRemove[DispBase.id(disp)] = disp;
         }
 
         let array = this._array(BranchTuple.__DISPS_NUM);
 
         this.packedJson__[BranchTuple.__DISPS_NUM] = array
-            .filter(disp => dispIdsToRemove[DispBase.id(disp)] !== true);
+            .filter(disp => {
+                let id = DispBase.id(disp);
+                if (dispIdsToRemove[id] != null) {
+                    delete dispIdsToRemove[id];
+                    return false;
+                }
+                return true;
 
+            });
+
+        // Update the dispId dict to remove the disps we just filtered out
         this.assignIdsToDisps();
 
-        this.touchUpdateDate();
+        // For all the Disps that are not part of this branch, we need to add a DispNull
+        // to make it's deletion
+        let nullDispsToCreate = [];
+        for (let dispId of Object.keys(dispIdsToRemove)) {
+            let disp = dispIdsToRemove[dispId];
+            if (disp.bounds == null) {
+                throw new Error("Can not delete a disp with no bounds");
+            }
+
+            let nullDisp = {
+                // Type
+                '_tt': DispBase.TYPE_DU,
+
+                // Level
+                'le': disp.le,
+                'lel': disp.lel,
+
+                // Layer
+                'la': disp.la,
+                'lal': disp.lal,
+            };
+
+            DispNull.setGeomFromBounds(nullDisp, disp.bounds);
+            DispBase.setReplacesHashId(nullDisp, DispBase.hashId(disp));
+            nullDispsToCreate.push(nullDisp);
+        }
+
+        if (nullDispsToCreate.length != 0)
+            this.addNewDisps(nullDispsToCreate);
+        else
+            this.touchUpdateDate();
     }
 
 
@@ -250,17 +337,6 @@ export class BranchTuple extends Tuple {
         this.packedJson__[BranchTuple.__CREATED_DATE] = serUril.toStr(value);
     }
 
-    /** These methods are used to help render the branch */
-
-    /** RENDER DispIDs to Exlucde
-     *
-     */
-    get renderDispIdsToExclude(): number[] {
-        // TODO
-        return [];
-    }
-
-
     toJsonField(value: any,
                 jsonDict: {} | null = null,
                 name: string | null = null): any {
@@ -314,7 +390,7 @@ export class BranchTuple extends Tuple {
 
     applyLiveUpdate(liveUpdateTuple: BranchTuple): boolean {
         if (this.updatedDate == null
-            || moment(this.updatedDate).isBefore(liveUpdateTuple.updatedDate)) {
+            || !moment(this.updatedDate).isAfter(liveUpdateTuple.updatedDate)) {
             this.packedJson__ = liveUpdateTuple.packedJson__;
             this.assignIdsToDisps();
             return true;

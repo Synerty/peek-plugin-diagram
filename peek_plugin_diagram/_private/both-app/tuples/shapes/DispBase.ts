@@ -38,7 +38,7 @@ export interface DispBaseT {
     // Branch Stage
     bs: number | null;
 
-    // Replaces DispID
+    // Replaces Disp HashId
     rid: string | null;
 
     // Level
@@ -72,17 +72,30 @@ export abstract class DispBase {
     static TYPE_DE = 'DE';
     static TYPE_DG = 'DG';
     static TYPE_DGP = 'DGP';
+    static TYPE_DU = 'DU';
 
     static type(disp: DispBaseT): string {
         return disp._tt;
+    }
+
+    static id(disp: DispBaseT): number {
+        return disp.id;
     }
 
     static setId(disp: DispBaseT, value: number): void {
         disp.id = value;
     }
 
-    static id(disp: DispBaseT): number {
-        return disp.id;
+    static hashId(disp: DispBaseT): string {
+        return disp.hid;
+    }
+
+    static replacesHashId(disp: DispBaseT): string {
+        return disp.rid;
+    }
+
+    static setReplacesHashId(disp: DispBaseT, value: string): void {
+        disp.rid = value;
     }
 
     static groupId(disp: DispBaseT): number {
@@ -97,12 +110,12 @@ export abstract class DispBase {
         return disp.bi;
     }
 
-    static setBranchStage(disp: DispBaseT, value: number): void {
-        disp.bs = value;
-    }
-
     static branchStage(disp: DispBaseT): number {
         return disp.bs;
+    }
+
+    static setBranchStage(disp: DispBaseT, value: number): void {
+        disp.bs = value;
     }
 
     static level(disp: DispBaseT): DispLevel {
@@ -255,6 +268,7 @@ export abstract class DispBase {
         nameMap[DispBase.TYPE_DE] = 'Ellipse';
         nameMap[DispBase.TYPE_DG] = 'Group';
         nameMap[DispBase.TYPE_DGP] = 'GroupPointer';
+        nameMap[DispBase.TYPE_DU] = 'Deleted Shape';
 
         return `Type : ${nameMap[DispBase.type(disp)]}`;
     }

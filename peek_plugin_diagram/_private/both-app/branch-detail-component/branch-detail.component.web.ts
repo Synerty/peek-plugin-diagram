@@ -12,6 +12,7 @@ import {PrivateDiagramBranchContext} from "@peek/peek_plugin_diagram/_private/br
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 import {assert} from "../DiagramUtil";
 import {Observable} from "rxjs";
+import {DispBase} from "../tuples/shapes/DispBase";
 
 
 @Component({
@@ -125,7 +126,7 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
     }
 
     private loadDiagramBranchDisps() {
-        this.disps = this.diagramBranch.disps;
+        this.disps = this.diagramBranch.disps;//.filter(d => DispBase.groupId(d) == null);
     }
 
     private loadDiagramBranchAnchorKeys() {
@@ -158,7 +159,10 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
     }
 
     dispDesc(disp): string[] {
-        return DispFactory.wrapper(disp).makeShapeStr(disp).split('\n');
+        return (DispFactory.wrapper(disp).makeShapeStr(disp)
+            +`\n${disp.id}`
+            +`\n${disp.gi}\n`
+        ).split('\n');
     }
 
     positonAnchorOnDiagram(props: any[]): void {

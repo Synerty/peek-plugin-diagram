@@ -27,6 +27,10 @@ export class DispGroupPointer extends DispBase {
         return disp.tg;
     }
 
+    static setTargetGroupId(disp: DispGroupPointerT, val: number): void {
+        disp.tg = val;
+    }
+
     static setTargetGroupName(disp: DispGroupPointerT, coordSetId: number,
                               name: string): void {
         disp.tn = `${coordSetId}|${name}`;
@@ -107,7 +111,7 @@ export class DispGroupPointer extends DispBase {
     static makeShapeStr(disp: DispGroupPointerT): string {
         let center = DispGroupPointer.center(disp);
         return DispBase.makeShapeStr(disp)
-            // + `\nText : ${DispGroupPointer.targetGroupId(disp)}`
+            + `\nName : ${DispGroupPointer.targetGroupName(disp)}`
             + `\nAt : ${parseInt(<any>center.x)}x${parseInt(<any>center.y)}`;
     }
 

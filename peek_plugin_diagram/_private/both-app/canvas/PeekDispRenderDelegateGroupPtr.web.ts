@@ -1,14 +1,11 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
-import {DispGroupCache} from "../cache/DispGroupCache.web";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {DispGroupPointer} from "../tuples/shapes/DispGroupPointer";
 
 export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 
-    constructor(config: PeekCanvasConfig,
-                private renderFactory/*: PeekDispRenderFactory*/,
-                private dispGroupCache: DispGroupCache) {
+    constructor(config: PeekCanvasConfig) {
         super(config);
 
     }

@@ -192,7 +192,9 @@ class ServerEntryHook(PluginServerEntryHookABC,
         # Create the update branch controller
         branchUpdateController = BranchUpdateController(
             liveDbWriteApi=liveDbApi.writeApi,
-            tupleObservable=tupleObservable
+            tupleObservable=tupleObservable,
+            liveEditController=branchLiveEditController,
+            dbSessionCreator=self.dbSessionCreator
         )
         self._loadedObjects.append(branchUpdateController)
 

@@ -18,7 +18,7 @@ from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, \
     makeDispGroupGridKey
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks._CalcDisp import \
-    _scaleDispGeomWithCoordSet, _scaleDispGeom
+    _scaleDispGeomWithCoordSet, _scaleDispGeom, _createHashId
 from peek_plugin_diagram._private.worker.tasks._CalcDispFromLiveDb import \
     _mergeInLiveDbValues
 from peek_plugin_diagram._private.worker.tasks._CalcGridForDisp import makeGridKeysForDisp
@@ -274,7 +274,7 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
 
         for dispPtr in dispGroupPointers:
             if not dispPtr.targetDispGroupId:
-                logger.warning("Pointer has no targetGroupId id=%s", dispPtr.id)
+                logger.debug("Pointer has no targetGroupId id=%s", dispPtr.id)
                 continue
 
             dispGroupChilds = dispGroupChildsByGroupId.get(dispPtr.targetDispGroupId)
@@ -597,8 +597,15 @@ def _updateDispJson(preparedDisps: List[PreparedDisp]):
         stripped = {k: v
                     for k, v in pdisp.dispDict.items()
                     if v is not None and v is not False}
+
+        hashId = _createHashId(stripped)
+
+        # Assign the value
+        stripped['hid'] = hashId
+
         # Write the "compiled" disp JSON back to the disp.
         pdisp.disp.dispJson = json.dumps(stripped)
+        pdisp.disp.hashId = hashId
 
 
 def _insertToDb(dispIds, gridCompiledQueueItems, gridKeyIndexesByDispId,

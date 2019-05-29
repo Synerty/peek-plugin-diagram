@@ -21,6 +21,8 @@ export class BranchLiveEditTuple extends Tuple {
     uiUpdateDate: Date = null;
     serverUpdateDate: Date = null;
 
+    updateFromSave: boolean = false;
+
     constructor() {
         super(BranchLiveEditTuple.tupleName);
     }

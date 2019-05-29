@@ -85,7 +85,10 @@ def importDispsTask(self, modelSetKey: str, coordSetKey: str,
             coordSet, disps
         )
 
-        _bulkLoadDispsTask(coordSet, importGroupHash, ormDisps)
+        # Update the coord set view start position if required.
+        _updateCoordSetPosition(coordSet, disps)
+
+        _bulkLoadDispsTask(importGroupHash, ormDisps)
 
         liveDbImportTuples = importDispLinks(
             coordSet, importGroupHash, dispLinkImportTuples
@@ -318,31 +321,17 @@ def _convertImportTuple(importDisp):
     return disp
 
 
-def _bulkLoadDispsTask(coordSet: ModelCoordSet, importGroupHash: str, disps: List):
+def _bulkLoadDispsTask(importGroupHash: str, disps: List):
     """ Import Disps Links
 
     1) Drop all disps with matching importGroupHash
 
     2) set the  coordSetId
 
-    :param coordSet:
     :param importGroupHash:
     :param disps: An array of disp objects to import
     :return:
     """
-
-    _updateCoordSetPosition(coordSet, disps)
-
-    INSERT_MAP = (
-        (DispGroup, (DispBase, DispGroup)),
-        (DispGroupPointer, (DispBase, DispGroupPointer)),
-        (DispEllipse, (DispBase, DispEllipse)),
-        (DispPolyline, (DispBase, DispPolyline)),
-        (DispPolygon, (DispBase, DispPolygon)),
-        (DispText, (DispBase, DispText)),
-    )
-
-    startTime = datetime.now(pytz.utc)
 
     dispTable = DispBase.__table__
 
@@ -355,21 +344,10 @@ def _bulkLoadDispsTask(coordSet: ModelCoordSet, importGroupHash: str, disps: Lis
                      .delete()
                      .where(dispTable.c.importGroupHash == importGroupHash))
 
-        for DispType, Tables in INSERT_MAP:
-            inserts = [_convertToDbInsert(disp, DispType)
-                       for disp in disps
-                       if isinstance(disp, DispType)]
-
-            if not inserts:
-                continue
-
-            for Table in Tables:
-                conn.execute(Table.__table__.insert(), inserts)
+        _bulkInsertDisps(conn, disps)
 
         transaction.commit()
 
-        logger.info("Inserted %s Disps in %s",
-                    len(disps), (datetime.now(pytz.utc) - startTime))
 
     except Exception:
         transaction.rollback()
@@ -377,6 +355,44 @@ def _bulkLoadDispsTask(coordSet: ModelCoordSet, importGroupHash: str, disps: Lis
 
     finally:
         conn.close()
+
+
+def _bulkInsertDisps(conn, disps: List):
+    """ Bulk Insert Disps
+
+    1) Drop all disps with matching importGroupHash
+
+    2) set the  coordSetId
+
+    :param conn: The connection to use
+    :param disps: An array of disp objects to import
+    :return:
+    """
+
+    INSERT_MAP = (
+        (DispGroup, (DispBase, DispGroup)),
+        (DispGroupPointer, (DispBase, DispGroupPointer)),
+        (DispEllipse, (DispBase, DispEllipse)),
+        (DispPolyline, (DispBase, DispPolyline)),
+        (DispPolygon, (DispBase, DispPolygon)),
+        (DispText, (DispBase, DispText)),
+    )
+
+    startTime = datetime.now(pytz.utc)
+
+    for DispType, Tables in INSERT_MAP:
+        inserts = [_convertToDbInsert(disp, DispType)
+                   for disp in disps
+                   if isinstance(disp, DispType)]
+
+        if not inserts:
+            continue
+
+        for Table in Tables:
+            conn.execute(Table.__table__.insert(), inserts)
+
+    logger.info("Inserted %s Disps in %s",
+                len(disps), (datetime.now(pytz.utc) - startTime))
 
 
 def _convertToDbInsert(disp, DispType):

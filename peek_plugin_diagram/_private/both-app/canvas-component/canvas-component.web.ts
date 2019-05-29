@@ -9,7 +9,6 @@ import {PeekCanvasInput} from "../canvas/PeekCanvasInput.web";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 import {GridObservable} from "../cache/GridObservable.web";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
-import {DispGroupCache} from "../cache/DispGroupCache.web";
 
 import {DispBase, DispBaseT} from "../tuples/shapes/DispBase";
 
@@ -70,7 +69,6 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 private gridObservable: GridObservable,
                 private lookupService: DiagramLookupService,
                 abstractCoordSetCache: DiagramCoordSetService,
-                private dispGroupCache: DispGroupCache,
                 positionService: DiagramPositionService,
                 private itemSelectService: PrivateDiagramItemSelectService,
                 private branchService: PrivateDiagramBranchService) {
@@ -94,7 +92,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
             this.lookupService, this.branchService, this);
 
         // The display renderer delegates
-        this.renderFactory = new PeekDispRenderFactory(this.config, this.dispGroupCache);
+        this.renderFactory = new PeekDispRenderFactory(this.config);
 
         // The user interaction handler.
         this.input = new PeekCanvasInput(
@@ -136,8 +134,6 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     ngOnInit() {
         this.initCanvas();
-
-        this.dispGroupCache.setModelSetKey(this.modelSetKey);
 
         this.canvas = this.canvasView.nativeElement;
 

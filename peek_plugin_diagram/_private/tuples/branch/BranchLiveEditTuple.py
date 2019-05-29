@@ -1,9 +1,8 @@
 from datetime import datetime
 
-from vortex.Tuple import Tuple, addTupleType, TupleField
-
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
+from vortex.Tuple import Tuple, addTupleType, TupleField
 
 
 @addTupleType
@@ -24,3 +23,4 @@ class BranchLiveEditTuple(Tuple):
 
     uiUpdateDate: datetime = TupleField()
     serverUpdateDate: datetime = TupleField()
+    updateFromSave: bool = TupleField()

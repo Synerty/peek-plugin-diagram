@@ -13,6 +13,8 @@ from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyCompilerQue
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import \
     BranchTuple
+from peek_plugin_diagram._private.worker.tasks.ImportDispTask import _bulkLoadDispsTask, \
+    _bulkInsertDisps
 from sqlalchemy import select
 from vortex.Tuple import Tuple
 
@@ -54,8 +56,7 @@ def _deleteBranchDisps(conn, branchIds: List[int]) -> None:
     )
 
 
-def _insertBranchDisps(ormSession,
-                       coordSet: ModelCoordSet,
+def _insertBranchDisps(conn, ormSession,
                        newBranches: List[BranchTuple]) -> None:
     """ Insert Disps for Branch
 
@@ -101,7 +102,7 @@ def _insertBranchDisps(ormSession,
 
 
     # Bulk load the Disps
-    ormSession.bulk_save_objects(newDisps, update_changed_only=False)
+    _bulkInsertDisps(conn, newDisps)
 
     # Queue the compiler
     DispCompilerQueueController.queueDispIdsToCompileWithSession(

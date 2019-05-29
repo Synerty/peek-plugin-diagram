@@ -349,9 +349,10 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
                 for (let disp of this._selectedDisps) {
                     DispBase.deltaMove(disp, delta.dx, delta.dy);
-                    this.canvasEditor.branchContext.branchTuple
-                        .addOrUpdateDisp(disp);
                 }
+
+                this._selectedDisps = this.canvasEditor.branchContext.branchTuple
+                    .addOrUpdateDisps(this._selectedDisps);
 
                 for (let dispPolylineEnd of this._selectedPolylineEnds) {
                     if (dispPolylineEnd.isStart) {
@@ -362,7 +363,12 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
                             .deltaMoveEnd(dispPolylineEnd.polylineDisp, delta.dx, delta.dy);
                     }
 
+                    dispPolylineEnd.polylineDisp = this.canvasEditor
+                        .branchContext
+                        .branchTuple
+                        .addOrUpdateDisps(dispPolylineEnd.polylineDisp);
                 }
+
                 this.viewArgs.config.invalidate();
 
                 break;

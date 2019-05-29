@@ -81,9 +81,13 @@ export class PeekCanvasEditor {
 
         this.canvasModel.selection.selectionChangedObservable()
             .takeUntil(lifecycleEventEmitter.onDestroyEvent)
-            .subscribe(() => this._props.setSelectedShapes(
-                this.canvasModel, this._currentBranch.branchTuple
-            ));
+            .subscribe(() => {
+                if (!this.canvasConfig.editor.active)
+                    return;
+                this._props.setSelectedShapes(
+                    this.canvasModel, this._currentBranch.branchTuple
+                )
+            });
     };
 
 

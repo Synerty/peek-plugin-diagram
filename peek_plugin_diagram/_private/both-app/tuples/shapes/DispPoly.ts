@@ -60,7 +60,6 @@ export abstract class DispPoly extends DispBase {
         disp.w = val;
     }
 
-
     static geom(disp): PointsT {
         return disp.g;
     }

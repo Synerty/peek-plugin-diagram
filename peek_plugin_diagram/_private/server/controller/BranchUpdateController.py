@@ -1,14 +1,14 @@
 import logging
 
-from twisted.internet.defer import inlineCallbacks, Deferred
-from vortex.Payload import Payload
-from vortex.TupleAction import TupleActionABC
-from vortex.TupleSelector import TupleSelector
-from vortex.handler.TupleActionProcessor import TupleActionProcessorDelegateABC
-from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
-
+import ujson
+from peek_plugin_diagram._private.server.controller.BranchLiveEditController import \
+    BranchLiveEditController
+from peek_plugin_diagram._private.storage.branch.BranchIndex import BranchIndex
 from peek_plugin_diagram._private.tuples.branch.BranchKeyToIdMapTuple import \
     BranchKeyToIdMapTuple
+from peek_plugin_diagram._private.tuples.branch.BranchLiveEditTuple import \
+    BranchLiveEditTuple
+from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 from peek_plugin_diagram._private.tuples.branch.BranchUpdateTupleAction import \
     BranchUpdateTupleAction
 from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexImporter import \
@@ -16,6 +16,12 @@ from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexImporter import
 from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexUpdater import \
     updateBranches
 from peek_plugin_livedb.server.LiveDBWriteApiABC import LiveDBWriteApiABC
+from twisted.internet.defer import inlineCallbacks, Deferred
+from vortex.Payload import Payload
+from vortex.TupleAction import TupleActionABC
+from vortex.TupleSelector import TupleSelector
+from vortex.handler.TupleActionProcessor import TupleActionProcessorDelegateABC
+from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
 
 logger = logging.getLogger(__name__)
 
@@ -28,12 +34,19 @@ class BranchUpdateController(TupleActionProcessorDelegateABC):
     """
 
     def __init__(self, liveDbWriteApi: LiveDBWriteApiABC,
-                 tupleObservable: TupleDataObservableHandler):
+                 tupleObservable: TupleDataObservableHandler,
+                 liveEditController: BranchLiveEditController,
+                 dbSessionCreator):
         self._liveDbWriteApi = liveDbWriteApi
         self._tupleObservable = tupleObservable
+        self._liveEditController = liveEditController
+        self._dbSessionCreator = dbSessionCreator
 
     def shutdown(self):
         self._liveDbWriteApi = None
+        self._tupleObservable = None
+        self._liveEditController = None
+        self._dbSessionCreator = None
 
     @inlineCallbacks
     def updateBranch(self, branchEncodedPayload: bytes):
@@ -51,16 +64,43 @@ class BranchUpdateController(TupleActionProcessorDelegateABC):
         if not isinstance(tupleAction, BranchUpdateTupleAction):
             raise Exception("Unhandled tuple action %s" % tupleAction)
 
+        dbSession = self._dbSessionCreator()
         try:
             encodedPayload = yield Payload(tuples=[tupleAction.branchTuple]) \
                 .toEncodedPayloadDefer()
 
             yield updateBranches.delay(tupleAction.modelSetId, encodedPayload)
 
+            # Load the branch from the DB and tell the LiveDb update
+            # that there is an update.
+            branchIndex = dbSession.query(BranchIndex) \
+                .filter(BranchIndex.coordSetId == tupleAction.branchTuple.coordSetId) \
+                .filter(BranchIndex.key == tupleAction.branchTuple.key) \
+                .one()
+
+            branchTuple = BranchTuple()
+            branchTuple.packedJson__ = ujson.loads(branchIndex.packedJson)
+            branchTuple.importHash = branchIndex.importHash
+            branchTuple.importGroupHash = branchIndex.importGroupHash
+
+            self._liveEditController.updateBranch(branchTuple)
+
             self._updateBranchKeyToIdMap()
+
+            self._tupleObservable.notifyOfTupleUpdate(
+                TupleSelector(
+                    BranchLiveEditTuple.tupleType(), dict(
+                        coordSetId=tupleAction.branchTuple.coordSetId,
+                        key=tupleAction.branchTuple.key
+                    )
+                )
+            )
 
         except Exception as e:
             logger.exception(e)
+
+        finally:
+            dbSession.close()
 
     def _updateBranchKeyToIdMap(self):
         self._tupleObservable.notifyOfTupleUpdate(
