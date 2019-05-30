@@ -5,7 +5,7 @@ import {PeekDispRenderDelegateEllipse} from "./PeekDispRenderDelegateEllipse.web
 import {PeekDispRenderDelegateAction} from "./PeekDispRenderDelegateAction.web";
 import {PeekDispRenderDelegateGroupPtr} from "./PeekDispRenderDelegateGroupPtr.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {DispBase} from "../tuples/shapes/DispBase";
+import {DispBase, PointI} from "../tuples/shapes/DispBase";
 import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
 import {PeekDispRenderDelegateNull} from "./PeekDispRenderDelegateNull.web";
 
@@ -42,12 +42,8 @@ export class PeekDispRenderFactory {
     };
 
 
-    draw(disp, ctx, zoom, pan) {
+    draw(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
         let level = DispBase.level(disp);
-        if (level == null) {
-            console.log("HERE");
-            return;
-        }
         if (!(level.minZoom <= zoom && zoom <= level.maxZoom))
             return;
 
@@ -56,12 +52,8 @@ export class PeekDispRenderFactory {
         this._delegatesByType[disp._tt].draw(disp, ctx, zoom, pan);
     };
 
-    drawSelected(disp, ctx, zoom:number, pan) {
+    drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
         this._delegatesByType[disp._tt].drawSelected(disp, ctx, zoom, pan);
-    };
-
-    drawSelectedForEdit(disp, ctx, zoom: number, pan) {
-        this.drawSelected(disp, ctx, zoom, pan);
     };
 
     contains(disp, x, y, margin) {
@@ -97,7 +89,6 @@ export class PeekDispRenderFactory {
         if (DispFactory.type(disp1) == DispType.polygon
             && DispFactory.type(disp2) != DispType.polygon)
             return 1;
-
 
 
         return this._delegatesByType[disp2._tt].area(disp2)

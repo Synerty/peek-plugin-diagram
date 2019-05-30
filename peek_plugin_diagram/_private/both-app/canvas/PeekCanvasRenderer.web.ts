@@ -15,6 +15,7 @@ export interface RenderDrawArgs {
     ctx: any;
     zoom: number;
     pan: PeekCanvasPan;
+    forEdit: boolean;
 }
 
 /**
@@ -144,8 +145,8 @@ export class PeekCanvasRenderer {
 
         let ctx = this.canvas.getContext('2d');
 
-        let dispObjs = this.model.viewableDisps();
-        let selectedCoords = this.model.selection.selectedDisps();
+        let disps = this.model.viewableDisps();
+        let selectedDisps = this.model.selection.selectedDisps();
 
         let forEdit = this.config.editor.active;
 
@@ -169,27 +170,21 @@ export class PeekCanvasRenderer {
         // for (let i = dispObjs.length - 1; i != -1; i--) {
 
         // draw all shapes, counting forwards for correct order or rendering
-        for (let i = 0; i < dispObjs.length; i++) {
-            let dispObj = dispObjs[i];
-            this.dispDelegate.draw(dispObj, ctx, this._zoom, this._pan);
+        for (let i = 0; i < disps.length; i++) {
+            let disp = disps[i];
+            this.dispDelegate.draw(disp, ctx, this._zoom, this._pan, forEdit);
         }
 
         // draw selection
         // right now this is just a stroke along the edge of the selected Shape
-        for (let i = 0; i < selectedCoords.length; i++) {
-            let dispObj = selectedCoords[i];
-            if (forEdit) {
-                this.dispDelegate
-                    .drawSelected(dispObj, ctx, this._zoom, this._pan);
-            } else {
-                this.dispDelegate
-                    .drawSelectedForEdit(dispObj, ctx, this._zoom, this._pan);
-            }
+        for (let i = 0; i < selectedDisps.length; i++) {
+            let dispObj = selectedDisps[i];
+            this.dispDelegate.drawSelected(dispObj, ctx, this._zoom, this._pan, forEdit);
         }
 
         // ** Add stuff you want drawn on top all the time here **
         // Tell the canvas mouse handler to draw what ever its got going on.
-        this.drawEvent.next({ctx, zoom: this._zoom, pan: this._pan});
+        this.drawEvent.next({ctx, zoom: this._zoom, pan: this._pan, forEdit});
 
         ctx.restore();
     }

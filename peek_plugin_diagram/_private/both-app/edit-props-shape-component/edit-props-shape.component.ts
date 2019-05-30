@@ -52,17 +52,16 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
     readOptionVal(prop: ShapeProp): any {
         let obj = prop.getter(this.context.disp);
         if (obj == null) {
-            console.log(`ERROR Prop ${prop.name} getter returned null`);
-            return null;
+            return 'null';
         }
         if (obj.id == null)
             throw new Error(`Prop ${prop.name} getter result doesn't have an ID`);
-        return obj.id;
+        return obj.id.toString();
     }
 
     writeOptionVal(prop: ShapeProp, value: string): void {
         prop.__lastShowValue = null;
-        let obj = prop.getOptionObject(value);
+        let obj = value == 'null' ? null : prop.getOptionObject(value);
         prop.setter(this.context.disp, obj);
         this.canvasEditor.dispPropsUpdated();
     }
@@ -113,6 +112,7 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
                     break;
 
                 case ShapePropType.Color:
+                    prop.allowNullOption  = true;
                     prop.options = this.context.colorOptions;
                     break;
 

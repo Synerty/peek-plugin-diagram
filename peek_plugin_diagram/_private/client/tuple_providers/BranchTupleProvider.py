@@ -59,8 +59,7 @@ class BranchTupleProvider(TuplesProviderABC):
                 packedJsons = resultsByKey[branchKey]
 
                 for packedJson  in packedJsons:
-                    result = BranchTuple()
-                    result.packedJson__ = json.loads(packedJson)
+                    result = BranchTuple.loadFromJson(packedJson, None, None)
                     if result.coordSetId == coordSetId or coordSetId is None:
                         results.append(result)
 

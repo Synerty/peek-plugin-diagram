@@ -3,6 +3,7 @@ import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {DispEllipse} from "../tuples/shapes/DispEllipse";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {DispTextT} from "../tuples/shapes/DispText";
+import {PointI} from "../tuples/shapes/DispBase";
 
 export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
 
@@ -12,7 +13,7 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
     }
 
 
-    draw(disp, ctx, zoom: number) {
+    draw(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
 
         let fillColor = DispEllipse.fillColor(disp);
         let lineColor = DispEllipse.lineColor(disp);
@@ -73,7 +74,7 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
         );
     };
 
-    drawSelected(disp, ctx, zoom, pan) {
+    drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
         let bounds = disp.bounds;
         if (bounds == null)
             return;
@@ -94,10 +95,6 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
         ctx.strokeStyle = selectionConfig.color;
         ctx.lineWidth = selectionConfig.width / zoom;
         ctx.stroke();
-    };
-
-    drawSelectedForEdit(disp, ctx, zoom: number, pan) {
-        this.drawSelected(disp, ctx, zoom, pan);
     };
 
     contains(disp: DispTextT, x, y, margin) {

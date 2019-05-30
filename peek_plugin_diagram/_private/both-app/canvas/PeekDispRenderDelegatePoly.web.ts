@@ -1,7 +1,7 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {DispPolygon} from "../tuples/shapes/DispPolygon";
-import {PointsT} from "../tuples/shapes/DispBase";
+import {PointI, PointsT} from "../tuples/shapes/DispBase";
 import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {DispPolyline} from "../tuples/shapes/DispPolyline";
@@ -43,7 +43,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         ctx[q % 2 == 0 ? 'moveTo' : 'lineTo'](x2, y2);
     };
 
-    draw(disp, ctx, zoom, pan) {
+    draw(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
         let isPolygon = DispFactory.type(disp) == DispType.polygon;
 
         let fillColor = isPolygon ? DispPolygon.fillColor(disp) : null;
@@ -162,7 +162,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
     }
 
-    drawSelected(disp, ctx, zoom: number, pan) {
+    drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
         let points = DispPolygon.geom(disp);
 
         let selectionConfig = this.config.renderer.selection;
@@ -184,16 +184,13 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         ctx.lineWidth = selectionConfig.width / zoom;
         ctx.stroke();
 
-    }
-
-    drawSelectedForEdit(disp, ctx, zoom: number, pan) {
-        this.drawSelected(disp, ctx, zoom, pan);
-
-        // DRAW THE EDIT HANDLES
-        ctx.fillStyle = this.config.editor.selectionHighlightColor;
-        let handles = this.handles(disp);
-        for (let handle of handles) {
-            ctx.fillRect(handle.x, handle.y, handle.w, handle.h);
+        if (forEdit) {
+            // DRAW THE EDIT HANDLES
+            ctx.fillStyle = this.config.editor.selectionHighlightColor;
+            let handles = this.handles(disp);
+            for (let handle of handles) {
+                ctx.fillRect(handle.x, handle.y, handle.w, handle.h);
+            }
         }
     }
 

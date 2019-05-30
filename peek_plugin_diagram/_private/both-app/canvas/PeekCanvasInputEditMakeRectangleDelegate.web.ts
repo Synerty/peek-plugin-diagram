@@ -2,6 +2,7 @@ import {CanvasInputPos, InputDelegateConstructorArgs, PeekCanvasInputDelegate} f
 import {DispText} from "../tuples/shapes/DispText";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
+import {PointI} from "../tuples/shapes/DispBase";
 
 /**
  * This input delegate handles :
@@ -81,9 +82,7 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
         this._finaliseCreate();
     }
 
-    draw(ctx, zoom, pan) {
-        if (this._creating != null)
-            this.viewArgs.renderFactory.draw(this._creating, ctx, zoom, pan);
+    draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
     }
 
     _finaliseCreate() {

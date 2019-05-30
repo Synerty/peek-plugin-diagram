@@ -12,6 +12,7 @@ import {
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
+import {PointI} from "../tuples/shapes/DispBase";
 
 
 /** Peek Canvas Input
@@ -247,9 +248,9 @@ export class PeekCanvasInput {
     /**
      * Draw Called by the renderer during a redraw.
      */
-    draw(ctx, zoom, pan) {
+    draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
         if (this._delegate)
-            this._delegate.draw(ctx, zoom, pan);
+            this._delegate.draw(ctx, zoom, pan, forEdit);
     };
 
 }

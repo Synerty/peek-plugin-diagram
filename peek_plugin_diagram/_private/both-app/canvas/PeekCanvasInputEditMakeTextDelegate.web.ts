@@ -7,6 +7,7 @@ import {DispText} from "../tuples/shapes/DispText";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 import {DispGroup} from "../tuples/shapes/DispGroup";
+import {PointI} from "../tuples/shapes/DispBase";
 
 /**
  * This input delegate handles :
@@ -147,7 +148,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         this._finaliseCreate();
     }
 
-    draw(ctx, zoom, pan) {
+    draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
     }
 
     _finaliseCreate() {

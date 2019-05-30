@@ -51,8 +51,10 @@ export class PeekCanvasEditor {
                     .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
                     .subscribe((modelUpdateRequired: boolean) => {
                         this.canvasModel.compileBranchDisps();
-                        if (modelUpdateRequired)
+                        if (modelUpdateRequired) {
                             this.canvasModel.selection.clearSelection();
+                            this.setEditorSelectTool();
+                        }
                     });
 
                 this.branchContext.open();

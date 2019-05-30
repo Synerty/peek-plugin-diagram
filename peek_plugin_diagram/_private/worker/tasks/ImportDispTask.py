@@ -77,6 +77,8 @@ def importDispsTask(self, modelSetKey: str, coordSetKey: str,
     try:
         disps = Payload().fromEncodedPayload(dispsEncodedPayload).tuples
 
+        _validateImportDisps(disps)
+
         coordSet = _loadCoordSet(modelSetKey, coordSetKey)
 
         # _validateImportDisps(disps)
@@ -117,16 +119,17 @@ def _loadCoordSet(modelSetKey, coordSetKey):
         ormSession.close()
 
 
-# def _validateImportDisps(importDisp: List):
-#
-#     for importDisp in importDisp:
-#         isGroup = isinstance(importDisp, ImportDispGroupTuple)
-#         isGroupChild = not isGroup and importDisp.parentDispGroupHash
-#
-#         if isGroupChild:
-#             if importDisp.key:
-#                 raise Exception("Disp can not have a key if it's apart of a group, %s",
-#                                 importDisp)
+def _validateImportDisps(importDisp: List):
+
+    for importDisp in importDisp:
+        isGroup = isinstance(importDisp, ImportDispGroupTuple)
+        # isGroupChild = not isGroup and importDisp.parentDispGroupHash
+
+        if not isGroup and importDisp.layerHash is None:
+            raise Exception("Disps must have layers and levels")
+
+        if not isGroup and importDisp.levelHash is None:
+            raise Exception("Disps must have layers and levels")
 
 
 def _importDisps(coordSet: ModelCoordSet, importDisps: List):

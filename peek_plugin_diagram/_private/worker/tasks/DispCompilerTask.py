@@ -164,7 +164,7 @@ def compileDisps(self, queueIds, dispIds):
 
         # ---------------
         # 8) Write the Disp JSON back to the disp
-        _updateDispJson(preparedDisps)
+        _updateDispsJson(preparedDisps)
 
         # ---------------
         # Commit the updates
@@ -467,7 +467,7 @@ def _compileDispGroups(ormSession, preparedDisps: List[PreparedDisp]):
 
     # Query for the disp groups with loaded child disps we'll need
 
-    childDispsByGroupId =  _queryDispsForGroup(ormSession, preparedDispGroupByIds)
+    childDispsByGroupId = _queryDispsForGroup(ormSession, preparedDispGroupByIds)
 
     childDispCount = 0
 
@@ -591,21 +591,27 @@ def _calculateGridKeys(preparedDisps: List[PreparedDisp], coordSetById, textStyl
     return gridCompiledQueueItems, gridKeyIndexesByDispId
 
 
-def _updateDispJson(preparedDisps: List[PreparedDisp]):
+def _updateDispsJson(preparedDisps: List[PreparedDisp]):
     for pdisp in preparedDisps:
-        # Strip out the nulls and falses, to make it even more compact
-        stripped = {k: v
-                    for k, v in pdisp.dispDict.items()
-                    if v is not None and v is not False}
+        _packDispJson(pdisp.disp, pdisp.dispDict)
 
-        hashId = _createHashId(stripped)
 
-        # Assign the value
-        stripped['hid'] = hashId
+def _packDispJson(disp, dispDict) -> Dict:
+    # Strip out the nulls and falses, to make it even more compact
+    stripped = {k: v
+                for k, v in dispDict.items()
+                if v is not None and v is not False}
 
-        # Write the "compiled" disp JSON back to the disp.
-        pdisp.disp.dispJson = json.dumps(stripped)
-        pdisp.disp.hashId = hashId
+    hashId = _createHashId(stripped)
+
+    # Assign the value
+    stripped['hid'] = hashId
+
+    # Write the "compiled" disp JSON back to the disp.
+    disp.dispJson = json.dumps(stripped)
+    disp.hashId = hashId
+
+    return stripped
 
 
 def _insertToDb(dispIds, gridCompiledQueueItems, gridKeyIndexesByDispId,

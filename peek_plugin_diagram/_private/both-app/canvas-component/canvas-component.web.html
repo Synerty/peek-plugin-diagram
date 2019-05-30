@@ -1,11 +1,11 @@
 <div>
 
     <pl-diagram-view-toolbar *ngIf="coordSetKey != null && !editor.isEditing()"
-                        [config]="config"
-                        [coordSetKey]="coordSetKey"
-                        [modelSetKey]="modelSetKey"></pl-diagram-view-toolbar>
+                             [config]="config"
+                             [coordSetKey]="coordSetKey"
+                             [modelSetKey]="modelSetKey"></pl-diagram-view-toolbar>
 
-    <div #edittoolbar>
+    <div #edittoolbar class="">
         <pl-diagram-edit-toolbar
                 *ngIf="editor.isEditing()"
                 [canvasEditor]="editor"></pl-diagram-edit-toolbar>
@@ -20,14 +20,16 @@
 
     <!-- This is the properties panel that appears, it can have dynamic properties
     or shape properties -->
-    <pl-diagram-edit-props
-            class="pl-canvas-edit-context"
-            *ngIf="editor.isEditing()"
-            [canvasEditor]="editor"></pl-diagram-edit-props>
+
+    <div #editprops >
+        <pl-diagram-edit-props
+                *ngIf="editor.isEditing()"
+                [canvasEditor]="editor"></pl-diagram-edit-props>
+    </div>
 
     <pl-diagram-view-popup *ngIf="coordSetKey != null && !editor.isEditing()"
-                      [coordSetKey]="coordSetKey"
-                      [modelSetKey]="modelSetKey"></pl-diagram-view-popup>
+                           [coordSetKey]="coordSetKey"
+                           [modelSetKey]="modelSetKey"></pl-diagram-view-popup>
 
 
     <pl-diagram-view-select-layers

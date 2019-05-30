@@ -16,7 +16,9 @@ from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexImporter import
 from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexUpdater import \
     updateBranches
 from peek_plugin_livedb.server.LiveDBWriteApiABC import LiveDBWriteApiABC
+from twisted.internet import defer
 from twisted.internet.defer import inlineCallbacks, Deferred
+from vortex.DeferUtil import vortexLogAndConsumeFailure
 from vortex.Payload import Payload
 from vortex.TupleAction import TupleActionABC
 from vortex.TupleSelector import TupleSelector
@@ -59,10 +61,20 @@ class BranchUpdateController(TupleActionProcessorDelegateABC):
 
         self._updateBranchKeyToIdMap()
 
-    @inlineCallbacks
     def processTupleAction(self, tupleAction: TupleActionABC) -> Deferred:
         if not isinstance(tupleAction, BranchUpdateTupleAction):
             raise Exception("Unhandled tuple action %s" % tupleAction)
+
+        logger.debug("Received branch save for branch %s by %s",
+                     tupleAction.branchTuple.key,
+                     tupleAction.branchTuple.updatedByUser)
+
+        d = self.__processUpdateFromClient(tupleAction)
+        d.addErrback(vortexLogAndConsumeFailure, logger)
+        return defer.succeed([])
+
+    @inlineCallbacks
+    def __processUpdateFromClient(self, tupleAction: TupleActionABC) -> Deferred:
 
         dbSession = self._dbSessionCreator()
         try:
@@ -78,10 +90,9 @@ class BranchUpdateController(TupleActionProcessorDelegateABC):
                 .filter(BranchIndex.key == tupleAction.branchTuple.key) \
                 .one()
 
-            branchTuple = BranchTuple()
-            branchTuple.packedJson__ = ujson.loads(branchIndex.packedJson)
-            branchTuple.importHash = branchIndex.importHash
-            branchTuple.importGroupHash = branchIndex.importGroupHash
+            branchTuple = BranchTuple.loadFromJson(branchIndex.packedJson,
+                                                   branchIndex.importHash,
+                                                   branchIndex.importGroupHash)
 
             self._liveEditController.updateBranch(branchTuple)
 

@@ -4,7 +4,6 @@ import {DispBase, PointI} from "./DispBase";
 import {
     PeekCanvasShapePropsContext,
     ShapeProp,
-    ShapePropOption,
     ShapePropType
 } from "../../canvas/PeekCanvasShapePropsContext";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
@@ -109,32 +108,35 @@ export class DispPolygon extends DispPoly {
 
         context.addProp(new ShapeProp(
             ShapePropType.Option,
-            DispPolygon.fillDirection,
+            (disp) => { // The UI expects an object with an ID
+                return {id: DispPolygon.fillDirection(disp)}
+            },
             DispPolygon.setLineStyle,
             "Fill Direction",
-            "",
-            [
-                new class implements ShapePropOption {
-                    name: "Bottom to Top";
-                    object: PolygonFillDirection.fillBottomToTop;
-                    value: PolygonFillDirection.fillBottomToTop;
-                },
-                new class implements ShapePropOption {
-                    name: "Right to Left";
-                    object: PolygonFillDirection.fillRightToLeft;
-                    value: PolygonFillDirection.fillRightToLeft;
-                },
-                new class implements ShapePropOption {
-                    name: "Left to Right";
-                    object: PolygonFillDirection.fillLeftToRight;
-                    value: PolygonFillDirection.fillLeftToRight;
-                },
-                new class implements ShapePropOption {
-                    name: "Top to Bottom";
-                    object: PolygonFillDirection.fillTopToBottom;
-                    value: PolygonFillDirection.fillTopToBottom;
-                }
-            ]
+            {
+                options: [
+                    {
+                        name: "Bottom to Top",
+                        object: {id: PolygonFillDirection.fillBottomToTop},
+                        value: PolygonFillDirection.fillBottomToTop,
+                    },
+                    {
+                        name: "Right to Left",
+                        object: {id: PolygonFillDirection.fillRightToLeft},
+                        value: PolygonFillDirection.fillRightToLeft,
+                    },
+                    {
+                        name: "Left to Right",
+                        object: {id: PolygonFillDirection.fillLeftToRight},
+                        value: PolygonFillDirection.fillLeftToRight,
+                    },
+                    {
+                        name: "Top to Bottom",
+                        object: {id: PolygonFillDirection.fillTopToBottom},
+                        value: PolygonFillDirection.fillTopToBottom,
+                    }
+                ]
+            }
         ));
 
         context.addProp(new ShapeProp(

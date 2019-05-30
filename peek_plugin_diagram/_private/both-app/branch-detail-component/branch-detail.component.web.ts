@@ -126,7 +126,7 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
     }
 
     private loadDiagramBranchDisps() {
-        this.disps = this.diagramBranch.disps;//.filter(d => DispBase.groupId(d) == null);
+        this.disps = this.diagramBranch.disps.filter(d => DispBase.groupId(d) == null);
     }
 
     private loadDiagramBranchAnchorKeys() {
@@ -160,8 +160,6 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
 
     dispDesc(disp): string[] {
         return (DispFactory.wrapper(disp).makeShapeStr(disp)
-            +`\n${disp.id}`
-            +`\n${disp.gi}\n`
         ).split('\n');
     }
 
@@ -174,7 +172,7 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
         let center = Wrapper.center(disp);
 
         this.diagramPosService.position(
-            this.coordSetKey, center.x, center.y, 1.0, Wrapper.key(disp)
+            this.coordSetKey, center.x, center.y, 5.0, Wrapper.key(disp)
         );
     }
 

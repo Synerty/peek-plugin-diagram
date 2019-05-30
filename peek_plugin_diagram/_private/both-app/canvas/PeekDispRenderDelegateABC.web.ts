@@ -1,5 +1,6 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {PointI} from "../tuples/shapes/DispBase";
 
 export abstract class PeekDispRenderDelegateABC {
 
@@ -7,11 +8,9 @@ export abstract class PeekDispRenderDelegateABC {
 
     }
 
-    abstract draw(disp, ctx, zoom, pan): void;
+    abstract draw(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) ;
 
-    abstract drawSelected(disp, ctx, zoom: number, pan): void;
-
-    abstract drawSelectedForEdit(disp, ctx, zoom: number, pan): void;
+    abstract drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) ;
 
     abstract contains(disp, x, y, margin): boolean;
 

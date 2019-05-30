@@ -44,7 +44,7 @@ class BranchIndex(Tuple, DeclarativeBase):
     #:  The chunk that this branchIndex fits into
     chunkKey = Column(String, nullable=False)
 
-    updatedDate = Column(DateTime(timezone=True), nullable=False)
+    updatedDate = Column(DateTime(timezone=True))
     createdDate = Column(DateTime(timezone=True), nullable=False)
 
     #:  The JSON ready for the Compiler to use

@@ -1,7 +1,6 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
-import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {DispGroupPointer} from "../tuples/shapes/DispGroupPointer";
+import {PointI} from "../tuples/shapes/DispBase";
 
 export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 
@@ -10,7 +9,7 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 
     }
 
-    draw(dispGroup, ctx, zoom, pan) {
+    draw(dispGroup, ctx, zoom: number, pan: PointI, forEdit: boolean) {
         // let b = dispGroup.bounds;
         //
         // if (b == null || b.w == 0 || b.w == 0) {
@@ -61,13 +60,9 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 
     };
 
-    drawSelected(disp, ctx, zoom: number, pan) {
+    drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
     };
 
-    drawSelectedForEdit(disp, ctx, zoom: number, pan) {
-        this.drawSelected(disp, ctx, zoom, pan);
-
-    };
 
     contains(disp, x, y, margin) {
         return false;

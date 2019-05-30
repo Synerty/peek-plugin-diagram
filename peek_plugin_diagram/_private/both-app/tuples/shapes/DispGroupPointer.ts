@@ -138,11 +138,28 @@ export class DispGroupPointer extends DispBase {
             .filter((d) => DispBase.groupId(d) == DispBase.id(dispGroupPtr));
 
         branchTuple.removeDisps(oldDisps);
+        let coordSetId = branchTuple.coordSetId;
+        let thisCoordSetLevelsByOrder = {};
+        for (let level of lookupService.levelsOrderedByOrder(coordSetId)) {
+            thisCoordSetLevelsByOrder[level.order] = level;
+        }
+
+        function findLevel(oldLevel): any {
+            return thisCoordSetLevelsByOrder[oldLevel.order];
+        }
 
         let newDisps = [];
         for (let disp of DispGroup.items(groupDisp)) {
-            disp = DispBase.copyAndClearDisp(disp);
+            disp = DispBase.cloneDisp(disp);
+            DispBase.setSelectable(disp, false);
+            DispBase.setKey(disp, null);
+            DispBase.setId(disp, null);
+
             lookupService._linkDispLookups(disp);
+
+            // Convert this to this coord sets levels
+            DispBase.setLevel(disp, findLevel(DispBase.level(disp)));
+
             DispBase.deltaMove(disp, center.x, center.y);
             DispBase.setGroupId(disp, DispBase.id(dispGroupPtr));
             newDisps.push(disp);

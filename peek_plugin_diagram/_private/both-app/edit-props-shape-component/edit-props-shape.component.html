@@ -48,6 +48,8 @@
                 [class.bg-even]="even">
                 <select (ngModelChange)="writeOptionVal(prop, $event)"
                         [ngModel]="readOptionVal(prop)">
+                    <option *ngIf="prop.allowNullOption"
+                            [value]="null"></option>
                     <option *ngFor="let option of prop.options"
                             [value]="option.value">{{option.name}}
                     </option>

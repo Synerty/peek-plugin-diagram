@@ -6,8 +6,6 @@ import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
 import {DispBase} from "../tuples/shapes/DispBase";
-import {Subject} from "rxjs/Subject";
-import {Observable} from "rxjs/Observable";
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch";
 import {PeekCanvasModelQuery} from "./PeekCanvasModelQuery.web";
 import {PeekCanvasModelSelection} from "./PeekCanvasModelSelection.web";
@@ -225,6 +223,7 @@ export class PeekCanvasModel {
     get query(): PeekCanvasModelQuery {
         return this._query;
     }
+
     get selection(): PeekCanvasModelSelection {
         return this._selection;
     }
@@ -234,8 +233,8 @@ export class PeekCanvasModel {
     }
 
 
-    private _compileDisps() {
-        if (!this.needsCompiling)
+    private _compileDisps(force = false) {
+        if (!this.needsCompiling && !force)
             return;
 
         this.needsCompiling = false;
@@ -298,23 +297,26 @@ export class PeekCanvasModel {
                     for (; nextIndex < grid.disps.length; nextIndex++) {
                         let disp = grid.disps[nextIndex];
 
-                        // // Level first, as per the sortDisps function
-                        if (DispBase.level(disp).order < level.order)
+                        // Level first, as per the sortDisps function
+                        let dispLevel = DispBase.level(disp);
+                        if (dispLevel.order < level.order)
                             continue;
 
-                        if (level.order < DispBase.level(disp).order)
+                        if (level.order < dispLevel.order)
                             break;
 
                         // Then Layer
-                        if (DispBase.layer(disp).order < layer.order)
+                        let dispLayer = DispBase.layer(disp);
+                        if (dispLayer.order < layer.order)
                             continue;
 
-                        if (layer.order < DispBase.layer(disp).order)
+                        if (layer.order < dispLayer.order)
                             break;
 
+                        // If the disp has already been added or is being replaced
+                        // by a branch, then skip this one
                         if (dispHashIdsAdded[DispBase.hashId(disp)] === true)
                             continue;
-
 
                         // BranchId
                         if (disp.bi == null || branchIdsActive[disp.bi] == true)
@@ -338,12 +340,15 @@ export class PeekCanvasModel {
             + ` for ${disps.length} disps and ${viewableGrids.length} grids`);
     }
 
-     compileBranchDisps():void {
+    recompileModel(): void {
+        this._compileDisps(true);
+    }
+
+    compileBranchDisps(): void {
         let disps = this._gridDisps.slice();
 
         let activeBranch = this.config.editor.activeBranchTuple;
         if (activeBranch != null) {
-            // TODO, HACK Fix this so that it renders correctly
             Array.prototype.push.apply(disps, activeBranch.disps);
         }
 

@@ -40,6 +40,7 @@ import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/br
 export class CanvasComponent extends ComponentLifecycleEventEmitter {
     @ViewChild('edittoolbar') editToolbarView;
     @ViewChild('canvas') canvasView;
+    @ViewChild('editprops') editPropsView;
 
     @Input("modelSetKey")
     modelSetKey: string;
@@ -112,7 +113,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         // Add the mouse class to the renderers draw list
         this.renderer.drawEvent
             .takeUntil(this.onDestroyEvent)
-            .subscribe(({ctx, zoom, pan}) => this.input.draw(ctx, zoom, pan));
+            .subscribe(({ctx, zoom, pan, forEdit}) =>
+                this.input.draw(ctx, zoom, pan, forEdit));
 
         // Hook up the item selection service
         this.connectItemSelectionService();
@@ -141,6 +143,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         this.renderer.setCanvas(this.canvas);
 
         let jqCanvas = $(this.canvas);
+        let jqEditPropsView = $(this.editPropsView.nativeElement);
 
 
         $("body").css("overflow", "hidden");
@@ -183,6 +186,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
                 console.log(`newHeight=${newHeight}`);
 
+                jqEditPropsView.find('.edit-props-panel').css("height", `${newHeight}px`);
                 jqCanvas.css("height", `${newHeight}px`);
                 jqCanvas.css("width", "100%");
                 this.config.invalidate();

@@ -6,6 +6,7 @@ import {
 } from "./PeekCanvasInputDelegate.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 import {DispGroupPointer} from "../tuples/shapes/DispGroupPointer";
+import {PointI} from "../tuples/shapes/DispBase";
 
 /**
  * This input delegate handles :
@@ -104,7 +105,7 @@ export class PeekCanvasInputMakeDispGroupPtrEdgeDelegate
         this._finaliseCreate();
     }
 
-    draw(ctx, zoom, pan) {
+    draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
     }
 
     _finaliseCreate() {

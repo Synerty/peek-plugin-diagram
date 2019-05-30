@@ -6,7 +6,7 @@ import {
 } from "../../canvas/PeekCanvasShapePropsContext";
 import {PeekCanvasBounds} from "../../canvas/PeekCanvasBounds";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
-import {extend} from "@synerty/vortexjs";
+import {deepCopy} from "@synerty/vortexjs/src/vortex/UtilMisc";
 
 export interface PointI {
     x: number;
@@ -273,11 +273,20 @@ export abstract class DispBase {
         return `Type : ${nameMap[DispBase.type(disp)]}`;
     }
 
-    static copyAndClearDisp(disp: DispBaseT): DispBaseT {
-        disp = extend({}, disp);
-        DispBase.setSelectable(disp, false);
-        DispBase.setKey(disp, null);
-        DispBase.setId(disp, null);
-        return disp;
+    static cloneDisp(disp: DispBaseT): DispBaseT {
+        let copy = deepCopy(disp);
+
+        // Copy over the lookup tuples, as they would have been cloned as well.
+        for (let key of Object.keys(disp)) {
+            if (disp[key] != null && disp[key]['__rst'] != null)
+                copy[key] = disp[key];
+        }
+
+        // Clear out the Bounds object
+        delete copy['bounds'];
+
+        return copy;
     }
+
+
 }

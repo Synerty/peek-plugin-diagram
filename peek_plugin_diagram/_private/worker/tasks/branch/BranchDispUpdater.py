@@ -10,11 +10,10 @@ from peek_plugin_diagram._private.server.controller.DispCompilerQueueController 
 from peek_plugin_diagram._private.storage.Display import DispBase
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyCompilerQueue, \
     GridKeyIndex
-from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import \
     BranchTuple
-from peek_plugin_diagram._private.worker.tasks.ImportDispTask import _bulkLoadDispsTask, \
-    _bulkInsertDisps
+from peek_plugin_diagram._private.worker.tasks.DispCompilerTask import _packDispJson
+from peek_plugin_diagram._private.worker.tasks.ImportDispTask import _bulkInsertDisps
 from sqlalchemy import select
 from vortex.Tuple import Tuple
 
@@ -30,6 +29,12 @@ def _deleteBranchDisps(conn, branchIds: List[int]) -> None:
     to queue the grids for recompile.
 
     """
+    if not branchIds:
+        return
+
+    for branchId in branchIds:
+        if branchId is None:
+            raise Exception("BranchID is None, it shouldn't be")
 
     dispBaseTable = DispBase.__table__
     gridKeyIndexTable = GridKeyIndex.__table__
@@ -50,14 +55,13 @@ def _deleteBranchDisps(conn, branchIds: List[int]) -> None:
         )
 
     # Delete existing Disps
-
+    logger.info("Deleting disps with branchId %s" % branchIds)
     conn.execute(
         dispBaseTable.delete(dispBaseTable.c.branchId.in_(branchIds))
     )
 
 
-def _insertBranchDisps(conn, ormSession,
-                       newBranches: List[BranchTuple]) -> None:
+def _insertBranchDisps(conn, newBranches: List[BranchTuple]) -> None:
     """ Insert Disps for Branch
 
     1) Insert new Disps
@@ -82,7 +86,7 @@ def _insertBranchDisps(conn, ormSession,
 
         # Set the IDs of the new Disps
         newIdGen = CeleryDbConn.prefetchDeclarativeIds(DispBase, len(branchDisps))
-        for _, disp in branchDisps:
+        for disp in branchDisps:
             oldDispId = disp.id
             disp.id = next(newIdGen)
             oldDispIdMap[oldDispId] = disp.id
@@ -91,14 +95,23 @@ def _insertBranchDisps(conn, ormSession,
             newDisps.append(disp)
 
         # Update the group IDs
-        for _, disp in branchDisps:
+        for disp in branchDisps:
             if disp.groupId in oldDispIdMap:
                 disp.groupId = oldDispIdMap[disp.groupId]
 
-        # Update the jsonDisp stored in the branch
-        for jsonDisp, disp in branchDisps:
-            jsonDisp['id'] = disp.id
-            jsonDisp['gi'] = disp.groupId
+        # Recreate the branch disp json as per the structure from the DispBase tables
+        # Just to be clear, this is converting it one way and then converting it back.
+        # It ensures the data is consistent. (Which it should be if all was right)
+        # It also sets the "hashId"
+        newBranch.disps = [
+            _packDispJson(disp, disp.tupleToSmallJsonDict())
+            for disp in branchDisps
+        ]
+
+        # JSON is not stored as a string in the branch disps
+        for jsonDict in newBranch.disps:
+            if 'g' in jsonDict:
+                jsonDict['g'] = json.loads(jsonDict['g'])
 
 
     # Bulk load the Disps
@@ -106,7 +119,7 @@ def _insertBranchDisps(conn, ormSession,
 
     # Queue the compiler
     DispCompilerQueueController.queueDispIdsToCompileWithSession(
-        dispIdsToCompile, ormSession
+        dispIdsToCompile, conn
     )
 
     # TODO: Something with the LiveDB links
@@ -127,5 +140,5 @@ def _convertJsonDispsToTuples(branchTuple: BranchTuple) -> List:
         disp.branchId = branchTuple.id
         if hasattr(disp, "geomJson"):
             disp.geomJson = json.dumps(disp.geomJson)
-        disps.append((jsonDisp, disp))
+        disps.append(disp)
     return disps

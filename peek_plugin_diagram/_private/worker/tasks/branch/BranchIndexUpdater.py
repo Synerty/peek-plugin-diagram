@@ -110,7 +110,7 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
             assert coordSet.modelSetId == modelSetId, "Branches not all from one model"
 
             _deleteBranchDisps(dbSession, [b.id for b in branches])
-            _insertBranchDisps(dbSession, dbSession, branches)
+            _insertBranchDisps(dbSession, branches)
 
             packedJsonUpdates += [
                 dict(b_id=b.id, b_packedJson=b.packJson()) for b in branches

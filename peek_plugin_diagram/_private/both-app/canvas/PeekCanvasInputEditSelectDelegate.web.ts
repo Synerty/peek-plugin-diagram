@@ -6,7 +6,7 @@ import {
 } from "./PeekCanvasInputDelegate.web";
 import {PolylineEnd} from "./PeekCanvasModelQuery.web";
 import {assert} from "../DiagramUtil";
-import {DispBase} from "../tuples/shapes/DispBase";
+import {DispBase, PointI} from "../tuples/shapes/DispBase";
 import {DispPolyline} from "../tuples/shapes/DispPolyline";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
@@ -45,6 +45,8 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     private _selectedDisps: any[] = [];
     private _selectedPolylineEnds: PolylineEnd[] = [];
 
+    private _needsDispsAddedToBranchForUpdate: boolean = false;
+
     _lastPinchDist = null;
 
     // See mousedown and mousemove events for explanation
@@ -70,6 +72,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this._mouseDownMiddleButton = false;
         this._mouseDownRightButton = false;
         this._mouseDownOnHandle = null;
+        this._needsDispsAddedToBranchForUpdate = false;
 
         this._lastPinchDist = null;
 
@@ -305,10 +308,12 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         if (this._state == this.STATE_SELECTING && this._passedDragThreshold) {
             if (this._mouseDownOnSelection) {
                 this._state = this.STATE_MOVING_RENDERABLE;
+                this._needsDispsAddedToBranchForUpdate = true;
 
             } else if (this._mouseDownOnDisp) {
                 this._changeSelection(this._selectByPoint(this._startMousePos));
                 this._state = this.STATE_MOVING_RENDERABLE;
+                this._needsDispsAddedToBranchForUpdate = true;
 
             } else {
                 this._state = this.STATE_DRAG_SELECTING;
@@ -337,6 +342,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             }
 
             case this.STATE_MOVING_RENDERABLE: {
+                this.addDispsToBranchForUpdate();
 
                 //if (selectedCoords.length == 1 && editorUi.grid.snapping()) {
                 //    let snapSize = editorUi.grid.snapSize();
@@ -345,14 +351,13 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
                 //        break;
                 //}
 
+                this.addDispsToBranchForUpdate();
+
                 let delta = this._setLastMousePos(mouse);
 
                 for (let disp of this._selectedDisps) {
                     DispBase.deltaMove(disp, delta.dx, delta.dy);
                 }
-
-                this._selectedDisps = this.canvasEditor.branchContext.branchTuple
-                    .addOrUpdateDisps(this._selectedDisps);
 
                 for (let dispPolylineEnd of this._selectedPolylineEnds) {
                     if (dispPolylineEnd.isStart) {
@@ -362,11 +367,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
                         DispPolyline
                             .deltaMoveEnd(dispPolylineEnd.polylineDisp, delta.dx, delta.dy);
                     }
-
-                    dispPolylineEnd.polylineDisp = this.canvasEditor
-                        .branchContext
-                        .branchTuple
-                        .addOrUpdateDisps(dispPolylineEnd.polylineDisp);
                 }
 
                 this.viewArgs.config.invalidate();
@@ -375,8 +375,8 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             }
 
             case this.STATE_MOVING_HANDLE: {
-                // if (!this._passedDragThreshold)
-                // break;
+                this.addDispsToBranchForUpdate();
+
 
                 //if (editorUi.grid.snapping()) {
                 //    let snapSize = editorUi.grid.snapSize();
@@ -466,7 +466,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this._zoomPan(mouse.clientX, mouse.clientY, delta);
     };
 
-    draw(ctx, zoom, pan) {
+    draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
 
 
         switch (this._state) {
@@ -557,6 +557,33 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
 
     };
+
+    private addDispsToBranchForUpdate() {
+        if (!this._needsDispsAddedToBranchForUpdate)
+            return;
+        this._needsDispsAddedToBranchForUpdate = false;
+
+        let primarySelections = this.viewArgs.model.selection.selectedDisps();
+        let groupSelections = this.viewArgs.model.query.dispsInSelectedGroups;
+
+        primarySelections = this.canvasEditor.branchContext.branchTuple
+            .addOrUpdateDisps(primarySelections, true);
+
+        groupSelections = this.canvasEditor.branchContext.branchTuple
+            .addOrUpdateDisps(groupSelections, true);
+
+        for (let dispPolylineEnd of this._selectedPolylineEnds) {
+
+            dispPolylineEnd.polylineDisp = this.canvasEditor
+                .branchContext
+                .branchTuple
+                .addOrUpdateDisp(dispPolylineEnd.polylineDisp, true);
+        }
+
+        this.viewArgs.model.recompileModel();
+        this.viewArgs.model.selection.replaceSelection(primarySelections);
+        this._selectedDisps = groupSelections;
+    }
 
     //_snapSelectedCoords  () {
     //

@@ -8,6 +8,7 @@ import {
 } from "../tuples/shapes/DispText";
 import {pointToPixel} from "../DiagramUtil";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {PointI} from "../tuples/shapes/DispBase";
 
 export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 
@@ -21,7 +22,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
      * NOTE: The way the text is scaled and drawn must match _calcTextSize(..)
      * in python module DispCompilerTask.py
      */
-    draw(disp: DispTextT, ctx, zoom, pan) {
+    draw(disp: DispTextT, ctx, zoom: number, pan: PointI, forEdit: boolean) {
 
         // Give meaning to our short names
         let rotationRadian = DispText.rotation(disp) / 180.0 * Math.PI;
@@ -139,7 +140,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
     };
 
 
-    drawSelected(disp, ctx, zoom: number, pan) {
+    drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
         let bounds = disp.bounds;
         if (bounds == null)
             return;
@@ -160,10 +161,6 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
         ctx.strokeStyle = selectionConfig.color;
         ctx.lineWidth = selectionConfig.width / zoom;
         ctx.stroke();
-    };
-
-    drawSelectedForEdit(disp, ctx, zoom: number, pan) {
-        this.drawSelected(disp, ctx, zoom, pan);
 
         /*
          // DRAW THE EDIT HANDLES

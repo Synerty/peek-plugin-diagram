@@ -1,6 +1,7 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {PointI} from "../tuples/shapes/DispBase";
 
 export class PeekDispRenderDelegateAction extends PeekDispRenderDelegateABC {
 
@@ -10,70 +11,26 @@ export class PeekDispRenderDelegateAction extends PeekDispRenderDelegateABC {
     }
 
 
-    draw(disp, ctx, zoom, pan) {
+    draw(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
 
         disp.bounds = PeekCanvasBounds.fromGeom(disp.g);
 
-        return;
+        if (!forEdit)
+            return;
 
-        /*
-         let fillColor = this._refData.colorForId(dispAction.fc);
-         let lineColor = this._refData.colorForId(dispAction.lc);
-         let lineWidth = dispAction.w;
+        let drawCfg = this.config.renderer.invisible;
+        let b = disp.bounds;
 
-         let point = dispAction.g[0];
-         let x = point.x;
-         let y = point.y;
-         let lx = x; // Low x
-         let ux = x; // Upper x
-         let ly = y; // Low y
-         let uy = y; // Upper y
+        // Move the selection line a bit away from the object
+        let offset = (drawCfg.width + drawCfg.lineGap) / zoom;
 
-         ctx.beginPath();
-         ctx.moveTo(x, y);
-
-         for (let i = 1; i < dispAction.g.length; ++i) {
-         // Get the point
-         point = dispAction.g[i];
-         x = point.x;
-         y = point.y;
-
-         // Draw the segment
-         ctx.lineTo(x, y);
-
-         // Work out our bounds
-         if (x < lx)
-         lx = x;
-         if (ux < x)
-         ux = x;
-         if (y < ly)
-         ly = y;
-         if (uy < y)
-         uy = y;
-         }
-
-         ctx.closePath();
-
-         if (fillColor) {
-         ctx.fillStyle = fillColor.color;
-         ctx.fill();
-         }
-
-         if (lineColor) {
-         ctx.strokeStyle = lineColor.color;
-         ctx.lineWidth = lineWidth / zoom;
-         ctx.stroke();
-         }
-         */
-
-        //this._bounds.x = lx;
-        //this._bounds.y = ly;
-        //this._bounds.w = ux - lx;
-        //this._bounds.h = uy - ly;
+        ctx.dashedRect(b.x, b.y, b.w, b.h, drawCfg.dashLen / zoom);
+        ctx.strokeStyle = drawCfg.color;
+        ctx.lineWidth = drawCfg.width / zoom;
+        ctx.stroke();
     };
 
-    drawSelected(disp, ctx, zoom: number, pan) {
-
+    drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
 
         let selectionConfig = this.config.renderer.selection;
 
@@ -93,38 +50,41 @@ export class PeekDispRenderDelegateAction extends PeekDispRenderDelegateABC {
         ctx.strokeStyle = selectionConfig.color;
         ctx.lineWidth = selectionConfig.width / zoom;
         ctx.stroke();
-    };
 
-    drawSelectedForEdit(disp, ctx, zoom: number, pan) {
-        this.drawSelected(disp, ctx, zoom, pan);
 
-        /*
-         // DRAW THE EDIT HANDLES
-         ctx.fillStyle = CanvasRenderer.SELECTION_COLOR;
-         let handles = this.handles();
-         for (let i = 0; i < handles.length; ++i) {
-         let handle = handles[i];
-         ctx.fillRect(handle.x, handle.y, handle.w, handle.h);
-         }
-         */
+        if (forEdit) {
+            /*
+             // DRAW THE EDIT HANDLES
+             ctx.fillStyle = CanvasRenderer.SELECTION_COLOR;
+             let handles = this.handles();
+             for (let i = 0; i < handles.length; ++i) {
+             let handle = handles[i];
+             ctx.fillRect(handle.x, handle.y, handle.w, handle.h);
+             }
+             */
+        }
     };
 
     contains(disp, x, y, margin) {
         return disp.bounds.contains(x, y, margin);
-    };
+    }
+    ;
 
     withIn(disp, x, y, w, h) {
         return disp.bounds.withIn(x, y, w, h);
-    };
+    }
+    ;
 
     handles(disp) {
         return [];
-    };
+    }
+    ;
 
     area(disp) {
 
         return disp.bounds.area();
-    };
+    }
+    ;
 
 
 }

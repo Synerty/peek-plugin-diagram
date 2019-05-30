@@ -33,13 +33,21 @@ export class ShapeProp {
 
     __lastShowValue = null;
 
+    public comment: string;
+    public allowNullOption: boolean;
+
     constructor(public type: ShapePropType,
                 public getter: ShapePropGetter,
                 public setter: ShapePropSetter,
                 public name: string,
-                public comment: string = '',
-                options: ShapePropOption[] | null = null) {
-        this.options = options;
+                opts: {
+                    comment?: string,
+                    options?: ShapePropOption[],
+                    allowNullOption?: boolean
+                } = {}) {
+        this.comment = opts.comment || '';
+        this.options = opts.options || [];
+        this.allowNullOption = opts.allowNullOption || false;
 
     }
 

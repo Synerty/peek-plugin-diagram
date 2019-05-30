@@ -2,6 +2,7 @@ import {CanvasInputPos, InputDelegateConstructorArgs, PeekCanvasInputDelegate} f
 import * as assert from "assert";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
+import {PointI} from "../tuples/shapes/DispBase";
 
 /**
  * This input delegate handles :
@@ -323,7 +324,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this._zoomPan(mouse.clientX, mouse.clientY, delta);
     };
 
-    draw(ctx, zoom, pan) {
+    draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
 
     };
 

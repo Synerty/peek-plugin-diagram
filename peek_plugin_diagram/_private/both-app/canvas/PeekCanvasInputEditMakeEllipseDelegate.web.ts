@@ -96,7 +96,7 @@ export class PeekCanvasInputEditMakeEllipseDelegate
         this._finaliseCreate();
     }
 
-    draw(ctx, zoom, pan) {
+    draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
     }
 
 

@@ -2,6 +2,7 @@ import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {DispNull, DispNullT} from "../tuples/shapes/DispNull";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {PointI} from "../tuples/shapes/DispBase";
 
 export class PeekDispRenderDelegateNull extends PeekDispRenderDelegateABC {
 
@@ -15,16 +16,14 @@ export class PeekDispRenderDelegateNull extends PeekDispRenderDelegateABC {
      * NOTE: The way the text is scaled and drawn must match _calcTextSize(..)
      * in python module DispCompilerTask.py
      */
-    draw(disp: DispNullT, ctx, zoom, pan) {
+    draw(disp: DispNullT, ctx, zoom: number, pan: PointI, forEdit: boolean) {
         disp.bounds = PeekCanvasBounds.fromGeom(DispNull.geom(disp));
     };
 
 
-    drawSelected(disp, ctx, zoom: number, pan) {
+    drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
     };
 
-    drawSelectedForEdit(disp, ctx, zoom: number, pan) {
-    };
 
     contains(disp: DispNullT, x, y, margin) {
         return disp.bounds == null ? false : disp.bounds.contains(x, y, margin);

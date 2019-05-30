@@ -24,7 +24,6 @@ $edit_toolbar_height: $edit_toolbar_button_height + 2 * $panel_width;
 
 /* The side navigation menu */
 .edit-props-panel {
-  height: 100%; /* 100% Full-height */
   position: fixed; /* Stay in place */
   z-index: 4; /* Stay on top */
   //top: 46px;

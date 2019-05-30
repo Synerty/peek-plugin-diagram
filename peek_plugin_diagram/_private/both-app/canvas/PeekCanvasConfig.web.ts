@@ -32,6 +32,12 @@ export class PeekCanvasConfig {
             lineGap: 6,
             dashLen: 3
         },
+        invisible: { // Draw invisble items in edit mode
+            color: 'grey',
+            width: 2,
+            lineGap: 2,
+            dashLen: 2
+        },
         grid: {
             show: false,
             size: 16,
@@ -72,7 +78,7 @@ export class PeekCanvasConfig {
             width: 2,
             lineGap: 2,
             dashLen: 3,
-            margin: 5, // The distance distance that the click can happen from the shape
+            margin: 10, // The distance distance that the click can happen from the shape
         },
     };
 
