@@ -4,13 +4,13 @@ from typing import List, Dict, Tuple
 
 import pytz
 import ujson as json
-from geoalchemy2.shape import to_shape
+from peek_plugin_base.storage.DbConnection import pgCopyInsert, convertToCoreSqlaInsert
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
     DispCompilerQueueController
 from peek_plugin_diagram._private.storage.Display import \
     DispBase, DispEllipse, DispPolygon, DispText, DispPolyline, DispGroup, \
-    DispGroupPointer
+    DispGroupPointer, DispNull
 from peek_plugin_diagram._private.storage.ModelSet import \
     ModelCoordSet, getOrCreateCoordSet
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
@@ -28,7 +28,6 @@ from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
     ImportDispPolylineTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispTextTuple import ImportDispTextTuple
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
-from sqlalchemy.orm.attributes import InstrumentedAttribute
 from txcelery.defer import DeferrableTask
 from vortex.Payload import Payload
 
@@ -51,7 +50,8 @@ IMPORT_FIELD_NAME_MAP = {
     'fillColorHash': 'fillColorId',
     'lineColorHash': 'lineColorId',
     'textStyleHash': 'textStyleId',
-    'targetDispGroupHash': 'targetDispGroupId'
+    'targetDispGroupHash': 'targetDispGroupId',
+    'targetDispGroupName': 'targetDispGroupName'
 }
 
 IMPORT_SORT_ORDER = {
@@ -120,7 +120,6 @@ def _loadCoordSet(modelSetKey, coordSetKey):
 
 
 def _validateImportDisps(importDisp: List):
-
     for importDisp in importDisp:
         isGroup = isinstance(importDisp, ImportDispGroupTuple)
         # isGroupChild = not isGroup and importDisp.parentDispGroupHash
@@ -168,15 +167,21 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
             if o.tupleType() == ImportDispGroupPtrTuple.tupleType()
         ]
 
-        dispGroupIdByImportHash: Dict[str, int] = {
+        # This will store DispGroup and DispGroupPointer hashes
+        groupIdByImportHash: Dict[str, int] = {
             o.importHash: o.id
             for o in
-            ormSession.query(DispGroup.importHash, DispGroup.id)
-                .filter(DispGroup.importHash.in_(dispGroupTargetImportHashes))
-                .filter(DispGroup.coordSetId == coordSet.id)
+            ormSession.query(DispBase.importHash, DispBase.id)
+                .filter(DispBase.importHash.in_(dispGroupTargetImportHashes))
+                .filter(DispBase.coordSetId == coordSet.id)
         }
 
         del dispGroupTargetImportHashes
+
+        # This is a list of DispGroup.id.
+        # We use this to filter out disps that part of a DispGroup,
+        # they don't get compiled
+        dispGroupIds = set()
 
         # Sort the DispGroups first, so they are created before any FK references them
         sortedImportDisps = sorted(importDisps,
@@ -193,24 +198,29 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
             # Preallocate the IDs for performance on PostGreSQL
             ormDisp.id = next(dispIdGen)
 
-            # Queue the Disp to be compiled into a grid.
-            # Disps belonging to a group do not get compiled into grids.
-            # parentDispGroupHash is not a field of ImportDispGroupTuple
-            if isinstance(ormDisp, DispGroup) or not importDisp.parentDispGroupHash:
-                dispIdsToCompile.append(ormDisp.id)
-
             # Assign the coord set id.
             ormDisp.coordSetId = coordSet.id
 
             # If this is a dispGroup, index it's ID
             if isinstance(ormDisp, DispGroup):
-                dispGroupIdByImportHash[ormDisp.importHash] = ormDisp.id
+                dispGroupIds.add(ormDisp.id)
+                groupIdByImportHash[ormDisp.importHash] = ormDisp.id
 
-            # If this is a dispGroupPtr, index it's targetHash so we can update it
+            # If this is a dispGroupPtr, index its targetHash so we can update it
             if isinstance(ormDisp, DispGroupPointer):
-                dispGroupPtrWithTargetHash.append(
-                    (ormDisp, importDisp.targetDispGroupHash)
-                )
+                groupIdByImportHash[ormDisp.importHash] = ormDisp.id
+
+                if ormDisp.targetDispGroupName:
+                    ormDisp.targetDispGroupName = '%s|%s' % (
+                        coordSet.id, ormDisp.targetDispGroupName
+                    )
+
+                # Not all DispGroupPointers have targets,
+                # they can be orphaned instances
+                if importDisp.targetDispGroupHash:
+                    dispGroupPtrWithTargetHash.append(
+                        (ormDisp, importDisp.targetDispGroupHash)
+                    )
 
             # If this is a dispGroupPtr, index its targetHash so we can update it
             parentDispGroupHash = getattr(importDisp, "parentDispGroupHash", None)
@@ -234,10 +244,15 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
                     attrName = importDispLink.dispAttrName
                     importDispLink.internalDisplayValue = getattr(ormDisp, attrName)
 
+            # Queue the Disp to be compiled into a grid.
+            # Disps belonging to a DispGroup do not get compiled into grids.
+            if ormDisp.groupId not in dispGroupIds:
+                dispIdsToCompile.append(ormDisp.id)
+
         # Link the DispGroups
         # Create the links between the Disp and DispGroup
         for ormDisp, groupHash in dispGroupChildWithTargetHash:
-            groupOrmObjId = dispGroupIdByImportHash.get(groupHash)
+            groupOrmObjId = groupIdByImportHash.get(groupHash)
             if groupOrmObjId is None:
                 raise Exception(
                     "DispGroup with importHash %s doesn't exist" % groupHash)
@@ -245,8 +260,9 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
             ormDisp.groupId = groupOrmObjId
 
         # Link the DispGroupPtr to the DispGroup
+        # This is only used when the dispGrouPtr points to a disp group
         for ormDisp, groupHash in dispGroupPtrWithTargetHash:
-            groupOrmObjId = dispGroupIdByImportHash.get(groupHash)
+            groupOrmObjId = groupIdByImportHash.get(groupHash)
             if groupOrmObjId is None:
                 raise Exception(
                     "DispGroup with importHash %s doesn't exist" % groupHash)
@@ -265,16 +281,7 @@ def _convertGeom(importDisp):
         return
 
     coordArray = []
-    shapelyShape = to_shape(importDisp.geom)
-
-    from shapely.geometry.polygon import Polygon
-    if isinstance(shapelyShape, Polygon):
-        # The last point equals the first point, get rid of it
-        coords = shapelyShape.exterior.coords[:-1]
-    else:
-        coords = shapelyShape.coords
-
-    for i in coords:
+    for i in importDisp.geom:
         coordArray.append(i[0])
         coordArray.append(i[1])
 
@@ -347,10 +354,9 @@ def _bulkLoadDispsTask(importGroupHash: str, disps: List):
                      .delete()
                      .where(dispTable.c.importGroupHash == importGroupHash))
 
-        _bulkInsertDisps(conn, disps)
-
         transaction.commit()
 
+        _bulkInsertDisps(engine, disps)
 
     except Exception:
         transaction.rollback()
@@ -360,14 +366,14 @@ def _bulkLoadDispsTask(importGroupHash: str, disps: List):
         conn.close()
 
 
-def _bulkInsertDisps(conn, disps: List):
+def _bulkInsertDisps(engine, disps: List):
     """ Bulk Insert Disps
 
     1) Drop all disps with matching importGroupHash
 
     2) set the  coordSetId
 
-    :param conn: The connection to use
+    :param engine: The connection to use
     :param disps: An array of disp objects to import
     :return:
     """
@@ -379,45 +385,39 @@ def _bulkInsertDisps(conn, disps: List):
         (DispPolyline, (DispBase, DispPolyline)),
         (DispPolygon, (DispBase, DispPolygon)),
         (DispText, (DispBase, DispText)),
+        (DispNull, (DispBase, DispNull)),
     )
 
     startTime = datetime.now(pytz.utc)
+    startDispsLen = len(disps)
 
     for DispType, Tables in INSERT_MAP:
-        inserts = [_convertToDbInsert(disp, DispType)
-                   for disp in disps
-                   if isinstance(disp, DispType)]
+        inserts = []
+        remainingDisps = []
+
+        for disp in disps:
+            if isinstance(disp, DispType):
+                insertDict = convertToCoreSqlaInsert(disp, DispType)
+                insertDict['type'] = DispType.RENDERABLE_TYPE
+                inserts.append(insertDict)
+
+            else:
+                remainingDisps.append(disp)
+
+        disps = remainingDisps
 
         if not inserts:
             continue
 
         for Table in Tables:
-            conn.execute(Table.__table__.insert(), inserts)
+            pgCopyInsert(engine, Table.__table__, inserts)
+            # conn.execute(Table.__table__.insert(), inserts)
+
+    if disps:
+        raise Exception("_bulkInsertDisps: We didn't insert all the disps")
 
     logger.info("Inserted %s Disps in %s",
-                len(disps), (datetime.now(pytz.utc) - startTime))
-
-
-def _convertToDbInsert(disp, DispType):
-    insertDict = dict()
-
-    for fieldName in DispType.tupleFieldNames():
-        value = getattr(disp, fieldName)
-
-        if value is None:
-            Col = getattr(DispType, fieldName)
-            if isinstance(Col, InstrumentedAttribute):
-                value = Col.server_default.arg if Col.server_default else None
-                if value == 'false':
-                    value = False
-
-                elif value == 'true':
-                    value = True
-
-        insertDict[fieldName] = value
-
-    insertDict['type'] = DispType.RENDERABLE_TYPE
-    return insertDict
+                startDispsLen, (datetime.now(pytz.utc) - startTime))
 
 
 def _updateCoordSetPosition(coordSet: ModelCoordSet, disps: List):

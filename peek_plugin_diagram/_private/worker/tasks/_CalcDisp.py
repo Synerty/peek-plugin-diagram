@@ -32,7 +32,24 @@ def _scaleDispGeom(points: List[float],
 def _createHashId(dispDict: Dict) -> str:
     # Copy the input dict and pop the ID (we don't hash it)
     hashIdDict = dispDict.copy()
+
+    # Delete the
     del hashIdDict['id']
+
+    # Delete the branch id
+    if 'bi' in hashIdDict: del hashIdDict['bi']
+
+    # Delete the branch stage
+    if 'bs' in hashIdDict: del hashIdDict['bs']
+
+    # Delete the hash id
+    if 'hid' in hashIdDict: del hashIdDict['hid']
+
+    # Delete the replaces hash id
+    if 'rid' in hashIdDict: del hashIdDict['rid']
+
+    # Delete the group id
+    if 'gi' in hashIdDict: del hashIdDict['gi']
 
     # Hash the actual content of the disp, and convert the integer to a string
     hashId = hash(ujson.dumps(hashIdDict, sort_keys=True))

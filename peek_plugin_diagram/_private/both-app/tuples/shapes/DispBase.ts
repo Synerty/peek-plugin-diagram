@@ -23,6 +23,9 @@ export interface DispBaseT {
     // The ID of the disp
     id: number;
 
+    // Z Order
+    z: number;
+
     // This is the unique hash of the contents of this disp within this coordSetId.
     hid: string;
 
@@ -72,7 +75,7 @@ export abstract class DispBase {
     static TYPE_DE = 'DE';
     static TYPE_DG = 'DG';
     static TYPE_DGP = 'DGP';
-    static TYPE_DU = 'DU';
+    static TYPE_DN = 'DN';
 
     static type(disp: DispBaseT): string {
         return disp._tt;
@@ -86,8 +89,20 @@ export abstract class DispBase {
         disp.id = value;
     }
 
+    static zOrder(disp: DispBaseT): number {
+        return disp.z || 0; // defaults to 0
+    }
+
+    static setZOrder(disp: DispBaseT, value: number): void {
+        disp.z = value;
+    }
+
     static hashId(disp: DispBaseT): string {
         return disp.hid;
+    }
+
+    static setHashId(disp: DispBaseT, value: string): void {
+        disp.hid = value;
     }
 
     static replacesHashId(disp: DispBaseT): string {
@@ -268,7 +283,7 @@ export abstract class DispBase {
         nameMap[DispBase.TYPE_DE] = 'Ellipse';
         nameMap[DispBase.TYPE_DG] = 'Group';
         nameMap[DispBase.TYPE_DGP] = 'GroupPointer';
-        nameMap[DispBase.TYPE_DU] = 'Deleted Shape';
+        nameMap[DispBase.TYPE_DN] = 'Deleted Shape';
 
         return `Type : ${nameMap[DispBase.type(disp)]}`;
     }

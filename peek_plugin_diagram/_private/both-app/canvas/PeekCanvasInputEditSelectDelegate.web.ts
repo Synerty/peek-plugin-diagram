@@ -342,7 +342,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             }
 
             case this.STATE_MOVING_RENDERABLE: {
-                this.addDispsToBranchForUpdate();
+                this.addDispsToBranchForUpdate(mouse);
 
                 //if (selectedCoords.length == 1 && editorUi.grid.snapping()) {
                 //    let snapSize = editorUi.grid.snapSize();
@@ -350,8 +350,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
                 //    if (selectedCoords[0].snap(snapSize).deltaApplied)
                 //        break;
                 //}
-
-                this.addDispsToBranchForUpdate();
 
                 let delta = this._setLastMousePos(mouse);
 
@@ -369,13 +367,14 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
                     }
                 }
 
+                this.canvasEditor.branchContext.branchTuple.touchUpdateDate(false);
                 this.viewArgs.config.invalidate();
 
                 break;
             }
 
             case this.STATE_MOVING_HANDLE: {
-                this.addDispsToBranchForUpdate();
+                this.addDispsToBranchForUpdate(mouse);
 
 
                 //if (editorUi.grid.snapping()) {
@@ -392,6 +391,9 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
                 assert(h != null, "selected handler is null");
                 DispBase.deltaMoveHandle(h.disp, h.handleIndex, delta.dx, delta.dy);
+
+                this.canvasEditor.branchContext.branchTuple.touchUpdateDate(false);
+                this.viewArgs.config.invalidate();
 
                 break;
             }
@@ -558,7 +560,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
     };
 
-    private addDispsToBranchForUpdate() {
+    private addDispsToBranchForUpdate(inputPos:CanvasInputPos) {
         if (!this._needsDispsAddedToBranchForUpdate)
             return;
         this._needsDispsAddedToBranchForUpdate = false;
@@ -583,6 +585,8 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this.viewArgs.model.recompileModel();
         this.viewArgs.model.selection.replaceSelection(primarySelections);
         this._selectedDisps = groupSelections;
+
+        this._addBranchAnchor(inputPos.x, inputPos.y);
     }
 
     //_snapSelectedCoords  () {

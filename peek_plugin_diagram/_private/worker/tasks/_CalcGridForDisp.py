@@ -5,7 +5,7 @@ import logging
 from typing import Dict, List
 
 from peek_plugin_diagram._private.storage.Display import DispText, \
-    DispTextStyle, DispEllipse, DispGroup
+    DispTextStyle, DispEllipse, DispGroup, DispGroupPointer
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, \
     ModelCoordSetGridSize
 
@@ -47,7 +47,9 @@ def makeGridKeysForDisp(coordSet: ModelCoordSet,
         elif len(points) == 2:  # 2 = [x, y]
 
             # This should be a text
-            if not isinstance(disp, DispText):
+            if not isinstance(disp, DispText) \
+                    and not isinstance(disp, DispGroup) \
+                    and not isinstance(disp, DispGroupPointer):
                 logger.debug("TODO Determine size for disp type %s", disp.tupleType())
 
             # Texts on the boundaries of grids could be a problem

@@ -199,10 +199,6 @@ class DispBase(Tuple, DeclarativeBase):
 
     type = Column(Integer, doc=JSON_EXCLUDE, nullable=False)
 
-    #: Used for disps that belong to either a DispGroup or a Disp
-    groupId = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE'),
-                     doc='gi')
-
     # ===== START BRANCH
 
     #: The branch that this Disp belongs to.
@@ -212,19 +208,23 @@ class DispBase(Tuple, DeclarativeBase):
     #: The stage of the branch that this DISP
     branchStage = Column(Integer, doc='bs')
 
+    #: This is the unique hash of the contents of this disp within this coordSetId.
+    hashId = Column(String, doc='hid')
+
     #: The coordSetId+hashId that this disp replaces (for branches)
     replacesHashId = Column(String, ForeignKey('DispBase.id', ondelete='SET NULL'),
                             doc='rid')
 
     # ===== END BRANCH
 
+    #: Used for disps that belong to a DispGroup
+    groupId = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE'),
+                     doc='gi')
+
     coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
                         doc=JSON_EXCLUDE,
                         nullable=False)
     coordSet = relationship(ModelCoordSet)
-
-    #: This is the unique hash of the contents of this disp within this coordSetId.
-    hashId = Column(String, doc='hid')
 
     #: Layer
     layerId = Column(Integer, ForeignKey('DispLayer.id'), doc='la')
@@ -235,7 +235,7 @@ class DispBase(Tuple, DeclarativeBase):
     level = relationship(DispLevel)
 
     #: Order
-    zOrder = Column(Integer, server_default='0', nullable=False, doc=JSON_EXCLUDE)
+    zOrder = Column(Integer, server_default='0', nullable=False, doc='z')
 
     # MAX_STR
     dispJson = Column(String, doc=JSON_EXCLUDE)
@@ -252,7 +252,9 @@ class DispBase(Tuple, DeclarativeBase):
     #: Data, Generic data that is passed in the context for the item select popup
     dataJson = Column(String, doc='d')
 
+    # THIS FIELD IS NOT USED ANYWHERE!!!!
     importUpdateDate = Column(DateTime(True), doc=JSON_EXCLUDE)
+
     importHash = Column(String(100), doc=JSON_EXCLUDE)
     importGroupHash = Column(String(200), doc=JSON_EXCLUDE)
 
@@ -538,7 +540,7 @@ class DispGroupPointer(DispBase):
     geomJson = Column(String, nullable=False, doc='g')
 
     targetDispGroupId = Column(Integer, ForeignKey('DispGroup.id', ondelete='SET NULL'),
-                               doc='tg', nullable=True)
+                               doc='tg')
 
     targetDispGroupName = Column(String, doc='tn')
 

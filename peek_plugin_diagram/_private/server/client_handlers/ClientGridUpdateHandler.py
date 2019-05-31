@@ -84,7 +84,7 @@ class ClientGridUpdateHandler:
                         ))
                         .yield_per(200))
 
-            gridTuples: List[GridTuple] = []
+            gridTuples: List[EncodedGridTuple] = []
             for ormGrid in ormGrids:
                 gridTuples.append(
                     EncodedGridTuple(gridKey=ormGrid.gridKey,

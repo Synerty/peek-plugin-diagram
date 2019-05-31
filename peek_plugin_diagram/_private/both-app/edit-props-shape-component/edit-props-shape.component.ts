@@ -7,6 +7,7 @@ import {
     ShapePropType
 } from "../canvas/PeekCanvasShapePropsContext";
 import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
+import {DispBase} from "../tuples/shapes/DispBase";
 
 
 @Component({
@@ -40,11 +41,25 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
         this.processContext(this.context);
     }
 
+    private prepForWrite() {
+        let oldDispId = DispBase.id(this.context.disp);
+        // Ensure the shape is in the branch before updating it.
+        this.context.disp = this.canvasEditor
+            .branchContext.branchTuple.addOrUpdateDisp(this.context.disp, true);
+
+        if (DispBase.id(this.context.disp) != oldDispId) {
+            this.canvasEditor.canvasModel.recompileModel();
+            this.canvasEditor.canvasModel.selection.replaceSelection(this.context.disp);
+        }
+    }
+
     readVal(prop: ShapeProp): any {
         return prop.getter(this.context.disp);
     }
 
     writeVal(prop: ShapeProp, val: any): void {
+        this.prepForWrite();
+
         prop.setter(this.context.disp, val);
         this.canvasEditor.dispPropsUpdated();
     }
@@ -60,6 +75,8 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
     }
 
     writeOptionVal(prop: ShapeProp, value: string): void {
+        this.prepForWrite();
+
         prop.__lastShowValue = null;
         let obj = value == 'null' ? null : prop.getOptionObject(value);
         prop.setter(this.context.disp, obj);
@@ -112,7 +129,7 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
                     break;
 
                 case ShapePropType.Color:
-                    prop.allowNullOption  = true;
+                    prop.allowNullOption = true;
                     prop.options = this.context.colorOptions;
                     break;
 

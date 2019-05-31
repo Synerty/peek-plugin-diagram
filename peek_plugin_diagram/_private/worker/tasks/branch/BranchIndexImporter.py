@@ -5,22 +5,23 @@ from datetime import datetime
 from typing import List, Dict
 
 import pytz
-from txcelery.defer import DeferrableTask
-from vortex.Payload import Payload
-
 from peek_plugin_base.worker import CeleryDbConn
-from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
+from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
+    DispCompilerQueueController
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
+from peek_plugin_diagram._private.worker.tasks.ImportDispTask import _bulkInsertDisps
 from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
     LookupHashConverter
 from peek_plugin_diagram._private.worker.tasks._ModelSetUtil import \
     getModelSetIdCoordSetId
 from peek_plugin_diagram._private.worker.tasks.branch.BranchDispUpdater import \
-    _insertBranchDisps
+    _convertBranchDisps
 from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexUpdater import \
     _insertOrUpdateBranches
 from peek_plugin_diagram.tuples.branches.ImportBranchTuple import ImportBranchTuple
+from txcelery.defer import DeferrableTask
+from vortex.Payload import Payload
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +60,16 @@ def createOrUpdateBranches(self, importBranchesEncodedPayload: bytes) -> None:
         for (modelSetKey, modelSetId, coordSetId), branches in groupedBranches.items():
             _insertOrUpdateBranches(conn, modelSetKey, modelSetId, branches)
 
-            _insertBranchDisps(conn, dbSession, branches)
+            newDisps, dispIdsToCompile = _convertBranchDisps(branches)
+
+            # NO TRANSACTION
+            # Bulk load the Disps
+            _bulkInsertDisps(engine, newDisps)
+
+            # Queue the compiler
+            DispCompilerQueueController.queueDispIdsToCompileWithSession(
+                dispIdsToCompile, conn
+            )
 
             transaction.commit()
             dbSession.commit()

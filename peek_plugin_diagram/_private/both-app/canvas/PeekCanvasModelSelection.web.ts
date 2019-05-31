@@ -68,7 +68,7 @@ export class PeekCanvasModelSelection {
         this._keysToTryToSelect = keys;
     }
 
-    replaceSelection(objectOrArray = []) {
+    replaceSelection(objectOrArray : DispBaseT | DispBaseT[] = []) {
         this._selection = [];
         this._selection = this._selection.add(objectOrArray);
         this._selectionChangedSubject.next(this._selection);

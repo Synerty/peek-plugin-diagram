@@ -23,7 +23,6 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             return;
         }
 
-        // FIXME HACK, Just hard code the dash len
         let dashLen = dashPattern[segmentNum % dashPattern.length] / zoom;
 
         ctx.moveTo(x1, y1);
@@ -49,6 +48,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         let fillColor = isPolygon ? DispPolygon.fillColor(disp) : null;
         let lineColor = DispPolygon.lineColor(disp);
         let lineStyle = DispPolygon.lineStyle(disp);
+        let lineWidth = DispPolygon.lineWidth(disp);
 
         let dashPattern = null;
         if (lineStyle != null && lineStyle.dashPatternParsed != null)
@@ -58,14 +58,15 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         fillColor = (fillColor && fillColor.color) ? fillColor : null;
         lineColor = (lineStyle && lineColor && lineColor.color) ? lineColor : null;
 
+        let points = DispPolygon.geom(disp);
+        disp.bounds = PeekCanvasBounds.fromGeom(points);
+
         // If there are no colours defined then this is a selectable only shape
         if (!fillColor && !lineColor)
             return;
 
         let fillDirection = DispPolygon.fillDirection(disp);
         let fillPercentage = DispPolygon.fillPercent(disp);
-
-        let points = DispPolygon.geom(disp);
 
         let firstPointX = points[0]; // get details of point
         let firstPointY = points[1]; // get details of point
@@ -82,7 +83,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             }
 
             ctx.strokeStyle = this.config.renderer.backgroundColor;
-            ctx.lineWidth = DispPolygon.lineWidth(disp) / zoom;
+            ctx.lineWidth = lineWidth / zoom;
             ctx.stroke();
         }
 
@@ -99,18 +100,24 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             // Draw the segment
             this._drawLine(ctx,
                 lastPointX, lastPointY, pointX, pointY,
-                dashPattern, zoom, i);
+                dashPattern, zoom, i / 2);
 
             lastPointX = pointX;
             lastPointY = pointY;
         }
 
-        if (isPolygon)
+        if (isPolygon) {
+            if (lastPointX != firstPointX || lastPointY != firstPointY) {
+                this._drawLine(ctx,
+                    lastPointX, lastPointY, firstPointX, firstPointY,
+                    dashPattern, zoom, points.length);
+            }
             ctx.closePath();
+        }
 
         if (lineColor) {
             ctx.strokeStyle = lineColor.color;
-            ctx.lineWidth = DispPolygon.lineWidth(disp) / zoom;
+            ctx.lineWidth = lineWidth / zoom;
             ctx.stroke();
         }
 
@@ -119,15 +126,13 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             if (isPolygon && fillDirection != null && fillPercentage != null) {
                 this._drawSquarePercentFill(ctx,
                     PeekCanvasBounds.fromGeom(points),
-                    fillColor, fillDirection, fillPercentage
+                    lineColor, fillDirection, fillPercentage
                 );
             } else {
                 ctx.fillStyle = fillColor.color;
                 ctx.fill();
             }
         }
-
-        disp.bounds = PeekCanvasBounds.fromGeom(points);
     };
 
     private _drawSquarePercentFill(ctx, bounds,

@@ -91,7 +91,7 @@ export class PeekCanvasInputMakeDispGroupPtrEdgeDelegate
         // Let the canvas editor know something has happened.
         // this.canvasEditor.dispPropsUpdated();
 
-        this.viewArgs.model.compileBranchDisps();
+        this.viewArgs.model.recompileModel();
 
         this.viewArgs.model.selection.replaceSelection(<any> created);
         this.canvasEditor.props.showGroupPtrProperties();

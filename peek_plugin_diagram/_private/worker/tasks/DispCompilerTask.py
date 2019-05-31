@@ -225,19 +225,24 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
         # -----
         # Load the disp group pointers
         qry = ormSession.query(DispGroupPointer) \
+            .filter(DispGroupPointer.targetDispGroupId != None) \
             .filter(DispGroupPointer.id.in_(dispIds))
 
         dispGroupPointers: List[DispGroupPointer] = qry.all()
-        dispGroupPointersIds = [o.targetDispGroupId
-                                for o in dispGroupPointers
-                                if o.targetDispGroupId is not None]
+
+        # If there are no DispGroupPointers that need cloning, then return.
+        if not dispGroupPointers:
+            logger.debug("Cloning skipped,"
+                         " there are no disp group ptrs with targets, in %s",
+                         (datetime.now(pytz.utc) - startTime))
+            return dispIds
+
+        dispGroupPointerTargetIds = [o.targetDispGroupId for o in dispGroupPointers]
 
         del qry
 
         # -----
         # Delete any existing disps are in these pointers
-        # TODO: Queue grid compile of the related grids.
-        # FIXME:
         ormSession.query(DispBase) \
             .filter(DispBase.groupId.in_([o.id for o in dispGroupPointers])) \
             .delete(synchronize_session=False)
@@ -246,7 +251,8 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
 
         # -----
         # Query for the disp groups we'll need
-        dispGroupChildsByGroupId = _queryDispsForGroup(ormSession, dispGroupPointersIds)
+        dispGroupChildsByGroupId = _queryDispsForGroup(ormSession,
+                                                       dispGroupPointerTargetIds)
 
         # -----
         # Query for the disp groups names
@@ -257,7 +263,7 @@ def _cloneDispsForDispGroupPointer(dispIds: List[int]):
             select(columns=[dispBaseTable.c.id,
                             dispBaseTable.c.coordSetId,
                             dispGroupTable.c.name],
-                   whereclause=dispBaseTable.c.id.in_(dispGroupPointersIds))
+                   whereclause=dispBaseTable.c.id.in_(dispGroupPointerTargetIds))
                 .select_from(join(dispGroupTable, dispBaseTable,
                                   dispGroupTable.c.id == dispBaseTable.c.id))
         )
@@ -592,11 +598,31 @@ def _calculateGridKeys(preparedDisps: List[PreparedDisp], coordSetById, textStyl
 
 
 def _updateDispsJson(preparedDisps: List[PreparedDisp]):
+    """ Update Disps Json
+
+    This assigns the updated dispJson from the dispDict
+
+    """
     for pdisp in preparedDisps:
-        _packDispJson(pdisp.disp, pdisp.dispDict)
+        stripped = _packDispJson(pdisp.disp, pdisp.dispDict)
+
+        # Dump the json back into the disp
+        pdisp.disp.dispJson = json.dumps(stripped)
 
 
 def _packDispJson(disp, dispDict) -> Dict:
+    """ Pack Disp Json
+
+    This method creates the disp hash id.
+
+    It assigns the hashId to the disp and dispDict
+
+    :param disp: The disp to assign the data back to
+    :param dispDict: The updated dispDict prepared elsewhere
+        The only updated done outside of this method is for the DispGroup
+    :return: The updated dispDict (This result is used by the BranchDispUpdater)
+
+    """
     # Strip out the nulls and falses, to make it even more compact
     stripped = {k: v
                 for k, v in dispDict.items()
@@ -608,7 +634,6 @@ def _packDispJson(disp, dispDict) -> Dict:
     stripped['hid'] = hashId
 
     # Write the "compiled" disp JSON back to the disp.
-    disp.dispJson = json.dumps(stripped)
     disp.hashId = hashId
 
     return stripped

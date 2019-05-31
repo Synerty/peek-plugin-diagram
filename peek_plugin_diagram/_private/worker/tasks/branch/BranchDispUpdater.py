@@ -1,19 +1,17 @@
 import logging
+import typing
 from datetime import datetime
 from typing import List
 
 import pytz
 import ujson as json
 from peek_plugin_base.worker import CeleryDbConn
-from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
-    DispCompilerQueueController
 from peek_plugin_diagram._private.storage.Display import DispBase
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyCompilerQueue, \
     GridKeyIndex
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import \
     BranchTuple
 from peek_plugin_diagram._private.worker.tasks.DispCompilerTask import _packDispJson
-from peek_plugin_diagram._private.worker.tasks.ImportDispTask import _bulkInsertDisps
 from sqlalchemy import select
 from vortex.Tuple import Tuple
 
@@ -61,7 +59,7 @@ def _deleteBranchDisps(conn, branchIds: List[int]) -> None:
     )
 
 
-def _insertBranchDisps(conn, newBranches: List[BranchTuple]) -> None:
+def _convertBranchDisps(newBranches: List[BranchTuple]) -> typing.Tuple[List, List]:
     """ Insert Disps for Branch
 
     1) Insert new Disps
@@ -103,30 +101,43 @@ def _insertBranchDisps(conn, newBranches: List[BranchTuple]) -> None:
         # Just to be clear, this is converting it one way and then converting it back.
         # It ensures the data is consistent. (Which it should be if all was right)
         # It also sets the "hashId"
-        newBranch.disps = [
-            _packDispJson(disp, disp.tupleToSmallJsonDict())
-            for disp in branchDisps
-        ]
 
-        # JSON is not stored as a string in the branch disps
-        for jsonDict in newBranch.disps:
+        # Create the map from the UI temp ID to the DB ID
+        oldDispHashIdMap = {}
+        newBranchDispItems = []
+
+        newBranch.disps = []
+        for disp in branchDisps:
+            oldDispHashId = disp.hashId
+            # This assigns the hashId to the jsonDict and disp
+            newJsonDict = _packDispJson(disp, disp.tupleToSmallJsonDict())
+            newBranch.disps.append(newJsonDict)
+
+            oldDispHashIdMap[oldDispHashId] = disp.hashId
+            newBranchDispItems.append((disp, newJsonDict))
+
+        for disp, jsonDict in newBranchDispItems:
+            if disp.replacesHashId in oldDispHashIdMap:
+                disp.replacesHashId = oldDispHashIdMap[disp.replacesHashId]
+                jsonDict['rid'] = oldDispHashIdMap[disp.replacesHashId]
+
+            disp.dispJson = json.dumps(jsonDict)
+
+            # AFTER the json has been dumped to the disp, convert it for storage
+            # in the branch as geom JSON is not stored as a string in the branch
+            # Because it's stored in the Disp Tuple/Table "geom" field as a string
             if 'g' in jsonDict:
                 jsonDict['g'] = json.loads(jsonDict['g'])
 
+        del newBranchDispItems
 
-    # Bulk load the Disps
-    _bulkInsertDisps(conn, newDisps)
-
-    # Queue the compiler
-    DispCompilerQueueController.queueDispIdsToCompileWithSession(
-        dispIdsToCompile, conn
-    )
-
-    # TODO: Something with the LiveDB links
-
-    logger.debug("Inserted %s disps for %s branches in %s",
+    logger.debug("Converted %s disps for %s branches in %s",
                  len(newDisps), len(newBranches),
                  (datetime.now(pytz.utc) - startTime))
+
+    return newDisps, dispIdsToCompile
+
+    # TODO: Something with the LiveDB links
 
 
 def _convertJsonDispsToTuples(branchTuple: BranchTuple) -> List:

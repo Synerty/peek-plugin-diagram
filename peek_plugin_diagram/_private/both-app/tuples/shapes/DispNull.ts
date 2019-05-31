@@ -36,7 +36,7 @@ export class DispNull extends DispBase {
     }
 
     static create(coordSet: ModelCoordSet): DispNullT {
-        return <DispNullT>DispBase.create(coordSet, DispBase.TYPE_DU);
+        return <DispNullT>DispBase.create(coordSet, DispBase.TYPE_DN);
     }
 
     static makeShapeContext(context: PeekCanvasShapePropsContext): void {

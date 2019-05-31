@@ -110,9 +110,11 @@ export class DispGroupPointer extends DispBase {
 
     static makeShapeStr(disp: DispGroupPointerT): string {
         let center = DispGroupPointer.center(disp);
-        return DispBase.makeShapeStr(disp)
-            + `\nName : ${DispGroupPointer.targetGroupName(disp)}`
-            + `\nAt : ${parseInt(<any>center.x)}x${parseInt(<any>center.y)}`;
+        let str = DispBase.makeShapeStr(disp);
+        if (DispGroupPointer.targetGroupName(disp))
+            str += `\nName : ${DispGroupPointer.targetGroupName(disp)}`;
+        str += `\nAt : ${parseInt(<any>center.x)}x${parseInt(<any>center.y)}`;
+        return str;
     }
 
     /** Set Disp Group
@@ -154,6 +156,8 @@ export class DispGroupPointer extends DispBase {
             DispBase.setSelectable(disp, false);
             DispBase.setKey(disp, null);
             DispBase.setId(disp, null);
+            DispBase.setReplacesHashId(disp, null);
+            DispBase.setHashId(disp, null);
 
             lookupService._linkDispLookups(disp);
 

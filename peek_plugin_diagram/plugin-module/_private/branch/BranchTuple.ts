@@ -1,17 +1,13 @@
-import {addTupleType, extend, Tuple} from "@synerty/vortexjs";
+import {addTupleType, deepCopy, Tuple} from "@synerty/vortexjs";
 import {diagramTuplePrefix} from "../PluginNames";
 import {DiagramLookupService} from "../../DiagramLookupService";
-import {deepCopy} from "@synerty/vortexjs/src/vortex/UtilMisc";
 import SerialiseUtil from "@synerty/vortexjs/src/vortex/SerialiseUtil";
 import * as moment from "moment";
+import {BranchLiveEditTuple} from "./BranchLiveEditTuple";
 
 
 let serUril = new SerialiseUtil();
 
-export enum BranchDispChangeE {
-    create = 2,
-    delete = 3
-}
 
 /** Diagram Branch Tuple
  *
@@ -36,7 +32,8 @@ export class BranchTuple extends Tuple {
     private static readonly __CREATED_DATE = 5;
     private static readonly __DISPS_NUM = 6;
     private static readonly __ANCHOR_DISP_KEYS_NUM = 7;
-    private static readonly __LAST_INDEX_NUM = 7;
+    private static readonly __UPDATED_BY_USER_NUM = 8;
+    private static readonly __LAST_INDEX_NUM = 8;
 
 
     private _dispsById = {};
@@ -52,7 +49,7 @@ export class BranchTuple extends Tuple {
 
     static createBranch(coordSetId: number, branchKey: string): any {
         let branch = new BranchTuple();
-        branch.packedJson__[BranchTuple.__ID_NUM] = null;
+        branch.packedJson__[BranchTuple.__ID_NUM] = this._makeUniqueId();
         branch.packedJson__[BranchTuple.__COORD_SET_ID_NUM] = coordSetId;
         branch.packedJson__[BranchTuple.__KEY_NUM] = branchKey;
         branch.packedJson__[BranchTuple.__VISIBLE_NUM] = true;
@@ -60,6 +57,7 @@ export class BranchTuple extends Tuple {
         branch.setCreatedDate(new Date());
         branch.packedJson__[BranchTuple.__DISPS_NUM] = [];
         branch.packedJson__[BranchTuple.__ANCHOR_DISP_KEYS_NUM] = [];
+        branch.packedJson__[BranchTuple.__UPDATED_BY_USER_NUM] = null;
         return branch;
     }
 
@@ -68,6 +66,7 @@ export class BranchTuple extends Tuple {
         let newSelf = new BranchTuple();
         newSelf.packedJson__ = JSON.parse(packedJsonStr);
         newSelf.assignIdsToDisps();
+        newSelf.sortDisps();
         return newSelf;
     }
 
@@ -83,10 +82,19 @@ export class BranchTuple extends Tuple {
         }
     }
 
+    private static _makeUniqueId(index = -1): any {
+       return <any>`NEW_${(new Date()).getTime()}_${index}`;
+    }
+
     private static _setNewDispId(disp, index): void {
         let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
+        let newId = this._makeUniqueId(index);
+
         if (DispBase.id(disp) == null)
-            DispBase.setId(disp, <any>`NEW_${(new Date()).getTime()}_${index}`);
+            DispBase.setId(disp, newId);
+
+        if (DispBase.hashId(disp) == null)
+            DispBase.setHashId(disp, newId);
     }
 
     private _array(num: number): any[] {
@@ -107,10 +115,12 @@ export class BranchTuple extends Tuple {
         return this.packedJson__[BranchTuple.__KEY_NUM];
     }
 
-    deleteDisp(dispId: number): void {
-        // TODO
-        // this._array(BranchTuple.__DELETED_DISP_IDS_NUM).push(dispId);
-        // this.touchUpdateDate();
+    get updatedByUser(): string {
+        return this.packedJson__[BranchTuple.__UPDATED_BY_USER_NUM];
+    }
+
+    set updatedByUser(val: string) {
+        this.packedJson__[BranchTuple.__UPDATED_BY_USER_NUM] = val;
     }
 
     addStage(): number {
@@ -122,8 +132,9 @@ export class BranchTuple extends Tuple {
      * This method adds an array of disps to the branch.
      *
      * @param disps: An array of disps to add.
+     * @param preventModelUpdate: Prevents this update from calling model compile.
      */
-    addOrUpdateDisps(disps: any): any[] {
+    addOrUpdateDisps(disps: any, preventModelUpdate = false): any[] {
         let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
 
         let modelUpdateRequired = false;
@@ -144,7 +155,8 @@ export class BranchTuple extends Tuple {
                 DispBase.setGroupId(disp, oldDispIdMap[groupId]);
         }
 
-        this.touchUpdateDate(modelUpdateRequired);
+        this.sortDisps();
+        this.touchUpdateDate(modelUpdateRequired && !preventModelUpdate);
         return returnedDisps;
     }
 
@@ -156,10 +168,12 @@ export class BranchTuple extends Tuple {
      * in the new stage.
      *
      * @param disp
+     * @param preventModelUpdate: Prevents this update from calling model compile.
      */
-    addOrUpdateDisp(disp: any): any {
+    addOrUpdateDisp(disp: any, preventModelUpdate = false): any {
         let result = this.addOrUpdateSingleDisp(disp);
-        this.touchUpdateDate(result.modelUpdateRequired);
+        this.sortDisps();
+        this.touchUpdateDate(result.modelUpdateRequired && !preventModelUpdate);
         return result.disp;
     }
 
@@ -174,10 +188,11 @@ export class BranchTuple extends Tuple {
         // 1) we make a copy of the disp
         // 2) we set its "replacesHashId" to the "hashId" it's replacing.
         if (DispBase.id(disp) != null && dispInBranch == null) {
-            let branchDisp = extend({}, disp);
+            let branchDisp = DispBase.cloneDisp(disp);
             DispBase.setReplacesHashId(branchDisp, DispBase.hashId(disp));
             DispGroupPointer.setTargetGroupId(branchDisp, null);
             DispBase.setId(branchDisp, null);
+            DispBase.setHashId(branchDisp, null);
             disp = branchDisp;
         }
 
@@ -202,6 +217,15 @@ export class BranchTuple extends Tuple {
 
     }
 
+    private sortDisps(): void {
+        let PeekCanvasModel = require("peek_plugin_diagram/canvas/PeekCanvasModel.web")
+            ["PeekCanvasModel"];
+
+        let array = this._array(BranchTuple.__DISPS_NUM);
+        this.packedJson__[BranchTuple.__DISPS_NUM] = PeekCanvasModel
+            .sortDisps(array);
+    }
+
     /** Add New Disps
      *
      * This method adds newly created disps to tbe branch in bulk.
@@ -218,6 +242,7 @@ export class BranchTuple extends Tuple {
             this._dispsById[DispBase.id(disp)] = disp;
             array.push(disp);
         }
+        this.sortDisps();
         this.touchUpdateDate(true);
 
     }
@@ -258,7 +283,7 @@ export class BranchTuple extends Tuple {
 
             let nullDisp = {
                 // Type
-                '_tt': DispBase.TYPE_DU,
+                '_tt': DispBase.TYPE_DN,
 
                 // Level
                 'le': disp.le,
@@ -388,9 +413,12 @@ export class BranchTuple extends Tuple {
 
     }
 
-    applyLiveUpdate(liveUpdateTuple: BranchTuple): boolean {
+    applyLiveUpdate(liveEditTuple: BranchLiveEditTuple): boolean {
+        let liveUpdateTuple = liveEditTuple.branchTuple;
+
         if (this.updatedDate == null
-            || !moment(this.updatedDate).isAfter(liveUpdateTuple.updatedDate)) {
+            || moment(this.updatedDate).isBefore(liveUpdateTuple.updatedDate)
+            || liveEditTuple.updateFromSave) {
             this.packedJson__ = liveUpdateTuple.packedJson__;
             this.assignIdsToDisps();
             return true;

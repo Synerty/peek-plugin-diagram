@@ -178,7 +178,7 @@ export class PeekCanvasInputEditMakeEllipseDelegate
         // Let the canvas editor know something has happened.
         // this.canvasEditor.dispPropsUpdated();
 
-        this.viewArgs.model.compileBranchDisps();
+        this.viewArgs.model.recompileModel();
 
         this.viewArgs.model.selection.replaceSelection(this._creating);
         this.canvasEditor.props.showShapeProperties();

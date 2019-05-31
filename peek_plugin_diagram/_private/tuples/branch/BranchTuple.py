@@ -96,6 +96,11 @@ class BranchTuple(Tuple):
 
         return branchTuple
 
+    def __array(self, num):
+        if self.packedJson__[num] is None:
+            self.packedJson__[num] = []
+        return self.packedJson__[num]
+
     @property
     def id(self):
         return self.packedJson__[self.__ID_NUM]
@@ -126,8 +131,7 @@ class BranchTuple(Tuple):
 
     @property
     def disps(self) -> List:
-        val = self.packedJson__[self.__DISPS_NUM][:]
-        return val if val else []
+        return self.__array(self.__DISPS_NUM)
 
     @disps.setter
     def disps(self, disps: List) -> None:
@@ -135,8 +139,7 @@ class BranchTuple(Tuple):
 
     @property
     def anchorDispKeys(self) -> List[str]:
-        val = self.packedJson__[self.__ANCHOR_DISP_KEYS_NUM][:]
-        return val if val else []
+        return self.__array(self.__ANCHOR_DISP_KEYS_NUM)
 
     @property
     def visible(self) -> bool:

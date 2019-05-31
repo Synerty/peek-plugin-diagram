@@ -16,6 +16,10 @@ $edit_toolbar_height: $edit_toolbar_button_height + 2 * $panel_width;
 }
 
 
+.close {
+  padding: 12px;
+}
+
 .peek-tabs-section-body {
   padding: $general_padding_1;
   top: $title_bar_height;

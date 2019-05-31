@@ -80,7 +80,11 @@ class ImportDispGroupPtrTuple(Tuple):
     horizontalScale: float = TupleField(1)
 
     #: Disp Group Hash, The value of a "ImportDispGroupTuple.importHash" to point to
-    targetDispGroupHash: float = TupleField(1)
+    # This can be null if only an instance (GroupPtr) is imported with no template (Group)
+    targetDispGroupHash: Optional[str] = TupleField()
+
+    #: The name of the template that this group pointer was created from.
+    targetDispGroupName: Optional[str] = TupleField()
 
     #: The center location of this
     geom: WKBElement = TupleField()

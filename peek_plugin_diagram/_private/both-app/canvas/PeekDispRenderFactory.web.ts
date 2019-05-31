@@ -2,7 +2,6 @@ import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {PeekDispRenderDelegatePoly} from "./PeekDispRenderDelegatePoly.web";
 import {PeekDispRenderDelegateText} from "./PeekDispRenderDelegateText.web";
 import {PeekDispRenderDelegateEllipse} from "./PeekDispRenderDelegateEllipse.web";
-import {PeekDispRenderDelegateAction} from "./PeekDispRenderDelegateAction.web";
 import {PeekDispRenderDelegateGroupPtr} from "./PeekDispRenderDelegateGroupPtr.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {DispBase, PointI} from "../tuples/shapes/DispBase";
@@ -13,12 +12,11 @@ import {PeekDispRenderDelegateNull} from "./PeekDispRenderDelegateNull.web";
 export class PeekDispRenderFactory {
     private _delegatesByType: {};
 
-    constructor(config: PeekCanvasConfig) {
+    constructor(private config: PeekCanvasConfig) {
 
         let polyDelegate = new PeekDispRenderDelegatePoly(config);
         let textDelegate = new PeekDispRenderDelegateText(config);
         let ellipseDelegate = new PeekDispRenderDelegateEllipse(config);
-        let actionDelegate = new PeekDispRenderDelegateAction(config);
         let groupPtrDelegate = new PeekDispRenderDelegateGroupPtr(config);
         let nullDelegate = new PeekDispRenderDelegateNull(config);
 
@@ -27,9 +25,8 @@ export class PeekDispRenderFactory {
             'DPG': polyDelegate,
             'DPL': polyDelegate,
             'DE': ellipseDelegate,
-            'DA': actionDelegate,
             'DGP': groupPtrDelegate,
-            'DU': nullDelegate
+            'DN': nullDelegate
         };
 
     }
@@ -49,6 +46,20 @@ export class PeekDispRenderFactory {
 
         if (this._delegatesByType[disp._tt] == null)
             console.log(disp._tt);
+
+        // HACK!!!!!
+        if (forEdit && disp.bounds && !disp.lcl && !disp.fcl && !disp.cl) {
+            // DRAW THE invisible BOX
+            let selectionConfig = this.config.renderer.invisible;
+
+            let b = disp.bounds;
+
+            ctx.dashedRect(b.x, b.y, b.w, b.h, selectionConfig.dashLen / zoom);
+            ctx.strokeStyle = selectionConfig.color;
+            ctx.lineWidth = selectionConfig.width / zoom;
+            ctx.stroke();
+        }
+
         this._delegatesByType[disp._tt].draw(disp, ctx, zoom, pan);
     };
 

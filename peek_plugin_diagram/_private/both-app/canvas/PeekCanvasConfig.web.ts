@@ -35,7 +35,6 @@ export class PeekCanvasConfig {
         invisible: { // Draw invisble items in edit mode
             color: 'grey',
             width: 2,
-            lineGap: 2,
             dashLen: 2
         },
         grid: {
@@ -141,6 +140,17 @@ export class PeekCanvasConfig {
 
         this.viewPort.minZoom = newCoordSet.minZoom;
         this.viewPort.maxZoom = newCoordSet.maxZoom;
+
+        if (newCoordSet == null) {
+            this.updateViewPortPan({x: 0, y: 0});
+            this.updateViewPortZoom(1.0);
+
+        } else {
+            this.updateViewPortPan(
+                {x: newCoordSet.initialPanX, y: newCoordSet.initialPanY}
+            );
+            this.updateViewPortZoom(newCoordSet.initialZoom);
+        }
     }
 
     get coordSet(): ModelCoordSet | null {

@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import List, Dict
 
 import pytz
+from peek_plugin_base.storage.DbConnection import pgCopyInsert
 
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_base.worker.CeleryDbConn import prefetchDeclarativeIds
@@ -62,10 +63,13 @@ def importDispLinks(coordSet: ModelCoordSet,
             dispLink.liveDbKey = liveDbItem.key
             dispLinkInserts.append(dispLink.tupleToSqlaBulkInsertDict())
 
-        if dispLinkInserts:
-            ormSession.execute(LiveDbDispLink.__table__.insert(), dispLinkInserts)
+        # if dispLinkInserts:
+        #     ormSession.execute(LiveDbDispLink.__table__.insert(), dispLinkInserts)
 
         ormSession.commit()
+
+        if dispLinkInserts:
+            pgCopyInsert(CeleryDbConn.getDbEngine(), LiveDbDispLink.__table__, dispLinkInserts)
 
         logger.info(
             "Inserted %s LiveDbDispLinks in %s",

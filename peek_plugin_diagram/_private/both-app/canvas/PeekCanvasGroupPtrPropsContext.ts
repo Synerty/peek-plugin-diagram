@@ -20,7 +20,7 @@ export class PeekCanvasGroupPtrPropsContext {
             this.lookupService, this.branchTuple
         );
 
-        this.model.compileBranchDisps();
+        this.model.recompileModel();
     }
 
     get targetDispGroupCoordSetId(): number | null {

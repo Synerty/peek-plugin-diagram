@@ -1,4 +1,5 @@
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
+import {DispBaseT} from "../tuples/shapes/DispBase";
 
 export enum ShapePropType {
     Layer,
@@ -75,7 +76,7 @@ export class PeekCanvasShapePropsContext {
 
     private _props: ShapeProp[] = [];
 
-    constructor(public disp: {} = {},
+    constructor(public disp: DispBaseT = <any>{},
                 private lookupService: DiagramLookupService | null = null,
                 private modelSetId: number | null = null,
                 private coordSetId: number | null = null) {

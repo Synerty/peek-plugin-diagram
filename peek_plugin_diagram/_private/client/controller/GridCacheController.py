@@ -1,13 +1,12 @@
 import logging
 from typing import Dict, List
 
-from twisted.internet.defer import inlineCallbacks, Deferred
-
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import \
     ClientGridLoaderRpc
 from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import EncodedGridTuple
 from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
+from twisted.internet.defer import inlineCallbacks, Deferred
 from vortex.DeferUtil import vortexLogFailure
 from vortex.PayloadEndpoint import PayloadEndpoint
 from vortex.PayloadEnvelope import PayloadEnvelope
@@ -126,7 +125,9 @@ class GridCacheController:
                 self._gridCache[t.gridKey] = t
                 gridKeyUpdates.append(t.gridKey)
 
-        logger.debug("Received grid updates from server, %s", gridKeyUpdates)
+        logger.debug("Received %s grids from server,"
+                     " %s had changed ",
+                     len(encodedGridTuples), len(gridKeyUpdates))
 
         self._gridCacheHandler.notifyOfGridUpdate(gridKeyUpdates)
 

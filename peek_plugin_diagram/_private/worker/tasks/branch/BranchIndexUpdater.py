@@ -5,6 +5,8 @@ from typing import List, Set, Tuple, Dict
 
 import pytz
 from peek_plugin_base.worker import CeleryDbConn
+from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
+    DispCompilerQueueController
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
 from peek_plugin_diagram._private.storage.branch.BranchIndex import \
     BranchIndex
@@ -13,8 +15,9 @@ from peek_plugin_diagram._private.storage.branch.BranchIndexCompilerQueue import
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import \
     BranchTuple
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
+from peek_plugin_diagram._private.worker.tasks.ImportDispTask import _bulkInsertDisps
 from peek_plugin_diagram._private.worker.tasks.branch.BranchDispUpdater import \
-    _deleteBranchDisps, _insertBranchDisps
+    _deleteBranchDisps, _convertBranchDisps
 from peek_plugin_diagram._private.worker.tasks.branch._BranchIndexCalcChunkKey import \
     makeChunkKeyForBranchIndex
 from sqlalchemy import select, and_, bindparam
@@ -103,6 +106,9 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
                                     newBranchesToInsert)
             dbSession.commit()
 
+        allNewDisps = []
+        allDispIdsToCompile = []
+
         packedJsonUpdates = []
         # Recompile the BranchGridIndexes
         for coordSetId, branches in branchesByCoordSetId.items():
@@ -110,11 +116,25 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
             assert coordSet.modelSetId == modelSetId, "Branches not all from one model"
 
             _deleteBranchDisps(dbSession, [b.id for b in branches])
-            _insertBranchDisps(dbSession, branches)
+
+            newDisps, dispIdsToCompile = _convertBranchDisps(branches)
+            allNewDisps.extend(newDisps)
+            allDispIdsToCompile.extend(dispIdsToCompile)
 
             packedJsonUpdates += [
                 dict(b_id=b.id, b_packedJson=b.packJson()) for b in branches
             ]
+
+        dbSession.commit()
+
+        # NO TRANSACTION
+        # Bulk load the Disps
+        _bulkInsertDisps(CeleryDbConn.getDbEngine(), allNewDisps)
+
+        # Queue the compiler
+        DispCompilerQueueController.queueDispIdsToCompileWithSession(
+            allDispIdsToCompile, dbSession
+        )
 
         # Update the JSON again back into the grid index.
         stmt = BranchIndex.__table__.update(). \

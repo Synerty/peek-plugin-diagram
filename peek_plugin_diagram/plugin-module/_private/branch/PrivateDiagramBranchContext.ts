@@ -108,7 +108,7 @@ export class PrivateDiagramBranchContext {
                         );
                 }
 
-                if (this.branch.applyLiveUpdate(update.branchTuple)) {
+                if (this.branch.applyLiveUpdate(update)) {
                     this.branch.linkDisps(this.lookupCache);
                     this._branchUpdatedSubject.next(true);
                 }
@@ -142,7 +142,9 @@ export class PrivateDiagramBranchContext {
         let action = new BranchLiveEditTupleAction();
         action.updatedByUser = this.userKey();
         action.branchTuple = this.branch;
+        action.branchTuple.updatedByUser = this.userKey();
         action.actionType = updateType;
+
 
         let promise = null;
         if (updateType == BranchLiveEditTupleAction.EDITING_UPDATED) {

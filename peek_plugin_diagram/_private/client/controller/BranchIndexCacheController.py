@@ -82,13 +82,14 @@ class BranchIndexCacheController:
         chunkKeysUpdated: List[str] = []
 
         for t in encodedChunkTuples:
-
             if (not t.chunkKey in self._cache or
                     self._cache[t.chunkKey].lastUpdate != t.lastUpdate):
                 self._cache[t.chunkKey] = t
                 chunkKeysUpdated.append(t.chunkKey)
 
-        logger.debug("Received branchIndex updates from server, %s", chunkKeysUpdated)
+        logger.debug("Received %s grids from server,"
+                     " %s had changed ",
+                     len(encodedChunkTuples), len(chunkKeysUpdated))
 
         self._webAppHandler.notifyOfBranchIndexUpdate(chunkKeysUpdated)
 

@@ -4,6 +4,7 @@ import {DispPolygon} from "./DispPolygon";
 import {DispPolyline} from "./DispPolyline";
 import {DispGroupPointer} from "./DispGroupPointer";
 import {DispGroup} from "./DispGroup";
+import {DispNull} from "./DispNull";
 
 export enum DispType {
     ellipse,
@@ -11,7 +12,8 @@ export enum DispType {
     polyline,
     text,
     group,
-    groupPointer
+    groupPointer,
+    null_
 
 }
 
@@ -39,6 +41,7 @@ export class DispFactory {
         'DE': [DispType.ellipse, DispEllipse],
         'DG': [DispType.group, DispGroup],
         'DGP': [DispType.groupPointer, DispGroupPointer],
+        'DN': [DispType.null_, DispNull],
     };
 
     static type(disp): DispType {

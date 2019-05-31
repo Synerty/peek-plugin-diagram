@@ -5,7 +5,7 @@ import {LinkedGrid} from "../cache/LinkedGrid.web";
 import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
-import {DispBase} from "../tuples/shapes/DispBase";
+import {DispBase, DispBaseT} from "../tuples/shapes/DispBase";
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch";
 import {PeekCanvasModelQuery} from "./PeekCanvasModelQuery.web";
 import {PeekCanvasModelSelection} from "./PeekCanvasModelSelection.web";
@@ -16,6 +16,12 @@ function now(): any {
     return new Date();
 }
 
+
+interface GridOrBranchI {
+    disps: any[];
+    key: string;
+    isBranch: boolean;
+}
 
 /**
  * Peek Canvas Model
@@ -40,8 +46,7 @@ export class PeekCanvasModel {
     private _viewingGridKeysStr: string = "";
 
     // Objects to be drawn on the display
-    private _visableDisps = [];
-    private _gridDisps = [];
+    private _visibleDisps = [];
 
     // Does the model need an update?
     private needsUpdate = false;
@@ -52,8 +57,8 @@ export class PeekCanvasModel {
     // Is the model currently updating
     private isUpdating = false;
 
-    private _query: PeekCanvasModelQuery;
-    private _selection: PeekCanvasModelSelection;
+    private readonly _query: PeekCanvasModelQuery;
+    private readonly _selection: PeekCanvasModelSelection;
 
     constructor(private config: PeekCanvasConfig,
                 private gridObservable: GridObservable,
@@ -93,16 +98,10 @@ export class PeekCanvasModel {
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
             .subscribe((coordSet) => {
                 if (coordSet == null) {
-                    this.config.updateViewPortPan({x: 0, y: 0});
-                    this.config.updateViewPortZoom(1.0);
                     this._modelSetId = null;
                     this._coordSetId = null;
 
                 } else {
-                    this.config.updateViewPortPan(
-                        {x: coordSet.initialPanX, y: coordSet.initialPanY}
-                    );
-                    this.config.updateViewPortZoom(coordSet.initialZoom);
                     this._modelSetId = coordSet.modelSetId;
                     this._coordSetId = coordSet.id;
                 }
@@ -118,7 +117,6 @@ export class PeekCanvasModel {
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
             .subscribe(() => this.needsUpdate = true);
 
-
     };
 
 // -------------------------------------------------------------------------------------
@@ -128,7 +126,7 @@ export class PeekCanvasModel {
         this.needsUpdate = false;
         this.isUpdating = false;
 
-        this._visableDisps = []; // Objects to be drawn on the display
+        this._visibleDisps = []; // Objects to be drawn on the display
         this._gridBuffer = {}; // Store grids from the server by gridKey.
 
         this._viewingGridKeysDict = {};
@@ -200,7 +198,7 @@ export class PeekCanvasModel {
                 continue;
 
             // If we're not viewing this grid any more, discard the data.
-            if (!this._viewingGridKeysDict.hasOwnProperty(linkedGrid.gridKey))
+            if (this._viewingGridKeysDict[linkedGrid.gridKey] == null)
                 continue;
 
             // If it's not an update, also ignore it.
@@ -229,11 +227,11 @@ export class PeekCanvasModel {
     }
 
     viewableDisps() {
-        return this._visableDisps;
+        return this._visibleDisps;
     }
 
 
-    private _compileDisps(force = false) {
+    private _compileDispsOld(force = false) {
         if (!this.needsCompiling && !force)
             return;
 
@@ -330,9 +328,10 @@ export class PeekCanvasModel {
             }
         }
 
-        this._gridDisps = disps.slice();
-
-        this.compileBranchDisps();
+        this._visibleDisps = disps;
+        this.selection.applyTryToSelect();
+        this.config.model.dispOnScreen = disps.length;
+        this.config.invalidate();
 
         let timeTaken = now() - startTime;
 
@@ -344,19 +343,180 @@ export class PeekCanvasModel {
         this._compileDisps(true);
     }
 
-    compileBranchDisps(): void {
-        let disps = this._gridDisps.slice();
+    /** Sort Disps
+     *
+     * This method sorts disps in the order needed for the model to compile them for the
+     * renderer.
+     *
+     * This method was initially written for the BranchTuple.
+     *
+     * WARNING: Sorting disps is terrible for performance, this is only used while
+     * the branch is being edited by the user.
+     *
+     * @param disps: A List of disps to sort
+     * @returns: A list of sorted disps
+     */
+    static sortDisps(disps: DispBaseT[]): DispBaseT[] {
+        function cmp(d1: DispBaseT, d2: DispBaseT): number {
 
-        let activeBranch = this.config.editor.activeBranchTuple;
-        if (activeBranch != null) {
-            Array.prototype.push.apply(disps, activeBranch.disps);
+            let levelDiff = DispBase.level(d1).order - DispBase.level(d2).order;
+            if (levelDiff != 0)
+                return levelDiff;
+
+            let layerDiff = DispBase.layer(d1).order - DispBase.layer(d2).order;
+            if (layerDiff != 0)
+                return layerDiff;
+
+            return DispBase.zOrder(d1) - DispBase.zOrder(d2);
         }
 
-        this._visableDisps = disps;
+        return disps.sort(cmp);
+
+    }
+
+
+    protected _compileDisps(force = false) {
+        if (!this.needsCompiling && !force)
+            return;
+
+        this.needsCompiling = false;
+
+        if (this._modelSetId == null || this._coordSetId == null)
+            return;
+
+        let startTime = now();
+
+        let levelsOrderedByOrder = this.lookupCache.levelsOrderedByOrder(this._coordSetId);
+        let layersOrderedByOrder = this.lookupCache.layersOrderedByOrder(this._modelSetId);
+
+        let dispIndexByGridKey = {};
+
+        let disps = [];
+        let dispHashIdsAdded = {};
+        let branchIdsActive = {};
+
+        for (let id of this.branchService.getVisibleBranchIds(this._coordSetId)) {
+            branchIdsActive[id] = true;
+        }
+
+        // Get the grids we're going to compile
+        let gridsOrBranchesToCompile: GridOrBranchI[] = [];
+        for (let gridKey of Object.keys(this._viewingGridKeysDict)) {
+            let grid = this._gridBuffer[gridKey];
+
+            if (grid == null)
+                continue;
+
+            gridsOrBranchesToCompile.push({
+                key: grid.gridKey,
+                disps: grid.disps,
+                isBranch: false
+            });
+        }
+
+        // Include the active branch
+        let activeBranch = this.config.editor.activeBranchTuple;
+        if (activeBranch != null) {
+            for (let branchDisp of activeBranch.disps)
+                dispHashIdsAdded[DispBase.replacesHashId(branchDisp)] = true;
+
+            // Make sure it's not showing when we edit the branch
+            delete branchIdsActive[activeBranch.id];
+
+            gridsOrBranchesToCompile.push({
+                key: activeBranch.key,
+                disps: activeBranch.disps,
+                isBranch: true
+            });
+        }
+
+        // For all the disps we're going to add,
+        // Add all the replacesHashId so that the disps being replaced don't show.
+        for (let gridOrBranch of gridsOrBranchesToCompile) {
+            for (let disp of gridOrBranch.disps) {
+                // TODO Restrict for Branch Stage
+                // If the branch is showing, and it replaces a hash,
+                // then add the hash it replaces
+                let replacesHashId = DispBase.replacesHashId(disp);
+                if (branchIdsActive[disp.bi] == true && replacesHashId != null) {
+                    dispHashIdsAdded[replacesHashId] = true;
+                }
+            }
+        }
+
+        for (let levelIndex = 0; levelIndex < levelsOrderedByOrder.length; levelIndex++) {
+            let level: DispLevel = <DispLevel>levelsOrderedByOrder[levelIndex];
+
+            for (let layerIndex = 0; layerIndex < layersOrderedByOrder.length; layerIndex++) {
+                let layer: DispLayer = <DispLayer>layersOrderedByOrder[layerIndex];
+
+                // If it's not visible (enabled), continue
+                if (!layer.visible)
+                    continue;
+
+                for (let gridOrBranch of gridsOrBranchesToCompile) {
+                    let gridOrBranchDisps = gridOrBranch.disps;
+
+                    // If this is the first iteration, initialise to 0
+                    let nextIndex = dispIndexByGridKey[gridOrBranch.key];
+                    if (nextIndex == null)
+                        nextIndex = 0;
+
+                    // If we've processed all the disps in this grid, continue to next
+                    if (nextIndex >= gridOrBranchDisps.length)
+                        continue;
+
+                    for (; nextIndex < gridOrBranchDisps.length; nextIndex++) {
+                        let disp = gridOrBranchDisps[nextIndex];
+
+                        // Level first, as per the sortDisps function
+                        let dispLevel = DispBase.level(disp);
+                        if (dispLevel.order < level.order)
+                            continue;
+
+                        if (level.order < dispLevel.order)
+                            break;
+
+                        // Then Layer
+                        let dispLayer = DispBase.layer(disp);
+                        if (dispLayer.order < layer.order)
+                            continue;
+
+                        if (layer.order < dispLayer.order)
+                            break;
+
+                        // If the disp has already been added or is being replaced
+                        // by a branch, then skip this one
+                        if (dispHashIdsAdded[DispBase.hashId(disp)] === true)
+                            continue;
+
+                        // Is the branch showed from the "View Branches" menu
+                        let isBranchViewable = branchIdsActive[disp.bi] === true;
+
+                        // If this is not apart of a branch, or ...
+                        if (disp.bi == null || isBranchViewable || gridOrBranch.isBranch) {
+                            disps.push(disp);
+                            dispHashIdsAdded[DispBase.hashId(disp)] = true;
+                        }
+
+                    }
+
+                    dispIndexByGridKey[gridOrBranch.key] = nextIndex;
+                }
+            }
+        }
+
+
+        this._visibleDisps = disps;
         this.selection.applyTryToSelect();
         this.config.model.dispOnScreen = disps.length;
         this.config.invalidate();
-    }
 
+        let timeTaken = now() - startTime;
+
+        console.log(`${dateStr()} Model: compileDisps took ${timeTaken}ms`
+            + ` for ${disps.length} disps`
+            + ` and ${gridsOrBranchesToCompile.length} grids/branches`);
+    }
 
 }
