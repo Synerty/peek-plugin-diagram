@@ -1,4 +1,4 @@
-
+from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection
@@ -8,9 +8,7 @@ from sqlalchemy.sql.schema import Index
 from sqlalchemy.types import Integer, String, Boolean
 from vortex.Tuple import Tuple, addTupleType
 
-from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from .DeclarativeBase import DeclarativeBase
-
 
 """Mapping a polymorphic-valued vertical table as a dictionary.
 
@@ -258,6 +256,14 @@ def globalSetting(ormSession, key=None, value=None):
     return _getSetting(ormSession, "Global", globalProperties, key=key, value=value)
 
 
-# PROPERTY1 = PropertyKey('Property1', 'value1', propertyDict=globalProperties)
-#
-# PROPERTY2 = PropertyKey('Property2', 'value2', propertyDict=globalProperties)
+DISP_COMPILER_ENABLED = PropertyKey('Disp Compiler Enabled', True,
+                                    propertyDict=globalProperties)
+
+GRID_COMPILER_ENABLED = PropertyKey('Grid Compiler Enabled', True,
+                                    propertyDict=globalProperties)
+
+BRANCH_COMPILER_ENABLED = PropertyKey('Branch Compiler Enabled', True,
+                                      propertyDict=globalProperties)
+
+LOCATION_COMPILER_ENABLED = PropertyKey('Location Compiler Enabled', True,
+                                        propertyDict=globalProperties)

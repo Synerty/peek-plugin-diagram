@@ -65,7 +65,8 @@ class GridKeyCompilerQueueController:
         self._statusController.setGridCompilerStatus(False, self._queueCount)
 
     def stop(self):
-        self._pollLoopingCall.stop()
+        if self._pollLoopingCall.running:
+            self._pollLoopingCall.stop()
 
     def shutdown(self):
         self.stop()

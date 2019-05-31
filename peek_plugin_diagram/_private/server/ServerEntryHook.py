@@ -40,9 +40,15 @@ from peek_plugin_diagram._private.server.controller.LookupImportController impor
     LookupImportController
 from peek_plugin_diagram._private.storage import DeclarativeBase
 from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
+from peek_plugin_diagram._private.storage.Setting import globalSetting, \
+    DISP_COMPILER_ENABLED, LOCATION_COMPILER_ENABLED, BRANCH_COMPILER_ENABLED, \
+    GRID_COMPILER_ENABLED, globalProperties
 from peek_plugin_diagram._private.tuples import loadPrivateTuples
 from peek_plugin_diagram.tuples import loadPublicTuples
 from peek_plugin_livedb.server.LiveDBApiABC import LiveDBApiABC
+from twisted.internet.defer import inlineCallbacks
+from vortex.DeferUtil import deferToThreadWrapWithLogger
+
 from .TupleActionProcessor import makeTupleActionProcessorHandler
 from .TupleDataObservable import makeTupleDataObservableHandler
 from .admin_handlers import makeAdminBackendHandlers
@@ -80,6 +86,7 @@ class ServerEntryHook(PluginServerEntryHookABC,
     def dbMetadata(self):
         return DeclarativeBase.metadata
 
+    @inlineCallbacks
     def start(self):
         """ Start
 
@@ -248,10 +255,20 @@ class ServerEntryHook(PluginServerEntryHookABC,
 
         # ----------------
         # Start the queue controller
-        dispCompilerQueueController.start()
-        gridKeyCompilerQueueController.start()
-        locationIndexCompilerQueueController.start()
-        branchIndexCompilerController.start()
+
+        settings = yield self._loadSettings()
+
+        if settings[DISP_COMPILER_ENABLED]:
+            dispCompilerQueueController.start()
+
+        if settings[GRID_COMPILER_ENABLED]:
+            gridKeyCompilerQueueController.start()
+
+        if settings[BRANCH_COMPILER_ENABLED]:
+            locationIndexCompilerQueueController.start()
+
+        if settings[LOCATION_COMPILER_ENABLED]:
+            branchIndexCompilerController.start()
 
         logger.debug("Started")
 
@@ -293,3 +310,13 @@ class ServerEntryHook(PluginServerEntryHookABC,
     def celeryApp(self) -> Celery:
         from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
         return celeryApp
+
+    @deferToThreadWrapWithLogger(logger)
+    def _loadSettings(self):
+        dbSession = self.dbSessionCreator()
+        try:
+            return {globalProperties[p.key]: p.value
+                    for p in globalSetting(dbSession).propertyObjects}
+
+        finally:
+            dbSession.close()
