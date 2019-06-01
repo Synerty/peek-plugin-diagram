@@ -7,6 +7,9 @@ import pytz
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
     DispCompilerQueueController
+from peek_plugin_diagram._private.storage.Display import DispBase
+from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
+    GridKeyCompilerQueue
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
 from peek_plugin_diagram._private.storage.branch.BranchIndex import \
     BranchIndex
@@ -47,6 +50,10 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
     startTime = datetime.now(pytz.utc)
 
     queueTable = BranchIndexCompilerQueue.__table__
+    dispBaseTable = DispBase.__table__
+    gridKeyIndexTable = GridKeyIndex.__table__
+
+    gridKeyCompilerQueueTable = GridKeyCompilerQueue.__table__
 
     branchesByCoordSetId: Dict[int, List[BranchTuple]] = defaultdict(list)
     chunkKeys: Set[str] = set()
@@ -106,6 +113,19 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
                                     newBranchesToInsert)
             dbSession.commit()
 
+        # Make an array of all branch IDs
+        allBranchIds = []
+        for branches in branchesByCoordSetId.values():
+            allBranchIds.extend([b.id for b in branches])
+
+        # Find out all the existing grids effected by this branch.
+        gridsToRecompile = dbSession.execute(
+            select(distinct=True,
+                   columns=[gridKeyIndexTable.c.gridKey, gridKeyIndexTable.c.coordSetId],
+                   whereclause=dispBaseTable.c.branchId.in_(allBranchIds))
+                .select_from(gridKeyIndexTable.join(dispBaseTable))
+        ).fetchall()
+
         allNewDisps = []
         allDispIdsToCompile = []
 
@@ -115,15 +135,17 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
             coordSet = coordSetById[coordSetId]
             assert coordSet.modelSetId == modelSetId, "Branches not all from one model"
 
-            _deleteBranchDisps(dbSession, [b.id for b in branches])
-
             newDisps, dispIdsToCompile = _convertBranchDisps(branches)
             allNewDisps.extend(newDisps)
             allDispIdsToCompile.extend(dispIdsToCompile)
 
-            packedJsonUpdates += [
+            packedJsonUpdates.extend([
                 dict(b_id=b.id, b_packedJson=b.packJson()) for b in branches
-            ]
+            ])
+
+        dbSession.execute(
+            dispBaseTable.delete(dispBaseTable.c.branchId.in_(allBranchIds))
+        )
 
         dbSession.commit()
 
@@ -147,6 +169,14 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
             queueTable.insert(),
             [dict(modelSetId=modelSetId, chunkKey=c) for c in chunkKeys]
         )
+
+        # 4) Queue chunks for
+        if gridsToRecompile:
+            dbSession.execute(
+                gridKeyCompilerQueueTable.insert(),
+                [dict(coordSetId=item.coordSetId, gridKey=item.gridKey)
+                 for item in gridsToRecompile]
+            )
 
         dbSession.commit()
 

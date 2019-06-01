@@ -36,6 +36,10 @@ export class BranchTuple extends Tuple {
     private static readonly __LAST_INDEX_NUM = 8;
 
 
+    // This structure stores IDs that need to be updated, from disps that have been
+    // cloned from disps their replacing (their ID is re-assigned)
+    // This is only a temporary structure only needed during an editing session.
+    private _replacementIds = {};
     private _dispsById = {};
     private _lastStage = 1;
     private _contextUpdateCallback: ((modelUpdateRequired: boolean) => void) | null;
@@ -83,7 +87,7 @@ export class BranchTuple extends Tuple {
     }
 
     private static _makeUniqueId(index = -1): any {
-       return <any>`NEW_${(new Date()).getTime()}_${index}`;
+        return <any>`NEW_${(new Date()).getTime()}_${index}`;
     }
 
     private static _setNewDispId(disp, index): void {
@@ -135,25 +139,17 @@ export class BranchTuple extends Tuple {
      * @param preventModelUpdate: Prevents this update from calling model compile.
      */
     addOrUpdateDisps(disps: any, preventModelUpdate = false): any[] {
-        let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
-
         let modelUpdateRequired = false;
         let returnedDisps = [];
 
-        let oldDispIdMap = {};
-
         for (let disp of disps) {
             let result = this.addOrUpdateSingleDisp(disp);
-            oldDispIdMap[disp.id] = result.disp.id;
             modelUpdateRequired = modelUpdateRequired || result.modelUpdateRequired;
             returnedDisps.push(result.disp);
         }
 
-        for (let disp of returnedDisps) {
-            let groupId = DispBase.groupId(disp);
-            if (oldDispIdMap[groupId] != null)
-                DispBase.setGroupId(disp, oldDispIdMap[groupId]);
-        }
+        for (let disp of returnedDisps)
+            this.updateReplacedIds(disp);
 
         this.sortDisps();
         this.touchUpdateDate(modelUpdateRequired && !preventModelUpdate);
@@ -172,9 +168,17 @@ export class BranchTuple extends Tuple {
      */
     addOrUpdateDisp(disp: any, preventModelUpdate = false): any {
         let result = this.addOrUpdateSingleDisp(disp);
+        this.updateReplacedIds(result);
         this.sortDisps();
         this.touchUpdateDate(result.modelUpdateRequired && !preventModelUpdate);
         return result.disp;
+    }
+
+    private updateReplacedIds(disp) {
+        let DispBase = require("peek_plugin_diagram/tuples/shapes/DispBase")["DispBase"];
+        let newGroupId = this._replacementIds[DispBase.groupId(disp)];
+        if (newGroupId != null)
+            DispBase.setGroupId(disp, newGroupId);
     }
 
     private addOrUpdateSingleDisp(disp: any): { disp: any, modelUpdateRequired: boolean } {
@@ -182,6 +186,15 @@ export class BranchTuple extends Tuple {
         let DispGroupPointer = require("peek_plugin_diagram/tuples/shapes/DispGroupPointer")["DispGroupPointer"];
         let array = this._array(BranchTuple.__DISPS_NUM);
 
+        // If we've already replaced this Disp, then just return the replacement disp
+        // This can happen when the select delegates call addOrUpdate disp multiple
+        // times. (They have a selected and related array)
+        if (this._replacementIds[DispBase.id(disp)] != null) {
+            let newId = this._replacementIds[DispBase.id(disp)];
+            return {disp: this._dispsById[newId], modelUpdateRequired: false};
+        }
+
+        // Find out if the disp is in this branch
         let dispInBranch = this._dispsById[DispBase.id(disp)];
 
         // If the Disp has an ID and it's not in this branch, then:
@@ -189,10 +202,16 @@ export class BranchTuple extends Tuple {
         // 2) we set its "replacesHashId" to the "hashId" it's replacing.
         if (DispBase.id(disp) != null && dispInBranch == null) {
             let branchDisp = DispBase.cloneDisp(disp);
+
             DispBase.setReplacesHashId(branchDisp, DispBase.hashId(disp));
             DispGroupPointer.setTargetGroupId(branchDisp, null);
-            DispBase.setId(branchDisp, null);
             DispBase.setHashId(branchDisp, null);
+
+            // Deal with the new updated ID
+            DispBase.setId(branchDisp, null);
+            BranchTuple._setNewDispId(branchDisp, array.length);
+            this._replacementIds[DispBase.id(disp)] = DispBase.id(branchDisp);
+
             disp = branchDisp;
         }
 
@@ -257,11 +276,17 @@ export class BranchTuple extends Tuple {
         }
 
         let array = this._array(BranchTuple.__DISPS_NUM);
+        let branchDispsToBeConvertedToNullDisps = [];
 
+        // Filter out disps in this branch that we're deleting
+        // If the disp we're deleting replacing anoter disp (not in this branch)
+        //      make a note of that.
         this.packedJson__[BranchTuple.__DISPS_NUM] = array
             .filter(disp => {
                 let id = DispBase.id(disp);
                 if (dispIdsToRemove[id] != null) {
+                    if (DispBase.replacesHashId(disp) != null)
+                        branchDispsToBeConvertedToNullDisps.push(disp);
                     delete dispIdsToRemove[id];
                     return false;
                 }
@@ -274,29 +299,43 @@ export class BranchTuple extends Tuple {
 
         // For all the Disps that are not part of this branch, we need to add a DispNull
         // to make it's deletion
+
         let nullDispsToCreate = [];
-        for (let dispId of Object.keys(dispIdsToRemove)) {
-            let disp = dispIdsToRemove[dispId];
-            if (disp.bounds == null) {
+
+        function createNullDisp(dispToDelete, replacesHashId) {
+            if (dispToDelete.bounds == null)
                 throw new Error("Can not delete a disp with no bounds");
-            }
 
             let nullDisp = {
                 // Type
                 '_tt': DispBase.TYPE_DN,
 
                 // Level
-                'le': disp.le,
-                'lel': disp.lel,
+                'le': dispToDelete.le,
+                'lel': dispToDelete.lel,
 
                 // Layer
-                'la': disp.la,
-                'lal': disp.lal,
+                'la': dispToDelete.la,
+                'lal': dispToDelete.lal,
             };
 
-            DispNull.setGeomFromBounds(nullDisp, disp.bounds);
-            DispBase.setReplacesHashId(nullDisp, DispBase.hashId(disp));
+            DispNull.setGeomFromBounds(nullDisp, dispToDelete.bounds);
+            DispBase.setReplacesHashId(nullDisp, replacesHashId);
             nullDispsToCreate.push(nullDisp);
+        }
+
+        // For all the Disps that are not part of this branch, we need to add a DispNull
+        // to make it's deletion
+        // Create NULL disps for disps being deleted that are not part of this branch
+        for (let dispId of Object.keys(dispIdsToRemove)) {
+            let disp = dispIdsToRemove[dispId];
+            createNullDisp(disp, DispBase.hashId(disp));
+        }
+
+        // For all disps that are part of this branch, but replace other disps,
+        // Create NULL disps for disps in this branch that replace other disps
+        for (let disp of branchDispsToBeConvertedToNullDisps) {
+            createNullDisp(disp, DispBase.replacesHashId(disp));
         }
 
         if (nullDispsToCreate.length != 0)

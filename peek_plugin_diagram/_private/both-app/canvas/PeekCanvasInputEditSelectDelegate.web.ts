@@ -552,6 +552,9 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
                 this.viewArgs.model.selection.replaceSelection(hits);
         }
 
+        for (let disp of this.viewArgs.model.selection.selectedDisps())
+            console.log(disp);
+
         this._selectedDisps = this.viewArgs.model.query.dispsInSelectedGroups;
 
         this._selectedPolylineEnds = this.viewArgs.model.query
@@ -575,7 +578,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             .addOrUpdateDisps(groupSelections, true);
 
         for (let dispPolylineEnd of this._selectedPolylineEnds) {
-
             dispPolylineEnd.polylineDisp = this.canvasEditor
                 .branchContext
                 .branchTuple

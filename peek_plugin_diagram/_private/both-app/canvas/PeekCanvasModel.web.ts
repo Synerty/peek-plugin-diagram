@@ -231,150 +231,6 @@ export class PeekCanvasModel {
     }
 
 
-    private _compileDispsOld(force = false) {
-        if (!this.needsCompiling && !force)
-            return;
-
-        this.needsCompiling = false;
-
-        if (this._modelSetId == null || this._coordSetId == null)
-            return;
-
-        let startTime = now();
-
-        let levelsOrderedByOrder = this.lookupCache.levelsOrderedByOrder(this._coordSetId);
-        let layersOrderedByOrder = this.lookupCache.layersOrderedByOrder(this._modelSetId);
-
-        let dispIndexByGridKey = {};
-
-        let disps = [];
-        let dispHashIdsAdded = {};
-        let branchIdsActive = {};
-
-        for (let id of this.branchService.getVisibleBranchIds(this._coordSetId)) {
-            branchIdsActive[id] = true;
-        }
-
-        let activeBranch = this.config.editor.activeBranchTuple;
-        if (activeBranch != null) {
-            for (let branchDisp of activeBranch.disps)
-                dispHashIdsAdded[DispBase.hashId(branchDisp)] = true;
-
-            // Make sure it's not showing when we edit the branch
-            delete branchIdsActive[activeBranch.id];
-        }
-
-        let viewableGrids = dictKeysFromObject(this._viewingGridKeysDict);
-
-        for (let levelIndex = 0; levelIndex < levelsOrderedByOrder.length; levelIndex++) {
-            let level: DispLevel = <DispLevel>levelsOrderedByOrder[levelIndex];
-
-
-            for (let layerIndex = 0; layerIndex < layersOrderedByOrder.length; layerIndex++) {
-                let layer: DispLayer = <DispLayer>layersOrderedByOrder[layerIndex];
-
-                // If it's not visible (enabled), continue
-                if (!layer.visible)
-                    continue;
-
-                for (let gridKey of viewableGrids) {
-                    let grid = this._gridBuffer[gridKey];
-
-                    if (grid == null)
-                        continue;
-
-                    // If this is the first iteration, initialise to 0
-                    let nextIndex = dispIndexByGridKey[gridKey];
-                    if (nextIndex == null)
-                        nextIndex = 0;
-
-                    // If we've processed all the disps in this grid, continue to next
-                    if (nextIndex >= grid.disps.length)
-                        continue;
-
-                    for (; nextIndex < grid.disps.length; nextIndex++) {
-                        let disp = grid.disps[nextIndex];
-
-                        // Level first, as per the sortDisps function
-                        let dispLevel = DispBase.level(disp);
-                        if (dispLevel.order < level.order)
-                            continue;
-
-                        if (level.order < dispLevel.order)
-                            break;
-
-                        // Then Layer
-                        let dispLayer = DispBase.layer(disp);
-                        if (dispLayer.order < layer.order)
-                            continue;
-
-                        if (layer.order < dispLayer.order)
-                            break;
-
-                        // If the disp has already been added or is being replaced
-                        // by a branch, then skip this one
-                        if (dispHashIdsAdded[DispBase.hashId(disp)] === true)
-                            continue;
-
-                        // BranchId
-                        if (disp.bi == null || branchIdsActive[disp.bi] == true)
-                            disps.push(disp);
-
-                        dispHashIdsAdded[DispBase.hashId(disp)] = true;
-                    }
-
-                    dispIndexByGridKey[gridKey] = nextIndex;
-                }
-            }
-        }
-
-        this._visibleDisps = disps;
-        this.selection.applyTryToSelect();
-        this.config.model.dispOnScreen = disps.length;
-        this.config.invalidate();
-
-        let timeTaken = now() - startTime;
-
-        console.log(`${dateStr()} Model: compileDisps took ${timeTaken}ms`
-            + ` for ${disps.length} disps and ${viewableGrids.length} grids`);
-    }
-
-    recompileModel(): void {
-        this._compileDisps(true);
-    }
-
-    /** Sort Disps
-     *
-     * This method sorts disps in the order needed for the model to compile them for the
-     * renderer.
-     *
-     * This method was initially written for the BranchTuple.
-     *
-     * WARNING: Sorting disps is terrible for performance, this is only used while
-     * the branch is being edited by the user.
-     *
-     * @param disps: A List of disps to sort
-     * @returns: A list of sorted disps
-     */
-    static sortDisps(disps: DispBaseT[]): DispBaseT[] {
-        function cmp(d1: DispBaseT, d2: DispBaseT): number {
-
-            let levelDiff = DispBase.level(d1).order - DispBase.level(d2).order;
-            if (levelDiff != 0)
-                return levelDiff;
-
-            let layerDiff = DispBase.layer(d1).order - DispBase.layer(d2).order;
-            if (layerDiff != 0)
-                return layerDiff;
-
-            return DispBase.zOrder(d1) - DispBase.zOrder(d2);
-        }
-
-        return disps.sort(cmp);
-
-    }
-
-
     protected _compileDisps(force = false) {
         if (!this.needsCompiling && !force)
             return;
@@ -517,6 +373,41 @@ export class PeekCanvasModel {
         console.log(`${dateStr()} Model: compileDisps took ${timeTaken}ms`
             + ` for ${disps.length} disps`
             + ` and ${gridsOrBranchesToCompile.length} grids/branches`);
+    }
+
+    recompileModel(): void {
+        this._compileDisps(true);
+    }
+
+    /** Sort Disps
+     *
+     * This method sorts disps in the order needed for the model to compile them for the
+     * renderer.
+     *
+     * This method was initially written for the BranchTuple.
+     *
+     * WARNING: Sorting disps is terrible for performance, this is only used while
+     * the branch is being edited by the user.
+     *
+     * @param disps: A List of disps to sort
+     * @returns: A list of sorted disps
+     */
+    static sortDisps(disps: DispBaseT[]): DispBaseT[] {
+        function cmp(d1: DispBaseT, d2: DispBaseT): number {
+
+            let levelDiff = DispBase.level(d1).order - DispBase.level(d2).order;
+            if (levelDiff != 0)
+                return levelDiff;
+
+            let layerDiff = DispBase.layer(d1).order - DispBase.layer(d2).order;
+            if (layerDiff != 0)
+                return layerDiff;
+
+            return DispBase.zOrder(d1) - DispBase.zOrder(d2);
+        }
+
+        return disps.sort(cmp);
+
     }
 
 }
