@@ -13,6 +13,16 @@ export interface PointI {
     y: number;
 }
 
+export enum DispType {
+    ellipse,
+    polygon,
+    polyline,
+    text,
+    group,
+    groupPointer,
+    null_
+}
+
 /** This type defines the list of points for geometry **/
 export type PointsT = number[];
 
@@ -67,8 +77,6 @@ export interface DispBaseT {
 }
 
 export abstract class DispBase {
-
-    // Duplicated in DispFactory
     static TYPE_DT = 'DT';
     static TYPE_DPG = 'DPG';
     static TYPE_DPL = 'DPL';
@@ -76,6 +84,33 @@ export abstract class DispBase {
     static TYPE_DG = 'DG';
     static TYPE_DGP = 'DGP';
     static TYPE_DN = 'DN';
+
+    private static _typeMapInit = false;
+    private static _typeMap = {};
+
+    // Lazy instantiation, because the string types are defined elsewhere
+    private static get typeMap() {
+        if (!DispBase._typeMapInit) {
+            DispBase._typeMapInit = true;
+            DispBase._typeMap[DispBase.TYPE_DT] = [DispType.text, 'Text'];
+            DispBase._typeMap[DispBase.TYPE_DPG] = [DispType.polygon, 'Polygon'];
+            DispBase._typeMap[DispBase.TYPE_DPL] = [DispType.polyline, 'Polyline'];
+            DispBase._typeMap[DispBase.TYPE_DE] = [DispType.ellipse, 'Ellipse'];
+            DispBase._typeMap[DispBase.TYPE_DG] = [DispType.group, 'Group'];
+            DispBase._typeMap[DispBase.TYPE_DGP] = [DispType.groupPointer, 'GroupPointer'];
+            DispBase._typeMap[DispBase.TYPE_DN] = [DispType.null_, 'Deleted Shape'];
+        }
+
+        return DispBase._typeMap;
+    };
+
+    static typeOf(disp): DispType {
+        return DispBase.typeMap[disp._tt][0];
+    }
+
+    static niceName(disp): string {
+        return DispBase.typeMap[disp._tt][1];
+    }
 
     static type(disp: DispBaseT): string {
         return disp._tt;
@@ -217,6 +252,14 @@ export abstract class DispBase {
     }
 
     // ---------------
+    // Create Handles
+
+    static handlePoints(disp, margin: number): PointI[] {
+        console.log(`ERROR: Handles not implemented for ${DispBase.typeOf(disp)}`);
+        return [];
+    }
+
+    // ---------------
     // Create Method
 
     static create(coordSet: ModelCoordSet, type): any {
@@ -276,16 +319,7 @@ export abstract class DispBase {
     // Represent the disp as a user friendly string
 
     static makeShapeStr(disp: DispBaseT): string {
-        let nameMap = {};
-        nameMap[DispBase.TYPE_DT] = 'Text';
-        nameMap[DispBase.TYPE_DPG] = 'Polygon';
-        nameMap[DispBase.TYPE_DPL] = 'Polyline';
-        nameMap[DispBase.TYPE_DE] = 'Ellipse';
-        nameMap[DispBase.TYPE_DG] = 'Group';
-        nameMap[DispBase.TYPE_DGP] = 'GroupPointer';
-        nameMap[DispBase.TYPE_DN] = 'Deleted Shape';
-
-        return `Type : ${nameMap[DispBase.type(disp)]}`;
+        return `Type : ${DispBase.niceName(disp)}`;
     }
 
     static cloneDisp(disp: DispBaseT): DispBaseT {

@@ -65,8 +65,12 @@ export class PeekCanvasInput {
         this.setDelegate(PeekCanvasInputSelectDelegate);
     };
 
-    selectedDelegate(): EditorToolType {
+    selectedDelegateType(): EditorToolType {
         return this.config.mouse.currentDelegateName;
+    }
+
+    selectedDelegate(): PeekCanvasInputDelegate {
+        return this._delegate;
     }
 
 // Creates an object with x and y defined, set to the mouse position relative to

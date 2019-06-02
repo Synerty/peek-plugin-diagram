@@ -1,56 +1,38 @@
-import {DispEllipse} from "./DispEllipse";
-import {DispText} from "./DispText";
-import {DispPolygon} from "./DispPolygon";
+import {DispBase} from "./DispBase";
 import {DispPolyline} from "./DispPolyline";
+import {DispPolygon} from "./DispPolygon";
+import {DispText} from "./DispText";
+import {DispEllipse} from "./DispEllipse";
 import {DispGroupPointer} from "./DispGroupPointer";
 import {DispGroup} from "./DispGroup";
 import {DispNull} from "./DispNull";
 
-export enum DispType {
-    ellipse,
-    polygon,
-    polyline,
-    text,
-    group,
-    groupPointer,
-    null_
 
-}
-
-/** Disp Base
- *
- * There will be potentially tens of thousands of disp object in memory at once.
- *
- * In order to reduce the overhead, These wrapper classes have been created entierly
- * statically.
- *
- * This way the code can benefit from typing while still maintaining the small footprint
- * of the disp objects.
- *
- * Who knows, maybe the data will converted from a json object to a packed string in
- * future.
- *
- */
 export class DispFactory {
 
+    private static _typeMapInit = false;
+    private static _typeMap = {};
 
-    private static typeMap = {
-        'DT': [DispType.text, DispText],
-        'DPG': [DispType.polygon, DispPolygon],
-        'DPL': [DispType.polyline, DispPolyline],
-        'DE': [DispType.ellipse, DispEllipse],
-        'DG': [DispType.group, DispGroup],
-        'DGP': [DispType.groupPointer, DispGroupPointer],
-        'DN': [DispType.null_, DispNull],
+    // Lazy instantiation, because the string types are defined elsewhere
+    private static get typeMap() {
+        if (!DispFactory._typeMapInit) {
+            DispFactory._typeMapInit = true;
+            DispFactory._typeMap[DispBase.TYPE_DT] = [DispText];
+            DispFactory._typeMap[DispBase.TYPE_DPG] = [DispPolygon];
+            DispFactory._typeMap[DispBase.TYPE_DPL] = [DispPolyline];
+            DispFactory._typeMap[DispBase.TYPE_DE] = [DispEllipse];
+            DispFactory._typeMap[DispBase.TYPE_DG] = [DispGroup];
+            DispFactory._typeMap[DispBase.TYPE_DGP] = [DispGroupPointer];
+            DispFactory._typeMap[DispBase.TYPE_DN] = [DispNull];
+        }
+
+        return DispFactory._typeMap;
     };
 
-    static type(disp): DispType {
+    static wrapper(disp): any {
         return DispFactory.typeMap[disp._tt][0];
     }
 
-    static wrapper(disp) {
-        return DispFactory.typeMap[disp._tt][1];
-    }
-
 
 }
+

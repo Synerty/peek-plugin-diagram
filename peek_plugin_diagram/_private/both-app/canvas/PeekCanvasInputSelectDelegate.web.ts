@@ -258,7 +258,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         switch (this._state) {
 
             case this.STATE_CANVAS_PANNING: {
-                let delta = this._setLastMousePos(mouse);
+                let delta = this._setLastMousePos(mouse, false);
                 // Dragging the mouse left makes a negative delta, we increase X
                 // Dragging the mouse up makes a negative delta, we increase Y
                 let oldPan = this.viewArgs.config.viewPort.pan;

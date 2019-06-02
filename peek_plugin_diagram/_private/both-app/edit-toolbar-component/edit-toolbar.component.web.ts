@@ -32,6 +32,7 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     private selectedTool(): EditorToolType {
         if (this.canvasEditor == null)
             return EditorToolType.SELECT_TOOL;
+
         return this.canvasEditor.selectedTool();
     }
 
@@ -51,10 +52,18 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     // Delete Shape
 
     deleteShape() {
-        let disps = this.canvasEditor.canvasModel.selection.selectedDisps();
-        this.canvasEditor.canvasModel.selection.clearSelection();
-        this.canvasEditor.branchContext.branchTuple.removeDisps(disps);
+        let delegate = <PeekCanvasInputEditSelectDelegate>
+            this.canvasEditor.canvasInput.selectedDelegate();
+
+        delegate.deleteSelectedDisps();
     }
+
+    isDeleteShapeActive(): boolean {
+        // console.log(`Tool=${this.selectedTool()}`);
+        return this.isEditSelectToolActive()
+            && this.canvasEditor.canvasModel.selection.selectedDisps().length != 0;
+    }
+
 
     // --------------------
     // Edit Make Text Tool

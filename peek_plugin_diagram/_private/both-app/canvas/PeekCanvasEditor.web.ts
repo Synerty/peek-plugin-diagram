@@ -143,7 +143,7 @@ export class PeekCanvasEditor {
     }
 
     selectedTool(): EditorToolType {
-        return this.canvasInput.selectedDelegate();
+        return this.canvasInput.selectedDelegateType();
     }
 
     isShapeSelected(): boolean {

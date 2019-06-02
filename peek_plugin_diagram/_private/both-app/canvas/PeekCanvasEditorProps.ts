@@ -1,12 +1,13 @@
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {PeekCanvasShapePropsContext} from "./PeekCanvasShapePropsContext";
-import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {PeekCanvasGroupPtrPropsContext} from "./PeekCanvasGroupPtrPropsContext";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
 import {DispGroupPointerT} from "../tuples/shapes/DispGroupPointer";
+import {DispBase, DispType} from "../tuples/shapes/DispBase";
+import {DispFactory} from "../tuples/shapes/DispFactory";
 
 export enum EditorContextType {
     NONE,
@@ -179,7 +180,7 @@ export class PeekCanvasEditorProps {
         }
 
         let disp = selectedDisps[0];
-        let dispGroupPtr = DispFactory.type(disp) == DispType.groupPointer
+        let dispGroupPtr = DispBase.typeOf(disp) == DispType.groupPointer
             ? <DispGroupPointerT>disp
             : model.query.dispGroupForDisp(disp);
 

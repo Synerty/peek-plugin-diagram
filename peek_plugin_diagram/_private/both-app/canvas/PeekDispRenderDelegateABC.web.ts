@@ -1,6 +1,7 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {PointI} from "../tuples/shapes/DispBase";
+import {DispFactory} from "../tuples/shapes/DispFactory";
 
 export abstract class PeekDispRenderDelegateABC {
 
@@ -16,9 +17,25 @@ export abstract class PeekDispRenderDelegateABC {
 
     abstract withIn(disp, x, y, w, h): boolean ;
 
-    abstract handles(disp): PeekCanvasBounds[];
-
     abstract area(disp): number;
+
+    handles(disp): PeekCanvasBounds[] {
+        const margin = this.config.editor.resizeHandleMargin;
+        const width = this.config.editor.resizeHandleWidth;
+
+        const handleCenters = DispFactory.wrapper(disp).handlePoints(disp, margin + width);
+
+        const halfWidth = width / 2.0;
+
+        const results: PeekCanvasBounds[] = [];
+        for (let p of handleCenters) {
+            results.push(
+                new PeekCanvasBounds(p.x - halfWidth, p.y - halfWidth, width, width)
+            );
+        }
+
+        return results;
+    }
 
 
 }

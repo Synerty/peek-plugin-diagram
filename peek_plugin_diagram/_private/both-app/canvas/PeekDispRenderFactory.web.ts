@@ -4,8 +4,7 @@ import {PeekDispRenderDelegateText} from "./PeekDispRenderDelegateText.web";
 import {PeekDispRenderDelegateEllipse} from "./PeekDispRenderDelegateEllipse.web";
 import {PeekDispRenderDelegateGroupPtr} from "./PeekDispRenderDelegateGroupPtr.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {DispBase, PointI} from "../tuples/shapes/DispBase";
-import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
+import {DispBase, DispType, PointI} from "../tuples/shapes/DispBase";
 import {PeekDispRenderDelegateNull} from "./PeekDispRenderDelegateNull.web";
 
 
@@ -20,14 +19,13 @@ export class PeekDispRenderFactory {
         let groupPtrDelegate = new PeekDispRenderDelegateGroupPtr(config);
         let nullDelegate = new PeekDispRenderDelegateNull(config);
 
-        this._delegatesByType = {
-            'DT': textDelegate,
-            'DPG': polyDelegate,
-            'DPL': polyDelegate,
-            'DE': ellipseDelegate,
-            'DGP': groupPtrDelegate,
-            'DN': nullDelegate
-        };
+        this._delegatesByType = {};
+        this._delegatesByType[DispBase.TYPE_DT] = textDelegate;
+        this._delegatesByType[DispBase.TYPE_DPG] = polyDelegate;
+        this._delegatesByType[DispBase.TYPE_DPL] = polyDelegate;
+        this._delegatesByType[DispBase.TYPE_DE] = ellipseDelegate;
+        this._delegatesByType[DispBase.TYPE_DGP] = groupPtrDelegate;
+        this._delegatesByType[DispBase.TYPE_DN] = nullDelegate;
 
     }
 
@@ -47,24 +45,36 @@ export class PeekDispRenderFactory {
         if (this._delegatesByType[disp._tt] == null)
             console.log(disp._tt);
 
-        // HACK!!!!!
-        if (forEdit && disp.bounds && !disp.lcl && !disp.fcl && !disp.cl) {
-            // DRAW THE invisible BOX
-            let selectionConfig = this.config.renderer.invisible;
-
-            let b = disp.bounds;
-
-            ctx.dashedRect(b.x, b.y, b.w, b.h, selectionConfig.dashLen / zoom);
-            ctx.strokeStyle = selectionConfig.color;
-            ctx.lineWidth = selectionConfig.width / zoom;
-            ctx.stroke();
-        }
-
         this._delegatesByType[disp._tt].draw(disp, ctx, zoom, pan);
+
+        // Show invisible objects
+        if (forEdit)
+            this.drawInvisible(disp, ctx, zoom, pan);
     };
 
+    private drawInvisible(disp, ctx, zoom: number, pan: PointI) {
+        if (disp.lcl || disp.fcl || disp.cl)
+            return;
+
+        if (!disp.bounds)
+            return;
+
+        if (DispBase.typeOf(disp) == DispType.null_)
+            return;
+
+        // DRAW THE invisible BOX
+        let selectionConfig = this.config.renderer.invisible;
+
+        let b = disp.bounds;
+
+        ctx.dashedRect(b.x, b.y, b.w, b.h, selectionConfig.dashLen / zoom);
+        ctx.strokeStyle = selectionConfig.color;
+        ctx.lineWidth = selectionConfig.width / zoom;
+        ctx.stroke();
+    }
+
     drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
-        this._delegatesByType[disp._tt].drawSelected(disp, ctx, zoom, pan);
+        this._delegatesByType[disp._tt].drawSelected(disp, ctx, zoom, pan, forEdit);
     };
 
     contains(disp, x, y, margin) {
@@ -93,12 +103,12 @@ export class PeekDispRenderFactory {
 
     selectionPriorityCompare(disp1, disp2): number {
 
-        if (DispFactory.type(disp1) == DispType.groupPointer
-            && DispFactory.type(disp2) != DispType.groupPointer)
+        if (DispBase.typeOf(disp1) == DispType.groupPointer
+            && DispBase.typeOf(disp2) != DispType.groupPointer)
             return 1;
 
-        if (DispFactory.type(disp1) == DispType.polygon
-            && DispFactory.type(disp2) != DispType.polygon)
+        if (DispBase.typeOf(disp1) == DispType.polygon
+            && DispBase.typeOf(disp2) != DispType.polygon)
             return 1;
 
 

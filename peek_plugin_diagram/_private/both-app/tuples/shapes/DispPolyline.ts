@@ -1,5 +1,5 @@
 import {DispPoly, DispPolyT} from "./DispPoly";
-import {DispBase, PointI} from "./DispBase";
+import {DispBase, DispType, PointI} from "./DispBase";
 import {PeekCanvasShapePropsContext} from "../../canvas/PeekCanvasShapePropsContext";
 import {DispTextT} from "./DispText";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
@@ -34,6 +34,34 @@ export class DispPolyline extends DispPoly {
         return disp.ek;
     }
 
+    /** Start End Keys
+     *
+     * This method returns a unique list af the start and end keys of the selected
+     * polylines.
+     *
+     * Non-polylines are ignored.
+     *
+     * @param disps: A list of shapes
+     * @return: A list of start and end keys
+     */
+    static startEndKeys(disps: any[]): string[] {
+        let keysDict = {};
+        for (let disp of disps) {
+            if (DispBase.typeOf(disp) != DispType.polyline)
+                continue;
+
+            let startKey = DispPolyline.startKey(disp);
+            let endKey = DispPolyline.endKey(disp);
+
+            if (startKey != null)
+                keysDict[startKey] = true;
+
+            else if (endKey != null)
+                keysDict[endKey] = true;
+        }
+        return Object.keys(keysDict);
+    }
+
     static deltaMoveStart(disp: any, dx: number, dy: number) {
         disp.g[0] += dx;
         disp.g[1] += dy;
@@ -51,7 +79,7 @@ export class DispPolyline extends DispPoly {
     }
 
     static create(coordSet: ModelCoordSet): DispPolylineT {
-        return <DispPolylineT> DispPoly.create(coordSet, DispBase.TYPE_DPL);
+        return <DispPolylineT>DispPoly.create(coordSet, DispBase.TYPE_DPL);
     }
 
     static makeShapeContext(context: PeekCanvasShapePropsContext): void {
@@ -66,5 +94,95 @@ export class DispPolyline extends DispPoly {
         let center = DispPolyline.center(disp);
         return DispBase.makeShapeStr(disp)
             + `\nAt : ${parseInt(<any>center.x)}x${parseInt(<any>center.y)}`;
+    }
+
+
+    // ---------------
+    // Generate a list of handles to edit this shape
+
+    static isStartHandle(disp, handleIndex: number): boolean {
+        if (DispBase.typeOf(disp) != DispType.polyline)
+            return false;
+
+        return handleIndex == 0;
+    }
+
+
+    static isEndHandle(disp, handleIndex: number): boolean {
+        if (DispBase.typeOf(disp) != DispType.polyline)
+            return false;
+
+        return handleIndex == DispPolyline.geom(disp).length / 2 - 1;
+    }
+
+    static handlePoints(disp, margin: number): PointI[] {
+        let result = [];
+
+        let points = DispPolyline.geom(disp);
+
+        function addHandle(p, ref) {
+            let adj = (p.x - ref.x);
+            let opp = (p.y - ref.y);
+            let hypot = Math.sqrt(Math.pow(adj, 2) + Math.pow(opp, 2));
+
+            let multiplier = margin / hypot;
+
+            result.push({x: p.x + adj * multiplier, y: p.y + opp * multiplier});
+        }
+
+
+        //function rotatePoint(point, theta) {
+        //    // Rotates the given polygon which consists of corners represented as (x,y),
+        //    // around the ORIGIN, clock-wise, theta degrees
+        //    let simTheta = Math.sin(theta);
+        //    let cosTheta = Math.cos(theta);
+        //
+        //    return {
+        //        x: point.x * cosTheta - point.y * simTheta,
+        //        y: point.y = point.x * simTheta + point.y * cosTheta
+        //    };
+        //}
+        //
+        // //
+        // // Calculates the angle ABC (in radians)
+        // //
+        // // A first point
+        // // C second point
+        // // B center point
+        // //
+        //
+        //function findAngle(A, B, C) {
+        //    let AB = Math.sqrt(Math.pow(B.x - A.x, 2) + Math.pow(B.y - A.y, 2));
+        //    let BC = Math.sqrt(Math.pow(B.x - C.x, 2) + Math.pow(B.y - C.y, 2));
+        //    let AC = Math.sqrt(Math.pow(C.x - A.x, 2) + Math.pow(C.y - A.y, 2));
+        //    return Math.acos((BC * BC + AB * AB - AC * AC) / (2 * BC * AB));
+        //}
+
+        function pointForIndex(index: number) {
+            index *= 2;
+            return {x: points[index], y: points[index + 1]};
+        }
+
+
+        let firstXy = {x: points[0], y: points[1]};
+        addHandle(pointForIndex(0), pointForIndex(1));
+
+        let lastXy = firstXy;
+        for (let i = 1; i < points.length / 2; ++i) {
+            let thisXy = pointForIndex(i);
+            let refXy = lastXy;
+            if (i + 2 < points.length / 2) {
+                let nextXy = pointForIndex(i + 1);
+
+                //let angle = findAngle(lastXy, thisXy, nextXy);
+                //refXy = rotatePoint({x:lastXy.x - this.left, y:lastXy.y - this.top}, angle / 2);
+
+                refXy.x = (lastXy.x + nextXy.x) / 2;
+                refXy.y = (lastXy.y + nextXy.y) / 2;
+            }
+            addHandle(thisXy, refXy);
+        }
+
+        return result;
     }
 }

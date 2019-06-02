@@ -1,10 +1,8 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {DispPolygon} from "../tuples/shapes/DispPolygon";
-import {PointI, PointsT} from "../tuples/shapes/DispBase";
-import {DispFactory, DispType} from "../tuples/shapes/DispFactory";
+import {DispBase, DispType, PointI, PointsT} from "../tuples/shapes/DispBase";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {DispPolyline} from "../tuples/shapes/DispPolyline";
 
 export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
@@ -43,7 +41,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     };
 
     draw(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
-        let isPolygon = DispFactory.type(disp) == DispType.polygon;
+        let isPolygon = DispBase.typeOf(disp) == DispType.polygon;
 
         let fillColor = isPolygon ? DispPolygon.fillColor(disp) : null;
         let lineColor = DispPolygon.lineColor(disp);
@@ -212,7 +210,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         if (!PeekCanvasBounds.fromGeom(points).contains(x, y, margin))
             return false;
 
-        if (DispFactory.type(dispPoly) == DispType.polygon)
+        if (DispBase.typeOf(dispPoly) == DispType.polygon)
             return this.polygonContains(points, dispPoly, x, y, margin);
 
         return this.polylineContains(points, dispPoly, x, y, margin);
@@ -333,83 +331,6 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
     withIn(dispPoly, x, y, w, h) {
         return false;
-    }
-
-    handles(dispPoly) {
-        let result = [];
-
-        let MARG = this.config.editor.resizeHandleMargin;
-        let WID = this.config.editor.resizeHandleWidth;
-        let HALF_WID = WID / 2.0;
-
-        let points = DispPolyline.geom(dispPoly);
-
-        function addHandle(p, ref) {
-            let adj = (p.x - ref.x);
-            let opp = (p.y - ref.y);
-            let hypot = Math.sqrt(Math.pow(adj, 2) + Math.pow(opp, 2));
-
-            let multiplier = (WID + MARG) / hypot;
-
-            result.push(new PeekCanvasBounds(p.x + adj * multiplier - HALF_WID,
-                p.y + opp * multiplier - HALF_WID,
-                WID,
-                WID));
-        }
-
-        function coordForPoint(index: number) {
-            index *= 2;
-            return {x: points[index], y: points[index + 1]};
-        }
-
-
-        //function rotatePoint(point, theta) {
-        //    // Rotates the given polygon which consists of corners represented as (x,y),
-        //    // around the ORIGIN, clock-wise, theta degrees
-        //    let simTheta = Math.sin(theta);
-        //    let cosTheta = Math.cos(theta);
-        //
-        //    return {
-        //        x: point.x * cosTheta - point.y * simTheta,
-        //        y: point.y = point.x * simTheta + point.y * cosTheta
-        //    };
-        //}
-        //
-        // //
-        // // Calculates the angle ABC (in radians)
-        // //
-        // // A first point
-        // // C second point
-        // // B center point
-        // //
-        //
-        //function findAngle(A, B, C) {
-        //    let AB = Math.sqrt(Math.pow(B.x - A.x, 2) + Math.pow(B.y - A.y, 2));
-        //    let BC = Math.sqrt(Math.pow(B.x - C.x, 2) + Math.pow(B.y - C.y, 2));
-        //    let AC = Math.sqrt(Math.pow(C.x - A.x, 2) + Math.pow(C.y - A.y, 2));
-        //    return Math.acos((BC * BC + AB * AB - AC * AC) / (2 * BC * AB));
-        //}
-
-        let firstXy = {x: points[0], y: points[1]};
-        addHandle(coordForPoint(0), coordForPoint(1));
-
-        let lastXy = firstXy;
-        for (let i = 1; i < points.length / 2; ++i) {
-            let thisXy = coordForPoint(i);
-            let refXy = lastXy;
-            if (i + 2 < points.length / 2) {
-                let nextXy = coordForPoint(i + 1);
-
-                //let angle = findAngle(lastXy, thisXy, nextXy);
-                //refXy = rotatePoint({x:lastXy.x - this.left, y:lastXy.y - this.top}, angle / 2);
-
-                refXy.x = (lastXy.x + nextXy.x) / 2;
-                refXy.y = (lastXy.y + nextXy.y) / 2;
-            }
-            addHandle(thisXy, refXy);
-        }
-
-        return result;
     }
 
     area(dispPoly) {

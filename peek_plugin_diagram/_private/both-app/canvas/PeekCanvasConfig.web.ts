@@ -92,9 +92,9 @@ export class PeekCanvasConfig {
         active: false,
         resizeHandleMargin: 3.0,
         resizeHandleWidth: 6.0,
-        selectionHighlightColor: '#3399FF',
+        selectionHighlightColor: 'orange',
         activeBranchTuple: null,
-        snapToGrid: true,
+        snapToGrid: false,
         snapSize: 4
     };
 

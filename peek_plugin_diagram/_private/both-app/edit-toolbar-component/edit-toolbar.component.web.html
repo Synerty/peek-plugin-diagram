@@ -31,6 +31,8 @@
         </button>
         -->
         <button class="btn"
+                [disabled]="!isDeleteShapeActive()"
+                [class.disabled]="!isDeleteShapeActive()"
                 (click)="deleteShape()"
                 data-toggle="tooltip" data-placement="top"
                 title="Delete Shape">

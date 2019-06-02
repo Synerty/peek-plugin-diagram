@@ -49,12 +49,22 @@ export class PeekCanvasModelQuery {
         return this.model.selection.selectedDisps();
     }
 
-    get selectedDispGroupPtrs(): any[] {
-        return this.model.selection.selectedDisps();
+    dispsForKeys(keys:string[]): any[] {
+        let keyDict = {};
+        for (let key of keys)
+            keyDict[key] = true;
+
+        let resultDisps = [];
+        for (let disp of this.viewableDisps) {
+            if (keyDict[DispBase.key(disp)] != null)
+                resultDisps.push(disp);
+        }
+
+        return resultDisps;
     }
 
     get dispsInSelectedGroups(): any[] {
-        return this._dispsForGroups(this.selectedDisps);
+        return this.dispsForGroups(this.selectedDisps);
     }
 
 
@@ -78,10 +88,10 @@ export class PeekCanvasModelQuery {
     }
 
     dispsInSameGroup(refDisp): any[] {
-        return this._dispsForGroups([refDisp]);
+        return this.dispsForGroups([refDisp]);
     }
 
-    private _dispsForGroups(disps: any[]): any[] {
+    dispsForGroups(disps: any[]): any[] {
         let result = [];
         let selectedGroupIds = {};
         let groupIdsFound = false;

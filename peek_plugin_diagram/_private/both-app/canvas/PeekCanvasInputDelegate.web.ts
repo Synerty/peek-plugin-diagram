@@ -23,6 +23,13 @@ export class CanvasInputPos {
     time: Date = new Date();
 }
 
+export class CanvasInputDeltaI {
+    dx: number = 0;
+    dy: number = 0;
+    dClientX: number = 0;
+    dClientY: number = 0;
+}
+
 export interface InputDelegateConstructorArgs {
     input: PeekCanvasInput;
     config: PeekCanvasConfig;
@@ -109,22 +116,23 @@ export abstract class PeekCanvasInputDelegate {
      *
      * Sets the last mouse pos depending on the snap
      *
-     * @param the
-     *            current mouse object
+     * @param the current mouse object
      * @return An object containing the delta
      */
-    protected _setLastMousePos(inputPos: CanvasInputPos) {
+    protected _setLastMousePos(inputPos: CanvasInputPos, snapping = true): CanvasInputDeltaI {
 
         let dx = inputPos.x - this._lastMousePos.x;
         let dy = inputPos.y - this._lastMousePos.y;
         let dClientX = inputPos.clientX - this._lastMousePos.clientX;
         let dClientY = inputPos.clientY - this._lastMousePos.clientY;
 
-        //if (editorUi.grid.snapping()) {
-        //	let snapSize = editorUi.grid.snapSize();
-        //	dx = Coord.snap(dx, snapSize);
-        //	dy = Coord.snap(dy, snapSize);
-        //}
+        if (snapping && this.viewArgs.config.editor.snapToGrid) {
+            let snapSize = this.viewArgs.config.editor.snapSize;
+            dx = dx - dx % snapSize;
+            dy = dy - dy % snapSize;
+            dClientX = dClientX - dClientX % snapSize;
+            dClientY = dClientY - dClientY % snapSize;
+        }
 
         this._lastMousePos.x += dx;
         this._lastMousePos.y += dy;
@@ -138,6 +146,7 @@ export abstract class PeekCanvasInputDelegate {
             dClientY: dClientY
         };
     };
+
 
     protected _addBranchAnchor(x: number, y: number): void {
         if (this.canvasEditor.branchContext == null)

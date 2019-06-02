@@ -74,6 +74,9 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
         # individual branches.
         for branch in updatedBranches:
             try:
+                if str(branch.id).startswith("NEW_"):
+                    branch.id = None
+
                 if branch.id is None:
                     branchIndex = dbSession.query(BranchIndex) \
                         .filter(BranchIndex.coordSetId == branch.coordSetId) \
