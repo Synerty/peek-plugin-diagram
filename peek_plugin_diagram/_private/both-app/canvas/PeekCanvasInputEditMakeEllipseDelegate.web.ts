@@ -88,20 +88,16 @@ export class PeekCanvasInputEditMakeEllipseDelegate
     // Start logic
     private inputStart(inputPos: CanvasInputPos) {
         this._lastMousePos = inputPos;
-        if (!this._creating)
+        if (!this._creating) {
             this._startMousePos = inputPos;
+            this.createDisp(inputPos);
+        }
+
     }
 
     private inputMove(inputPos: CanvasInputPos) {
         if (this._startMousePos == null)
             return;
-
-        if (!this._creating) {
-            // if (!this._hasPassedDragThreshold(this._startMousePos, inputPos))
-            //     return;
-
-            this.createDisp(inputPos);
-        }
 
         // if (editorUi.grid.snapping())
         //     this._creating.snap(editorUi.grid.snapSize());
@@ -116,10 +112,11 @@ export class PeekCanvasInputEditMakeEllipseDelegate
 
         this.updateSize(inputPos);
 
-        // if (!this._hasPassedDragThreshold(this._lastMousePos, inputPos)) {
+        if (!this._hasPassedDragThreshold(this._startMousePos, inputPos))
+            return;
+
         this._finaliseCreate();
         this._reset();
-        // }
     }
 
     private updateSize(inputPos: CanvasInputPos) {

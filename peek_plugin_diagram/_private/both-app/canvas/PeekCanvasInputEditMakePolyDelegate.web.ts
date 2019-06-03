@@ -187,7 +187,6 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         if (!this._hasPassedDragThreshold(this._startMousePos, inputPos))
             return;
 
-
         if (this.NAME == EditorToolType.EDIT_MAKE_LINE_WITH_ARROW
             && DispPoly.pointCount(this._creating) == 2) {
             this._finaliseCreate();

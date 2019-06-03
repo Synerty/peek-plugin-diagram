@@ -48,7 +48,7 @@ export abstract class PeekCanvasInputDelegate {
     _lastMousePos: CanvasInputPos = new CanvasInputPos();
 
     /** The distance to move before its a drag * */
-    readonly DRAG_START_THRESHOLD = 5;
+    readonly DRAG_START_THRESHOLD = 10;
 
     /** The time it takes to do a click, VS a click that moved slightly * */
     readonly DRAG_TIME_THRESHOLD = 200;
