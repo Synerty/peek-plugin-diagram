@@ -1,14 +1,20 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {DispPolygon} from "../tuples/shapes/DispPolygon";
-import {DispBase, DispType, PointI, PointsT} from "../tuples/shapes/DispBase";
+import {DispBase, DispBaseT, DispType, PointI, PointsT} from "../tuples/shapes/DispBase";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {DispTextT} from "../tuples/shapes/DispText";
 
 export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
     constructor(config: PeekCanvasConfig) {
         super(config);
 
+    }
+
+    updateBounds(disp: DispBaseT): void {
+        let geom = DispPolygon.geom(disp);
+        disp.bounds = PeekCanvasBounds.fromGeom(geom);
     }
 
 
@@ -56,8 +62,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         fillColor = (fillColor && fillColor.color) ? fillColor : null;
         lineColor = (lineStyle && lineColor && lineColor.color) ? lineColor : null;
 
-        let points = DispPolygon.geom(disp);
-        disp.bounds = PeekCanvasBounds.fromGeom(points);
+        let geom = DispPolygon.geom(disp);
 
         // If there are no colours defined then this is a selectable only shape
         if (!fillColor && !lineColor)
@@ -66,17 +71,17 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         let fillDirection = DispPolygon.fillDirection(disp);
         let fillPercentage = DispPolygon.fillPercent(disp);
 
-        let firstPointX = points[0]; // get details of point
-        let firstPointY = points[1]; // get details of point
+        let firstPointX = geom[0]; // get details of point
+        let firstPointY = geom[1]; // get details of point
 
         // Fill the background first, if required
         if (lineColor && lineStyle.backgroundFillDashSpace && dashPattern) {
             ctx.beginPath();
             ctx.moveTo(firstPointX, firstPointY);
 
-            for (let i = 2; i < points.length; i += 2) {
-                let pointX = points[i];
-                let pointY = points[i + 1];
+            for (let i = 2; i < geom.length; i += 2) {
+                let pointX = geom[i];
+                let pointY = geom[i + 1];
                 ctx.lineTo(pointX, pointY);
             }
 
@@ -91,9 +96,9 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         let lastPointX = firstPointX;
         let lastPointY = firstPointY;
 
-        for (let i = 2; i < points.length; i += 2) {
-            let pointX = points[i];
-            let pointY = points[i + 1];
+        for (let i = 2; i < geom.length; i += 2) {
+            let pointX = geom[i];
+            let pointY = geom[i + 1];
 
             // Draw the segment
             this._drawLine(ctx,
@@ -108,7 +113,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             if (lastPointX != firstPointX || lastPointY != firstPointY) {
                 this._drawLine(ctx,
                     lastPointX, lastPointY, firstPointX, firstPointY,
-                    dashPattern, zoom, points.length);
+                    dashPattern, zoom, geom.length);
             }
             ctx.closePath();
         }
@@ -123,7 +128,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         if (fillColor) {
             if (isPolygon && fillDirection != null && fillPercentage != null) {
                 this._drawSquarePercentFill(ctx,
-                    PeekCanvasBounds.fromGeom(points),
+                    PeekCanvasBounds.fromGeom(geom),
                     lineColor, fillDirection, fillPercentage
                 );
             } else {
@@ -166,12 +171,12 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     }
 
     drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
-        let points = DispPolygon.geom(disp);
+        let geom = DispPolygon.geom(disp);
 
         let selectionConfig = this.config.renderer.selection;
 
         // DRAW THE SELECTED BOX
-        let bounds = PeekCanvasBounds.fromGeom(points);
+        let bounds = PeekCanvasBounds.fromGeom(geom);
 
         // Move the selection line a bit away from the object
         let offset = (selectionConfig.width + selectionConfig.lineGap) / zoom;
@@ -187,14 +192,16 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         ctx.lineWidth = selectionConfig.width / zoom;
         ctx.stroke();
 
-        if (forEdit) {
-            // DRAW THE EDIT HANDLES
-            ctx.fillStyle = this.config.editor.selectionHighlightColor;
-            let handles = this.handles(disp);
-            for (let handle of handles) {
-                ctx.fillRect(handle.x, handle.y, handle.w, handle.h);
-            }
+    }
+
+    drawEditHandles(disp, ctx, zoom: number, pan: PointI) {
+        // DRAW THE EDIT HANDLES
+        ctx.fillStyle = this.config.editor.selectionHighlightColor;
+        let handles = this.handles(disp);
+        for (let handle of handles) {
+            ctx.fillRect(handle.x, handle.y, handle.w, handle.h);
         }
+
     }
 
     /** Contains
@@ -205,15 +212,15 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
      @returns boolean: True if x and y are on this display object
      */
     contains(dispPoly, x: number, y: number, margin: number): boolean {
-        let points = DispPolygon.geom(dispPoly);
+        let geom = DispPolygon.geom(dispPoly);
 
-        if (!PeekCanvasBounds.fromGeom(points).contains(x, y, margin))
+        if (!PeekCanvasBounds.fromGeom(geom).contains(x, y, margin))
             return false;
 
         if (DispBase.typeOf(dispPoly) == DispType.polygon)
-            return this.polygonContains(points, dispPoly, x, y, margin);
+            return this.polygonContains(geom, dispPoly, x, y, margin);
 
-        return this.polylineContains(points, dispPoly, x, y, margin);
+        return this.polylineContains(geom, dispPoly, x, y, margin);
     }
 
     private polygonContains(points: PointsT, dispPoly,
@@ -329,11 +336,11 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
     }
 
-    withIn(dispPoly, x, y, w, h) {
-        return false;
-    }
+    withIn(disp: DispTextT, x, y, w, h): boolean {
+        return disp.bounds == null ? false : disp.bounds.withIn(x, y, w, h);
+    };
 
-    area(dispPoly) {
-        return 0;
-    }
+    area(disp) {
+        return disp.bounds == null ? 0 : disp.bounds.area();
+    };
 }

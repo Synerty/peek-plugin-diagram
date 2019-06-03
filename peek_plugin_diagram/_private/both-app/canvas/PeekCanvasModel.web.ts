@@ -271,6 +271,7 @@ export class PeekCanvasModel {
         }
 
         // Include the active branch
+        let isEditorActive = this.config.editor.active;
         let activeBranch = this.config.editor.activeBranchTuple;
         if (activeBranch != null) {
             for (let branchDisp of activeBranch.disps)
@@ -307,7 +308,7 @@ export class PeekCanvasModel {
                 let layer: DispLayer = <DispLayer>layersOrderedByOrder[layerIndex];
 
                 // If it's not visible (enabled), continue
-                if (!layer.visible)
+                if (!layer.visible && !isEditorActive)
                     continue;
 
                 for (let gridOrBranch of gridsOrBranchesToCompile) {

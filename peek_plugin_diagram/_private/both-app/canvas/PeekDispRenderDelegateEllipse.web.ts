@@ -1,15 +1,35 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
-import {DispEllipse} from "../tuples/shapes/DispEllipse";
+import {DispEllipse, DispEllipseT} from "../tuples/shapes/DispEllipse";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {DispTextT} from "../tuples/shapes/DispText";
-import {PointI} from "../tuples/shapes/DispBase";
+import {DispBaseT, PointI} from "../tuples/shapes/DispBase";
 
 export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
 
     constructor(config: PeekCanvasConfig) {
         super(config);
 
+    }
+
+    updateBounds(disp:DispBaseT): void {
+        let ellipse = <DispEllipseT> disp;
+
+        let centerX = DispEllipse.centerPointX(ellipse);
+        let centerY = DispEllipse.centerPointY(ellipse);
+        let xRadius = DispEllipse.xRadius(ellipse);
+        let yRadius = DispEllipse.yRadius(ellipse);
+
+        //self._bounds.x = self.left;
+        //self._bounds.y = self.top;
+        //self._bounds.w = self.width;
+        //self._bounds.h = self.height;
+        disp.bounds = new PeekCanvasBounds(
+            centerX - xRadius,
+            centerY - yRadius,
+            2 * xRadius,
+            2 * yRadius
+        );
     }
 
 
@@ -30,9 +50,6 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
         let lineWidth = DispEllipse.lineWidth(disp);
 
         let yScale = yRadius / xRadius;
-
-        let centerX = DispEllipse.centerPointX(disp);
-        let centerY = DispEllipse.centerPointY(disp);
 
         // save state
         ctx.save();
@@ -61,18 +78,7 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
 
         // restore to original state
         ctx.restore();
-
-        //self._bounds.x = self.left;
-        //self._bounds.y = self.top;
-        //self._bounds.w = self.width;
-        //self._bounds.h = self.height;
-        disp.bounds = new PeekCanvasBounds(
-            centerX - xRadius,
-            centerY - yRadius,
-            2 * xRadius,
-            2 * yRadius
-        );
-    };
+    }
 
     drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
         let bounds = disp.bounds;
@@ -95,23 +101,23 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
         ctx.strokeStyle = selectionConfig.color;
         ctx.lineWidth = selectionConfig.width / zoom;
         ctx.stroke();
-    };
+    }
+
+    drawEditHandles(disp, ctx, zoom: number, pan: PointI) {
+
+    }
 
     contains(disp: DispTextT, x, y, margin) {
         return disp.bounds == null ? false : disp.bounds.contains(x, y, margin);
-    };
+    }
 
     withIn(disp: DispTextT, x, y, w, h): boolean {
         return disp.bounds == null ? false : disp.bounds.withIn(x, y, w, h);
-    };
-
-    handles(disp) {
-        return [];
-    };
+    }
 
     area(disp) {
         return disp.bounds == null ? 0 : disp.bounds.area();
-    };
+    }
 
 
 }

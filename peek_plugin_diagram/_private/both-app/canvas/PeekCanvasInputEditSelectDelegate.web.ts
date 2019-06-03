@@ -53,10 +53,8 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     private _mouseDownOnHandle: HandleI | null = null;
 
 
-    private _selectionRelatedDisps: any[] = [];
+    private _selectedDispsToMove: any[] = [];
     private _selectedPolylineEnds: PolylineEnd[] = [];
-
-    private _needsDispsAddedToBranchForUpdate: boolean = false;
 
     private _lastPinchDist = null;
 
@@ -83,7 +81,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this._mouseDownMiddleButton = false;
         this._mouseDownRightButton = false;
         this._mouseDownOnHandle = null;
-        this._needsDispsAddedToBranchForUpdate = false;
 
         this._lastPinchDist = null;
 
@@ -516,7 +513,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     private _selectByBox(inputPos1: CanvasInputPos, inputPos2: CanvasInputPos) {
         let coords = this.viewArgs.model.viewableDisps();
 
-        let b = PeekCanvasBounds.fromGeom([inputPos1, inputPos2]);
+        let b = PeekCanvasBounds.fromPoints([inputPos1, inputPos2]);
 
         return coords.filter(
             i => this.viewArgs.renderFactory.withIn(i, b.x, b.y, b.w, b.h)
@@ -550,13 +547,16 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
                 this.viewArgs.model.selection.replaceSelection(hits);
         }
 
+        for (let disp of this.viewArgs.model.selection.selectedDisps())
+            console.log(disp);
+
     }
 
     // ------------------------------------------------------------------------
     // Methods for setting the selection based on hits
 
     private prepareHandleMove() {
-        this._selectionRelatedDisps = [];
+        this._selectedDispsToMove = [];
         this._selectedPolylineEnds = [];
 
         const h = this._mouseDownOnHandle;
@@ -582,77 +582,72 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         }
 
         // ELSE, We need to
-        // 1) Add all the ends that have a matching key
-        // 2) Add all the shapes that have a matching key
-        // 3) Add all shapes in the groups of those shapes
+        // 1) Add all the shapes that have a matching key
+        // 2) Add all shapes in the groups of those shapes
+        // 3) Add all the ends that have keys matching keys of any of the shapes so far
 
-        // This IS the end of the polyline
-        // this._selectedPolylineEnds.add(this.viewArgs.model.query
-        //     .polylinesConnectedToDispKey(DispBase.keys(this._selectionRelatedDisps))
-        // );
+        const q = this.viewArgs.model.query;
 
-    }
+        // Get all the shapes for the starting key
+        let disps = q.dispsForKeys([key]);
 
-    /*
-    private prepareSelectionForPolylineLineEndMove() {
-        this._selectionRelatedDisps = [];
-        this._selectedPolylineEnds = [];
+        // Get all disps in the groups that we're moving
+        disps = q.uniqueDisps(disps.add(q.dispsForGroups(disps.slice())));
+        this._selectedDispsToMove = disps;
 
-        this._selectionRelatedDisps.add(this.viewArgs.model.query.dispsInSelectedGroups);
-        // If we have polylines selected, add the shapes they are connected to as well
-        // let dispKeysAtEndsOfPolylines = DispPolyline
-        //     .startEndKeys(this.viewArgs.model.selection.selectedDisps());
-
-
-        this._selectedPolylineEnds.add(this.viewArgs.model.query
-            .polylinesConnectedToDispKey(DispBase.keys(this._selectionRelatedDisps))
-        );
+        // Get all the polyline ends that land of the keys we're moving
+        this._selectedPolylineEnds = q.polylinesConnectedToDispKey(q.keyOfDisps(disps));
 
     }
-    */
 
     private prepareSelectionForMove() {
-        this._selectionRelatedDisps = [];
+        this._selectedDispsToMove = [];
         this._selectedPolylineEnds = [];
+        const q = this.viewArgs.model.query;
 
-        let keysBeingMoved = [];
+        // Lookup of IDs that are the polylines we're moving
+        const polylineIds = {};
 
-        for (let disp of this.viewArgs.model.selection.selectedDisps()) {
-            if (DispBase.typeOf(disp) == DispType.polyline)
-                this.prepareSelectionForPolylineMove();
-            else
-                this.prepareSelectionForNodeMove();
+        // All the disps with the same key
+        let disps: any[] = q.dispsForKeys(q.keyOfDisps(
+            this.viewArgs.model.selection.selectedDisps()
+        ));
+
+        // all the disps that have matching keys
+        disps.add(this.viewArgs.model.selection.selectedDisps());
+
+        // Filter out the duplicates
+        disps = q.uniqueDisps(disps);
+
+        // List of all the keys being moved
+        let polylineEndKeys = [];
+
+        // Create a list of all the keys we're moving
+        for (let disp of disps) {
+            if (DispBase.typeOf(disp) == DispType.polyline) {
+                polylineIds[DispBase.id(disp)] = true;
+                polylineEndKeys.push(DispPolyline.startKey(disp));
+                polylineEndKeys.push(DispPolyline.endKey(disp));
+            }
         }
+        // filter out nulls
+        polylineEndKeys = polylineEndKeys.filter(k => k != null);
+
+        // Now get all the disps we're moving at the end of the polylines
+        disps.add(q.dispsForKeys(polylineEndKeys));
+
+        // Get all the groups for the disps we're moving
+        disps = q.uniqueDisps(disps.add(q.dispsForGroups(disps.slice())));
+        this._selectedDispsToMove = disps;
+
+        // We want to include all disp keys and each end of all polylines we're moving
+        polylineEndKeys.add(q.keyOfDisps(disps));
+        // Get all the polyline ends that land of the keys we're moving
+        // Filter out the polylines we're moving in full
+        this._selectedPolylineEnds = q.polylinesConnectedToDispKey(polylineEndKeys)
+            .filter(e => !polylineIds[DispBase.id(e.polylineDisp)]);
+
     }
-
-    private prepareSelectionForNodeMove() {
-
-        this._selectionRelatedDisps.add(this.viewArgs.model.query.dispsInSelectedGroups);
-        // If we have polylines selected, add the shapes they are connected to as well
-        // let dispKeysAtEndsOfPolylines = DispPolyline
-        //     .startEndKeys(this.viewArgs.model.selection.selectedDisps());
-
-
-        this._selectedPolylineEnds.add(this.viewArgs.model.query
-            .polylinesConnectedToDispKey(DispBase.keys(this._selectionRelatedDisps))
-        );
-    }
-
-    private prepareSelectionForPolylineMove() {
-
-        // // Select all the other polyline ends being moved
-        // let keysBeingMoved = DispBase.keys(this._selectedDisps);
-        // keysBeingMoved.add(dispKeysAtEndsOfPolylines);
-        // this._selectedPolylineEnds = this.viewArgs.model.query
-        //     .polylinesConnectedToDispKey(keysBeingMoved);
-        //
-        //
-        // let dispsBeingMovedByKey = this.viewArgs.model.query.dispsForKeys(keysBeingMoved);
-        // this._selectedDisps.add(
-        //     this.viewArgs.model.query.dispsForGroups(dispsBeingMovedByKey)
-        // )
-
-    };
 
     /** Add Disps To Branch For Update
      *
@@ -663,7 +658,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
      */
     private addDispsToBranchForUpdate(inputPos: CanvasInputPos) {
         let primarySelections = this.viewArgs.model.selection.selectedDisps();
-        let groupSelections = this.viewArgs.model.query.dispsInSelectedGroups;
+        let groupSelections = this._selectedDispsToMove;
 
         primarySelections = this.canvasEditor.branchContext.branchTuple
             .addOrUpdateDisps(primarySelections, true);
@@ -680,7 +675,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
         this.viewArgs.model.recompileModel();
         this.viewArgs.model.selection.replaceSelection(primarySelections);
-        this._selectionRelatedDisps = groupSelections;
+        this._selectedDispsToMove = groupSelections;
 
         this._addBranchAnchor(inputPos.x, inputPos.y);
     }
@@ -691,16 +686,8 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
     private deltaMoveSelection(delta: CanvasInputDeltaI): void {
 
-        // If we're moving a handle, and it's not the end of a polyline,
-        // Then move the handle
-        let h = this._mouseDownOnHandle;
-        if (!DispPolyline.isStartHandle(h.disp, h.handleIndex)
-            && !DispPolyline.isEndHandle(h.disp, h.handleIndex))
-            this.deltaMoveHandle(h, delta);
-
-
         // Move all of the shapes that are moved in full
-        for (let disp of this._selectionRelatedDisps) {
+        for (let disp of this._selectedDispsToMove) {
             DispBase.deltaMove(disp, delta.dx, delta.dy);
         }
 

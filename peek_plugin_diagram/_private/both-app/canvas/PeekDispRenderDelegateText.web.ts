@@ -8,13 +8,23 @@ import {
 } from "../tuples/shapes/DispText";
 import {pointToPixel} from "../DiagramUtil";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {PointI} from "../tuples/shapes/DispBase";
+import {DispBaseT, PointI} from "../tuples/shapes/DispBase";
 
 export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
+
+    private textMeasureCtx;
 
     constructor(config: PeekCanvasConfig) {
         super(config);
 
+        // Create a canvas element for measuring text
+        let canvas = document.createElement('canvas');
+        this.textMeasureCtx = canvas.getContext('2d');
+
+    }
+
+    updateBounds(disp: DispBaseT, zoom: number): void {
+        this.drawAndCalcBounds(<DispTextT>disp, this.textMeasureCtx, zoom, true);
     }
 
     /** Draw
@@ -23,6 +33,15 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
      * in python module DispCompilerTask.py
      */
     draw(disp: DispTextT, ctx, zoom: number, pan: PointI, forEdit: boolean) {
+        this.drawAndCalcBounds(disp, ctx, zoom, false);
+    }
+
+    /** Draw
+     *
+     * NOTE: The way the text is scaled and drawn must match _calcTextSize(..)
+     * in python module DispCompilerTask.py
+     */
+    private drawAndCalcBounds(disp: DispTextT, ctx, zoom: number, updateBounds: boolean) {
 
         // Give meaning to our short names
         let rotationRadian = DispText.rotation(disp) / 180.0 * Math.PI;
@@ -91,9 +110,10 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 
         // Bounds can get serliased in branches, so check to see if it's actually the
         // class or just the restored object that it serialises to.
-        if (disp.bounds == null || disp.bounds.contains == null)
+        if (updateBounds) {
             disp.bounds = new PeekCanvasBounds();
-        disp.bounds.w = 0;
+            disp.bounds.w = 0;
+        }
 
 
         let lines = DispText.text(disp).split("\n");
@@ -102,9 +122,11 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
             let yOffset = lineHeight * lineIndex;
 
             // Measure the width
-            let thisWidth = ctx.measureText(line).width / zoom;
-            if (disp.bounds.w < thisWidth)
-                disp.bounds.w = thisWidth;
+            if (updateBounds) {
+                let thisWidth = ctx.measureText(line).width / zoom;
+                if (disp.bounds.w < thisWidth)
+                    disp.bounds.w = thisWidth;
+            }
 
             if (fillColor) {
                 ctx.fillStyle = fillColor.color;
@@ -118,25 +140,30 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
             //}
         }
 
+
         let singleLineHeight = lineHeight / zoom;
-        disp.bounds.h = singleLineHeight * lines.length;
+        if (updateBounds) {
+            disp.bounds.h = singleLineHeight * lines.length;
+        }
 
         // restore to original state
         ctx.restore();
 
-        if (horizontalAlignEnum == TextHorizontalAlign.left)
-            disp.bounds.x = centerX;
-        else if (horizontalAlignEnum == TextHorizontalAlign.center)
-            disp.bounds.x = centerX - disp.bounds.w / 2;
-        else if (horizontalAlignEnum == TextHorizontalAlign.right)
-            disp.bounds.x = centerX - disp.bounds.w;
+        if (updateBounds) {
+            if (horizontalAlignEnum == TextHorizontalAlign.left)
+                disp.bounds.x = centerX;
+            else if (horizontalAlignEnum == TextHorizontalAlign.center)
+                disp.bounds.x = centerX - disp.bounds.w / 2;
+            else if (horizontalAlignEnum == TextHorizontalAlign.right)
+                disp.bounds.x = centerX - disp.bounds.w;
 
-        if (verticalAlignEnum == TextVerticalAlign.top)
-            disp.bounds.y = centerY;
-        else if (verticalAlignEnum == TextVerticalAlign.center)
-            disp.bounds.y = centerY - singleLineHeight / 2;
-        else if (verticalAlignEnum == TextVerticalAlign.bottom)
-            disp.bounds.y = centerY - singleLineHeight;
+            if (verticalAlignEnum == TextVerticalAlign.top)
+                disp.bounds.y = centerY;
+            else if (verticalAlignEnum == TextVerticalAlign.center)
+                disp.bounds.y = centerY - singleLineHeight / 2;
+            else if (verticalAlignEnum == TextVerticalAlign.bottom)
+                disp.bounds.y = centerY - singleLineHeight;
+        }
     };
 
 
@@ -161,7 +188,9 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
         ctx.strokeStyle = selectionConfig.color;
         ctx.lineWidth = selectionConfig.width / zoom;
         ctx.stroke();
+    };
 
+    drawEditHandles(disp, ctx, zoom: number, pan: PointI) {
         /*
          // DRAW THE EDIT HANDLES
          ctx.fillStyle = CanvasRenderer.SELECTION_COLOR;
@@ -171,7 +200,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
          ctx.fillRect(handle.x, handle.y, handle.w, handle.h);
          }
          */
-    };
+    }
 
     contains(disp: DispTextT, x, y, margin) {
         return disp.bounds == null ? false : disp.bounds.contains(x, y, margin);
@@ -179,10 +208,6 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 
     withIn(disp: DispTextT, x, y, w, h): boolean {
         return disp.bounds == null ? false : disp.bounds.withIn(x, y, w, h);
-    };
-
-    handles(disp: DispTextT): PeekCanvasBounds[] {
-        return [];
     };
 
     area(disp) {

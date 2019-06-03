@@ -39,13 +39,28 @@ export class PeekDispRenderFactory {
 
     draw(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
         let level = DispBase.level(disp);
-        if (!(level.minZoom <= zoom && zoom <= level.maxZoom))
+        let layer = DispBase.layer(disp);
+
+        let isVisible = (level.minZoom <= zoom && zoom <= level.maxZoom)
+            || this.config.editor.showAllLevels;
+
+        isVisible = isVisible && (layer.visible || this.config.editor.showAllLayers);
+
+        // Ignore everything not visible.
+        if (!forEdit && !isVisible)
             return;
 
-        if (this._delegatesByType[disp._tt] == null)
-            console.log(disp._tt);
+        let delegate = this._delegatesByType[disp._tt];
+        if (delegate == null)
+            console.log(`ERROR: Unhandled render delegate for ${disp._tt}`);
 
-        this._delegatesByType[disp._tt].draw(disp, ctx, zoom, pan);
+        // Draw only visible shapes
+        if (isVisible)
+            delegate.draw(disp, ctx, zoom, pan, forEdit);
+
+        // Update the bounds of all shapes
+        if (disp.bounds == null)
+            delegate.updateBounds(disp, zoom);
 
         // Show invisible objects
         if (forEdit)
@@ -75,6 +90,11 @@ export class PeekDispRenderFactory {
 
     drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
         this._delegatesByType[disp._tt].drawSelected(disp, ctx, zoom, pan, forEdit);
+    };
+
+
+    drawEditHandles(disp, ctx, zoom: number, pan: PointI) {
+        this._delegatesByType[disp._tt].drawEditHandles(disp, ctx, zoom, pan);
     };
 
     contains(disp, x, y, margin) {

@@ -207,15 +207,6 @@ export abstract class DispBase {
         disp.k = val;
     }
 
-    static keys(disps: any[]): string[] {
-        let keys = [];
-        for (let disp of disps) {
-            if (DispBase.key(disp) != null)
-                keys.push(DispBase.key(disp));
-        }
-        return keys;
-    }
-
     static data(disp: DispBaseT): {} {
         if (disp.d == null)
             return {};
@@ -240,6 +231,7 @@ export abstract class DispBase {
             disp.g[i] = disp.g[i] + dx;
             disp.g[i + 1] = disp.g[i + 1] + dy;
         }
+        disp.bounds = null;
     }
 
     static deltaMoveHandle(disp, handleIndex: number, dx: number, dy: number) {
@@ -249,6 +241,7 @@ export abstract class DispBase {
         let pointIndex = handleIndex * 2;
         disp.g[pointIndex] = disp.g[pointIndex] + dx;
         disp.g[pointIndex + 1] = disp.g[pointIndex + 1] + dy;
+        disp.bounds = null;
     }
 
     // ---------------

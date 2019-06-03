@@ -65,13 +65,14 @@ export class DispPolyline extends DispPoly {
     static deltaMoveStart(disp: any, dx: number, dy: number) {
         disp.g[0] += dx;
         disp.g[1] += dy;
-
+        disp.bounds = null;
     }
 
     static deltaMoveEnd(disp: any, dx: number, dy: number) {
         let len = disp.g.length;
         disp.g[len - 2] += dx;
         disp.g[len - 1] += dy;
+        disp.bounds = null;
     }
 
     static center(disp): PointI {

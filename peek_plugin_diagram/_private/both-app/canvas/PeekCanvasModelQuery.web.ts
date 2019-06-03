@@ -49,7 +49,22 @@ export class PeekCanvasModelQuery {
         return this.model.selection.selectedDisps();
     }
 
-    dispsForKeys(keys:string[]): any[] {
+    keyOfDisps(disps: any[]): string[] {
+        let keys = [];
+        for (let disp of disps) {
+            if (DispBase.key(disp) != null)
+                keys.push(DispBase.key(disp));
+        }
+        return keys;
+    }
+
+    uniqueDisps(disps: any[]): string[] {
+        const ids = {};
+        return disps
+            .filter(d => ids[d.id] === true ? false : ids[d.id] = true);
+    }
+
+    dispsForKeys(keys: string[]): any[] {
         let keyDict = {};
         for (let key of keys)
             keyDict[key] = true;
@@ -74,7 +89,7 @@ export class PeekCanvasModelQuery {
      * NOTE: This is an O(N) approach
      * @param disp
      */
-    dispGroupForDisp(disp:DispBaseT): DispGroupPointerT | null {
+    dispGroupForDisp(disp: DispBaseT): DispGroupPointerT | null {
         let groupId = DispBase.groupId(disp);
 
         if (groupId == null)
@@ -92,22 +107,22 @@ export class PeekCanvasModelQuery {
     }
 
     dispsForGroups(disps: any[]): any[] {
-        let result = [];
-        let selectedGroupIds = {};
-        let groupIdsFound = false;
+        const result = [];
+        const selectedGroupIds = {};
 
         for (let disp of disps) {
             // DispGroup and DispGroupPtrs are not selectable
-            if (DispBase.groupId(disp) != null) {
+            selectedGroupIds[DispBase.id(disp)] = true;
+            if (DispBase.groupId(disp) != null)
                 selectedGroupIds[DispBase.groupId(disp)] = true;
-                groupIdsFound = true;
-            }
         }
 
-        if (!groupIdsFound)
-            return disps;
-
+        const dispIdsAdded = {}; // return a unique list.
         for (let disp of this.viewableDisps) {
+            if (dispIdsAdded[DispBase.id(disp)])
+                continue;
+            dispIdsAdded[DispBase.id(disp)] = true;
+
             if (selectedGroupIds[DispBase.groupId(disp)] === true)
                 result.push(disp);
 

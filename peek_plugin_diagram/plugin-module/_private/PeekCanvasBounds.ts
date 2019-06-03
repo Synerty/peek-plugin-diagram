@@ -49,6 +49,16 @@ export class PeekCanvasBounds {
     }
 
     // Class method
+    static fromPoints(points:{x:number,y:number}[]) {
+        let geom = [];
+        for (let point of points) {
+            geom.push(point.x);
+            geom.push(point.y);
+        }
+        return PeekCanvasBounds.fromGeom(geom);
+    }
+
+    // Class method
     static fromGeom(geom) {
         let self = new PeekCanvasBounds();
 

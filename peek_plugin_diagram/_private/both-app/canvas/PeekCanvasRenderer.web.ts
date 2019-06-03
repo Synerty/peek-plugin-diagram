@@ -182,6 +182,9 @@ export class PeekCanvasRenderer {
             this.dispDelegate.drawSelected(dispObj, ctx, this._zoom, this._pan, forEdit);
         }
 
+        if (selectedDisps.length == 1)
+            this.dispDelegate.drawEditHandles(selectedDisps[0], ctx, this._zoom, this._pan);
+
         // ** Add stuff you want drawn on top all the time here **
         // Tell the canvas mouse handler to draw what ever its got going on.
         this.drawEvent.next({ctx, zoom: this._zoom, pan: this._pan, forEdit});

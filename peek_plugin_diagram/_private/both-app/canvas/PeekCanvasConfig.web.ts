@@ -89,6 +89,8 @@ export class PeekCanvasConfig {
     };
 
     editor = {
+        showAllLayers:false,
+        showAllLevels:false,
         active: false,
         resizeHandleMargin: 3.0,
         resizeHandleWidth: 6.0,
