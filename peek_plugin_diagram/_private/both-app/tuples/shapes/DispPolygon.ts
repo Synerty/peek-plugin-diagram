@@ -55,7 +55,6 @@ export class DispPolygon extends DispPoly {
         disp.cr = val;
     }
 
-
     static fillDirection(disp: DispPolygonT): PolygonFillDirection {
         let val = disp.fd;
         if (val == PolygonFillDirection.fillBottomToTop)
@@ -68,7 +67,6 @@ export class DispPolygon extends DispPoly {
             return PolygonFillDirection.fillLeftToRight;
 
         return PolygonFillDirection.fillTopToBottom;
-
     }
 
     static setFillDirection(disp: DispPolygonT, val: number): void {
@@ -111,7 +109,7 @@ export class DispPolygon extends DispPoly {
             (disp) => { // The UI expects an object with an ID
                 return {id: DispPolygon.fillDirection(disp)}
             },
-            DispPolygon.setLineStyle,
+            (disp, valObj) => DispPolygon.setFillDirection(disp, valObj.id),
             "Fill Direction",
             {
                 options: [

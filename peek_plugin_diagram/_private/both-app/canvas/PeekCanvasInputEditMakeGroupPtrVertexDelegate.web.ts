@@ -74,7 +74,6 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate
 
 
     private createDisp(x: number, y: number) {
-
         // Create the Disp
         let created = DispGroupPointer.create(this.viewArgs.config.coordSet);
         DispGroupPointer.setCenterPoint(created, x, y);
@@ -82,19 +81,11 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate
         this.canvasEditor.lookupService._linkDispLookups(created);
 
         // Add the shape to the branch
-        created = this.canvasEditor.branchContext.branchTuple.addOrUpdateDisp(created);
-
-        // TODO, Snap the coordinates if required
-        // if (this.viewArgs.config.editor.snapToGrid)
-        //     DispText.snap(created, this.viewArgs.config.editor.snapSize);
-
-        // Let the canvas editor know something has happened.
-        // this.canvasEditor.dispPropsUpdated();
+        created = this.canvasEditor.branchContext
+            .branchTuple.addOrUpdateDisp(created, true);
 
         this.viewArgs.model.recompileModel();
-
         this.viewArgs.model.selection.replaceSelection(<any> created);
-        this.canvasEditor.props.showGroupPtrProperties();
 
         this._addBranchAnchor(x, y);
         this.canvasEditor.setEditorSelectTool();
@@ -109,6 +100,7 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate
     }
 
     _finaliseCreate() {
+        this.canvasEditor.props.showGroupPtrProperties();
         this._reset();
         this.viewArgs.config.invalidate();
     }

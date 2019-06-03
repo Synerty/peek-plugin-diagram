@@ -65,7 +65,6 @@ export class PeekCanvasInputEditMakeEllipseDelegate
         this.inputStart(inputPos);
     }
 
-
     mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
         this.inputMove(inputPos);
     }
@@ -73,7 +72,6 @@ export class PeekCanvasInputEditMakeEllipseDelegate
     mouseUp(event: MouseEvent, inputPos: CanvasInputPos) {
         this.inputEnd(inputPos);
     }
-
 
     // ---------------
     // Map touch events
@@ -89,7 +87,6 @@ export class PeekCanvasInputEditMakeEllipseDelegate
         this.inputEnd(inputPos);
     };
 
-
     // ---------------
     // Misc delegate methods
     delegateWillBeTornDown() {
@@ -98,7 +95,6 @@ export class PeekCanvasInputEditMakeEllipseDelegate
 
     draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
     }
-
 
     // ---------------
     // Start logic
@@ -111,8 +107,8 @@ export class PeekCanvasInputEditMakeEllipseDelegate
             return;
 
         if (!this._creating) {
-            if (!this._hasPassedDragThreshold(this._startMousePos, inputPos))
-                return;
+            // if (!this._hasPassedDragThreshold(this._startMousePos, inputPos))
+            //     return;
 
             this.createDisp(inputPos);
         }
@@ -141,13 +137,6 @@ export class PeekCanvasInputEditMakeEllipseDelegate
 
         let startMouse: PointI = {x: this._startMousePos.x, y: this._startMousePos.y};
         let point: PointI = {x: inputPos.x, y: inputPos.y};
-        // if (editorUi.grid.snapping()) {
-        //     var snapSize = editorUi.grid.snapSize();
-        //     point.snap(snapSize);
-        //     startMouse.snap(snapSize);
-        // }
-
-
         let x = point.x < startMouse.x ? point.x : startMouse.x;
         let y = point.y < startMouse.y ? point.y : startMouse.y;
 
@@ -169,19 +158,11 @@ export class PeekCanvasInputEditMakeEllipseDelegate
 
         // Add the shape to the branch
         this._creating = this.canvasEditor.branchContext.branchTuple
-            .addOrUpdateDisp(this._creating);
-
-        // TODO, Snap the coordinates if required
-        // if (this.viewArgs.config.editor.snapToGrid)
-        //     DispText.snap(this._creating, this.viewArgs.config.editor.snapSize);
-
-        // Let the canvas editor know something has happened.
-        // this.canvasEditor.dispPropsUpdated();
+            .addOrUpdateDisp(this._creating, true);
 
         this.viewArgs.model.recompileModel();
 
         this.viewArgs.model.selection.replaceSelection(this._creating);
-        this.canvasEditor.props.showShapeProperties();
 
         this._addBranchAnchor(inputPos.x, inputPos.y);
     }
@@ -190,6 +171,7 @@ export class PeekCanvasInputEditMakeEllipseDelegate
         if (this._creating == null)
             return;
 
+        this.canvasEditor.props.showShapeProperties();
         this.viewArgs.config.invalidate();
         this.canvasEditor.setEditorSelectTool();
     }

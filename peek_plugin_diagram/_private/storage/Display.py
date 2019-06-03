@@ -212,8 +212,8 @@ class DispBase(Tuple, DeclarativeBase):
     hashId = Column(String, doc='hid')
 
     #: The coordSetId+hashId that this disp replaces (for branches)
-    replacesHashId = Column(String, ForeignKey('DispBase.id', ondelete='SET NULL'),
-                            doc='rid')
+    # ForeignKey('DispBase.id', ondelete='SET NULL'),
+    replacesHashId = Column(String, doc='rid')
 
     # ===== END BRANCH
 
@@ -273,8 +273,8 @@ class DispBase(Tuple, DeclarativeBase):
         Index("idx_Disp_coordSetId_", coordSetId, unique=False),
         Index("idx_Disp_groupId", groupId, unique=False),
         Index("idx_Disp_branchId", branchId, unique=False),
-        Index("idx_Disp_hashId", coordSetId, hashId, unique=True),
-        Index("idx_Disp_replacesHashId", replacesHashId),
+        # Index("idx_Disp_hashId", coordSetId, hashId, unique=True),
+        # Index("idx_Disp_replacesHashId", replacesHashId),
     )
 
 
@@ -434,6 +434,12 @@ class DispPolyline(DispBase):
     #: End Key, The key of another disp object,
     # If the end point of this graphic is linked another disp obj
     endKey = Column(String(50), doc='ek')
+
+    #: Start end type, is this an arrow, etc?
+    startEndType = Column(Integer, doc='st')
+
+    #: End End Type, See Start end type
+    endEndType = Column(Integer, doc='et')
 
     __table_args__ = (
         Index("idx_DispPolyline_lineColorId", lineColorId, unique=False),

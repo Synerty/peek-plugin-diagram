@@ -118,8 +118,8 @@ def _convertBranchDisps(newBranches: List[BranchTuple]) -> typing.Tuple[List, Li
 
         for disp, jsonDict in newBranchDispItems:
             if disp.replacesHashId in oldDispHashIdMap:
-                disp.replacesHashId = oldDispHashIdMap[disp.replacesHashId]
-                jsonDict['rid'] = oldDispHashIdMap[disp.replacesHashId]
+                disp.replacesHashId = oldDispHashIdMap.get(disp.replacesHashId)
+                jsonDict['rid'] = disp.replacesHashId
 
             disp.dispJson = json.dumps(jsonDict)
 

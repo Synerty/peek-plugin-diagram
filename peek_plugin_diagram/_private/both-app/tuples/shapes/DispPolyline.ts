@@ -1,18 +1,32 @@
 import {DispPoly, DispPolyT} from "./DispPoly";
 import {DispBase, DispType, PointI} from "./DispBase";
-import {PeekCanvasShapePropsContext} from "../../canvas/PeekCanvasShapePropsContext";
+import {
+    PeekCanvasShapePropsContext,
+    ShapeProp,
+    ShapePropType
+} from "../../canvas/PeekCanvasShapePropsContext";
 import {DispTextT} from "./DispText";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
 
 
 export interface DispPolylineT extends DispPolyT {
-
     // Start Key
     sk: string;
 
     // End Key
     ek: string;
 
+    // Start end type, is this an arrow, etc?
+    st: number | null;
+
+    // End End Type
+    et: number | null;
+}
+
+export enum DispPolylineEndTypeE {
+    None = 0,
+    Arrow = 1,
+    Dot = 2
 }
 
 export class DispPolyline extends DispPoly {
@@ -32,6 +46,32 @@ export class DispPolyline extends DispPoly {
      */
     static endKey(disp: DispPolylineT): string | null {
         return disp.ek;
+    }
+
+
+    /** Start Key
+     *
+     * The key of another disp object if the start of this polyline is related to it
+     */
+    static startEndType(disp: DispPolylineT): DispPolylineEndTypeE {
+        return disp.st || 0;
+    }
+
+    static setStartEndType(disp: DispPolylineT, val: number | null): void {
+        disp.st = val == 0 ? null : val;
+    }
+
+
+    /** End Key
+     *
+     * The key of another disp object if the end of this polyline is related to it
+     */
+    static endEndType(disp: DispPolylineT): DispPolylineEndTypeE {
+        return disp.et || 0;
+    }
+
+    static setEndEndType(disp: DispPolylineT, val: number | null): void {
+        disp.et = val == 0 ? null : val;
     }
 
     /** Start End Keys
@@ -79,12 +119,62 @@ export class DispPolyline extends DispPoly {
         return {x: disp.g[0], y: disp.g[1]};
     }
 
+    static firstPoint(disp): PointI {
+        return {x: disp.g[0], y: disp.g[1]};
+    }
+
+    static lastPoint(disp): PointI {
+        let l = disp.g.length;
+        return {x: disp.g[l - 2], y: disp.g[l - 1]};
+    }
+
     static create(coordSet: ModelCoordSet): DispPolylineT {
         return <DispPolylineT>DispPoly.create(coordSet, DispBase.TYPE_DPL);
     }
 
+
+    // ---------------
+    // Support shape editing
     static makeShapeContext(context: PeekCanvasShapePropsContext): void {
         DispPoly.makeShapeContext(context);
+
+        let lineEndOptions = [
+            {
+                name: "None",
+                object: {id: DispPolylineEndTypeE.None},
+                value: DispPolylineEndTypeE.None,
+            },
+            {
+                name: "Arrow",
+                object: {id: DispPolylineEndTypeE.Arrow},
+                value: DispPolylineEndTypeE.Arrow,
+            },
+            {
+                name: "Dot",
+                object: {id: DispPolylineEndTypeE.Dot},
+                value: DispPolylineEndTypeE.Dot,
+            }
+        ];
+
+        context.addProp(new ShapeProp(
+            ShapePropType.Option,
+            (disp) => { // The UI expects an object with an ID
+                return {id: DispPolyline.startEndType(disp)}
+            },
+            (disp, valObj) => DispPolyline.setStartEndType(disp, valObj.id),
+            "Line Start Style",
+            {options: lineEndOptions}
+        ));
+
+        context.addProp(new ShapeProp(
+            ShapePropType.Option,
+            (disp) => { // The UI expects an object with an ID
+                return {id: DispPolyline.endEndType(disp)}
+            },
+            (disp, valObj) => DispPolyline.setEndEndType(disp, valObj.id),
+            "Line End Style",
+            {options: lineEndOptions}
+        ));
 
     }
 
@@ -186,4 +276,6 @@ export class DispPolyline extends DispPoly {
 
         return result;
     }
+
+
 }

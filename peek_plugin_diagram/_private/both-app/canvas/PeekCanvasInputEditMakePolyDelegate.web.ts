@@ -8,7 +8,7 @@ import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 import {DispPoly} from "../tuples/shapes/DispPoly";
 import {DispBaseT, PointI} from "../tuples/shapes/DispBase";
 import {DispPolygon} from "../tuples/shapes/DispPolygon";
-import {DispPolyline} from "../tuples/shapes/DispPolyline";
+import {DispPolyline, DispPolylineEndTypeE} from "../tuples/shapes/DispPolyline";
 
 /**
  * This input delegate handles :
@@ -18,7 +18,6 @@ import {DispPolyline} from "../tuples/shapes/DispPolyline";
  *
  */
 export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDelegate {
-
 
 
     // Stores the rectangle being created
@@ -113,6 +112,9 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     }
 
     mouseDoubleClick(event: MouseEvent, inputPos: CanvasInputPos) {
+        // The double click will cause two "MouseUp" events
+        DispPoly.popPoint(this._creating);
+        DispPoly.popPoint(this._creating);
         this._finaliseCreate();
     }
 
@@ -175,28 +177,28 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     }
 
     private inputEnd(inputPos: CanvasInputPos, shiftKey: boolean = false) {
-
-
         if (!this._startMousePos)
             return;
 
-        let dragged = this._hasPassedDragThreshold(this._startMousePos, inputPos);
         let point = this._coord(this._startMousePos, shiftKey);
         this._startMousePos = null;
 
-        if (dragged)
-            return;
+        // if (this._hasPassedDragThreshold(this._startMousePos, inputPos))
+        //     return;
 
         if (!this._creating) {
             this.createDisp(inputPos);
-
         }
 
-        DispPoly.addPoint(this._creating, point);
+
+        if (this.NAME == EditorToolType.EDIT_MAKE_LINE_WITH_ARROW
+            && DispPoly.pointCount(this._creating) == 2) {
+            this._finaliseCreate();
+        } else {
+            DispPoly.addPoint(this._creating, point);
+        }
 
         this.viewArgs.config.invalidate();
-        this._creating = this.canvasEditor.branchContext.branchTuple
-            .addOrUpdateDisp(this._creating);
     }
 
     delegateWillBeTornDown() {
@@ -215,6 +217,9 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         else
             this._creating = DispPolyline.create(this.viewArgs.config.coordSet);
 
+        if (this.NAME == EditorToolType.EDIT_MAKE_LINE_WITH_ARROW)
+            DispPolyline.setEndEndType(this._creating, DispPolylineEndTypeE.Arrow);
+
         DispPoly.addPoint(this._creating, inputPos);
         this._setLastMousePos(inputPos);
 
@@ -223,7 +228,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
         // Add the shape to the branch
         this._creating = this.canvasEditor.branchContext.branchTuple
-            .addOrUpdateDisp(this._creating);
+            .addOrUpdateDisp(this._creating, true);
 
         // TODO, Snap the coordinates if required
         // if (this.viewArgs.config.editor.snapToGrid)
@@ -235,7 +240,6 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         this.viewArgs.model.recompileModel();
 
         this.viewArgs.model.selection.replaceSelection(this._creating);
-        this.canvasEditor.props.showShapeProperties();
 
         this._addBranchAnchor(inputPos.x, inputPos.y);
     }
@@ -262,16 +266,13 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
         // this.canvasInput._scope.pageMethods.cableCreateCallback(poly, startNodeDisp, endNodeDisp);
 
+        this.canvasEditor.props.showShapeProperties();
         this.viewArgs.config.invalidate();
         this.canvasEditor.setEditorSelectTool();
     }
 
     private _coord(mouse: CanvasInputPos, shiftKey: boolean = false): PointI {
         let point = {x: mouse.x, y: mouse.y};
-
-        //// Snap if required
-        //if (editorUi.grid.snapping())
-        //    disp.snap(editorUi.grid.snapSize());
 
         // When the shift key is pressed, we will align to x or y axis
         if (this._creating != null && shiftKey) {

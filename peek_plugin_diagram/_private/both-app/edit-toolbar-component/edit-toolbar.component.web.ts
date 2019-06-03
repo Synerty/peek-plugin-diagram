@@ -10,6 +10,7 @@ import {PeekCanvasInputMakeDispGroupPtrVertexDelegate} from "../canvas/PeekCanva
 import {PeekCanvasInputMakeDispGroupPtrEdgeDelegate} from "../canvas/PeekCanvasInputEditMakeGroupPtrEdgeDelegate.web";
 import {PeekCanvasInputEditSelectDelegate} from "../canvas/PeekCanvasInputEditSelectDelegate.web";
 import {PeekCanvasInputEditMakeTextDelegate} from "../canvas/PeekCanvasInputEditMakeTextDelegate.web";
+import {PeekCanvasInputEditMakeLineWithArrowDelegate} from "../canvas/PeekCanvasInputEditMakeLineWithArrowDelegate.web";
 
 
 @Component({
@@ -87,6 +88,17 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     isEditMakeRectangleActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
         return this.selectedTool() === EditorToolType.EDIT_MAKE_RECTANGLE;
+    }
+
+    // --------------------
+    // Edit Make Rectangle Tool
+
+    selectEditMakeLineWithArrowTool() {
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeLineWithArrowDelegate);
+    }
+
+    isEditMakeLineWithArrowActive(): boolean {
+        return this.selectedTool() === EditorToolType.EDIT_MAKE_LINE_WITH_ARROW;
     }
 
     // --------------------

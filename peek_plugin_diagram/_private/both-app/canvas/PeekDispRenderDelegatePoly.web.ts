@@ -4,6 +4,7 @@ import {DispPolygon} from "../tuples/shapes/DispPolygon";
 import {DispBase, DispBaseT, DispType, PointI, PointsT} from "../tuples/shapes/DispBase";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {DispTextT} from "../tuples/shapes/DispText";
+import {DispPolyline, DispPolylineEndTypeE} from "../tuples/shapes/DispPolyline";
 
 export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
@@ -136,6 +137,19 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
                 ctx.fill();
             }
         }
+
+
+        // Draw the line ends
+        if (!isPolygon && 4 <= geom.length) {
+            this.drawPolyLineEnd(ctx, lineWidth / zoom, lineColor,
+                geom[2], geom[3], geom[0], geom[1],
+                DispPolyline.startEndType(disp));
+
+            let l = geom.length - 2;
+            this.drawPolyLineEnd(ctx, lineWidth / zoom, lineColor,
+                geom[l - 2], geom[l - 1], geom[l], geom[l + 1],
+                DispPolyline.endEndType(disp));
+        }
     };
 
     private _drawSquarePercentFill(ctx, bounds,
@@ -201,6 +215,49 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         for (let handle of handles) {
             ctx.fillRect(handle.x, handle.y, handle.w, handle.h);
         }
+
+    }
+
+    private drawPolyLineEnd(ctx, lineWidth: number, lineColor,
+                            fromX: number, fromY: number, toX: number, toY: number,
+                            endType: DispPolylineEndTypeE): void {
+        if (endType == DispPolylineEndTypeE.None || lineColor == null || !lineWidth)
+            return;
+
+        if (endType == DispPolylineEndTypeE.Dot) {
+            let size = lineWidth * 3;
+            ctx.beginPath();
+            ctx.arc(toX, toY, size, 0, 2 * Math.PI);
+            ctx.fillStyle = lineColor.color;
+            ctx.fill();
+            return;
+        }
+
+        if (endType == DispPolylineEndTypeE.Arrow) {
+            let radians = Math.atan((fromY - toY) / (fromX - toX));
+            radians += ((fromX >= toX) ? -90 : 90) * Math.PI / 180;
+
+            let halfWidth = lineWidth * 3;
+            let length = lineWidth * 12;
+
+            ctx.save();
+            ctx.translate(toX, toY);
+            ctx.rotate(radians);
+
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(halfWidth, length);
+            ctx.lineTo(-halfWidth, length);
+            ctx.closePath();
+
+            ctx.fillStyle = lineColor.color;
+            ctx.fill();
+
+            ctx.restore();
+            return;
+        }
+
+        throw new Error(`Unhandled line ending: ${endType}`);
 
     }
 

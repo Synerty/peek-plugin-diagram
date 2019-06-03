@@ -118,7 +118,6 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
 
 
     private createDisp(x: number, y: number) {
-
         // Create the Disp
         this._creating = DispText.create(this.viewArgs.config.coordSet);
         DispText.setCenterPoint(this._creating, x, y);
@@ -126,19 +125,11 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
 
         // Add the shape to the branch
         this._creating = this.canvasEditor.branchContext.branchTuple
-            .addOrUpdateDisp(this._creating);
-
-        // TODO, Snap the coordinates if required
-        // if (this.viewArgs.config.editor.snapToGrid)
-        //     DispText.snap(this._creating, this.viewArgs.config.editor.snapSize);
-
-        // Let the canvas editor know something has happened.
-        // this.canvasEditor.dispPropsUpdated();
+            .addOrUpdateDisp(this._creating, true);
 
         this.viewArgs.model.recompileModel();
 
         this.viewArgs.model.selection.replaceSelection(this._creating);
-        this.canvasEditor.props.showShapeProperties();
 
         this._addBranchAnchor(x, y);
         this.canvasEditor.setEditorSelectTool();
@@ -152,12 +143,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     }
 
     _finaliseCreate() {
-        // DiagramBranchContext
-
-        // TODO, Add to branch context
-        // if (enteredText && this._creating)
-        //     this._creating.storeState();
-
+        this.canvasEditor.props.showShapeProperties();
         this._reset();
         this.viewArgs.config.invalidate();
     }

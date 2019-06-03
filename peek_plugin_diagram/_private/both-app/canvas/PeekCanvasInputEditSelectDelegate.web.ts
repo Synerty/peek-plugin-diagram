@@ -374,7 +374,16 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
             case this.STATE_MOVING_HANDLE: {
                 let delta = this._setLastMousePos(inputPos);
-                this.deltaMoveSelection(delta);
+
+
+                const h = this._mouseDownOnHandle;
+                if (DispPolyline.isStartHandle(h.disp, h.handleIndex)
+                    || DispPolyline.isEndHandle(h.disp, h.handleIndex)) {
+
+                    this.deltaMoveSelection(delta);
+                } else {
+                    this.deltaMoveHandle(delta);
+                }
                 break;
             }
 
@@ -466,7 +475,13 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
     private startStateMovingHandle(inputPos: CanvasInputPos) {
         this._state = this.STATE_MOVING_HANDLE;
-        this.prepareHandleMove();
+
+        const h = this._mouseDownOnHandle;
+        if (DispPolyline.isStartHandle(h.disp, h.handleIndex)
+            || DispPolyline.isEndHandle(h.disp, h.handleIndex)) {
+            this.prepareHandleMove();
+        }
+
         this.addDispsToBranchForUpdate(inputPos);
     }
 
@@ -560,43 +575,41 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this._selectedPolylineEnds = [];
 
         const h = this._mouseDownOnHandle;
-        if (!DispPolyline.isStartHandle(h.disp, h.handleIndex)
-            && !DispPolyline.isEndHandle(h.disp, h.handleIndex))
-            return;
 
         let key = null;
-        let end: PolylineEnd = {
-            isStart: DispPolyline.isStartHandle(h.disp, h.handleIndex),
-            polylineDisp: <DispPolylineT>h.disp
-        };
+        let point = null;
 
-        if (end.isStart)
+        if (DispPolyline.isStartHandle(h.disp, h.handleIndex)) {
             key = DispPolyline.startKey(<DispPolylineT>h.disp);
-        else    // It must be the end
+            point = DispPolyline.firstPoint(<DispPolylineT>h.disp);
+        } else {   // It must be the end
             key = DispPolyline.endKey(<DispPolylineT>h.disp);
-
-        // If there is no key, then we don't need to move anything related
-        if (key == null || key.length == 0) {
-            this._selectedPolylineEnds.push(end);
-            return;
+            point = DispPolyline.lastPoint(<DispPolylineT>h.disp);
         }
 
-        // ELSE, We need to
+        // We need to
         // 1) Add all the shapes that have a matching key
         // 2) Add all shapes in the groups of those shapes
         // 3) Add all the ends that have keys matching keys of any of the shapes so far
+        // 4) Add all the ends that land on the same point.
 
         const q = this.viewArgs.model.query;
 
         // Get all the shapes for the starting key
-        let disps = q.dispsForKeys([key]);
+        let disps = [];
+
+        if (key)
+            disps = q.dispsForKeys([key]);
 
         // Get all disps in the groups that we're moving
         disps = q.uniqueDisps(disps.add(q.dispsForGroups(disps.slice())));
         this._selectedDispsToMove = disps;
 
         // Get all the polyline ends that land of the keys we're moving
-        this._selectedPolylineEnds = q.polylinesConnectedToDispKey(q.keyOfDisps(disps));
+        let ends = q.polylinesConnectedToDispKey(q.keyOfDisps(disps));
+        ends.add(q.polylinesConnectedToPoint([point]));
+
+        this._selectedPolylineEnds = q.uniquePolylineEnds(ends);
 
     }
 
@@ -645,7 +658,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         // Get all the polyline ends that land of the keys we're moving
         // Filter out the polylines we're moving in full
         this._selectedPolylineEnds = q.polylinesConnectedToDispKey(polylineEndKeys)
-            .filter(e => !polylineIds[DispBase.id(e.polylineDisp)]);
+            .filter(e => !polylineIds[DispBase.id(e.disp)]);
 
     }
 
@@ -657,6 +670,10 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
      * @param inputPos: The position of the input, used to create anchor points
      */
     private addDispsToBranchForUpdate(inputPos: CanvasInputPos) {
+        // If there are no disps to move, then return here
+        if (!this._selectedDispsToMove.length && !this._selectedPolylineEnds.length)
+            return;
+
         let primarySelections = this.viewArgs.model.selection.selectedDisps();
         let groupSelections = this._selectedDispsToMove;
 
@@ -667,11 +684,14 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             .addOrUpdateDisps(groupSelections, true);
 
         for (let dispPolylineEnd of this._selectedPolylineEnds) {
-            dispPolylineEnd.polylineDisp = this.canvasEditor
+            dispPolylineEnd.disp = this.canvasEditor
                 .branchContext
                 .branchTuple
-                .addOrUpdateDisp(dispPolylineEnd.polylineDisp, true);
+                .addOrUpdateDisp(dispPolylineEnd.disp, true);
         }
+
+        console.log(groupSelections);
+        console.log(this._selectedPolylineEnds);
 
         this.viewArgs.model.recompileModel();
         this.viewArgs.model.selection.replaceSelection(primarySelections);
@@ -695,10 +715,10 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         for (let dispPolylineEnd of this._selectedPolylineEnds) {
             if (dispPolylineEnd.isStart) {
                 DispPolyline
-                    .deltaMoveStart(dispPolylineEnd.polylineDisp, delta.dx, delta.dy);
+                    .deltaMoveStart(dispPolylineEnd.disp, delta.dx, delta.dy);
             } else {
                 DispPolyline
-                    .deltaMoveEnd(dispPolylineEnd.polylineDisp, delta.dx, delta.dy);
+                    .deltaMoveEnd(dispPolylineEnd.disp, delta.dx, delta.dy);
             }
         }
 
@@ -710,10 +730,10 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
      *
      * This method is used to move all handles, EXCEPT Polyline ends
      */
-    private deltaMoveHandle(handle: HandleI, delta: CanvasInputDeltaI): void {
-        DispFactory.wrapper(handle.disp).deltaMoveHandle(
-            handle.disp, handle.handleIndex, delta.dx, delta.dy
-        );
+    private deltaMoveHandle(delta: CanvasInputDeltaI): void {
+        let handle = this._mouseDownOnHandle;
+        DispFactory.wrapper(handle.disp)
+            .deltaMoveHandle(handle.disp, handle.handleIndex, delta.dx, delta.dy);
 
         this.canvasEditor.branchContext.branchTuple.touchUpdateDate(false);
         this.viewArgs.config.invalidate();

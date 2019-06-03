@@ -16,6 +16,11 @@ class ImportDispPolylineTuple(Tuple):
     """
     __tupleType__ = diagramTuplePrefix + 'ImportDispPolylineTuple'
 
+    # The size of the end types are relative to the line width
+    END_TYPE_NONE = None
+    END_TYPE_ARROW = 1
+    END_TYPE_DOT = 2
+
     ### BEGIN DISP COMMON FIELDS ###
 
     #: Key, This value is a unique ID of the object that this graphic represents
@@ -33,6 +38,12 @@ class ImportDispPolylineTuple(Tuple):
     #: End Key, See start key
     # Length = 50
     endKey: str = TupleField()
+
+    #: Start end type, is this an arrow, etc?
+    startEndType: Optional[int] = TupleField()
+
+    #: End End Type, See Start end type
+    endEndType: Optional[int] = TupleField()
 
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
     selectable: bool = TupleField()

@@ -1,4 +1,4 @@
-import {DispBase, DispBaseT} from "../tuples/shapes/DispBase";
+import {DispBase, DispBaseT, DispType, PointI} from "../tuples/shapes/DispBase";
 import {DispPolyline} from "../tuples/shapes/DispPolyline";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {DispGroupPointerT} from "../tuples/shapes/DispGroupPointer";
@@ -8,7 +8,7 @@ import {DispGroupPointerT} from "../tuples/shapes/DispGroupPointer";
 
 export interface PolylineEnd {
     isStart: boolean,
-    polylineDisp: any
+    disp: any
 }
 
 export interface DispFilterCallableT {
@@ -62,6 +62,13 @@ export class PeekCanvasModelQuery {
         const ids = {};
         return disps
             .filter(d => ids[d.id] === true ? false : ids[d.id] = true);
+    }
+
+    uniquePolylineEnds(ends: PolylineEnd[]): PolylineEnd[] {
+        const ids = {};
+        return ends.filter(d => ids[d.disp.id] === true
+            ? false
+            : ids[d.disp.id] = true);
     }
 
     dispsForKeys(keys: string[]): any[] {
@@ -146,10 +153,36 @@ export class PeekCanvasModelQuery {
             let endKey = DispPolyline.endKey(disp);
 
             if (startKey != null && keysDict[startKey] === true)
-                result.push({isStart: true, polylineDisp: disp});
+                result.push({isStart: true, disp: disp});
 
             else if (endKey != null && keysDict[endKey] === true)
-                result.push({isStart: false, polylineDisp: disp});
+                result.push({isStart: false, disp: disp});
+        }
+
+
+        return result;
+    }
+
+    polylinesConnectedToPoint(points: PointI[]): PolylineEnd[] {
+        let result: PolylineEnd[] = [];
+        let pointsDict = {};
+
+        for (let point of points) {
+            pointsDict[`${point.x}x${point.y}`] = true;
+        }
+
+        for (let disp of this.viewableDisps) {
+            if (DispBase.typeOf(disp) != DispType.polyline)
+                continue;
+
+            let fp = DispPolyline.firstPoint(disp);
+            let lp = DispPolyline.lastPoint(disp);
+
+            if (pointsDict[`${fp.x}x${fp.y}`] === true)
+                result.push({isStart: true, disp: disp});
+
+            else if (pointsDict[`${lp.x}x${lp.y}`] === true)
+                result.push({isStart: false, disp: disp});
         }
 
 

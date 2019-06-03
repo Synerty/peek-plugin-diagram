@@ -58,6 +58,13 @@
             <fa name="vector-square"></fa>
         </button>
         <button class="btn"
+                [class.btn-primary]="isEditMakeLineWithArrowActive()"
+                (click)="selectEditMakeLineWithArrowTool()"
+                data-toggle="tooltip" data-placement="top"
+                title="Draw Line with Arrow">
+            <fa name="long-arrow-alt-up"></fa>
+        </button>
+        <button class="btn"
                 [class.btn-primary]="isEditMakeEllipseActive()"
                 (click)="selectEditMakeEllipseTool()"
                 data-toggle="tooltip" data-placement="top"
