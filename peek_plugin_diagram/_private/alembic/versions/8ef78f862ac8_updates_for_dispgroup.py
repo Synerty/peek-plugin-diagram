@@ -27,7 +27,7 @@ def upgrade():
                        schema='pl_diagram', type_='foreignkey')
     op.drop_index('idxDispGroupPointer_groupId', table_name='DispGroupPointer',
                   schema='pl_diagram')
-    op.alter_column('DispGroupPointer', 'groupId', name='targetDispGroupId',
+    op.alter_column('DispGroupPointer', 'groupId', new_column_name='targetDispGroupId',
                     type_=sa.INTEGER(), nullable=True,
                     schema='pl_diagram')
     op.create_index('idxDispGroupPointer_targetDispGroupId', 'DispGroupPointer',
