@@ -510,7 +510,8 @@ class DispGroup(DispBase):
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
                 , primary_key=True, autoincrement=False)
 
-    name = Column(String, doc='n', nullable=False, unique=True)
+    # TODO: this needs to be unique WITH the coordSetId
+    name = Column(String, doc='n', nullable=False)
     compileAsTemplate = Column(Boolean, doc=JSON_EXCLUDE,
                                nullable=False, server_default='false')
 
