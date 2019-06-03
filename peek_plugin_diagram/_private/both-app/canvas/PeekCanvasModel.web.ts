@@ -5,7 +5,7 @@ import {LinkedGrid} from "../cache/LinkedGrid.web";
 import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
-import {DispBase, DispBaseT} from "../tuples/shapes/DispBase";
+import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch";
 import {PeekCanvasModelQuery} from "./PeekCanvasModelQuery.web";
 import {PeekCanvasModelSelection} from "./PeekCanvasModelSelection.web";

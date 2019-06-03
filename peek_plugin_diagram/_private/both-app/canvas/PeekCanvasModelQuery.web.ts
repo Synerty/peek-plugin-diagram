@@ -1,7 +1,7 @@
-import {DispBase, DispBaseT, DispType, PointI} from "../tuples/shapes/DispBase";
-import {DispPolyline} from "../tuples/shapes/DispPolyline";
+import {DispBase, DispBaseT, DispType, PointI} from "../canvas-shapes/DispBase";
+import {DispPolyline} from "../canvas-shapes/DispPolyline";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
-import {DispGroupPointerT} from "../tuples/shapes/DispGroupPointer";
+import {DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
 
 // import 'rxjs/add/operator/takeUntil';
 

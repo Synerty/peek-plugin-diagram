@@ -10,7 +10,7 @@ import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 import {GridObservable} from "../cache/GridObservable.web";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 
-import {DispBase, DispBaseT} from "../tuples/shapes/DispBase";
+import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
 
 import * as $ from "jquery";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";

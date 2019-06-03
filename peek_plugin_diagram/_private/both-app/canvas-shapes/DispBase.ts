@@ -3,8 +3,8 @@ import {
     PeekCanvasShapePropsContext,
     ShapeProp,
     ShapePropType
-} from "../../canvas/PeekCanvasShapePropsContext";
-import {PeekCanvasBounds} from "../../canvas/PeekCanvasBounds";
+} from "../canvas/PeekCanvasShapePropsContext";
+import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 import {deepCopy} from "@synerty/vortexjs/src/vortex/UtilMisc";
 

@@ -12,7 +12,7 @@ import {
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
-import {PointI} from "../tuples/shapes/DispBase";
+import {PointI} from "../canvas-shapes/DispBase";
 
 
 /** Peek Canvas Input

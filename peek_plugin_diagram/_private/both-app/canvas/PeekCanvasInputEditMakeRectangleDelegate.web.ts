@@ -1,8 +1,12 @@
-import {CanvasInputPos, InputDelegateConstructorArgs, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
-import {DispText} from "../tuples/shapes/DispText";
+import {
+    CanvasInputPos,
+    InputDelegateConstructorArgs,
+    PeekCanvasInputDelegate
+} from "./PeekCanvasInputDelegate.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
-import {PointI} from "../tuples/shapes/DispBase";
+import {PointI} from "../canvas-shapes/DispBase";
+import {DispRectangle} from "../canvas-shapes/DispRectangle";
 
 /**
  * This input delegate handles :
@@ -14,43 +18,27 @@ import {PointI} from "../tuples/shapes/DispBase";
 export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDelegate {
     static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_RECTANGLE;
 
-
     // Stores the text disp being created
     private _creating = null;
 
     // Used to detect dragging and its the mouse position we use
     private _startMousePos: CanvasInputPos | null = null;
-    private _startNodeRend = null;
-    private _endNodeRend = null;
 
-    private _enteredText: string = '';
-
-    //canvasInput._scope.pageData.modelRenderables;
 
     constructor(viewArgs: InputDelegateConstructorArgs,
                 canvasEditor: PeekCanvasEditor) {
         super(viewArgs, canvasEditor, PeekCanvasInputEditMakeRectangleDelegate.TOOL_NAME);
 
-        // Stores the rectangle being created
-        this._creating = null;
-
-        // See mousedown and mousemove events for explanation
-        this._startMousePos = null;
-
+        this.viewArgs.model.selection.clearSelection();
         this._reset();
     }
 
     _reset() {
         this._creating = null;
-        this._startMousePos = null;
-        this._startNodeRend = null;
-        this._endNodeRend = null;
 
         // See mousedown and mousemove events for explanation
         this._startMousePos = null;
-        this._lastMousePos = null;
-
-        this._enteredText = '';
+        this._lastMousePos = new CanvasInputPos();
     }
 
 
@@ -58,26 +46,36 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
     // Editor Ui Mouse
 
 
-
-
-    mouseDown(event, mouse) {
-        this._finaliseCreate();
-        this._startMousePos = mouse;
+    // ---------------
+    // Map mouse events
+    mouseDown(event: MouseEvent, inputPos: CanvasInputPos) {
+        this.inputStart(inputPos);
     }
 
-    mouseUp(event, mouse) {
-        if (this._hasPassedDragThreshold(this._startMousePos, mouse)) {
-            this._reset();
-            return;
-        }
-
-
-        // if (editorUi.grid.snapping())
-        //     this._creating.snap(editorUi.grid.snapSize());
-
-        this.viewArgs.config.invalidate();
+    mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
+        this.inputMove(inputPos);
     }
 
+    mouseUp(event: MouseEvent, inputPos: CanvasInputPos) {
+        this.inputEnd(inputPos);
+    }
+
+    // ---------------
+    // Map touch events
+    touchStart(event: TouchEvent, inputPos: CanvasInputPos) {
+        this.inputStart(inputPos);
+    };
+
+    touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
+        this.inputMove(inputPos);
+    };
+
+    touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
+        this.inputEnd(inputPos);
+    };
+
+    // ---------------
+    // Misc delegate methods
     delegateWillBeTornDown() {
         this._finaliseCreate();
     }
@@ -85,15 +83,85 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
     draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
     }
 
-    _finaliseCreate() {
-        // DiagramBranchContext
+    // ---------------
+    // Start logic
+    private inputStart(inputPos: CanvasInputPos) {
+        this._lastMousePos = inputPos;
+        if (!this._creating)
+            this._startMousePos = inputPos;
+    }
 
-        // TODO, Add to branch context
-        // if (this._enteredText && this._creating)
-        //     this._creating.storeState();
+    private inputMove(inputPos: CanvasInputPos) {
+        if (this._startMousePos == null)
+            return;
 
+        if (!this._creating) {
+            // if (!this._hasPassedDragThreshold(this._startMousePos, inputPos))
+            //     return;
+
+            this.createDisp(inputPos);
+        }
+
+        // if (editorUi.grid.snapping())
+        //     this._creating.snap(editorUi.grid.snapSize());
+        this.updateSize(inputPos);
+    }
+
+
+    private inputEnd(inputPos: CanvasInputPos) {
+        if (!this._creating) {
+            return;
+        }
+
+        this.updateSize(inputPos);
+
+        // if (!this._hasPassedDragThreshold(this._lastMousePos, inputPos)) {
+        this._finaliseCreate();
         this._reset();
+        // }
+    }
+
+    private updateSize(inputPos: CanvasInputPos) {
+
+        if (!this._creating)
+            return;
+
+        let startMouse: PointI = {x: this._startMousePos.x, y: this._startMousePos.y};
+        let point: PointI = {x: inputPos.x, y: inputPos.y};
+        let x = point.x < startMouse.x ? point.x : startMouse.x;
+        let y = point.y < startMouse.y ? point.y : startMouse.y;
+
+        let width = Math.abs(point.x - startMouse.x);
+        let height = Math.abs(point.y - startMouse.y);
+
+        DispRectangle.setRectanglePoint(this._creating, {x, y});
+        DispRectangle.setRectangleWidth(this._creating, width);
+        DispRectangle.setRectangleHeight(this._creating, height);
         this.viewArgs.config.invalidate();
     }
 
+    private createDisp(inputPos: CanvasInputPos) {
+
+        this._creating = DispRectangle.create(this.viewArgs.config.coordSet);
+
+        // Link the Disp
+        this.canvasEditor.lookupService._linkDispLookups(this._creating);
+
+        // Add the shape to the branch
+        this._creating = this.canvasEditor.branchContext.branchTuple
+            .addOrUpdateDisp(this._creating, true);
+
+        this.viewArgs.model.recompileModel();
+        this.viewArgs.model.selection.replaceSelection(this._creating);
+        this._addBranchAnchor(inputPos.x, inputPos.y);
+    }
+
+    private _finaliseCreate() {
+        if (this._creating == null)
+            return;
+
+        // this.canvasEditor.props.showShapeProperties();
+        this.viewArgs.config.invalidate();
+        this.canvasEditor.setEditorSelectTool();
+    }
 }

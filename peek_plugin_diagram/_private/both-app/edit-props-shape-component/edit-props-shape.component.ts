@@ -7,7 +7,7 @@ import {
     ShapePropType
 } from "../canvas/PeekCanvasShapePropsContext";
 import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
-import {DispBase} from "../tuples/shapes/DispBase";
+import {DispBase} from "../canvas-shapes/DispBase";
 
 
 @Component({

@@ -5,8 +5,8 @@ import {
     PeekCanvasInputDelegate
 } from "./PeekCanvasInputDelegate.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
-import {DispGroupPointer} from "../tuples/shapes/DispGroupPointer";
-import {PointI} from "../tuples/shapes/DispBase";
+import {DispGroupPointer} from "../canvas-shapes/DispGroupPointer";
+import {PointI} from "../canvas-shapes/DispBase";
 
 /**
  * This input delegate handles :
@@ -32,8 +32,6 @@ export class PeekCanvasInputMakeDispGroupPtrEdgeDelegate
     }
 
     _reset() {
-        this._startMousePos = null;
-
         // See mousedown and mousemove events for explanation
         this._startMousePos = null;
         this._lastMousePos = null;

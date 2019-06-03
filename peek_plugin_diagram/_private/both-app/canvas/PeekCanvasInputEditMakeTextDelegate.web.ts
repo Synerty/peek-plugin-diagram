@@ -3,11 +3,11 @@ import {
     InputDelegateConstructorArgs,
     PeekCanvasInputDelegate
 } from "./PeekCanvasInputDelegate.web";
-import {DispText} from "../tuples/shapes/DispText";
+import {DispText} from "../canvas-shapes/DispText";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
-import {DispGroup} from "../tuples/shapes/DispGroup";
-import {PointI} from "../tuples/shapes/DispBase";
+import {DispGroup} from "../canvas-shapes/DispGroup";
+import {PointI} from "../canvas-shapes/DispBase";
 
 /**
  * This input delegate handles :
@@ -29,12 +29,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
                 canvasEditor: PeekCanvasEditor) {
         super(viewArgs, canvasEditor, PeekCanvasInputEditMakeTextDelegate.TOOL_NAME);
 
-        // Stores the rectangle being created
-        this._creating = null;
-
-        // See mousedown and mousemove events for explanation
-        this._startMousePos = null;
-
+        this.viewArgs.model.selection.clearSelection();
         this._reset();
     }
 

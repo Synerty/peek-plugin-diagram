@@ -1,7 +1,7 @@
 import {DispBase, DispBaseT, PointI, PointsT} from "./DispBase";
-import {PeekCanvasShapePropsContext} from "../../canvas/PeekCanvasShapePropsContext";
+import {PeekCanvasShapePropsContext} from "../canvas/PeekCanvasShapePropsContext";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
-import {PeekCanvasBounds} from "../../canvas/PeekCanvasBounds";
+import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 
 
 export interface DispNullT extends DispBaseT {

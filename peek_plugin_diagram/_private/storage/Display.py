@@ -385,6 +385,7 @@ class DispPolygon(DispBase):
     FILL_LEFT_TO_RIGHT = 3
     fillDirection = Column(Integer, doc='fd')
     fillPercent = Column(Float, doc='fp')
+    isRectangle = Column(Boolean, doc='r')
 
     lineColorId = Column(Integer, ForeignKey('DispColor.id'), doc='lc')
     lineColor = relationship(DispColor, foreign_keys=lineColorId)

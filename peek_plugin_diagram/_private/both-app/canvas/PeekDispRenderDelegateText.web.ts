@@ -5,10 +5,10 @@ import {
     DispTextT,
     TextHorizontalAlign,
     TextVerticalAlign
-} from "../tuples/shapes/DispText";
+} from "../canvas-shapes/DispText";
 import {pointToPixel} from "../DiagramUtil";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {DispBaseT, PointI} from "../tuples/shapes/DispBase";
+import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
 
 export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 

@@ -2,7 +2,7 @@ import {CanvasInputPos, InputDelegateConstructorArgs, PeekCanvasInputDelegate} f
 import * as assert from "assert";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
-import {PointI} from "../tuples/shapes/DispBase";
+import {PointI} from "../canvas-shapes/DispBase";
 
 /**
  * This input delegate handles :

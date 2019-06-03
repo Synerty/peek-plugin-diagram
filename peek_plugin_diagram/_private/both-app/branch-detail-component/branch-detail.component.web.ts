@@ -5,14 +5,14 @@ import {BranchDetailTuple, BranchService} from "@peek/peek_plugin_branch";
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
 
 import {DocDbService, DocumentResultI} from "@peek/peek_plugin_docdb";
-import {DispFactory} from "../tuples/shapes/DispFactory";
+import {DispFactory} from "../canvas-shapes/DispFactory";
 import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {PrivateDiagramBranchContext} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchContext";
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 import {assert} from "../DiagramUtil";
 import {Observable} from "rxjs";
-import {DispBase} from "../tuples/shapes/DispBase";
+import {DispBase} from "../canvas-shapes/DispBase";
 
 
 @Component({

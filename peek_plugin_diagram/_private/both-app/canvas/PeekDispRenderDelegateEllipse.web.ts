@@ -1,9 +1,9 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
-import {DispEllipse, DispEllipseT} from "../tuples/shapes/DispEllipse";
+import {DispEllipse, DispEllipseT} from "../canvas-shapes/DispEllipse";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {DispTextT} from "../tuples/shapes/DispText";
-import {DispBaseT, PointI} from "../tuples/shapes/DispBase";
+import {DispTextT} from "../canvas-shapes/DispText";
+import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
 
 export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
 

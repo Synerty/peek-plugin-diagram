@@ -5,8 +5,8 @@ import {
 } from "./PeekCanvasInputDelegate.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
-import {DispEllipse} from "../tuples/shapes/DispEllipse";
-import {PointI} from "../tuples/shapes/DispBase";
+import {DispEllipse} from "../canvas-shapes/DispEllipse";
+import {PointI} from "../canvas-shapes/DispBase";
 
 /**
  * This input delegate handles :
@@ -26,32 +26,20 @@ export class PeekCanvasInputEditMakeEllipseDelegate
     // Used to detect dragging and its the mouse position we use
     private _startMousePos: CanvasInputPos | null = null;
 
-
-    private _dragThresholdPassed = false;
-
-
     constructor(viewArgs: InputDelegateConstructorArgs,
                 canvasEditor: PeekCanvasEditor) {
         super(viewArgs, canvasEditor, PeekCanvasInputEditMakeEllipseDelegate.TOOL_NAME);
 
-        // Stores the rectangle being created
-        this._creating = null;
-
-        // See mousedown and mousemove events for explanation
-        this._startMousePos = null;
-
+        this.viewArgs.model.selection.clearSelection();
         this._reset();
     }
 
     _reset() {
         this._creating = null;
-        this._startMousePos = null;
-        this._dragThresholdPassed = false;
 
         // See mousedown and mousemove events for explanation
         this._startMousePos = null;
         this._lastMousePos = new CanvasInputPos();
-
     }
 
 
@@ -99,7 +87,9 @@ export class PeekCanvasInputEditMakeEllipseDelegate
     // ---------------
     // Start logic
     private inputStart(inputPos: CanvasInputPos) {
-        this._startMousePos = inputPos;
+        this._lastMousePos = inputPos;
+        if (!this._creating)
+            this._startMousePos = inputPos;
     }
 
     private inputMove(inputPos: CanvasInputPos) {
@@ -125,9 +115,11 @@ export class PeekCanvasInputEditMakeEllipseDelegate
         }
 
         this.updateSize(inputPos);
-        this._finaliseCreate();
 
+        // if (!this._hasPassedDragThreshold(this._lastMousePos, inputPos)) {
+        this._finaliseCreate();
         this._reset();
+        // }
     }
 
     private updateSize(inputPos: CanvasInputPos) {
@@ -144,7 +136,7 @@ export class PeekCanvasInputEditMakeEllipseDelegate
         let yRadius = Math.abs(point.y - startMouse.y);
 
         DispEllipse.setCenter(this._creating, {x, y});
-        DispEllipse.setXRadius(this._creating, xRadius );
+        DispEllipse.setXRadius(this._creating, xRadius);
         DispEllipse.setYRadius(this._creating, yRadius);
         this.viewArgs.config.invalidate();
     }
@@ -171,7 +163,7 @@ export class PeekCanvasInputEditMakeEllipseDelegate
         if (this._creating == null)
             return;
 
-        this.canvasEditor.props.showShapeProperties();
+        // this.canvasEditor.props.showShapeProperties();
         this.viewArgs.config.invalidate();
         this.canvasEditor.setEditorSelectTool();
     }

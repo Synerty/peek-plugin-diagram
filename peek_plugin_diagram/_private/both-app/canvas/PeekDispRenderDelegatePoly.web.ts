@@ -1,10 +1,10 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
-import {DispPolygon} from "../tuples/shapes/DispPolygon";
-import {DispBase, DispBaseT, DispType, PointI, PointsT} from "../tuples/shapes/DispBase";
+import {DispPolygon} from "../canvas-shapes/DispPolygon";
+import {DispBase, DispBaseT, DispType, PointI, PointsT} from "../canvas-shapes/DispBase";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {DispTextT} from "../tuples/shapes/DispText";
-import {DispPolyline, DispPolylineEndTypeE} from "../tuples/shapes/DispPolyline";
+import {DispTextT} from "../canvas-shapes/DispText";
+import {DispPolyline, DispPolylineEndTypeE} from "../canvas-shapes/DispPolyline";
 
 export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 

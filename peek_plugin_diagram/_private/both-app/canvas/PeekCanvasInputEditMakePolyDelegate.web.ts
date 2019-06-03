@@ -5,10 +5,10 @@ import {
 } from "./PeekCanvasInputDelegate.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
-import {DispPoly} from "../tuples/shapes/DispPoly";
-import {DispBaseT, PointI} from "../tuples/shapes/DispBase";
-import {DispPolygon} from "../tuples/shapes/DispPolygon";
-import {DispPolyline, DispPolylineEndTypeE} from "../tuples/shapes/DispPolyline";
+import {DispPoly} from "../canvas-shapes/DispPoly";
+import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
+import {DispPolygon} from "../canvas-shapes/DispPolygon";
+import {DispPolyline, DispPolylineEndTypeE} from "../canvas-shapes/DispPolyline";
 
 /**
  * This input delegate handles :
@@ -35,12 +35,12 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
                 tool: EditorToolType) {
         super(viewArgs, canvasEditor, tool);
 
+        this.viewArgs.model.selection.clearSelection();
         this._reset();
     }
 
     _reset() {
         this._creating = null;
-        this._startMousePos = null;
         this._startNodeDisp = null;
         this._endNodeDisp = null;
 
@@ -159,12 +159,16 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
                     return;
                 }
         */
-        this._startMousePos = inputPos;
+        this._lastMousePos = inputPos;
+        if (!this._creating) {
+            this._startMousePos = inputPos;
+            this.createDisp(inputPos);
+        }
     }
 
 
     private inputMove(inputPos: CanvasInputPos) {
-        if (!this._creating)
+        if (this._startMousePos == null)
             return;
 
         let delta = this._setLastMousePos(inputPos);
@@ -180,22 +184,18 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         if (!this._startMousePos)
             return;
 
-        let point = this._coord(this._startMousePos, shiftKey);
-        this._startMousePos = null;
-
-        // if (this._hasPassedDragThreshold(this._startMousePos, inputPos))
-        //     return;
-
-        if (!this._creating) {
-            this.createDisp(inputPos);
-        }
+        if (!this._hasPassedDragThreshold(this._startMousePos, inputPos))
+            return;
 
 
         if (this.NAME == EditorToolType.EDIT_MAKE_LINE_WITH_ARROW
             && DispPoly.pointCount(this._creating) == 2) {
             this._finaliseCreate();
+
         } else {
+            let point = this._coord(this._lastMousePos, shiftKey);
             DispPoly.addPoint(this._creating, point);
+
         }
 
         this.viewArgs.config.invalidate();
@@ -220,8 +220,11 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         if (this.NAME == EditorToolType.EDIT_MAKE_LINE_WITH_ARROW)
             DispPolyline.setEndEndType(this._creating, DispPolylineEndTypeE.Arrow);
 
+        DispPoly.addPoint(this._creating, this._startMousePos);
+        this._setLastMousePos(this._startMousePos);
+
+
         DispPoly.addPoint(this._creating, inputPos);
-        this._setLastMousePos(inputPos);
 
         // Link the Disp
         this.canvasEditor.lookupService._linkDispLookups(this._creating);
@@ -266,7 +269,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
         // this.canvasInput._scope.pageMethods.cableCreateCallback(poly, startNodeDisp, endNodeDisp);
 
-        this.canvasEditor.props.showShapeProperties();
+        // this.canvasEditor.props.showShapeProperties();
         this.viewArgs.config.invalidate();
         this.canvasEditor.setEditorSelectTool();
     }

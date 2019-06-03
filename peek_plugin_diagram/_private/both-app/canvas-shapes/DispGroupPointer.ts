@@ -1,5 +1,5 @@
 import {DispBase, DispBaseT, PointI} from "./DispBase";
-import {PeekCanvasShapePropsContext} from "../../canvas/PeekCanvasShapePropsContext";
+import {PeekCanvasShapePropsContext} from "../canvas/PeekCanvasShapePropsContext";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 import {DispGroup, DispGroupT} from "./DispGroup";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";

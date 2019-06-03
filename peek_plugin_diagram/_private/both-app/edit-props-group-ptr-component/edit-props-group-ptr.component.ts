@@ -11,7 +11,7 @@ import {PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_priva
 import {GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {LinkedGrid} from "../cache/LinkedGrid.web";
-import {DispGroup, DispGroupT} from "../tuples/shapes/DispGroup";
+import {DispGroup, DispGroupT} from "../canvas-shapes/DispGroup";
 import {PeekCanvasGroupPtrPropsContext} from "../canvas/PeekCanvasGroupPtrPropsContext";
 
 

@@ -7,7 +7,7 @@ import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
-import {DispBase, PointI} from "../tuples/shapes/DispBase";
+import {DispBase, PointI} from "../canvas-shapes/DispBase";
 
 
 export function disableContextMenu(event) {
@@ -50,7 +50,7 @@ export abstract class PeekCanvasInputDelegate {
     /** The distance to move before its a drag * */
     readonly DRAG_START_THRESHOLD = 5;
 
-    /** The time it takes to do a click, VS a click that moved slighltly * */
+    /** The time it takes to do a click, VS a click that moved slightly * */
     readonly DRAG_TIME_THRESHOLD = 200;
 
     protected constructor(protected viewArgs: InputDelegateConstructorArgs,
@@ -59,12 +59,13 @@ export abstract class PeekCanvasInputDelegate {
     }
 
     protected _hasPassedDragThreshold(m1: CanvasInputPos, m2: CanvasInputPos) {
+        let distance = this.DRAG_START_THRESHOLD / this.viewArgs.config.viewPort.zoom;
         let d = false;
         // Time has passed
         d = d || ((m2.time.getTime() - m1.time.getTime()) > this.DRAG_TIME_THRESHOLD);
         // Mouse has moved
-        d = d || (Math.abs(m1.clientX - m2.clientX) > this.DRAG_START_THRESHOLD);
-        d = d || (Math.abs(m1.clientY - m2.clientY) > this.DRAG_START_THRESHOLD);
+        d = d || (Math.abs(m1.clientX - m2.clientX) > distance);
+        d = d || (Math.abs(m1.clientY - m2.clientY) > distance);
 
         return d;
     };

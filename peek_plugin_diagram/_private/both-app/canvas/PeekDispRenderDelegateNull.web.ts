@@ -1,8 +1,8 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
-import {DispNull, DispNullT} from "../tuples/shapes/DispNull";
+import {DispNull, DispNullT} from "../canvas-shapes/DispNull";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {DispBaseT, PointI} from "../tuples/shapes/DispBase";
+import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
 
 export class PeekDispRenderDelegateNull extends PeekDispRenderDelegateABC {
 

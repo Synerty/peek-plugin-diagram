@@ -1,5 +1,5 @@
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
-import {DispBaseT} from "../tuples/shapes/DispBase";
+import {DispBaseT} from "../canvas-shapes/DispBase";
 
 export enum ShapePropType {
     Layer,

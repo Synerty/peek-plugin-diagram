@@ -1,7 +1,7 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {DispBaseT, PointI} from "../tuples/shapes/DispBase";
-import {DispFactory} from "../tuples/shapes/DispFactory";
+import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
+import {DispFactory} from "../canvas-shapes/DispFactory";
 
 export abstract class PeekDispRenderDelegateABC {
 

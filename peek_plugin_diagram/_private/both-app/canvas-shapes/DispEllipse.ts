@@ -5,7 +5,7 @@ import {
     PeekCanvasShapePropsContext,
     ShapeProp,
     ShapePropType
-} from "../../canvas/PeekCanvasShapePropsContext";
+} from "../canvas/PeekCanvasShapePropsContext";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
 
 export interface DispEllipseT extends DispBaseT {
@@ -104,6 +104,7 @@ export class DispEllipse extends DispBase {
     static setCenter(disp: DispEllipseT, val: PointI): void {
         disp.g[0] = val.x;
         disp.g[1] = val.y;
+        disp.bounds = null;
     }
 
     static xRadius(disp: DispEllipseT): number {
@@ -112,6 +113,7 @@ export class DispEllipse extends DispBase {
 
     static setXRadius(disp: DispEllipseT, val: number): void {
         disp.xr = val;
+        disp.bounds = null;
     }
 
     static yRadius(disp: DispEllipseT): number {
@@ -120,6 +122,7 @@ export class DispEllipse extends DispBase {
 
     static setYRadius(disp: DispEllipseT, val: number): void {
         disp.yr = val;
+        disp.bounds = null;
     }
 
     static rotation(disp: DispEllipseT): number {
@@ -128,6 +131,7 @@ export class DispEllipse extends DispBase {
 
     static setRotation(disp: DispEllipseT, val: number): void {
         disp.r = val;
+        disp.bounds = null;
     }
 
     static startAngle(disp: DispEllipseT): number {
@@ -136,6 +140,7 @@ export class DispEllipse extends DispBase {
 
     static setStartAngle(disp: DispEllipseT, val: number): void {
         disp.sa = val;
+        disp.bounds = null;
     }
 
     static endAngle(disp: DispEllipseT): number {
@@ -144,6 +149,7 @@ export class DispEllipse extends DispBase {
 
     static setEndAngle(disp: DispEllipseT, val: number): void {
         disp.ea = val;
+        disp.bounds = null;
     }
 
     static create(coordSet: ModelCoordSet): DispEllipseT {

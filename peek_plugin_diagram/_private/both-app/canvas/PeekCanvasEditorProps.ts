@@ -5,9 +5,9 @@ import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupServi
 import {PeekCanvasGroupPtrPropsContext} from "./PeekCanvasGroupPtrPropsContext";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
-import {DispGroupPointerT} from "../tuples/shapes/DispGroupPointer";
-import {DispBase, DispType} from "../tuples/shapes/DispBase";
-import {DispFactory} from "../tuples/shapes/DispFactory";
+import {DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
+import {DispBase, DispType} from "../canvas-shapes/DispBase";
+import {DispFactory} from "../canvas-shapes/DispFactory";
 
 export enum EditorContextType {
     NONE,

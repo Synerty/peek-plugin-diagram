@@ -5,7 +5,7 @@ import {
     PeekCanvasShapePropsContext,
     ShapeProp,
     ShapePropType
-} from "../../canvas/PeekCanvasShapePropsContext";
+} from "../canvas/PeekCanvasShapePropsContext";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
 
 

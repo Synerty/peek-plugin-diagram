@@ -7,11 +7,11 @@ import {
 } from "./PeekCanvasInputDelegate.web";
 import {PolylineEnd} from "./PeekCanvasModelQuery.web";
 import {assert} from "../DiagramUtil";
-import {DispBase, DispBaseT, DispType, PointI} from "../tuples/shapes/DispBase";
-import {DispPolyline, DispPolylineT} from "../tuples/shapes/DispPolyline";
+import {DispBase, DispBaseT, DispType, PointI} from "../canvas-shapes/DispBase";
+import {DispPolyline, DispPolylineT} from "../canvas-shapes/DispPolyline";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
-import {DispFactory} from "../tuples/shapes/DispFactory";
+import {DispFactory} from "../canvas-shapes/DispFactory";
 
 interface SecondarySelectionI {
 
@@ -115,7 +115,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
         // Delete the disp on the canvas
         if (event.keyCode == 46 // delete?
-            || event.keyCode == 91 // macOS command+delete
             || event.keyCode == 8) { // macOS "delete"
             this.deleteSelectedDisps()
 
@@ -171,8 +170,9 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         let selectedDisps = this.viewArgs.model.selection.selectedDisps();
         let margin = this.viewArgs.config.mouse.selecting.margin / this.viewArgs.config.viewPort.zoom;
 
-
-        for (let disp of selectedDisps) {
+        // Handles are only shown when one item is selected
+        if (selectedDisps.length == 1) {
+            let disp = selectedDisps[0];
             let handles = this.viewArgs.renderFactory.handles(disp);
             for (let j = 0; j < handles.length; j++) {
                 let handle = handles[j];
@@ -217,11 +217,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
 
         if (this._mouseDownOnHandle != null) {
-            // Ensure there is only one item selected
-            if (this.viewArgs.model.selection.selectedDisps().length != 1) {
-                this.viewArgs.model.selection
-                    .replaceSelection(this._mouseDownOnHandle.disp);
-            }
             this.startStateMovingHandle(inputPos);
         } else {
             this._state = this.STATE_SELECTING;
@@ -689,9 +684,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
                 .branchTuple
                 .addOrUpdateDisp(dispPolylineEnd.disp, true);
         }
-
-        console.log(groupSelections);
-        console.log(this._selectedPolylineEnds);
 
         this.viewArgs.model.recompileModel();
         this.viewArgs.model.selection.replaceSelection(primarySelections);

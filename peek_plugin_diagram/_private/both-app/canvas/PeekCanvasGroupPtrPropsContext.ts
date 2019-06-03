@@ -1,5 +1,5 @@
-import {DispGroupT} from "../tuples/shapes/DispGroup";
-import {DispGroupPointer, DispGroupPointerT} from "../tuples/shapes/DispGroupPointer";
+import {DispGroupT} from "../canvas-shapes/DispGroup";
+import {DispGroupPointer, DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";

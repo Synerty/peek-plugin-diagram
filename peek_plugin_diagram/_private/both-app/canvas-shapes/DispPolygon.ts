@@ -5,7 +5,7 @@ import {
     PeekCanvasShapePropsContext,
     ShapeProp,
     ShapePropType
-} from "../../canvas/PeekCanvasShapePropsContext";
+} from "../canvas/PeekCanvasShapePropsContext";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
 
 export enum PolygonFillDirection {
@@ -30,6 +30,9 @@ export interface DispPolygonT extends DispPolyT {
 
     // fillPercent
     fp: number;
+
+    // Is this polygon a rectangle
+    r: boolean | null;
 
 }
 
@@ -79,6 +82,14 @@ export class DispPolygon extends DispPoly {
 
     static setFillPercent(disp: DispPolygonT, val: number): void {
         disp.fp = val;
+    }
+
+    static isRectangle(disp: DispPolygonT): boolean {
+        return !!disp.r;
+    }
+
+    static setIsRectangle(disp: DispPolygonT, val: boolean): void {
+        disp.r = !val ? null : true;
     }
 
     static center(disp: DispPolygonT): PointI {
