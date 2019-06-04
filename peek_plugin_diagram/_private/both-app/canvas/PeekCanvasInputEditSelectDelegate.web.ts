@@ -158,7 +158,10 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
         const q = this.viewArgs.model.query;
 
-        let visibleDisps = q.filterForVisibleDisps(this.viewArgs.model.viewableDisps());
+        let visibleDisps = q.filterForVisibleDisps(
+            this.viewArgs.model.viewableDisps(),
+            this.viewArgs.config.viewPort.zoom
+        );
 
         if (this._mouseDownMiddleButton || this._mouseDownRightButton) {
             this._state = this.STATE_CANVAS_PANNING;
