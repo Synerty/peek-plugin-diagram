@@ -67,28 +67,30 @@ IMPORT_SORT_ORDER = {
 @DeferrableTask
 @celeryApp.task(bind=True)
 def importDispsTask(self, modelSetKey: str, coordSetKey: str,
-                    importGroupHash: str, dispsEncodedPayload: bytes) -> List[
-    ImportLiveDbItemTuple]:
+                    importGroupHash: str,
+                    dispsEncodedPayload: bytes) -> List[ImportLiveDbItemTuple]:
     """ Import Disp Task
 
     :returns None
 
     """
     try:
-        disps = Payload().fromEncodedPayload(dispsEncodedPayload).tuples
+        importDisps = Payload().fromEncodedPayload(dispsEncodedPayload).tuples
 
-        _validateImportDisps(disps)
+        _validateImportDisps(importDisps)
 
         coordSet = _loadCoordSet(modelSetKey, coordSetKey)
 
-        # _validateImportDisps(disps)
+        _validateImportDisps(importDisps)
 
         dispIdsToCompile, dispLinkImportTuples, ormDisps = _importDisps(
-            coordSet, disps
+            coordSet, importDisps
         )
 
+        _validateConvertedDisps(ormDisps)
+
         # Update the coord set view start position if required.
-        _updateCoordSetPosition(coordSet, disps)
+        _updateCoordSetPosition(coordSet, importDisps)
 
         _bulkLoadDispsTask(importGroupHash, ormDisps)
 
@@ -120,6 +122,7 @@ def _loadCoordSet(modelSetKey, coordSetKey):
 
 
 def _validateImportDisps(importDisp: List):
+
     for importDisp in importDisp:
         isGroup = isinstance(importDisp, ImportDispGroupTuple)
         # isGroupChild = not isGroup and importDisp.parentDispGroupHash
@@ -129,6 +132,25 @@ def _validateImportDisps(importDisp: List):
 
         if not isGroup and importDisp.levelHash is None:
             raise Exception("Disps must have layers and levels")
+
+
+def _validateConvertedDisps(disps: List):
+    NoneT = type(None)
+
+    def checkInt(importDisp, attrName):
+        if hasattr(importDisp, attrName):
+            if type(getattr(importDisp, attrName)) not in (int, float, NoneT):
+                raise Exception('Disp %s must be int : "%s"'
+                                % (attrName, importDisp.colorHash))
+
+    for disp in disps:
+        checkInt(disp, 'colorHash')
+        checkInt(disp, 'lineColorHash')
+        checkInt(disp, 'fillColorHash')
+        checkInt(disp, 'lineStyleHash')
+        checkInt(disp, 'textStyleHash')
+        checkInt(disp, 'layerHash')
+        checkInt(disp, 'levelHash')
 
 
 def _importDisps(coordSet: ModelCoordSet, importDisps: List):
@@ -390,34 +412,45 @@ def _bulkInsertDisps(engine, disps: List):
 
     startTime = datetime.now(pytz.utc)
     startDispsLen = len(disps)
+    rawConn = engine.raw_connection()
 
-    for DispType, Tables in INSERT_MAP:
-        inserts = []
-        remainingDisps = []
+    try:
+        for DispType, Tables in INSERT_MAP:
+            inserts = []
+            remainingDisps = []
 
-        for disp in disps:
-            if isinstance(disp, DispType):
-                insertDict = convertToCoreSqlaInsert(disp, DispType)
-                insertDict['type'] = DispType.RENDERABLE_TYPE
-                inserts.append(insertDict)
+            for disp in disps:
+                if isinstance(disp, DispType):
+                    insertDict = convertToCoreSqlaInsert(disp, DispType)
+                    insertDict['type'] = DispType.RENDERABLE_TYPE
+                    inserts.append(insertDict)
 
-            else:
-                remainingDisps.append(disp)
+                else:
+                    remainingDisps.append(disp)
 
-        disps = remainingDisps
+            disps = remainingDisps
 
-        if not inserts:
-            continue
+            if not inserts:
+                continue
 
-        for Table in Tables:
-            pgCopyInsert(engine, Table.__table__, inserts)
-            # conn.execute(Table.__table__.insert(), inserts)
+            for Table in Tables:
+                pgCopyInsert(rawConn, Table.__table__, inserts)
+                # conn.execute(Table.__table__.insert(), inserts)
 
-    if disps:
-        raise Exception("_bulkInsertDisps: We didn't insert all the disps")
+        if disps:
+            raise Exception("_bulkInsertDisps: We didn't insert all the disps")
 
-    logger.info("Inserted %s Disps in %s",
-                startDispsLen, (datetime.now(pytz.utc) - startTime))
+        logger.info("Inserted %s Disps in %s",
+                    startDispsLen, (datetime.now(pytz.utc) - startTime))
+
+        rawConn.commit()
+
+    except Exception:
+        rawConn.rollback()
+        raise
+
+    finally:
+        rawConn.close()
 
 
 def _updateCoordSetPosition(coordSet: ModelCoordSet, disps: List):

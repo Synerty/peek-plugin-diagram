@@ -104,13 +104,21 @@ export abstract class DispBase {
         return DispBase._typeMap;
     };
 
+    // Helper query methods
+
     static typeOf(disp): DispType {
         return DispBase.typeMap[disp._tt][0];
+    }
+
+    static hasColor(disp: any) {
+        return !!(disp.lcl || disp.fcl || disp.cl);
     }
 
     static niceName(disp): string {
         return DispBase.typeMap[disp._tt][1];
     }
+
+    // Getters and setters
 
     static type(disp: DispBaseT): string {
         return disp._tt;
@@ -329,6 +337,4 @@ export abstract class DispBase {
 
         return copy;
     }
-
-
 }

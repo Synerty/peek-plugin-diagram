@@ -69,7 +69,10 @@ def importDispLinks(coordSet: ModelCoordSet,
         ormSession.commit()
 
         if dispLinkInserts:
-            pgCopyInsert(CeleryDbConn.getDbEngine(), LiveDbDispLink.__table__, dispLinkInserts)
+            # This commits it's self
+            rawConn = CeleryDbConn.getDbEngine().raw_connection()
+            pgCopyInsert(rawConn, LiveDbDispLink.__table__, dispLinkInserts)
+            rawConn.commit()
 
         logger.info(
             "Inserted %s LiveDbDispLinks in %s",

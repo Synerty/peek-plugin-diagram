@@ -133,38 +133,39 @@ def compileDisps(self, queueIds, dispIds):
     # Run all the ORM Session update methods
     ormSession = CeleryDbConn.getDbSession()
     try:
-        # ---------------
-        # 2) Apply the LiveDB Attribute updates
-        disps = _loadDisps(ormSession, dispIdsIncludingClones)
+        with ormSession.no_autoflush:
+            # ---------------
+            # 2) Apply the LiveDB Attribute updates
+            disps = _loadDisps(ormSession, dispIdsIncludingClones)
 
-        # ---------------
-        # 3) Apply the LiveDB Attribute updates
-        _applyLiveDbAttributes(ormSession, disps, coordSetById)
+            # ---------------
+            # 3) Apply the LiveDB Attribute updates
+            _applyLiveDbAttributes(ormSession, disps, coordSetById)
 
-        # ---------------
-        # 4) Scale the Disp geomJson to match the coord set scaling
-        preparedDisps = _scaleDisp(disps, coordSetById)
+            # ---------------
+            # 4) Scale the Disp geomJson to match the coord set scaling
+            preparedDisps = _scaleDisp(disps, coordSetById)
 
-        # 5) DispGroups, take Disps as part of a disp group and load them into JSON in the
-        #         DispGroup. PreparedDisp????
-        _compileDispGroups(ormSession, preparedDisps)
+            # 5) DispGroups, take Disps as part of a disp group and load them
+            # into JSON in the DispGroup. PreparedDisp????
+            _compileDispGroups(ormSession, preparedDisps)
 
-        # ---------------
-        # 6) Extract any new LocationIndex entries, of the Disp has a key
-        locationCompiledQueueItems, locationIndexByDispId = _indexLocation(
-            preparedDisps, coordSetById
-        )
+            # ---------------
+            # 6) Extract any new LocationIndex entries, of the Disp has a key
+            locationCompiledQueueItems, locationIndexByDispId = _indexLocation(
+                preparedDisps, coordSetById
+            )
 
-        # ---------------
-        # 7) Determine which grids this disp will live in, and create GridKeyIndex entries
-        #         for those grid keys for this disp.
-        gridCompiledQueueItems, gridKeyIndexesByDispId = _calculateGridKeys(
-            preparedDisps, coordSetById, textStyleById
-        )
+            # ---------------
+            # 7) Determine which grids this disp will live in, and create GridKeyIndex
+            # entries for those grid keys for this disp.
+            gridCompiledQueueItems, gridKeyIndexesByDispId = _calculateGridKeys(
+                preparedDisps, coordSetById, textStyleById
+            )
 
-        # ---------------
-        # 8) Write the Disp JSON back to the disp
-        _updateDispsJson(preparedDisps)
+            # ---------------
+            # 8) Write the Disp JSON back to the disp
+            _updateDispsJson(preparedDisps)
 
         # ---------------
         # Commit the updates
