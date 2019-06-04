@@ -69,8 +69,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     }
 
     private _reset() {
-
-
         // **** Keep track of state! ****
         this._state = this.STATE_NONE;
         this._passedDragThreshold = false;
@@ -106,8 +104,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     // Input handlers
 
     keyUp(event) {
-
-
         // let charCode = (typeof event.which == "number") ? event.which :
         // event.keyCode;
         // alert(charCode + "| pressed");
@@ -153,14 +149,16 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     };
 
     mouseDown(event, inputPos: CanvasInputPos) {
-
-
         this._mouseDownWithShift = event.shiftKey;
         this._mouseDownWithCtrl = event.ctrlKey;
         this._mouseDownMiddleButton = event.button == 1;
         this._mouseDownRightButton = event.button == 2;
         this._startMousePos = inputPos;
         this._lastMousePos = inputPos;
+
+        const q = this.viewArgs.model.query;
+
+        let visibleDisps = q.filterForVisibleDisps(this.viewArgs.model.viewableDisps());
 
         if (this._mouseDownMiddleButton || this._mouseDownRightButton) {
             this._state = this.STATE_CANVAS_PANNING;
@@ -188,8 +186,8 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         }
 
         for (let i = selectedDisps.length - 1; i >= 0; i--) {
-            let r = selectedDisps[i];
-            if (this.viewArgs.renderFactory.contains(r, inputPos.x, inputPos.y, margin)) {
+            let d = selectedDisps[i];
+            if (d.bounds && d.bounds.contains(inputPos.x, inputPos.y, margin)) {
                 this._mouseDownOnSelection = true;
                 break;
             }
@@ -198,10 +196,9 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         if (this._mouseDownOnSelection) {
             this._mouseDownOnDisp = true;
         } else {
-            let disps = this.viewArgs.model.viewableDisps();
-            for (let i = disps.length - 1; i >= 0; i--) {
-                let r = disps[i];
-                if (this.viewArgs.renderFactory.contains(r, inputPos.x, inputPos.y, margin)) {
+            for (let i = visibleDisps.length - 1; i >= 0; i--) {
+                let d = visibleDisps[i];
+                if (d.bounds && d.bounds.contains(inputPos.x, inputPos.y, margin)) {
                     this._mouseDownOnDisp = true;
                     break;
                 }
@@ -239,8 +236,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     };
 
     private _touchZoom(event, inputPos: CanvasInputPos) {
-
-
         let t1x = event.targetTouches[0].pageX;
         let t1y = event.targetTouches[0].pageY;
         let t2x = event.targetTouches[1].pageX;
@@ -499,19 +494,23 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     // Methods for finding the disps
 
     private _selectByPoint(inputPos: CanvasInputPos) {
+        const q = this.viewArgs.model.query;
 
 
         let margin = this.viewArgs.config.mouse.selecting.margin / this.viewArgs.config.viewPort.zoom;
 
-        let coords = this.viewArgs.model.viewableDisps();
-        let hits = coords.filter((i) => {
-            return this.viewArgs.renderFactory.contains(i, inputPos.x, inputPos.y, margin);
-        }, this);
+        let disps = q.filterForVisibleDisps(
+            this.viewArgs.model.viewableDisps(),
+            this.viewArgs.config.viewPort.zoom
+        );
+
+        let hits = disps.filter(d => d.bounds
+            && d.bounds.contains(inputPos.x, inputPos.y, margin)
+        );
 
         // Sort by size, largest to smallest.
         // This ensures we can select smaller items when required.
-        hits.sort((a, b) => this.viewArgs.renderFactory
-            .selectionPriorityCompare(a, b));
+        hits = q.sortBySelectionPriority(hits);
 
         // Only select
         if (!this._mouseDownWithCtrl && hits.length)
@@ -521,13 +520,12 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     }
 
     private _selectByBox(inputPos1: CanvasInputPos, inputPos2: CanvasInputPos) {
-        let coords = this.viewArgs.model.viewableDisps();
+        let disps = this.viewArgs.model.viewableDisps();
 
         let b = PeekCanvasBounds.fromPoints([inputPos1, inputPos2]);
 
-        return coords.filter(
-            i => this.viewArgs.renderFactory.withIn(i, b.x, b.y, b.w, b.h)
-        );
+        return disps
+            .filter(d => d.bounds && d.bounds.withIn(b.x, b.y, b.w, b.h));
     }
 
     private _selectByTypeAndBounds(inputPos: CanvasInputPos) {
@@ -537,11 +535,9 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             return [];
 
         let masterCoord = hits[hits.length - 1];
-        let coords = this.viewArgs.model.viewableDisps();
+        let disps = this.viewArgs.model.viewableDisps();
 
-        return coords.filter((i) => {
-            return this.viewArgs.renderFactory.similarTo(i, masterCoord);
-        });
+        return disps.filter(d => d.bounds && d.bounds.similarTo(masterCoord));
     }
 
     private _changeSelection(hits) {

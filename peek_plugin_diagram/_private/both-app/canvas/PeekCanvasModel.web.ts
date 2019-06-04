@@ -230,7 +230,6 @@ export class PeekCanvasModel {
         return this._visibleDisps;
     }
 
-
     protected _compileDisps(force = false) {
         if (!this.needsCompiling && !force)
             return;

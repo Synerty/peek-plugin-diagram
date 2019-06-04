@@ -1,4 +1,3 @@
-import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {PeekDispRenderDelegatePoly} from "./PeekDispRenderDelegatePoly.web";
 import {PeekDispRenderDelegateText} from "./PeekDispRenderDelegateText.web";
 import {PeekDispRenderDelegateEllipse} from "./PeekDispRenderDelegateEllipse.web";
@@ -28,14 +27,6 @@ export class PeekDispRenderFactory {
         this._delegatesByType[DispBase.TYPE_DN] = nullDelegate;
 
     }
-
-
-    _initBounds(disp) {
-        if (disp.bounds == null) {
-            disp.bounds = PeekCanvasBounds.fromGeom(disp.g);
-        }
-    };
-
 
     draw(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
         let level = DispBase.level(disp);
@@ -68,7 +59,7 @@ export class PeekDispRenderFactory {
     };
 
     private drawInvisible(disp, ctx, zoom: number, pan: PointI) {
-        if (disp.lcl || disp.fcl || disp.cl)
+        if (DispBase.hasColor(disp))
             return;
 
         if (!disp.bounds)
@@ -97,43 +88,11 @@ export class PeekDispRenderFactory {
         this._delegatesByType[disp._tt].drawEditHandles(disp, ctx, zoom, pan);
     };
 
-    contains(disp, x, y, margin) {
-
-        this._initBounds(disp);
-        return this._delegatesByType[disp._tt].contains(disp, x, y, margin);
-    };
-
-    withIn(disp, x, y, w, h) {
-        this._initBounds(disp);
-        return this._delegatesByType[disp._tt].withIn(disp, x, y, w, h);
-    };
-
     similarTo(disp, otherDispObj) {
         return false;
     };
 
     handles(disp) {
         return this._delegatesByType[disp._tt].handles(disp);
-    };
-
-    area(disp) {
-        this._initBounds(disp);
-        return this._delegatesByType[disp._tt].area(disp);
-    };
-
-    selectionPriorityCompare(disp1, disp2): number {
-
-        if (DispBase.typeOf(disp1) == DispType.groupPointer
-            && DispBase.typeOf(disp2) != DispType.groupPointer)
-            return 1;
-
-        if (DispBase.typeOf(disp1) == DispType.polygon
-            && DispBase.typeOf(disp2) != DispType.polygon)
-            return 1;
-
-
-        return this._delegatesByType[disp2._tt].area(disp2)
-            - this._delegatesByType[disp1._tt].area(disp1);
-
     };
 }

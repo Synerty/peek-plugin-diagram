@@ -1,4 +1,8 @@
-import {CanvasInputPos, InputDelegateConstructorArgs, PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
+import {
+    CanvasInputPos,
+    InputDelegateConstructorArgs,
+    PeekCanvasInputDelegate
+} from "./PeekCanvasInputDelegate.web";
 import * as assert from "assert";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
@@ -119,8 +123,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         let margin = this.viewArgs.config.mouse.selecting.margin;// * this.viewArgs.config.viewPort.zoom;
 
         for (let i = selectedDisps.length - 1; i >= 0; i--) {
-            let r = selectedDisps[i];
-            if (this.viewArgs.renderFactory.contains(r, mouse.x, mouse.y, margin)) {
+            let d = selectedDisps[i];
+            if (d.bounds && d.bounds.contains(mouse.x, mouse.y, margin)) {
                 this._mouseDownOnSelection = true;
                 break;
             }
@@ -131,8 +135,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         } else {
             let disps = this.viewArgs.model.query.selectableDisps;
             for (let i = disps.length - 1; i >= 0; i--) {
-                let r = disps[i];
-                if (this.viewArgs.renderFactory.contains(r, mouse.x, mouse.y, margin)) {
+                let d = disps[i];
+                if (d.bounds && d.bounds.contains(mouse.x, mouse.y, margin)) {
                     this._mouseDownOnCoord = true;
                     break;
                 }
@@ -334,13 +338,13 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         let margin = this.viewArgs.config.mouse.selecting.margin;//* this.viewArgs.config.viewPort.zoom;
 
         let coords = this.viewArgs.model.query.selectableDisps;
-        let hits = coords.filter((i) => {
-            return this.viewArgs.renderFactory.contains(i, mouse.x, mouse.y, margin);
-        }, this);
+        let hits = coords.filter(d => d.bounds && d.bounds
+            .contains(mouse.x, mouse.y, margin)
+        );
 
         // Sort by size, largest to smallest.
         // This ensures we can select smaller items when required.
-        hits.sort((a, b) => this.viewArgs.renderFactory.selectionPriorityCompare(a, b));
+        hits = this.viewArgs.model.query.sortBySelectionPriority(hits);
 
         // Only select
         if (!this._mouseDownWithCtrl && hits.length)
@@ -359,9 +363,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         let masterCoord = hits[hits.length - 1];
         let coords = this.viewArgs.model.query.selectableDisps;
 
-        return coords.filter((i) => {
-            return this.viewArgs.renderFactory.similarTo(i, masterCoord);
-        });
+        return coords.filter(d => d.bounds && d.bounds.similarTo(masterCoord));
     };
 
     _changeSelection(hits) {
@@ -378,7 +380,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                 this.viewArgs.model.selection.replaceSelection(hits);
         }
 
-    };
+    }
+    ;
 
 
 }

@@ -49,6 +49,47 @@ export class PeekCanvasModelQuery {
         return this.model.selection.selectedDisps();
     }
 
+    sortBySelectionPriority(disps): any[] {
+        function cmp(disp1, disp2): number {
+
+            if (DispBase.typeOf(disp1) == DispType.groupPointer
+                && DispBase.typeOf(disp2) != DispType.groupPointer)
+                return 1;
+
+            if (DispBase.typeOf(disp1) == DispType.polygon
+                && DispBase.typeOf(disp2) != DispType.polygon)
+                return 1;
+
+            // Put all the null bounds at one end
+            if (disp1.bounds && !disp2.bounds)
+                return 1;
+
+            if (!disp1.bounds && disp2.bounds)
+                return -1;
+
+            // Bigger bounds come first
+            return disp1.bounds.area(disp2) - disp1.bounds.area(disp1);
+
+        }
+
+        return disps.sort(cmp);
+    }
+
+    filterForVisibleDisps(disps, zoom): any[] {
+        function check(disp): boolean {
+            if (!DispBase.hasColor(disp))
+                return false;
+
+            if (!DispBase.layer(disp).visible)
+                return false;
+
+            let level = DispBase.level(disp);
+            return level.minZoom <= zoom && zoom <= level.maxZoom;
+        }
+
+        return disps.filter(check);
+    }
+
     keyOfDisps(disps: any[]): string[] {
         let keys = [];
         for (let disp of disps) {
