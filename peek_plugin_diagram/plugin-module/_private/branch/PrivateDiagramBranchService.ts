@@ -18,7 +18,7 @@ import {
 } from "@synerty/vortexjs";
 import {BranchKeyToIdMapTuple} from "./BranchKeyToIdMapTuple";
 import {BranchDetailTuple} from "@peek/peek_plugin_branch";
-import {UserService} from "@peek/peek_plugin_user";
+import {UserService} from "@peek/peek_core_user";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 
 export interface PopupEditBranchSelectionArgs {
