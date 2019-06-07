@@ -167,8 +167,7 @@ export class PrivateDiagramBranchContext {
     }
 
     private userKey(): string {
-        return "JARROD";
-        // return `${this.userDetails.userTitle} (${this.userDetails.userName})`;
+        return `${this.userDetails.userTitle} (${this.userDetails.userName})`;
     }
 
 
