@@ -49,6 +49,7 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
 
         this.toolbarService = <PrivateDiagramToolbarService>abstractToolbarService;
 
+        this.buttons = this.toolbarService.toolButtons;
         this.toolbarService
             .toolButtonsUpdatedObservable()
             .takeUntil(this.onDestroyEvent)
