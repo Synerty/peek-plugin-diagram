@@ -1,5 +1,9 @@
 import {Injectable} from "@angular/core";
-import {DiagramPositionService, PositionUpdatedI} from "../../DiagramPositionService";
+import {
+    DiagramPositionService,
+    OptionalPositionArgsI,
+    PositionUpdatedI
+} from "../../DiagramPositionService";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 
@@ -13,13 +17,18 @@ export interface DiagramPositionI {
     x: number;
     y: number;
     zoom: number;
-    highlightKey: string | null;
+    opts: OptionalPositionArgsI;
 }
 
 
 export interface DiagramPositionByKeyI {
     modelSetKey: string;
-    dispKey: string;
+    coordSetKey: string | null;
+    opts: OptionalPositionArgsI;
+}
+
+
+export interface DiagramPositionByCoordSetI {
     coordSetKey: string | null;
 }
 
@@ -48,32 +57,38 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
         this.positionByCoordSetSubject.next(coordSetKey);
     }
 
-    position(coordSetKey: string, x: number, y: number, zoom: number, highlightKey: string | null = null): void {
+    position(coordSetKey: string, x: number, y: number, zoom: number,
+             opts: OptionalPositionArgsI = {}): void {
         this.positionSubject.next({
             coordSetKey: coordSetKey,
             x: x,
             y: y,
             zoom: zoom,
-            highlightKey: highlightKey
+            opts
         });
     }
 
     positionByKey(modelSetKey: string,
-                  dispKey: string,
-                  coordSetKey: string | null): void {
+                  coordSetKey: string | null,
+                  opts: OptionalPositionArgsI = {}): void {
+
+        if (opts.highlightKey == null || opts.highlightKey.length == 0)
+            throw new Error("positionByKey must be passed opts.highlightKey");
 
         this.locationIndexService
-            .getLocations(modelSetKey, dispKey)
+            .getLocations(modelSetKey, opts.highlightKey)
             .then((dispKeyIndexes: DispKeyLocationTuple[]) => {
 
                 if (dispKeyIndexes.length == 0) {
                     this.balloonMsg.showError(
-                        `Can not locate disply item ${dispKey} in model set ${modelSetKey}`
+                        `Can not locate disply item ${opts.highlightKey}`
+                        + ` in model set ${modelSetKey}`
                     );
                 }
 
                 for (let dispKeyIndex of dispKeyIndexes) {
-                    // If we've been given a coord set key and it doesn't match the found item:
+                    // If we've been given a coord set key
+                    // and it doesn't match the found item:
                     if (coordSetKey != null && dispKeyIndex.coordSetKey != coordSetKey) {
                         continue;
                     }
@@ -83,13 +98,14 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
                         x: dispKeyIndex.x,
                         y: dispKeyIndex.y,
                         zoom: 2.0,
-                        highlightKey: dispKey
+                        opts
                     });
                     return;
                 }
 
                 this.balloonMsg.showError(
-                    `Can not locate disply item ${dispKey} in model set ${modelSetKey}, in coord set ${coordSetKey}`
+                    `Can not locate disply item ${opts.highlightKey}`
+                    + ` in model set ${modelSetKey}, in coord set ${coordSetKey}`
                 );
 
             });

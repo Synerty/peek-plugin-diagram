@@ -164,7 +164,9 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
     }
 
     positonAnchorOnDiagram(props: any[]): void {
-        this.diagramPosService.positionByKey(this.modelSetKey, props[0].value, this.coordSetKey);
+        this.diagramPosService.positionByKey(this.modelSetKey,
+            this.coordSetKey,
+            {highlightKey: props[0].value});
     }
 
     positonDispOnDiagram(disp: any): void {

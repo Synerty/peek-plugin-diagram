@@ -89,8 +89,10 @@ export class PeekCanvasConfig {
     };
 
     editor = {
-        showAllLayers:false,
-        showAllLevels:false,
+        branchKeyChange: new Subject<string | null>(),
+        branchKey: null,
+        showAllLayers: false,
+        showAllLevels: false,
         active: false,
         resizeHandleMargin: 3.0,
         resizeHandleWidth: 6.0,
@@ -153,6 +155,11 @@ export class PeekCanvasConfig {
             );
             this.updateViewPortZoom(newCoordSet.initialZoom);
         }
+    }
+
+    updateEditedBranch(branchKey: string | null): void {
+        this.editor.branchKey = branchKey;
+        this.editor.branchKeyChange.next(branchKey);
     }
 
     get coordSet(): ModelCoordSet | null {

@@ -93,6 +93,11 @@
                 "persistent": true
             },
             {
+                "file": "DiagramBranchService",
+                "class": "DiagramBranchService",
+                "useExistingClass": "PrivateDiagramBranchService"
+            },
+            {
                 "file": "_private/services/PrivateDiagramConfigService",
                 "class": "PrivateDiagramConfigService",
                 "persistent": true
@@ -183,6 +188,11 @@
                 "file": "_private/branch/PrivateDiagramBranchService",
                 "class": "PrivateDiagramBranchService",
                 "persistent": true
+            },
+            {
+                "file": "DiagramBranchService",
+                "class": "DiagramBranchService",
+                "useExistingClass": "PrivateDiagramBranchService"
             },
             {
                 "file": "_private/services/PrivateDiagramConfigService",
@@ -280,6 +290,11 @@
                 "file": "_private/branch/PrivateDiagramBranchService",
                 "class": "PrivateDiagramBranchService",
                 "persistent": true
+            },
+            {
+                "file": "DiagramBranchService",
+                "class": "DiagramBranchService",
+                "useExistingClass": "PrivateDiagramBranchService"
             },
             {
                 "file": "_private/services/PrivateDiagramConfigService",

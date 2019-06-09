@@ -73,11 +73,6 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
 
     }
 
-    setVisibleBranches(commonBranches: BranchDetailTuple[]): void {
-        this.enabledBranches = commonBranches;
-
-    }
-
     getVisibleBranchIds(coordSetId: number): number[] {
         let keyIdMapTuple = this.branchIdMapByCoordSetId[coordSetId];
         if (keyIdMapTuple == null)
@@ -103,18 +98,18 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
 
     getBranch(modelSetKey: string, coordSetKey: string,
               branchKey: string): Promise<PrivateDiagramBranchContext | null> {
-        return this._loadBranch(modelSetKey, coordSetKey, branchKey, false);
+        return this._loadBranchContext(modelSetKey, coordSetKey, branchKey, false);
     }
 
     getOrCreateBranch(modelSetKey: string, coordSetKey: string,
                       branchKey: string): Promise<PrivateDiagramBranchContext> {
-        return this._loadBranch(modelSetKey, coordSetKey, branchKey, true);
+        return this._loadBranchContext(modelSetKey, coordSetKey, branchKey, true);
 
     }
 
+
     private _loadBranch(modelSetKey: string, coordSetKey: string,
-                        branchKey: string,
-                        createIfMissing: boolean): Promise<PrivateDiagramBranchContext | null> {
+                        branchKey: string): Promise<BranchTuple | null> {
         if (!this.coordSetService.isReady())
             throw new Error("CoordSet service is not initialised yet");
 
@@ -161,13 +156,37 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
                     branch = indexBranch;
 
                 } else {
+                    return null;
+                }
+
+                branch.linkDisps(this.lookupService);
+                return branch;
+
+            });
+
+        return prom;
+    }
+
+
+    private _loadBranchContext(modelSetKey: string, coordSetKey: string,
+                               branchKey: string,
+                               createIfMissing: boolean): Promise<PrivateDiagramBranchContext | null> {
+        if (!this.coordSetService.isReady())
+            throw new Error("CoordSet service is not initialised yet");
+
+        let coordSet: ModelCoordSet = this.coordSetService
+            .coordSetForKey(modelSetKey, coordSetKey);
+
+        let prom: any = this._loadBranch(modelSetKey, coordSetKey, branchKey)
+            .then((branch: BranchTuple | null) => {
+                if (branch == null) {
                     if (!createIfMissing)
                         return null;
 
                     branch = BranchTuple.createBranch(coordSet.id, branchKey);
+                    branch.linkDisps(this.lookupService);
                 }
 
-                branch.linkDisps(this.lookupService);
 
                 return new PrivateDiagramBranchContext(
                     this.vortexStatusService,
@@ -201,10 +220,12 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
 
 
     startEditing(modelSetKey: string, coordSetKey: string,
-                 branchKey: string): void {
-        this.getOrCreateBranch(modelSetKey, coordSetKey, branchKey)
+                 branchKey: string): Promise<void> {
+        let prom: any = this.getOrCreateBranch(modelSetKey, coordSetKey, branchKey)
             .catch(e => this._startEditingObservable.error(e))
-            .then((context: any) => this._startEditingObservable.next(context));
+            .then((context: any) => this._startEditingObservable.next(context))
+            .then(() => null);
+        return prom;
     }
 
     get startEditingObservable(): Observable<PrivateDiagramBranchContext> {
@@ -217,6 +238,28 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
 
     get stopEditingObservable(): Observable<void> {
         return this._stopEditingObservable;
+    }
+
+    // ========================================================================
+    // Methods for the public class
+
+
+    setVisibleBranches(commonBranches: BranchDetailTuple[]): void {
+        this.enabledBranches = commonBranches;
+
+    }
+
+    getBranchAnchorKeys(modelSetKey: string, coordSetKey: string,
+                        branchKey: string): Promise<string[] | null> {
+        let prom: any = this._loadBranch(modelSetKey, coordSetKey, branchKey)
+            .then((branch: BranchTuple | null) => {
+                if (branch == null)
+                    return null;
+
+                return branch.anchorDispKeys
+            });
+
+        return prom;
     }
 
 

@@ -14,7 +14,10 @@ import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
 
 import * as $ from "jquery";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
-import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
+import {
+    DiagramPositionService,
+    PositionUpdatedI
+} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {
     DiagramPositionI,
     PrivateDiagramPositionService
@@ -246,12 +249,20 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
             if (this.config.controller.coordSet == null)
                 return;
 
-            this._privatePosService.positionUpdated({
+            let editingBranch = null;
+            if (this.config.editor.active)
+                editingBranch = this.editor.branchContext.branchTuple.key;
+
+
+            let data: PositionUpdatedI = {
                 coordSetKey: this.config.controller.coordSet.key,
                 x: this.config.viewPort.pan.x,
                 y: this.config.viewPort.pan.y,
                 zoom: this.config.viewPort.zoom,
-            });
+                editingBranch: editingBranch
+            };
+
+            this._privatePosService.positionUpdated(data);
         };
 
         this.config.viewPort.panChange
@@ -263,6 +274,10 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
             .subscribe(notify);
 
         this.config.controller.coordSetChange
+            .takeUntil(this.onDestroyEvent)
+            .subscribe(notify);
+
+        this.config.editor.branchKeyChange
             .takeUntil(this.onDestroyEvent)
             .subscribe(notify);
 
@@ -325,8 +340,17 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 this.config.updateViewPortPan({x: pos.x, y: pos.y}); // pos confirms to PanI
                 this.config.updateViewPortZoom(pos.zoom);
 
-                if (pos.highlightKey != null)
-                    this.model.selection.tryToSelectKeys([pos.highlightKey]);
+                if (pos.opts.highlightKey != null)
+                    this.model.selection.tryToSelectKeys([pos.opts.highlightKey]);
+
+                if (pos.opts.editingBranch != null) {
+                    this.branchService.startEditing(
+                        this.modelSetKey,
+                        this.coordSetKey,
+                        pos.opts.editingBranch
+                    );
+                }
+
             });
 
     }

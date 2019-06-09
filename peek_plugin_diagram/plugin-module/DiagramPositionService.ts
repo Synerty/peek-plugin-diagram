@@ -5,6 +5,12 @@ export interface PositionUpdatedI {
     x: number;
     y: number;
     zoom: number;
+    editingBranch: string | null;
+}
+
+export interface OptionalPositionArgsI {
+    editingBranch?: string | null;
+    highlightKey?: string | null;
 }
 
 /** Diagram Position Service
@@ -34,9 +40,12 @@ export abstract class DiagramPositionService {
      * @param x: The X coordinate to position to.
      * @param y: The Y coordinate to position to.
      * @param zoom: The Zoom to set when positioning the diagram.
-     * @param highlightKey: The key to highlight when we've positioned
+     * @param opts: An Optional set of parameters to set the state of the diagram after
+     *      position.
      */
-    abstract position(coordSetKey: string, x: number, y: number, zoom: number, highlightKey?: string | null): void ;
+    abstract position(coordSetKey: string, x: number, y: number,
+                      zoom: number,
+                      opts: OptionalPositionArgsI | null): void ;
 
     /** Position By Key
      *
@@ -46,9 +55,12 @@ export abstract class DiagramPositionService {
      * @param coordSetKey: Optionally, which coordSet to choose, otherwise if multitple
      *                      coord sets are present, the user will be asked.
      *
+     * @param opts: An Optional set of parameters to set the state of the diagram after
+     *      position.
      */
-    abstract positionByKey(modelSetKey: string, dispKey: string,
-                           coordSetKey: string | null): void ;
+    abstract positionByKey(modelSetKey: string,
+                           coordSetKey: string | null,
+                           opts: OptionalPositionArgsI | null): void ;
 
     /** Can Position By Key
      *
