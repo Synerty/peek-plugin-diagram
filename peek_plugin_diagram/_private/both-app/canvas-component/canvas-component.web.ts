@@ -28,6 +28,7 @@ import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetS
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
+import {PrivateDiagramSnapshotService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramSnapshotService";
 
 /** Canvas Component
  *
@@ -75,7 +76,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 abstractCoordSetCache: DiagramCoordSetService,
                 positionService: DiagramPositionService,
                 private itemSelectService: PrivateDiagramItemSelectService,
-                private branchService: PrivateDiagramBranchService) {
+                private branchService: PrivateDiagramBranchService,
+                private snapshotService: PrivateDiagramSnapshotService) {
         super();
 
         // Cast the private services
@@ -84,7 +86,6 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
         // The config for the canvas
         this.config = new PeekCanvasConfig();
-
 
     }
 
@@ -127,6 +128,9 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
         // Hook up the outward notification of position updates
         this.connectPositionUpdateNotify();
+
+        // Hook up the Snapshot service
+        this.connectSnapshotCallback();
 
     }
 
@@ -241,6 +245,15 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         // Inform the position service that it's ready to go.
         this._privatePosService.setReady(true);
 
+    }
+
+    connectSnapshotCallback(): void {
+        this.snapshotService.setImageCaptureCallback(() => {
+            return this.canvas.getContext('2d').toDataURL();
+        });
+
+        this.onDestroyEvent
+            .subscribe(() => this.snapshotService.setImageCaptureCallback(null));
     }
 
     connectPositionUpdateNotify(): void {

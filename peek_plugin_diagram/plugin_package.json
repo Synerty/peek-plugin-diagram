@@ -98,6 +98,16 @@
                 "useExistingClass": "PrivateDiagramBranchService"
             },
             {
+                "file": "_private/services/PrivateDiagramSnapshotService",
+                "class": "PrivateDiagramSnapshotService",
+                "persistent": true
+            },
+            {
+                "file": "DiagramSnapshotService",
+                "class": "DiagramSnapshotService",
+                "useExistingClass": "PrivateDiagramSnapshotService"
+            },
+            {
                 "file": "_private/services/PrivateDiagramConfigService",
                 "class": "PrivateDiagramConfigService",
                 "persistent": true
@@ -193,6 +203,16 @@
                 "file": "DiagramBranchService",
                 "class": "DiagramBranchService",
                 "useExistingClass": "PrivateDiagramBranchService"
+            },
+            {
+                "file": "_private/services/PrivateDiagramSnapshotService",
+                "class": "PrivateDiagramSnapshotService",
+                "persistent": true
+            },
+            {
+                "file": "DiagramSnapshotService",
+                "class": "DiagramSnapshotService",
+                "useExistingClass": "PrivateDiagramSnapshotService"
             },
             {
                 "file": "_private/services/PrivateDiagramConfigService",
@@ -295,6 +315,16 @@
                 "file": "DiagramBranchService",
                 "class": "DiagramBranchService",
                 "useExistingClass": "PrivateDiagramBranchService"
+            },
+            {
+                "file": "_private/services/PrivateDiagramSnapshotService",
+                "class": "PrivateDiagramSnapshotService",
+                "persistent": true
+            },
+            {
+                "file": "DiagramSnapshotService",
+                "class": "DiagramSnapshotService",
+                "useExistingClass": "PrivateDiagramSnapshotService"
             },
             {
                 "file": "_private/services/PrivateDiagramConfigService",
