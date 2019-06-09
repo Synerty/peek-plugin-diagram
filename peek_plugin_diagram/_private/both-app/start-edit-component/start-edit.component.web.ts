@@ -11,6 +11,7 @@ import {
 } from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import {UserService} from "@peek/peek_core_user";
 
 
 @Component({
@@ -52,7 +53,8 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
     constructor(private branchService: PrivateDiagramBranchService,
                 abstractCoordSetService: DiagramCoordSetService,
                 private globalBranchService: BranchService,
-                private balloonMsg: Ng2BalloonMsgService) {
+                private balloonMsg: Ng2BalloonMsgService,
+                private userService: UserService) {
         super();
 
         this.coordSetService = <PrivateDiagramCoordSetService>abstractCoordSetService;
@@ -70,12 +72,13 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
     }
 
     protected openPopup({coordSetKey, modelSetKey}) {
+        const userDetail = this.userService.userDetails;
 
         this.newBranch = new BranchDetailTuple();
         this.newBranch.modelSetKey = this.modelSetKey;
         this.newBranch.createdDate = new Date();
         this.newBranch.updatedDate = new Date();
-        this.newBranch.userName = "A user name";
+        this.newBranch.userName = userDetail.userName;
 
         // let coordSet = this.coordSetService.coordSetForKey(coordSetKey);
         console.log("Opening Start Edit popup");

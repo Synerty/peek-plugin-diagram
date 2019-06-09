@@ -20,7 +20,7 @@ export class PrintComponent extends ComponentLifecycleEventEmitter
 
     src: string | null;
 
-    constructor(private titleService: TitleService, ,
+    constructor(private titleService: TitleService,
                 private snapshotService: DiagramSnapshotService) {
         super();
 
