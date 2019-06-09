@@ -249,7 +249,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     connectSnapshotCallback(): void {
         this.snapshotService.setImageCaptureCallback(() => {
-            return this.canvas.getContext('2d').toDataURL();
+            return this.canvas.toDataURL();
         });
 
         this.onDestroyEvent
