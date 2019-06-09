@@ -20,6 +20,7 @@ import {BranchKeyToIdMapTuple} from "./BranchKeyToIdMapTuple";
 import {BranchDetailTuple} from "@peek/peek_plugin_branch";
 import {UserService} from "@peek/peek_core_user";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import {DiagramBranchDetailsI} from "../../DiagramBranchService";
 
 export interface PopupEditBranchSelectionArgs {
     modelSetKey: string;
@@ -46,6 +47,8 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
     private branchIdMapByCoordSetId: { [coordSetId: number]: BranchKeyToIdMapTuple } = {};
 
     private enabledBranches: BranchDetailTuple[] = [];
+
+    private activeBranchContext: PrivateDiagramBranchContext | null = null;
 
     constructor(private vortexStatusService: VortexStatusService,
                 private balloonMsg: Ng2BalloonMsgService,
@@ -223,7 +226,10 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
                  branchKey: string): Promise<void> {
         let prom: any = this.getOrCreateBranch(modelSetKey, coordSetKey, branchKey)
             .catch(e => this._startEditingObservable.error(e))
-            .then((context: any) => this._startEditingObservable.next(context))
+            .then((context: any) => {
+                this.activeBranchContext = context;
+                this._startEditingObservable.next(context)
+            })
             .then(() => null);
         return prom;
     }
@@ -233,6 +239,7 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
     }
 
     stopEditing(): void {
+        this.activeBranchContext = null;
         this._stopEditingObservable.next();
     }
 
@@ -249,17 +256,19 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
 
     }
 
-    getBranchAnchorKeys(modelSetKey: string, coordSetKey: string,
-                        branchKey: string): Promise<string[] | null> {
-        let prom: any = this._loadBranch(modelSetKey, coordSetKey, branchKey)
-            .then((branch: BranchTuple | null) => {
-                if (branch == null)
-                    return null;
+    getActiveBranchDetails(): Promise<DiagramBranchDetailsI | null> {
+        if (this.activeBranchContext == null)
+            return Promise.resolve(null);
 
-                return branch.anchorDispKeys
-            });
-
-        return prom;
+        return Promise.resolve({
+            modelSetKey: this.activeBranchContext.modelSetKey,
+            coordSetKey: this.activeBranchContext.coordSetKey,
+            branchKey: this.activeBranchContext.branchTuple.key,
+            updatedByUser: this.activeBranchContext.branchTuple.updatedByUser,
+            createdDate: this.activeBranchContext.branchTuple.createdDate,
+            updatedDate: this.activeBranchContext.branchTuple.updatedDate,
+            anchorKeys: this.activeBranchContext.branchTuple.anchorDispKeys,
+        });
     }
 
 

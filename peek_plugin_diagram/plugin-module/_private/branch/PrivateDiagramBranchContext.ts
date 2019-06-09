@@ -145,13 +145,11 @@ export class PrivateDiagramBranchContext {
         action.branchTuple.updatedByUser = this.userKey();
         action.actionType = updateType;
 
-
         let promise = null;
         if (updateType == BranchLiveEditTupleAction.EDITING_UPDATED) {
             // All updates are only sent when the device is online
             if (this.vortexStatusService.snapshot.isOnline)
                 promise = this.tupleService.action.pushAction(action);
-
 
         } else {
             // ALL Start and Finish updates are sent

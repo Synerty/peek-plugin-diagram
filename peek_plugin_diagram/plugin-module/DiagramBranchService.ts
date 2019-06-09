@@ -1,5 +1,14 @@
 import {BranchDetailTuple} from "@peek/peek_plugin_branch";
 
+export interface DiagramBranchDetailsI {
+    modelSetKey: string;
+    coordSetKey: string;
+    branchKey: string;
+    updatedByUser: string;
+    createdDate: Date;
+    updatedDate: Date | null;
+    anchorKeys: string[];
+}
 
 /** Diagram Branch Service
  *
@@ -14,10 +23,9 @@ export abstract class DiagramBranchService {
 
     abstract setVisibleBranches(commonBranches: BranchDetailTuple[]): void ;
 
-    abstract getBranchAnchorKeys(modelSetKey: string, coordSetKey: string,
-                                 branchKey: string): Promise<string[]> ;
+    abstract getActiveBranchDetails(): Promise<DiagramBranchDetailsI | null> ;
 
     abstract startEditing(modelSetKey: string, coordSetKey: string,
-                                 branchKey: string):Promise<void>
+                          branchKey: string): Promise<void>
 
 }
