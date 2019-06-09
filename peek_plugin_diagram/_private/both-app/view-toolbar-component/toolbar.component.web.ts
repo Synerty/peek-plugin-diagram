@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 
 
 import {
@@ -33,6 +33,9 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
 
     @Input("config")
     config: PeekCanvasConfig;
+
+    @Output('openPrintPopup')
+    openPrintPopupEmitter = new EventEmitter();
 
     coordSet: ModelCoordSet = new ModelCoordSet();
 
@@ -107,6 +110,10 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
 
     editDiagramClicked(): void {
         this.branchService.popupEditBranchSelection(this.modelSetKey, this.coordSetKey);
+    }
+
+    printDiagramClicked(): void {
+        this.openPrintPopupEmitter.next();
     }
 
     selectBranchesClicked(): void {

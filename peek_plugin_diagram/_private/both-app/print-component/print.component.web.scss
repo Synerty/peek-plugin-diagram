@@ -1,0 +1,21 @@
+@import '~@synerty/peek-theme/scss/_mixins.web';
+@import '~@synerty/peek-theme/scss/_variables.web';
+
+.invert-image {
+  -webkit-filter: invert(1);
+  filter: invert(1);
+}
+
+
+.fill-screen {
+  float: left;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  background-color: white;
+  color: black;
+  z-index: 500;
+  position:absolute;
+
+}

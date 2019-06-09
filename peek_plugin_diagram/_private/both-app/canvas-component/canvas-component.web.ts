@@ -69,6 +69,9 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     private _privatePosService: PrivateDiagramPositionService;
     private coordSetCache: PrivateDiagramCoordSetService;
 
+    // This is toggled by the toolbars
+    showPrintPopup = false;
+
 
     constructor(private balloonMsg: Ng2BalloonMsgService,
                 private gridObservable: GridObservable,

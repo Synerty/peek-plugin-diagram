@@ -1,4 +1,4 @@
-import {Component, Input} from "@angular/core";
+import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
@@ -24,6 +24,10 @@ import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/s
     moduleId: module.id
 })
 export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
+
+
+    @Output('openPrintPopup')
+    openPrintPopupEmitter = new EventEmitter();
 
     @Input("canvasEditor")
     canvasEditor: PeekCanvasEditor;
@@ -65,6 +69,14 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
             // Expand children?
         }
 
+    }
+
+
+    // --------------------
+    // PRINR
+
+    printDiagramClicked(): void {
+        this.openPrintPopupEmitter.next();
     }
 
     // --------------------

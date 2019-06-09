@@ -3,10 +3,12 @@
     <pl-diagram-view-toolbar *ngIf="coordSetKey != null && !editor.isEditing()"
                              [config]="config"
                              [coordSetKey]="coordSetKey"
-                             [modelSetKey]="modelSetKey"></pl-diagram-view-toolbar>
+                             [modelSetKey]="modelSetKey"
+                             (openPrintPopup)="showPrintPopup=true"></pl-diagram-view-toolbar>
 
     <div #edittoolbar class="">
         <pl-diagram-edit-toolbar
+                (openPrintPopup)="showPrintPopup=true"
                 *ngIf="editor.isEditing()"
                 [canvasEditor]="editor"></pl-diagram-edit-toolbar>
     </div>
@@ -21,7 +23,7 @@
     <!-- This is the properties panel that appears, it can have dynamic properties
     or shape properties -->
 
-    <div #editprops >
+    <div #editprops>
         <pl-diagram-edit-props
                 *ngIf="editor.isEditing()"
                 [canvasEditor]="editor"></pl-diagram-edit-props>
@@ -47,6 +49,9 @@
             [modelSetKey]="modelSetKey"
             [canvasEditor]="editor"></pl-diagram-start-edit>
 
+    <pl-diagram-print
+            *ngIf="showPrintPopup"
+            (closePopup)="showPrintPopup=false"></pl-diagram-print>
 
     <div class="pl-canvas-container">
         <p class="canvas-status-bar ">{{mouseInfo()}}</p>

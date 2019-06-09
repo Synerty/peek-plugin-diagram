@@ -6,6 +6,10 @@
             <fa name="sign-out"></fa>
         </button>
         <button class="btn"
+                (click)="printDiagramClicked()">
+            <fa name="print"></fa>
+        </button>
+        <button class="btn"
                 *ngIf="showEditDiagramButton()"
                 (click)="editDiagramClicked()">
             <fa name="pencil-alt"></fa>
