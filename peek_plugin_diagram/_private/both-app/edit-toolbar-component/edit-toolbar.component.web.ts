@@ -11,7 +11,11 @@ import {PeekCanvasInputMakeDispGroupPtrEdgeDelegate} from "../canvas/PeekCanvasI
 import {PeekCanvasInputEditSelectDelegate} from "../canvas/PeekCanvasInputEditSelectDelegate.web";
 import {PeekCanvasInputEditMakeTextDelegate} from "../canvas/PeekCanvasInputEditMakeTextDelegate.web";
 import {PeekCanvasInputEditMakeLineWithArrowDelegate} from "../canvas/PeekCanvasInputEditMakeLineWithArrowDelegate.web";
-
+import {
+    DiagramToolbarService,
+    DiagramToolButtonI
+} from "@peek/peek_plugin_diagram/DiagramToolbarService";
+import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 
 @Component({
     selector: 'pl-diagram-edit-toolbar',
@@ -24,8 +28,22 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     @Input("canvasEditor")
     canvasEditor: PeekCanvasEditor;
 
-    constructor() {
+    protected toolbarService: PrivateDiagramToolbarService;
+
+    otherPluginButtons: DiagramToolButtonI[] = [];
+
+    constructor(private abstractToolbarService: DiagramToolbarService) {
         super();
+
+        this.toolbarService = <PrivateDiagramToolbarService>abstractToolbarService;
+
+        this.otherPluginButtons = this.toolbarService.editToolButtons;
+        this.toolbarService
+            .editToolButtonsUpdatedObservable()
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((buttons: DiagramToolButtonI[]) => {
+                this.otherPluginButtons = buttons;
+            });
 
     }
 
@@ -35,6 +53,18 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
             return EditorToolType.SELECT_TOOL;
 
         return this.canvasEditor.selectedTool();
+    }
+
+    // --------------------
+    // Other Plugin button integrations
+
+    buttonClicked(btn: DiagramToolButtonI): void {
+        if (btn.callback != null) {
+            btn.callback();
+        } else {
+            // Expand children?
+        }
+
     }
 
     // --------------------

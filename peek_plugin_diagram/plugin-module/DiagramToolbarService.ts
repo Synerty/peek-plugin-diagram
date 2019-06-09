@@ -51,6 +51,17 @@ export abstract class DiagramToolbarService {
                            coordSetKey: string | null,
                            toolButton: DiagramToolButtonI);
 
+    /** Add Edito Tool Button
+     *
+     * These toolbar buttons appear on the Edit toolbar.
+     *
+     * See Add Toolbar Button for more details
+     *
+     */
+    abstract addEditToolButton(modelSetKey: string | null,
+                           coordSetKey: string | null,
+                           toolButton: DiagramToolButtonI);
+
 
     /** Set Exit Diagram Callback
      *

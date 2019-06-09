@@ -11,46 +11,50 @@ export class PrivateDiagramToolbarService extends DiagramToolbarService {
 
     private _toolButtonsUpdatedSubject = new Subject<DiagramToolButtonI[]>();
 
+    editToolButtons: DiagramToolButtonI[] = [];
+
+    private _editToolButtonsUpdatedSubject = new Subject<DiagramToolButtonI[]>();
+
+
     private _exitDiagramCallable = {};
 
     constructor() {
         super();
 
         /*
-                this.addToolButton(null,
-                        null,
-                        {
-                            name: "Mockup",
-                            tooltip: null,
-                            icon: 'pencil',
-                            callback: () => alert("Mockup feature is coming soon."),
-                            children: []
-                        }
-                    );
+        this.addToolButton(null,
+                null,
+                {
+                    name: "Mockup",
+                    tooltip: null,
+                    icon: 'pencil',
+                    callback: () => alert("Mockup feature is coming soon."),
+                    children: []
+                }
+            );
 
-                this.addToolButton(null,
-                        null,
-                        {
-                            name: "Search",
-                            tooltip: null,
-                            icon: 'search',
-                            callback: () => alert("Search feature is coming soon."),
-                            children: []
-                        }
-                    );
+        this.addToolButton(null,
+                null,
+                {
+                    name: "Search",
+                    tooltip: null,
+                    icon: 'search',
+                    callback: () => alert("Search feature is coming soon."),
+                    children: []
+                }
+            );
 
 
-                this.addToolButton(null,
-                        null,
-                        {
-                            name: "WP Home",
-                            tooltip: null,
-                            icon: 'home',
-                            callback: () => alert("This is an example web link"),
-                            children: []
-                        }
-                    );
-
+        this.addToolButton(null,
+                null,
+                {
+                    name: "WP Home",
+                    tooltip: null,
+                    icon: 'home',
+                    callback: () => alert("This is an example web link"),
+                    children: []
+                }
+            );
          */
     }
 
@@ -63,6 +67,17 @@ export class PrivateDiagramToolbarService extends DiagramToolbarService {
                   toolButton: DiagramToolButtonI) {
         this.toolButtons.push(toolButton);
         this._toolButtonsUpdatedSubject.next(this.toolButtons);
+    }
+
+    editToolButtonsUpdatedObservable(): Observable<DiagramToolButtonI[]> {
+        return this._editToolButtonsUpdatedSubject;
+    }
+
+    addEditToolButton(modelSetKey: string | null,
+                      coordSetKey: string | null,
+                      toolButton: DiagramToolButtonI) {
+        this.editToolButtons.push(toolButton);
+        this._editToolButtonsUpdatedSubject.next(this.toolButtons);
     }
 
     exitDiagramCallable(modelSetKey: string): any | null {

@@ -38,7 +38,7 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
 
     protected toolbarService: PrivateDiagramToolbarService;
 
-    buttons: DiagramToolButtonI[] = [];
+    otherPluginButtons: DiagramToolButtonI[] = [];
 
     toolbarIsOpen: boolean = false;
 
@@ -49,12 +49,12 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
 
         this.toolbarService = <PrivateDiagramToolbarService>abstractToolbarService;
 
-        this.buttons = this.toolbarService.toolButtons;
+        this.otherPluginButtons = this.toolbarService.toolButtons;
         this.toolbarService
             .toolButtonsUpdatedObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe((buttons: DiagramToolButtonI[]) => {
-                this.buttons = buttons;
+                this.otherPluginButtons = buttons;
             });
 
     }
@@ -118,7 +118,7 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
     }
 
     isToolbarEmpty(): boolean {
-        return this.buttons.length == 0;
+        return this.otherPluginButtons.length == 0;
     }
 
 

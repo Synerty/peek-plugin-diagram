@@ -106,4 +106,15 @@
         </button>
     </div>
 
+    <div class="edit-toolbar-spacer"></div>
+
+    <div class="btn-group edit-toolbar-button-group">
+        <button *ngFor="let btn of otherPluginButtons"
+                class="btn tool-button"
+                (click)="buttonClicked(btn)">
+            <fa *ngIf="btn.icon" [name]="btn.icon"></fa>
+            {{btn.name}}
+        </button>
+    </div>
+
 </div>

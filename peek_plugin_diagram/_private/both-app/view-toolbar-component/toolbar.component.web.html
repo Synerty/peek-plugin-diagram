@@ -24,7 +24,7 @@
     <div class="view-toolbar-spacer"></div>
 
     <div class="btn-group">
-        <button *ngFor="let btn of buttons"
+        <button *ngFor="let btn of otherPluginButtons"
                 class="btn tool-button"
                 (click)="buttonClicked(btn)">
             <fa *ngIf="btn.icon" [name]="btn.icon"></fa>
