@@ -27,6 +27,10 @@ def _mergeInLiveDbValue(disp, dispLink, liveDbItem, value=None):
     if value is None:
         keyType = LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR[dispLink.dispAttrName]
 
+        if keyType == ImportLiveDbItemTuple.DATA_TYPE_LINE_WIDTH:
+            setattr(disp, dispLink.dispAttrName, 0)
+            return
+
         nullableTypes = (
             ImportLiveDbItemTuple.DATA_TYPE_COLOR,
             ImportLiveDbItemTuple.DATA_TYPE_STRING_VALUE
