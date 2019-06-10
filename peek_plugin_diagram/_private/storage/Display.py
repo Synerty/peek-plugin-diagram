@@ -255,8 +255,8 @@ class DispBase(Tuple, DeclarativeBase):
     # THIS FIELD IS NOT USED ANYWHERE!!!!
     importUpdateDate = Column(DateTime(True), doc=JSON_EXCLUDE)
 
-    importHash = Column(String(100), doc=JSON_EXCLUDE)
-    importGroupHash = Column(String(200), doc=JSON_EXCLUDE)
+    importHash = Column(String, doc=JSON_EXCLUDE)
+    importGroupHash = Column(String, doc=JSON_EXCLUDE)
 
     liveDbLinks = relationship("LiveDbDispLink")
 

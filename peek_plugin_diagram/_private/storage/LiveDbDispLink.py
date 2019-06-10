@@ -50,18 +50,18 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
     # dispTableName = Column(String, nullable=False)
 
     # comment="The attribute of the disp item to update"
-    dispAttrName = Column(String(20), nullable=False)
+    dispAttrName = Column(String, nullable=False)
 
-    liveDbKey = Column(String(30), nullable=False)
+    liveDbKey = Column(String, nullable=False)
 
-    importKeyHash = Column(String(100))
+    importKeyHash = Column(String)
 
-    importGroupHash = Column(String(100))
+    importGroupHash = Column(String)
 
-    importDispHash = Column(String(100))
+    importDispHash = Column(String)
 
     # Store custom props for this link
-    propsJson = Column(String(500))
+    propsJson = Column(String)
 
     __table_args__ = (
         Index("idx_LiveDbDLink_DispKeyHash",
