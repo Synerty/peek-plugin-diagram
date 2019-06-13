@@ -33,7 +33,7 @@ export class DiagramOverrideColor extends DiagramOverrideBase {
 
     // Line Color
     setLineColor(value: DispColor | null): void {
-        this.lineColor_;
+        this.lineColor_ = value;
     }
 
     get lineColor(): DispColor {

@@ -41,7 +41,8 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
 
     protected toolbarService: PrivateDiagramToolbarService;
 
-    otherPluginButtons: DiagramToolButtonI[] = [];
+    private parentPluginButtons: DiagramToolButtonI[][] = [];
+    shownPluginButtons: DiagramToolButtonI[] = [];
 
     toolbarIsOpen: boolean = false;
 
@@ -52,12 +53,14 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
 
         this.toolbarService = <PrivateDiagramToolbarService>abstractToolbarService;
 
-        this.otherPluginButtons = this.toolbarService.toolButtons;
+        this.shownPluginButtons = this.toolbarService.toolButtons;
+        this.parentPluginButtons = [];
         this.toolbarService
             .toolButtonsUpdatedObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe((buttons: DiagramToolButtonI[]) => {
-                this.otherPluginButtons = buttons;
+                this.shownPluginButtons = buttons;
+                this.parentPluginButtons = [];
             });
 
     }
@@ -76,8 +79,11 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
     buttonClicked(btn: DiagramToolButtonI): void {
         if (btn.callback != null) {
             btn.callback();
+        } else if (btn.children == null && btn.children.length != 0) {
+            this.parentPluginButtons.push(this.shownPluginButtons);
+            this.shownPluginButtons = btn.children;
         } else {
-            // Expand children?
+            // ??
         }
 
     }
@@ -124,8 +130,16 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
         this.configService.popupLayerSelection(this.modelSetKey, this.coordSetKey);
     }
 
+    showGoUpParentButton(): boolean {
+        return this.parentPluginButtons.length != 0;
+    }
+
+    goUpParentButtonClicked(): void {
+        this.shownPluginButtons = this.parentPluginButtons.pop();
+    }
+
     isToolbarEmpty(): boolean {
-        return this.otherPluginButtons.length == 0;
+        return this.shownPluginButtons.length == 0;
     }
 
 

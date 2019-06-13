@@ -35,6 +35,8 @@ export class PopupComponent  extends ComponentLifecycleEventEmitter
     protected itemPopupService: PrivateDiagramItemPopupService;
 
     details: DiagramItemDetailI[] = [];
+
+    private parentMenuItems: DiagramMenuItemI[][] = [];
     menuItems: DiagramMenuItemI[] = [];
 
     popupShown: boolean = false;
@@ -58,11 +60,18 @@ export class PopupComponent  extends ComponentLifecycleEventEmitter
 
     }
 
+    private reset(){
+
+        this.details = [];
+        this.parentMenuItems = [];
+        this.menuItems = [];
+        this.dispKey = '';
+    }
+
     protected openPopup(itemDetails: SelectedItemDetailsI) {
         console.log("Opening popup");
+        this.reset();
         this.dispKey = itemDetails.dispKey;
-        this.details = [];
-        this.menuItems = [];
         this.popupShown = true;
         this.itemPopupService.setPopupShown(true);
 
@@ -92,9 +101,7 @@ export class PopupComponent  extends ComponentLifecycleEventEmitter
         this.platformClose();
 
         // Discard the integration additions
-        this.details = [];
-        this.menuItems = [];
-        this.dispKey = '';
+        this.reset();
     }
 
     platformOpen(): void {
@@ -104,8 +111,9 @@ export class PopupComponent  extends ComponentLifecycleEventEmitter
     }
 
     menuItemClicked(item: DiagramMenuItemI): void {
-        if (item.callback == null) {
-            // Expand Children?
+         if (item.children != null && item.children.length != 0) {
+            this.parentMenuItems.push(this.menuItems);
+            this.menuItems = item.children;
         } else {
             item.callback();
         }
@@ -115,6 +123,14 @@ export class PopupComponent  extends ComponentLifecycleEventEmitter
 
     noMenuItems(): boolean {
         return this.menuItems.length == 0;
+    }
+
+    showGoUpParentButton(): boolean {
+        return this.parentMenuItems.length != 0;
+    }
+
+    goUpParentButtonClicked(): void {
+        this.menuItems = this.parentMenuItems.pop();
     }
 
     noDetails(): boolean {

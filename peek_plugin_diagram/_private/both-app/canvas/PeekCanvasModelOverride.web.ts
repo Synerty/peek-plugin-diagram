@@ -71,10 +71,15 @@ export class PeekCanvasModelOverride {
     // ------------------------------------------------------------------------
     applyOverridesToModel(disps: any[]): void {
         for (const disp of disps) {
-            const array = this.getArrayForKey(DispBase.key(disp.key));
+            const dispKey = DispBase.key(disp);
+            if (dispKey == null)
+                continue;
+
+            const array = this.getArrayForKey(dispKey, false);
             if (array == null)
                 continue;
 
+            console.log("We've got hiere");
             for (const overrideBase of array) {
                 switch (overrideBase.overrideType) {
                     case DiagramOverrideTypeE.Color: {

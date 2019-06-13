@@ -74,6 +74,7 @@ export class PeekCanvasModel {
                 private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
         this._query = new PeekCanvasModelQuery(this);
         this._selection = new PeekCanvasModelSelection(this, this.config);
+        this._override = new PeekCanvasModelOverride(config, lookupCache);
 
         this.needsUpdate = false;
 
@@ -129,7 +130,7 @@ export class PeekCanvasModel {
             .overridesUpdatedObservable
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
             .subscribe((overrides: DiagramOverrideBase[]) => {
-                this.needsUpdate = true;
+                this.needsCompiling = true;
                 this._override.setOverrides(overrides);
             });
 

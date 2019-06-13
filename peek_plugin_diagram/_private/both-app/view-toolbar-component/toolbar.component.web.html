@@ -28,7 +28,13 @@
     <div class="view-toolbar-spacer"></div>
 
     <div class="btn-group">
-        <button *ngFor="let btn of otherPluginButtons"
+        <button *ngIf="showGoUpParentButton()"
+                class="btn tool-button"
+                (click)="goUpParentButtonClicked(btn)">
+            <fa name="back"></fa>
+            Back
+        </button>
+        <button *ngFor="let btn of shownPluginButtons"
                 class="btn tool-button"
                 (click)="buttonClicked(btn)">
             <fa *ngIf="btn.icon" [name]="btn.icon"></fa>
