@@ -1,5 +1,5 @@
-import {DiagramOverride} from "./override/DiagramOverride";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import {DiagramOverrideBase} from "./override/DiagramOverrideBase";
 
 /** Diagram Override Service
  *
@@ -9,11 +9,8 @@ import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
  */
 export abstract class DiagramOverrideService  extends ComponentLifecycleEventEmitter{
 
-    abstract create(modelSetKey: string, coordSetKey: string): DiagramOverride;
+    abstract applyOverride(override: DiagramOverrideBase): void ;
 
-    abstract applyBranch(override: DiagramOverride): void ;
-
-    abstract revokeBranch(override: DiagramOverride): void ;
-
+    abstract revokeOverride(override: DiagramOverrideBase): void ;
 
 }

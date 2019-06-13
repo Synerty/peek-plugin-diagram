@@ -17,8 +17,10 @@ export class DiagramOverrideColor extends DiagramOverrideBase {
     private fillColor_: DispColor | null = null;
     private color_: DispColor | null = null;
 
-    constructor() {
-        super(DiagramOverrideColor.tupleName, DiagramOverrideTypeE.Color);
+    constructor(modelSetKey: string,
+                coordSetKey: string) {
+        super(modelSetKey, coordSetKey,
+            DiagramOverrideTypeE.Color, DiagramOverrideColor.tupleName);
     }
 
     get dispKeys(): string[] {

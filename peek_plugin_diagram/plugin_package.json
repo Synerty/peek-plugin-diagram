@@ -67,11 +67,14 @@
                 "persistent": true
             },
             {
+                "file": "_private/services/PrivateDiagramOverrideService",
+                "class": "PrivateDiagramOverrideService",
+                "persistent": true
+            },
+            {
                 "file": "DiagramOverrideService",
                 "class": "DiagramOverrideService",
-                "useClassFile": "_private/services/PrivateDiagramOverrideService",
-                "useClassClass": "PrivateDiagramOverrideService",
-                "persistent": true
+                "useExistingClass": "PrivateDiagramOverrideService"
             },
             {
                 "file": "DiagramCoordSetService",
@@ -174,11 +177,14 @@
                 "persistent": true
             },
             {
+                "file": "_private/services/PrivateDiagramOverrideService",
+                "class": "PrivateDiagramOverrideService",
+                "persistent": true
+            },
+            {
                 "file": "DiagramOverrideService",
                 "class": "DiagramOverrideService",
-                "useClassFile": "_private/services/PrivateDiagramOverrideService",
-                "useClassClass": "PrivateDiagramOverrideService",
-                "persistent": true
+                "useExistingClass": "PrivateDiagramOverrideService"
             },
             {
                 "file": "DiagramCoordSetService",
@@ -286,11 +292,14 @@
                 "persistent": true
             },
             {
+                "file": "_private/services/PrivateDiagramOverrideService",
+                "class": "PrivateDiagramOverrideService",
+                "persistent": true
+            },
+            {
                 "file": "DiagramOverrideService",
                 "class": "DiagramOverrideService",
-                "useClassFile": "_private/services/PrivateDiagramOverrideService",
-                "useClassClass": "PrivateDiagramOverrideService",
-                "persistent": true
+                "useExistingClass": "PrivateDiagramOverrideService"
             },
             {
                 "file": "DiagramCoordSetService",

@@ -18,14 +18,14 @@ export enum DiagramOverrideTypeE {
 
 export abstract class DiagramOverrideBase extends Tuple {
 
-    private type_: number;
+    public readonly key: string;
 
-    constructor(tupleType: string, type: DiagramOverrideTypeE) {
+    protected constructor(public readonly modelSetKey: string,
+                public readonly coordSetKey: string,
+                public readonly overrideType: DiagramOverrideTypeE,
+                tupleType: string) {
         super(tupleType);
-        this.type_ = type;
+        this.key = `${new Date().getTime()}`;
     }
 
-    get overrideType(): DiagramOverrideTypeE {
-        return this.type_;
-    }
 }

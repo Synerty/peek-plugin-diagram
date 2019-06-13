@@ -9,6 +9,11 @@ import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch";
 import {PeekCanvasModelQuery} from "./PeekCanvasModelQuery.web";
 import {PeekCanvasModelSelection} from "./PeekCanvasModelSelection.web";
+import {PeekCanvasModelOverride} from "./PeekCanvasModelOverride.web";
+import {
+    PrivateDiagramOverrideService
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService";
+import {DiagramOverrideBase} from "@peek/peek_plugin_diagram/override/DiagramOverrideBase";
 
 // import 'rxjs/add/operator/takeUntil';
 
@@ -59,11 +64,13 @@ export class PeekCanvasModel {
 
     private readonly _query: PeekCanvasModelQuery;
     private readonly _selection: PeekCanvasModelSelection;
+    private readonly _override: PeekCanvasModelOverride;
 
     constructor(private config: PeekCanvasConfig,
                 private gridObservable: GridObservable,
                 private lookupCache: DiagramLookupService,
                 private branchService: PrivateDiagramBranchService,
+                private overrideService: PrivateDiagramOverrideService,
                 private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
         this._query = new PeekCanvasModelQuery(this);
         this._selection = new PeekCanvasModelSelection(this, this.config);
@@ -116,6 +123,15 @@ export class PeekCanvasModel {
         this.config.viewPort.windowChange
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
             .subscribe(() => this.needsUpdate = true);
+
+        // Watch the overrides, if the overrides change, then
+        this.overrideService
+            .overridesUpdatedObservable
+            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .subscribe((overrides: DiagramOverrideBase[]) => {
+                this.needsUpdate = true;
+                this._override.setOverrides(overrides);
+            });
 
     };
 
@@ -361,6 +377,8 @@ export class PeekCanvasModel {
                 }
             }
         }
+
+        this._override.applyOverridesToModel(disps);
 
 
         this._visibleDisps = disps;

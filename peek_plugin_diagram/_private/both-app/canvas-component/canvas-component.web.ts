@@ -22,13 +22,24 @@ import {
     DiagramPositionI,
     PrivateDiagramPositionService
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
-import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
-import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+import {
+    PrivateDiagramItemSelectService
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
+import {
+    PrivateDiagramCoordSetService
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
-import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
-import {PrivateDiagramSnapshotService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramSnapshotService";
+import {
+    PrivateDiagramBranchService
+} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
+import {
+    PrivateDiagramSnapshotService
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramSnapshotService";
+import {
+    PrivateDiagramOverrideService
+} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService";
 
 /** Canvas Component
  *
@@ -80,6 +91,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 positionService: DiagramPositionService,
                 private itemSelectService: PrivateDiagramItemSelectService,
                 private branchService: PrivateDiagramBranchService,
+                private overrideService: PrivateDiagramOverrideService,
                 private snapshotService: PrivateDiagramSnapshotService) {
         super();
 
@@ -97,7 +109,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
         // The model view the viewable items on the canvas
         this.model = new PeekCanvasModel(this.config, this.gridObservable,
-            this.lookupService, this.branchService, this);
+            this.lookupService, this.branchService, this.overrideService, this);
 
         // The display renderer delegates
         this.renderFactory = new PeekDispRenderFactory(this.config);

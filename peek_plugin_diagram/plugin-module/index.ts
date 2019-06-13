@@ -1,5 +1,7 @@
 export {DiagramLookupService} from "./DiagramLookupService";
 
+export {DiagramOverrideService} from "./DiagramOverrideService";
+
 export {DiagramSnapshotService} from "./DiagramSnapshotService";
 
 export {DiagramCoordSetService} from "./DiagramCoordSetService";

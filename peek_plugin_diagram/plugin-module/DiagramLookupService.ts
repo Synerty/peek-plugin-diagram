@@ -3,6 +3,8 @@ import {TupleSelector} from "@synerty/vortexjs";
 import {DispColor, DispLayer, DispLevel, DispLineStyle, DispTextStyle} from "./lookups";
 import {PrivateDiagramTupleService} from "./_private/services/PrivateDiagramTupleService";
 import {Observable, Subject} from "rxjs";
+import {ModelSet} from "./_private/tuples";
+import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
 let dictValuesFromObject = (dict) => Object.keys(dict).map(key => dict[key]);
 
@@ -14,7 +16,7 @@ let dictValuesFromObject = (dict) => Object.keys(dict).map(key => dict[key]);
  *
  */
 @Injectable()
-export class DiagramLookupService {
+export class DiagramLookupService extends ComponentLifecycleEventEmitter {
 
     private loadedCounter = {};
     private _lookupTargetCount = 5;
@@ -36,8 +38,23 @@ export class DiagramLookupService {
     private _isReady: boolean = false;
     private _isReadySubject: Subject<boolean> = new Subject<boolean>();
 
+    private modelSetByKey: { [key: string]: ModelSet } = {};
+
 
     constructor(private tupleService: PrivateDiagramTupleService) {
+        super();
+
+        let modelSetTs = new TupleSelector(ModelSet.tupleName, {});
+
+        this.tupleService.offlineObserver
+            .subscribeToTupleSelector(modelSetTs)
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((modelSets: ModelSet[]) => {
+                this.modelSetByKey = {};
+                for (let modelSet of modelSets)
+                    this.modelSetByKey[modelSet.key] = modelSet;
+            });
+
 
         let sub = (lookupAttr, tupleName, callback = null) => {
             let ts = new TupleSelector(tupleName, {});
@@ -209,6 +226,13 @@ export class DiagramLookupService {
     }
 
 
+    private getModelSetId(idOrKey: string | number): number {
+        if (typeof idOrKey == 'number')
+            return idOrKey;
+        return this.modelSetByKey[idOrKey].id;
+    }
+
+
     // ============================================================================
     // Accessors
 
@@ -233,7 +257,8 @@ export class DiagramLookupService {
     };
 
 
-    layersOrderedByOrder(modelSetId: number): DispLayer[] {
+    layersOrderedByOrder(modelSetKeyOrId: number | string): DispLayer[] {
+        let modelSetId = this.getModelSetId(modelSetKeyOrId);
         let result = this._layersByModelSetIdOrderedByOrder[modelSetId];
         return result == null ? [] : result;
     }
@@ -243,17 +268,20 @@ export class DiagramLookupService {
         return result == null ? [] : result;
     }
 
-    colorsOrderedByName(modelSetId: number): DispColor[] {
+    colorsOrderedByName(modelSetKeyOrId: number | string): DispColor[] {
+        let modelSetId = this.getModelSetId(modelSetKeyOrId);
         let result = this._colorsByModelSetIdOrderedByName[modelSetId];
         return result == null ? [] : result;
     }
 
-    textStylesOrderedByName(modelSetId: number): DispTextStyle[] {
+    textStylesOrderedByName(modelSetKeyOrId: number | string): DispTextStyle[] {
+        let modelSetId = this.getModelSetId(modelSetKeyOrId);
         let result = this._textStyleByModelSetIdOrderedByName[modelSetId];
         return result == null ? [] : result;
     }
 
-    lineStylesOrderedByName(modelSetId: number): DispLineStyle[] {
+    lineStylesOrderedByName(modelSetKeyOrId: number | string): DispLineStyle[] {
+        let modelSetId = this.getModelSetId(modelSetKeyOrId);
         let result = this._lineStyleByModelSetIdOrderedByName[modelSetId];
         return result == null ? [] : result;
     }

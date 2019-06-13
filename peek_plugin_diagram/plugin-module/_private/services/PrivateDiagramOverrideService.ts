@@ -2,7 +2,7 @@ import {Injectable} from "@angular/core";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {DiagramOverrideService} from "../../DiagramOverrideService";
-import {DiagramOverride} from "../../override/DiagramOverride";
+import {DiagramOverrideBase} from "../../override/DiagramOverrideBase";
 
 
 /** Diagram Override Service
@@ -13,36 +13,36 @@ import {DiagramOverride} from "../../override/DiagramOverride";
 @Injectable()
 export class PrivateDiagramOverrideService extends DiagramOverrideService {
 
-    private _applyOverrideSubject = new Subject<DiagramOverride>();
-    private _revokeOverrideSubject = new Subject<DiagramOverride>();
+    private overridesUpdatedSubject = new Subject<DiagramOverrideBase[]>();
+
+    private appliedOverrides: { [key: string]: DiagramOverrideBase } = {};
 
     constructor() {
         super();
 
     }
 
-    create(modelSetKey: string, coordSetKey: string): DiagramOverride {
-
-        let override = new DiagramOverride();
-        override["modelSetKey_"] = modelSetKey;
-        override["coordSetKey_"] = coordSetKey;
-        return override;
+    applyOverride(override: DiagramOverrideBase): void {
+        this.appliedOverrides[override.key] = override;
+        this.notifyOfUpdate();
     }
 
-    applyBranch(override: DiagramOverride): void {
-        this._applyOverrideSubject.next(override);
+    revokeOverride(override: DiagramOverrideBase): void {
+        delete this.appliedOverrides[override.key];
+        this.notifyOfUpdate();
     }
 
-    get applyOverrideSubject(): Observable<DiagramOverride> {
-        return this._applyOverrideSubject;
+    get overridesUpdatedObservable(): Observable<DiagramOverrideBase[]> {
+        setTimeout(() => this.notifyOfUpdate(), 0);
+        return this.overridesUpdatedSubject;
     }
 
-    revokeBranch(override: DiagramOverride): void {
-        this._revokeOverrideSubject.next(override);
-    }
-
-    get revokeOverrideSubject(): Observable<DiagramOverride> {
-        return this._revokeOverrideSubject;
+    private notifyOfUpdate(): void {
+        const overrides = [];
+        for (const key of Object.keys(this.appliedOverrides)) {
+            overrides.push(this.appliedOverrides[key]);
+        }
+        this.overridesUpdatedSubject.next(overrides);
     }
 
 }
