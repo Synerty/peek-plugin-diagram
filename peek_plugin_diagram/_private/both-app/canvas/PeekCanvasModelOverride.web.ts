@@ -17,7 +17,6 @@ import {DispFactory} from "../canvas-shapes/DispFactory";
  *
  */
 export class PeekCanvasModelOverride {
-    private overrides: DiagramOverrideBase[] = [];
 
     private overridesByDispKey: { [key: string]: DiagramOverrideBase[] } = {};
 
@@ -51,7 +50,6 @@ export class PeekCanvasModelOverride {
     // Set
     // ------------------------------------------------------------------------
     setOverrides(overrides: DiagramOverrideBase[]): void {
-        this.overrides = overrides;
 
         this.overridesByDispKey = {};
         for (const overrideBase of overrides) {
@@ -79,7 +77,6 @@ export class PeekCanvasModelOverride {
             if (array == null)
                 continue;
 
-            console.log("We've got hiere");
             for (const overrideBase of array) {
                 switch (overrideBase.overrideType) {
                     case DiagramOverrideTypeE.Color: {

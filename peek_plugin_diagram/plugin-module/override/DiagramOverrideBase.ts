@@ -20,12 +20,14 @@ export abstract class DiagramOverrideBase extends Tuple {
 
     public readonly key: string;
 
+    private static overrideNum: number = 0;
+
     protected constructor(public readonly modelSetKey: string,
-                public readonly coordSetKey: string,
-                public readonly overrideType: DiagramOverrideTypeE,
-                tupleType: string) {
+                          public readonly coordSetKey: string,
+                          public readonly overrideType: DiagramOverrideTypeE,
+                          tupleType: string) {
         super(tupleType);
-        this.key = `${new Date().getTime()}`;
+        this.key = `${new Date().getTime()}=${DiagramOverrideBase.overrideNum++}`;
     }
 
 }

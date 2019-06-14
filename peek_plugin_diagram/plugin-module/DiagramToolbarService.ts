@@ -15,13 +15,21 @@ export interface DiagramToolButtonCallbackI {
  *
  * NOTE: Don't assign a callback if children are set.
  *
+ * @param key: This is a unique key for this button. Prefix it with the plugins name.
+ *
  */
 export interface DiagramToolButtonI {
+    key?: string;
     name: string;
     tooltip: string | null;
     icon: string | null;
     callback: DiagramToolButtonCallbackI | null;
     children: DiagramToolButtonI[];
+}
+
+export enum ToolbarTypeE {
+    ViewToolbar = 1,
+    EditToolbar = 2
 }
 
 /** Diagram Toolbar Service
@@ -30,7 +38,7 @@ export interface DiagramToolButtonI {
  * on the diagrams window.
  */
 export abstract class DiagramToolbarService {
-    constructor() {
+    protected constructor() {
 
     }
 
@@ -46,27 +54,28 @@ export abstract class DiagramToolbarService {
      * @param toolButton: A single tool button, or a hierarchy of tool buttons to add
      * to the diagrams tool bar.
      *
+     * @param toolbarType: The type of the toolbar to add the button to.
      */
     abstract addToolButton(modelSetKey: string | null,
                            coordSetKey: string | null,
-                           toolButton: DiagramToolButtonI);
+                           toolButton: DiagramToolButtonI,
+                           toolbarType?: ToolbarTypeE);
 
-    /** Add Edito Tool Button
+    /** Remove Tool Button
      *
-     * These toolbar buttons appear on the Edit toolbar.
+     * @param buttonKey: The key of the button to remove.
      *
-     * See Add Toolbar Button for more details
-     *
+     * @param toolbarType: The type of the toolbar to add the button to.
      */
-    abstract addEditToolButton(modelSetKey: string | null,
-                           coordSetKey: string | null,
-                           toolButton: DiagramToolButtonI);
+    abstract removeToolButton(buttonKey: string,
+                              toolbarType?: ToolbarTypeE);
 
 
     /** Set Exit Diagram Callback
      *
      * Set a callable that is called when the exit diagram button is clicked / tapped.
      *
+     * @param modelSetKey
      * @param callable
      */
     abstract setExitDiagramCallback(modelSetKey: string, callable: any): void;

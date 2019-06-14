@@ -7,10 +7,15 @@ import {DiagramOverrideBase} from "./override/DiagramOverrideBase";
  * for example, highlighting conductors for a trace.
  *
  */
-export abstract class DiagramOverrideService  extends ComponentLifecycleEventEmitter{
+export abstract class DiagramOverrideService extends ComponentLifecycleEventEmitter {
+
+    protected constructor() {
+        super();
+
+    }
 
     abstract applyOverride(override: DiagramOverrideBase): void ;
 
-    abstract revokeOverride(override: DiagramOverrideBase): void ;
+    abstract removeOverride(override: DiagramOverrideBase): void ;
 
 }

@@ -1,7 +1,10 @@
 import {Injectable} from "@angular/core";
 import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
 import {LinkedGrid} from "./LinkedGrid.web";
-import {GridTuple, PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader";
+import {
+    GridTuple,
+    PrivateDiagramGridLoaderServiceA
+} from "@peek/peek_plugin_diagram/_private/grid-loader";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 
@@ -80,11 +83,16 @@ export class GridCache {
         return this.updatesObservable;
     }
 
+
     /** Update Watched Grids
      *
      * Change the list of grids that the GridObserver is interested in.
      */
-    updateWatchedGrids(gridKeys: string[]): void {
+    updateWatchedGrids(gridKeys: string[], forceCacheFlush = false): void {
+        if (forceCacheFlush) {
+            this.cacheQueue = [];
+        }
+
         this.gridLoader.watchGrids(gridKeys);
 
         // Rotate the grid cache

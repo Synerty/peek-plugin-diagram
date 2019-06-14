@@ -4,6 +4,10 @@ import {Observable} from "rxjs/Observable";
 import {DiagramOverrideService} from "../../DiagramOverrideService";
 import {DiagramOverrideBase} from "../../override/DiagramOverrideBase";
 
+export interface OverrideUpdateDataI {
+    overrides: DiagramOverrideBase[];
+    overridesRemoved: boolean;
+}
 
 /** Diagram Override Service
  *
@@ -13,7 +17,7 @@ import {DiagramOverrideBase} from "../../override/DiagramOverrideBase";
 @Injectable()
 export class PrivateDiagramOverrideService extends DiagramOverrideService {
 
-    private overridesUpdatedSubject = new Subject<DiagramOverrideBase[]>();
+    private overridesUpdatedSubject = new Subject<OverrideUpdateDataI>();
 
     private appliedOverrides: { [key: string]: DiagramOverrideBase } = {};
 
@@ -24,25 +28,31 @@ export class PrivateDiagramOverrideService extends DiagramOverrideService {
 
     applyOverride(override: DiagramOverrideBase): void {
         this.appliedOverrides[override.key] = override;
-        this.notifyOfUpdate();
+        this.notifyOfUpdate(false);
     }
 
-    revokeOverride(override: DiagramOverrideBase): void {
+    removeOverride(override: DiagramOverrideBase): void {
         delete this.appliedOverrides[override.key];
-        this.notifyOfUpdate();
+        this.notifyOfUpdate(true);
     }
 
-    get overridesUpdatedObservable(): Observable<DiagramOverrideBase[]> {
-        setTimeout(() => this.notifyOfUpdate(), 0);
+    get overridesUpdatedObservable(): Observable<OverrideUpdateDataI> {
+        if (Object.keys(this.appliedOverrides).length != 0) {
+            setTimeout(() => this.notifyOfUpdate(true), 0);
+        }
+
         return this.overridesUpdatedSubject;
     }
 
-    private notifyOfUpdate(): void {
+    private notifyOfUpdate(removed: boolean): void {
         const overrides = [];
         for (const key of Object.keys(this.appliedOverrides)) {
             overrides.push(this.appliedOverrides[key]);
         }
-        this.overridesUpdatedSubject.next(overrides);
+        this.overridesUpdatedSubject.next({
+            overrides: overrides,
+            overridesRemoved: removed
+        });
     }
 
 }

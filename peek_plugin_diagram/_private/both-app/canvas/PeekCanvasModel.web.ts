@@ -11,9 +11,9 @@ import {PeekCanvasModelQuery} from "./PeekCanvasModelQuery.web";
 import {PeekCanvasModelSelection} from "./PeekCanvasModelSelection.web";
 import {PeekCanvasModelOverride} from "./PeekCanvasModelOverride.web";
 import {
+    OverrideUpdateDataI,
     PrivateDiagramOverrideService
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService";
-import {DiagramOverrideBase} from "@peek/peek_plugin_diagram/override/DiagramOverrideBase";
 
 // import 'rxjs/add/operator/takeUntil';
 
@@ -129,9 +129,21 @@ export class PeekCanvasModel {
         this.overrideService
             .overridesUpdatedObservable
             .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
-            .subscribe((overrides: DiagramOverrideBase[]) => {
+            .subscribe((data: OverrideUpdateDataI) => {
+                this._override.setOverrides(data.overrides);
                 this.needsCompiling = true;
-                this._override.setOverrides(overrides);
+                if (data.overridesRemoved) {
+                    // Force the updates to load when they come back
+                    for (const gridKey of Object.keys(this._gridBuffer)) {
+                        this._gridBuffer[gridKey].lastUpdate = null;
+                    }
+                    // Flush the cache and reload the grid keys
+                    this.gridObservable.updateDiagramWatchedGrids(
+                        this.config.canvasId,
+                        Object.keys(this._viewingGridKeysDict),
+                        true
+                    );
+                }
             });
 
     };

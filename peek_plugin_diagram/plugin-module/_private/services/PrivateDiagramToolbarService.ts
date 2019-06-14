@@ -1,5 +1,9 @@
 import {Injectable} from "@angular/core";
-import {DiagramToolbarService, DiagramToolButtonI} from "../../DiagramToolbarService";
+import {
+    DiagramToolbarService,
+    DiagramToolButtonI,
+    ToolbarTypeE
+} from "../../DiagramToolbarService";
 
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
@@ -64,21 +68,38 @@ export class PrivateDiagramToolbarService extends DiagramToolbarService {
 
     addToolButton(modelSetKey: string | null,
                   coordSetKey: string | null,
-                  toolButton: DiagramToolButtonI) {
-        this.toolButtons.push(toolButton);
-        this._toolButtonsUpdatedSubject.next(this.toolButtons);
+                  toolButton: DiagramToolButtonI,
+                  toolbarType: ToolbarTypeE = ToolbarTypeE.ViewToolbar) {
+        if (toolbarType === ToolbarTypeE.ViewToolbar) {
+            this.toolButtons.push(toolButton);
+            this._toolButtonsUpdatedSubject.next(this.toolButtons);
+        } else {
+            this.editToolButtons.push(toolButton);
+            this._editToolButtonsUpdatedSubject.next(this.editToolButtons);
+        }
+    }
+
+    removeToolButton(buttonKey: string,
+                     toolbarType: ToolbarTypeE= ToolbarTypeE.ViewToolbar) {
+
+        function condition(item: DiagramToolButtonI): boolean {
+            return item.key != buttonKey;
+        }
+
+        if (toolbarType === ToolbarTypeE.ViewToolbar) {
+            this.toolButtons = this.toolButtons.filter(condition);
+            this._toolButtonsUpdatedSubject.next(this.toolButtons);
+        } else {
+            this.editToolButtons = this.editToolButtons.filter(condition);
+            this._editToolButtonsUpdatedSubject.next(this.editToolButtons);
+        }
+
     }
 
     editToolButtonsUpdatedObservable(): Observable<DiagramToolButtonI[]> {
         return this._editToolButtonsUpdatedSubject;
     }
 
-    addEditToolButton(modelSetKey: string | null,
-                      coordSetKey: string | null,
-                      toolButton: DiagramToolButtonI) {
-        this.editToolButtons.push(toolButton);
-        this._editToolButtonsUpdatedSubject.next(this.toolButtons);
-    }
 
     exitDiagramCallable(modelSetKey: string): any | null {
         return this._exitDiagramCallable[modelSetKey];

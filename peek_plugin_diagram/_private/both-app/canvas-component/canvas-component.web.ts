@@ -149,6 +149,10 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     }
 
+    isEditing():boolean {
+        return this.editor != null && this.editor.isEditing();
+    }
+
     isReady(): boolean {
         return this.coordSetCache.isReady()
             && this.gridObservable.isReady()

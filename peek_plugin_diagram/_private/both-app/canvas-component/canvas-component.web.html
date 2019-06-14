@@ -1,6 +1,6 @@
 <div>
 
-    <pl-diagram-view-toolbar *ngIf="coordSetKey != null && !editor.isEditing()"
+    <pl-diagram-view-toolbar *ngIf="coordSetKey != null && !isEditing()"
                              [config]="config"
                              [coordSetKey]="coordSetKey"
                              [modelSetKey]="modelSetKey"
@@ -9,12 +9,12 @@
     <div #edittoolbar class="">
         <pl-diagram-edit-toolbar
                 (openPrintPopup)="showPrintPopup=true"
-                *ngIf="editor.isEditing()"
+                *ngIf="isEditing()"
                 [canvasEditor]="editor"></pl-diagram-edit-toolbar>
     </div>
 
     <pl-diagram-edit-props-toolbar
-            *ngIf="editor.isEditing()"
+            *ngIf="isEditing()"
             [canvasEditor]="editor">
 
     </pl-diagram-edit-props-toolbar>
@@ -25,11 +25,11 @@
 
     <div #editprops>
         <pl-diagram-edit-props
-                *ngIf="editor.isEditing()"
+                *ngIf="isEditing()"
                 [canvasEditor]="editor"></pl-diagram-edit-props>
     </div>
 
-    <pl-diagram-view-popup *ngIf="coordSetKey != null && !editor.isEditing()"
+    <pl-diagram-view-popup *ngIf="coordSetKey != null && !isEditing()"
                            [coordSetKey]="coordSetKey"
                            [modelSetKey]="modelSetKey"></pl-diagram-view-popup>
 

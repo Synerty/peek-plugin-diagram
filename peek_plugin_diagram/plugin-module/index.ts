@@ -1,3 +1,7 @@
+export {
+    DiagramToolbarService, ToolbarTypeE, DiagramToolButtonI
+} from "./DiagramToolbarService";
+
 export {DiagramLookupService} from "./DiagramLookupService";
 
 export {DiagramOverrideService} from "./DiagramOverrideService";
@@ -23,3 +27,4 @@ export {
     DiagramPositionService,
     PositionUpdatedI
 } from "./DiagramPositionService";
+

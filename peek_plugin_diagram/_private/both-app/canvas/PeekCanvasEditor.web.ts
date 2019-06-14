@@ -77,6 +77,7 @@ export class PeekCanvasEditor {
                 this.canvasInput.setDelegate(PeekCanvasInputSelectDelegate);
                 this.canvasConfig.editor.active = false;
                 this.canvasModel.selection.clearSelection();
+                this.canvasConfig.updateEditedBranch(null);
                 this.canvasConfig.setModelNeedsCompiling();
             });
 

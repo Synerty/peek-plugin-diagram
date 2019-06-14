@@ -2,11 +2,7 @@ import {Injectable} from "@angular/core";
 import {GridCache} from "./GridCache.web";
 import {LinkedGrid} from "./LinkedGrid.web";
 import {Subject} from "rxjs/Subject";
-import {
-    assert, dictKeysFromObject, dictSetFromArray,
-    dictValuesFromObject
-} from "../DiagramUtil";
-import {extend} from "@synerty/vortexjs";
+import {assert, dictKeysFromObject} from "../DiagramUtil";
 
 /** Grid Observable
  *
@@ -62,10 +58,11 @@ export class GridObservable {
 
     }
 
-    updateDiagramWatchedGrids(canvasId: number, gridKeys: string[]): void {
+    updateDiagramWatchedGrids(canvasId: number, gridKeys: string[],
+                              forceCacheFlush = false): void {
         this.gridKeysByCanvasId[canvasId] = gridKeys;
         this.rebuildReverseLookup();
-        this.updateGridCacheWatchedKeys();
+        this.updateGridCacheWatchedKeys(forceCacheFlush);
     }
 
     private processGridUpdates(grid: LinkedGrid) {
@@ -81,15 +78,15 @@ export class GridObservable {
 
     }
 
-    private updateGridCacheWatchedKeys() {
-        let uniqueKeysList = dictKeysFromObject( this.canvasIdsByGidKey).sort();
+    private updateGridCacheWatchedKeys(forceCacheFlush: boolean = false) {
+        let uniqueKeysList = dictKeysFromObject(this.canvasIdsByGidKey).sort();
         let uniqueKeysStr = uniqueKeysList.join(',');
 
-        if (this.lastObservedKeysStr == uniqueKeysStr)
+        if (this.lastObservedKeysStr == uniqueKeysStr && !forceCacheFlush)
             return;
 
         this.lastObservedKeysStr = uniqueKeysStr;
-        this.gridCache.updateWatchedGrids(uniqueKeysList);
+        this.gridCache.updateWatchedGrids(uniqueKeysList, forceCacheFlush);
     }
 
     private rebuildReverseLookup() {
