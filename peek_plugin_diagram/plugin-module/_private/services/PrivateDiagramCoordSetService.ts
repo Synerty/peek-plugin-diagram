@@ -144,4 +144,9 @@ export class PrivateDiagramCoordSetService extends ComponentLifecycleEventEmitte
     };
 
 
+    modelSetKeys(): string[] {
+        return Object.keys(this._coordSetsByModelSetKey);
+    };
+
+
 }
