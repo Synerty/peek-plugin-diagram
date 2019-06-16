@@ -1,9 +1,8 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
+import {DrawModeE, PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {DispPolygon} from "../canvas-shapes/DispPolygon";
-import {DispBase, DispBaseT, DispType, PointI, PointsT} from "../canvas-shapes/DispBase";
+import {DispBase, DispBaseT, DispType, PointI} from "../canvas-shapes/DispBase";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {DispTextT} from "../canvas-shapes/DispText";
 import {DispPolyline, DispPolylineEndTypeE} from "../canvas-shapes/DispPolyline";
 
 export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
@@ -47,7 +46,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         ctx[q % 2 == 0 ? 'moveTo' : 'lineTo'](x2, y2);
     };
 
-    draw(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
+    draw(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
         let isPolygon = DispBase.typeOf(disp) == DispType.polygon;
 
         let fillColor = isPolygon ? DispPolygon.fillColor(disp) : null;
@@ -184,10 +183,18 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
     }
 
-    drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
+    drawSelected(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
+
+        if (DispBase.typeOf(disp) == DispType.polygon)
+            return this.drawSelectedPolygon(disp, ctx, zoom, pan, drawMode);
+        return this.drawSelectedPolyline(disp, ctx, zoom, pan, drawMode);
+
+    }
+
+    private drawSelectedPolygon(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
         let geom = DispPolygon.geom(disp);
 
-        let selectionConfig = this.config.renderer.selection;
+        let selectionConfig =  this.config.getSelectionDrawDetailsForDrawMode(drawMode);
 
         // DRAW THE SELECTED BOX
         let bounds = PeekCanvasBounds.fromGeom(geom);
@@ -208,12 +215,73 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
     }
 
+    private drawSelectedPolyline(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
+        let geom = DispPolygon.geom(disp);
+
+        // This is in the too hard basket for now.
+        if (geom.length > 4)
+            return this.drawSelectedPolygon(disp, ctx, zoom, pan, drawMode);
+
+        let selectionConfig =  this.config.getSelectionDrawDetailsForDrawMode(drawMode);
+
+        // Move the selection line a bit away from the object
+        let offset = (selectionConfig.width + selectionConfig.lineGap) / zoom;
+
+        // the line segment
+        let x1 = geom[0], y1 = geom[1], x2 = geom[2], y2 = geom[3];
+
+        let adj = (x1 - x2);
+        let opp = (y1 - y2);
+        let hypot = Math.hypot(adj, opp);
+
+        let multiplier = offset / hypot;
+
+        // Move the line ends a bit further our
+        // x1 = x1 + adj * multiplier;
+        // y1 = y1 + opp * multiplier;
+        // x2 = x2 - adj * multiplier;
+        // y2 = y2 - opp * multiplier;
+
+        let px = y1 - y2; // as vector at 90 deg to the line
+        let py = x2 - x1;
+        const len = offset / Math.hypot(px, py);
+        px *= len;  // make leng 10 pixels
+        py *= len;
+
+
+        // draw line the start cap and end cap.
+        ctx.beginPath();
+
+        // this._drawLine(ctx, x1 + px, y1 + py,
+        //     x1 - px, y1 - py,
+        //     [selectionConfig.dashLen], zoom, 0);
+
+        this._drawLine(ctx, x2 - px, y2 - py,
+            x1 - px, y1 - py,
+            [selectionConfig.dashLen], zoom, 0);
+
+        // this._drawLine(ctx, x2 + px, y2 + py,
+        //     x2 - px, y2 - py,
+        //     [selectionConfig.dashLen], zoom, 0);
+
+        this._drawLine(ctx, x1 + px, y1 + py,
+            x2 + px, y2 + py,
+            [selectionConfig.dashLen], zoom, 0);
+
+        ctx.strokeStyle = selectionConfig.color;
+        ctx.lineWidth = selectionConfig.width / zoom;
+        ctx.stroke();
+
+    }
+
     drawEditHandles(disp, ctx, zoom: number, pan: PointI) {
         // DRAW THE EDIT HANDLES
         ctx.fillStyle = this.config.editor.selectionHighlightColor;
         let handles = this.handles(disp);
-        for (let handle of handles) {
-            ctx.fillRect(handle.x, handle.y, handle.w, handle.h);
+        for (const h of handles) {
+            ctx.beginPath();
+            ctx.arc(h.x + h.w / 2, h.y + h.h / 2, h.h / 2, 0, 2 * Math.PI);
+            ctx.fill();
         }
 
     }
@@ -261,143 +329,4 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
     }
 
-    /** Contains
-     @param x: x and y are mouse coordinates
-     @param y:
-     @param margin: is the tolerance,
-
-     @returns boolean: True if x and y are on this display object
-     */
-    contains(dispPoly, x: number, y: number, margin: number): boolean {
-        let geom = DispPolygon.geom(dispPoly);
-
-        if (!PeekCanvasBounds.fromGeom(geom).contains(x, y, margin))
-            return false;
-
-        if (DispBase.typeOf(dispPoly) == DispType.polygon)
-            return this.polygonContains(geom, dispPoly, x, y, margin);
-
-        return this.polylineContains(geom, dispPoly, x, y, margin);
-    }
-
-    private polygonContains(points: PointsT, dispPoly,
-                            x: number, y: number, margin: number): boolean {
-
-
-        // Using the polygon line segment crossing algorithm.
-        function rayCrossesSegment(axIn: number, ayIn: number,
-                                   bxIn: number, byIn: number) {
-            let swap = ayIn > byIn;
-            let ax = swap ? bxIn : axIn;
-            let ay = swap ? byIn : ayIn;
-            let bx = swap ? axIn : bxIn;
-            let by = swap ? ayIn : byIn;
-
-            // alter longitude to cater for 180 degree crossings
-            // JJC, I don't think we need this, we're not using spatial references
-            /*
-            if (x < 0)
-                x += 360;
-            if (ax < 0)
-                ax += 360;
-            if (bx < 0)
-                bx += 360;
-            */
-
-            if (y == ay || y == by) y += 0.00000001;
-            if ((y > by || y < ay) || (x > Math.max(ax, bx))) return false;
-            if (x < Math.min(ax, bx)) return true;
-
-            let red = (ax != bx) ? ((by - ay) / (bx - ax)) : Infinity;
-            let blue = (ax != x) ? ((y - ay) / (x - ax)) : Infinity;
-            return (blue >= red);
-        }
-
-        let crossings = 0;
-
-        let pFirstX = points[0];
-        let pFirstY = points[1];
-        let p1x = pFirstX;
-        let p1y = pFirstY;
-
-        // This will deliberately run one more iteration after the last pointY
-        for (let i = 2; i <= points.length; i += 2) {
-            // Assume this is the last iteration by default
-            let p2x = pFirstX;
-            let p2y = pFirstY;
-
-            // If not, set it to the proper point.
-            if (i != points.length) {
-                p2x = points[i];
-                p2y = points[i + 1];
-            }
-
-            if (rayCrossesSegment(p1x, p1y, p2x, p2y))
-                crossings++;
-
-            p1x = p2x;
-            p1y = p2y;
-        }
-
-        // odd number of crossings?
-        return (crossings % 2 == 1);
-
-    }
-
-
-    private polylineContains(points: PointsT, dispPoly,
-                             x: number, y: number, margin: number): boolean {
-
-        // ELSE, POLYLINE
-        let x1 = points[0];
-        let y1 = points[1];
-        for (let i = 2; i < points.length; i += 2) {
-            let x2 = points[i];
-            let y2 = points[i + 1];
-
-
-            let dx = x2 - x1;
-            let dy = y2 - y1;
-
-            // For Bounding Box
-            let left = (x1 < x2 ? x1 : x2) - margin;
-            let right = (x1 < x2 ? x2 : x1) + margin;
-            let top = (y1 < y2 ? y1 : y2) - margin;
-            let bottom = (y1 < y2 ? y2 : y1) + margin;
-
-            // Special condition for vertical lines
-            if (dx == 0) {
-                if (left <= x && x <= right && top <= y && y <= bottom) {
-                    return true;
-                }
-            }
-
-            let slope = dy / dx;
-            // y = mx + c
-            // intercept c = y - mx
-            let intercept = y1 - slope * x1; // which is same as y2 - slope * x2
-
-            let yVal = slope * x + intercept;
-            let xVal = (y - intercept) / slope;
-
-            if (((y - margin) < yVal && yVal < (y + margin)
-                || (x - margin) < xVal && xVal < (x + margin))
-                && (left <= x && x <= right && top <= y && y <= bottom))
-                return true;
-
-            x1 = x2;
-            y1 = y2;
-        }
-
-        return false;
-
-    }
-
-    withIn(disp: DispTextT, x, y, w, h): boolean {
-        return disp.bounds == null ? false : disp.bounds.withIn(x, y, w, h);
-    };
-
-    area(disp) {
-        return disp.bounds == null ? 0 : disp.bounds.area();
-    };
 }

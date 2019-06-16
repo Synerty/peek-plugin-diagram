@@ -3,6 +3,12 @@ import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
 import {DispFactory} from "../canvas-shapes/DispFactory";
 
+export enum DrawModeE {
+    ForView = 1,
+    ForEdit = 2,
+    ForSuggestion = 3
+}
+
 export abstract class PeekDispRenderDelegateABC {
 
     protected constructor(protected config: PeekCanvasConfig) {
@@ -11,17 +17,11 @@ export abstract class PeekDispRenderDelegateABC {
 
     abstract updateBounds(disp: DispBaseT, zoom: number): void ;
 
-    abstract draw(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) ;
+    abstract draw(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) ;
 
-    abstract drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) ;
+    abstract drawSelected(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) ;
 
     abstract drawEditHandles(disp, ctx, zoom: number, pan: PointI) ;
-
-    abstract contains(disp, x, y, margin): boolean;
-
-    abstract withIn(disp, x, y, w, h): boolean ;
-
-    abstract area(disp): number;
 
     handles(disp): PeekCanvasBounds[] {
         const margin = this.config.editor.resizeHandleMargin;

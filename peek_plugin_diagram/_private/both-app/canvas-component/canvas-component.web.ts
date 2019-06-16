@@ -132,8 +132,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         // Add the mouse class to the renderers draw list
         this.renderer.drawEvent
             .takeUntil(this.onDestroyEvent)
-            .subscribe(({ctx, zoom, pan, forEdit}) =>
-                this.input.draw(ctx, zoom, pan, forEdit));
+            .subscribe(({ctx, zoom, pan, drawMode}) =>
+                this.input.draw(ctx, zoom, pan, drawMode));
 
         // Hook up the item selection service
         this.connectItemSelectionService();

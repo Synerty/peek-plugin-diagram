@@ -8,6 +8,7 @@ import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 import {DispBase, PointI} from "../canvas-shapes/DispBase";
+import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
 
 
 export function disableContextMenu(event) {
@@ -109,7 +110,7 @@ export abstract class PeekCanvasInputDelegate {
     shutdown() {
     };
 
-    draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
+    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
     };
 
     /**

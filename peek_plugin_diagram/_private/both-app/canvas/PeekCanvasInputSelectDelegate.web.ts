@@ -6,7 +6,8 @@ import {
 import * as assert from "assert";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
-import {PointI} from "../canvas-shapes/DispBase";
+import {DispBase, DispBaseT, PointI} from "../canvas-shapes/DispBase";
+import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
 
 /**
  * This input delegate handles :
@@ -39,6 +40,9 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     // See mousedown and mousemove events for explanation
     _startMousePos: CanvasInputPos | null = null;
 
+    // This is the disp that is shown when you hover over it.
+    private suggestedDispToSelect: DispBaseT | null = null;
+
     constructor(viewArgs: InputDelegateConstructorArgs,
                 canvasEditor: PeekCanvasEditor) {
         super(viewArgs, canvasEditor, PeekCanvasInputSelectDelegate.TOOL_NAME);
@@ -60,6 +64,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this._mouseDownRightButton = false;
         this._mouseDownOnHandle = null;
 
+        this.suggestedDispToSelect = null;
 
         this._lastPinchDist = null;
 
@@ -105,7 +110,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     mouseDown(event, mouse: CanvasInputPos) {
 
-
+        this.suggestedDispToSelect = null;
         this._mouseDownWithShift = event.shiftKey;
         this._mouseDownWithCtrl = event.ctrlKey;
         this._mouseDownMiddleButton = event.button == 1;
@@ -246,13 +251,15 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this.viewArgs.config.updateViewPortZoom(zoom);
     };
 
-    mouseMove(event, mouse) {
+    mouseMove(event, inputPos: CanvasInputPos) {
 
-        if (this._state == this.STATE_NONE)
+        if (this._state == this.STATE_NONE) {
+            this.renderSelectablesUnderMouse(inputPos);
             return;
+        }
 
         this._passedDragThreshold = this._passedDragThreshold
-            || this._hasPassedDragThreshold(this._startMousePos, mouse);
+            || this._hasPassedDragThreshold(this._startMousePos, inputPos);
 
         // State conversion upon dragging
         if (this._state == this.STATE_SELECTING && this._passedDragThreshold) {
@@ -262,7 +269,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         switch (this._state) {
 
             case this.STATE_CANVAS_PANNING: {
-                let delta = this._setLastMousePos(mouse, false);
+                let delta = this._setLastMousePos(inputPos, false);
                 // Dragging the mouse left makes a negative delta, we increase X
                 // Dragging the mouse up makes a negative delta, we increase Y
                 let oldPan = this.viewArgs.config.viewPort.pan;
@@ -308,10 +315,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     };
 
     mouseDoubleClick(event, mouse) {
-
-
-        let hits = this._selectByTypeAndBounds(mouse);
-        this.viewArgs.model.selection.addSelection(hits);
     };
 
     mouseWheel(event, mouse) {
@@ -328,43 +331,61 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this._zoomPan(mouse.clientX, mouse.clientY, delta);
     };
 
-    draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
-
+    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
+        if (this.suggestedDispToSelect != null) {
+            this.viewArgs.renderFactory.drawSelected(this.suggestedDispToSelect,
+                ctx, zoom, pan, DrawModeE.ForSuggestion);
+        }
     };
 
-    _selectByPoint(mouse) {
+    private renderSelectablesUnderMouse(inputPos: CanvasInputPos): void {
+        const q = this.viewArgs.model.query;
 
+        let disps = q.filterForVisibleDisps(q.selectableDisps,
+            this.viewArgs.config.viewPort.zoom, true);
 
-        let margin = this.viewArgs.config.mouse.selecting.margin;//* this.viewArgs.config.viewPort.zoom;
+        let hits = q.filterForDispsContainingPoint(disps,
+            this.viewArgs.config.viewPort.zoom,
+            this.viewArgs.config.mouse.selecting.margin,
+            inputPos, true);
 
-        let coords = this.viewArgs.model.query.selectableDisps;
-        let hits = coords.filter(d => d.bounds && d.bounds
-            .contains(mouse.x, mouse.y, margin)
-        );
+        // Sort by how close the click is from the center of the box.
+        hits = q.sortByDistanceFromCenter(hits, inputPos);
 
-        // Sort by size, largest to smallest.
-        // This ensures we can select smaller items when required.
-        hits = this.viewArgs.model.query.sortBySelectionPriority(hits);
+        this.suggestedDispToSelect = null;
+        if (!hits.length)
+            return;
+
+        // Don't highlight already selected disps
+        for (const selDisp of q.selectedDisps) {
+            if (DispBase.id(selDisp) == DispBase.id(hits[0]))
+                return;
+        }
+
+        this.suggestedDispToSelect = hits[0];
+        this.viewArgs.config.invalidate();
+    };
+
+    _selectByPoint(inputPos: CanvasInputPos) {
+        const q = this.viewArgs.model.query;
+
+        let disps = q.filterForVisibleDisps(q.selectableDisps,
+            this.viewArgs.config.viewPort.zoom, true);
+
+        let hits = q.filterForDispsContainingPoint(disps,
+            this.viewArgs.config.viewPort.zoom,
+            this.viewArgs.config.mouse.selecting.margin,
+            inputPos, true);
+
+        // Sort by how close the click is from the center of the box.
+        hits = q.sortByDistanceFromCenter(hits, inputPos);
 
         // Only select
         if (!this._mouseDownWithCtrl && hits.length)
-            hits = [hits[hits.length - 1]];
+            hits = [hits[0]];
 
         return hits;
-    };
-
-    _selectByTypeAndBounds(mouse) {
-
-
-        let hits = this._selectByPoint(mouse);
-        if (!hits.length)
-            return [];
-
-        let masterCoord = hits[hits.length - 1];
-        let coords = this.viewArgs.model.query.selectableDisps;
-
-        return coords.filter(d => d.bounds && d.bounds.similarTo(masterCoord));
-    };
+    }
 
     _changeSelection(hits) {
 
@@ -381,7 +402,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         }
 
     }
-    ;
 
 
 }

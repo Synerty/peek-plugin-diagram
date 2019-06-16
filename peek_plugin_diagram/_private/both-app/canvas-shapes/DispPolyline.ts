@@ -116,7 +116,14 @@ export class DispPolyline extends DispPoly {
     }
 
     static center(disp): PointI {
-        return {x: disp.g[0], y: disp.g[1]};
+        const pointCount = disp.g.length / 2;
+        let x = 0;
+        let y = 0;
+        for (const i = 0; i < disp.g.length - 2; i + 2) {
+            x += disp.g[i];
+            y += disp.g[i + 1];
+        }
+        return {x: x / pointCount, y: y / pointCount};
     }
 
     static firstPoint(disp): PointI {
@@ -130,6 +137,55 @@ export class DispPolyline extends DispPoly {
 
     static create(coordSet: ModelCoordSet): DispPolylineT {
         return <DispPolylineT>DispPoly.create(coordSet, DispBase.TYPE_DPL);
+    }
+
+    static contains(dispPoly: DispPolylineT, point: PointI, margin: number): boolean {
+        const x = point.x;
+        const y = point.y;
+
+        const points = DispPolyline.geom(dispPoly);
+        let x1 = points[0];
+        let y1 = points[1];
+        for (let i = 2; i < points.length; i += 2) {
+            let x2 = points[i];
+            let y2 = points[i + 1];
+
+
+            let dx = x2 - x1;
+            let dy = y2 - y1;
+
+            // For Bounding Box
+            let left = (x1 < x2 ? x1 : x2) - margin;
+            let right = (x1 < x2 ? x2 : x1) + margin;
+            let top = (y1 < y2 ? y1 : y2) - margin;
+            let bottom = (y1 < y2 ? y2 : y1) + margin;
+
+            // Special condition for vertical lines
+            if (dx == 0) {
+                if (left <= x && x <= right && top <= y && y <= bottom) {
+                    return true;
+                }
+            }
+
+            let slope = dy / dx;
+            // y = mx + c
+            // intercept c = y - mx
+            let intercept = y1 - slope * x1; // which is same as y2 - slope * x2
+
+            let yVal = slope * x + intercept;
+            let xVal = (y - intercept) / slope;
+
+            if (((y - margin) < yVal && yVal < (y + margin)
+                || (x - margin) < xVal && xVal < (x + margin))
+                && (left <= x && x <= right && top <= y && y <= bottom))
+                return true;
+
+            x1 = x2;
+            y1 = y2;
+        }
+
+        return false;
+
     }
 
 
@@ -242,12 +298,14 @@ export class DispPolyline extends DispPoly {
         // // B center point
         // //
         //
-        //function findAngle(A, B, C) {
-        //    let AB = Math.sqrt(Math.pow(B.x - A.x, 2) + Math.pow(B.y - A.y, 2));
-        //    let BC = Math.sqrt(Math.pow(B.x - C.x, 2) + Math.pow(B.y - C.y, 2));
-        //    let AC = Math.sqrt(Math.pow(C.x - A.x, 2) + Math.pow(C.y - A.y, 2));
-        //    return Math.acos((BC * BC + AB * AB - AC * AC) / (2 * BC * AB));
-        //}
+        //
+        //         function findAngle(A, B, C) {
+        //            let AB = Math.hypot(B.x - A.x, B.y - A.y);
+        //            let BC = Math.hypot(B.x - C.x, B.y - C.y);
+        //            let AC = Math.hypot(C.x - A.x, C.y - A.y);
+        //            return Math.acos((BC * BC + AB * AB - AC * AC) / (2 * BC * AB));
+        //         }
+
 
         function pointForIndex(index: number) {
             index *= 2;
@@ -262,16 +320,21 @@ export class DispPolyline extends DispPoly {
         for (let i = 1; i < points.length / 2; ++i) {
             let thisXy = pointForIndex(i);
             let refXy = lastXy;
-            if (i + 2 < points.length / 2) {
+
+            // If this is not the last point
+            if (i + 2 <= points.length / 2) {
                 let nextXy = pointForIndex(i + 1);
 
                 //let angle = findAngle(lastXy, thisXy, nextXy);
                 //refXy = rotatePoint({x:lastXy.x - this.left, y:lastXy.y - this.top}, angle / 2);
 
-                refXy.x = (lastXy.x + nextXy.x) / 2;
-                refXy.y = (lastXy.y + nextXy.y) / 2;
+                refXy = {
+                    x: (lastXy.x + nextXy.x) / 2,
+                    y: (lastXy.y + nextXy.y) / 2
+                };
             }
             addHandle(thisXy, refXy);
+            lastXy = thisXy;
         }
 
         return result;

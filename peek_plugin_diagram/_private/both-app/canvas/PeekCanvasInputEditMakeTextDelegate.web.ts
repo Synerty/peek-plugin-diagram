@@ -6,7 +6,7 @@ import {
 import {DispText} from "../canvas-shapes/DispText";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
-import {DispGroup} from "../canvas-shapes/DispGroup";
+import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
 import {PointI} from "../canvas-shapes/DispBase";
 
 /**
@@ -134,7 +134,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         this._finaliseCreate();
     }
 
-    draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
+    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
     }
 
     _finaliseCreate() {

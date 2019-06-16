@@ -12,10 +12,7 @@ import {DispPolyline, DispPolylineT} from "../canvas-shapes/DispPolyline";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 import {DispFactory} from "../canvas-shapes/DispFactory";
-
-interface SecondarySelectionI {
-
-}
+import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
 
 interface HandleI {
     disp: DispBaseT,
@@ -156,17 +153,17 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this._startMousePos = inputPos;
         this._lastMousePos = inputPos;
 
+        if (this._mouseDownMiddleButton || this._mouseDownRightButton) {
+            this._state = this.STATE_CANVAS_PANNING;
+            return;
+        }
+
         const q = this.viewArgs.model.query;
 
         let visibleDisps = q.filterForVisibleDisps(
             this.viewArgs.model.viewableDisps(),
             this.viewArgs.config.viewPort.zoom
         );
-
-        if (this._mouseDownMiddleButton || this._mouseDownRightButton) {
-            this._state = this.STATE_CANVAS_PANNING;
-            return;
-        }
 
         let selectedDisps = this.viewArgs.model.selection.selectedDisps();
         let margin = this.viewArgs.config.mouse.selecting.margin / this.viewArgs.config.viewPort.zoom;
@@ -208,18 +205,15 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             }
         }
 
-        if (this._mouseDownOnDisp) {
-            this._state = this.STATE_SELECTING;
-        } else {
-            this._state = this.STATE_CANVAS_PANNING;
-            this.viewArgs.model.selection.clearSelection();
-        }
-
-
         if (this._mouseDownOnHandle != null) {
             this.startStateMovingHandle(inputPos);
+
+        } else if (this._mouseDownOnDisp) {
+            this._state = this.STATE_SELECTING;
+
         } else {
             this._state = this.STATE_SELECTING;
+            this.viewArgs.model.selection.clearSelection();
         }
 
 
@@ -424,8 +418,8 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     };
 
     mouseDoubleClick(event, inputPos: CanvasInputPos) {
-        let hits = this._selectByTypeAndBounds(inputPos);
-        this.viewArgs.model.selection.addSelection(hits);
+        // let hits = this._selectByTypeAndBounds(inputPos);
+        // this.viewArgs.model.selection.addSelection(hits);
     };
 
     mouseWheel(event, inputPos: CanvasInputPos) {
@@ -441,7 +435,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this._zoomPan(inputPos.clientX, inputPos.clientY, delta);
     };
 
-    draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
+    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
 
 
         switch (this._state) {
@@ -500,24 +494,22 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         const q = this.viewArgs.model.query;
 
 
-        let margin = this.viewArgs.config.mouse.selecting.margin / this.viewArgs.config.viewPort.zoom;
-
         let disps = q.filterForVisibleDisps(
             this.viewArgs.model.viewableDisps(),
             this.viewArgs.config.viewPort.zoom
         );
 
-        let hits = disps.filter(d => d.bounds
-            && d.bounds.contains(inputPos.x, inputPos.y, margin)
-        );
+        let hits = q.filterForDispsContainingPoint(disps,
+            this.viewArgs.config.viewPort.zoom,
+            this.viewArgs.config.mouse.selecting.margin,
+            inputPos, false);
 
-        // Sort by size, largest to smallest.
-        // This ensures we can select smaller items when required.
-        hits = q.sortBySelectionPriority(hits);
+        // Sort by how close the click is from the center of the box.
+        hits = q.sortByDistanceFromCenter(hits, inputPos);
 
         // Only select
         if (!this._mouseDownWithCtrl && hits.length)
-            hits = [hits[hits.length - 1]];
+            hits = [hits[0]];
 
         return hits;
     }
@@ -531,6 +523,8 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             .filter(d => d.bounds && d.bounds.withIn(b.x, b.y, b.w, b.h));
     }
 
+    /*
+    // This method was used to select all disps of the same color/size, etc
     private _selectByTypeAndBounds(inputPos: CanvasInputPos) {
 
         let hits = this._selectByPoint(inputPos);
@@ -542,6 +536,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
         return disps.filter(d => d.bounds && d.bounds.similarTo(masterCoord));
     }
+     */
 
     private _changeSelection(hits) {
         // Remove clicked on thing

@@ -93,8 +93,83 @@ export class DispPolygon extends DispPoly {
     }
 
     static center(disp: DispPolygonT): PointI {
-        return {x: disp.g[0], y: disp.g[1]};
+        const pointCount = disp.g.length / 2;
+        let x = 0;
+        let y = 0;
+        for (const i = 0; i < disp.g.length - 2; i + 2) {
+            x += disp.g[i];
+            y += disp.g[i + 1];
+        }
+        return {x: x / pointCount, y: y / pointCount};
     }
+
+    static contains(disp: DispPolygonT, point: PointI, margin: number): boolean {
+        const x = point.x;
+        const y = point.y;
+
+        const points = DispPolygon.geom(disp);
+
+        // Using the polygon line segment crossing algorithm.
+        function rayCrossesSegment(x: number, y: number,
+                                   axIn: number, ayIn: number,
+                                   bxIn: number, byIn: number) {
+            let swap = ayIn > byIn;
+            let ax = swap ? bxIn : axIn;
+            let ay = swap ? byIn : ayIn;
+            let bx = swap ? axIn : bxIn;
+            let by = swap ? ayIn : byIn;
+
+            // alter longitude to cater for 180 degree crossings
+            // JJC, I don't think we need this, we're not using spatial references
+            /*
+            if (x < 0)
+                x += 360;
+            if (ax < 0)
+                ax += 360;
+            if (bx < 0)
+                bx += 360;
+            */
+
+            if (y == ay || y == by) y += 0.00000001;
+            if ((y > by || y < ay) || (x > Math.max(ax, bx))) return false;
+            if (x < Math.min(ax, bx)) return true;
+
+            let red = (ax != bx) ? ((by - ay) / (bx - ax)) : Infinity;
+            let blue = (ax != x) ? ((y - ay) / (x - ax)) : Infinity;
+            return (blue >= red);
+        }
+
+        let crossings = 0;
+
+        let pFirstX = points[0];
+        let pFirstY = points[1];
+        let p1x = pFirstX;
+        let p1y = pFirstY;
+
+        // This will deliberately run one more iteration after the last pointY
+        for (let i = 2; i <= points.length; i += 2) {
+            // Assume this is the last iteration by default
+            let p2x = pFirstX;
+            let p2y = pFirstY;
+
+            // If not, set it to the proper point.
+            if (i != points.length) {
+                p2x = points[i];
+                p2y = points[i + 1];
+            }
+
+            if (rayCrossesSegment(x, y, p1x, p1y, p2x, p2y))
+                crossings++;
+
+            p1x = p2x;
+            p1y = p2y;
+        }
+
+        // odd number of crossings?
+        return (crossings % 2 == 1);
+
+    }
+
 
     static create(coordSet: ModelCoordSet): DispPolygonT {
         let disp = <DispPolygonT>DispPoly.create(coordSet, DispBase.TYPE_DPG);

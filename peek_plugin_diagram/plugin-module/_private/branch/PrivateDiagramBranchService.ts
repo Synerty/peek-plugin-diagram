@@ -216,7 +216,7 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
         })
     }
 
-    /** This observable is subscribed to by the select layer popup */
+    /** This observable is subscribed to by the create/edit branch popup */
     get popupEditBranchSelectionObservable(): Observable<PopupEditBranchSelectionArgs> {
         return this._popupEditBranchSelectionSubject;
     }
@@ -234,7 +234,7 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
         return prom;
     }
 
-    get startEditingObservable(): Observable<PrivateDiagramBranchContext> {
+    startEditingObservable(): Observable<PrivateDiagramBranchContext> {
         return this._startEditingObservable;
     }
 
@@ -243,7 +243,7 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
         this._stopEditingObservable.next();
     }
 
-    get stopEditingObservable(): Observable<void> {
+     stopEditingObservable(): Observable<void> {
         return this._stopEditingObservable;
     }
 

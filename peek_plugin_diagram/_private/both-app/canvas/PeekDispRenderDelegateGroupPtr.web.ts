@@ -1,5 +1,5 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
+import {DrawModeE, PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {DispGroupPointer, DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
@@ -16,7 +16,7 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
         disp.bounds = PeekCanvasBounds.fromPoints([DispGroupPointer.center(group)]);
     }
 
-    draw(dispGroup, ctx, zoom: number, pan: PointI, forEdit: boolean) {
+    draw(dispGroup, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
         // let b = dispGroup.bounds;
         //
         // if (b == null || b.w == 0 || b.w == 0) {
@@ -67,24 +67,11 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 
     };
 
-    drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
+    drawSelected(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
     };
 
     drawEditHandles(disp, ctx, zoom: number, pan: PointI) {
 
     }
-
-
-    contains(disp, x, y, margin) {
-        return false;
-    };
-
-    withIn(disp, x, y, w, h) {
-        return false;
-    };
-
-    area(dispEllipse) {
-        return 0;
-    };
 
 }

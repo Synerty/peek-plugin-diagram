@@ -2,6 +2,7 @@ import {DispBase, DispBaseT, DispType, PointI} from "../canvas-shapes/DispBase";
 import {DispPolyline} from "../canvas-shapes/DispPolyline";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
+import {DispPolygon} from "../canvas-shapes/DispPolygon";
 
 // import 'rxjs/add/operator/takeUntil';
 
@@ -75,9 +76,26 @@ export class PeekCanvasModelQuery {
         return disps.sort(cmp);
     }
 
-    filterForVisibleDisps(disps, zoom): any[] {
+    sortByDistanceFromCenter(disps, point: PointI): any[] {
+        const lazyDists = {};
+
+        function lazyGetDist(disp) {
+            let dist = lazyDists[DispBase.id(disp)];
+            if (dist != null)
+                return dist;
+            return lazyDists[DispBase.id(disp)] = disp.bounds.distanceFromPoint(point);
+        }
+
+        function cmp(disp1, disp2): number {
+            return lazyGetDist(disp1) - lazyGetDist(disp2);
+        }
+
+        return disps.sort(cmp);
+    }
+
+    filterForVisibleDisps(disps, zoom, includeShapesWithNoColor = false): any[] {
         function check(disp): boolean {
-            if (!DispBase.hasColor(disp))
+            if (!includeShapesWithNoColor && !DispBase.hasColor(disp))
                 return false;
 
             if (!DispBase.layer(disp).visible)
@@ -88,6 +106,24 @@ export class PeekCanvasModelQuery {
         }
 
         return disps.filter(check);
+    }
+
+    filterForDispsContainingPoint(disps, zoom: number, margin: number, point: PointI,
+                                  useBoxContainsForPolygons: boolean): any[] {
+        margin = margin / zoom;
+        return disps.filter(d => {
+                if (DispBase.typeOf(d) == DispType.polygon
+                    && !useBoxContainsForPolygons) {
+                    return DispPolygon.contains(d, point, margin);
+                }
+                if (DispBase.typeOf(d) == DispType.polyline) {
+                    return DispPolyline.contains(d, point, margin);
+                }
+                return d.bounds && d.bounds.contains(point.x, point.y, margin)
+            }
+        );
+
+
     }
 
     keyOfDisps(disps: any[]): string[] {

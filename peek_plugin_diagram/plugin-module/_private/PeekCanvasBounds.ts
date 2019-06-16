@@ -142,7 +142,7 @@ export class PeekCanvasBounds {
     center(): {x:number,y:number} {
         return {
             x: this.x + this.w / 2,
-            y: this.y + this.y / 2
+            y: this.y + this.h / 2
         };
     };
 

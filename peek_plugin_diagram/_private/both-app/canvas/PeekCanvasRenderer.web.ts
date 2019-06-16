@@ -5,6 +5,7 @@ import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PanI} from "./PeekInterfaces.web";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {Subject} from "rxjs/Subject";
+import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
 
 export class PeekCanvasPan implements PanI {
     x: number = 0.0;
@@ -15,7 +16,7 @@ export interface RenderDrawArgs {
     ctx: any;
     zoom: number;
     pan: PeekCanvasPan;
-    forEdit: boolean;
+    drawMode: DrawModeE;
 }
 
 /**
@@ -148,7 +149,7 @@ export class PeekCanvasRenderer {
         let disps = this.model.viewableDisps();
         let selectedDisps = this.model.selection.selectedDisps();
 
-        let forEdit = this.config.editor.active;
+        let drawMode = this.config.editor.active ? DrawModeE.ForEdit : DrawModeE.ForView;
 
         // Clear canvas
         let w = this.canvas.width / this._zoom;
@@ -172,22 +173,22 @@ export class PeekCanvasRenderer {
         // draw all shapes, counting forwards for correct order or rendering
         for (let i = 0; i < disps.length; i++) {
             let disp = disps[i];
-            this.dispDelegate.draw(disp, ctx, this._zoom, this._pan, forEdit);
+            this.dispDelegate.draw(disp, ctx, this._zoom, this._pan, drawMode);
         }
 
         // draw selection
         // right now this is just a stroke along the edge of the selected Shape
         for (let i = 0; i < selectedDisps.length; i++) {
             let dispObj = selectedDisps[i];
-            this.dispDelegate.drawSelected(dispObj, ctx, this._zoom, this._pan, forEdit);
+            this.dispDelegate.drawSelected(dispObj, ctx, this._zoom, this._pan, drawMode);
         }
 
-        if (selectedDisps.length == 1)
+        if (selectedDisps.length == 1 && drawMode == DrawModeE.ForEdit)
             this.dispDelegate.drawEditHandles(selectedDisps[0], ctx, this._zoom, this._pan);
 
         // ** Add stuff you want drawn on top all the time here **
         // Tell the canvas mouse handler to draw what ever its got going on.
-        this.drawEvent.next({ctx, zoom: this._zoom, pan: this._pan, forEdit});
+        this.drawEvent.next({ctx, zoom: this._zoom, pan: this._pan, drawMode});
 
         ctx.restore();
     }

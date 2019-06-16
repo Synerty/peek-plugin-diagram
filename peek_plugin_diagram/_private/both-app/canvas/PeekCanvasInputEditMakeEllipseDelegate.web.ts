@@ -7,6 +7,7 @@ import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 import {DispEllipse} from "../canvas-shapes/DispEllipse";
 import {PointI} from "../canvas-shapes/DispBase";
+import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
 
 /**
  * This input delegate handles :
@@ -81,7 +82,7 @@ export class PeekCanvasInputEditMakeEllipseDelegate
         this._finaliseCreate();
     }
 
-    draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
+    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
     }
 
     // ---------------

@@ -9,6 +9,7 @@ import {DispPoly} from "../canvas-shapes/DispPoly";
 import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
 import {DispPolygon} from "../canvas-shapes/DispPolygon";
 import {DispPolyline, DispPolylineEndTypeE} from "../canvas-shapes/DispPolyline";
+import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
 
 /**
  * This input delegate handles :
@@ -204,7 +205,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         //this._finaliseCreate();
     }
 
-    draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
+    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
     }
 
 

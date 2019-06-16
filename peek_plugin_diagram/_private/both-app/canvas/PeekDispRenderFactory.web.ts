@@ -5,6 +5,7 @@ import {PeekDispRenderDelegateGroupPtr} from "./PeekDispRenderDelegateGroupPtr.w
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {DispBase, DispType, PointI} from "../canvas-shapes/DispBase";
 import {PeekDispRenderDelegateNull} from "./PeekDispRenderDelegateNull.web";
+import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
 
 
 export class PeekDispRenderFactory {
@@ -28,7 +29,7 @@ export class PeekDispRenderFactory {
 
     }
 
-    draw(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
+    draw(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
         let level = DispBase.level(disp);
         let layer = DispBase.layer(disp);
 
@@ -38,7 +39,7 @@ export class PeekDispRenderFactory {
         isVisible = isVisible && (layer.visible || this.config.editor.showAllLayers);
 
         // Ignore everything not visible.
-        if (!forEdit && !isVisible)
+        if (drawMode == DrawModeE.ForView && !isVisible)
             return;
 
         let delegate = this._delegatesByType[disp._tt];
@@ -47,14 +48,14 @@ export class PeekDispRenderFactory {
 
         // Draw only visible shapes
         if (isVisible)
-            delegate.draw(disp, ctx, zoom, pan, forEdit);
+            delegate.draw(disp, ctx, zoom, pan, drawMode);
 
         // Update the bounds of all shapes
         if (disp.bounds == null)
             delegate.updateBounds(disp, zoom);
 
         // Show invisible objects
-        if (forEdit)
+        if (drawMode == DrawModeE.ForEdit)
             this.drawInvisible(disp, ctx, zoom, pan);
     };
 
@@ -79,8 +80,8 @@ export class PeekDispRenderFactory {
         ctx.stroke();
     }
 
-    drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
-        this._delegatesByType[disp._tt].drawSelected(disp, ctx, zoom, pan, forEdit);
+    drawSelected(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
+        this._delegatesByType[disp._tt].drawSelected(disp, ctx, zoom, pan, drawMode);
     };
 
 

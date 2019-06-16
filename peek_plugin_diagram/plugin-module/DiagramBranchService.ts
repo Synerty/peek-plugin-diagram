@@ -1,4 +1,5 @@
 import {BranchDetailTuple} from "@peek/peek_plugin_branch";
+import {Observable} from "rxjs";
 
 export interface DiagramBranchDetailsI {
     modelSetKey: string;
@@ -27,5 +28,7 @@ export abstract class DiagramBranchService {
 
     abstract startEditing(modelSetKey: string, coordSetKey: string,
                           branchKey: string): Promise<void>
+
+    abstract stopEditingObservable(): Observable<void> ;
 
 }

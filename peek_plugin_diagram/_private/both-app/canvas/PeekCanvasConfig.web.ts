@@ -3,6 +3,7 @@ import {PanI} from "./PeekInterfaces.web";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
+import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
 
 
 /**
@@ -31,6 +32,20 @@ export class PeekCanvasConfig {
             width: 8,
             lineGap: 6,
             dashLen: 3
+        },
+        suggestion: {
+            color: '#3399FF',
+            width: 2,
+            lineGap: 2,
+            dashLen: 3,
+            margin: 10, // The distance distance that the click can happen from the shape
+        },
+        editSelection: {
+            color: '#3399FF',
+            width: 2,
+            lineGap: 4,
+            dashLen: 3,
+            margin: 10, // The distance distance that the click can happen from the shape
         },
         invisible: { // Draw invisble items in edit mode
             color: 'grey',
@@ -105,6 +120,18 @@ export class PeekCanvasConfig {
     // Debug data
     debug = {};
 
+    getSelectionDrawDetailsForDrawMode(drawMode: DrawModeE) {
+        switch (drawMode) {
+            case DrawModeE.ForView:
+                return this.renderer.selection;
+            case DrawModeE.ForEdit:
+                return this.renderer.editSelection;
+            case DrawModeE.ForSuggestion:
+                return this.renderer.suggestion;
+            default:
+                throw new Error(`Invalid drawMode ${drawMode}`)
+        }
+    }
 
     constructor() {
         this.canvasId = PeekCanvasConfig.canvasIdCounter++;

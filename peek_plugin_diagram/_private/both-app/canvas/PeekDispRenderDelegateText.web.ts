@@ -1,5 +1,5 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
+import {DrawModeE, PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {
     DispText,
     DispTextT,
@@ -32,7 +32,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
      * NOTE: The way the text is scaled and drawn must match _calcTextSize(..)
      * in python module DispCompilerTask.py
      */
-    draw(disp: DispTextT, ctx, zoom: number, pan: PointI, forEdit: boolean) {
+    draw(disp: DispTextT, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
         this.drawAndCalcBounds(disp, ctx, zoom, false);
     }
 
@@ -167,13 +167,13 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
     };
 
 
-    drawSelected(disp, ctx, zoom: number, pan: PointI, forEdit: boolean) {
+    drawSelected(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
         let bounds = disp.bounds;
         if (bounds == null)
             return;
 
         // DRAW THE SELECTED BOX
-        let selectionConfig = this.config.renderer.selection;
+        let selectionConfig =  this.config.getSelectionDrawDetailsForDrawMode(drawMode);
 
         // Move the selection line a bit away from the object
         let offset = (selectionConfig.width + selectionConfig.lineGap) / zoom;
@@ -201,17 +201,5 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
          }
          */
     }
-
-    contains(disp: DispTextT, x, y, margin) {
-        return disp.bounds == null ? false : disp.bounds.contains(x, y, margin);
-    };
-
-    withIn(disp: DispTextT, x, y, w, h): boolean {
-        return disp.bounds == null ? false : disp.bounds.withIn(x, y, w, h);
-    };
-
-    area(disp) {
-        return disp.bounds == null ? 0 : disp.bounds.area();
-    };
 
 }

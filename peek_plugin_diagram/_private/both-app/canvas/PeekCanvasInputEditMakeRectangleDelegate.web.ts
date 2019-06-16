@@ -7,6 +7,7 @@ import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
 import {PointI} from "../canvas-shapes/DispBase";
 import {DispRectangle} from "../canvas-shapes/DispRectangle";
+import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
 
 /**
  * This input delegate handles :
@@ -80,7 +81,7 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
         this._finaliseCreate();
     }
 
-    draw(ctx, zoom: number, pan: PointI, forEdit: boolean) {
+    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
     }
 
     // ---------------
