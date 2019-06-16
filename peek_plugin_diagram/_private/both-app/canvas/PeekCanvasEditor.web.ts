@@ -35,7 +35,7 @@ export class PeekCanvasEditor {
                 private branchService: PrivateDiagramBranchService,
                 private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
         this.branchService
-            .startEditingObservable()
+            .startEditingWithContextObservable()
             .takeUntil(lifecycleEventEmitter.onDestroyEvent)
             .subscribe((branchContext: PrivateDiagramBranchContext) => {
                 this._props.setCanvasData(this.modelSetId, this.coordSetId);

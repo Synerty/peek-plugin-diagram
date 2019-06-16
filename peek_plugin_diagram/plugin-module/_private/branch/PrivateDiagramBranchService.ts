@@ -35,7 +35,8 @@ export interface PopupEditBranchSelectionArgs {
 @Injectable()
 export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter {
 
-    private _startEditingObservable = new Subject<PrivateDiagramBranchContext>();
+    private _startEditingWithContextObservable = new Subject<PrivateDiagramBranchContext>();
+    private _startEditingObservable = new Subject<void>();
     private _stopEditingObservable = new Subject<void>();
 
     private _popupEditBranchSelectionSubject: Subject<PopupEditBranchSelectionArgs>
@@ -225,16 +226,21 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
     startEditing(modelSetKey: string, coordSetKey: string,
                  branchKey: string): Promise<void> {
         let prom: any = this.getOrCreateBranch(modelSetKey, coordSetKey, branchKey)
-            .catch(e => this._startEditingObservable.error(e))
+            .catch(e => this._startEditingWithContextObservable.error(e))
             .then((context: any) => {
                 this.activeBranchContext = context;
-                this._startEditingObservable.next(context)
+                this._startEditingWithContextObservable.next(context);
+                this._startEditingObservable.next();
             })
             .then(() => null);
         return prom;
     }
 
-    startEditingObservable(): Observable<PrivateDiagramBranchContext> {
+    startEditingWithContextObservable(): Observable<PrivateDiagramBranchContext> {
+        return this._startEditingWithContextObservable;
+    }
+
+    startEditingObservable(): Observable<void> {
         return this._startEditingObservable;
     }
 

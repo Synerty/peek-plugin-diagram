@@ -29,6 +29,8 @@ export abstract class DiagramBranchService {
     abstract startEditing(modelSetKey: string, coordSetKey: string,
                           branchKey: string): Promise<void>
 
+    abstract startEditingObservable(): Observable<void> ;
+
     abstract stopEditingObservable(): Observable<void> ;
 
 }
