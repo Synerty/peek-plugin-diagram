@@ -80,6 +80,8 @@ export class PeekCanvasModelQuery {
         const lazyDists = {};
 
         function lazyGetDist(disp) {
+            if (disp.bounds == null)
+                return 99999999;
             let dist = lazyDists[DispBase.id(disp)];
             if (dist != null)
                 return dist;
