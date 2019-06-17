@@ -6,6 +6,7 @@ import pytz
 from sqlalchemy import asc
 from twisted.internet import task
 from twisted.internet.defer import inlineCallbacks
+from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
 
 from peek_plugin_base.storage.StorageUtil import makeCoreValuesSubqueryCondition
 from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import \
@@ -14,8 +15,6 @@ from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
 from peek_plugin_diagram._private.storage.GridKeyIndex import \
     GridKeyCompilerQueue
-from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
-from vortex.VortexFactory import NoVortexException
 
 logger = logging.getLogger(__name__)
 
@@ -108,12 +107,17 @@ class GridKeyCompilerQueueController:
 
             items = queueItems[start: start + self.FETCH_SIZE]
 
+            try:
+                d = compileGrids.delay(items)
+                d.addCallback(self._pollCallback, datetime.now(pytz.utc), len(items))
+                d.addErrback(self._pollErrback, datetime.now(pytz.utc))
+
+            except Exception as e:
+                logger.exception(e)
+                return
+
             # Set the watermark
             self._lastQueueId = items[-1].id
-
-            d = compileGrids.delay(items)
-            d.addCallback(self._pollCallback, datetime.now(pytz.utc), len(items))
-            d.addErrback(self._pollErrback, datetime.now(pytz.utc))
 
             self._queueCount += 1
             if self._queueCount >= self.QUEUE_MAX:

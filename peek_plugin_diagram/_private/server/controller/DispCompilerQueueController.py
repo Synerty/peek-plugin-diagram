@@ -68,17 +68,22 @@ class DispCompilerQueueController:
         if not queueItems:
             return
 
-        self._lastQueueId = queueItems[-1].id
         queueIds = [o.id for o in queueItems]
         dispIds = list(set([o.dispId for o in queueItems]))
 
         from peek_plugin_diagram._private.worker.tasks.DispCompilerTask import \
             compileDisps
 
-        # deferLater, to make it call in the main thread.
-        d = compileDisps.delay(queueIds, dispIds)
-        d.addCallback(self._pollCallback, datetime.now(pytz.utc), len(queueItems))
-        d.addErrback(self._pollErrback, datetime.now(pytz.utc), len(queueItems))
+        try:
+            d = compileDisps.delay(queueIds, dispIds)
+            d.addCallback(self._pollCallback, datetime.now(pytz.utc), len(queueItems))
+            d.addErrback(self._pollErrback, datetime.now(pytz.utc), len(queueItems))
+        except Exception as e:
+            logger.exception(e)
+            return
+
+        # Set the watermark
+        self._lastQueueId = queueItems[-1].id
 
         self._queueCount += 1
         self._statusController.setDisplayCompilerStatus(True, self._queueCount)
