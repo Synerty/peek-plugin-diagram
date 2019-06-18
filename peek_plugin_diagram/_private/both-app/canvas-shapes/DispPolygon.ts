@@ -39,12 +39,12 @@ export interface DispPolygonT extends DispPolyT {
 export class DispPolygon extends DispPoly {
 
     static fillColor(disp: DispPolygonT): DispColor {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         return disp.fcl;
     }
 
     static setFillColor(disp: DispPolygonT, val: DispColor): void {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         disp.fcl = val;
         disp.fc = val == null ? null : val.id;
     }

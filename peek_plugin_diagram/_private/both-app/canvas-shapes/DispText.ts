@@ -53,23 +53,23 @@ export interface DispTextT extends DispBaseT {
 export class DispText extends DispBase {
 
     static textStyle(disp: DispTextT): DispTextStyle {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         return disp.fsl;
     }
 
     static setTextStyle(disp: DispTextT, val: DispTextStyle): void {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         disp.fsl = val;
         disp.fs = val == null ? null : val.id;
     }
 
     static color(disp: DispTextT): DispColor {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         return disp.cl;
     }
 
     static setColor(disp: DispTextT, val: DispColor): void {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         disp.cl = val;
         disp.c = val == null ? null : val.id;
     }

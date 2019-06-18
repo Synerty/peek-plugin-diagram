@@ -49,34 +49,34 @@ export interface DispEllipseT extends DispBaseT {
 export class DispEllipse extends DispBase {
 
     static fillColor(disp: DispEllipseT): DispColor {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         return disp.fcl;
     }
 
     static setFillColor(disp: DispEllipseT, val: DispColor): void {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         disp.fcl = val;
         disp.fc = val == null ? null : val.id;
     }
 
     static lineColor(disp: DispEllipseT): DispColor {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         return disp.lcl;
     }
 
     static setLineColor(disp: DispEllipseT, val: DispColor): void {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         disp.lcl = val;
         disp.lc = val == null ? null : val.id;
     }
 
     static lineStyle(disp: DispEllipseT): DispLineStyle {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         return disp.lsl;
     }
 
     static setLineStyle(disp: DispEllipseT, val: DispLineStyle): void {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         disp.lsl = val;
         disp.ls = val == null ? null : val.id;
     }

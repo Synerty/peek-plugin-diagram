@@ -129,7 +129,7 @@ def compileLocationIndex(self, queueItems) -> List[str]:
         transaction.rollback()
         # logger.warning(e)  # Just a warning, it will retry
         logger.exception(e)
-        raise self.retry(exc=e, countdown=10)
+        raise self.retry(exc=e, countdown=2)
 
     finally:
         conn.close()

@@ -1,7 +1,7 @@
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {PeekCanvasShapePropsContext} from "./PeekCanvasShapePropsContext";
-import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {PeekCanvasGroupPtrPropsContext} from "./PeekCanvasGroupPtrPropsContext";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
@@ -59,7 +59,7 @@ export class PeekCanvasEditorProps {
     private modelSetId: number = -1;
     private coordSetId: number = -1;
 
-    constructor(private lookupService: DiagramLookupService) {
+    constructor(private lookupService: PrivateDiagramLookupService) {
 
     };
 

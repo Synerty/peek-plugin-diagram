@@ -106,8 +106,8 @@ def compileGrids(self, queueItems) -> List[str]:
 
     except Exception as e:
         transaction.rollback()
-        logger.warning(e)  # Just a warning, it will retry
-        raise self.retry(exc=e, countdown=10)
+        logger.debug(e)  # Just a warning, it will retry
+        raise self.retry(exc=e, countdown=2)
 
     finally:
         conn.close()

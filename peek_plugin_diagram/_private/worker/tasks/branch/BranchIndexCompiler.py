@@ -53,7 +53,7 @@ def compileBranchIndexChunk(self, queueItems) -> List[int]:
     except Exception as e:
         logger.debug("RETRYING task - %s", e)
         logger.exception(e)
-        raise self.retry(exc=e, countdown=10)
+        raise self.retry(exc=e, countdown=2)
 
     return list(set([i.chunkKey for i in queueItems]))
 

@@ -5,7 +5,7 @@ import {BranchDetailTuple, BranchService} from "@peek/peek_plugin_branch";
 
 
 import {PrivateDiagramConfigService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
-import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
 
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
@@ -45,7 +45,7 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
 
 
     constructor(private titleService: TitleService,
-                private lookupService: DiagramLookupService,
+                private lookupService: PrivateDiagramLookupService,
                 private configService: PrivateDiagramConfigService,
                 private branchService: PrivateDiagramBranchService,
                 abstractCoordSetService: DiagramCoordSetService,

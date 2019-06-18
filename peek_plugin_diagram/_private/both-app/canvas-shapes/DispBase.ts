@@ -177,29 +177,29 @@ export abstract class DispBase {
     }
 
     static level(disp: DispBaseT): DispLevel {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         return disp.lel;
     }
 
     static setLevel(disp: DispBaseT, val: DispLevel): void {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         disp.lel = val;
         disp.le = val == null ? null : val.id;
     }
 
     static layer(disp: DispBaseT): DispLayer {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         return disp.lal;
     }
 
     static setLayer(disp: DispBaseT, val: DispLayer): void {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         disp.lal = val;
         disp.la = val == null ? null : val.id;
     }
 
     static isSelectable(disp: DispBaseT): boolean {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         return disp.s;
     }
 

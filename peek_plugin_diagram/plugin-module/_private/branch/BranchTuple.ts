@@ -1,9 +1,9 @@
 import {addTupleType, deepCopy, Tuple} from "@synerty/vortexjs";
 import {diagramTuplePrefix} from "../PluginNames";
-import {DiagramLookupService} from "../../DiagramLookupService";
 import SerialiseUtil from "@synerty/vortexjs/src/vortex/SerialiseUtil";
 import * as moment from "moment";
 import {BranchLiveEditTuple} from "./BranchLiveEditTuple";
+import {PrivateDiagramLookupService} from "../services/PrivateDiagramLookupService";
 
 
 let serUril = new SerialiseUtil();
@@ -441,7 +441,7 @@ export class BranchTuple extends Tuple {
         return convertedValue;
     }
 
-    linkDisps(lookupService: DiagramLookupService) {
+    linkDisps(lookupService: PrivateDiagramLookupService) {
         for (let disp of this.disps) {
             lookupService._linkDispLookups(disp);
         }

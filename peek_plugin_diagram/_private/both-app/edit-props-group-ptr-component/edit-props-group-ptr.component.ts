@@ -9,7 +9,7 @@ import {PrivateDiagramTupleService} from "@peek/peek_plugin_diagram/_private/ser
 import {Subject} from "rxjs";
 import {PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader/PrivateDiagramGridLoaderServiceA";
 import {GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
-import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {LinkedGrid} from "../cache/LinkedGrid.web";
 import {DispGroup, DispGroupT} from "../canvas-shapes/DispGroup";
 import {PeekCanvasGroupPtrPropsContext} from "../canvas/PeekCanvasGroupPtrPropsContext";
@@ -44,7 +44,7 @@ export class EditPropsGroupPtrComponent extends ComponentLifecycleEventEmitter
     constructor(private tupleService: PrivateDiagramTupleService,
                 abstractCoordSetCache: DiagramCoordSetService,
                 private gridLoader: PrivateDiagramGridLoaderServiceA,
-                private lookupService: DiagramLookupService) {
+                private lookupService: PrivateDiagramLookupService) {
         super();
         this.coordSetCache = <PrivateDiagramCoordSetService>abstractCoordSetCache;
 

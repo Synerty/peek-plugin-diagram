@@ -1,5 +1,4 @@
 import {BranchTuple} from "./BranchTuple";
-import {DiagramLookupService} from "../../DiagramLookupService";
 import {BranchLiveEditTupleAction} from "./BranchLiveEditTupleAction";
 import {UserListItemTuple} from "@peek/peek_core_user";
 import {LocalBranchStorageService} from "../branch-loader";
@@ -9,6 +8,7 @@ import {Observable, Subject} from "rxjs";
 import {TupleSelector, VortexStatusService} from "@synerty/vortexjs";
 import {BranchLiveEditTuple} from "./BranchLiveEditTuple";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import {PrivateDiagramLookupService} from "../services/PrivateDiagramLookupService";
 
 
 /** Diagram Branch Service
@@ -27,7 +27,7 @@ export class PrivateDiagramBranchContext {
 
     constructor(private vortexStatusService: VortexStatusService,
                 private balloonMsg: Ng2BalloonMsgService,
-                private lookupCache: DiagramLookupService,
+                private lookupCache: PrivateDiagramLookupService,
                 private branch: BranchTuple,
                 private _modelSetId: number,
                 private _modelSetKey: string,
@@ -120,7 +120,11 @@ export class PrivateDiagramBranchContext {
                 this.needsLiveUpdateSend = false;
                 this.sendLiveUpdate()
             },
-            PrivateDiagramBranchContext.SEND_UPDATE_PERIOD)
+            PrivateDiagramBranchContext.SEND_UPDATE_PERIOD);
+
+        this.lookupCache.dispsNeedRelinkingObservable()
+            .takeUntil(this.shutdownSubject)
+            .subscribe(() => this.branchTuple.linkDisps(this.lookupCache));
     }
 
     close(): void {

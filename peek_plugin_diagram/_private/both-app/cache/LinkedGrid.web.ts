@@ -1,7 +1,7 @@
 import {assert} from "../DiagramUtil";
 import {GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
-import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 
 /** Linked Grid
  *
@@ -15,7 +15,7 @@ export class LinkedGrid {
     disps = [];
 
     constructor(serverCompiledGridOrGridKey: string | GridTuple,
-                lookupService: DiagramLookupService | null = null) {
+                lookupService: PrivateDiagramLookupService | null = null) {
 
         // initialise for empty grid keys
         if (typeof serverCompiledGridOrGridKey === "string") {

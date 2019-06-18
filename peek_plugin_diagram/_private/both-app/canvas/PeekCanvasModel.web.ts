@@ -3,8 +3,7 @@ import {GridObservable} from "../cache/GridObservable.web";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {LinkedGrid} from "../cache/LinkedGrid.web";
 import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil";
-import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
-import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch";
 import {PeekCanvasModelQuery} from "./PeekCanvasModelQuery.web";
@@ -68,7 +67,7 @@ export class PeekCanvasModel {
 
     constructor(private config: PeekCanvasConfig,
                 private gridObservable: GridObservable,
-                private lookupCache: DiagramLookupService,
+                private lookupCache: PrivateDiagramLookupService,
                 private branchService: PrivateDiagramBranchService,
                 private overrideService: PrivateDiagramOverrideService,
                 private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
@@ -329,11 +328,10 @@ export class PeekCanvasModel {
             }
         }
 
-        for (let levelIndex = 0; levelIndex < levelsOrderedByOrder.length; levelIndex++) {
-            let level: DispLevel = <DispLevel>levelsOrderedByOrder[levelIndex];
 
-            for (let layerIndex = 0; layerIndex < layersOrderedByOrder.length; layerIndex++) {
-                let layer: DispLayer = <DispLayer>layersOrderedByOrder[layerIndex];
+        for (const level of levelsOrderedByOrder) {
+            for (const layer of layersOrderedByOrder) {
+
 
                 // If it's not visible (enabled), continue
                 if (!layer.visible && !isEditorActive)

@@ -1,5 +1,5 @@
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {
     PrivateDiagramBranchContext,
     PrivateDiagramBranchService
@@ -31,7 +31,7 @@ export class PeekCanvasEditor {
                 public canvasInput: PeekCanvasInput,
                 public canvasModel: PeekCanvasModel,
                 private canvasConfig: PeekCanvasConfig,
-                public lookupService: DiagramLookupService,
+                public lookupService: PrivateDiagramLookupService,
                 private branchService: PrivateDiagramBranchService,
                 private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
         this.branchService

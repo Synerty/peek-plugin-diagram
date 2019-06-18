@@ -4,7 +4,6 @@ import {Observable} from "rxjs/Observable";
 import {PrivateDiagramBranchContext} from "../branch/PrivateDiagramBranchContext";
 import {BranchTuple} from "../branch/BranchTuple";
 import {BranchIndexLoaderServiceA} from "../branch-loader/BranchIndexLoaderServiceA";
-import {DiagramLookupService} from "../../DiagramLookupService";
 import {DiagramCoordSetService} from "../../DiagramCoordSetService";
 import {BranchIndexResultI, LocalBranchStorageService} from "../branch-loader";
 import {ModelCoordSet} from "../tuples";
@@ -21,6 +20,7 @@ import {BranchDetailTuple} from "@peek/peek_plugin_branch";
 import {UserService} from "@peek/peek_core_user";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 import {DiagramBranchDetailsI} from "../../DiagramBranchService";
+import {PrivateDiagramLookupService} from "../services/PrivateDiagramLookupService";
 
 export interface PopupEditBranchSelectionArgs {
     modelSetKey: string;
@@ -54,7 +54,7 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
     constructor(private vortexStatusService: VortexStatusService,
                 private balloonMsg: Ng2BalloonMsgService,
                 private userService: UserService,
-                private lookupService: DiagramLookupService,
+                private lookupService: PrivateDiagramLookupService,
                 coordSetService: DiagramCoordSetService,
                 private branchLocalLoader: LocalBranchStorageService,
                 private branchIndexLoader: BranchIndexLoaderServiceA,
@@ -249,7 +249,7 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
         this._stopEditingObservable.next();
     }
 
-     stopEditingObservable(): Observable<void> {
+    stopEditingObservable(): Observable<void> {
         return this._stopEditingObservable;
     }
 

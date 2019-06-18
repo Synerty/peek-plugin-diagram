@@ -8,7 +8,7 @@ import {PeekCanvasRenderer} from "../canvas/PeekCanvasRenderer.web";
 import {PeekCanvasInput} from "../canvas/PeekCanvasInput.web";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 import {GridObservable} from "../cache/GridObservable.web";
-import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 
 import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
 
@@ -86,7 +86,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     constructor(private balloonMsg: Ng2BalloonMsgService,
                 private gridObservable: GridObservable,
-                private lookupService: DiagramLookupService,
+                private lookupService: PrivateDiagramLookupService,
                 abstractCoordSetCache: DiagramCoordSetService,
                 positionService: DiagramPositionService,
                 private itemSelectService: PrivateDiagramItemSelectService,

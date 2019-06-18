@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {LinkedGrid} from "./LinkedGrid.web";
 import {
     GridTuple,
@@ -36,6 +36,15 @@ class Cache {
     has(gridKey: string): boolean {
         return this.cache.hasOwnProperty(gridKey);
     }
+
+    get grids(): LinkedGrid[] {
+        const grids = [];
+        for (const gridKey of Object.keys(this.cache)) {
+            grids.push(this.cache[gridKey]);
+        }
+        return grids;
+    }
+
 }
 
 // ----------------------------------------------------------------------------
@@ -64,7 +73,7 @@ export class GridCache {
     // TODO, There appears to be no way to tear down a service
     private lifecycleEmitter = new ComponentLifecycleEventEmitter();
 
-    constructor(private lookupService: DiagramLookupService,
+    constructor(private lookupService: PrivateDiagramLookupService,
                 private gridLoader: PrivateDiagramGridLoaderServiceA) {
 
 
@@ -72,6 +81,19 @@ export class GridCache {
         this.gridLoader.observable
             .takeUntil(this.lifecycleEmitter.onDestroyEvent)
             .subscribe((tuples: GridTuple[]) => this.processGridUpdates(tuples));
+
+        // If the lookups reload, we need to relink all the disps
+        this.lookupService.dispsNeedRelinkingObservable()
+            .takeUntil(this.lifecycleEmitter.onDestroyEvent)
+            .subscribe(() => {
+                for (const cache of this.cacheQueue) {
+                    for (const linkedGrid of cache.grids) {
+                        for (const disp of linkedGrid.disps) {
+                            lookupService._linkDispLookups(disp);
+                        }
+                    }
+                }
+            });
 
     }
 

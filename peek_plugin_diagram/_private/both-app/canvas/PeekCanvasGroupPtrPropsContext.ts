@@ -1,6 +1,6 @@
 import {DispGroupT} from "../canvas-shapes/DispGroup";
 import {DispGroupPointer, DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
-import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 
@@ -9,7 +9,7 @@ export class PeekCanvasGroupPtrPropsContext {
 
     constructor(private model: PeekCanvasModel,
                 private dispGroupPtr: DispGroupPointerT,
-                private lookupService: DiagramLookupService,
+                private lookupService: PrivateDiagramLookupService,
                 private branchTuple: BranchTuple) {
 
     }

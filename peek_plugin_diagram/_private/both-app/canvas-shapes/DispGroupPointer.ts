@@ -2,7 +2,7 @@ import {DispBase, DispBaseT, PointI} from "./DispBase";
 import {PeekCanvasShapePropsContext} from "../canvas/PeekCanvasShapePropsContext";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 import {DispGroup, DispGroupT} from "./DispGroup";
-import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
 
 export interface DispGroupPointerT extends DispBaseT {
@@ -132,7 +132,7 @@ export class DispGroupPointer extends DispBase {
     static setDispGroup(dispGroupPtr: DispGroupPointerT,
                         groupDisp: DispGroupT,
                         groupDispCoordSetId: number,
-                        lookupService: DiagramLookupService,
+                        lookupService: PrivateDiagramLookupService,
                         branchTuple: BranchTuple): void {
         let center = DispGroupPointer.center(dispGroupPtr);
 

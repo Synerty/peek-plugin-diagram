@@ -1,5 +1,5 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {DiagramLookupService} from "@peek/peek_plugin_diagram/DiagramLookupService";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {
     DiagramOverrideBase,
     DiagramOverrideTypeE
@@ -21,7 +21,7 @@ export class PeekCanvasModelOverride {
     private overridesByDispKey: { [key: string]: DiagramOverrideBase[] } = {};
 
     constructor(private config: PeekCanvasConfig,
-                private lookupCache: DiagramLookupService) {
+                private lookupCache: PrivateDiagramLookupService) {
 
 
     };

@@ -31,23 +31,23 @@ export abstract class DispPoly extends DispBase {
 
 
     static lineColor(disp): DispColor {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         return disp.lcl;
     }
 
     static setLineColor(disp: DispPolyT, val: DispColor): void {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         disp.lcl = val;
         disp.lc = val == null ? null : val.id;
     }
 
     static lineStyle(disp): DispLineStyle {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         return disp.lsl;
     }
 
     static setLineStyle(disp: DispPolyT, val: DispLineStyle): void {
-        // This is set from the short id in DiagramLookupService._linkDispLookups
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         disp.lsl = val;
         disp.ls = val == null ? null : val.id;
     }

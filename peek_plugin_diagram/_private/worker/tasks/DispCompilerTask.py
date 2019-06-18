@@ -112,7 +112,7 @@ def compileDisps(self, queueIds, dispIds):
 
     except Exception as e:
         logger.exception(e)
-        raise self.retry(exc=e, countdown=10)
+        raise self.retry(exc=e, countdown=2)
 
     finally:
         ormSession.close()
@@ -127,7 +127,7 @@ def compileDisps(self, queueIds, dispIds):
 
     except Exception as e:
         logger.exception(e)
-        raise self.retry(exc=e, countdown=10)
+        raise self.retry(exc=e, countdown=2)
 
     # ==========================
     # Run all the ORM Session update methods
@@ -177,7 +177,7 @@ def compileDisps(self, queueIds, dispIds):
     except Exception as e:
         ormSession.rollback()
         logger.exception(e)
-        raise self.retry(exc=e, countdown=10)
+        raise self.retry(exc=e, countdown=2)
 
     finally:
         ormSession.close()
@@ -192,7 +192,7 @@ def compileDisps(self, queueIds, dispIds):
 
     except Exception as e:
         logger.exception(e)
-        raise self.retry(exc=e, countdown=10)
+        raise self.retry(exc=e, countdown=2)
 
     logger.info("Compiled %s disp objects in %s",
                 len(dispIds), (datetime.now(pytz.utc) - startTime))
