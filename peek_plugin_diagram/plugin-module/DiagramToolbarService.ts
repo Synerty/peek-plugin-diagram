@@ -8,6 +8,16 @@ export interface DiagramToolButtonCallbackI {
     (): void;
 }
 
+/** Diagram Tool Button Active Interface
+ *
+ * This interface represents a function that is called by Angular to determine
+ * if a toolbar button is active..
+ *
+ */
+export interface DiagramToolButtonActiveI {
+    (): boolean;
+}
+
 /** Diagram Tool Button Interface
  *
  * This interface represents a hierarchy of toolbar buttons that are shown on the left
@@ -25,6 +35,7 @@ export interface DiagramToolButtonI {
     icon: string | null;
     callback: DiagramToolButtonCallbackI | null;
     children: DiagramToolButtonI[];
+    isActive?: DiagramToolButtonActiveI | null;
 }
 
 export enum ToolbarTypeE {

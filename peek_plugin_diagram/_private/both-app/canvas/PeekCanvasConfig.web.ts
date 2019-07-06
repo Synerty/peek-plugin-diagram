@@ -27,6 +27,7 @@ export class PeekCanvasConfig {
         invalidate: new Subject<void>(), // Set this to true to cause the renderer to redraw
         drawInterval: 60,
         backgroundColor: 'black',
+        useEdgeColors: false,
         selection: {
             color: 'white',
             width: 8,

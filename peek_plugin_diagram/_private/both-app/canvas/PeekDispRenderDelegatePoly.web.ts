@@ -3,7 +3,8 @@ import {DrawModeE, PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.
 import {DispPolygon} from "../canvas-shapes/DispPolygon";
 import {DispBase, DispBaseT, DispType, PointI} from "../canvas-shapes/DispBase";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {DispPolyline, DispPolylineEndTypeE} from "../canvas-shapes/DispPolyline";
+import {DispPolyline, DispPolylineEndTypeE, DispPolylineT} from "../canvas-shapes/DispPolyline";
+import {DispPoly} from "../canvas-shapes/DispPoly";
 
 export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
@@ -50,9 +51,17 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         let isPolygon = DispBase.typeOf(disp) == DispType.polygon;
 
         let fillColor = isPolygon ? DispPolygon.fillColor(disp) : null;
-        let lineColor = DispPolygon.lineColor(disp);
-        let lineStyle = DispPolygon.lineStyle(disp);
-        let lineWidth = DispPolygon.lineWidth(disp);
+        let lineColor = DispPoly.lineColor(disp);
+        let lineStyle = DispPoly.lineStyle(disp);
+        let lineWidth = DispPoly.lineWidth(disp);
+
+
+        if (!isPolygon && this.config.renderer.useEdgeColors) {
+            let edgeColor = DispPolyline.edgeColor(<DispPolylineT>disp);
+            if (edgeColor != null)
+                lineColor = edgeColor;
+        }
+
 
         let dashPattern = null;
         if (lineStyle != null && lineStyle.dashPatternParsed != null)
@@ -194,7 +203,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     private drawSelectedPolygon(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
         let geom = DispPolygon.geom(disp);
 
-        let selectionConfig =  this.config.getSelectionDrawDetailsForDrawMode(drawMode);
+        let selectionConfig = this.config.getSelectionDrawDetailsForDrawMode(drawMode);
 
         // DRAW THE SELECTED BOX
         let bounds = PeekCanvasBounds.fromGeom(geom);
@@ -222,7 +231,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         if (geom.length > 4)
             return this.drawSelectedPolygon(disp, ctx, zoom, pan, drawMode);
 
-        let selectionConfig =  this.config.getSelectionDrawDetailsForDrawMode(drawMode);
+        let selectionConfig = this.config.getSelectionDrawDetailsForDrawMode(drawMode);
 
         // Move the selection line a bit away from the object
         let offset = (selectionConfig.width + selectionConfig.lineGap) / zoom;

@@ -349,8 +349,10 @@ class DispText(DispBase):
     textStyle = relationship(DispTextStyle)
 
     __table_args__: typing.Tuple = (
-        Index("idx_DispText_colorId", colorId, unique=False),
-        Index("idx_DispText_styleId", textStyleId, unique=False),
+        # Commented out, we don't delete lookups during normal operation
+        # and keeping this index maintained costs time
+        # Index("idx_DispText_colorId", colorId, unique=False),
+        # Index("idx_DispText_styleId", textStyleId, unique=False),
     )
 
     # noinspection PyMissingConstructor
@@ -395,9 +397,11 @@ class DispPolygon(DispBase):
     lineStyle = relationship(DispLineStyle)
 
     __table_args__ = (
-        Index("idx_DispPolygon_fillColorId", fillColorId, unique=False),
-        Index("idx_DispPolygon_lineColorId", lineColorId, unique=False),
-        Index("idx_DispPolygon_lineStyleId", lineStyleId, unique=False),
+        # Commented out, we don't delete lookups during normal operation
+        # and keeping this index maintained costs time
+        # Index("idx_DispPolygon_fillColorId", fillColorId, unique=False),
+        # Index("idx_DispPolygon_lineColorId", lineColorId, unique=False),
+        # Index("idx_DispPolygon_lineStyleId", lineStyleId, unique=False),
     )
 
     # noinspection PyMissingConstructor
@@ -428,6 +432,11 @@ class DispPolyline(DispBase):
     lineStyleId = Column(Integer, ForeignKey('DispLineStyle.id'), doc='ls')
     lineStyle = relationship(DispLineStyle)
 
+    #: EdgeColor
+    # This is an alternate line color.
+    edgeColorId = Column(Integer, ForeignKey('DispColor.id',
+                                    name="DispGroupPointer_edgeColorId_fkey"), doc='ec')
+
     #: Start Key, The key of another disp object,
     # If the start point of this graphic is linked another disp obj
     startKey = Column(String(50), doc='sk')
@@ -443,8 +452,11 @@ class DispPolyline(DispBase):
     endEndType = Column(Integer, doc='et')
 
     __table_args__ = (
-        Index("idx_DispPolyline_lineColorId", lineColorId, unique=False),
-        Index("idx_DispPolyline_lineStyleId", lineStyleId, unique=False),
+        # Commented out, we don't delete lookups during normal operation
+        # and keeping this index maintained costs time
+        # Index("idx_DispPolyline_lineColorId", lineColorId, unique=False),
+        # Index("idx_DispPolyline_lineStyleId", lineStyleId, unique=False),
+        # Index("idx_DispPolyline_edgeColorId", lineColorId, unique=False),
         Index("idx_DispPolyline_startKey", startKey, unique=False),
         Index("idx_DispPolyline_endKey", endKey, unique=False),
     )
@@ -487,9 +499,11 @@ class DispEllipse(DispBase):
     lineStyle = relationship(DispLineStyle)
 
     __table_args__ = (
-        Index("idx_DispEllipse_fillColorId", fillColorId, unique=False),
-        Index("idx_DispEllipse_lineColorId", lineColorId, unique=False),
-        Index("idx_DispEllipse_lineStyleId", lineStyleId, unique=False),
+        # Commented out, we don't delete lookups during normal operation
+        # and keeping this index maintained costs time
+        # Index("idx_DispEllipse_fillColorId", fillColorId, unique=False),
+        # Index("idx_DispEllipse_lineColorId", lineColorId, unique=False),
+        # Index("idx_DispEllipse_lineStyleId", lineStyleId, unique=False),
     )
 
     # noinspection PyMissingConstructor

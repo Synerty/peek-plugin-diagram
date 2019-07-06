@@ -7,9 +7,15 @@ import {
 } from "../canvas/PeekCanvasShapePropsContext";
 import {DispTextT} from "./DispText";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
+import {DispColor, DispLineStyle} from "@peek/peek_plugin_diagram/lookups";
 
 
 export interface DispPolylineT extends DispPolyT {
+
+    // Edge Color
+    ec: number;
+    ecl: DispColor;
+
     // Start Key
     sk: string;
 
@@ -30,6 +36,26 @@ export enum DispPolylineEndTypeE {
 }
 
 export class DispPolyline extends DispPoly {
+
+
+    /** Edge Color
+     *
+     * And alternate color of this polyline, used to color it if it's representing an
+     * edge of a GraphDB.
+     */
+    static edgeColor(disp: DispPolylineT): DispColor {
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
+        return disp.ecl;
+    }
+
+    /** Set Edge Color
+     *
+     */
+    static setEdgeColor(disp: DispPolylineT, val: DispColor): void {
+        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
+        disp.ecl = val;
+        disp.ec = val == null ? null : val.id;
+    }
 
 
     /** Start Key

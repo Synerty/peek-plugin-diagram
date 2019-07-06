@@ -23,6 +23,8 @@ export abstract class DiagramLookupService {
 
     abstract layerForId(layerId: number): DispLayer ;
 
+    abstract layerForName(modelSetKey:string, layerName:string): DispLayer ;
+
     abstract colorForId(colorId: number): DispColor;
 
     abstract textStyleForId(textStyleId: number): DispTextStyle;

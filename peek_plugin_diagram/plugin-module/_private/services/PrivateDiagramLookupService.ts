@@ -266,6 +266,14 @@ export class PrivateDiagramLookupService extends ComponentLifecycleEventEmitter 
         return this._levelsById[levelId];
     };
 
+    layerForName(modelSetKey: string, layerName: string): DispLayer | null {
+        for (let layer of this.layersOrderedByOrder(modelSetKey)) {
+            if (layer.name == layerName)
+                return layer;
+        }
+        return null;
+    }
+
     layerForId(layerId: number): DispLayer {
         return this._layersById[layerId];
     };
@@ -342,6 +350,11 @@ export class PrivateDiagramLookupService extends ComponentLifecycleEventEmitter 
         if (disp.lc != null) {
             disp.lcl = this._colorsById[disp.lc];
             if (disp.lcl == null) return null;
+        }
+
+        if (disp.ec != null) {
+            disp.ecl = this._colorsById[disp.ec];
+            if (disp.ecl == null) return null;
         }
 
         if (disp.fc != null) {

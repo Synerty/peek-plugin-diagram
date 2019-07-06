@@ -116,6 +116,7 @@
 
     <div class="btn-group edit-toolbar-button-group">
         <button *ngFor="let btn of otherPluginButtons"
+                [class.btn-primary]="isButtonActive(btn)"
                 class="btn tool-button"
                 (click)="buttonClicked(btn)">
             <fa *ngIf="btn.icon" [name]="btn.icon"></fa>

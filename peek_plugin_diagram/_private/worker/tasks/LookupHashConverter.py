@@ -57,7 +57,8 @@ class LookupHashConverter:
 
         T = ImportLiveDbDispLinkTuple
 
-        colourFields = {T.DISP_ATTR_FILL_COLOR, T.DISP_ATTR_LINE_COLOR, T.DISP_ATTR_COLOR}
+        colourFields = {T.DISP_ATTR_FILL_COLOR, T.DISP_ATTR_COLOR,
+                        T.DISP_ATTR_LINE_COLOR, T.DISP_ATTR_EDGE_COLOR}
 
         for attrName in colourFields:
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:

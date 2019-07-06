@@ -88,6 +88,12 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
 
     }
 
+    isButtonActive(btn: DiagramToolButtonI): boolean {
+        if (btn.isActive == null)
+            return false;
+        return btn.isActive();
+    }
+
     toggleToolbar(): void {
         this.toolbarIsOpen = !this.toolbarIsOpen;
     }

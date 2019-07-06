@@ -1,3 +1,5 @@
+export {DiagramConfigService} from "./DiagramConfigService";
+
 export {
     DiagramToolbarService, ToolbarTypeE, DiagramToolButtonI
 } from "./DiagramToolbarService";
@@ -27,4 +29,3 @@ export {
     DiagramPositionService,
     PositionUpdatedI
 } from "./DiagramPositionService";
-

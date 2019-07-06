@@ -146,6 +146,7 @@ def _validateConvertedDisps(disps: List):
     for disp in disps:
         checkInt(disp, 'colorHash')
         checkInt(disp, 'lineColorHash')
+        checkInt(disp, 'edgeColorHash')
         checkInt(disp, 'fillColorHash')
         checkInt(disp, 'lineStyleHash')
         checkInt(disp, 'textStyleHash')

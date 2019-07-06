@@ -9,6 +9,7 @@ import {PeekCanvasInput} from "../canvas/PeekCanvasInput.web";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 import {GridObservable} from "../cache/GridObservable.web";
 import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {PrivateDiagramConfigService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
 
 import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
 
@@ -90,6 +91,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 abstractCoordSetCache: DiagramCoordSetService,
                 positionService: DiagramPositionService,
                 private itemSelectService: PrivateDiagramItemSelectService,
+                private configService: PrivateDiagramConfigService,
                 private branchService: PrivateDiagramBranchService,
                 private overrideService: PrivateDiagramOverrideService,
                 private snapshotService: PrivateDiagramSnapshotService) {
@@ -138,6 +140,9 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         // Hook up the item selection service
         this.connectItemSelectionService();
 
+        // Hook up the config service
+        this.connectConfigService();
+
         // Hook up the position serivce
         this.connectDiagramService();
 
@@ -149,7 +154,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     }
 
-    isEditing():boolean {
+    isEditing(): boolean {
         return this.editor != null && this.editor.isEditing();
     }
 
@@ -331,6 +336,19 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 });
 
             });
+    }
+
+    private connectConfigService(): void {
+        this.configService.usePolylineEdgeColorsObservable()
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((enabled: boolean) => {
+                this.config.renderer.useEdgeColors = enabled;
+                this.config.invalidate();
+            });
+
+        this.configService.layersUpdatedObservable()
+            .takeUntil(this.onDestroyEvent)
+            .subscribe(() => this.config.invalidate());
     }
 
 

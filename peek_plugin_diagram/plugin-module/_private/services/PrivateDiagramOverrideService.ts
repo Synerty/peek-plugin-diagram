@@ -36,6 +36,10 @@ export class PrivateDiagramOverrideService extends DiagramOverrideService {
         this.notifyOfUpdate(true);
     }
 
+    setUsePolylineEdgeColors(enabled: boolean): void  {
+
+    }
+
     get overridesUpdatedObservable(): Observable<OverrideUpdateDataI> {
         if (Object.keys(this.appliedOverrides).length != 0) {
             setTimeout(() => this.notifyOfUpdate(true), 0);

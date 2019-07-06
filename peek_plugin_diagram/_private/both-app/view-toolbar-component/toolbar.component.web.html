@@ -36,6 +36,7 @@
         </button>
         <button *ngFor="let btn of shownPluginButtons"
                 class="btn tool-button"
+                [class.btn-primary]="isButtonActive(btn)"
                 (click)="buttonClicked(btn)">
             <fa *ngIf="btn.icon" [name]="btn.icon"></fa>
             {{btn.name}}

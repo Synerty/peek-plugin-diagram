@@ -71,6 +71,12 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
 
     }
 
+    isButtonActive(btn: DiagramToolButtonI): boolean {
+        if (btn.isActive == null)
+            return false;
+        return btn.isActive();
+    }
+
 
     // --------------------
     // PRINR

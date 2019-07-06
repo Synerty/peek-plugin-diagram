@@ -14,6 +14,7 @@ class ImportLiveDbDispLinkTuple(Tuple):
 
     DISP_ATTR_FILL_COLOR = 'fillColorId'
     DISP_ATTR_LINE_COLOR = 'lineColorId'
+    DISP_ATTR_EDGE_COLOR = 'edgeColorId'
     DISP_ATTR_COLOR = 'colorId'
     DISP_ATTR_LINE_STYLE = 'lineStyleId'
     DISP_ATTR_LINE_WIDTH = 'lineWidth'

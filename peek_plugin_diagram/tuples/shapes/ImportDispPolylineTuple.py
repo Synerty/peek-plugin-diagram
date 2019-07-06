@@ -77,6 +77,13 @@ class ImportDispPolylineTuple(Tuple):
     lineStyleHash: str = TupleField()
     lineColorHash: Optional[str] = TupleField()
 
+    #: This is used when this polyline represents an edge in a connectectivity model.
+    # The colour provides an alter colour of the line, for example, If a electricity
+    # substation has multiple feeders, the user make select to view the edge colours instead.
+    # The edge colours would make each feeder leaving the substation a different colour.
+    # This is just one possible use case of this field.
+    edgeColorHash: Optional[str] = TupleField()
+
     geom: WKBElement = TupleField()
 
     #: Start Key, The key of another disp object if the start of this polyline is relate
