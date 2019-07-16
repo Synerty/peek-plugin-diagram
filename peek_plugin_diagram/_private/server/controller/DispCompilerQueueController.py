@@ -26,7 +26,8 @@ class DispCompilerQueueController:
     3) Delete from queue
     """
 
-    FETCH_SIZE = 500
+    DE_DUPE_FETCH_SIZE = 10000
+    ITEMS_PER_TASK = 500
     PERIOD = 0.200
 
     def __init__(self, ormSessionCreator, statusController: StatusController):
@@ -95,8 +96,8 @@ class DispCompilerQueueController:
             queueItems = (session.query(DispIndexerQueueTable)
                 .order_by(asc(DispIndexerQueueTable.id))
                 .filter(DispIndexerQueueTable.id > self._lastQueueId)
-                .yield_per(self.FETCH_SIZE)
-                .limit(self.FETCH_SIZE)
+                .yield_per(self.ITEMS_PER_TASK)
+                .limit(self.ITEMS_PER_TASK)
                 .all())
 
             session.expunge_all()
@@ -110,7 +111,7 @@ class DispCompilerQueueController:
         logger.debug("%s Disps, Time Taken = %s",
                      dispCount, datetime.now(pytz.utc) - startTime)
         self._statusController.setDisplayCompilerStatus(True, self._queueCount)
-        self._statusController.addToDisplayCompilerTotal(self.FETCH_SIZE)
+        self._statusController.addToDisplayCompilerTotal(self.ITEMS_PER_TASK)
 
     def _pollErrback(self, failure, startTime, dispCount):
         self._queueCount -= 1

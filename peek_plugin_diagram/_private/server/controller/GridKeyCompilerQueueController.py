@@ -30,7 +30,8 @@ class GridKeyCompilerQueueController:
 
     """
 
-    FETCH_SIZE = 5
+    DE_DUPE_FETCH_SIZE = 1000
+    ITEMS_PER_TASK = 5
     PERIOD = 0.200
 
     QUEUE_MAX = 100
@@ -103,9 +104,9 @@ class GridKeyCompilerQueueController:
             queueItems = yield self._grabQueueChunk()
 
         # Send the tasks to the peek worker
-        for start in range(0, len(queueItems), self.FETCH_SIZE):
+        for start in range(0, len(queueItems), self.ITEMS_PER_TASK):
 
-            items = queueItems[start: start + self.FETCH_SIZE]
+            items = queueItems[start: start + self.ITEMS_PER_TASK]
 
             try:
                 d = compileGrids.delay(items)
@@ -130,8 +131,8 @@ class GridKeyCompilerQueueController:
             qry = (session.query(GridKeyCompilerQueue)
                    .order_by(asc(GridKeyCompilerQueue.id))
                    .filter(GridKeyCompilerQueue.id > self._lastQueueId)
-                   .yield_per(500)
-                   # .limit(self.FETCH_SIZE)
+                   .yield_per(self.DE_DUPE_FETCH_SIZE)
+                   .limit(self.DE_DUPE_FETCH_SIZE)
                    )
 
             queueItems = qry.all()
