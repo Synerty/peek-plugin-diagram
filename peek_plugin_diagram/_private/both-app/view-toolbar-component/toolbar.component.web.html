@@ -2,25 +2,35 @@
     <div class="btn-group">
         <button class="btn"
                 *ngIf="showExitDiagramButton()"
-                (click)="exitDiagramClicked()">
+                (click)="exitDiagramClicked()"
+                data-toggle="tooltip" data-placement="top"
+                title="Exit Diagram">
             <fa name="sign-out"></fa>
         </button>
         <button class="btn"
-                (click)="printDiagramClicked()">
+                (click)="printDiagramClicked()"
+                data-toggle="tooltip" data-placement="top"
+                title="Show Diagram for Print">
             <fa name="print"></fa>
         </button>
         <button class="btn"
                 *ngIf="showEditDiagramButton()"
-                (click)="editDiagramClicked()">
+                (click)="editDiagramClicked()"
+                data-toggle="tooltip" data-placement="top"
+                title="Edit Diagram">
             <fa name="pencil-alt"></fa>
         </button>
         <button class="btn"
                 *ngIf="showSelectBranchesButton()"
-                (click)="selectBranchesClicked()">
+                (click)="selectBranchesClicked()"
+                data-toggle="tooltip" data-placement="top"
+                title="Show Branches">
             <fa name="code-branch"></fa>
         </button>
         <button class="btn"
-                (click)="selectLayersClicked()">
+                (click)="selectLayersClicked()"
+                data-toggle="tooltip" data-placement="top"
+                title="Select Layers">
             <fa name="layer-group"></fa>
         </button>
     </div>
@@ -30,14 +40,18 @@
     <div class="btn-group">
         <button *ngIf="showGoUpParentButton()"
                 class="btn tool-button"
-                (click)="goUpParentButtonClicked(btn)">
+                (click)="goUpParentButtonClicked(btn)"
+                data-toggle="tooltip" data-placement="top"
+                title="Back">
             <fa name="back"></fa>
             Back
         </button>
         <button *ngFor="let btn of shownPluginButtons"
                 class="btn tool-button"
                 [class.btn-primary]="isButtonActive(btn)"
-                (click)="buttonClicked(btn)">
+                (click)="buttonClicked(btn)"
+                data-toggle="tooltip" data-placement="top"
+                title="{{btn.name}}">
             <fa *ngIf="btn.icon" [name]="btn.icon"></fa>
             {{btn.name}}
         </button>
