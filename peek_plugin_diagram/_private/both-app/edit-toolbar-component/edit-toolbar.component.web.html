@@ -118,7 +118,9 @@
         <button *ngFor="let btn of otherPluginButtons"
                 [class.btn-primary]="isButtonActive(btn)"
                 class="btn tool-button"
-                (click)="buttonClicked(btn)">
+                (click)="buttonClicked(btn)"
+                data-toggle="tooltip" data-placement="top"
+                [title]="btn.tooltip">
             <fa *ngIf="btn.icon" [name]="btn.icon"></fa>
             {{btn.name}}
         </button>

@@ -348,7 +348,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
         this.configService.layersUpdatedObservable()
             .takeUntil(this.onDestroyEvent)
-            .subscribe(() => this.config.invalidate());
+            .subscribe(() => this.model.recompileModel());
     }
 
 

@@ -51,7 +51,7 @@
                 [class.btn-primary]="isButtonActive(btn)"
                 (click)="buttonClicked(btn)"
                 data-toggle="tooltip" data-placement="top"
-                title="{{btn.name}}">
+                [title]="btn.tooltip">
             <fa *ngIf="btn.icon" [name]="btn.icon"></fa>
             {{btn.name}}
         </button>
