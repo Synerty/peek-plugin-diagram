@@ -1,7 +1,7 @@
-import {EditorToolType} from "./PeekCanvasEditorToolType.web";
+import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
 import {PeekCanvasInputEditMakeDispPolyDelegate} from "./PeekCanvasInputEditMakePolyDelegate.web";
 import {InputDelegateConstructorArgs} from "./PeekCanvasInputDelegate.web";
-import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
+import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 
 /**
  * This input delegate handles :
@@ -10,14 +10,14 @@ import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
  * Selecting at a point (touch and mouse)
  *
  */
-export class PeekCanvasInputEditMakeLineWithArrowDelegate
+export class PeekCanvasInputEditMakeDispPolylinDelegate
     extends PeekCanvasInputEditMakeDispPolyDelegate {
-    static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_LINE_WITH_ARROW;
+    static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_POLYLINE;
 
 
     constructor(viewArgs: InputDelegateConstructorArgs,
                 canvasEditor: PeekCanvasEditor) {
-        super(viewArgs, canvasEditor, PeekCanvasInputEditMakeLineWithArrowDelegate.TOOL_NAME);
+        super(viewArgs, canvasEditor, PeekCanvasInputEditMakeDispPolylinDelegate.TOOL_NAME);
 
         this._reset();
     }

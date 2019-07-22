@@ -2,15 +2,15 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
-import {PeekCanvasInputEditMakeRectangleDelegate} from "../canvas/PeekCanvasInputEditMakeRectangleDelegate.web";
-import {PeekCanvasInputEditMakeEllipseDelegate} from "../canvas/PeekCanvasInputEditMakeEllipseDelegate.web";
-import {PeekCanvasInputEditMakeDispPolygonDelegate} from "../canvas/PeekCanvasInputEditMakePolygonDelegate.web";
-import {PeekCanvasInputEditMakeDispPolylinDelegate} from "../canvas/PeekCanvasInputEditMakePolylineDelegate.web";
-import {PeekCanvasInputMakeDispGroupPtrVertexDelegate} from "../canvas/PeekCanvasInputEditMakeGroupPtrVertexDelegate.web";
-import {PeekCanvasInputMakeDispGroupPtrEdgeDelegate} from "../canvas/PeekCanvasInputEditMakeGroupPtrEdgeDelegate.web";
-import {PeekCanvasInputEditSelectDelegate} from "../canvas/PeekCanvasInputEditSelectDelegate.web";
-import {PeekCanvasInputEditMakeTextDelegate} from "../canvas/PeekCanvasInputEditMakeTextDelegate.web";
-import {PeekCanvasInputEditMakeLineWithArrowDelegate} from "../canvas/PeekCanvasInputEditMakeLineWithArrowDelegate.web";
+import {PeekCanvasInputEditMakeRectangleDelegate} from "../canvas-input/PeekCanvasInputEditMakeRectangleDelegate.web";
+import {PeekCanvasInputEditMakeEllipseDelegate} from "../canvas-input/PeekCanvasInputEditMakeEllipseDelegate.web";
+import {PeekCanvasInputEditMakeDispPolygonDelegate} from "../canvas-input/PeekCanvasInputEditMakePolygonDelegate.web";
+import {PeekCanvasInputEditMakeDispPolylinDelegate} from "../canvas-input/PeekCanvasInputEditMakePolylineDelegate.web";
+import {PeekCanvasInputMakeDispGroupPtrVertexDelegate} from "../canvas-input/PeekCanvasInputEditMakeGroupPtrVertexDelegate.web";
+import {PeekCanvasInputMakeDispGroupPtrEdgeDelegate} from "../canvas-input/PeekCanvasInputEditMakeGroupPtrEdgeDelegate.web";
+import {PeekCanvasInputEditSelectDelegate} from "../canvas-input/PeekCanvasInputEditSelectDelegate.web";
+import {PeekCanvasInputEditMakeTextDelegate} from "../canvas-input/PeekCanvasInputEditMakeTextDelegate.web";
+import {PeekCanvasInputEditMakeLineWithArrowDelegate} from "../canvas-input/PeekCanvasInputEditMakeLineWithArrowDelegate.web";
 import {
     DiagramToolbarService,
     DiagramToolButtonI

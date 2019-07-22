@@ -3,11 +3,11 @@ import {
     InputDelegateConstructorArgs,
     PeekCanvasInputDelegate
 } from "./PeekCanvasInputDelegate.web";
-import {EditorToolType} from "./PeekCanvasEditorToolType.web";
-import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
+import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
+import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DispEllipse} from "../canvas-shapes/DispEllipse";
 import {PointI} from "../canvas-shapes/DispBase";
-import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
+import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
 
 /**
  * This input delegate handles :

@@ -3,9 +3,9 @@ import {Component, Input, ViewChild} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
 import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
-import {PeekDispRenderFactory} from "../canvas/PeekDispRenderFactory.web";
-import {PeekCanvasRenderer} from "../canvas/PeekCanvasRenderer.web";
-import {PeekCanvasInput} from "../canvas/PeekCanvasInput.web";
+import {PeekDispRenderFactory} from "../canvas-render/PeekDispRenderFactory.web";
+import {PeekCanvasRenderer} from "../canvas-render/PeekCanvasRenderer.web";
+import {PeekCanvasInput} from "../canvas-input/PeekCanvasInput.web";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 import {GridObservable} from "../cache/GridObservable.web";
 import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";

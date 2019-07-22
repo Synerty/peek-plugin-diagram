@@ -4,10 +4,10 @@ import {
     PeekCanvasInputDelegate
 } from "./PeekCanvasInputDelegate.web";
 import * as assert from "assert";
-import {EditorToolType} from "./PeekCanvasEditorToolType.web";
-import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
+import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
+import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DispBase, DispBaseT, PointI} from "../canvas-shapes/DispBase";
-import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
+import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
 
 /**
  * This input delegate handles :

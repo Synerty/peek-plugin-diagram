@@ -1,13 +1,13 @@
-import {EditorToolType} from "./PeekCanvasEditorToolType.web";
+import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
 import {
     CanvasInputPos,
     InputDelegateConstructorArgs,
     PeekCanvasInputDelegate
 } from "./PeekCanvasInputDelegate.web";
-import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
+import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DispGroupPointer} from "../canvas-shapes/DispGroupPointer";
 import {PointI} from "../canvas-shapes/DispBase";
-import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
+import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
 
 /**
  * This input delegate handles :
@@ -16,18 +16,18 @@ import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
  * Selecting at a point (touch and mouse)
  *
  */
-export class PeekCanvasInputMakeDispGroupPtrEdgeDelegate
+export class PeekCanvasInputMakeDispGroupPtrVertexDelegate
     extends PeekCanvasInputDelegate {
-    static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_DISP_GROUP_PTR_EDGE;
+    static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_DISP_GROUP_PTR_VERTEX;
 
     // Used to detect dragging and its the mouse position we use
     private _startMousePos: CanvasInputPos | null = null;
-
+    
 
     constructor(viewArgs: InputDelegateConstructorArgs,
                 canvasEditor: PeekCanvasEditor) {
         super(viewArgs, canvasEditor,
-            PeekCanvasInputMakeDispGroupPtrEdgeDelegate.TOOL_NAME);
+            PeekCanvasInputMakeDispGroupPtrVertexDelegate.TOOL_NAME);
 
         this._reset();
     }
@@ -73,7 +73,6 @@ export class PeekCanvasInputMakeDispGroupPtrEdgeDelegate
 
 
     private createDisp(x: number, y: number) {
-
         // Create the Disp
         let created = DispGroupPointer.create(this.viewArgs.config.coordSet);
         DispGroupPointer.setCenterPoint(created, x, y);
@@ -81,19 +80,11 @@ export class PeekCanvasInputMakeDispGroupPtrEdgeDelegate
         this.canvasEditor.lookupService._linkDispLookups(created);
 
         // Add the shape to the branch
-        created = this.canvasEditor.branchContext.branchTuple.addOrUpdateDisp(created);
-
-        // TODO, Snap the coordinates if required
-        // if (this.viewArgs.config.editor.snapToGrid)
-        //     DispText.snap(created, this.viewArgs.config.editor.snapSize);
-
-        // Let the canvas editor know something has happened.
-        // this.canvasEditor.dispPropsUpdated();
+        created = this.canvasEditor.branchContext
+            .branchTuple.addOrUpdateDisp(created, true);
 
         this.viewArgs.model.recompileModel();
-
         this.viewArgs.model.selection.replaceSelection(<any> created);
-        this.canvasEditor.props.showGroupPtrProperties();
 
         this._addBranchAnchor(x, y);
         this.canvasEditor.setEditorSelectTool();
@@ -108,9 +99,8 @@ export class PeekCanvasInputMakeDispGroupPtrEdgeDelegate
     }
 
     _finaliseCreate() {
+        this.canvasEditor.props.showGroupPtrProperties();
         this._reset();
         this.viewArgs.config.invalidate();
     }
-
-
 }

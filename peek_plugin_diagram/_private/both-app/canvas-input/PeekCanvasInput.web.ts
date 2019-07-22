@@ -1,8 +1,8 @@
-import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PeekCanvasModel} from "./PeekCanvasModel.web";
+import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
+import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 
 import * as $ from "jquery";
-import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
+import {PeekDispRenderFactory} from "../canvas-render/PeekDispRenderFactory.web";
 import {
     CanvasInputPos,
     disableContextMenu,
@@ -11,9 +11,9 @@ import {
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web";
-import {EditorToolType} from "./PeekCanvasEditorToolType.web";
+import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
 import {PointI} from "../canvas-shapes/DispBase";
-import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
+import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
 
 
 /** Peek Canvas Input

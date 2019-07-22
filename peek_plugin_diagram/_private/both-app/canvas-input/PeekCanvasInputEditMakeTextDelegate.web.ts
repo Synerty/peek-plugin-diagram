@@ -4,9 +4,9 @@ import {
     PeekCanvasInputDelegate
 } from "./PeekCanvasInputDelegate.web";
 import {DispText} from "../canvas-shapes/DispText";
-import {EditorToolType} from "./PeekCanvasEditorToolType.web";
-import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
-import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
+import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
+import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
+import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
 import {PointI} from "../canvas-shapes/DispBase";
 
 /**

@@ -1,5 +1,5 @@
-import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
+import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
 import {DispFactory} from "../canvas-shapes/DispFactory";
 

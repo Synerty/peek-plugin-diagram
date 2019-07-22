@@ -1,7 +1,7 @@
-import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
+import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {DrawModeE, PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
-import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {DispGroupPointer, DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
 
 export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {

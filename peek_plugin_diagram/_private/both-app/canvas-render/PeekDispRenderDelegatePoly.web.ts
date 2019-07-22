@@ -1,8 +1,8 @@
-import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
+import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {DrawModeE, PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
 import {DispPolygon} from "../canvas-shapes/DispPolygon";
 import {DispBase, DispBaseT, DispType, PointI} from "../canvas-shapes/DispBase";
-import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {DispPolyline, DispPolylineEndTypeE, DispPolylineT} from "../canvas-shapes/DispPolyline";
 import {DispPoly} from "../canvas-shapes/DispPoly";
 

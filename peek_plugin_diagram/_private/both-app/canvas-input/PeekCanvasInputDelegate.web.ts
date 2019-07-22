@@ -1,14 +1,14 @@
 // ============================================================================
 // Editor Ui Mouse
 
-import {EditorToolType} from "./PeekCanvasEditorToolType.web";
+import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
 import {PeekCanvasInput} from "./PeekCanvasInput.web";
-import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PeekCanvasModel} from "./PeekCanvasModel.web";
-import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
-import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
+import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
+import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
+import {PeekDispRenderFactory} from "../canvas-render/PeekDispRenderFactory.web";
+import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DispBase, PointI} from "../canvas-shapes/DispBase";
-import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
+import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
 
 
 export function disableContextMenu(event) {

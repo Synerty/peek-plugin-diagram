@@ -5,9 +5,9 @@ import {
     PrivateDiagramBranchService
 } from "@peek/peek_plugin_diagram/_private/branch";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
-import {PeekCanvasInput} from "./PeekCanvasInput.web";
-import {PeekCanvasInputEditSelectDelegate} from "./PeekCanvasInputEditSelectDelegate.web";
-import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web";
+import {PeekCanvasInput} from "../canvas-input/PeekCanvasInput.web";
+import {PeekCanvasInputEditSelectDelegate} from "../canvas-input/PeekCanvasInputEditSelectDelegate.web";
+import {PeekCanvasInputSelectDelegate} from "../canvas-input/PeekCanvasInputSelectDelegate.web";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";

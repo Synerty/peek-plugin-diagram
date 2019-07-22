@@ -1,18 +1,18 @@
-import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {
     CanvasInputDeltaI,
     CanvasInputPos,
     InputDelegateConstructorArgs,
     PeekCanvasInputDelegate
 } from "./PeekCanvasInputDelegate.web";
-import {PolylineEnd} from "./PeekCanvasModelQuery.web";
+import {PolylineEnd} from "../canvas/PeekCanvasModelQuery.web";
 import {assert} from "../DiagramUtil";
 import {DispBase, DispBaseT, DispType, PointI} from "../canvas-shapes/DispBase";
 import {DispPolyline, DispPolylineT} from "../canvas-shapes/DispPolyline";
-import {EditorToolType} from "./PeekCanvasEditorToolType.web";
-import {PeekCanvasEditor} from "./PeekCanvasEditor.web";
+import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
+import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DispFactory} from "../canvas-shapes/DispFactory";
-import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
+import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
 
 interface HandleI {
     disp: DispBaseT,

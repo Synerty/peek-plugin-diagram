@@ -2,7 +2,7 @@ import {PeekDispRenderDelegatePoly} from "./PeekDispRenderDelegatePoly.web";
 import {PeekDispRenderDelegateText} from "./PeekDispRenderDelegateText.web";
 import {PeekDispRenderDelegateEllipse} from "./PeekDispRenderDelegateEllipse.web";
 import {PeekDispRenderDelegateGroupPtr} from "./PeekDispRenderDelegateGroupPtr.web";
-import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
+import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {DispBase, DispType, PointI} from "../canvas-shapes/DispBase";
 import {PeekDispRenderDelegateNull} from "./PeekDispRenderDelegateNull.web";
 import {DrawModeE} from "./PeekDispRenderDelegateABC.web";

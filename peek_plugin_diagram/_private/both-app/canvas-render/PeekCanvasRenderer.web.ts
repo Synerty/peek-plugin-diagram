@@ -1,9 +1,9 @@
-import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PeekCanvasModel} from "./PeekCanvasModel.web";
+import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
+import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {PanI} from "./PeekInterfaces.web";
-import {PeekCanvasBounds} from "./PeekCanvasBounds";
+import {PanI} from "../canvas/PeekInterfaces.web";
+import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {Subject} from "rxjs/Subject";
 import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
 
