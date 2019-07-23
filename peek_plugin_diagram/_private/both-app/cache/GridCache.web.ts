@@ -121,7 +121,7 @@ export class GridCache {
         let latestCache = this.rotateCache(gridKeys);
 
         // Get the grids and notify the observer
-        for (let linkedGrid of dictValuesFromObject(latestCache))
+        for (let linkedGrid of latestCache.grids)
             this.updatesObservable.next(linkedGrid);
 
 
@@ -144,6 +144,7 @@ export class GridCache {
         this.gridLoader.loadGrids(updateTimeByGridKey, gridsToGetFromStorage);
 
 
+
     }
 
     /** Rotate Cache
@@ -157,34 +158,40 @@ export class GridCache {
      * The overhead is this code and X dict objects.
      */
     private rotateCache(gridKeys: string[]): Cache {
+
+        // let printCache = () => {
+        //     for (let i = 0; i < this.cacheQueue.length; i++) {
+        //         let cache = this.cacheQueue[i];
+        //         console.log(`========================== CACHE ${i}`);
+        //         console.log(cache.grids.map((g) => g.gridKey);
+        //     }
+        // };
+        // printCache();
+
         // Create the latest cache
         let latestCache = new Cache();
 
         // Populate the latest cache with any grids in previos caches
-        for (let gridKey of gridKeys) {
-            for (let cache of this.cacheQueue) {
-                let found = false;
-                if (!found) {
-                    let thisLinkedGrid = cache.get(gridKey);
-                    // We're iterating the caches from newest to oldest
-                    // So we can stop on first hit.
-                    if (thisLinkedGrid != null) {
-                        latestCache[gridKey] = thisLinkedGrid;
-                        found = true;
-                    }
+        for (const gridKey of gridKeys) {
+            for (const cache of this.cacheQueue) {
+                let thisLinkedGrid = cache.get(gridKey);
+                // We're iterating the caches from newest to oldest
+                // So we can stop on first hit.
+                if (thisLinkedGrid != null) {
+                    latestCache.put(thisLinkedGrid);
+                    break;
                 }
-
-                // Delete the grid from the older cache.
-                cache.del(gridKey);
             }
         }
 
-        // Push the latest cache to the front of the queue
+        // Push the latest cache to the front of the queue, if we created it
         this.cacheQueue.unshift(latestCache);
 
         // Trim the cache
         while (this.cacheQueue.length > this.MAX_CACHE)
             this.cacheQueue.pop();
+
+        // printCache();
 
         // Return the latest cache
         return latestCache;
@@ -198,7 +205,7 @@ export class GridCache {
         let latestCache = this.cacheQueue[0];
 
         for (let gridTuple of gridTuples) {
-            let cachedLinkedGrid = latestCache[gridTuple.gridKey];
+            let cachedLinkedGrid = latestCache.get(gridTuple.gridKey);
 
             // If the cache differs, ignore the update
             // This really shouldn't happen.
