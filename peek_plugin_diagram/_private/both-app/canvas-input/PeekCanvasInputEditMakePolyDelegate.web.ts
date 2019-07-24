@@ -10,6 +10,7 @@ import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
 import {DispPolygon} from "../canvas-shapes/DispPolygon";
 import {DispPolyline, DispPolylineEndTypeE} from "../canvas-shapes/DispPolyline";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
+import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 
 /**
  * This input delegate handles :
@@ -172,10 +173,14 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         if (this._startMousePos == null)
             return;
 
-        let delta = this._setLastMousePos(inputPos);
+        const handleBounds = new PeekCanvasBounds(inputPos.x, inputPos.y, 0, 0);
+        const delta = this._setLastMousePos(inputPos);
         DispPoly.deltaMoveHandle(
-            this._creating,
-            DispPoly.pointCount(this._creating) - 1,
+            {
+                disp: this._creating,
+                handle: handleBounds,
+                handleIndex: DispPoly.pointCount(this._creating) - 1,
+            },
             delta.dx, delta.dy
         );
         this.viewArgs.config.invalidate();

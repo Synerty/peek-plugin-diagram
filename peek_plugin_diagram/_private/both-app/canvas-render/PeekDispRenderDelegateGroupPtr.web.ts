@@ -3,11 +3,13 @@ import {DrawModeE, PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.
 import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {DispGroupPointer, DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
+import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 
 export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 
-    constructor(config: PeekCanvasConfig) {
-        super(config);
+    constructor(config: PeekCanvasConfig,
+                model: PeekCanvasModel) {
+        super(config, model);
 
     }
 
@@ -68,10 +70,38 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
     };
 
     drawSelected(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
+        let bounds = disp.bounds;
+        if (bounds == null)
+            return;
+
+        // DRAW THE SELECTED BOX
+        let selectionConfig = this.config.getSelectionDrawDetailsForDrawMode(drawMode);
+
+        // Move the selection line a bit away from the object
+        let offset = (selectionConfig.width + selectionConfig.lineGap) / zoom;
+
+        let twiceOffset = 2 * offset;
+        let x = bounds.x - offset;
+        let y = bounds.y - offset;
+        let w = bounds.w + twiceOffset;
+        let h = bounds.h + twiceOffset;
+
+        ctx.dashedRect(x, y, w, h, selectionConfig.dashLen / zoom);
+        ctx.strokeStyle = selectionConfig.color;
+        ctx.lineWidth = selectionConfig.width / zoom;
+        ctx.stroke();
     };
 
     drawEditHandles(disp, ctx, zoom: number, pan: PointI) {
 
+        // DRAW THE EDIT HANDLES
+        ctx.fillStyle = this.config.editor.selectionHighlightColor;
+        let handles = this.handles(disp);
+        for (const h of handles) {
+            ctx.beginPath();
+            ctx.arc(h.x + h.w / 2, h.y + h.h / 2, h.h / 2, 0, 2 * Math.PI);
+            ctx.fill();
+        }
     }
 
 }

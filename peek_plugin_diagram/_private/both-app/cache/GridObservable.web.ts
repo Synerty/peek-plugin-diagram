@@ -60,9 +60,18 @@ export class GridObservable {
 
     updateDiagramWatchedGrids(canvasId: number, gridKeys: string[],
                               forceCacheFlush = false): void {
+        if (forceCacheFlush) {
+            this.gridCache.flushCache();
+            this.lastObservedKeysStr = '';
+        }
+
         this.gridKeysByCanvasId[canvasId] = gridKeys;
         this.rebuildReverseLookup();
-        this.updateGridCacheWatchedKeys(forceCacheFlush);
+        this.updateGridCacheWatchedKeys();
+    }
+
+    resetAllDispComputedProperties(): void {
+        this.gridCache.resetAllComputedProperties();
     }
 
     private processGridUpdates(grid: LinkedGrid) {
@@ -78,15 +87,15 @@ export class GridObservable {
 
     }
 
-    private updateGridCacheWatchedKeys(forceCacheFlush: boolean = false) {
+    private updateGridCacheWatchedKeys() {
         let uniqueKeysList = dictKeysFromObject(this.canvasIdsByGidKey).sort();
         let uniqueKeysStr = uniqueKeysList.join(',');
 
-        if (this.lastObservedKeysStr == uniqueKeysStr && !forceCacheFlush)
+        if (this.lastObservedKeysStr == uniqueKeysStr)
             return;
 
         this.lastObservedKeysStr = uniqueKeysStr;
-        this.gridCache.updateWatchedGrids(uniqueKeysList, forceCacheFlush);
+        this.gridCache.updateWatchedGrids(uniqueKeysList);
     }
 
     private rebuildReverseLookup() {

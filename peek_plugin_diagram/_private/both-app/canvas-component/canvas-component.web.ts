@@ -15,32 +15,18 @@ import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
 
 import * as $ from "jquery";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
-import {
-    DiagramPositionService,
-    PositionUpdatedI
-} from "@peek/peek_plugin_diagram/DiagramPositionService";
+import {PositionUpdatedI} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {
     DiagramPositionI,
     PrivateDiagramPositionService
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
-import {
-    PrivateDiagramItemSelectService
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
-import {
-    PrivateDiagramCoordSetService
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
-import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
+import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
+import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
-import {
-    PrivateDiagramBranchService
-} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
-import {
-    PrivateDiagramSnapshotService
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramSnapshotService";
-import {
-    PrivateDiagramOverrideService
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService";
+import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
+import {PrivateDiagramSnapshotService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramSnapshotService";
+import {PrivateDiagramOverrideService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService";
 
 /** Canvas Component
  *
@@ -77,10 +63,6 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     input: PeekCanvasInput;
     editor: PeekCanvasEditor;
 
-    // Private services
-    private _privatePosService: PrivateDiagramPositionService;
-    private coordSetCache: PrivateDiagramCoordSetService;
-
     // This is toggled by the toolbars
     showPrintPopup = false;
 
@@ -88,18 +70,14 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     constructor(private balloonMsg: Ng2BalloonMsgService,
                 private gridObservable: GridObservable,
                 private lookupService: PrivateDiagramLookupService,
-                abstractCoordSetCache: DiagramCoordSetService,
-                positionService: DiagramPositionService,
+                private coordSetCache: PrivateDiagramCoordSetService,
+                private privatePosService: PrivateDiagramPositionService,
                 private itemSelectService: PrivateDiagramItemSelectService,
                 private configService: PrivateDiagramConfigService,
                 private branchService: PrivateDiagramBranchService,
                 private overrideService: PrivateDiagramOverrideService,
                 private snapshotService: PrivateDiagramSnapshotService) {
         super();
-
-        // Cast the private services
-        this.coordSetCache = <PrivateDiagramCoordSetService>abstractCoordSetCache;
-        this._privatePosService = <PrivateDiagramPositionService>positionService;
 
         // The config for the canvas
         this.config = new PeekCanvasConfig();
@@ -114,7 +92,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
             this.lookupService, this.branchService, this.overrideService, this);
 
         // The display renderer delegates
-        this.renderFactory = new PeekDispRenderFactory(this.config);
+        this.renderFactory = new PeekDispRenderFactory(this.config, this.model);
 
         // The user interaction handler.
         this.input = new PeekCanvasInput(
@@ -128,7 +106,9 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
         // The canvas renderer
         this.editor = new PeekCanvasEditor(this.balloonMsg,
-            this.input, this.model, this.config, this.lookupService, this.branchService, this
+            this.input, this.model, this.config,
+            this.gridObservable,
+            this.lookupService, this.branchService, this
         );
 
         // Add the mouse class to the renderers draw list
@@ -260,14 +240,14 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         let coordSet = this.coordSetCache.coordSetForKey(this.modelSetKey, coordSetKey);
         this.config.updateCoordSet(coordSet);
 
-        this._privatePosService.setTitle(`Viewing ${coordSet.name}`);
+        this.privatePosService.setTitle(`Viewing ${coordSet.name}`);
 
         // Update
         this.config.updateCoordSet(coordSet);
         this.coordSetKey = coordSetKey;
 
         // Inform the position service that it's ready to go.
-        this._privatePosService.setReady(true);
+        this.privatePosService.setReady(true);
 
     }
 
@@ -299,7 +279,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 editingBranch: editingBranch
             };
 
-            this._privatePosService.positionUpdated(data);
+            this.privatePosService.positionUpdated(data);
         };
 
         this.config.viewPort.panChange
@@ -361,11 +341,11 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                     return;
 
                 isReadySub.unsubscribe();
-                this._privatePosService.setReady(true);
+                this.privatePosService.setReady(true);
             });
 
         // Watch the positionByCoordSet observable
-        this._privatePosService.positionByCoordSetObservable()
+        this.privatePosService.positionByCoordSetObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe((coordSetKey: string) => {
 
@@ -378,7 +358,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
             });
 
         // Watch the position observable
-        this._privatePosService.positionObservable()
+        this.privatePosService.positionObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe((pos: DiagramPositionI) => {
                 // Switch only if we need to

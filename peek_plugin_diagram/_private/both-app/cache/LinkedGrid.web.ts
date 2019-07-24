@@ -1,7 +1,7 @@
 import {assert} from "../DiagramUtil";
 import {GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
-import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
 import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {DispBase, DispType} from "../canvas-shapes/DispBase";
 
 /** Linked Grid
  *
@@ -60,5 +60,18 @@ export class LinkedGrid {
 
     hasData() {
         return !(this.lastUpdate == null && this.disps.length == 0);
+    }
+
+    relinkLookups(lookupService: PrivateDiagramLookupService): void {
+        for (const disp of this.disps)
+            lookupService._linkDispLookups(disp);
+    }
+
+    resetComputedProperties():void {
+        for (const disp of this.disps) {
+            delete disp.bounds;
+            delete disp.dispGroup;
+            delete disp.disps;
+        }
     }
 }

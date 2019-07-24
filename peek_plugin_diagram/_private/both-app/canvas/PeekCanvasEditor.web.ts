@@ -13,6 +13,7 @@ import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {DispLevel} from "@peek/peek_plugin_diagram/lookups";
 import {PeekCanvasEditorProps} from "./PeekCanvasEditorProps";
+import {GridObservable} from "../cache/GridObservable.web";
 
 /**
  * Peek Canvas Editor
@@ -31,6 +32,7 @@ export class PeekCanvasEditor {
                 public canvasInput: PeekCanvasInput,
                 public canvasModel: PeekCanvasModel,
                 private canvasConfig: PeekCanvasConfig,
+                private gridObservable: GridObservable,
                 public lookupService: PrivateDiagramLookupService,
                 private branchService: PrivateDiagramBranchService,
                 private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
@@ -38,6 +40,7 @@ export class PeekCanvasEditor {
             .startEditingWithContextObservable()
             .takeUntil(lifecycleEventEmitter.onDestroyEvent)
             .subscribe((branchContext: PrivateDiagramBranchContext) => {
+                this.gridObservable.resetAllDispComputedProperties();
                 this._props.setCanvasData(this.modelSetId, this.coordSetId);
 
                 if (this.branchContext)
@@ -69,6 +72,7 @@ export class PeekCanvasEditor {
             .stopEditingObservable()
             .takeUntil(lifecycleEventEmitter.onDestroyEvent)
             .subscribe(() => {
+                this.gridObservable.resetAllDispComputedProperties();
                 if (this.branchContext)
                     this.branchContext.close();
 

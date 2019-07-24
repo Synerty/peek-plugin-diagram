@@ -4,7 +4,7 @@ import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {LinkedGrid} from "../cache/LinkedGrid.web";
 import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil";
 import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
-import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
+import {DispBase, DispBaseT, DispType} from "../canvas-shapes/DispBase";
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch";
 import {PeekCanvasModelQuery} from "./PeekCanvasModelQuery.web";
 import {PeekCanvasModelSelection} from "./PeekCanvasModelSelection.web";
@@ -13,6 +13,7 @@ import {
     OverrideUpdateDataI,
     PrivateDiagramOverrideService
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService";
+import {DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
 
 // import 'rxjs/add/operator/takeUntil';
 
@@ -51,6 +52,7 @@ export class PeekCanvasModel {
 
     // Objects to be drawn on the display
     private _visibleDisps = [];
+
 
     // Does the model need an update?
     private needsUpdate = false;
@@ -391,6 +393,8 @@ export class PeekCanvasModel {
 
         this._override.applyOverridesToModel(disps);
 
+        if (isEditorActive)
+            this.relinkDispGroups(disps);
 
         this._visibleDisps = disps;
         this.selection.applyTryToSelect();
@@ -406,6 +410,38 @@ export class PeekCanvasModel {
 
     recompileModel(): void {
         this._compileDisps(true);
+    }
+
+    private relinkDispGroups(disps: DispBaseT[]): void {
+        // Setup the disp group links
+        const dispGroupsById: { [id: number]: DispGroupPointerT } = {};
+        const allDispsById = {};
+        for (const disp of disps) {
+            allDispsById[disp.id] = disp;
+            if (DispBase.typeOf(disp) != DispType.groupPointer)
+                continue;
+
+            dispGroupsById[disp.id] = <DispGroupPointerT>disp;
+            (<DispGroupPointerT>disp).disps = [];
+        }
+
+
+        for (const disp of disps) {
+            const groupId = DispBase.groupId(disp);
+            if (groupId == null)
+                continue;
+
+            const dispGroup = dispGroupsById[groupId];
+            if (dispGroup == null) {
+                // console.log(`Group for groupId ${groupId} doesn't exist.`);
+
+                if (allDispsById[groupId] != null)
+                    console.log(allDispsById[groupId]);
+                continue;
+            }
+            (<DispBaseT>disp).dispGroup = dispGroup;
+            dispGroup.disps.push(disp);
+        }
     }
 
     /** Sort Disps

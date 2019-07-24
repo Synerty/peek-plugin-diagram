@@ -10,8 +10,6 @@ import {Observable} from "rxjs/Observable";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
-import {dictValuesFromObject} from "../DiagramUtil";
-
 
 // ----------------------------------------------------------------------------
 
@@ -85,16 +83,30 @@ export class GridCache {
         // If the lookups reload, we need to relink all the disps
         this.lookupService.dispsNeedRelinkingObservable()
             .takeUntil(this.lifecycleEmitter.onDestroyEvent)
-            .subscribe(() => {
-                for (const cache of this.cacheQueue) {
-                    for (const linkedGrid of cache.grids) {
-                        for (const disp of linkedGrid.disps) {
-                            lookupService._linkDispLookups(disp);
-                        }
-                    }
-                }
-            });
+            .subscribe(() => this.relinkAllLookups());
 
+    }
+
+    flushCache(): void {
+        this.cacheQueue = [];
+    }
+
+    resetAllComputedProperties(): void {
+        for (const linkedGrid of this.linkedGrids)
+            linkedGrid.resetComputedProperties();
+    }
+
+    relinkAllLookups(): void {
+        for (const linkedGrid of this.linkedGrids)
+            linkedGrid.relinkLookups(this.lookupService);
+    }
+
+    private get linkedGrids(): LinkedGrid[] {
+        const unique = {};
+        const linkedGrids = [];
+        for (const cache of this.cacheQueue)
+            linkedGrids.add(cache.grids);
+        return linkedGrids.filter(g => unique[g.gridKey] === (unique[g.gridKey] = true));
     }
 
     isReady(): boolean {
@@ -110,10 +122,7 @@ export class GridCache {
      *
      * Change the list of grids that the GridObserver is interested in.
      */
-    updateWatchedGrids(gridKeys: string[], forceCacheFlush = false): void {
-        if (forceCacheFlush) {
-            this.cacheQueue = [];
-        }
+    updateWatchedGrids(gridKeys: string[]): void {
 
         this.gridLoader.watchGrids(gridKeys);
 
@@ -142,7 +151,6 @@ export class GridCache {
 
         // Query the local storage for the grids we don't have in the cache
         this.gridLoader.loadGrids(updateTimeByGridKey, gridsToGetFromStorage);
-
 
 
     }

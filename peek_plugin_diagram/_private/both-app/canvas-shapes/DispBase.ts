@@ -7,10 +7,18 @@ import {
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 import {deepCopy} from "@synerty/vortexjs/src/vortex/UtilMisc";
+import {rotatePointAboutCenter} from "./DispUtil";
 
 export interface PointI {
     x: number;
     y: number;
+}
+
+export interface DispHandleI {
+    disp: DispBaseT,
+    handle: PeekCanvasBounds,
+    handleIndex: number,
+    lastDeltaPoint?: PointI
 }
 
 export enum DispType {
@@ -72,18 +80,29 @@ export interface DispBaseT {
     g: number[];
 
     // bounds, this is assigned during the rendering process
+    // COMPUTED PROPERTY, it's computed somewhere
     bounds: PeekCanvasBounds | null;
+
+    // The disp group that this shape belongs to.
+    // Set by the model compiler
+    // COMPUTED PROPERTY, it's computed somewhere
+    dispGroup: any | null;
+
 
 }
 
 export abstract class DispBase {
-    static TYPE_DT = 'DT';
-    static TYPE_DPG = 'DPG';
-    static TYPE_DPL = 'DPL';
-    static TYPE_DE = 'DE';
-    static TYPE_DG = 'DG';
-    static TYPE_DGP = 'DGP';
-    static TYPE_DN = 'DN';
+    static readonly TYPE_DT = 'DT';
+    static readonly TYPE_DPG = 'DPG';
+    static readonly TYPE_DPL = 'DPL';
+    static readonly TYPE_DE = 'DE';
+    static readonly TYPE_DG = 'DG';
+    static readonly TYPE_DGP = 'DGP';
+    static readonly TYPE_DN = 'DN';
+
+    static readonly DEEP_COPY_FIELDS_TO_IGNORE = [
+        'bounds', 'disps', 'dispGroup'
+    ];
 
     private static _typeMapInit = false;
     private static _typeMap = {};
@@ -156,7 +175,7 @@ export abstract class DispBase {
         disp.rid = value;
     }
 
-    static groupId(disp: DispBaseT): number {
+    static groupId(disp: DispBaseT): number | null {
         return disp.gi;
     }
 
@@ -242,13 +261,29 @@ export abstract class DispBase {
         disp.bounds = null;
     }
 
-    static deltaMoveHandle(disp, handleIndex: number, dx: number, dy: number) {
+    static deltaMoveHandle(handle: DispHandleI, dx: number, dy: number) {
+        const disp = <DispBaseT>handle.disp;
         if (disp.g == null)
             return;
 
-        let pointIndex = handleIndex * 2;
+        let pointIndex = handle.handleIndex * 2;
         disp.g[pointIndex] = disp.g[pointIndex] + dx;
         disp.g[pointIndex + 1] = disp.g[pointIndex + 1] + dy;
+        disp.bounds = null;
+    }
+
+
+    static rotateAboutAxis(disp, center: PointI, rotationDegrees: number) {
+        if (disp.g == null)
+            return;
+
+        for (let i = 0; i < disp.g.length; i += 2) {
+            let point = {x: disp.g[i], y: disp.g[i + 1]};
+            point = rotatePointAboutCenter(center, point, rotationDegrees);
+            disp.g[i] = point.x;
+            disp.g[i + 1] = point.y;
+        }
+
         disp.bounds = null;
     }
 
@@ -324,16 +359,13 @@ export abstract class DispBase {
     }
 
     static cloneDisp(disp: DispBaseT): DispBaseT {
-        let copy = deepCopy(disp);
+        let copy = deepCopy(disp, DispBase.DEEP_COPY_FIELDS_TO_IGNORE);
 
         // Copy over the lookup tuples, as they would have been cloned as well.
         for (let key of Object.keys(disp)) {
             if (disp[key] != null && disp[key]['__rst'] != null)
                 copy[key] = disp[key];
         }
-
-        // Clear out the Bounds object
-        delete copy['bounds'];
 
         return copy;
     }

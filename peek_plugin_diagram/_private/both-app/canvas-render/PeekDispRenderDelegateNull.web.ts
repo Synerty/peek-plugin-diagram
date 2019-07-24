@@ -3,11 +3,13 @@ import {DrawModeE, PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.
 import {DispNull, DispNullT} from "../canvas-shapes/DispNull";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
+import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 
 export class PeekDispRenderDelegateNull extends PeekDispRenderDelegateABC {
 
-    constructor(config: PeekCanvasConfig) {
-        super(config);
+    constructor(config: PeekCanvasConfig,
+                model: PeekCanvasModel) {
+        super(config, model);
 
     }
 

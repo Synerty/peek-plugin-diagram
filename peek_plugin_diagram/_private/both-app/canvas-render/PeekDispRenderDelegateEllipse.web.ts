@@ -3,11 +3,13 @@ import {DrawModeE, PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.
 import {DispEllipse, DispEllipseT} from "../canvas-shapes/DispEllipse";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
+import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 
 export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
 
-    constructor(config: PeekCanvasConfig) {
-        super(config);
+    constructor(config: PeekCanvasConfig,
+                model: PeekCanvasModel) {
+        super(config, model);
 
     }
 
@@ -85,7 +87,7 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
             return;
 
         // DRAW THE SELECTED BOX
-        let selectionConfig =  this.config.getSelectionDrawDetailsForDrawMode(drawMode);
+        let selectionConfig = this.config.getSelectionDrawDetailsForDrawMode(drawMode);
 
         // Move the selection line a bit away from the object
         let offset = (selectionConfig.width + selectionConfig.lineGap) / zoom;

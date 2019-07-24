@@ -225,6 +225,14 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
 
     startEditing(modelSetKey: string, coordSetKey: string,
                  branchKey: string): Promise<void> {
+        // If we're already editing this branch then do nothing
+        if (this.activeBranchContext != null
+            && this.activeBranchContext.modelSetKey == modelSetKey
+            && this.activeBranchContext.coordSetKey == coordSetKey
+            && this.activeBranchContext.branchTuple.key == branchKey) {
+            return;
+        }
+
         let prom: any = this.getOrCreateBranch(modelSetKey, coordSetKey, branchKey)
             .catch(e => this._startEditingWithContextObservable.error(e))
             .then((context: any) => {

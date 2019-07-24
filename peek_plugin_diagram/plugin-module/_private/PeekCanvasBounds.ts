@@ -1,4 +1,3 @@
-
 // ---------------------------------------------------------------------------
 // PeekCanvasBounds
 // ---------------------------------------------------------------------------
@@ -49,7 +48,7 @@ export class PeekCanvasBounds {
     }
 
     // Class method
-    static fromPoints(points:{x:number,y:number}[]) {
+    static fromPoints(points: { x: number, y: number }[]) {
         let geom = [];
         for (let point of points) {
             geom.push(point.x);
@@ -60,41 +59,66 @@ export class PeekCanvasBounds {
 
     // Class method
     static fromGeom(geom) {
-        let self = new PeekCanvasBounds();
+        const self = new PeekCanvasBounds();
 
-        let firstPointX = geom[0]; // get details of point
-        let firstPointY = geom[1]; // get details of point
+        self.x = geom[0]; // Low x
+        self.y = geom[1]; // Upper x
+        self.w = 0;
+        self.h = 0;
 
-        let lx = firstPointX; // Low x
-        let ux = firstPointX; // Upper x
-        let ly = firstPointY; // Low y
-        let uy = firstPointY; // Upper y
+        self.increaseFromGeom(geom);
 
+        return self;
+    }
 
-        for (let i = 2; i < geom.length; i += 2) {
+    increaseFromGeom(geom) {
+        let ux = this.x + this.w;
+        let uy = this.y + this.h;
+
+        for (let i = 0; i < geom.length; i += 2) {
             let pointX = geom[i];
             let pointY = geom[i + 1];
 
             // Work out our bounds
-            if (pointX < lx)
-                lx = pointX;
+            if (pointX < this.x)
+                this.x = pointX;
 
             if (ux < pointX)
                 ux = pointX;
 
-            if (pointY < ly)
-                ly = pointY;
+            if (pointY < this.y)
+                this.y = pointY;
 
             if (uy < pointY)
                 uy = pointY;
         }
 
-        self.x = lx;
-        self.y = ly;
-        self.w = ux - lx;
-        self.h = uy - ly;
+        this.w = ux - this.x;
+        this.h = uy - this.y;
+    };
 
-        return self;
+    increaseFromBounds(bounds) {
+        let ux = this.x + this.w;
+        let uy = this.y + this.h;
+
+        const oux = bounds.x + bounds.w;
+        const ouy = bounds.y + bounds.h;
+
+        // Work out our bounds
+        if (bounds.x < this.x)
+            this.x = bounds.x;
+
+        if (ux < oux)
+            ux = oux;
+
+        if (bounds.y < this.y)
+            this.y = bounds.y;
+
+        if (uy < ouy)
+            uy = ouy;
+
+        this.w = ux - this.x;
+        this.h = uy - this.y;
     };
 
     contains(x, y, margin) {
@@ -139,14 +163,15 @@ export class PeekCanvasBounds {
         return this.w * this.h;
     };
 
-    center(): {x:number,y:number} {
+    center(): { x: number, y: number } {
         return {
             x: this.x + this.w / 2,
             y: this.y + this.h / 2
         };
     };
 
-    distanceFromPoint(point: {x:number,y:number}): number {
+
+    distanceFromPoint(point: { x: number, y: number }): number {
         let center = this.center();
         return Math.sqrt(
             Math.pow(center.x - point.x, 2)

@@ -6,18 +6,21 @@ import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {DispBase, DispType, PointI} from "../canvas-shapes/DispBase";
 import {PeekDispRenderDelegateNull} from "./PeekDispRenderDelegateNull.web";
 import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
+import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
+import {DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
 
 
 export class PeekDispRenderFactory {
     private _delegatesByType: {};
 
-    constructor(private config: PeekCanvasConfig) {
+    constructor(private config: PeekCanvasConfig,
+                private model: PeekCanvasModel) {
 
-        let polyDelegate = new PeekDispRenderDelegatePoly(config);
-        let textDelegate = new PeekDispRenderDelegateText(config);
-        let ellipseDelegate = new PeekDispRenderDelegateEllipse(config);
-        let groupPtrDelegate = new PeekDispRenderDelegateGroupPtr(config);
-        let nullDelegate = new PeekDispRenderDelegateNull(config);
+        let polyDelegate = new PeekDispRenderDelegatePoly(config, model);
+        let textDelegate = new PeekDispRenderDelegateText(config, model);
+        let ellipseDelegate = new PeekDispRenderDelegateEllipse(config, model);
+        let groupPtrDelegate = new PeekDispRenderDelegateGroupPtr(config, model);
+        let nullDelegate = new PeekDispRenderDelegateNull(config, model);
 
         this._delegatesByType = {};
         this._delegatesByType[DispBase.TYPE_DT] = textDelegate;
@@ -51,17 +54,39 @@ export class PeekDispRenderFactory {
             delegate.draw(disp, ctx, zoom, pan, drawMode);
 
         // Update the bounds of all shapes
-        if (disp.bounds == null)
-            delegate.updateBounds(disp, zoom);
+        this.updateBounds(disp, delegate, zoom);
 
         // Show invisible objects
         if (drawMode == DrawModeE.ForEdit)
             this.drawInvisible(disp, ctx, zoom, pan);
     };
 
-    private drawInvisible(disp, ctx, zoom: number, pan: PointI) {
-        if (DispBase.hasColor(disp))
+    private updateBounds(disp, delegate, zoom): void {
+        // if (disp.bounds != null)
+        //     return;
+
+        delegate.updateBounds(disp, zoom);
+
+        if (DispBase.typeOf(disp) != DispType.groupPointer)
             return;
+
+        if ((<DispGroupPointerT>disp).disps == null)
+            return;
+
+        for (const childDisp of (<DispGroupPointerT>disp).disps) {
+            const childDelegate = this._delegatesByType[disp._tt];
+            this.updateBounds(childDisp, childDelegate, zoom);
+            disp.bounds.increaseFromBounds(childDisp.bounds);
+        }
+
+    }
+
+    private drawInvisible(disp, ctx, zoom: number, pan: PointI) {
+        // if (DispBase.groupId(disp) != null)
+        //     return;
+        //
+        // if (DispBase.hasColor(disp))
+        //     return;
 
         if (!disp.bounds)
             return;

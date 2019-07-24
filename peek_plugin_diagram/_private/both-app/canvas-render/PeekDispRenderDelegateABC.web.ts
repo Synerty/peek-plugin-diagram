@@ -2,6 +2,7 @@ import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
 import {DispFactory} from "../canvas-shapes/DispFactory";
+import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 
 export enum DrawModeE {
     ForView = 1,
@@ -11,11 +12,12 @@ export enum DrawModeE {
 
 export abstract class PeekDispRenderDelegateABC {
 
-    protected constructor(protected config: PeekCanvasConfig) {
+    protected constructor(protected config: PeekCanvasConfig,
+                          protected model: PeekCanvasModel) {
 
     }
 
-    abstract updateBounds(disp: DispBaseT, zoom: number): void ;
+    abstract updateBounds(disp: DispBaseT, zoom: number, ): void ;
 
     abstract draw(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) ;
 

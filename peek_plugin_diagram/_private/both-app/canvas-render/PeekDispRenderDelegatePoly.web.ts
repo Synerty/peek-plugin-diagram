@@ -5,11 +5,13 @@ import {DispBase, DispBaseT, DispType, PointI} from "../canvas-shapes/DispBase";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {DispPolyline, DispPolylineEndTypeE, DispPolylineT} from "../canvas-shapes/DispPolyline";
 import {DispPoly} from "../canvas-shapes/DispPoly";
+import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 
 export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
-    constructor(config: PeekCanvasConfig) {
-        super(config);
+    constructor(config: PeekCanvasConfig,
+                model: PeekCanvasModel) {
+        super(config, model);
 
     }
 

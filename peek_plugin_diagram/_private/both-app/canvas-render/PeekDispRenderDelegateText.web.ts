@@ -9,13 +9,15 @@ import {
 import {pointToPixel} from "../DiagramUtil";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
+import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 
 export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 
     private textMeasureCtx;
 
-    constructor(config: PeekCanvasConfig) {
-        super(config);
+    constructor(config: PeekCanvasConfig,
+                model: PeekCanvasModel) {
+        super(config, model);
 
         // Create a canvas element for measuring text
         let canvas = document.createElement('canvas');
@@ -173,7 +175,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
             return;
 
         // DRAW THE SELECTED BOX
-        let selectionConfig =  this.config.getSelectionDrawDetailsForDrawMode(drawMode);
+        let selectionConfig = this.config.getSelectionDrawDetailsForDrawMode(drawMode);
 
         // Move the selection line a bit away from the object
         let offset = (selectionConfig.width + selectionConfig.lineGap) / zoom;

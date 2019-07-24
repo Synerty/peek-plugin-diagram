@@ -404,10 +404,11 @@ export class BranchTuple extends Tuple {
     toJsonField(value: any,
                 jsonDict: {} | null = null,
                 name: string | null = null): any {
+        const DispBase = require("peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
         if (name != "packedJson__")
             return Tuple.prototype.toJsonField(value, jsonDict, name);
 
-        let convertedValue = deepCopy(value);
+        const convertedValue = deepCopy(value, DispBase.DEEP_COPY_FIELDS_TO_IGNORE);
 
         let disps = convertedValue[BranchTuple.__DISPS_NUM];
 
@@ -421,10 +422,6 @@ export class BranchTuple extends Tuple {
 
                 // Delete all the linked lookups, we just want the IDs
                 else if (dispval['__rst'] != null) // VortexJS Serialise Class Type
-                    delete disp[key];
-
-                // Delete Bounds this is UI only
-                else if (key == 'bounds')
                     delete disp[key];
 
                 // // Reset temp ID

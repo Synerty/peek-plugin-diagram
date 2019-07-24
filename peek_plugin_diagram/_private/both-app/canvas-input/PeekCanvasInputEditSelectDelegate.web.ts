@@ -7,18 +7,19 @@ import {
 } from "./PeekCanvasInputDelegate.web";
 import {PolylineEnd} from "../canvas/PeekCanvasModelQuery.web";
 import {assert} from "../DiagramUtil";
-import {DispBase, DispBaseT, DispType, PointI} from "../canvas-shapes/DispBase";
+import {
+    DispBase,
+    DispBaseT,
+    DispHandleI,
+    DispType,
+    PointI
+} from "../canvas-shapes/DispBase";
 import {DispPolyline, DispPolylineT} from "../canvas-shapes/DispPolyline";
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DispFactory} from "../canvas-shapes/DispFactory";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
 
-interface HandleI {
-    disp: DispBaseT,
-    handle: PeekCanvasBounds,
-    handleIndex: number
-}
 
 /**
  * This input delegate handles :
@@ -47,7 +48,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     private _mouseDownWithCtrl: boolean = false;
     private _mouseDownMiddleButton: boolean = false;
     private _mouseDownRightButton: boolean = false;
-    private _mouseDownOnHandle: HandleI | null = null;
+    private _mouseDownOnHandle: DispHandleI | null = null;
 
 
     private _selectedDispsToMove: any[] = [];
@@ -493,12 +494,17 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     private _selectByPoint(inputPos: CanvasInputPos) {
         const q = this.viewArgs.model.query;
 
-
+        // Filter for only what the user can see
         let disps = q.filterForVisibleDisps(
             this.viewArgs.model.viewableDisps(),
-            this.viewArgs.config.viewPort.zoom
+            this.viewArgs.config.viewPort.zoom,
+            true
         );
 
+        // Filter out disps that are apart of a group
+        disps = disps.filter(d => DispBase.groupId(d) == null);
+
+        // Filter for shapes that contain the point.
         let hits = q.filterForDispsContainingPoint(disps,
             this.viewArgs.config.viewPort.zoom,
             this.viewArgs.config.mouse.selecting.margin,
@@ -515,7 +521,11 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     }
 
     private _selectByBox(inputPos1: CanvasInputPos, inputPos2: CanvasInputPos) {
+        // Get all shapes.
         let disps = this.viewArgs.model.viewableDisps();
+
+        // Filter out disps that are apart of a group
+        disps = disps.filter(d => DispBase.groupId(d) == null);
 
         let b = PeekCanvasBounds.fromPoints([inputPos1, inputPos2]);
 
@@ -719,7 +729,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     private deltaMoveHandle(delta: CanvasInputDeltaI): void {
         let handle = this._mouseDownOnHandle;
         DispFactory.wrapper(handle.disp)
-            .deltaMoveHandle(handle.disp, handle.handleIndex, delta.dx, delta.dy);
+            .deltaMoveHandle(handle, delta.dx, delta.dy);
 
         this.canvasEditor.branchContext.branchTuple.touchUpdateDate(false);
         this.viewArgs.config.invalidate();
