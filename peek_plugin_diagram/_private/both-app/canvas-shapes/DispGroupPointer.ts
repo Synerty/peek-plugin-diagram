@@ -70,6 +70,8 @@ export class DispGroupPointer extends DispBase {
     }
 
     static rotation(disp: DispGroupPointerT): number {
+        if (disp.r == null)
+            return 0;
         return disp.r;
     }
 

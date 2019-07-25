@@ -14,58 +14,81 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
     }
 
     updateBounds(disp: DispBaseT): void {
-        let group = <DispGroupPointerT>disp;
-        disp.bounds = PeekCanvasBounds.fromPoints([DispGroupPointer.center(group)]);
+        disp.bounds = PeekCanvasBounds.fromGeom(DispGroupPointer.geom(disp));
     }
 
-    draw(dispGroup, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
-        // let b = dispGroup.bounds;
-        //
-        // if (b == null || b.w == 0 || b.w == 0) {
-        //     let geom = [];
-        //     // Draw the items for the group we point to
-        //     for (let dispItem in DispGroupPointer.items(dispGroup)) {
-        //         if (dispItem["g"] != null)
-        //             geom.add(dispItem["g"]);
-        //     }
-        //
-        //     if (geom.length == 0)
-        //         return;
-        //     dispGroup.bounds = PeekCanvasBounds.fromGeom(geom);
-        // }
-        //
-        //
-        // ctx.beginPath();
-        // ctx.moveTo(b.x, b.y);
-        // ctx.lineTo(b.x, b.y + b.h);
-        // ctx.lineTo(b.x + b.w, b.y + b.h);
-        // ctx.lineTo(b.x + b.w, b.y);
-        // ctx.lineTo(b.x, b.y);
-        // ctx.strokeStyle = 'red';
-        // ctx.lineWidth = 5.0 / zoom;
-        // ctx.stroke();
+    draw(disp: DispBaseT, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
 
-        //
-        // // Give more meaning to our short field names
-        // let pointX = dispGroup.g[0];
-        // let pointY = dispGroup.g[1];
-        // let rotation = dispGroup.r / 180.0 * Math.PI;
-        // let verticalScale = DispGroupPointer.verticalScale(dispGroup);
-        // let horizontalScale = DispGroupPointer.horizontalScale(dispGroup);
-        //
-        // ctx.save();
-        // ctx.translate(pointX, pointY);
-        // ctx.rotate(rotation);
-        // ctx.scale(verticalScale, horizontalScale);
-        //
-        // // Draw the items for the group we point to
-        // for (let dispItem in DispGroupPointer.items(dispGroup)) {
-        //     this.renderFactory.draw(dispItem, ctx, zoom, pan);
-        // }
-        //
-        // ctx.restore();
-        //
-        // disp.bounds = PeekCanvasBounds.fromGeom(disp.g);
+        const dispGroup = <DispGroupPointerT>disp;
+        if (DispGroupPointer.targetGroupName(dispGroup) != null)
+            return;
+
+        this.drawNoTarget(dispGroup, ctx, zoom, pan, drawMode);
+    }
+
+    /** Draw No Target
+     *
+     * If the DispGroup is unset and invisible, then we need to draw something to
+     * show that it's there.
+     *
+     * @param dispGroup
+     * @param ctx
+     * @param zoom
+     * @param pan
+     * @param drawMode
+     */
+    private drawNoTarget(dispGroup: DispGroupPointerT, ctx,
+                         zoom: number, pan: PointI, drawMode: DrawModeE) {
+        if (drawMode != DrawModeE.ForEdit)
+            return;
+
+        const box = PeekCanvasBounds.fromGeom(DispGroupPointer.geom(dispGroup));
+        const selectionConfig = this.config.renderer.editSelection;
+
+        // We'll use the margin from the selected config if there is just one point.
+        if (box.w == 0) {
+            let offset = (selectionConfig.width + selectionConfig.lineGap) / zoom;
+            box.x -= offset;
+            box.y -= offset;
+            box.w = 2 * offset;
+            box.h = 2 * offset;
+        }
+
+        const rotation = DispGroupPointer.rotation(dispGroup);
+        const center = box.center();
+
+
+        ctx.save();
+        if (rotation != 0) {
+            ctx.translate(center.x, center.y);
+            ctx.rotate(rotation * Math.PI / 180);
+            ctx.translate(-center.x, -center.y);
+        }
+
+        ctx.beginPath();
+        // Top left to Bottom right
+        ctx.moveTo(box.x, box.y);
+        ctx.lineTo(box.x + box.w, box.y + box.h);
+
+        // Bottom left to top right
+        ctx.moveTo(box.x, box.y + box.h);
+        ctx.lineTo(box.x + box.w, box.y);
+
+        ctx.strokeStyle = selectionConfig.color;
+        ctx.lineWidth = selectionConfig.width / zoom;
+        ctx.stroke();
+
+        // Show an indication of rotation
+        ctx.beginPath();
+        // Top left to Bottom right
+        ctx.moveTo(box.x, box.y);
+        ctx.lineTo(box.x + box.w / 2, box.y + box.h / 2);
+
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = selectionConfig.width / zoom;
+        ctx.stroke();
+
+        ctx.restore();
 
     };
 
@@ -96,12 +119,17 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
 
         // DRAW THE EDIT HANDLES
         ctx.fillStyle = this.config.editor.selectionHighlightColor;
-        let handles = this.handles(disp);
-        for (const h of handles) {
-            ctx.beginPath();
-            ctx.arc(h.x + h.w / 2, h.y + h.h / 2, h.h / 2, 0, 2 * Math.PI);
-            ctx.fill();
-        }
+        const handles = this.handles(disp);
+
+        const h1 = handles[0];
+        ctx.beginPath();
+        ctx.arc(h1.x + h1.w / 2, h1.y + h1.h / 2, h1.h / 2, 0, 2 * Math.PI);
+        ctx.fill();
+
+        const h2 = handles[1];
+        ctx.beginPath();
+        ctx.rect(h2.x, h2.y, h2.w, h2.h);
+        ctx.fill();
     }
 
 }
