@@ -1,4 +1,10 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    Input,
+    OnInit
+} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {BranchDetailTuple, BranchService} from "@peek/peek_plugin_branch";
 
@@ -19,7 +25,8 @@ import {DispBase} from "../canvas-shapes/DispBase";
     selector: 'pl-diagram-branch-detail',
     templateUrl: 'branch-detail.component.web.html',
     styleUrls: ['branch-detail.component.web.scss'],
-    moduleId: module.id
+    moduleId: module.id,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BranchDetailComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
@@ -61,7 +68,8 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
 
     private diagramPosService: PrivateDiagramPositionService;
 
-    constructor(private docDbService: DocDbService,
+    constructor(private cd: ChangeDetectorRef,
+                private docDbService: DocDbService,
                 diagramPosService: DiagramPositionService,
                 private branchService: PrivateDiagramBranchService,
                 private globalBranchService: BranchService) {
@@ -122,11 +130,13 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
                 this.diagramBranch = diagramBranch.branchTuple;
                 this.loadDiagramBranchDisps();
                 this.loadDiagramBranchAnchorKeys();
+                this.cd.detectChanges();
             });
     }
 
     private loadDiagramBranchDisps() {
         this.disps = this.diagramBranch.disps.filter(d => DispBase.groupId(d) == null);
+        this.cd.detectChanges();
     }
 
     private loadDiagramBranchAnchorKeys() {
@@ -147,6 +157,7 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
                     }
                     this.anchorDocs.push(props);
                 }
+                this.cd.detectChanges();
             });
     }
 
@@ -159,8 +170,7 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
     }
 
     dispDesc(disp): string[] {
-        return (DispFactory.wrapper(disp).makeShapeStr(disp)
-        ).split('\n');
+        return (DispFactory.wrapper(disp).makeShapeStr(disp)).split('\n');
     }
 
     positonAnchorOnDiagram(props: any[]): void {

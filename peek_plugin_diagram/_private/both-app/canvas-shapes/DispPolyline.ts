@@ -8,6 +8,7 @@ import {
 import {DispTextT} from "./DispText";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
 import {DispColor} from "@peek/peek_plugin_diagram/lookups";
+import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 
 
 export interface DispPolylineT extends DispPolyT {
@@ -142,14 +143,7 @@ export class DispPolyline extends DispPoly {
     }
 
     static center(disp): PointI {
-        const pointCount = disp.g.length / 2;
-        let x = 0;
-        let y = 0;
-        for (const i = 0; i < disp.g.length - 2; i + 2) {
-            x += disp.g[i];
-            y += disp.g[i + 1];
-        }
-        return {x: x / pointCount, y: y / pointCount};
+        return PeekCanvasBounds.fromGeom( disp.g).center();
     }
 
     static firstPoint(disp): PointI {
