@@ -288,10 +288,11 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     drawEditHandles(disp, ctx, zoom: number, pan: PointI) {
         // DRAW THE EDIT HANDLES
         ctx.fillStyle = this.config.editor.selectionHighlightColor;
-        let handles = this.handles(disp);
-        for (const h of handles) {
+        const handles = this.handles(disp);
+        for (const handle of handles) {
+            const b = handle.box;
             ctx.beginPath();
-            ctx.arc(h.x + h.w / 2, h.y + h.h / 2, h.h / 2, 0, 2 * Math.PI);
+            ctx.arc(b.x + b.w / 2, b.y + b.h / 2, b.h / 2, 0, 2 * Math.PI);
             ctx.fill();
         }
 

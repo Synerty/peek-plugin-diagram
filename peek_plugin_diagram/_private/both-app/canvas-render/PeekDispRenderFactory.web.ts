@@ -3,7 +3,7 @@ import {PeekDispRenderDelegateText} from "./PeekDispRenderDelegateText.web";
 import {PeekDispRenderDelegateEllipse} from "./PeekDispRenderDelegateEllipse.web";
 import {PeekDispRenderDelegateGroupPtr} from "./PeekDispRenderDelegateGroupPtr.web";
 import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
-import {DispBase, DispType, PointI} from "../canvas-shapes/DispBase";
+import {DispBase, DispHandleI, DispType, PointI} from "../canvas-shapes/DispBase";
 import {PeekDispRenderDelegateNull} from "./PeekDispRenderDelegateNull.web";
 import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
@@ -82,11 +82,11 @@ export class PeekDispRenderFactory {
     }
 
     private drawInvisible(disp, ctx, zoom: number, pan: PointI) {
-        // if (DispBase.groupId(disp) != null)
-        //     return;
-        //
-        // if (DispBase.hasColor(disp))
-        //     return;
+        if (DispBase.groupId(disp) != null)
+            return;
+
+        if (DispBase.hasColor(disp))
+            return;
 
         if (!disp.bounds)
             return;
@@ -118,7 +118,7 @@ export class PeekDispRenderFactory {
         return false;
     };
 
-    handles(disp) {
+    handles(disp) :DispHandleI[]{
         return this._delegatesByType[disp._tt].handles(disp);
     };
 }

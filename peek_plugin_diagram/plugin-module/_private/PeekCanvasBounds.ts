@@ -98,27 +98,28 @@ export class PeekCanvasBounds {
     };
 
     increaseFromBounds(bounds) {
-        let ux = this.x + this.w;
-        let uy = this.y + this.h;
 
-        const oux = bounds.x + bounds.w;
-        const ouy = bounds.y + bounds.h;
+        let rx = this.x + this.w; // Right X
+        let by = this.y + this.h; // Bottom Y
+
+        const orx = bounds.x + bounds.w; // Right X
+        const oby = bounds.y + bounds.h; // Bottom Y
 
         // Work out our bounds
         if (bounds.x < this.x)
             this.x = bounds.x;
 
-        if (ux < oux)
-            ux = oux;
+        if (rx < orx)
+            rx = orx;
 
         if (bounds.y < this.y)
             this.y = bounds.y;
 
-        if (uy < ouy)
-            uy = ouy;
+        if (by < oby)
+            by = oby;
 
-        this.w = ux - this.x;
-        this.h = uy - this.y;
+        this.w = rx - this.x;
+        this.h = by - this.y;
     };
 
     contains(x, y, margin) {

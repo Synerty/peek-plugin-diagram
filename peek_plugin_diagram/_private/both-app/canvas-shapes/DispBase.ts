@@ -7,18 +7,27 @@ import {
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 import {deepCopy} from "@synerty/vortexjs/src/vortex/UtilMisc";
-import {rotatePointAboutCenter} from "./DispUtil";
+import {movePointFurtherFromPoint, rotatePointAboutCenter} from "./DispUtil";
 
 export interface PointI {
     x: number;
     y: number;
 }
 
+export enum DispHandleTypeE {
+    freeRotate,
+    snapRotate,
+    movePoint,
+    resizeShape
+}
+
 export interface DispHandleI {
     disp: DispBaseT,
-    handle: PeekCanvasBounds,
-    handleIndex: number,
-    lastDeltaPoint?: PointI
+    center: PointI,
+    handleType:DispHandleTypeE,
+    box?: PeekCanvasBounds,
+    handleIndex?: number | null,
+    lastDeltaPoint?: PointI | null
 }
 
 export enum DispType {
@@ -127,6 +136,10 @@ export abstract class DispBase {
 
     static typeOf(disp): DispType {
         return DispBase.typeMap[disp._tt][0];
+    }
+
+    static resetMoveData(disp): void {
+        // Nothing in DispBase to reset
     }
 
     static hasColor(disp: any) {
@@ -290,10 +303,12 @@ export abstract class DispBase {
     // ---------------
     // Create Handles
 
-    static handlePoints(disp, margin: number): PointI[] {
+    static handlePoints(disp, margin: number): DispHandleI[] {
         console.log(`ERROR: Handles not implemented for ${DispBase.typeOf(disp)}`);
         return [];
     }
+
+
 
     // ---------------
     // Create Method

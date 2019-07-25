@@ -1,6 +1,6 @@
 import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
-import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
+import {DispBaseT, DispHandleI, PointI} from "../canvas-shapes/DispBase";
 import {DispFactory} from "../canvas-shapes/DispFactory";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 
@@ -17,7 +17,7 @@ export abstract class PeekDispRenderDelegateABC {
 
     }
 
-    abstract updateBounds(disp: DispBaseT, zoom: number, ): void ;
+    abstract updateBounds(disp: DispBaseT, zoom: number,): void ;
 
     abstract draw(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) ;
 
@@ -25,22 +25,25 @@ export abstract class PeekDispRenderDelegateABC {
 
     abstract drawEditHandles(disp, ctx, zoom: number, pan: PointI) ;
 
-    handles(disp): PeekCanvasBounds[] {
+    handles(disp:DispBaseT): DispHandleI[] {
         const margin = this.config.editor.resizeHandleMargin;
         const width = this.config.editor.resizeHandleWidth;
 
-        const handleCenters = DispFactory.wrapper(disp).handlePoints(disp, margin + width);
+        const handles: DispHandleI[] = DispFactory.wrapper(disp)
+            .handlePoints(disp, margin + width);
 
         const halfWidth = width / 2.0;
 
-        const results: PeekCanvasBounds[] = [];
-        for (let p of handleCenters) {
-            results.push(
-                new PeekCanvasBounds(p.x - halfWidth, p.y - halfWidth, width, width)
+        return handles.map((handle: DispHandleI, index: number) => {
+            handle.box = new PeekCanvasBounds(
+                handle.center.x - halfWidth,
+                handle.center.y - halfWidth,
+                width, width
             );
-        }
+            handle.handleIndex = index;
 
-        return results;
+            return handle;
+        });
     }
 
 

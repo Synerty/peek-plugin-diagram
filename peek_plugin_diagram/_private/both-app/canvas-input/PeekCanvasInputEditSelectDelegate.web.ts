@@ -175,12 +175,8 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             let handles = this.viewArgs.renderFactory.handles(disp);
             for (let j = 0; j < handles.length; j++) {
                 let handle = handles[j];
-                if (handle.contains(inputPos.x, inputPos.y, margin)) {
-                    this._mouseDownOnHandle = {
-                        disp: disp,
-                        handle: handle,
-                        handleIndex: j
-                    };
+                if (handle.box.contains(inputPos.x, inputPos.y, margin)) {
+                    this._mouseDownOnHandle = handle;
                     break;
                 }
             }
@@ -561,8 +557,10 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
                 this.viewArgs.model.selection.replaceSelection(hits);
         }
 
-        for (let disp of this.viewArgs.model.selection.selectedDisps())
-            console.log(disp);
+        for (const disp of this.viewArgs.model.selection.selectedDisps()) {
+            DispFactory.wrapper(disp).resetMoveData(disp);
+            // console.log(disp);
+        }
 
     }
 

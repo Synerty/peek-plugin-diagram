@@ -95,10 +95,7 @@ export class PrivateDiagramBranchContext {
                 if (tuples.length == 0)
                     return;
 
-                let update = tuples[0];
-                console.log("FIX DIAGRAM LOGIN - LIVE UPDATE");
-                // if (update.updatedByUser == this.userKey())
-                //     return;
+                const update = tuples[0];
 
                 if (update.updateFromSave) {
                     this.branchLocalLoader.saveBranch(this)

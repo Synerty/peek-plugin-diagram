@@ -6,7 +6,7 @@ import {
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DispPoly} from "../canvas-shapes/DispPoly";
-import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
+import {DispBaseT, DispHandleTypeE, PointI} from "../canvas-shapes/DispBase";
 import {DispPolygon} from "../canvas-shapes/DispPolygon";
 import {DispPolyline, DispPolylineEndTypeE} from "../canvas-shapes/DispPolyline";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
@@ -178,7 +178,9 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         DispPoly.deltaMoveHandle(
             {
                 disp: this._creating,
-                handle: handleBounds,
+                center: handleBounds.center(),
+                box: handleBounds,
+                handleType:DispHandleTypeE.movePoint,
                 handleIndex: DispPoly.pointCount(this._creating) - 1,
             },
             delta.dx, delta.dy

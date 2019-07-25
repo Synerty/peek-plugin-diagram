@@ -1,14 +1,10 @@
-import {DispBase, DispBaseT, DispHandleI, PointI} from "./DispBase";
+import {DispBase, DispBaseT, DispHandleI, PointI, PointsT} from "./DispBase";
 import {PeekCanvasShapePropsContext} from "../canvas/PeekCanvasShapePropsContext";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 import {DispGroup, DispGroupT} from "./DispGroup";
 import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
-import {
-    calculateRotationAfterPointMove,
-    movePointFurtherFromPoint,
-    rotatePointAboutCenter
-} from "./DispUtil";
+import {calculateRotationFromHandleDelta, makeRotateHandlePoints} from "./DispUtilRotate";
 
 export interface DispGroupPointerT extends DispBaseT {
 
@@ -27,6 +23,9 @@ export interface DispGroupPointerT extends DispBaseT {
     // Rotation
     r: number;
 
+    // Temporary rotation, used for edit support
+    tempRotation: number | null;
+
     // Disps that belong to this disp group
     // Set by the model compiler
     // COMPUTED PROPERTY, it's computed somewhere
@@ -35,6 +34,11 @@ export interface DispGroupPointerT extends DispBaseT {
 }
 
 export class DispGroupPointer extends DispBase {
+
+    static resetMoveData(disp): void {
+        disp.tempRotation = null;
+        DispBase.resetMoveData(disp);
+    }
 
     static targetGroupId(disp: DispGroupPointerT): number {
         return disp.tg;
@@ -87,51 +91,33 @@ export class DispGroupPointer extends DispBase {
         disp.g = [x, y];
     }
 
+    static geom(disp): PointsT {
+        return disp.g;
+    }
+
     // ---------------
     // Delta move helpers
 
 
-    static deltaMoveHandle(handle: DispHandleI, dx: number, dy: number) {
+    static deltaMoveHandle(handle: DispHandleI, dx: number, dy: number): void {
         const disp = <DispGroupPointerT>handle.disp;
-        if (disp.g == null)
-            return;
-
-        if (handle.handleIndex != 0) {
-            console.log("ERROR: DispGroup only has one handle, "
-                + `${handle.handleIndex} passed`);
-            return;
-        }
-
         const center = DispGroupPointer.center(disp);
 
-        if (handle.lastDeltaPoint == null) {
-            const startPoint: PointI = handle.handle.center();
-            handle.lastDeltaPoint = {
-                x: startPoint.x,
-                y: startPoint.y
-            };
-        }
+        const data = calculateRotationFromHandleDelta(handle,
+            dx, dy, DispGroupPointer.rotation(disp), disp.tempRotation, center);
 
-        const nextPoint = {
-            x: handle.lastDeltaPoint.x + dx,
-            y: handle.lastDeltaPoint.y + dy
-        };
+        if (data == null)
+            return;
 
-        const rotationDegrees = calculateRotationAfterPointMove(
-            center, handle.lastDeltaPoint, nextPoint
-        );
 
-        handle.lastDeltaPoint = nextPoint;
-
-        console.log(disp.r);
-
-        DispGroupPointer.setRotation(disp,
-            DispGroupPointer.rotation(disp) + rotationDegrees);
-
+        // We've rotate the disps, now store the current rotation
+        DispGroupPointer.setRotation(disp, data.newRotation);
+        disp.tempRotation = data.tempRotation;
 
         for (const childDisp of disp.disps) {
-            DispBase.rotateAboutAxis(childDisp, center, rotationDegrees);
+            DispBase.rotateAboutAxis(childDisp, center, data.deltaRotation);
         }
+
     }
 
     static rotateAboutAxis(disp, center: PointI, rotationDegrees: number) {
@@ -254,28 +240,10 @@ export class DispGroupPointer extends DispBase {
         branchTuple.addNewDisps(newDisps);
     }
 
-    static handlePoints(disp, margin: number): PointI[] {
-        const bounds = disp.bounds;
-        if (bounds == null) {
-            console.log("No bounds, exiting");
-            return [];
-        }
-
-        const cp = DispGroupPointer.center(disp);
-        const maxRadius = Math.max.apply(Math, [
-            Math.hypot(bounds.x + bounds.w - cp.x, cp.y - bounds.y),
-            Math.hypot(cp.x - bounds.x, bounds.y + bounds.h - cp.y),
-            Math.hypot(bounds.x + bounds.w - cp.x, cp.y - bounds.y),
-            Math.hypot(cp.x - bounds.x, bounds.y + bounds.h - cp.y)
-        ]);
-
-        let handle = {x: cp.x, y: cp.y + maxRadius};
-        const rotationDegrees = DispGroupPointer.rotation(disp);
-
-        if (rotationDegrees != 0)
-            handle = rotatePointAboutCenter(cp, handle, rotationDegrees + 5);
-
-        handle = movePointFurtherFromPoint(cp, handle, margin);
-        return [handle];
+    static handlePoints(disp, margin: number): DispHandleI[] {
+        return makeRotateHandlePoints(disp, margin,
+            DispGroupPointer.center(disp),
+            DispGroupPointer.rotation(disp)
+        );
     }
 }

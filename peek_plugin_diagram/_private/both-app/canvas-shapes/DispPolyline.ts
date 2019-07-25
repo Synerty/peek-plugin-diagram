@@ -1,5 +1,5 @@
 import {DispPoly, DispPolyT} from "./DispPoly";
-import {DispBase, DispType, PointI} from "./DispBase";
+import {DispBase, DispHandleI, DispHandleTypeE, DispType, PointI} from "./DispBase";
 import {
     PeekCanvasShapePropsContext,
     ShapeProp,
@@ -7,7 +7,7 @@ import {
 } from "../canvas/PeekCanvasShapePropsContext";
 import {DispTextT} from "./DispText";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
-import {DispColor, DispLineStyle} from "@peek/peek_plugin_diagram/lookups";
+import {DispColor} from "@peek/peek_plugin_diagram/lookups";
 
 
 export interface DispPolylineT extends DispPolyT {
@@ -288,7 +288,7 @@ export class DispPolyline extends DispPoly {
         return handleIndex == DispPolyline.geom(disp).length / 2 - 1;
     }
 
-    static handlePoints(disp, margin: number): PointI[] {
+    static handlePoints(disp, margin: number): DispHandleI[] {
         let result = [];
 
         let points = DispPolyline.geom(disp);
@@ -300,7 +300,11 @@ export class DispPolyline extends DispPoly {
 
             let multiplier = margin / hypot;
 
-            result.push({x: p.x + adj * multiplier, y: p.y + opp * multiplier});
+            result.push({
+                disp: disp,
+                center: {x: p.x + adj * multiplier, y: p.y + opp * multiplier},
+                handleType: DispHandleTypeE.movePoint
+            });
         }
 
 

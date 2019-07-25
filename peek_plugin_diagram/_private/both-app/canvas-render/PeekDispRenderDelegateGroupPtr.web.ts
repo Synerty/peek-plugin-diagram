@@ -1,6 +1,6 @@
 import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {DrawModeE, PeekDispRenderDelegateABC} from "./PeekDispRenderDelegateABC.web";
-import {DispBaseT, PointI} from "../canvas-shapes/DispBase";
+import {DispBaseT, DispHandleTypeE, PointI} from "../canvas-shapes/DispBase";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {DispGroupPointer, DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
@@ -121,15 +121,23 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
         ctx.fillStyle = this.config.editor.selectionHighlightColor;
         const handles = this.handles(disp);
 
-        const h1 = handles[0];
-        ctx.beginPath();
-        ctx.arc(h1.x + h1.w / 2, h1.y + h1.h / 2, h1.h / 2, 0, 2 * Math.PI);
-        ctx.fill();
+        for (const handle of handles) {
+            const b = handle.box;
+            ctx.beginPath();
+            switch (handle.handleType) {
+                case DispHandleTypeE.freeRotate:
+                    ctx.arc(b.x + b.w / 2, b.y + b.h / 2, b.h / 2, 0, 2 * Math.PI);
+                    break;
+                case DispHandleTypeE.snapRotate:
+                    ctx.rect(b.x, b.y, b.w, b.h);
+                    break;
+                default:
+                    // pass
+                    break;
+            }
+            ctx.fill();
+        }
 
-        const h2 = handles[1];
-        ctx.beginPath();
-        ctx.rect(h2.x, h2.y, h2.w, h2.h);
-        ctx.fill();
     }
 
 }
