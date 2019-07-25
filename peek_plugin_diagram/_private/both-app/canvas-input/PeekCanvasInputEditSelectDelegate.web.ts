@@ -19,6 +19,7 @@ import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DispFactory} from "../canvas-shapes/DispFactory";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
+import {DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
 
 
 /**
@@ -461,12 +462,22 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this._state = this.STATE_MOVING_HANDLE;
 
         const h = this._mouseDownOnHandle;
-        if (DispPolyline.isStartHandle(h.disp, h.handleIndex)
+        if (DispBase.typeOf(h.disp) == DispType.groupPointer) {
+            this.prepareDispGroupHandleRotate();
+
+        } else if (DispPolyline.isStartHandle(h.disp, h.handleIndex)
             || DispPolyline.isEndHandle(h.disp, h.handleIndex)) {
-            this.prepareHandleMove();
+            this.prepareDispPolyHandleMove();
+
         }
 
         this.addDispsToBranchForUpdate(inputPos);
+
+        // When the above method copies the object the handle is for,
+        // we need to update the handle.
+        const selection = this.viewArgs.model.selection.selectedDisps();
+        if (selection.length != 0)
+            h.disp = selection[0];
     }
 
     private finishStateMovingHandle() {
@@ -567,7 +578,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     // ------------------------------------------------------------------------
     // Methods for setting the selection based on hits
 
-    private prepareHandleMove() {
+    private prepareDispPolyHandleMove() {
         this._selectedDispsToMove = [];
         this._selectedPolylineEnds = [];
 
@@ -607,6 +618,30 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         ends.add(q.polylinesConnectedToPoint([point]));
 
         this._selectedPolylineEnds = q.uniquePolylineEnds(ends);
+
+    }
+
+    private prepareDispGroupHandleRotate() {
+        this._selectedDispsToMove = [];
+        this._selectedPolylineEnds = [];
+
+        const h = this._mouseDownOnHandle;
+
+        const addDispsToList = (disps: DispBaseT[]): void => {
+            for (const disp of disps) {
+                this._selectedDispsToMove.push(disp);
+                if (DispBase.typeOf(disp) == DispType.groupPointer) {
+                    const childDisps = (<DispGroupPointerT>disp).disps;
+                    if (childDisps != null)
+                        addDispsToList(childDisps);
+                }
+            }
+        };
+
+        assert(DispBase.typeOf(h.disp) == DispType.groupPointer,
+            "DispGroupPtr not provided");
+
+        addDispsToList((<DispGroupPointerT>h.disp).disps)
 
     }
 

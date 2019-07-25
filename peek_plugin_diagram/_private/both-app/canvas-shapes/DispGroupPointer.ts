@@ -29,7 +29,7 @@ export interface DispGroupPointerT extends DispBaseT {
     // Disps that belong to this disp group
     // Set by the model compiler
     // COMPUTED PROPERTY, it's computed somewhere
-    disps: any[];
+    disps: DispBaseT[];
 
 }
 
