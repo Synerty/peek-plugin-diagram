@@ -61,7 +61,7 @@ export class PeekCanvasEditor {
 
                 this.branchContext.open();
 
-                this.canvasInput.setDelegate(PeekCanvasInputEditSelectDelegate, this);
+                this.setInputEditDelegate(PeekCanvasInputEditSelectDelegate);
                 this.canvasModel.selection.clearSelection();
                 this.canvasConfig.editor.active = true;
                 this.canvasConfig.updateEditedBranch(branchContext.branchTuple.key);
@@ -181,7 +181,12 @@ export class PeekCanvasEditor {
 
 
     setInputEditDelegate(Delegate) {
-        this.canvasInput.setDelegate(Delegate, this);
+        this.canvasInput.setDelegate(Delegate, {
+            setEditorSelectTool: () => this.setEditorSelectTool(),
+            branchContext: this.branchContext,
+            editToolbarProps: this.props,
+            lookupService: this.lookupService
+        });
     }
 
 }

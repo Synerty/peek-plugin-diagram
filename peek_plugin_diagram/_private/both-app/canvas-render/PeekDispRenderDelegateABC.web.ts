@@ -3,12 +3,9 @@ import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {DispBaseT, DispHandleI, PointI} from "../canvas-shapes/DispBase";
 import {DispFactory} from "../canvas-shapes/DispFactory";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
+import {DrawModeE} from "./PeekDispRenderDrawModeE.web";
+export {DrawModeE} from "./PeekDispRenderDrawModeE.web";
 
-export enum DrawModeE {
-    ForView = 1,
-    ForEdit = 2,
-    ForSuggestion = 3
-}
 
 export abstract class PeekDispRenderDelegateABC {
 

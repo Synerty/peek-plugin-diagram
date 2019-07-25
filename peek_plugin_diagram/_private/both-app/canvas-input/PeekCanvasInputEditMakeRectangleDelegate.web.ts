@@ -1,6 +1,6 @@
 import {
     CanvasInputPos,
-    InputDelegateConstructorArgs,
+    InputDelegateConstructorViewArgs,
     PeekCanvasInputDelegate
 } from "./PeekCanvasInputDelegate.web";
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
@@ -8,6 +8,7 @@ import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {PointI} from "../canvas-shapes/DispBase";
 import {DispRectangle} from "../canvas-shapes/DispRectangle";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
+import {InputDelegateConstructorEditArgs} from "./PeekCanvasInputDelegateUtil.web";
 
 /**
  * This input delegate handles :
@@ -26,9 +27,9 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
     private _startMousePos: CanvasInputPos | null = null;
 
 
-    constructor(viewArgs: InputDelegateConstructorArgs,
-                canvasEditor: PeekCanvasEditor) {
-        super(viewArgs, canvasEditor, PeekCanvasInputEditMakeRectangleDelegate.TOOL_NAME);
+    constructor(viewArgs: InputDelegateConstructorViewArgs,
+                editArgs: InputDelegateConstructorEditArgs) {
+        super(viewArgs, editArgs, PeekCanvasInputEditMakeRectangleDelegate.TOOL_NAME);
 
         this.viewArgs.model.selection.clearSelection();
         this._reset();
@@ -142,10 +143,10 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
         this._creating = DispRectangle.create(this.viewArgs.config.coordSet);
 
         // Link the Disp
-        this.canvasEditor.lookupService._linkDispLookups(this._creating);
+        this.editArgs.lookupService._linkDispLookups(this._creating);
 
         // Add the shape to the branch
-        this._creating = this.canvasEditor.branchContext.branchTuple
+        this._creating = this.editArgs.branchContext.branchTuple
             .addOrUpdateDisp(this._creating, true);
 
         this.viewArgs.model.recompileModel();
@@ -157,8 +158,8 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
         if (this._creating == null)
             return;
 
-        // this.canvasEditor.props.showShapeProperties();
+        // this.editArgs.editToolbarProps.showShapeProperties();
         this.viewArgs.config.invalidate();
-        this.canvasEditor.setEditorSelectTool();
+        this.editArgs.setEditorSelectTool();
     }
 }

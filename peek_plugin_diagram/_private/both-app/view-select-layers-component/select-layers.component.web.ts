@@ -24,7 +24,7 @@ import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 export class SelectLayersComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
 
-    @ViewChild('modalView') modalView;
+    @ViewChild('modalView', {static: true}) modalView;
 
     private backdropId = 'div.modal-backdrop';
     popupShown: boolean = false;

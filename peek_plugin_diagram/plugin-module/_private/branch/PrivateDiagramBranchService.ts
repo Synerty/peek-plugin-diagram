@@ -5,7 +5,8 @@ import {PrivateDiagramBranchContext} from "../branch/PrivateDiagramBranchContext
 import {BranchTuple} from "../branch/BranchTuple";
 import {BranchIndexLoaderServiceA} from "../branch-loader/BranchIndexLoaderServiceA";
 import {DiagramCoordSetService} from "../../DiagramCoordSetService";
-import {BranchIndexResultI, LocalBranchStorageService} from "../branch-loader";
+import {LocalBranchStorageService} from "../branch-loader/LocalBranchStorageService";
+import {BranchIndexResultI} from "../branch-loader/BranchIndexLoaderService";
 import {ModelCoordSet} from "../tuples";
 import {PrivateDiagramCoordSetService, PrivateDiagramTupleService} from "../services";
 

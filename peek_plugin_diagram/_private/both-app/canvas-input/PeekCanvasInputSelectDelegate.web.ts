@@ -1,13 +1,13 @@
 import {
     CanvasInputPos,
-    InputDelegateConstructorArgs,
+    InputDelegateConstructorViewArgs,
     PeekCanvasInputDelegate
 } from "./PeekCanvasInputDelegate.web";
 import * as assert from "assert";
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
-import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DispBase, DispBaseT, PointI} from "../canvas-shapes/DispBase";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
+import {InputDelegateConstructorEditArgs} from "./PeekCanvasInputDelegateUtil.web";
 
 /**
  * This input delegate handles :
@@ -43,9 +43,9 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     // This is the disp that is shown when you hover over it.
     private suggestedDispToSelect: DispBaseT | null = null;
 
-    constructor(viewArgs: InputDelegateConstructorArgs,
-                canvasEditor: PeekCanvasEditor) {
-        super(viewArgs, canvasEditor, PeekCanvasInputSelectDelegate.TOOL_NAME);
+    constructor(viewArgs: InputDelegateConstructorViewArgs,
+                editArgs: InputDelegateConstructorEditArgs) {
+        super(viewArgs, editArgs, PeekCanvasInputSelectDelegate.TOOL_NAME);
 
         this._reset();
     }

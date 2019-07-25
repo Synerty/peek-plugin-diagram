@@ -2,7 +2,7 @@ import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {
     CanvasInputDeltaI,
     CanvasInputPos,
-    InputDelegateConstructorArgs,
+    InputDelegateConstructorViewArgs,
     PeekCanvasInputDelegate
 } from "./PeekCanvasInputDelegate.web";
 import {PolylineEnd} from "../canvas/PeekCanvasModelQuery.web";
@@ -20,6 +20,7 @@ import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DispFactory} from "../canvas-shapes/DispFactory";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
 import {DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
+import {InputDelegateConstructorEditArgs} from "./PeekCanvasInputDelegateUtil.web";
 
 
 /**
@@ -60,9 +61,9 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     // See mousedown and mousemove events for explanation
     private _startMousePos: CanvasInputPos | null = null;
 
-    constructor(viewArgs: InputDelegateConstructorArgs,
-                canvasEditor: PeekCanvasEditor) {
-        super(viewArgs, canvasEditor, PeekCanvasInputEditSelectDelegate.TOOL_NAME);
+    constructor(viewArgs: InputDelegateConstructorViewArgs,
+                editArgs: InputDelegateConstructorEditArgs) {
+        super(viewArgs, editArgs, PeekCanvasInputEditSelectDelegate.TOOL_NAME);
 
         this._reset();
     }
@@ -95,8 +96,8 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         let groupSelections = this.viewArgs.model.query.dispsInSelectedGroups;
         this.viewArgs.model.selection.clearSelection();
 
-        this.canvasEditor.branchContext.branchTuple.removeDisps(disps);
-        this.canvasEditor.branchContext.branchTuple.removeDisps(groupSelections);
+        this.editArgs.branchContext.branchTuple.removeDisps(disps);
+        this.editArgs.branchContext.branchTuple.removeDisps(groupSelections);
     }
 
     // ------------------------------------------------------------------------
@@ -709,14 +710,14 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         let primarySelections = this.viewArgs.model.selection.selectedDisps();
         let groupSelections = this._selectedDispsToMove;
 
-        primarySelections = this.canvasEditor.branchContext.branchTuple
+        primarySelections = this.editArgs.branchContext.branchTuple
             .addOrUpdateDisps(primarySelections, true);
 
-        groupSelections = this.canvasEditor.branchContext.branchTuple
+        groupSelections = this.editArgs.branchContext.branchTuple
             .addOrUpdateDisps(groupSelections, true);
 
         for (let dispPolylineEnd of this._selectedPolylineEnds) {
-            dispPolylineEnd.disp = this.canvasEditor
+            dispPolylineEnd.disp = this.editArgs
                 .branchContext
                 .branchTuple
                 .addOrUpdateDisp(dispPolylineEnd.disp, true);
@@ -751,7 +752,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             }
         }
 
-        this.canvasEditor.branchContext.branchTuple.touchUpdateDate(false);
+        this.editArgs.branchContext.branchTuple.touchUpdateDate(false);
         this.viewArgs.config.invalidate();
     }
 
@@ -764,7 +765,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         DispFactory.wrapper(handle.disp)
             .deltaMoveHandle(handle, delta.dx, delta.dy);
 
-        this.canvasEditor.branchContext.branchTuple.touchUpdateDate(false);
+        this.editArgs.branchContext.branchTuple.touchUpdateDate(false);
         this.viewArgs.config.invalidate();
     }
 }

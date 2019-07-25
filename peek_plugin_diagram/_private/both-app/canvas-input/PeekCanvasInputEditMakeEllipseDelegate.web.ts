@@ -1,13 +1,13 @@
 import {
     CanvasInputPos,
-    InputDelegateConstructorArgs,
+    InputDelegateConstructorViewArgs,
     PeekCanvasInputDelegate
 } from "./PeekCanvasInputDelegate.web";
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
-import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DispEllipse} from "../canvas-shapes/DispEllipse";
 import {PointI} from "../canvas-shapes/DispBase";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
+import {InputDelegateConstructorEditArgs} from "./PeekCanvasInputDelegateUtil.web";
 
 /**
  * This input delegate handles :
@@ -27,9 +27,9 @@ export class PeekCanvasInputEditMakeEllipseDelegate
     // Used to detect dragging and its the mouse position we use
     private _startMousePos: CanvasInputPos | null = null;
 
-    constructor(viewArgs: InputDelegateConstructorArgs,
-                canvasEditor: PeekCanvasEditor) {
-        super(viewArgs, canvasEditor, PeekCanvasInputEditMakeEllipseDelegate.TOOL_NAME);
+    constructor(viewArgs: InputDelegateConstructorViewArgs,
+                editArgs: InputDelegateConstructorEditArgs) {
+        super(viewArgs, editArgs, PeekCanvasInputEditMakeEllipseDelegate.TOOL_NAME);
 
         this.viewArgs.model.selection.clearSelection();
         this._reset();
@@ -144,10 +144,10 @@ export class PeekCanvasInputEditMakeEllipseDelegate
         this._creating = DispEllipse.create(this.viewArgs.config.coordSet);
 
         // Link the Disp
-        this.canvasEditor.lookupService._linkDispLookups(this._creating);
+        this.editArgs.lookupService._linkDispLookups(this._creating);
 
         // Add the shape to the branch
-        this._creating = this.canvasEditor.branchContext.branchTuple
+        this._creating = this.editArgs.branchContext.branchTuple
             .addOrUpdateDisp(this._creating, true);
 
         this.viewArgs.model.recompileModel();
@@ -161,8 +161,8 @@ export class PeekCanvasInputEditMakeEllipseDelegate
         if (this._creating == null)
             return;
 
-        // this.canvasEditor.props.showShapeProperties();
+        // this.editArgs.editToolbarProps.showShapeProperties();
         this.viewArgs.config.invalidate();
-        this.canvasEditor.setEditorSelectTool();
+        this.editArgs.setEditorSelectTool();
     }
 }

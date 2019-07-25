@@ -3,11 +3,13 @@ import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 
 import * as $ from "jquery";
 import {PeekDispRenderFactory} from "../canvas-render/PeekDispRenderFactory.web";
+import {PeekCanvasInputDelegate} from "./PeekCanvasInputDelegate.web";
 import {
     CanvasInputPos,
     disableContextMenu,
-    PeekCanvasInputDelegate, InputDelegateConstructorArgs
-} from "./PeekCanvasInputDelegate.web";
+    InputDelegateConstructorEditArgs,
+    InputDelegateConstructorViewArgs
+} from "./PeekCanvasInputDelegateUtil.web";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web";
@@ -40,18 +42,18 @@ export class PeekCanvasInput {
     }
 
 
-    setDelegate(Delegate, peekCanvasEditor: any | null = null) {
+    setDelegate(Delegate, editArgs: InputDelegateConstructorEditArgs | null = null) {
         if (this._delegate)
             this._delegate.shutdown();
 
-        let viewDelegateArgs: InputDelegateConstructorArgs = {
+        let viewDelegateArgs: InputDelegateConstructorViewArgs = {
             input: this,
             config: this.config,
             model: this.model,
             renderFactory: this.renderFactory,
         };
 
-        this._delegate = new Delegate(viewDelegateArgs, peekCanvasEditor);
+        this._delegate = new Delegate(viewDelegateArgs, editArgs);
 
         this.config.mouse.currentDelegateName = Delegate.TOOL_NAME;
 

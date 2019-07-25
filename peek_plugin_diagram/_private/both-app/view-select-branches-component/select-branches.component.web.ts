@@ -21,7 +21,7 @@ import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/br
 })
 export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
-    @ViewChild('modalView') modalView;
+    @ViewChild('modalView', {static: true}) modalView;
 
     private backdropId = 'div.modal-backdrop';
     popupShown: boolean = false;

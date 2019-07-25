@@ -1,6 +1,5 @@
 import {DispBase, DispBaseT, DispType, PointI} from "../canvas-shapes/DispBase";
 import {DispPolyline} from "../canvas-shapes/DispPolyline";
-import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
 import {DispPolygon} from "../canvas-shapes/DispPolygon";
 
@@ -27,7 +26,7 @@ export interface DispFilterCallableT {
 export class PeekCanvasModelQuery {
 
 
-    constructor(private model: PeekCanvasModel) {
+    constructor(private model) {
 
 
     };

@@ -2,41 +2,21 @@
 // Editor Ui Mouse
 
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
-import {PeekCanvasInput} from "./PeekCanvasInput.web";
-import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
-import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
-import {PeekDispRenderFactory} from "../canvas-render/PeekDispRenderFactory.web";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DispBase, PointI} from "../canvas-shapes/DispBase";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
+import {
+    CanvasInputDeltaI,
+    CanvasInputPos, InputDelegateConstructorEditArgs,
+    InputDelegateConstructorViewArgs
+} from "./PeekCanvasInputDelegateUtil.web";
 
 
-export function disableContextMenu(event) {
-    event.preventDefault();
-    return false;
-}
-
-export class CanvasInputPos {
-    x: number = 0;
-    y: number = 0;
-    clientX: number = 0;
-    clientY: number = 0;
-    time: Date = new Date();
-}
-
-export class CanvasInputDeltaI {
-    dx: number = 0;
-    dy: number = 0;
-    dClientX: number = 0;
-    dClientY: number = 0;
-}
-
-export interface InputDelegateConstructorArgs {
-    input: PeekCanvasInput;
-    config: PeekCanvasConfig;
-    model: PeekCanvasModel;
-    renderFactory: PeekDispRenderFactory;
-}
+export {
+    CanvasInputDeltaI,
+    CanvasInputPos,
+    InputDelegateConstructorViewArgs
+} from "./PeekCanvasInputDelegateUtil.web";
 
 /*
  * This class manages the currently selected tool
@@ -54,8 +34,8 @@ export abstract class PeekCanvasInputDelegate {
     /** The time it takes to do a click, VS a click that moved slightly * */
     readonly DRAG_TIME_THRESHOLD = 200;
 
-    protected constructor(protected viewArgs: InputDelegateConstructorArgs,
-                          protected canvasEditor: PeekCanvasEditor,
+    protected constructor(protected viewArgs: InputDelegateConstructorViewArgs,
+                          protected editArgs: InputDelegateConstructorEditArgs,
                           public NAME: EditorToolType) {
     }
 
@@ -151,7 +131,7 @@ export abstract class PeekCanvasInputDelegate {
 
 
     protected _addBranchAnchor(x: number, y: number): void {
-        if (this.canvasEditor.branchContext == null)
+        if (this.editArgs.branchContext == null)
             return;
 
         let closestDisp = this.viewArgs.model.query
@@ -164,7 +144,7 @@ export abstract class PeekCanvasInputDelegate {
 
         // TODO, See how close it is to other disps.
         if (closestDisp != null) {
-            this.canvasEditor.branchContext.branchTuple
+            this.editArgs.branchContext.branchTuple
                 .addAnchorDispKey(DispBase.key(closestDisp));
         }
 

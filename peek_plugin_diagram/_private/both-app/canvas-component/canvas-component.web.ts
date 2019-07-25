@@ -40,9 +40,9 @@ import {PrivateDiagramOverrideService} from "@peek/peek_plugin_diagram/_private/
     moduleId: module.id
 })
 export class CanvasComponent extends ComponentLifecycleEventEmitter {
-    @ViewChild('edittoolbar') editToolbarView;
-    @ViewChild('canvas') canvasView;
-    @ViewChild('editprops') editPropsView;
+    @ViewChild('edittoolbar', {static: true}) editToolbarView;
+    @ViewChild('canvas', {static: true}) canvasView;
+    @ViewChild('editprops', {static: true}) editPropsView;
 
     @Input("modelSetKey")
     modelSetKey: string;

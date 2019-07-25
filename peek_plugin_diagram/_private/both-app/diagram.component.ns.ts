@@ -43,7 +43,7 @@ export class DiagramComponent extends DiagramComponentBase
     private gridLoaderBridge: GridLoaderBridgeNs | null = null;
     private branchLoaderServiceBridge: BranchLoaderServiceBridgeNs | null = null;
 
-    @ViewChild('webView') webView;
+    @ViewChild('webView', {static: true}) webView;
 
 
     constructor(titleService: TitleService,

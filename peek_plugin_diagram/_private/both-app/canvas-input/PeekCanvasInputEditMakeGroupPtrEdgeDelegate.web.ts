@@ -1,13 +1,14 @@
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
 import {
     CanvasInputPos,
-    InputDelegateConstructorArgs,
+    InputDelegateConstructorViewArgs,
     PeekCanvasInputDelegate
 } from "./PeekCanvasInputDelegate.web";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DispGroupPointer} from "../canvas-shapes/DispGroupPointer";
 import {PointI} from "../canvas-shapes/DispBase";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
+import {InputDelegateConstructorEditArgs} from "./PeekCanvasInputDelegateUtil.web";
 
 /**
  * This input delegate handles :
@@ -24,9 +25,9 @@ export class PeekCanvasInputMakeDispGroupPtrEdgeDelegate
     private _startMousePos: CanvasInputPos | null = null;
 
 
-    constructor(viewArgs: InputDelegateConstructorArgs,
-                canvasEditor: PeekCanvasEditor) {
-        super(viewArgs, canvasEditor,
+    constructor(viewArgs: InputDelegateConstructorViewArgs,
+                editArgs: InputDelegateConstructorEditArgs) {
+        super(viewArgs, editArgs,
             PeekCanvasInputMakeDispGroupPtrEdgeDelegate.TOOL_NAME);
 
         this._reset();
@@ -78,25 +79,25 @@ export class PeekCanvasInputMakeDispGroupPtrEdgeDelegate
         let created = DispGroupPointer.create(this.viewArgs.config.coordSet);
         DispGroupPointer.setCenterPoint(created, x, y);
 
-        this.canvasEditor.lookupService._linkDispLookups(created);
+        this.editArgs.lookupService._linkDispLookups(created);
 
         // Add the shape to the branch
-        created = this.canvasEditor.branchContext.branchTuple.addOrUpdateDisp(created);
+        created = this.editArgs.branchContext.branchTuple.addOrUpdateDisp(created);
 
         // TODO, Snap the coordinates if required
         // if (this.viewArgs.config.editor.snapToGrid)
         //     DispText.snap(created, this.viewArgs.config.editor.snapSize);
 
         // Let the canvas editor know something has happened.
-        // this.canvasEditor.dispPropsUpdated();
+        // this.editArgs.dispPropsUpdated();
 
         this.viewArgs.model.recompileModel();
 
         this.viewArgs.model.selection.replaceSelection(<any> created);
-        this.canvasEditor.props.showGroupPtrProperties();
+        this.editArgs.editToolbarProps.showGroupPtrProperties();
 
         this._addBranchAnchor(x, y);
-        this.canvasEditor.setEditorSelectTool();
+        this.editArgs.setEditorSelectTool();
     }
 
 

@@ -1,7 +1,7 @@
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
 import {PeekCanvasInputEditMakeDispPolyDelegate} from "./PeekCanvasInputEditMakePolyDelegate.web";
-import {InputDelegateConstructorArgs} from "./PeekCanvasInputDelegate.web";
-import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
+import {InputDelegateConstructorViewArgs} from "./PeekCanvasInputDelegate.web";
+import {InputDelegateConstructorEditArgs} from "./PeekCanvasInputDelegateUtil.web";
 
 /**
  * This input delegate handles :
@@ -15,9 +15,9 @@ export class PeekCanvasInputEditMakeLineWithArrowDelegate
     static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_LINE_WITH_ARROW;
 
 
-    constructor(viewArgs: InputDelegateConstructorArgs,
-                canvasEditor: PeekCanvasEditor) {
-        super(viewArgs, canvasEditor, PeekCanvasInputEditMakeLineWithArrowDelegate.TOOL_NAME);
+    constructor(viewArgs: InputDelegateConstructorViewArgs,
+                editArgs: InputDelegateConstructorEditArgs) {
+        super(viewArgs, editArgs, PeekCanvasInputEditMakeLineWithArrowDelegate.TOOL_NAME);
 
         this._reset();
     }

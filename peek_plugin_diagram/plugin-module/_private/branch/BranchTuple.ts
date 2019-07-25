@@ -237,12 +237,11 @@ export class BranchTuple extends Tuple {
     }
 
     private sortDisps(): void {
-        let PeekCanvasModel = require("peek_plugin_diagram/canvas/PeekCanvasModel.web")
-            ["PeekCanvasModel"];
+        const sortDisps = require("peek_plugin_diagram/canvas/PeekCanvasModelUtil.web")
+            ["sortDisps"];
 
         let array = this._array(BranchTuple.__DISPS_NUM);
-        this.packedJson__[BranchTuple.__DISPS_NUM] = PeekCanvasModel
-            .sortDisps(array);
+        this.packedJson__[BranchTuple.__DISPS_NUM] = sortDisps(array);
     }
 
     /** Add New Disps

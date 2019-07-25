@@ -1,16 +1,16 @@
 import {
     CanvasInputPos,
-    InputDelegateConstructorArgs,
+    InputDelegateConstructorViewArgs,
     PeekCanvasInputDelegate
 } from "./PeekCanvasInputDelegate.web";
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
-import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DispPoly} from "../canvas-shapes/DispPoly";
 import {DispBaseT, DispHandleTypeE, PointI} from "../canvas-shapes/DispBase";
 import {DispPolygon} from "../canvas-shapes/DispPolygon";
 import {DispPolyline, DispPolylineEndTypeE} from "../canvas-shapes/DispPolyline";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
+import {InputDelegateConstructorEditArgs} from "./PeekCanvasInputDelegateUtil.web";
 
 /**
  * This input delegate handles :
@@ -32,10 +32,10 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
     private _nodes = []; //canvasInput._scope.pageData.modelRenderables;
 
-    constructor(viewArgs: InputDelegateConstructorArgs,
-                canvasEditor: PeekCanvasEditor,
+    constructor(viewArgs: InputDelegateConstructorViewArgs,
+                editArgs: InputDelegateConstructorEditArgs,
                 tool: EditorToolType) {
-        super(viewArgs, canvasEditor, tool);
+        super(viewArgs, editArgs, tool);
 
         this.viewArgs.model.selection.clearSelection();
         this._reset();
@@ -155,7 +155,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
                 this._startNodeDisp = this._nodeDispClickedOn(inputPos);
 
                 if (!this._startNodeDisp) {
-                    this.canvasEditor.balloonMsg.showWarning("A conductor must start on a node");
+                    this.editArgs.balloonMsg.showWarning("A conductor must start on a node");
                     this._reset();
                     // this.canvasInput._scope.pageMethods.cableCreateCallback();
                     return;
@@ -234,10 +234,10 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         DispPoly.addPoint(this._creating, inputPos);
 
         // Link the Disp
-        this.canvasEditor.lookupService._linkDispLookups(this._creating);
+        this.editArgs.lookupService._linkDispLookups(this._creating);
 
         // Add the shape to the branch
-        this._creating = this.canvasEditor.branchContext.branchTuple
+        this._creating = this.editArgs.branchContext.branchTuple
             .addOrUpdateDisp(this._creating, true);
 
         // TODO, Snap the coordinates if required
@@ -245,7 +245,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         //     DispText.snap(this._creating, this.viewArgs.config.editor.snapSize);
 
         // Let the canvas editor know something has happened.
-        // this.canvasEditor.dispPropsUpdated();
+        // this.editArgs.dispPropsUpdated();
 
         this.viewArgs.model.recompileModel();
 
@@ -270,15 +270,15 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         }
 
         if (!endNodeDisp) {
-            // this.canvasEditor.balloonMsg.showWarning("A conductor must end on a node");
+            // this.editArgs.balloonMsg.showWarning("A conductor must end on a node");
             poly = null;
         }
 
         // this.canvasInput._scope.pageMethods.cableCreateCallback(poly, startNodeDisp, endNodeDisp);
 
-        // this.canvasEditor.props.showShapeProperties();
+        // this.editArgs.editToolbarProps.showShapeProperties();
         this.viewArgs.config.invalidate();
-        this.canvasEditor.setEditorSelectTool();
+        this.editArgs.setEditorSelectTool();
     }
 
     private _coord(mouse: CanvasInputPos, shiftKey: boolean = false): PointI {

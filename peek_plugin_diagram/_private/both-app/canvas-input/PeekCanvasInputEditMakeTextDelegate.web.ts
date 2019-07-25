@@ -1,13 +1,13 @@
 import {
     CanvasInputPos,
-    InputDelegateConstructorArgs,
+    InputDelegateConstructorViewArgs,
     PeekCanvasInputDelegate
 } from "./PeekCanvasInputDelegate.web";
 import {DispText} from "../canvas-shapes/DispText";
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
-import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
 import {PointI} from "../canvas-shapes/DispBase";
+import {InputDelegateConstructorEditArgs} from "./PeekCanvasInputDelegateUtil.web";
 
 /**
  * This input delegate handles :
@@ -25,9 +25,9 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     // Used to detect dragging and its the mouse position we use
     private _startMousePos: CanvasInputPos | null = null;
 
-    constructor(viewArgs: InputDelegateConstructorArgs,
-                canvasEditor: PeekCanvasEditor) {
-        super(viewArgs, canvasEditor, PeekCanvasInputEditMakeTextDelegate.TOOL_NAME);
+    constructor(viewArgs: InputDelegateConstructorViewArgs,
+                editArgs: InputDelegateConstructorEditArgs) {
+        super(viewArgs, editArgs, PeekCanvasInputEditMakeTextDelegate.TOOL_NAME);
 
         this.viewArgs.model.selection.clearSelection();
         this._reset();
@@ -116,10 +116,10 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         // Create the Disp
         this._creating = DispText.create(this.viewArgs.config.coordSet);
         DispText.setCenterPoint(this._creating, x, y);
-        this.canvasEditor.lookupService._linkDispLookups(this._creating);
+        this.editArgs.lookupService._linkDispLookups(this._creating);
 
         // Add the shape to the branch
-        this._creating = this.canvasEditor.branchContext.branchTuple
+        this._creating = this.editArgs.branchContext.branchTuple
             .addOrUpdateDisp(this._creating, true);
 
         this.viewArgs.model.recompileModel();
@@ -127,7 +127,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         this.viewArgs.model.selection.replaceSelection(this._creating);
 
         this._addBranchAnchor(x, y);
-        this.canvasEditor.setEditorSelectTool();
+        this.editArgs.setEditorSelectTool();
     }
 
     delegateWillBeTornDown() {
@@ -138,7 +138,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     }
 
     _finaliseCreate() {
-        this.canvasEditor.props.showShapeProperties();
+        this.editArgs.editToolbarProps.showShapeProperties();
         this._reset();
         this.viewArgs.config.invalidate();
     }

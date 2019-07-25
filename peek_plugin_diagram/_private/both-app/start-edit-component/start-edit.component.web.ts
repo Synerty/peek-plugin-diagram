@@ -23,7 +23,7 @@ import {UserService} from "@peek/peek_core_user";
 export class StartEditComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
 
-    @ViewChild('modalView') modalView;
+    @ViewChild('modalView', {static: true}) modalView;
 
     private backdropId = 'div.modal-backdrop';
     popupShown: boolean = false;
