@@ -13,6 +13,8 @@ import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/br
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
+import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 
 
 @Component({
@@ -46,9 +48,13 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
 
     toolbarIsOpen: boolean = false;
 
+    coordSetsForMenu: ModelCoordSet[] = [];
+
     constructor(private abstractToolbarService: DiagramToolbarService,
                 private branchService: PrivateDiagramBranchService,
-                private configService: PrivateDiagramConfigService) {
+                private configService: PrivateDiagramConfigService,
+                private coordSetService: PrivateDiagramCoordSetService,
+                private positionService: DiagramPositionService) {
         super();
 
         this.toolbarService = <PrivateDiagramToolbarService>abstractToolbarService;
@@ -73,6 +79,9 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
         this.config.controller.coordSetChange
             .takeUntil(this.onDestroyEvent)
             .subscribe((cs) => this.coordSet = cs);
+
+        this.coordSetsForMenu = this.coordSetService.coordSets(this.modelSetKey)
+            .filter((cs: ModelCoordSet) => cs.enabled == true);
 
     }
 
@@ -103,12 +112,11 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
     }
 
     showExitDiagramButton(): boolean {
-        return this.toolbarService.exitDiagramCallable(this.modelSetKey) != null;
+        return this.coordSetsForMenu.length > 1;
     }
 
-    exitDiagramClicked(): void {
-        let callable = this.toolbarService.exitDiagramCallable(this.modelSetKey);
-        return callable();
+    changeCoordSetMenuItemClicked(coordSet: ccc): void {
+        this.positionService.positionByCoordSet(coordSet.key);
     }
 
     showEditDiagramButton(): boolean {

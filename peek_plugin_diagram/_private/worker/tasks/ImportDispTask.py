@@ -121,9 +121,9 @@ def _loadCoordSet(modelSetKey, coordSetKey):
         ormSession.close()
 
 
-def _validateImportDisps(importDisp: List):
+def _validateImportDisps(importDisps: List):
 
-    for importDisp in importDisp:
+    for importDisp in importDisps:
         isGroup = isinstance(importDisp, ImportDispGroupTuple)
         # isGroupChild = not isGroup and importDisp.parentDispGroupHash
 

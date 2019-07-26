@@ -19,9 +19,6 @@ export class PrivateDiagramToolbarService extends DiagramToolbarService {
 
     private _editToolButtonsUpdatedSubject = new Subject<DiagramToolButtonI[]>();
 
-
-    private _exitDiagramCallable = {};
-
     constructor() {
         super();
 
@@ -98,15 +95,6 @@ export class PrivateDiagramToolbarService extends DiagramToolbarService {
 
     editToolButtonsUpdatedObservable(): Observable<DiagramToolButtonI[]> {
         return this._editToolButtonsUpdatedSubject;
-    }
-
-
-    exitDiagramCallable(modelSetKey: string): any | null {
-        return this._exitDiagramCallable[modelSetKey];
-    }
-
-    setExitDiagramCallback(modelSetKey: string, callable: any): void {
-        this._exitDiagramCallable[modelSetKey] = callable;
     }
 
 }
