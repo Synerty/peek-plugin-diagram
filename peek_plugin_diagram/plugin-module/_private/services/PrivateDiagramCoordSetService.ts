@@ -91,6 +91,7 @@ export class PrivateDiagramCoordSetService extends ComponentLifecycleEventEmitte
             item.name = tuple.name;
             item.key = tuple.key;
             item.enabled = tuple.enabled;
+            item.isLanding = tuple.isLanding;
             coordSetsByModelSetKey[tuple.data.modelSetKey].push(item);
         }
 
