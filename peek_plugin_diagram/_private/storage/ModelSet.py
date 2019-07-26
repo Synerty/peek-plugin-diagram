@@ -33,7 +33,13 @@ class ModelSet(Tuple, DeclarativeBase):
     name = Column(String(50), nullable=False)
     comment = Column(String)
 
-    coordSets = relationship('ModelCoordSet')
+    landingCoordSetId = Column(Integer,
+                               ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
+                               nullable=True)
+
+    coordSets = relationship('ModelCoordSet',
+                             remote_side='ModelCoordSet.modelSetId',
+                             primaryjoin='ModelSet.id==ModelCoordSet.modelSetId')
 
     __table_args__ = (
         Index("idx_ModelSet_name", name, unique=True),
@@ -60,7 +66,9 @@ class ModelCoordSet(Tuple, DeclarativeBase):
 
     modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),
                         nullable=False)
-    modelSet = relationship(ModelSet)
+    modelSet = relationship(ModelSet,
+                             foreign_keys=[modelSetId],
+                             primaryjoin='ModelSet.id==ModelCoordSet.modelSetId')
 
     # Grid size settings
     gridSizes = relationship('ModelCoordSetGridSize',
@@ -83,6 +91,7 @@ class ModelCoordSet(Tuple, DeclarativeBase):
 
     #: Misc data holder
     data = TupleField()
+    isLanding = TupleField()
 
     #: Is Editing enabled? (Also ensure ALL editDefault fields are set.
     dispGroupTemplatesEnabled = Column(Boolean, nullable=False, server_default="false")
@@ -132,7 +141,8 @@ class ModelCoordSet(Tuple, DeclarativeBase):
               unique=False),
         Index("idxCoordModel_editDefaultVertexCoordSetId", editDefaultVertexCoordSetId,
               unique=False),
-        Index("idxCoordModel_editDefaultEdgeCoordSetId", editDefaultEdgeCoordSetId, unique=False),
+        Index("idxCoordModel_editDefaultEdgeCoordSetId", editDefaultEdgeCoordSetId,
+              unique=False),
     )
 
 

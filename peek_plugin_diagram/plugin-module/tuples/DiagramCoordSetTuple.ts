@@ -10,6 +10,9 @@ export class DiagramCoordSetTuple extends Tuple {
     name: string;
     enabled: boolean;
 
+    // Is this the landing coord set
+    isLanding:boolean;
+
     constructor() {
         super(DiagramCoordSetTuple.tupleName)
     }

@@ -28,6 +28,7 @@ class ServerCoordSetTupleProvider(TuplesProviderABC):
 
             for item in all:
                 item.data = {"modelSetKey": item.modelSet.key}
+                item.isLanding = item.modelSet.landingCoordSetId == item.id
 
             return Payload(filt, tuples=all).makePayloadEnvelope().toVortexMsg()
 

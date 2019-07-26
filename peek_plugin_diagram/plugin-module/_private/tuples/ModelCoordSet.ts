@@ -71,6 +71,9 @@ export class ModelCoordSet extends Tuple {
     editDefaultEdgeCoordSetId: number;
     editDefaultEdgeGroupName: string;
 
+    // is this the landing coord set?
+    isLanding:boolean;
+
     constructor() {
         super(ModelCoordSet.tupleName)
     }
