@@ -115,7 +115,7 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
         return this.coordSetsForMenu.length > 1;
     }
 
-    changeCoordSetMenuItemClicked(coordSet: ccc): void {
+    changeCoordSetMenuItemClicked(coordSet: ModelCoordSet): void {
         this.positionService.positionByCoordSet(coordSet.key);
     }
 
