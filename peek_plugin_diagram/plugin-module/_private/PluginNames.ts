@@ -12,3 +12,6 @@ export let branchIndexStorageName = "peek_plugin_diagram_branch_index";
 export let locationIndexCacheStorageName = "peek_plugin_diagram_location_index";
 
 export let branchLocalStorageName = "peek_plugin_diagram_branch_local";
+
+
+export let diagramPluginName = "peek_plugin_diagram";

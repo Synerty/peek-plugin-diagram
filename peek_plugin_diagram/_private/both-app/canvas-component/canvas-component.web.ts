@@ -11,7 +11,7 @@ import {GridObservable} from "../cache/GridObservable.web";
 import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {PrivateDiagramConfigService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
 
-import {DispBaseT} from "../canvas-shapes/DispBase";
+import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
 
 import * as $ from "jquery";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
@@ -21,6 +21,7 @@ import {
     DiagramPositionI,
     PrivateDiagramPositionService
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
+import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
@@ -73,6 +74,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 private coordSetCache: PrivateDiagramCoordSetService,
                 private privatePosService: PrivateDiagramPositionService,
                 private objectPopupService: ObjectPopupService,
+                private itemSelectService: PrivateDiagramItemSelectService,
                 private configService: PrivateDiagramConfigService,
                 private branchService: PrivateDiagramBranchService,
                 private overrideService: PrivateDiagramOverrideService,
@@ -306,17 +308,17 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
             .takeUntil(this.onDestroyEvent)
             .subscribe((disps: DispBaseT[]) => {
 
-                if (disps.length != 1)
-                    return;
+                const items = [];
+                for (const disp of disps) {
+                    items.push({
+                        modelSetKey: this.modelSetKey,
+                        coordSetKey: this.config.controller.coordSet.key,
+                        dispKey: DispBase.key(disps[0]),
+                        dispData: DispBase.data(disps[0])
+                    });
+                }
 
-                // this.objectPopupService.triggerSummaryPopup(
-                //     diagramBaseUrl,
-                //     modelSetKey: this.modelSetKey,
-                //     coordSetKey: this.config.controller.coordSet.key,
-                //     dispKey: DispBase.key(disps[0]),
-                //     dispData: DispBase.data(disps[0])
-                // });
-
+                this.itemSelectService.selectItems(items);
             });
     }
 

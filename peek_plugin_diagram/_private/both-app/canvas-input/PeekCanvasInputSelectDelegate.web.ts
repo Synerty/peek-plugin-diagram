@@ -8,7 +8,8 @@ import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
 import {DispBase, DispBaseT, PointI} from "../canvas-shapes/DispBase";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
 import {InputDelegateConstructorEditArgs} from "./PeekCanvasInputDelegateUtil.web";
-import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private/PluginNames";
+import {diagramPluginName} from "@peek/peek_plugin_diagram/_private/PluginNames";
+import {ObjectPopupTypeE} from "@peek/peek_plugin_object_popup";
 
 /**
  * This input delegate handles :
@@ -153,7 +154,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             this._state = this.STATE_SELECTING;
         } else {
             this._state = this.STATE_CANVAS_PANNING;
-            this.viewArgs.model.selection.clearSelection();
+            this._changeSelection([], event);
         }
 
 
@@ -305,7 +306,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                 else
                     assert(false, "Invalid state");
 
-                this._changeSelection(hits);
+                this._changeSelection(hits, event);
                 break;
             }
 
@@ -370,21 +371,25 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
         this.clearSelectableUnderMouse();
 
-        this.suggestedDispToSelect = newHit;
+        // Show the tooltip
         this.viewArgs.objectPopupService
-            .showTooltipPopup(diagramBaseUrl,
+            .showPopup(
+                ObjectPopupTypeE.tooltipPopup,
+                diagramPluginName,
                 mouse,
                 this.viewArgs.config.controller.modelSetKey,
-                DispBase.key(newHit));
+                DispBase.key(newHit),
+                {triggeredForContext: this.viewArgs.config.coordSet.key});
+
+        this.suggestedDispToSelect = newHit;
         this.viewArgs.config.invalidate();
     };
 
     private clearSelectableUnderMouse(): void {
-        if (this.suggestedDispToSelect == null)
-            return;
+        // Hide the tooltip
+        this.viewArgs.objectPopupService.hidePopup(ObjectPopupTypeE.tooltipPopup);
 
         this.suggestedDispToSelect = null;
-        this.viewArgs.objectPopupService.hideTooltipPopup();
         this.viewArgs.config.invalidate();
     }
 
@@ -409,11 +414,16 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         return hits;
     }
 
-    _changeSelection(hits) {
+    _changeSelection(hits, mouse: MouseEvent) {
         this.clearSelectableUnderMouse();
+        this.viewArgs.objectPopupService.hidePopup(ObjectPopupTypeE.summaryPopup);
 
-        // Remove clicked on thing
-        if (this._mouseDownOnSelection && this._mouseDownWithShift) {
+        // If nothing is selected, clear the selection
+        if (hits.length == 0) {
+            this.viewArgs.model.selection.clearSelection();
+
+            // Remove clicked on thing
+        } else if (this._mouseDownOnSelection && this._mouseDownWithShift) {
             this.viewArgs.model.selection.removeSelection(hits);
 
         } else {
@@ -422,6 +432,20 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             else
                 this.viewArgs.model.selection.replaceSelection(hits);
         }
+
+        if (hits.length == 1) {
+            // Show the tooltip
+            this.viewArgs.objectPopupService
+                .showPopup(
+                    ObjectPopupTypeE.summaryPopup,
+                    diagramPluginName,
+                    mouse,
+                    this.viewArgs.config.controller.modelSetKey,
+                    DispBase.key(hits[0]),
+                    {triggeredForContext: this.viewArgs.config.coordSet.key});
+
+        }
+
 
     }
 

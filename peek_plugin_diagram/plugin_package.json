@@ -143,6 +143,11 @@
                 "persistent": true
             },
             {
+                "file": "DiagramItemSelectService",
+                "class": "DiagramItemSelectService",
+                "useExistingClass": "PrivateDiagramItemSelectService"
+            },
+            {
                 "file": "_private/services/PrivateDiagramItemSelectService",
                 "class": "PrivateDiagramItemSelectService",
                 "persistent": true
@@ -260,6 +265,11 @@
                 "useClassFile": "_private/services/PrivateDiagramToolbarService",
                 "useClassClass": "PrivateDiagramToolbarService",
                 "persistent": true
+            },
+            {
+                "file": "DiagramItemSelectService",
+                "class": "DiagramItemSelectService",
+                "useExistingClass": "PrivateDiagramItemSelectService"
             },
             {
                 "file": "_private/services/PrivateDiagramItemSelectService",
@@ -384,6 +394,11 @@
                 "useClassFile": "_private/services/PrivateDiagramToolbarService",
                 "useClassClass": "PrivateDiagramToolbarService",
                 "persistent": true
+            },
+            {
+                "file": "DiagramItemSelectService",
+                "class": "DiagramItemSelectService",
+                "useExistingClass": "PrivateDiagramItemSelectService"
             },
             {
                 "file": "_private/services/PrivateDiagramItemSelectService",

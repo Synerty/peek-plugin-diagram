@@ -1,13 +1,13 @@
 import {Injectable} from "@angular/core";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
+import {
+    DiagramItemSelectService,
+    SelectedItemDetailsI
+} from "../../DiagramItemSelectService";
 
-export interface SelectedItemDetailsI {
-    modelSetKey: string;
-    coordSetKey: string;
-    dispKey: string;
-    dispData: {};
-}
+
+export {SelectedItemDetailsI} from "../../DiagramItemSelectService";
 
 /** Item Select Service
  *
@@ -17,19 +17,20 @@ export interface SelectedItemDetailsI {
  *
  */
 @Injectable()
-export class PrivateDiagramItemSelectService {
+export class PrivateDiagramItemSelectService extends DiagramItemSelectService {
 
-    private itemSelectSubject = new Subject<SelectedItemDetailsI>();
+    private itemSelectSubject = new Subject<SelectedItemDetailsI[]>();
 
     constructor() {
+        super();
 
     }
 
-    itemSelectObservable(): Observable<SelectedItemDetailsI> {
-        return this.itemSelectSubject;
+    itemsSelectedObservable(): Observable<SelectedItemDetailsI[]> {
+        return this.itemSelectSubject.asObservable();
     }
 
-    selectItem(details: SelectedItemDetailsI): void {
+    selectItems(details: SelectedItemDetailsI[]): void {
         this.itemSelectSubject.next(details);
     }
 
