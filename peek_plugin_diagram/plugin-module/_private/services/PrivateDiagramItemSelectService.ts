@@ -13,6 +13,8 @@ export interface SelectedItemDetailsI {
  *
  * This service notifies the popup service that an item has been selected.
  *
+ * THIS IS USED FOR THE NS INTEGRATION
+ *
  */
 @Injectable()
 export class PrivateDiagramItemSelectService {

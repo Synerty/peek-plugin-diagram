@@ -24,7 +24,7 @@ import {
 } from "../service-bridge/BranchLoaderServiceBridgeWeb";
 import {PrivateDiagramBranchLoaderServiceA} from "../@peek/peek_plugin_diagram/_private/branch-loader";
 import {
-    DiagramBranchService, DiagramItemPopupService,
+    DiagramBranchService,
     DiagramLookupService,
     DiagramPositionService
 } from "../@peek/peek_plugin_diagram";
@@ -55,8 +55,6 @@ export function titleServiceFactory() {
         PeekPluginDiagramModule
     ],
     providers: [
-
-
         {
             provide: TupleStorageFactoryService,
             useClass: TupleStorageFactoryServiceBridgeWeb
@@ -72,10 +70,6 @@ export function titleServiceFactory() {
         {
             provide: PrivateDiagramGridLoaderServiceA,
             useClass: GridLoaderBridgeWeb
-        },
-        {
-            provide: DiagramItemPopupService,
-            useClass: ItemPopupServiceBridgeWeb
         },
         {
             provide: DiagramPositionService,

@@ -143,13 +143,6 @@
                 "persistent": true
             },
             {
-                "file": "DiagramItemPopupService",
-                "class": "DiagramItemPopupService",
-                "useClassFile": "_private/services/PrivateDiagramItemPopupService",
-                "useClassClass": "PrivateDiagramItemPopupService",
-                "persistent": true
-            },
-            {
                 "file": "_private/services/PrivateDiagramItemSelectService",
                 "class": "PrivateDiagramItemSelectService",
                 "persistent": true
@@ -266,13 +259,6 @@
                 "class": "DiagramToolbarService",
                 "useClassFile": "_private/services/PrivateDiagramToolbarService",
                 "useClassClass": "PrivateDiagramToolbarService",
-                "persistent": true
-            },
-            {
-                "file": "DiagramItemPopupService",
-                "class": "DiagramItemPopupService",
-                "useClassFile": "_private/services/PrivateDiagramItemPopupService",
-                "useClassClass": "PrivateDiagramItemPopupService",
                 "persistent": true
             },
             {
@@ -397,13 +383,6 @@
                 "class": "DiagramToolbarService",
                 "useClassFile": "_private/services/PrivateDiagramToolbarService",
                 "useClassClass": "PrivateDiagramToolbarService",
-                "persistent": true
-            },
-            {
-                "file": "DiagramItemPopupService",
-                "class": "DiagramItemPopupService",
-                "useClassFile": "_private/services/PrivateDiagramItemPopupService",
-                "useClassClass": "PrivateDiagramItemPopupService",
                 "persistent": true
             },
             {

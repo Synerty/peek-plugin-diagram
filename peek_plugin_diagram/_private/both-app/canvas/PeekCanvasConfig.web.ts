@@ -20,7 +20,8 @@ export class PeekCanvasConfig {
     controller = {
         updateInterval: 400,
         coordSetChange: new Subject<ModelCoordSet>(),
-        coordSet: null
+        coordSet: null,
+        modelSetKey: ''
     };
 
     renderer = {

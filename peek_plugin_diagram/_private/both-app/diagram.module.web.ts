@@ -12,7 +12,6 @@ import "./canvas/PeekCanvasExtensions.web";
 import {GridCache} from "./cache/GridCache.web";
 import {GridObservable} from "./cache/GridObservable.web";
 import {CanvasComponent} from "./canvas-component/canvas-component.web";
-import {PopupComponent} from "./view-popup-component/popup.component.web";
 import {ToolbarComponent} from "./view-toolbar-component/toolbar.component.web";
 import {EditToolbarComponent} from "./edit-toolbar-component/edit-toolbar.component.web";
 import {SelectBranchesComponent} from "./view-select-branches-component/select-branches.component.web";
@@ -44,7 +43,7 @@ import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
         GridCache,
         GridObservable
     ],
-    declarations: [DiagramComponent, CanvasComponent, PopupComponent,
+    declarations: [DiagramComponent, CanvasComponent,
         ToolbarComponent,
         EditToolbarComponent,
         StartEditComponent, SelectLayersComponent, SelectBranchesComponent,

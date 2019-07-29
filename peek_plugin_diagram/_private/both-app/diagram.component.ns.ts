@@ -1,6 +1,5 @@
 import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {DiagramItemPopupService} from "@peek/peek_plugin_diagram/DiagramItemPopupService";
 import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {TitleService} from "@synerty/peek-util";
 import {DiagramComponentBase} from "./diagram.component";
@@ -49,7 +48,6 @@ export class DiagramComponent extends DiagramComponentBase
     constructor(titleService: TitleService,
                 positionService: DiagramPositionService,
                 toolbarService: DiagramToolbarService,
-                private itemPopupService: DiagramItemPopupService,
                 private enrolmentService: DeviceEnrolmentService,
                 private tupleService: PrivateDiagramTupleService,
                 private gridLoader: PrivateDiagramGridLoaderServiceA,

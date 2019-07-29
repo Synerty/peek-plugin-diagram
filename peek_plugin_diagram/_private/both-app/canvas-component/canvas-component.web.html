@@ -29,10 +29,6 @@
                 [canvasEditor]="editor"></pl-diagram-edit-props>
     </div>
 
-    <pl-diagram-view-popup *ngIf="coordSetKey != null && !isEditing()"
-                           [coordSetKey]="coordSetKey"
-                           [modelSetKey]="modelSetKey"></pl-diagram-view-popup>
-
 
     <pl-diagram-view-select-layers
             [model]="model"

@@ -1,8 +1,6 @@
 import {Input} from "@angular/core";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {DiagramItemPopupService} from "@peek/peek_plugin_diagram/DiagramItemPopupService";
 import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
-import {PrivateDiagramItemPopupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemPopupService";
 import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 
@@ -20,17 +18,14 @@ export class DiagramComponentBase extends ComponentLifecycleEventEmitter {
     nsToolbarRowSpan = 1;
     nsPopupRowSpan = 1;
 
-    protected privateItemPopupService: PrivateDiagramItemPopupService;
     protected privatePositionService: PrivateDiagramPositionService;
     protected privateToolbarService: PrivateDiagramToolbarService;
 
     constructor(protected titleService: TitleService,
-                itemPopupService: DiagramItemPopupService,
                 positionService: DiagramPositionService,
                 toolbarService: DiagramToolbarService) {
         super();
 
-        this.privateItemPopupService = <PrivateDiagramItemPopupService> itemPopupService;
         this.privatePositionService = <PrivateDiagramPositionService> positionService;
         this.privateToolbarService = <PrivateDiagramToolbarService> toolbarService;
 

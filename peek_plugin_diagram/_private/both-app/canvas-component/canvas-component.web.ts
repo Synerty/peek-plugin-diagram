@@ -11,16 +11,16 @@ import {GridObservable} from "../cache/GridObservable.web";
 import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {PrivateDiagramConfigService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
 
-import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
+import {DispBaseT} from "../canvas-shapes/DispBase";
 
 import * as $ from "jquery";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {PositionUpdatedI} from "@peek/peek_plugin_diagram/DiagramPositionService";
+import {ObjectPopupService} from "@peek/peek_plugin_object_popup";
 import {
     DiagramPositionI,
     PrivateDiagramPositionService
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
-import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
@@ -72,7 +72,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 private lookupService: PrivateDiagramLookupService,
                 private coordSetCache: PrivateDiagramCoordSetService,
                 private privatePosService: PrivateDiagramPositionService,
-                private itemSelectService: PrivateDiagramItemSelectService,
+                private objectPopupService: ObjectPopupService,
                 private configService: PrivateDiagramConfigService,
                 private branchService: PrivateDiagramBranchService,
                 private overrideService: PrivateDiagramOverrideService,
@@ -86,6 +86,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     private initCanvas(): void {
         // this.lookupService must not be null
+        this.config.controller.modelSetKey = this.modelSetKey;
 
         // The model view the viewable items on the canvas
         this.model = new PeekCanvasModel(this.config, this.gridObservable,
@@ -96,7 +97,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
         // The user interaction handler.
         this.input = new PeekCanvasInput(
-            this.config, this.model, this.renderFactory, this
+            this.config, this.model, this.renderFactory, this, this.objectPopupService
         );
 
         // The canvas renderer
@@ -308,12 +309,13 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 if (disps.length != 1)
                     return;
 
-                this.itemSelectService.selectItem({
-                    modelSetKey: this.modelSetKey,
-                    coordSetKey: this.config.controller.coordSet.key,
-                    dispKey: DispBase.key(disps[0]),
-                    dispData: DispBase.data(disps[0])
-                });
+                // this.objectPopupService.triggerSummaryPopup(
+                //     diagramBaseUrl,
+                //     modelSetKey: this.modelSetKey,
+                //     coordSetKey: this.config.controller.coordSet.key,
+                //     dispKey: DispBase.key(disps[0]),
+                //     dispData: DispBase.data(disps[0])
+                // });
 
             });
     }

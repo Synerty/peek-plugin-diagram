@@ -8,6 +8,7 @@ import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
 import {DispBase, DispBaseT, PointI} from "../canvas-shapes/DispBase";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
 import {InputDelegateConstructorEditArgs} from "./PeekCanvasInputDelegateUtil.web";
+import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private/PluginNames";
 
 /**
  * This input delegate handles :
@@ -254,7 +255,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     mouseMove(event, inputPos: CanvasInputPos) {
 
         if (this._state == this.STATE_NONE) {
-            this.renderSelectablesUnderMouse(inputPos);
+            this.renderSelectablesUnderMouse(inputPos, event);
             return;
         }
 
@@ -338,7 +339,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         }
     };
 
-    private renderSelectablesUnderMouse(inputPos: CanvasInputPos): void {
+    private renderSelectablesUnderMouse(inputPos: CanvasInputPos, mouse: MouseEvent): void {
         const q = this.viewArgs.model.query;
 
         let disps = q.filterForVisibleDisps(q.selectableDisps,
@@ -352,19 +353,40 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         // Sort by how close the click is from the center of the box.
         hits = q.sortByDistanceFromCenter(hits, inputPos);
 
-        this.suggestedDispToSelect = null;
+
         if (!hits.length)
-            return;
+            return this.clearSelectableUnderMouse();
 
         // Don't highlight already selected disps
         for (const selDisp of q.selectedDisps) {
             if (DispBase.id(selDisp) == DispBase.id(hits[0]))
-                return;
+                return this.clearSelectableUnderMouse();
         }
 
-        this.suggestedDispToSelect = hits[0];
+        const newHit = hits[0];
+        if (this.suggestedDispToSelect != null &&
+            DispBase.id(newHit) == DispBase.id(this.suggestedDispToSelect))
+            return;
+
+        this.clearSelectableUnderMouse();
+
+        this.suggestedDispToSelect = newHit;
+        this.viewArgs.objectPopupService
+            .showTooltipPopup(diagramBaseUrl,
+                mouse,
+                this.viewArgs.config.controller.modelSetKey,
+                DispBase.key(newHit));
         this.viewArgs.config.invalidate();
     };
+
+    private clearSelectableUnderMouse(): void {
+        if (this.suggestedDispToSelect == null)
+            return;
+
+        this.suggestedDispToSelect = null;
+        this.viewArgs.objectPopupService.hideTooltipPopup();
+        this.viewArgs.config.invalidate();
+    }
 
     _selectByPoint(inputPos: CanvasInputPos) {
         const q = this.viewArgs.model.query;
@@ -388,7 +410,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     }
 
     _changeSelection(hits) {
-
+        this.clearSelectableUnderMouse();
 
         // Remove clicked on thing
         if (this._mouseDownOnSelection && this._mouseDownWithShift) {
