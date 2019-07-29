@@ -16,7 +16,7 @@ import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
 import * as $ from "jquery";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {PositionUpdatedI} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {ObjectPopupService} from "@peek/peek_plugin_object_popup";
+import {DocDbPopupService} from "@peek/peek_plugin_docdb";
 import {
     DiagramPositionI,
     PrivateDiagramPositionService
@@ -73,7 +73,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 private lookupService: PrivateDiagramLookupService,
                 private coordSetCache: PrivateDiagramCoordSetService,
                 private privatePosService: PrivateDiagramPositionService,
-                private objectPopupService: ObjectPopupService,
+                private objectPopupService: DocDbPopupService,
                 private itemSelectService: PrivateDiagramItemSelectService,
                 private configService: PrivateDiagramConfigService,
                 private branchService: PrivateDiagramBranchService,

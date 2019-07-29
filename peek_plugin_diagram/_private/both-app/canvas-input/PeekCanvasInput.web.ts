@@ -16,7 +16,7 @@ import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
 import {PointI} from "../canvas-shapes/DispBase";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
-import {ObjectPopupService} from "@peek/peek_plugin_object_popup";
+import {DocDbPopupService} from "@peek/peek_plugin_docdb";
 
 
 /** Peek Canvas Input
@@ -39,7 +39,7 @@ export class PeekCanvasInput {
                 private model: PeekCanvasModel,
                 private renderFactory: PeekDispRenderFactory,
                 private lifecycleEventEmitter: ComponentLifecycleEventEmitter,
-                private objectPopupService: ObjectPopupService) {
+                private objectPopupService: DocDbPopupService) {
         this.delegateFinished();
     }
 

@@ -9,7 +9,7 @@ import {DispBase, DispBaseT, PointI} from "../canvas-shapes/DispBase";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
 import {InputDelegateConstructorEditArgs} from "./PeekCanvasInputDelegateUtil.web";
 import {diagramPluginName} from "@peek/peek_plugin_diagram/_private/PluginNames";
-import {ObjectPopupTypeE} from "@peek/peek_plugin_object_popup";
+import {DocDbPopupTypeE} from "@peek/peek_plugin_docdb";
 
 /**
  * This input delegate handles :
@@ -374,7 +374,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         // Show the tooltip
         this.viewArgs.objectPopupService
             .showPopup(
-                ObjectPopupTypeE.tooltipPopup,
+                DocDbPopupTypeE.tooltipPopup,
                 diagramPluginName,
                 mouse,
                 this.viewArgs.config.controller.modelSetKey,
@@ -387,7 +387,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     private clearSelectableUnderMouse(): void {
         // Hide the tooltip
-        this.viewArgs.objectPopupService.hidePopup(ObjectPopupTypeE.tooltipPopup);
+        this.viewArgs.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
 
         this.suggestedDispToSelect = null;
         this.viewArgs.config.invalidate();
@@ -416,7 +416,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     _changeSelection(hits, mouse: MouseEvent) {
         this.clearSelectableUnderMouse();
-        this.viewArgs.objectPopupService.hidePopup(ObjectPopupTypeE.summaryPopup);
+        this.viewArgs.objectPopupService.hidePopup(DocDbPopupTypeE.summaryPopup);
 
         // If nothing is selected, clear the selection
         if (hits.length == 0) {
@@ -437,7 +437,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             // Show the tooltip
             this.viewArgs.objectPopupService
                 .showPopup(
-                    ObjectPopupTypeE.summaryPopup,
+                    DocDbPopupTypeE.summaryPopup,
                     diagramPluginName,
                     mouse,
                     this.viewArgs.config.controller.modelSetKey,
