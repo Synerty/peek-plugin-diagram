@@ -13,6 +13,14 @@ export interface OptionalPositionArgsI {
     highlightKey?: string | null;
 }
 
+export interface DispKeyLocation {
+    modelSetKey: string;
+    coordSetKey: string;
+    dispKey: string;
+    positions: { x: number, y: number }[];
+    zoom: number;
+}
+
 /** Diagram Position Service
  *
  * This service allows other plugins embedding the diagram to position the diagram.
@@ -52,7 +60,7 @@ export abstract class DiagramPositionService {
      * @param modelSetKey: The model set that the disp key belongs to
      * @param dispKey: The key of the display item.
      *
-     * @param coordSetKey: Optionally, which coordSet to choose, otherwise if multitple
+     * @param coordSetKey: Optionally, which coordSet to choose, otherwise if multiple
      *                      coord sets are present, the user will be asked.
      *
      * @param opts: An Optional set of parameters to set the state of the diagram after
@@ -67,10 +75,21 @@ export abstract class DiagramPositionService {
      * @param modelSetKey: The model set that the disp key belongs to
      * @param dispKey: The key of the display item.
      *
-     * @returns A promise that fires if the positon exists.
+     * @returns A promise that fires if the position exists.
      *
      */
     abstract canPositionByKey(modelSetKey: string, dispKey: string): Promise<boolean> ;
+
+    /** Locations For Key
+     *
+     * @param modelSetKey: The model set that the disp key belongs to
+     * @param dispKey: The key of the display item.
+     *
+     * @returns A promise that fires with all the locations for that key.
+     *
+     */
+    abstract locationsForKey(modelSetKey: string,
+                             dispKey: string): Promise<DispKeyLocation[]> ;
 
     /** Position Updated Observable
      *

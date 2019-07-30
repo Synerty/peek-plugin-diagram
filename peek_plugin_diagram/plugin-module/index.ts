@@ -1,3 +1,5 @@
+export {DispKeyLocation} from "./DiagramPositionService";
+
 export {diagramPluginName} from "./_private";
 
 export {DiagramConfigService} from "./DiagramConfigService";
