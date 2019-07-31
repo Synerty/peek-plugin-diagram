@@ -249,9 +249,6 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         this.config.updateCoordSet(coordSet);
         this.coordSetKey = coordSetKey;
 
-        // Inform the position service that it's ready to go.
-        this.privatePosService.setReady(true);
-
     }
 
     connectSnapshotCallback(): void {
@@ -337,16 +334,6 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
 
     private connectDiagramService(): void {
-        // Hook up the isReady event
-        let isReadySub = this.doCheckEvent
-            .takeUntil(this.onDestroyEvent)
-            .subscribe(() => {
-                if (!this.isReady())
-                    return;
-
-                isReadySub.unsubscribe();
-                this.privatePosService.setReady(true);
-            });
 
         // Watch the positionByCoordSet observable
         this.privatePosService.positionByCoordSetObservable()
@@ -359,9 +346,12 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                 }
 
                 this.switchToCoordSet(coordSetKey);
+
+                // Inform the position service that it's ready to go.
+                this.privatePosService.setReady(true);
             });
 
-        // Watch the position observable
+        // Watch the position observables
         this.privatePosService.positionObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe((pos: DiagramPositionI) => {
@@ -384,6 +374,9 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
                         pos.opts.editingBranch
                     );
                 }
+
+                // Inform the position service that it's ready to go.
+                this.privatePosService.setReady(true);
 
             });
 
