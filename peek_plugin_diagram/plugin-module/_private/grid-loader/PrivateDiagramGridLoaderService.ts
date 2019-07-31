@@ -21,7 +21,6 @@ import {PrivateDiagramTupleService} from "../services";
 import {OfflineConfigTuple} from "../tuples";
 import {PrivateDiagramGridLoaderStatusTuple} from "./PrivateDiagramGridLoaderStatusTuple";
 import {EncodedGridTuple} from "./EncodedGridTuple";
-import {makeDispGroupGridKey} from "../tuples/ModelCoordSet";
 
 
 // ----------------------------------------------------------------------------
@@ -34,7 +33,9 @@ let clientGridWatchUpdateFromDeviceFilt = extend(
 
 // ----------------------------------------------------------------------------
 
-let noSpaceMsg = "there was not enough remaining storage space";
+const noSpaceMsg = "there was not enough remaining storage space";
+
+const indexDbNotOpenMsg = "IndexedDB peek_plugin_diagram_grids is not open";
 
 // ----------------------------------------------------------------------------
 
@@ -106,6 +107,8 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
     private _status = new PrivateDiagramGridLoaderStatusTuple();
 
     private offlineConfig: OfflineConfigTuple = new OfflineConfigTuple();
+
+    private readonly RETRIES = 5;
 
     constructor(private vortexService: VortexService,
                 private vortexStatusService: VortexStatusService,
@@ -328,19 +331,29 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
      *
      * Change the list of grids that the GridObserver is interested in.
      */
-    loadGrids(currentGridUpdateTimes: { [gridKey: string]: string },
-              gridKeys: string[]): void {
+    async loadGrids(currentGridUpdateTimes: { [gridKey: string]: string },
+                    gridKeys: string[]): Promise<void> {
 
-        // Query the local storage for the grids we don't have in the cache
-        this.queryStorageGrids(gridKeys)
-            .then((gridTuples: GridTuple[]) => {
+        for (let i = 0; i < this.RETRIES; i++) {
+            try {
+                // Query the local storage for the grids we don't have in the cache
+                let gridTuples: GridTuple[] = await this.queryStorageGrids(gridKeys);
+
                 // Now that we have the results from the local storage,
                 // we can send to the server.
                 for (let gridTuple of gridTuples)
                     currentGridUpdateTimes[gridTuple.gridKey] = gridTuple.lastUpdate;
 
                 this.sendWatchedGridsToServer(currentGridUpdateTimes);
-            });
+                return;
+
+            } catch (err) {
+                console.log(`GridCache.storeGridTuples: ${err}`);
+                if (!this.retry(err.message))
+                    return;
+            }
+        }
+
     }
 
     //
@@ -494,13 +507,19 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
                     .then(() => tx.close())
                     .catch(err => {
                         console.log(`GridCache.storeGridTuples: ${err}`);
-                        if (retries < 5 && err.message.indexOf(noSpaceMsg) !== -1)
+                        if (retries < this.RETRIES && this.retry(err.message))
                             return this.storeGridTuples(encodedGridTuples, retries++);
                     });
             });
         return retPromise;
     }
 
+    private retry(message: string): boolean {
+        if (message.indexOf(noSpaceMsg) !== -1)
+            return true;
+
+        return (message.indexOf(indexDbNotOpenMsg) !== -1);
+    }
 
     /** Load Grid Cache Index
      *
