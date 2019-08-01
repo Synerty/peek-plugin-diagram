@@ -2,19 +2,19 @@
 
     <div class="btn-group edit-toolbar-button-group">
         <button class="btn" (click)="canvasEditor.closeEditor()"
-                data-toggle="tooltip" data-placement="top"
-                title="Close Editor">
+                nz-tooltip
+                nzTitle="Close Editor">
             <fa name="times"></fa>
         </button>
         <button class="btn" (click)="canvasEditor.save()"
-                data-toggle="tooltip" data-placement="top"
-                title="Save Changes">
+                nz-tooltip
+                nzTitle="Save Changes">
             <fa name="save"></fa>
         </button>
         <button class="btn"
                 (click)="printDiagramClicked()"
-                data-toggle="tooltip" data-placement="top"
-                title="Show Printable Image">
+                nz-tooltip
+                nzTitle="Show Printable Image">
             <fa name="print"></fa>
         </button>
     </div>
@@ -25,14 +25,14 @@
         <button class="btn"
                 [class.btn-primary]="isEditSelectToolActive()"
                 (click)="selectEditSelectTool()"
-                data-toggle="tooltip" data-placement="top"
-                title="Select Tool">
+                nz-tooltip
+                nzTitle="Select Tool">
             <fa name="mouse-pointer"></fa>
         </button>
         <!-- Select properties TODO
         <button class="btn"
-                data-toggle="tooltip" data-placement="top"
-                title="Select Options">
+                nz-tooltip
+                nzTitle="Select Options">
             <fa name="cog"></fa>
         </button>
         -->
@@ -40,8 +40,8 @@
                 [disabled]="!isDeleteShapeActive()"
                 [class.disabled]="!isDeleteShapeActive()"
                 (click)="deleteShape()"
-                data-toggle="tooltip" data-placement="top"
-                title="Delete Shape">
+                nz-tooltip
+                nzTitle="Delete Shape">
             <fa name="trash-alt"></fa>
         </button>
     </div>
@@ -52,43 +52,43 @@
         <button class="btn"
                 [class.btn-primary]="isEditMakeTextActive()"
                 (click)="selectEditMakeTextTool()"
-                data-toggle="tooltip" data-placement="top"
-                title="Draw Text">
+                nz-tooltip
+                nzTitle="Draw Text">
             <fa name="font"></fa>
         </button>
         <button class="btn"
                 [class.btn-primary]="isEditMakeRectangleActive()"
                 (click)="selectEditMakeRectangleTool()"
-                data-toggle="tooltip" data-placement="top"
-                title="Draw Rectangle">
+                nz-tooltip
+                nzTitle="Draw Rectangle">
             <fa name="vector-square"></fa>
         </button>
         <button class="btn"
                 [class.btn-primary]="isEditMakeLineWithArrowActive()"
                 (click)="selectEditMakeLineWithArrowTool()"
-                data-toggle="tooltip" data-placement="top"
-                title="Draw Line with Arrow">
+                nz-tooltip
+                nzTitle="Draw Line with Arrow">
             <fa name="long-arrow-alt-up"></fa>
         </button>
         <button class="btn"
                 [class.btn-primary]="isEditMakeEllipseActive()"
                 (click)="selectEditMakeEllipseTool()"
-                data-toggle="tooltip" data-placement="top"
-                title="Draw Circle, Ellipse or Arc">
+                nz-tooltip
+                nzTitle="Draw Circle, Ellipse or Arc">
             <fa name="circle-notch"></fa>
         </button>
         <button class="btn"
                 [class.btn-primary]="isEditMakePolygonActive()"
                 (click)="selectEditMakePolygonTool()"
-                data-toggle="tooltip" data-placement="top"
-                title="Draw Polygon">
+                nz-tooltip
+                nzTitle="Draw Polygon">
             <fa name="draw-polygon"></fa>
         </button>
         <button class="btn"
                 [class.btn-primary]="isEditMakePolylineActive()"
                 (click)="selectEditMakePolylineTool()"
-                data-toggle="tooltip" data-placement="top"
-                title="Draw PolyLine / Line">
+                nz-tooltip
+                nzTitle="Draw PolyLine / Line">
             <fa name="project-diagram"></fa>
         </button>
     </div>
@@ -99,16 +99,16 @@
         <button class="btn"
                 [class.btn-primary]="isEditMakeGroupPtrVertexActive()"
                 (click)="selectEditMakeGroupPtrVertexTool()"
-                data-toggle="tooltip" data-placement="top"
-                title="Place Equipment">
+                nz-tooltip
+                nzTitle="Place Equipment">
             <fa name="dot-circle"></fa>
         </button>
         <!--
         <button class="btn"
                 [class.btn-primary]="isEditMakeGroupPtrEdgeActive()"
                 (click)="selectEditMakeGroupPtrEdgeTool()"
-                data-toggle="tooltip" data-placement="top"
-                title="Place Conductor">
+                nz-tooltip
+                nzTitle="Place Conductor">
             <fa name="minus"></fa>
         </button>
         -->
@@ -121,7 +121,7 @@
                 [class.btn-primary]="isButtonActive(btn)"
                 class="btn tool-button"
                 (click)="buttonClicked(btn)"
-                data-toggle="tooltip" data-placement="top"
+                nz-tooltip
                 [title]="btn.tooltip">
             <fa *ngIf="btn.icon" [name]="btn.icon"></fa>
             {{btn.name}}

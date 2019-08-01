@@ -26,6 +26,7 @@ import {EditPropsGroupPtrComponent} from "./edit-props-group-ptr-component/edit-
 import {PrintComponent} from "./print-component/print.component.web";
 import {NzDropDownModule} from 'ng-zorro-antd/dropdown';
 import {NzTabsModule} from 'ng-zorro-antd/tabs';
+import {NzToolTipModule} from 'ng-zorro-antd/tooltip';
 
 // Define the root module for this plugin.
 // This module is loaded by the lazy loader, what ever this defines is what is started.
@@ -35,7 +36,9 @@ import {NzTabsModule} from 'ng-zorro-antd/tabs';
         CommonModule,
         ...PeekModuleFactory.FormsModules,
         NzDropDownModule,
-        NzTabsModule
+        NzTabsModule,
+        NzToolTipModule
+
     ],
     exports: [
         DiagramComponent,

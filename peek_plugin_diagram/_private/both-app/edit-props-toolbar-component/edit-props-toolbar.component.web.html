@@ -7,8 +7,8 @@
     <button class="btn"
             [class.btn-primary]="isBranchPropertiesActive()"
             (click)="showBranchProperties()"
-            data-toggle="tooltip" data-placement="top"
-            title="Branch Properties">
+            nz-tooltip
+            nzTitle="Branch Properties">
         <fa name="code-branch"></fa>
     </button>
     <br>
@@ -17,8 +17,8 @@
             *ngIf="isShapePropertiesShown()"
             [class.btn-primary]="isShapePropertiesActive()"
             (click)="showShapeProperties()"
-            data-toggle="tooltip" data-placement="top"
-            title="Shape Properties">
+            nz-tooltip
+            nzTitle="Shape Properties">
         <fa name="sliders-h"></fa>
     </button>
     <br>
@@ -27,8 +27,8 @@
             *ngIf="isGroupPtrPropertiesShown()"
             [class.btn-primary]="isGroupPtrPropertiesActive()"
             (click)="showGroupPtrProperties()"
-            data-toggle="tooltip" data-placement="top"
-            title="Template Selection">
+            nz-tooltip
+            nzTitle="Template Selection">
         <fa name="stamp"></fa>
     </button>
     <br>
@@ -37,8 +37,8 @@
             *ngIf="isLiveDbPropertiesShown()"
             [class.btn-primary]="isLiveDbPropertiesActive()"
             (click)="showLiveDbProperties()"
-            data-toggle="tooltip" data-placement="top"
-            title="Dynamic Properties">
+            nz-tooltip
+            nzTitle="Dynamic Properties">
         <fa name="bolt"></fa>
     </button>
     <br>

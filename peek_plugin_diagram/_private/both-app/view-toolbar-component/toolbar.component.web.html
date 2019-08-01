@@ -17,28 +17,28 @@
 
         <button class="btn"
                 (click)="printDiagramClicked()"
-                data-toggle="tooltip" data-placement="top"
-                title="Show Diagram for Print">
+                nz-tooltip
+                nzTitle="Show Diagram for Print">
             <fa name="print"></fa>
         </button>
         <button class="btn"
                 *ngIf="showEditDiagramButton()"
                 (click)="editDiagramClicked()"
-                data-toggle="tooltip" data-placement="top"
-                title="Edit Diagram">
+                nz-tooltip
+                nzTitle="Edit Diagram">
             <fa name="pencil-alt"></fa>
         </button>
         <button class="btn"
                 *ngIf="showSelectBranchesButton()"
                 (click)="selectBranchesClicked()"
-                data-toggle="tooltip" data-placement="top"
-                title="Show Branches">
+                nz-tooltip
+                nzTitle="Show Branches">
             <fa name="code-branch"></fa>
         </button>
         <button class="btn"
                 (click)="selectLayersClicked()"
-                data-toggle="tooltip" data-placement="top"
-                title="Select Layers">
+                nz-tooltip
+                nzTitle="Select Layers">
             <fa name="layer-group"></fa>
         </button>
     </div>
@@ -49,8 +49,8 @@
         <button *ngIf="showGoUpParentButton()"
                 class="btn tool-button"
                 (click)="goUpParentButtonClicked(btn)"
-                data-toggle="tooltip" data-placement="top"
-                title="Back">
+                nz-tooltip
+                nzTitle="Back">
             <fa name="back"></fa>
             Back
         </button>
@@ -58,7 +58,7 @@
                 class="btn tool-button"
                 [class.btn-primary]="isButtonActive(btn)"
                 (click)="buttonClicked(btn)"
-                data-toggle="tooltip" data-placement="top"
+                nz-tooltip
                 [title]="btn.tooltip">
             <fa *ngIf="btn.icon" [name]="btn.icon"></fa>
             {{btn.name}}
