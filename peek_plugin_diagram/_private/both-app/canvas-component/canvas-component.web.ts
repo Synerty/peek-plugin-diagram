@@ -60,7 +60,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
 
     private renderer: PeekCanvasRenderer;
     private renderFactory: PeekDispRenderFactory;
-    private model: PeekCanvasModel;
+    model: PeekCanvasModel;
     input: PeekCanvasInput;
     editor: PeekCanvasEditor;
 

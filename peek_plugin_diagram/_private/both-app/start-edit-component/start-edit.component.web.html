@@ -16,24 +16,8 @@
             </div>
             <div class="modal-body edit-create-branch-body">
 
-                <div class="peek-tabs-section">
-                    <div class="btn-group" role="group">
-                        <Button class="tabs-section-btn"
-                                [class.active]="barIndex == NEW_TAB"
-                                (click)="barIndex = NEW_TAB">
-                            Create New
-                        </Button>
-                        <Button class="tabs-section-btn"
-                                [class.active]="barIndex == EXISTING_TAB"
-                                (click)="barIndex = EXISTING_TAB">
-                            Edit Existing
-                        </Button>
-                    </div>
-                </div>
-
-                <div class="peek-nav-bar-padding">
-
-                    <div *ngIf="barIndex == NEW_TAB">
+                <nz-tabset>
+                    <nz-tab nzTitle="Create New">
                         <div class="peek-details-section">
                             <div class="container-fluid">
 
@@ -66,43 +50,41 @@
                                 </div>
                             </div>
                         </div>
-
-                    </div>
-
-                    <div *ngIf="barIndex == EXISTING_TAB">
-                        <p *ngIf="noItems()">
-                            There are no existing branches.
-                        </p>
-                        <div *ngIf="!noItems()" class="peek-tables-section">
-                            <table class="table">
-                                <tbody>
-                                <tr class="tr"
-                                    *ngFor="let item of items; odd as odd; even as even"
-                                    [class.bg-odd]="odd"
-                                    [class.bg-even]="even"
-                                    [class.bg-info]="isBranchSelected(item)"
-                                    (click)="selectBranch(item)">
-                                    <th class="td"
+                    </nz-tab>
+                    <nz-tab nzTitle="Edit Existing">
+                        <div>
+                            <p *ngIf="noItems()">
+                                There are no existing branches.
+                            </p>
+                            <div *ngIf="!noItems()" class="peek-tables-section">
+                                <table class="table">
+                                    <tbody>
+                                    <tr class="tr"
+                                        *ngFor="let item of items; odd as odd; even as even"
                                         [class.bg-odd]="odd"
                                         [class.bg-even]="even"
-                                        [class.bg-info]="isBranchSelected(item)">
-                                        {{item.name}}
-                                    </th>
-                                    <th class="td"
-                                        [class.bg-odd]="odd"
-                                        [class.bg-even]="even"
-                                        [class.bg-info]="isBranchSelected(item)">
-                                        {{item.order}}
-                                    </th>
-                                </tr>
-                                </tbody>
-                            </table>
+                                        [class.bg-info]="isBranchSelected(item)"
+                                        (click)="selectBranch(item)">
+                                        <th class="td"
+                                            [class.bg-odd]="odd"
+                                            [class.bg-even]="even"
+                                            [class.bg-info]="isBranchSelected(item)">
+                                            {{item.name}}
+                                        </th>
+                                        <th class="td"
+                                            [class.bg-odd]="odd"
+                                            [class.bg-even]="even"
+                                            [class.bg-info]="isBranchSelected(item)">
+                                            {{item.order}}
+                                        </th>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
-                </div>
-
-
+                    </nz-tab>
+                </nz-tabset>
             </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+        </div>
+    </div>
+</div>
