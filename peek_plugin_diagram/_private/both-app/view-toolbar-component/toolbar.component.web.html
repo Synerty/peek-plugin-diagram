@@ -2,16 +2,16 @@
     <div class="btn-group">
         <button class="btn"
                 *ngIf="showExitDiagramButton()"
-                nzTrigger="click"
-                nz-button nz-dropdown [nzDropdownMenu]="changeCoordSetMenu"
-                nzPlacement="bottomLeft">
+                nz-button
+                nz-dropdown [nzDropdownMenu]="changeCoordSetMenu" nzPlacement="bottomLeft">
             <fa name="exchange-alt"></fa>
         </button>
         <nz-dropdown-menu #changeCoordSetMenu="nzDropdownMenu">
             <ul nz-menu>
                 <li nz-menu-item
                     *ngFor="let item of coordSetsForMenu"
-                    (click)="changeCoordSetMenuItemClicked(item)">{{item.name}}</li>
+                    (click)="changeCoordSetMenuItemClicked(item)">{{item.name}}
+                </li>
             </ul>
         </nz-dropdown-menu>
 
@@ -59,7 +59,7 @@
                 [class.btn-primary]="isButtonActive(btn)"
                 (click)="buttonClicked(btn)"
                 nz-tooltip
-                [title]="btn.tooltip">
+                [nzTitle]="btn.tooltip">
             <fa *ngIf="btn.icon" [name]="btn.icon"></fa>
             {{btn.name}}
         </button>
