@@ -4,9 +4,8 @@ import {
     TupleDataObserverService,
     TupleSelector
 } from "@synerty/vortexjs";
-import {diagramFilt} from "@peek/peek_plugin_diagram/_private";
-import {DiagramImporterStatusTuple} from "@peek/peek_plugin_diagram/_private/admin";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import {DiagramImporterStatusTuple} from "../tuples/DiagramImporterStatusTuple";
 
 
 @Component({

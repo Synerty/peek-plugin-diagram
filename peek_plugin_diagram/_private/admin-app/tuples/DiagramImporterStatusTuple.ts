@@ -1,5 +1,5 @@
 import {addTupleType, Tuple} from "@synerty/vortexjs";
-import {diagramTuplePrefix} from "../PluginNames";
+import {diagramTuplePrefix} from "@peek/peek_plugin_diagram/_private/PluginNames";
 
 
 @addTupleType
@@ -13,18 +13,18 @@ export class DiagramImporterStatusTuple extends Tuple {
 
     gridCompilerQueueStatus: boolean;
     gridCompilerQueueSize: number;
-    gridCompilerQueueProcessedTotal: number;
-    gridCompilerQueueLastError: string;
+    gridCompilerProcessedTotal: number;
+    gridCompilerLastError: string;
 
     locationIndexCompilerQueueStatus: boolean;
     locationIndexCompilerQueueSize: number;
-    locationIndexCompilerQueueProcessedTotal: number;
-    locationIndexCompilerQueueLastError: string;
+    locationIndexCompilerProcessedTotal: number;
+    locationIndexCompilerLastError: string;
 
     branchIndexCompilerQueueStatus: boolean;
     branchIndexCompilerQueueSize: number;
-    branchIndexCompilerQueueProcessedTotal: number;
-    branchIndexCompilerQueueLastError: string;
+    branchIndexCompilerProcessedTotal: number;
+    branchIndexCompilerLastError: string;
 
     constructor() {
         super(DiagramImporterStatusTuple.tupleName)
