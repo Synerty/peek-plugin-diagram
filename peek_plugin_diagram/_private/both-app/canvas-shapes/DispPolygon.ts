@@ -7,6 +7,7 @@ import {
     ShapePropType
 } from "../canvas/PeekCanvasShapePropsContext";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
+import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 
 export enum PolygonFillDirection {
     fillTopToBottom = 0,
@@ -93,14 +94,7 @@ export class DispPolygon extends DispPoly {
     }
 
     static center(disp: DispPolygonT): PointI {
-        const pointCount = disp.g.length / 2;
-        let x = 0;
-        let y = 0;
-        for (const i = 0; i < disp.g.length - 2; i + 2) {
-            x += disp.g[i];
-            y += disp.g[i + 1];
-        }
-        return {x: x / pointCount, y: y / pointCount};
+        return PeekCanvasBounds.fromGeom( disp.g).center();
     }
 
     static contains(disp: DispPolygonT, point: PointI, margin: number): boolean {
