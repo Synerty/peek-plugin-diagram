@@ -6,15 +6,14 @@ import pytz
 from sqlalchemy import asc
 from twisted.internet import task
 from twisted.internet.defer import inlineCallbacks
+from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
 
-from peek_plugin_base.storage.StorageUtil import makeCoreValuesSubqueryCondition
 from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexUpdateHandler import \
     ClientLocationIndexUpdateHandler
 from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
 from peek_plugin_diagram._private.storage.LocationIndex import \
     LocationIndexCompilerQueue
-from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +29,6 @@ class DispKeyCompilerQueueController:
 
     """
 
-    DE_DUPE_FETCH_SIZE = 2000
     ITEMS_PER_TASK = 10
     PERIOD = 5.000
 
@@ -41,7 +39,7 @@ class DispKeyCompilerQueueController:
                  statusController: StatusController,
                  clientLocationUpdateHandler: ClientLocationIndexUpdateHandler,
                  readyLambdaFunc: Callable):
-        self._ormSessionCreator = ormSessionCreator
+        self._dbSessionCreator = ormSessionCreator
         self._statusController: StatusController = statusController
         self._clientLocationUpdateHandler: ClientLocationIndexUpdateHandler = clientLocationUpdateHandler
         self._readyLambdaFunc = readyLambdaFunc
@@ -87,24 +85,6 @@ class DispKeyCompilerQueueController:
         if not queueItems:
             return
 
-        # De duplicated queued grid keys
-        # This is the reason why we don't just queue all the celery tasks in one go.
-        # If we keep them in the DB queue, we can remove the duplicates
-        # and there are lots of them
-        queueIdsToDelete = []
-
-        locationIndexBucketSet = set()
-        for i in queueItems:
-            if i.indexBucket in locationIndexBucketSet:
-                queueIdsToDelete.append(i.id)
-            else:
-                locationIndexBucketSet.add(i.indexBucket)
-
-        if queueIdsToDelete:
-            # Delete the duplicates and requery for our new list
-            yield self._deleteDuplicateQueueItems(queueIdsToDelete)
-            queueItems = yield self._grabQueueChunk()
-
         # Send the tasks to the peek worker
         for start in range(0, len(queueItems), self.ITEMS_PER_TASK):
 
@@ -121,38 +101,43 @@ class DispKeyCompilerQueueController:
             if self._queueCount >= self.QUEUE_MAX:
                 break
 
+        yield self._dedupeQueue()
+
     @deferToThreadWrapWithLogger(logger)
     def _grabQueueChunk(self):
-        session = self._ormSessionCreator()
+        session = self._dbSessionCreator()
         try:
             qry = (session.query(LocationIndexCompilerQueue)
                    .order_by(asc(LocationIndexCompilerQueue.id))
                    .filter(LocationIndexCompilerQueue.id > self._lastQueueId)
-                   .yield_per(self.DE_DUPE_FETCH_SIZE)
-                   .limit(self.DE_DUPE_FETCH_SIZE)
+                   .yield_per(self.QUEUE_MAX)
+                   .limit(self.QUEUE_MAX)
                    )
 
             queueItems = qry.all()
             session.expunge_all()
 
-            return queueItems
+            # Deduplicate the values and return the ones with the lowest ID
+            return list({o.indexBucket: o for o in reversed(queueItems)}.values())
 
         finally:
             session.close()
 
     @deferToThreadWrapWithLogger(logger)
-    def _deleteDuplicateQueueItems(self, itemIds):
-        session = self._ormSessionCreator()
-        table = LocationIndexCompilerQueue.__table__
+    def _dedupeQueue(self):
+        session = self._dbSessionCreator()
         try:
-            SIZE = 1000
-            for start in range(0, len(itemIds), SIZE):
-                chunkIds = itemIds[start: start + SIZE]
-
-                session.execute(table.delete(makeCoreValuesSubqueryCondition(
-                    session.bind, table.c.id, chunkIds
-                )))
-
+            session.execute("""
+                with sq as (
+                    SELECT min(id) as "minId"
+                    FROM pl_diagram."LocationIndexCompilerQueue"
+                    WHERE id > %s
+                    GROUP BY "modelSetId", "indexBucket"
+                )
+                DELETE
+                FROM pl_diagram."LocationIndexCompilerQueue"
+                WHERE "id" not in (SELECT "minId" FROM sq)
+            """ % self._lastQueueId)
             session.commit()
         finally:
             session.close()

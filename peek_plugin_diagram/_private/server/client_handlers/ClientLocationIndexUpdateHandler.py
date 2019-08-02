@@ -106,7 +106,7 @@ class ClientLocationIndexUpdateHandler:
 
             return Payload(
                 filt=clientLocationIndexUpdateFromServerFilt, tuples=locationIndexTuples
-            ).makePayloadEnvelope().toVortexMsg()
+            ).makePayloadEnvelope(compressionLevel=3).toVortexMsg()
 
         finally:
             session.close()

@@ -85,7 +85,7 @@ class BranchIndexChunkUpdateHandler:
 
             return (
                 Payload(filt=clientBranchIndexUpdateFromServerFilt, tuples=results)
-                    .makePayloadEnvelope().toVortexMsg()
+                    .makePayloadEnvelope(compressionLevel=3).toVortexMsg()
             )
 
         finally:

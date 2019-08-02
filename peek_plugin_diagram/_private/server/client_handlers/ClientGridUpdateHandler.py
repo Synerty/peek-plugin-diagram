@@ -97,7 +97,7 @@ class ClientGridUpdateHandler:
 
             return Payload(
                 filt=clientGridUpdateFromServerFilt, tuples=gridTuples
-                           ).makePayloadEnvelope().toVortexMsg()
+                           ).makePayloadEnvelope(compressionLevel=3).toVortexMsg()
 
         finally:
             session.close()

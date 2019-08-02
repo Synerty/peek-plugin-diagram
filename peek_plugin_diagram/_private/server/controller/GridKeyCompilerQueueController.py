@@ -3,18 +3,16 @@ from datetime import datetime
 from typing import List
 
 import pytz
-from sqlalchemy import asc
-from twisted.internet import task
-from twisted.internet.defer import inlineCallbacks
-from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
-
-from peek_plugin_base.storage.StorageUtil import makeCoreValuesSubqueryCondition
 from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import \
     ClientGridUpdateHandler
 from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
 from peek_plugin_diagram._private.storage.GridKeyIndex import \
     GridKeyCompilerQueue
+from sqlalchemy import asc
+from twisted.internet import task
+from twisted.internet.defer import inlineCallbacks
+from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +28,6 @@ class GridKeyCompilerQueueController:
 
     """
 
-    DE_DUPE_FETCH_SIZE = 1000
     ITEMS_PER_TASK = 5
     PERIOD = 0.200
 
@@ -40,7 +37,7 @@ class GridKeyCompilerQueueController:
     def __init__(self, ormSessionCreator,
                  statusController: StatusController,
                  clientGridUpdateHandler: ClientGridUpdateHandler):
-        self._ormSessionCreator = ormSessionCreator
+        self._dbSessionCreator = ormSessionCreator
         self._statusController: StatusController = statusController
         self._clientGridUpdateHandler: ClientGridUpdateHandler = clientGridUpdateHandler
 
@@ -85,24 +82,6 @@ class GridKeyCompilerQueueController:
         if not queueItems:
             return
 
-        # De duplicated queued grid keys
-        # This is the reason why we don't just queue all the celery tasks in one go.
-        # If we keep them in the DB queue, we can remove the duplicates
-        # and there are lots of them
-        queueIdsToDelete = []
-
-        gridKeySet = set()
-        for i in queueItems:
-            if i.gridKey in gridKeySet:
-                queueIdsToDelete.append(i.id)
-            else:
-                gridKeySet.add(i.gridKey)
-
-        if queueIdsToDelete:
-            # Delete the duplicates and requery for our new list
-            yield self._deleteDuplicateQueueItems(queueIdsToDelete)
-            queueItems = yield self._grabQueueChunk()
-
         # Send the tasks to the peek worker
         for start in range(0, len(queueItems), self.ITEMS_PER_TASK):
 
@@ -124,38 +103,43 @@ class GridKeyCompilerQueueController:
             if self._queueCount >= self.QUEUE_MAX:
                 break
 
+        yield self._dedupeQueue()
+
     @deferToThreadWrapWithLogger(logger)
     def _grabQueueChunk(self):
-        session = self._ormSessionCreator()
+        session = self._dbSessionCreator()
         try:
             qry = (session.query(GridKeyCompilerQueue)
                    .order_by(asc(GridKeyCompilerQueue.id))
                    .filter(GridKeyCompilerQueue.id > self._lastQueueId)
-                   .yield_per(self.DE_DUPE_FETCH_SIZE)
-                   .limit(self.DE_DUPE_FETCH_SIZE)
+                   .yield_per(self.QUEUE_MAX)
+                   .limit(self.QUEUE_MAX)
                    )
 
             queueItems = qry.all()
             session.expunge_all()
 
-            return queueItems
+            # Deduplicate the values and return the ones with the lowest ID
+            return list({o.gridKey: o for o in reversed(queueItems)}.values())
 
         finally:
             session.close()
 
     @deferToThreadWrapWithLogger(logger)
-    def _deleteDuplicateQueueItems(self, itemIds):
-        session = self._ormSessionCreator()
-        table = GridKeyCompilerQueue.__table__
+    def _dedupeQueue(self):
+        session = self._dbSessionCreator()
         try:
-            SIZE = 1000
-            for start in range(0, len(itemIds), SIZE):
-                chunkIds = itemIds[start: start + SIZE]
-
-                session.execute(table.delete(makeCoreValuesSubqueryCondition(
-                    session.bind, table.c.id, chunkIds
-                )))
-
+            session.execute("""
+                with sq as (
+                    SELECT min(id) as "minId"
+                    FROM pl_diagram."GridKeyCompilerQueue"
+                    WHERE id > %s
+                    GROUP BY "coordSetId", "gridKey"
+                )
+                DELETE
+                FROM pl_diagram."GridKeyCompilerQueue"
+                WHERE "id" not in (SELECT "minId" FROM sq)
+            """ % self._lastQueueId)
             session.commit()
         finally:
             session.close()
