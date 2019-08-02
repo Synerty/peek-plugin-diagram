@@ -17,6 +17,7 @@ class BranchLiveEditTupleAction(TupleActionABC):
     EDITING_STARTED = 1
     EDITING_UPDATED = 2
     EDITING_FINISHED = 3
+    EDITING_SAVED = 3
 
     updatedByUser: str = TupleField()
     actionType: int = TupleField()

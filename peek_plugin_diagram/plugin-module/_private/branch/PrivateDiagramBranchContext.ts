@@ -10,7 +10,6 @@ import {BranchLiveEditTuple} from "./BranchLiveEditTuple";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 import {PrivateDiagramLookupService} from "../services/PrivateDiagramLookupService";
 
-
 /** Diagram Branch Service
  *
  * This is the implementation of the diagram branch service.
@@ -62,18 +61,17 @@ export class PrivateDiagramBranchContext {
         return this._branchUpdatedSubject.takeUntil(this.shutdownSubject);
     }
 
-    save(): Promise<void> {
-        let promises = [];
+    async save(): Promise<void> {
+        this.branchTuple.branchHasBeenSaved();
 
-        promises.push(this.branchLocalLoader.saveBranch(this));
+        await this.branchLocalLoader.saveBranch(this);
 
         let action = new BranchUpdateTupleAction();
         action.modelSetId = this._modelSetId;
         action.branchTuple = this.branch;
-        promises.push(this.tupleService.offlineAction.pushAction(action));
+        await this.tupleService.offlineAction.pushAction(action);
 
-        let prom: any = Promise.all(promises);
-        return prom;
+        this.sendLiveUpdate(BranchLiveEditTupleAction.EDITING_SAVED);
     }
 
     open(): void {
@@ -96,6 +94,12 @@ export class PrivateDiagramBranchContext {
                     return;
 
                 const update = tuples[0];
+
+                if (update.actionType == BranchLiveEditTupleAction.EDITING_SAVED
+                    && update.updatedByUser != this.userKey()) {
+                    this.balloonMsg
+                        .showWarning("Another user has saved this diagram edit.");
+                }
 
                 if (update.updateFromSave) {
                     this.branchLocalLoader.saveBranch(this)

@@ -33,7 +33,8 @@ export class BranchTuple extends Tuple {
     private static readonly __DISPS_NUM = 6;
     private static readonly __ANCHOR_DISP_KEYS_NUM = 7;
     private static readonly __UPDATED_BY_USER_NUM = 8;
-    private static readonly __LAST_INDEX_NUM = 8;
+    private static readonly __NEEDS_SAVE_NUM = 9; // Not stored in DB
+    private static readonly __LAST_INDEX_NUM = 9;
 
 
     // This structure stores IDs that need to be updated, from disps that have been
@@ -62,6 +63,7 @@ export class BranchTuple extends Tuple {
         branch.packedJson__[BranchTuple.__DISPS_NUM] = [];
         branch.packedJson__[BranchTuple.__ANCHOR_DISP_KEYS_NUM] = [];
         branch.packedJson__[BranchTuple.__UPDATED_BY_USER_NUM] = null;
+        branch.packedJson__[BranchTuple.__NEEDS_SAVE_NUM] = false;
         return branch;
     }
 
@@ -105,6 +107,18 @@ export class BranchTuple extends Tuple {
         if (this.packedJson__[num] == null)
             this.packedJson__[num] = [];
         return this.packedJson__[num];
+    }
+
+    get needsSave(): boolean {
+        return this.packedJson__[BranchTuple.__NEEDS_SAVE_NUM];
+    }
+
+    branchHasBeenSaved(): void {
+        this.packedJson__[BranchTuple.__NEEDS_SAVE_NUM] = false;
+    }
+
+    private setNeedsSave(): void {
+        this.packedJson__[BranchTuple.__NEEDS_SAVE_NUM] = true;
     }
 
     get id(): number {
@@ -363,6 +377,7 @@ export class BranchTuple extends Tuple {
 
 
     touchUpdateDate(modelUpdateRequired: boolean = false): void {
+        this.setNeedsSave();
         this.setUpdatedDate(new Date());
         if (this._contextUpdateCallback != null)
             this._contextUpdateCallback(modelUpdateRequired);
@@ -422,10 +437,6 @@ export class BranchTuple extends Tuple {
                 // Delete all the linked lookups, we just want the IDs
                 else if (dispval['__rst'] != null) // VortexJS Serialise Class Type
                     delete disp[key];
-
-                // // Reset temp ID
-                // else if (key == "id" && dispval != null && dispval.indexOf("NEW_") == 0)
-                //     delete disp[key];
 
             }
         }

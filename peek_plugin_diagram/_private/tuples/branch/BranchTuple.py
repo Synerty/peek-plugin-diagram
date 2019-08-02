@@ -28,7 +28,8 @@ class BranchTuple(Tuple):
     __DISPS_NUM = 6
     __ANCHOR_DISP_KEYS_NUM = 7
     __UPDATED_BY_USER_NUM = 8
-    __LAST_INDEX_NUM = 8
+    __NEEDS_SAVE_NUM = 9  # Not stored in DB
+    __LAST_INDEX_NUM = 9
 
     __tupleType__ = diagramTuplePrefix + 'BranchTuple'
 
@@ -65,16 +66,7 @@ class BranchTuple(Tuple):
 
         self = cls()
         self.packedJson__ = [
-            None,  # __ID_NUM
-            coordSetId,  # __COORD_SET_NUM
-            importBranchTuple.key,  # __KEY_NUM
-            importBranchTuple.visible,  # __VISIBLE_NUM
-            SerialiseUtil.toStr(datetime.now(pytz.utc)),  # __UPDATED_DATE
-            SerialiseUtil.toStr(datetime.now(pytz.utc)),  # __CREATED_DATE
-            None,  # __DELTAS_JSON_NUM
-            importBranchTuple.updatedDisps,  # __UPDATED_DISPS_JSON_NUM
-            importBranchTuple.addedDisps,  # __NEW_DISPS_JSON_NUM
-            importBranchTuple.deletedDispKeys,  # __DELETED_DISP_IDS_NUM
+            # TODO, Create the packed json array
         ]
         self.importHash = importBranchTuple.importHash
         self.importGroupHash = importBranchTuple.importGroupHash

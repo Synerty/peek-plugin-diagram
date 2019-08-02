@@ -1,11 +1,16 @@
 <div class="edit-toolbar">
 
     <div class="btn-group edit-toolbar-button-group">
-        <button class="btn" (click)="canvasEditor.closeEditor()"
-                nz-tooltip
-                nzTitle="Close Editor">
-            <fa name="times"></fa>
+
+        <button class="btn"
+                nz-popconfirm
+                [nzCondition]="!needsSave()"
+                nzTitle="Are you sure you want to exit with out saving?"
+                (nzOnConfirm)="confirmExitNoSave()"
+                nzPlacement="bottomLeft">
+            <fa  name="times"></fa>
         </button>
+
         <button class="btn" (click)="canvasEditor.save()"
                 nz-tooltip
                 nzTitle="Save Changes">
@@ -18,6 +23,7 @@
             <fa name="print"></fa>
         </button>
     </div>
+
 
     <div class="edit-toolbar-spacer"></div>
 

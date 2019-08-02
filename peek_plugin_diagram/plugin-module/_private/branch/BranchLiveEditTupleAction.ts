@@ -14,6 +14,7 @@ export class BranchLiveEditTupleAction extends TupleActionABC {
     static readonly EDITING_STARTED = 1;
     static readonly EDITING_UPDATED = 2;
     static readonly EDITING_FINISHED = 3;
+    static readonly EDITING_SAVED = 4;
 
     updatedByUser: string = null;
     actionType: number = null;

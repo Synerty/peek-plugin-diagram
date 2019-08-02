@@ -68,7 +68,6 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
         } else {
             // Expand children?
         }
-
     }
 
     isButtonActive(btn: DiagramToolButtonI): boolean {
@@ -77,9 +76,19 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
         return btn.isActive();
     }
 
+    // --------------------
+    // EXIT
+
+    needsSave(): boolean {
+        return this.canvasEditor.branchContext.branchTuple.needsSave;
+    }
+
+    confirmExitNoSave(): void {
+        this.canvasEditor.closeEditor();
+    }
 
     // --------------------
-    // PRINR
+    // PRINT
 
     printDiagramClicked(): void {
         this.openPrintPopupEmitter.next();

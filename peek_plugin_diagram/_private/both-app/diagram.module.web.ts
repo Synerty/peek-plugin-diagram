@@ -32,6 +32,8 @@ import {NzTableModule} from 'ng-zorro-antd/table';
 import {NzDescriptionsModule} from 'ng-zorro-antd/descriptions';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
+
 
 // Define the root module for this plugin.
 // This module is loaded by the lazy loader, what ever this defines is what is started.
@@ -47,7 +49,8 @@ import { NzSwitchModule } from 'ng-zorro-antd/switch';
         NzTableModule,
         NzDescriptionsModule,
         NzModalModule,
-        NzSwitchModule
+        NzSwitchModule,
+        NzPopconfirmModule
     ],
     exports: [
         DiagramComponent,
