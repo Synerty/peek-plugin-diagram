@@ -78,7 +78,7 @@ class BranchLiveEditController(TupleActionProcessorDelegateABC):
         liveEditTuple.branchTuple = branchTuple
         liveEditTuple.uiUpdateDate = branchTuple.updatedDate
         liveEditTuple.serverUpdateDate = datetime.now(pytz.utc)
-        liveEditTuple.updateFromSave = True
+        liveEditTuple.updateFromActionType = BranchLiveEditTuple.EDITING_SAVED
         self._cache[cacheKey] = liveEditTuple
 
     @inlineCallbacks
@@ -100,7 +100,7 @@ class BranchLiveEditController(TupleActionProcessorDelegateABC):
         tuple_.updatedByUser = tupleAction.updatedByUser
         tuple_.uiUpdateDate = tupleAction.dateTime
         tuple_.serverUpdateDate = datetime.now(pytz.utc)
-        tuple_.updateFromSave = False
+        tuple_.updateFromActionType = tupleAction.actionType
 
         self._cache[(coordSetId, key)] = tuple_
 

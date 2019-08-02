@@ -71,7 +71,8 @@ export class PrivateDiagramBranchContext {
         action.branchTuple = this.branch;
         await this.tupleService.offlineAction.pushAction(action);
 
-        this.sendLiveUpdate(BranchLiveEditTupleAction.EDITING_SAVED);
+        // No need to send a live update, the server will do this when it gets
+        // the save action
     }
 
     open(): void {
@@ -95,8 +96,7 @@ export class PrivateDiagramBranchContext {
 
                 const update = tuples[0];
 
-                if (update.actionType == BranchLiveEditTupleAction.EDITING_SAVED
-                    && update.updatedByUser != this.userKey()) {
+                if (update.updateFromSave && update.updatedByUser != this.userKey()) {
                     this.balloonMsg
                         .showWarning("Another user has saved this diagram edit.");
                 }
