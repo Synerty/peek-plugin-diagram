@@ -27,6 +27,11 @@ import {PrintComponent} from "./print-component/print.component.web";
 import {NzDropDownModule} from 'ng-zorro-antd/dropdown';
 import {NzTabsModule} from 'ng-zorro-antd/tabs';
 import {NzToolTipModule} from 'ng-zorro-antd/tooltip';
+import {NzButtonModule} from 'ng-zorro-antd/button';
+import {NzTableModule} from 'ng-zorro-antd/table';
+import {NzDescriptionsModule} from 'ng-zorro-antd/descriptions';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
 
 // Define the root module for this plugin.
 // This module is loaded by the lazy loader, what ever this defines is what is started.
@@ -37,8 +42,12 @@ import {NzToolTipModule} from 'ng-zorro-antd/tooltip';
         ...PeekModuleFactory.FormsModules,
         NzDropDownModule,
         NzTabsModule,
-        NzToolTipModule
-
+        NzToolTipModule,
+        NzButtonModule,
+        NzTableModule,
+        NzDescriptionsModule,
+        NzModalModule,
+        NzSwitchModule
     ],
     exports: [
         DiagramComponent,

@@ -15,6 +15,11 @@ import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
+import {
+    DocDbPopupClosedReasonE,
+    DocDbPopupService,
+    DocDbPopupTypeE
+} from "@peek/peek_plugin_docdb";
 
 
 @Component({
@@ -50,7 +55,8 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
 
     coordSetsForMenu: ModelCoordSet[] = [];
 
-    constructor(private abstractToolbarService: DiagramToolbarService,
+    constructor(private objectPopupService: DocDbPopupService,
+                private abstractToolbarService: DiagramToolbarService,
                 private branchService: PrivateDiagramBranchService,
                 private configService: PrivateDiagramConfigService,
                 private coordSetService: PrivateDiagramCoordSetService,
@@ -86,6 +92,7 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
     }
 
     buttonClicked(btn: DiagramToolButtonI): void {
+        this.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
         if (btn.callback != null) {
             btn.callback();
         } else if (btn.children == null && btn.children.length != 0) {
@@ -116,6 +123,7 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
     }
 
     changeCoordSetMenuItemClicked(coordSet: ModelCoordSet): void {
+        this.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
         this.positionService.positionByCoordSet(coordSet.key);
     }
 
@@ -129,18 +137,22 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
     }
 
     editDiagramClicked(): void {
+        this.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
         this.branchService.popupEditBranchSelection(this.modelSetKey, this.coordSetKey);
     }
 
     printDiagramClicked(): void {
+        this.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
         this.openPrintPopupEmitter.next();
     }
 
     selectBranchesClicked(): void {
+        this.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
         this.configService.popupBranchesSelection(this.modelSetKey, this.coordSetKey);
     }
 
     selectLayersClicked(): void {
+        this.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
         this.configService.popupLayerSelection(this.modelSetKey, this.coordSetKey);
     }
 
@@ -149,6 +161,7 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
     }
 
     goUpParentButtonClicked(): void {
+        this.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
         this.shownPluginButtons = this.parentPluginButtons.pop();
     }
 

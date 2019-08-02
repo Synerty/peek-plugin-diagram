@@ -1,140 +1,70 @@
 <div>
-    <div class="peek-tabs-section">
-        <div class="btn-group" role="group">
-            <Button class="tabs-section-btn"
-                    [class.active]="barIndex == DETAILS_TAB"
-                    (click)="barIndex = DETAILS_TAB">
-                Details
-            </Button>
-            <Button class="tabs-section-btn"
-                    [class.active]="barIndex == ANCHORS_TAB"
-                    (click)="barIndex = ANCHORS_TAB">
-                Anchors
-            </Button>
-            <Button class="tabs-section-btn"
-                    [class.active]="barIndex == EDITED_ITEMS_TAB"
-                    (click)="barIndex = EDITED_ITEMS_TAB">
-                Items
-            </Button>
-        </div>
-    </div>
 
-    <div>
-        <div class="peek-nav-bar-padding" *ngIf="barIndex == DETAILS_TAB">
 
-            <div class="row">
-                <div class="col-xs-4">
-                    <div class="details-section-title">
-                        Name
-                    </div>
-                </div>
-                <div class="col-xs-8">
-                    <div class="details-section-value">
-                        <span>{{globalBranch.name}}</span>
-                    </div>
-                </div>
+    <nz-tabset>
+        <nz-tab nzTitle="Details">
+            <nz-descriptions nzLayout="vertical">
+                <nz-descriptions-item nzTitle="Name">{{globalBranch.name}}
+                </nz-descriptions-item>
+                <nz-descriptions-item nzTitle="Created by">{{globalBranch.userName}}
+                </nz-descriptions-item>
+                <nz-descriptions-item nzTitle="Updated">{{globalBranch.updatedDate |
+                    date:'HH:mm EE dd-MMM'}}
+                </nz-descriptions-item>
+                <nz-descriptions-item nzTitle="Comment">{{globalBranch.comment}}
+                </nz-descriptions-item>
+            </nz-descriptions>
+
+        </nz-tab>
+        <nz-tab nzTitle="Anchors">
+            <p *ngIf="noAnchors()">
+                There are no anchor points in this branch.
+            </p>
+            <div *ngIf="!noAnchors()">
+
+                <nz-table class="scroll-box" nzTemplateMode
+                          ngSize="small">
+                    <tbody>
+                    <tr *ngFor="let item of anchorDocs"
+                        (mouseenter)="tooltipEnter($event, item) "
+                        (mouseleave)="tooltipExit($event, item)"
+                        (click)="showSummaryPopup($event, item) ">
+                        <td>
+                            <span nz-text><strong>{{item.header}}</strong></span>
+                            <span nz-text nzDisabled>, {{item.body}}<br></span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </nz-table>
+
             </div>
-            <hr>
+        </nz-tab>
+        <nz-tab nzTitle="Items">
+            <p *ngIf="noDisps()">
+                There are no items in this branch.
+            </p>
+            <div *ngIf="!noDisps()">
 
-            <div class="row">
-                <div class="col-xs-4">
-                    <div class="details-section-title">
-                        Created by
-                    </div>
-                </div>
-                <div class="col-xs-8">
-                    <div class="details-section-value">
-                        <span>{{globalBranch.userName}}</span>
-                    </div>
-                </div>
-            </div>
-            <hr>
+                <nz-table nzTemplateMode ngSize="small">
+                    <tbody>
+                    <tr *ngFor="let item of disps; odd as odd; even as even">
 
-            <div class="row">
-                <div class="col-xs-4">
-                    <div class="details-section-title">
-                        Updated
-                    </div>
-                </div>
-                <div class="col-xs-8">
-                    <div class="details-section-value">
-                        <span>{{globalBranch.updatedDate | date:'HH:mm EE dd-MMM'}}</span>
-                    </div>
-                </div>
-            </div>
-            <hr>
-
-            <div class="row">
-                <div class="col-xs-4">
-                    <div class="details-section-title">
-                        Comment
-                    </div>
-                </div>
-                <div class="col-xs-8">
-                    <div class="details-section-value">
-                        <span>{{globalBranch.comment}}</span>
-                    </div>
-                </div>
-            </div>
-            <hr>
-        </div>
-
-        <div class="peek-nav-bar-padding" *ngIf="barIndex == ANCHORS_TAB">
-            <div>
-                <p *ngIf="noAnchors()">
-                    There are no anchor points in this branch.
-                </p>
-                <div *ngIf="!noAnchors()" class="peek-tables-section">
-                    <table class="table">
-                        <tbody>
-                        <tr class="tr"
-                            *ngFor="let anchorDoc of anchorDocs; odd as odd; even as even">
-                            <td class="td">
-                                <Button class="btn"
-                                        (click)="positonAnchorOnDiagram(anchorDoc)">
-                                    <fa name="map-marker"></fa>
-                                </Button>
-                            </td>
-                            <td class="td" *ngFor="let prop of anchorDoc">
-                                {{prop.title}}<br>{{prop.value}}
-                            </td>
-
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="peek-nav-bar-padding" *ngIf="barIndex == EDITED_ITEMS_TAB">
-            <div>
-                <p *ngIf="noDisps()">
-                    There are no items in this branch.
-                </p>
-                <div *ngIf="!noDisps()" class="peek-tables-section">
-                    <table class="table">
-                        <tbody>
-                        <tr class="tr"
-                            *ngFor="let disp of disps; odd as odd; even as even">
-
-                            <td class="td">
-                                <Button class="btn"
-                                        (click)="positonDispOnDiagram(disp)">
-                                    <fa name="map-marker"></fa>
-                                </Button>
-                            </td>
-                            <td class="td">
-                                <span *ngFor="let line of dispDesc(disp); let last = last">
+                        <td>
+                            <button nz-button
+                                    (click)="positonDispOnDiagram(item.disp)">
+                                <fa name="map-marker"></fa>
+                            </button>
+                        </td>
+                        <td>
+                                <span *ngFor="let line of item.dispDesc; let last = last">
                                      {{line}} <br *ngIf="!last"/>
                                 </span>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </nz-table>
             </div>
+        </nz-tab>
+    </nz-tabset>
 
-        </div>
-    </div>
 </div>

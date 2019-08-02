@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewChild} from "@angular/core";
+import {Component, Input, OnInit} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {TitleService} from "@synerty/peek-util";
 import {BranchDetailTuple, BranchService} from "@peek/peek_plugin_branch";
@@ -11,6 +11,11 @@ import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetS
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch";
+import {
+    DocDbPopupClosedReasonE,
+    DocDbPopupService,
+    DocDbPopupTypeE
+} from "@peek/peek_plugin_docdb";
 
 
 @Component({
@@ -21,9 +26,6 @@ import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/br
 })
 export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
-    @ViewChild('modalView', {static: true}) modalView;
-
-    private backdropId = 'div.modal-backdrop';
     popupShown: boolean = false;
 
     @Input("coordSetKey")
@@ -44,7 +46,8 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
     selectedGlobalBranch: BranchDetailTuple | null = null;
 
 
-    constructor(private titleService: TitleService,
+    constructor(private objectPopupService: DocDbPopupService,
+                private titleService: TitleService,
                 private lookupService: PrivateDiagramLookupService,
                 private configService: PrivateDiagramConfigService,
                 private branchService: PrivateDiagramBranchService,
@@ -58,6 +61,16 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
             .popupBranchesSelectionObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe(() => this.openPopup());
+
+        this.objectPopupService
+            .popupClosedObservable(DocDbPopupTypeE.summaryPopup)
+            .filter(reason => reason == DocDbPopupClosedReasonE.userClickedAction)
+            .subscribe(() => this.closePopupFull());
+
+        this.objectPopupService
+            .popupClosedObservable(DocDbPopupTypeE.detailPopup)
+            .filter(reason => reason == DocDbPopupClosedReasonE.userClickedAction)
+            .subscribe(() => this.closePopupFull());
 
     }
 
@@ -91,7 +104,11 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
         this.items = [];
 
         this.popupShown = true;
-        this.platformOpen();
+    }
+
+    closePopupFull(): void {
+        this.clearBranchDetails();
+        this.closePopup();
     }
 
     closePopup(): void {
@@ -108,29 +125,9 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
         this.config.setModelNeedsCompiling();
 
         this.popupShown = false;
-        this.platformClose();
 
         // Discard the integration additions
         this.items = [];
-    }
-
-    platformOpen(): void {
-        // .modal is defined in bootstraps code
-        let jqModal: any = $(this.modalView.nativeElement);
-
-        jqModal.modal({
-            backdrop: 'static',
-            keyboard: false
-        });
-
-        // Move the backdrop
-        let element = $(this.backdropId).detach();
-        jqModal.parent().append(element);
-    }
-
-    platformClose(): void {
-        let jqModal: any = $(this.modalView.nativeElement);
-        jqModal.modal('hide');
     }
 
 
@@ -138,14 +135,16 @@ export class SelectBranchesComponent extends ComponentLifecycleEventEmitter
         return this.items.length == 0;
     }
 
-    toggleEnabled(branchDetail: BranchDetailTuple): void {
+    toggleBranchEnabled(branchDetail: BranchDetailTuple): void {
         if (this.enabledBranches[branchDetail.key] == null) {
             this.enabledBranches[branchDetail.key] = branchDetail;
-            branchDetail["__enabled"] = true;
         } else {
             delete this.enabledBranches[branchDetail.key];
-            branchDetail["__enabled"] = false;
         }
+    }
+
+    isBranchEnabled(branchDetail: BranchDetailTuple): boolean {
+        return this.enabledBranches[branchDetail.key] != null;
     }
 
     branchSelected(branchDetail: BranchDetailTuple): void {

@@ -1,40 +1,24 @@
-<div #modalView class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-md" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" (click)="closePopup()"
-                        aria-label="Close">
-                    <fa name="times"></fa>
-                </button>
-                <h4 class="modal-title">Select Layers</h4>
-            </div>
-            <div class="modal-body">
-                <p *ngIf="noItems()">
-                    There are no layers to view at this time.
-                </p>
-                <div *ngIf="!noItems()" class="peek-tables-section">
-                    <table class="table">
-                        <tbody>
-                        <tr class="tr"
-                            *ngFor="let item of items; odd as odd; even as even"
-                            [class.bg-success]="item.visible"
-                            [class.bg-warning]="!item.visible"
-                        (click)="toggleVisible(item)">
-                            <th class="td"
-                                [class.bg-success]="item.visible"
-                                [class.bg-warning]="!item.visible">{{item.name}}
-                            </th>
-                            <th class="td"
-                                [class.bg-success]="item.visible"
-                                [class.bg-warning]="!item.visible">{{item.order}}
-                            </th>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+<nz-modal [nzVisible]="popupShown"
+          nzTitle="Select Layers"
+          [nzFooter]="null"
+          (nzOnCancel)="closePopup()">
+    <p *ngIf="noItems()">
+        There are no layers to view at this time.
+    </p>
+    <div *ngIf="!noItems()">
+        <nz-table nzTemplateMode ngSize="small">
+            <tbody>
+            <tr *ngFor="let item of items">
+                <td>
+                    <nz-switch (ngModelChange)="toggleLayerVisible(item)"
+                               [ngModel]="item.visible"></nz-switch>
+                </td>
+                <td>{{item.name}}
+                </td>
+                <td>{{item.order}}
+                </td>
+            </tr>
+            </tbody>
+        </nz-table>
+    </div>
+</nz-modal>

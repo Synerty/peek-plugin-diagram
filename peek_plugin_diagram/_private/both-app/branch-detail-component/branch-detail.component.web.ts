@@ -1,16 +1,16 @@
-import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    Input,
-    OnInit
-} from "@angular/core";
+import {Component, Input, OnInit} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {BranchDetailTuple, BranchService} from "@peek/peek_plugin_branch";
 
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
 
-import {DocDbService, DocumentResultI} from "@peek/peek_plugin_docdb";
+import {
+    DocDbPopupService,
+    DocDbPopupTypeE,
+    DocDbPropertyTuple,
+    DocDbService,
+    DocumentResultI
+} from "@peek/peek_plugin_docdb";
 import {DispFactory} from "../canvas-shapes/DispFactory";
 import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
@@ -19,14 +19,25 @@ import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/br
 import {assert} from "../DiagramUtil";
 import {Observable} from "rxjs";
 import {DispBase} from "../canvas-shapes/DispBase";
+import * as $ from "jquery";
+import {diagramPluginName} from "@peek/peek_plugin_diagram/_private/PluginNames";
 
+interface AnchorDisplayItemI {
+    key: string;
+    header: string;
+    body: string;
+}
+
+interface DispDisplayItemI {
+    disp: any;
+    dispDesc: string;
+}
 
 @Component({
     selector: 'pl-diagram-branch-detail',
     templateUrl: 'branch-detail.component.web.html',
     styleUrls: ['branch-detail.component.web.scss'],
     moduleId: module.id,
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BranchDetailComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
@@ -57,18 +68,13 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
 
     isEditMode: boolean = false;
 
-    DETAILS_TAB = 1;
-    ANCHORS_TAB = 2;
-    EDITED_ITEMS_TAB = 3;
-    barIndex: number = 1;
-
     anchorDocs: any[] = [];
 
-    disps: any[] = [];
+    disps: DispDisplayItemI[] = [];
 
     private diagramPosService: PrivateDiagramPositionService;
 
-    constructor(private cd: ChangeDetectorRef,
+    constructor(private objectPopupService: DocDbPopupService,
                 private docDbService: DocDbService,
                 diagramPosService: DiagramPositionService,
                 private branchService: PrivateDiagramBranchService,
@@ -130,19 +136,30 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
                 this.diagramBranch = diagramBranch.branchTuple;
                 this.loadDiagramBranchDisps();
                 this.loadDiagramBranchAnchorKeys();
-                this.cd.detectChanges();
             });
     }
 
     private loadDiagramBranchDisps() {
-        this.disps = this.diagramBranch.disps.filter(d => DispBase.groupId(d) == null);
-        this.cd.detectChanges();
+        const branchDisps = this.diagramBranch.disps
+            .filter(d => DispBase.groupId(d) == null);
+        this.disps = [];
+
+        for (let disp of branchDisps) {
+            const shapeStr = DispFactory.wrapper(disp).makeShapeStr(disp);
+
+            this.disps.push({
+                disp: disp,
+                dispDesc: shapeStr.split('\n')
+            });
+        }
     }
 
     private loadDiagramBranchAnchorKeys() {
         let anchorKeys = this.diagramBranch.anchorDispKeys;
-        if (anchorKeys == null || anchorKeys.length == 0)
+        if (anchorKeys == null || anchorKeys.length == 0) {
+            this.anchorDocs = [];
             return;
+        }
 
         this.docDbService
             .getObjects(this.modelSetKey, anchorKeys)
@@ -151,13 +168,19 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
 
                 for (let anchorDispKey of anchorKeys) {
                     let doc = docs[anchorDispKey];
-                    let props = [{title: "Key", value: anchorDispKey}];
-                    if (doc != null) {
-                        props.add(this.docDbService.getNiceOrderedProperties(doc))
-                    }
-                    this.anchorDocs.push(props);
+                    if (doc == null)
+                        continue;
+
+                    const props = this.docDbService
+                        .getNiceOrderedProperties(doc,
+                            (prop: DocDbPropertyTuple) => prop.showOnTooltip);
+
+                    this.anchorDocs.push({
+                        key: anchorDispKey,
+                        header: props.filter(d => d.showInHeader).map(d => d.value).join(', '),
+                        body: props.filter(d => !d.showInHeader).map(d => d.value).join(', ')
+                    });
                 }
-                this.cd.detectChanges();
             });
     }
 
@@ -167,10 +190,6 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
 
     noDisps(): boolean {
         return this.disps.length == 0;
-    }
-
-    dispDesc(disp): string[] {
-        return (DispFactory.wrapper(disp).makeShapeStr(disp)).split('\n');
     }
 
     positonAnchorOnDiagram(props: any[]): void {
@@ -186,6 +205,38 @@ export class BranchDetailComponent extends ComponentLifecycleEventEmitter
         this.diagramPosService.position(
             this.coordSetKey, center.x, center.y, 5.0, Wrapper.key(disp)
         );
+    }
+
+    tooltipEnter($event: MouseEvent, result: AnchorDisplayItemI) {
+        const offset = $(".scroll-container").offset();
+        this.objectPopupService
+            .showPopup(
+                DocDbPopupTypeE.tooltipPopup,
+                diagramPluginName,
+                {
+                    x: $event.x + 50,
+                    y: $event.y
+                },
+                this.modelSetKey,
+                result.key);
+
+    }
+
+    tooltipExit($event: MouseEvent, result: AnchorDisplayItemI) {
+        this.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
+
+    }
+
+    showSummaryPopup($event: MouseEvent, result: AnchorDisplayItemI) {
+        this.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
+        this.objectPopupService
+            .showPopup(
+                DocDbPopupTypeE.summaryPopup,
+                diagramPluginName,
+                $event,
+                this.modelSetKey,
+                result.key);
+
     }
 
 }

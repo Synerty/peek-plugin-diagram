@@ -24,9 +24,6 @@ import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 export class SelectLayersComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
 
-    @ViewChild('modalView', {static: true}) modalView;
-
-    private backdropId = 'div.modal-backdrop';
     popupShown: boolean = false;
 
     @Input("coordSetKey")
@@ -74,34 +71,11 @@ export class SelectLayersComponent extends ComponentLifecycleEventEmitter
         );
 
         this.popupShown = true;
-        this.platformOpen();
     }
 
     closePopup(): void {
         this.popupShown = false;
-        this.platformClose();
-
-        // Discard the integration additions
         this.items = [];
-    }
-
-    platformOpen(): void {
-        // .modal is defined in bootstraps code
-        let jqModal: any = $(this.modalView.nativeElement);
-
-        jqModal.modal({
-            backdrop: 'static',
-            keyboard: false
-        });
-
-        // Move the backdrop
-        let element = $(this.backdropId).detach();
-        jqModal.parent().append(element);
-    }
-
-    platformClose(): void {
-        let jqModal: any = $(this.modalView.nativeElement);
-        jqModal.modal('hide');
     }
 
 
@@ -109,12 +83,13 @@ export class SelectLayersComponent extends ComponentLifecycleEventEmitter
         return this.items.length == 0;
     }
 
-    toggleVisible(layer: DispLayer): void {
+    toggleLayerVisible(layer: DispLayer): void {
         layer.visible = !layer.visible;
         if (this.model != null)
             this.model.recompileModel();
 
     }
+
 
 
 }

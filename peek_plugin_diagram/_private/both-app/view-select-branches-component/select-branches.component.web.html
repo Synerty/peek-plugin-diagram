@@ -1,47 +1,36 @@
-<div #modalView class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" (click)="closePopup()"
-                        aria-label="Close">
-                    <fa name="times"></fa>
-                </button>
-                <h4 class="modal-title">View Branches</h4>
-            </div>
-            <div class="modal-body"
-                 *ngIf="showBranchDetails()">
-                <pl-diagram-branch-detail
-                        [modelSetKey]="modelSetKey"
-                        [coordSetKey]="coordSetKey"
-                        [globalBranch]="selectedGlobalBranch"></pl-diagram-branch-detail>
-            </div>
+<nz-modal [nzVisible]="popupShown"
+          nzTitle="View Branches"
+          [nzFooter]="null"
+          (nzOnCancel)="closePopup()">
 
-            <div class="modal-body"
-                 *ngIf="!showBranchDetails()">
-                <p *ngIf="noItems()">
-                    There are no branches at this time.
-                </p>
-                <div *ngIf="!noItems()" class="peek-tables-section">
-                    <table class="table">
-                        <tbody>
-                        <tr class="tr"
-                            *ngFor="let item of items; odd as odd; even as even">
-                            <th class="td"
-                                [class.bg-success]="item.__enabled"
-                                [class.bg-warning]="!item.__enabled"
-                                (click)="toggleEnabled(item)">{{item.name}}
-                            </th>
-                            <th class="td bar-left"
-                                [class.bg-success]="item.__enabled"
-                                [class.bg-warning]="!item.__enabled"
-                                (click)="branchSelected(item)">
-                                <fa name="chevron-right"></fa>
-                            </th>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <div *ngIf="showBranchDetails()">
+        <pl-diagram-branch-detail
+                [modelSetKey]="modelSetKey"
+                [coordSetKey]="coordSetKey"
+                [globalBranch]="selectedGlobalBranch"></pl-diagram-branch-detail>
+    </div>
+
+    <div *ngIf="!showBranchDetails()">
+        <p *ngIf="noItems()">
+            There are no branches at this time.
+        </p>
+        <div *ngIf="!noItems()" >
+            <nz-table  nzTemplateMode ngSize="small">
+                <tbody>
+                <tr *ngFor="let item of items; odd as odd; even as even">
+                    <td>
+                        <nz-switch (ngModelChange)="toggleBranchEnabled(item)"
+                                   [ngModel]="isBranchEnabled(item)"></nz-switch>
+                    </td>
+                    <td>{{item.name}}
+                    </td>
+                    <td (click)="branchSelected(item)"
+                        style="cursor:pointer">
+                        <fa name="chevron-right"></fa>
+                    </td>
+                </tr>
+                </tbody>
+            </nz-table>
         </div>
     </div>
-</div>
+</nz-modal>

@@ -23,9 +23,6 @@ import {UserService} from "@peek/peek_core_user";
 export class StartEditComponent extends ComponentLifecycleEventEmitter
     implements OnInit {
 
-    @ViewChild('modalView', {static: true}) modalView;
-
-    private backdropId = 'div.modal-backdrop';
     popupShown: boolean = false;
 
     @Input("coordSetKey")
@@ -42,9 +39,9 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
 
     items: BranchDetailTuple[] = [];
 
-    NEW_TAB = 1;
-    EXISTING_TAB = 2;
-    barIndex: number = 1;
+    NEW_TAB = 0;
+    EXISTING_TAB = 1;
+    barIndex: number = 0;
 
     selectedBranch: BranchDetailTuple = null;
     newBranch: BranchDetailTuple = new BranchDetailTuple();
@@ -92,7 +89,6 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
         this.items = [];
 
         this.popupShown = true;
-        this.platformOpen();
     }
 
 
@@ -101,31 +97,10 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
 
     closePopup(): void {
         this.popupShown = false;
-        this.platformClose();
 
         // Discard the integration additions
         this.items = [];
     }
-
-    platformOpen(): void {
-        // .modal is defined in bootstraps code
-        let jqModal: any = $(this.modalView.nativeElement);
-
-        jqModal.modal({
-            backdrop: 'static',
-            keyboard: false
-        });
-
-        // Move the backdrop
-        let element = $(this.backdropId).detach();
-        jqModal.parent().append(element);
-    }
-
-    platformClose(): void {
-        let jqModal: any = $(this.modalView.nativeElement);
-        jqModal.modal('hide');
-    }
-
 
     noItems(): boolean {
         return this.items.length == 0;
@@ -140,6 +115,7 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
     }
 
     startEditing() {
+        let branchToEdit = null;
 
         if (this.barIndex == this.NEW_TAB) {
             let nb = this.newBranch;
@@ -153,9 +129,17 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
             this.globalBranchService.createBranch(nb)
                 .catch(e => this.balloonMsg.showError(`Failed to create branch : ${e}`));
 
-        }
+            branchToEdit = this.newBranch;
 
-        let branchToEdit = this.barIndex == this.NEW_TAB ? this.newBranch : this.selectedBranch;
+        } else if (this.barIndex == this.EXISTING_TAB) {
+            if (this.selectedBranch == null) {
+                this.balloonMsg.showWarning("You must select a branch to edit");
+                return;
+            }
+
+            branchToEdit = this.selectedBranch;
+
+        }
 
         this.branchService.startEditing(
             this.modelSetKey, this.coordSetKey, branchToEdit.key
