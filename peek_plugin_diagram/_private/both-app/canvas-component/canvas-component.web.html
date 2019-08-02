@@ -1,12 +1,13 @@
 <div>
 
     <pl-diagram-view-toolbar *ngIf="coordSetKey != null && !isEditing()"
+                             class="no-print"
                              [config]="config"
                              [coordSetKey]="coordSetKey"
                              [modelSetKey]="modelSetKey"
                              (openPrintPopup)="showPrintPopup=true"></pl-diagram-view-toolbar>
 
-    <div #edittoolbar class="">
+    <div #edittoolbar class="no-print">
         <pl-diagram-edit-toolbar
                 (openPrintPopup)="showPrintPopup=true"
                 *ngIf="isEditing()"
@@ -15,6 +16,7 @@
 
     <pl-diagram-edit-props-toolbar
             *ngIf="isEditing()"
+            class="no-print"
             [canvasEditor]="editor">
 
     </pl-diagram-edit-props-toolbar>
@@ -23,7 +25,8 @@
     <!-- This is the properties panel that appears, it can have dynamic properties
     or shape properties -->
 
-    <div #editprops>
+    <div #editprops
+         class="no-print">
         <pl-diagram-edit-props
                 *ngIf="isEditing()"
                 [canvasEditor]="editor"></pl-diagram-edit-props>
@@ -31,16 +34,19 @@
 
 
     <pl-diagram-view-select-layers
+            class="no-print"
             [model]="model"
             [coordSetKey]="coordSetKey"
             [modelSetKey]="modelSetKey"></pl-diagram-view-select-layers>
 
     <pl-diagram-view-select-branches
+            class="no-print"
             [config]="config"
             [coordSetKey]="coordSetKey"
             [modelSetKey]="modelSetKey"></pl-diagram-view-select-branches>
 
     <pl-diagram-start-edit
+            class="no-print"
             [coordSetKey]="coordSetKey"
             [modelSetKey]="modelSetKey"
             [canvasEditor]="editor"></pl-diagram-start-edit>
@@ -49,7 +55,7 @@
             *ngIf="showPrintPopup"
             (closePopup)="showPrintPopup=false"></pl-diagram-print>
 
-    <div class="pl-canvas-container">
+    <div class="pl-canvas-container no-print">
         <p class="canvas-status-bar ">{{mouseInfo()}}</p>
 
         <canvas #canvas class="canvas " tabindex='1'>

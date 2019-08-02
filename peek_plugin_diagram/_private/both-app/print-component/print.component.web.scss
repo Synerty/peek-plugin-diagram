@@ -16,6 +16,13 @@
   background-color: white;
   color: black;
   z-index: 500;
-  position:absolute;
+  position: absolute;
 
+}
+
+
+@media print {
+  .no-print {
+    display: none;
+  }
 }
