@@ -15,11 +15,7 @@ import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {
-    DocDbPopupClosedReasonE,
-    DocDbPopupService,
-    DocDbPopupTypeE
-} from "@peek/peek_plugin_docdb";
+import {DocDbPopupService, DocDbPopupTypeE} from "@peek/peek_plugin_docdb";
 
 
 @Component({
@@ -84,7 +80,7 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
 
         this.config.controller.coordSetChange
             .takeUntil(this.onDestroyEvent)
-            .subscribe((cs) => this.coordSet = cs);
+            .subscribe((cs) => this.coordSet = cs != null ? cs : new ModelCoordSet());
 
         this.coordSetsForMenu = this.coordSetService.coordSets(this.modelSetKey)
             .filter((cs: ModelCoordSet) => cs.enabled == true);
@@ -124,7 +120,7 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
 
     changeCoordSetMenuItemClicked(coordSet: ModelCoordSet): void {
         this.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
-        this.positionService.positionByCoordSet(coordSet.key);
+        this.positionService.positionByCoordSet(this.modelSetKey, coordSet.key);
     }
 
     showEditDiagramButton(): boolean {

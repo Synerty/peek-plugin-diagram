@@ -24,7 +24,7 @@ let dictValuesFromObject = (dict) => Object.keys(dict).map(key => dict[key]);
 export class PrivateDiagramLookupService extends ComponentLifecycleEventEmitter {
 
     private loadedCounter = {};
-    private _lookupTargetCount = 5;
+    private _lookupTargetCount = 6;
 
     private _levelsById = {};
     private _layersById = {};
@@ -60,6 +60,8 @@ export class PrivateDiagramLookupService extends ComponentLifecycleEventEmitter 
                 this.modelSetByKey = {};
                 for (let modelSet of modelSets)
                     this.modelSetByKey[modelSet.key] = modelSet;
+
+                this.loadedCounter['modelSet'] = true;
             });
 
 

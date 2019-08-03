@@ -30,6 +30,7 @@ export interface DiagramPositionByKeyI {
 
 
 export interface DiagramPositionByCoordSetI {
+    modelSetKey: string | null;
     coordSetKey: string | null;
 }
 
@@ -46,7 +47,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
     // This observable is for when the canvas updates the title
     private titleUpdatedSubject: Subject<string> = new Subject<string>();
 
-    private positionByCoordSetSubject = new Subject<string>();
+    private positionByCoordSetSubject = new Subject<DiagramPositionByCoordSetI>();
     private positionSubject = new Subject<DiagramPositionI>();
     private positionByKeySubject = new Subject<DiagramPositionByKeyI>();
 
@@ -55,8 +56,8 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
 
     private postionUpdatedSubject = new Subject<PositionUpdatedI>();
 
-    positionByCoordSet(coordSetKey: string): void {
-        this.positionByCoordSetSubject.next(coordSetKey);
+    positionByCoordSet(modelSetKey: string, coordSetKey: string): void {
+        this.positionByCoordSetSubject.next({modelSetKey, coordSetKey});
     }
 
     position(coordSetKey: string, x: number, y: number, zoom: number,
@@ -176,7 +177,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
         return this.positionByKeySubject;
     }
 
-    positionByCoordSetObservable(): Observable<string> {
+    positionByCoordSetObservable(): Observable<DiagramPositionByCoordSetI> {
         return this.positionByCoordSetSubject;
     }
 

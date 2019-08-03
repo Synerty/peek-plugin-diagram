@@ -210,7 +210,10 @@ export class GridCache {
      *
      */
     private processGridUpdates(gridTuples: GridTuple[]) {
-        let latestCache = this.cacheQueue[0];
+        if (this.cacheQueue.length == 0)
+            this.rotateCache([]);
+
+        const latestCache = this.cacheQueue[0];
 
         for (let gridTuple of gridTuples) {
             let cachedLinkedGrid = latestCache.get(gridTuple.gridKey);

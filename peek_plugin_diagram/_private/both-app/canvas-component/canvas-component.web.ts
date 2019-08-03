@@ -18,6 +18,7 @@ import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {PositionUpdatedI} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {DocDbPopupService} from "@peek/peek_plugin_docdb";
 import {
+    DiagramPositionByCoordSetI,
     DiagramPositionI,
     PrivateDiagramPositionService
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
@@ -235,6 +236,10 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         return `${x}x${y}X${zoom}, ${this.config.model.dispOnScreen} Items`;
     }
 
+    coordSetIsValid(): boolean {
+        return this.coordSetKey != null && this.config.coordSet != null;
+    }
+
     private switchToCoordSet(coordSetKey: string) {
 
         if (!this.isReady())
@@ -338,14 +343,21 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         // Watch the positionByCoordSet observable
         this.privatePosService.positionByCoordSetObservable()
             .takeUntil(this.onDestroyEvent)
-            .subscribe((coordSetKey: string) => {
+            .subscribe((data: DiagramPositionByCoordSetI) => {
+                if (this.modelSetKey != data.modelSetKey) {
+                    console.log("ERROR, positionByCoordSet was called for "
+                        + `modelSet ${data.modelSetKey} but we're showing`
+                        + `modelSet ` + this.modelSetKey
+                    );
+                    return;
+                }
 
                 if (!this.isReady()) {
                     console.log("ERROR, Position was called before canvas is ready");
                     return;
                 }
 
-                this.switchToCoordSet(coordSetKey);
+                this.switchToCoordSet(data.coordSetKey);
 
                 // Inform the position service that it's ready to go.
                 this.privatePosService.setReady(true);

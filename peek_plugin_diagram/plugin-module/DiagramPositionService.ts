@@ -37,7 +37,7 @@ export abstract class DiagramPositionService {
      *
      * @param coordSetKey; The key of the coordSet to position on.
      */
-    abstract positionByCoordSet(coordSetKey: string): void ;
+    abstract positionByCoordSet(modelSetKey:string, coordSetKey: string): void ;
 
     /** Position
      *
