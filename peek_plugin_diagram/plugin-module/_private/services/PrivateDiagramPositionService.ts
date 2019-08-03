@@ -51,6 +51,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
     private positionByKeySubject = new Subject<DiagramPositionByKeyI>();
 
     private isReadySubject = new Subject<boolean>();
+    private _isReady: boolean = false;
 
     private postionUpdatedSubject = new Subject<PositionUpdatedI>();
 
@@ -141,7 +142,8 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
     }
 
     setReady(value: boolean) {
-        this.isReadySubject.next(true);
+        this._isReady = value;
+        this.isReadySubject.next(value);
     }
 
     setTitle(value: string) {
@@ -153,6 +155,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
     }
 
     isReadyObservable(): Observable<boolean> {
+        setTimeout(() => this.isReadySubject.next(this._isReady), 0);
         return this.isReadySubject;
     }
 
