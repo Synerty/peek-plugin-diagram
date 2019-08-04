@@ -49,6 +49,7 @@ IMPORT_FIELD_NAME_MAP = {
     'colorHash': 'colorId',
     'fillColorHash': 'fillColorId',
     'lineColorHash': 'lineColorId',
+    'edgeColorHash': 'edgeColorId',
     'textStyleHash': 'textStyleId',
     'targetDispGroupHash': 'targetDispGroupId',
     'targetDispGroupName': 'targetDispGroupName'
