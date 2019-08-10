@@ -122,6 +122,30 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
             && this.canvasEditor.canvasModel.selection.selectedDisps().length != 0;
     }
 
+    // --------------------
+    // Undo Shape
+
+    undoShape() {
+        this.canvasEditor.doUndo();
+    }
+
+    isUndoShapeActive(): boolean {
+        return this.isEditSelectToolActive()
+            && this.canvasEditor.branchContext.branchTuple.isUndoPossible;
+    }
+
+    // --------------------
+    // Redo Shape
+
+    redoShape() {
+        this.canvasEditor.doRedo();
+    }
+
+    isRedoShapeActive(): boolean {
+        return this.isEditSelectToolActive()
+            && this.canvasEditor.branchContext.branchTuple.isRedoPossible;
+    }
+
 
     // --------------------
     // Edit Make Text Tool

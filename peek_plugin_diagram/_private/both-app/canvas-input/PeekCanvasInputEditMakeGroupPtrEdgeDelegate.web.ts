@@ -82,7 +82,7 @@ export class PeekCanvasInputMakeDispGroupPtrEdgeDelegate
         this.editArgs.lookupService._linkDispLookups(created);
 
         // Add the shape to the branch
-        created = this.editArgs.branchContext.branchTuple.addOrUpdateDisp(created);
+        created = this.editArgs.branchContext.branchTuple.addOrUpdateDisp(created, true, false);
 
         // TODO, Snap the coordinates if required
         // if (this.viewArgs.config.editor.snapToGrid)
@@ -110,6 +110,7 @@ export class PeekCanvasInputMakeDispGroupPtrEdgeDelegate
 
     _finaliseCreate() {
         this._reset();
+        this.editArgs.branchContext.branchTuple.touchUpdateDate(true, true);
         this.viewArgs.config.invalidate();
     }
 

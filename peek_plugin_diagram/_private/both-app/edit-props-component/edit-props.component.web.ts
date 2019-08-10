@@ -77,6 +77,7 @@ export class EditPropsComponent extends ComponentLifecycleEventEmitter
 
     closePopup(): void {
         this.canvasEditor.props.closeContext();
+        this.canvasEditor.dispPropsUpdated(true);
     }
 
     isShowingBranchPropertiesContext(): boolean {

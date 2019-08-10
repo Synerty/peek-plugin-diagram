@@ -81,7 +81,7 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate
 
         // Add the shape to the branch
         created = this.editArgs.branchContext
-            .branchTuple.addOrUpdateDisp(created, true);
+            .branchTuple.addOrUpdateDisp(created, true, false);
 
         this.viewArgs.model.recompileModel();
         this.viewArgs.model.selection.replaceSelection(<any> created);
@@ -99,6 +99,7 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate
     }
 
     _finaliseCreate() {
+        this.editArgs.branchContext.branchTuple.touchUpdateDate(true, true);
         this.editArgs.editToolbarProps.showGroupPtrProperties();
         this._reset();
         this.viewArgs.config.invalidate();

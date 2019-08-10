@@ -145,7 +145,7 @@ export abstract class PeekCanvasInputDelegate {
         // TODO, See how close it is to other disps.
         if (closestDisp != null) {
             this.editArgs.branchContext.branchTuple
-                .addAnchorDispKey(DispBase.key(closestDisp));
+                .addAnchorDispKey(DispBase.key(closestDisp), false);
         }
 
     }

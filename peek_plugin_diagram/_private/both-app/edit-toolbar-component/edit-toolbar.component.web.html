@@ -56,6 +56,27 @@
 
     <div class="btn-group edit-toolbar-button-group">
         <button class="btn"
+                [disabled]="!isUndoShapeActive()"
+                [class.disabled]="!isUndoShapeActive()"
+                (click)="undoShape()"
+                nz-tooltip
+                nzTitle="Undo">
+            <fa name="undo"></fa>
+        </button>
+        <button class="btn"
+                [disabled]="!isRedoShapeActive()"
+                [class.disabled]="!isRedoShapeActive()"
+                (click)="redoShape()"
+                nz-tooltip
+                nzTitle="Redo">
+            <fa name="redo"></fa>
+        </button>
+    </div>
+
+    <div class="edit-toolbar-spacer"></div>
+
+    <div class="btn-group edit-toolbar-button-group">
+        <button class="btn"
                 [class.btn-primary]="isEditMakeTextActive()"
                 (click)="selectEditMakeTextTool()"
                 nz-tooltip

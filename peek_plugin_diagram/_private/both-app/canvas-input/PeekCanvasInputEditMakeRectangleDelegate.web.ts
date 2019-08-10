@@ -147,7 +147,7 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
 
         // Add the shape to the branch
         this._creating = this.editArgs.branchContext.branchTuple
-            .addOrUpdateDisp(this._creating, true);
+            .addOrUpdateDisp(this._creating, true, false);
 
         this.viewArgs.model.recompileModel();
         this.viewArgs.model.selection.replaceSelection(this._creating);
@@ -158,7 +158,7 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
         if (this._creating == null)
             return;
 
-        // this.editArgs.editToolbarProps.showShapeProperties();
+        this.editArgs.branchContext.branchTuple.touchUpdateDate(true, true);
         this.viewArgs.config.invalidate();
         this.editArgs.setEditorSelectTool();
     }

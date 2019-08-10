@@ -119,10 +119,10 @@ export class PeekCanvasEditor {
     // ---------------
     // Shape Props
 
-    dispPropsUpdated(): void {
+    dispPropsUpdated(queueUndo: boolean = true): void {
         this.canvasConfig.invalidate();
         if (this._currentBranch != null)
-            this._currentBranch.branchTuple.touchUpdateDate();
+            this._currentBranch.branchTuple.touchUpdateDate(false, queueUndo);
     }
 
     // ---------------
@@ -179,6 +179,14 @@ export class PeekCanvasEditor {
             .catch((e) => this.balloonMsg.showError("Failed to save branch\n" + e));
     }
 
+    doUndo(): void {
+        this._currentBranch.branchTuple.doUndo(this.lookupService);
+    }
+
+    doRedo(): void {
+        this._currentBranch.branchTuple.doRedo(this.lookupService);
+
+    }
 
     setInputEditDelegate(Delegate) {
         this.canvasInput.setDelegate(Delegate, {

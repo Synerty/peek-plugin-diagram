@@ -148,7 +148,7 @@ export class PeekCanvasInputEditMakeEllipseDelegate
 
         // Add the shape to the branch
         this._creating = this.editArgs.branchContext.branchTuple
-            .addOrUpdateDisp(this._creating, true);
+            .addOrUpdateDisp(this._creating, true, false);
 
         this.viewArgs.model.recompileModel();
 
@@ -162,6 +162,8 @@ export class PeekCanvasInputEditMakeEllipseDelegate
             return;
 
         // this.editArgs.editToolbarProps.showShapeProperties();
+
+        this.editArgs.branchContext.branchTuple.touchUpdateDate(true, true);
         this.viewArgs.config.invalidate();
         this.editArgs.setEditorSelectTool();
     }

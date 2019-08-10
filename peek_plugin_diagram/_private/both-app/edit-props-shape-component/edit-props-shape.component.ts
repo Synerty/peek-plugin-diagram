@@ -24,7 +24,6 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
 
     context: PeekCanvasShapePropsContext = new PeekCanvasShapePropsContext();
 
-
     constructor() {
         super();
 
@@ -45,7 +44,7 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
         let oldDispId = DispBase.id(this.context.disp);
         // Ensure the shape is in the branch before updating it.
         this.context.disp = this.canvasEditor
-            .branchContext.branchTuple.addOrUpdateDisp(this.context.disp, true);
+            .branchContext.branchTuple.addOrUpdateDisp(this.context.disp, true, false);
 
         if (DispBase.id(this.context.disp) != oldDispId) {
             this.canvasEditor.canvasModel.recompileModel();
@@ -57,11 +56,14 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
         return prop.getter(this.context.disp);
     }
 
-    writeVal(prop: ShapeProp, val: any): void {
+    writeVal(prop: ShapeProp, val: any, queueUndo: boolean = true): void {
         this.prepForWrite();
-
         prop.setter(this.context.disp, val);
-        this.canvasEditor.dispPropsUpdated();
+        this.canvasEditor.dispPropsUpdated(false);
+    }
+
+    propLostFocus(): void {
+        this.canvasEditor.dispPropsUpdated(true);
     }
 
     readOptionVal(prop: ShapeProp): any {
