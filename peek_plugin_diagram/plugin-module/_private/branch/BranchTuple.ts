@@ -8,6 +8,14 @@ import {PrivateDiagramLookupService} from "../services/PrivateDiagramLookupServi
 
 let serUril = new SerialiseUtil();
 
+interface UndoDataI {
+    disps: any[];
+    anchors: any[];
+    updatedByUser: string;
+    lastStage: number;
+    needsSave: boolean;
+    replacementIds: {};
+}
 
 /** Diagram Branch Tuple
  *
@@ -46,8 +54,8 @@ export class BranchTuple extends Tuple {
     private _contextUpdateCallback: ((modelUpdateRequired: boolean) => void) | null;
 
     // Undo / Redo
-    private undoQueue: any[] = [];
-    private redoQueue: any[] = [];
+    private undoQueue: string[] = [];
+    private redoQueue: string[] = [];
     private readonly MAX_UNDO = 20;
 
 
@@ -499,17 +507,33 @@ export class BranchTuple extends Tuple {
 
     private serialiseDisps(): string {
         const DispBase = require("peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
-        const clonedDisps = deepCopy(this._array(BranchTuple.__DISPS_NUM),
-            DispBase.DEEP_COPY_FIELDS_TO_IGNORE);
 
-        this.cleanClonedDisps(clonedDisps);
-        return JSON.stringify(clonedDisps);
+        const disps = deepCopy(this._array(BranchTuple.__DISPS_NUM),
+            DispBase.DEEP_COPY_FIELDS_TO_IGNORE);
+        this.cleanClonedDisps(disps);
+
+        let data: UndoDataI = {
+            disps: disps,
+            anchors: this.anchorDispKeys,
+            updatedByUser: this.updatedByUser,
+            lastStage: this._lastStage,
+            needsSave: this.needsSave,
+            replacementIds: this._replacementIds
+        };
+
+        return JSON.stringify(data);
     }
 
-    private restoreSerialisedDisps(dispStr: string): void {
-        const disps = JSON.parse(dispStr);
+    private restoreSerialisedDisps(undoJsonStr: string): void {
+        const data: UndoDataI = JSON.parse(undoJsonStr);
 
-        this.packedJson__[BranchTuple.__DISPS_NUM] = disps;
+        this.packedJson__[BranchTuple.__DISPS_NUM] = data.disps;
+        this.packedJson__[BranchTuple.__ANCHOR_DISP_KEYS_NUM] = data.anchors;
+        this.packedJson__[BranchTuple.__UPDATED_BY_USER_NUM] = data.updatedByUser;
+        this.packedJson__[BranchTuple.__NEEDS_SAVE_NUM] = data.needsSave;
+
+        this._replacementIds = data.replacementIds;
+        this._lastStage = data.lastStage;
         this.assignIdsToDisps();
     }
 
