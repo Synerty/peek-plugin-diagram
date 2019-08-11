@@ -171,13 +171,13 @@ export class PeekCanvasModel {
         if (this._coordSetId == null)
             return;
 
+        if (!this.lookupCache.isReady())
+            return;
+
         if (!this.needsUpdate)
             return;
 
         this.needsUpdate = false;
-
-        if (!this.lookupCache.isReady())
-            return;
 
         let area = this.config.viewPort.window;
         let zoom = this.config.viewPort.zoom;
