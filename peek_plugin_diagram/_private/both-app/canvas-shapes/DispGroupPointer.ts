@@ -115,13 +115,15 @@ export class DispGroupPointer extends DispBase {
         disp.tempRotation = data.tempRotation;
 
         for (const childDisp of disp.disps) {
+            // const Wrapper = DispFactory.wrapper(childDisp);
             DispBase.rotateAboutAxis(childDisp, center, data.deltaRotation);
         }
+        disp.bounds = null;
 
     }
 
     static rotateAboutAxis(disp, center: PointI, rotationDegrees: number) {
-        console.log("NOT IMPLEMENTED: Rotateing child DispGroupPtrs");
+        console.log("NOT IMPLEMENTED: Rotating child DispGroupPtrs");
     }
 
     // ---------------

@@ -333,8 +333,6 @@ export class PeekCanvasModel {
 
         for (const level of levelsOrderedByOrder) {
             for (const layer of layersOrderedByOrder) {
-
-
                 // If it's not visible (enabled), continue
                 if (!layer.visible && !isEditorActive)
                     continue;

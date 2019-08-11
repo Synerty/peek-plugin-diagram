@@ -62,8 +62,8 @@ export class PeekDispRenderFactory {
     };
 
     private updateBounds(disp, delegate, zoom): void {
-        // if (disp.bounds != null)
-        //     return;
+        if (disp.bounds != null)
+            return;
 
         delegate.updateBounds(disp, zoom);
 
