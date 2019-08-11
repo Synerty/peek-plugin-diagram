@@ -238,7 +238,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
         // Add the shape to the branch
         this._creating = this.editArgs.branchContext.branchTuple
-            .addOrUpdateDisp(this._creating, true, false);
+            .addOrUpdateDisp(this._creating, true);
 
         // TODO, Snap the coordinates if required
         // if (this.viewArgs.config.editor.snapToGrid)
@@ -276,7 +276,8 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
         // this.canvasInput._scope.pageMethods.cableCreateCallback(poly, startNodeDisp, endNodeDisp);
 
-        this.editArgs.branchContext.branchTuple.touchUpdateDate(true, true);
+        this.editArgs.branchContext.branchTuple.touchUpdateDate(true);
+        this.editArgs.branchContext.branchTuple.touchUndo();
         this.viewArgs.config.invalidate();
         this.editArgs.setEditorSelectTool();
     }

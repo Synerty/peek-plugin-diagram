@@ -43,32 +43,62 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate
     // ============================================================================
     // Editor Ui Mouse
 
-    mouseDown(event, mouse) {
-        this._finaliseCreate();
-        this._startMousePos = mouse;
+
+    // ---------------
+    // Map mouse events
+    mouseDown(event: MouseEvent, inputPos: CanvasInputPos) {
+        this.inputStart(inputPos);
     }
 
-    mouseUp(event, mouse) {
-        if (this._hasPassedDragThreshold(this._startMousePos, mouse)) {
-            this._reset();
-            return;
-        }
-
-        this.createDisp(mouse.x, mouse.y);
+    mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
+        this.inputMove(inputPos);
     }
 
-    touchStart(event: TouchEvent, mouse: CanvasInputPos) {
-        this._finaliseCreate();
-        this._startMousePos = mouse;
+    mouseUp(event: MouseEvent, inputPos: CanvasInputPos) {
+        this.inputEnd(inputPos);
+    }
+
+    // ---------------
+    // Map touch events
+    touchStart(event: TouchEvent, inputPos: CanvasInputPos) {
+        this.inputStart(inputPos);
     };
 
-    touchEnd(event: TouchEvent, mouse: CanvasInputPos) {
-        if (this._hasPassedDragThreshold(this._startMousePos, mouse)) {
+    touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
+        this.inputMove(inputPos);
+    };
+
+    touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
+        this.inputEnd(inputPos);
+    };
+
+    // ---------------
+    // Misc delegate methods
+    delegateWillBeTornDown() {
+        this._finaliseCreate();
+    }
+
+    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
+    }
+
+    // ---------------
+    // Start logic
+
+    private inputStart(inputPos: CanvasInputPos) {
+        this._finaliseCreate();
+        this._startMousePos = inputPos;
+    }
+
+    private inputMove(inputPos: CanvasInputPos) {
+    }
+
+    private inputEnd(inputPos: CanvasInputPos) {
+        if (this._hasPassedDragThreshold(this._startMousePos, inputPos)) {
             this._reset();
             return;
         }
 
-        this.createDisp(mouse.x, mouse.y);
+        this.createDisp(inputPos.x, inputPos.y);
     };
 
 
@@ -81,7 +111,8 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate
 
         // Add the shape to the branch
         created = this.editArgs.branchContext
-            .branchTuple.addOrUpdateDisp(created, true, false);
+            .branchTuple.addOrUpdateDisp(created, true);
+        this.editArgs.branchContext.branchTuple.touchUndo();
 
         this.viewArgs.model.recompileModel();
         this.viewArgs.model.selection.replaceSelection(<any> created);
@@ -90,16 +121,7 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate
         this.editArgs.setEditorSelectTool();
     }
 
-
-    delegateWillBeTornDown() {
-        this._finaliseCreate();
-    }
-
-    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
-    }
-
     _finaliseCreate() {
-        this.editArgs.branchContext.branchTuple.touchUpdateDate(true, true);
         this.editArgs.editToolbarProps.showGroupPtrProperties();
         this._reset();
         this.viewArgs.config.invalidate();

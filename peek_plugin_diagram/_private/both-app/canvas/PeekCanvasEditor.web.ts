@@ -119,10 +119,16 @@ export class PeekCanvasEditor {
     // ---------------
     // Shape Props
 
-    dispPropsUpdated(queueUndo: boolean = true): void {
+    dispPropsUpdated(touchUndo: boolean = true): void {
         this.canvasConfig.invalidate();
-        if (this._currentBranch != null)
-            this._currentBranch.branchTuple.touchUpdateDate(false, queueUndo);
+
+        if (this._currentBranch == null)
+            return;
+
+        this._currentBranch.branchTuple.touchUpdateDate(false);
+
+        if (touchUndo)
+            this._currentBranch.branchTuple.touchUndo();
     }
 
     // ---------------
@@ -191,6 +197,8 @@ export class PeekCanvasEditor {
     setInputEditDelegate(Delegate) {
         this.canvasInput.setDelegate(Delegate, {
             setEditorSelectTool: () => this.setEditorSelectTool(),
+            doUndo: () => this.doUndo(),
+            doRedo: () => this.doRedo(),
             branchContext: this.branchContext,
             editToolbarProps: this.props,
             lookupService: this.lookupService

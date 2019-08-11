@@ -41,6 +41,8 @@ export interface InputDelegateConstructorViewArgs {
 
 export interface InputDelegateConstructorEditArgs {
     setEditorSelectTool: () => void;
+    doUndo: () => void;
+    doRedo: () => void;
     branchContext: PrivateDiagramBranchContext;
     editToolbarProps: PeekCanvasEditorProps;
     lookupService: PrivateDiagramLookupService;

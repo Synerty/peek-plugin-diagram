@@ -95,9 +95,9 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         let groupSelections = this.viewArgs.model.query.dispsInSelectedGroups;
         this.viewArgs.model.selection.clearSelection();
 
-        this.editArgs.branchContext.branchTuple.removeDisps(disps, false);
-        this.editArgs.branchContext.branchTuple.removeDisps(groupSelections, false);
-        this.editArgs.branchContext.branchTuple.touchUpdateDate(false, true);
+        this.editArgs.branchContext.branchTuple.removeDisps(disps);
+        this.editArgs.branchContext.branchTuple.removeDisps(groupSelections);
+        this.editArgs.branchContext.branchTuple.touchUndo();
     }
 
     // ------------------------------------------------------------------------
@@ -127,6 +127,10 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             // Snap selected objects to grid
             //} else if (String.fromCharCode(event.keyCode) == "S") {
             //    this._snapSelectedCoords();
+        } else if (event.keyCode == 89 && event.ctrlKey) { // CTRL+Y
+            this.editArgs.doRedo();
+        } else if (event.keyCode == 90 && event.ctrlKey) { // CTRL+Z
+            this.editArgs.doUndo();
         }
 
 
@@ -482,7 +486,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     }
 
     private finishStateMovingHandle() {
-        this.editArgs.branchContext.branchTuple.touchUpdateDate(false, true);
+        this.editArgs.branchContext.branchTuple.touchUndo();
     }
 
 
@@ -494,7 +498,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
 
     private finishStateMovingDisp() {
-        this.editArgs.branchContext.branchTuple.touchUpdateDate(false, true);
+        this.editArgs.branchContext.branchTuple.touchUndo();
     }
 
 
@@ -713,16 +717,16 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         let groupSelections = this._selectedDispsToMove;
 
         primarySelections = this.editArgs.branchContext.branchTuple
-            .addOrUpdateDisps(primarySelections, true, false);
+            .addOrUpdateDisps(primarySelections, true);
 
         groupSelections = this.editArgs.branchContext.branchTuple
-            .addOrUpdateDisps(groupSelections, true, false);
+            .addOrUpdateDisps(groupSelections, true);
 
         for (let dispPolylineEnd of this._selectedPolylineEnds) {
             dispPolylineEnd.disp = this.editArgs
                 .branchContext
                 .branchTuple
-                .addOrUpdateDisp(dispPolylineEnd.disp, true, false);
+                .addOrUpdateDisp(dispPolylineEnd.disp, true);
         }
 
         this.viewArgs.model.recompileModel();
@@ -754,7 +758,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             }
         }
 
-        this.editArgs.branchContext.branchTuple.touchUpdateDate(false, false);
+        this.editArgs.branchContext.branchTuple.touchUpdateDate(false);
         this.viewArgs.config.invalidate();
     }
 
@@ -767,7 +771,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         DispFactory.wrapper(handle.disp)
             .deltaMoveHandle(handle, delta.dx, delta.dy);
 
-        this.editArgs.branchContext.branchTuple.touchUpdateDate(false, false);
+        this.editArgs.branchContext.branchTuple.touchUpdateDate(false);
         this.viewArgs.config.invalidate();
     }
 }

@@ -44,7 +44,7 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
         let oldDispId = DispBase.id(this.context.disp);
         // Ensure the shape is in the branch before updating it.
         this.context.disp = this.canvasEditor
-            .branchContext.branchTuple.addOrUpdateDisp(this.context.disp, true, false);
+            .branchContext.branchTuple.addOrUpdateDisp(this.context.disp, true);
 
         if (DispBase.id(this.context.disp) != oldDispId) {
             this.canvasEditor.canvasModel.recompileModel();
@@ -56,10 +56,10 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
         return prop.getter(this.context.disp);
     }
 
-    writeVal(prop: ShapeProp, val: any, queueUndo: boolean = true): void {
+    writeVal(prop: ShapeProp, val: any, touchUndo: boolean = true): void {
         this.prepForWrite();
         prop.setter(this.context.disp, val);
-        this.canvasEditor.dispPropsUpdated(false);
+        this.canvasEditor.dispPropsUpdated(touchUndo);
     }
 
     propLostFocus(): void {

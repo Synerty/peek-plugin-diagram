@@ -120,7 +120,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
 
         // Add the shape to the branch
         this._creating = this.editArgs.branchContext.branchTuple
-            .addOrUpdateDisp(this._creating, true, false);
+            .addOrUpdateDisp(this._creating, true);
 
         this.viewArgs.model.recompileModel();
 
@@ -138,7 +138,8 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     }
 
     _finaliseCreate() {
-        this.editArgs.branchContext.branchTuple.touchUpdateDate(true, true);
+        this.editArgs.branchContext.branchTuple.touchUpdateDate(true);
+        this.editArgs.branchContext.branchTuple.touchUndo();
         this.editArgs.editToolbarProps.showShapeProperties();
         this._reset();
         this.viewArgs.config.invalidate();

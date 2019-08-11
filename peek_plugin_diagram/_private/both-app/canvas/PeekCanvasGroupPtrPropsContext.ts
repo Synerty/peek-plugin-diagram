@@ -21,6 +21,7 @@ export class PeekCanvasGroupPtrPropsContext {
         );
 
         this.model.recompileModel();
+        this.branchTuple.touchUndo();
     }
 
     get targetDispGroupCoordSetId(): number | null {

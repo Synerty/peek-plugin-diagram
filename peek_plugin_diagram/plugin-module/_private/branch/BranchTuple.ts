@@ -174,7 +174,7 @@ export class BranchTuple extends Tuple {
      * @param disps: An array of disps to add.
      * @param preventModelUpdate: Prevents this update from calling model compile.
      */
-    addOrUpdateDisps(disps: any, preventModelUpdate = false, queueUndo = true): any[] {
+    addOrUpdateDisps(disps: any, preventModelUpdate = false): any[] {
         let modelUpdateRequired = false;
         let returnedDisps = [];
 
@@ -188,10 +188,7 @@ export class BranchTuple extends Tuple {
             this.updateReplacedIds(disp);
 
         this.sortDisps();
-        this.touchUpdateDate(
-            modelUpdateRequired && !preventModelUpdate,
-            queueUndo
-        );
+        this.touchUpdateDate(modelUpdateRequired && !preventModelUpdate);
         return returnedDisps;
     }
 
@@ -204,16 +201,12 @@ export class BranchTuple extends Tuple {
      *
      * @param disp
      * @param preventModelUpdate: Prevents this update from calling model compile.
-     * @param queueUndo
      */
-    addOrUpdateDisp(disp: any, preventModelUpdate = false, queueUndo = true): any {
+    addOrUpdateDisp(disp: any, preventModelUpdate = false): any {
         let result = this.addOrUpdateSingleDisp(disp);
         this.updateReplacedIds(result);
         this.sortDisps();
-        this.touchUpdateDate(
-            result.modelUpdateRequired && !preventModelUpdate,
-            queueUndo
-        );
+        this.touchUpdateDate(result.modelUpdateRequired && !preventModelUpdate);
         return result.disp;
     }
 
@@ -308,7 +301,7 @@ export class BranchTuple extends Tuple {
 
     }
 
-    removeDisps(disps: any[], queueUndo = true): void {
+    removeDisps(disps: any[]): void {
         let DispBase = require("peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
         let DispNull = require("peek_plugin_diagram/canvas-shapes/DispNull")["DispNull"];
 
@@ -383,7 +376,7 @@ export class BranchTuple extends Tuple {
         if (nullDispsToCreate.length != 0)
             this.addNewDisps(nullDispsToCreate);
         else
-            this.touchUpdateDate(false, false);
+            this.touchUpdateDate(false);
     }
 
 
@@ -391,12 +384,12 @@ export class BranchTuple extends Tuple {
         return this._array(BranchTuple.__DISPS_NUM).slice();
     }
 
-    addAnchorDispKey(key: string, queueUndo = true): void {
+    addAnchorDispKey(key: string): void {
         let anchors = this._array(BranchTuple.__ANCHOR_DISP_KEYS_NUM);
         if (anchors.filter(k => k == key).length != 0)
             return;
 
-        this.touchUpdateDate(false, queueUndo);
+        this.touchUpdateDate(false);
         anchors.push(key);
     }
 
@@ -404,17 +397,6 @@ export class BranchTuple extends Tuple {
         return this._array(BranchTuple.__ANCHOR_DISP_KEYS_NUM).slice();
     }
 
-    touchUpdateDate(modelUpdateRequired: boolean = false,
-                    queueUndo: boolean = true): void {
-        this.setNeedsSave();
-        this.setUpdatedDate(new Date());
-
-        if (queueUndo)
-            this.queueUndo();
-
-        if (this._contextUpdateCallback != null)
-            this._contextUpdateCallback(modelUpdateRequired);
-    }
 
     set visible(value: boolean) {
         this.packedJson__[BranchTuple.__VISIBLE_NUM] = value;
@@ -448,7 +430,14 @@ export class BranchTuple extends Tuple {
         this.packedJson__[BranchTuple.__CREATED_DATE] = serUril.toStr(value);
     }
 
-    private queueUndo(): void {
+    touchUpdateDate(modelUpdateRequired: boolean = false): void {
+        this.setNeedsSave();
+        this.setUpdatedDate(new Date());
+        if (this._contextUpdateCallback != null)
+            this._contextUpdateCallback(modelUpdateRequired);
+    }
+
+    touchUndo(): void {
         const current = this.serialiseDisps();
 
         // If there is no change, queue nothing
@@ -472,7 +461,7 @@ export class BranchTuple extends Tuple {
         this.restoreSerialisedDisps(this.undoQueue[len - 2]);
 
         this.linkDisps(lookupService);
-        this.touchUpdateDate(true, false);
+        this.touchUpdateDate(true);
     }
 
     doRedo(lookupService: PrivateDiagramLookupService): void {
@@ -484,7 +473,7 @@ export class BranchTuple extends Tuple {
         this.restoreSerialisedDisps(redo);
 
         this.linkDisps(lookupService);
-        this.touchUpdateDate(true, false);
+        this.touchUpdateDate(true);
     }
 
     toJsonField(value: any,
