@@ -69,6 +69,7 @@ export class BranchTuple extends Tuple {
         branch.packedJson__[BranchTuple.__ANCHOR_DISP_KEYS_NUM] = [];
         branch.packedJson__[BranchTuple.__UPDATED_BY_USER_NUM] = null;
         branch.packedJson__[BranchTuple.__NEEDS_SAVE_NUM] = false;
+        branch.resetUndo();
         return branch;
     }
 
