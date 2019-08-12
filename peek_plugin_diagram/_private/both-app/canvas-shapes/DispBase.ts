@@ -82,6 +82,9 @@ export interface DispBaseT {
     // Is Selectable
     s: boolean;
 
+    // Is Overlay
+    o: boolean;
+
     // Data (stringified JSON)
     d: string | null;
 
@@ -230,8 +233,11 @@ export abstract class DispBase {
         disp.la = val == null ? null : val.id;
     }
 
+    static isOverlay(disp: DispBaseT): boolean {
+        return disp.o;
+    }
+
     static isSelectable(disp: DispBaseT): boolean {
-        // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         return disp.s;
     }
 

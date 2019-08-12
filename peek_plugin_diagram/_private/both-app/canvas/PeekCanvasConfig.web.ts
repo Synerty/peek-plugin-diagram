@@ -102,7 +102,8 @@ export class PeekCanvasConfig {
         // Set this to true to cause the model to rebuild
         needsCompiling: new Subject<void>(),
         gridsWaitingForData: 0,
-        dispOnScreen: 0
+        dispOnScreen: 0,
+        overlayEnabled: true
     };
 
     editor = {

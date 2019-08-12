@@ -249,6 +249,11 @@ class DispBase(Tuple, DeclarativeBase):
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
     selectable = Column(Boolean, doc='s', nullable=False, server_default='false')
 
+    #: Overlay, Is is this item an overlay?, Overlays are sometimes used to add dynamic
+    # data to the diagram, such as a Job, Operation, or placing a green box over a red
+    # one to change it's state.
+    overlay = Column(Boolean, doc='o', nullable=False, server_default='false')
+
     #: Data, Generic data that is passed in the context for the item select popup
     dataJson = Column(String, doc='d')
 

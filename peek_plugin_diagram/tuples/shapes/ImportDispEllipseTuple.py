@@ -27,6 +27,11 @@ class ImportDispEllipseTuple(Tuple):
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
     selectable: bool = TupleField()
 
+    #: Overlay, Is is this shape an overlay?, Overlays are sometimes used to add dynamic
+    # data to the diagram, such as a Job, Operation, or placing a green box over a red
+    # one to change it's state.
+    overlay: bool = TupleField()
+
     #: Data, Generic data, this is passed to the popup context in the UI.
     # peek_plugin_diagram doesn't care as long as it's json compatible or None
     # Json length Length = 400

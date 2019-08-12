@@ -110,8 +110,18 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
         this.toolbarIsOpen = !this.toolbarIsOpen;
     }
 
+    isBranchesActive(): boolean {
+        return this.branchService.areBranchesActive(this.coordSet.id);
+    }
+
     showSelectBranchesButton(): boolean {
         return this.coordSet.branchesEnabled == true;
+    }
+
+    showSelectBranchesTooltip(): string {
+        if (this.isBranchesActive())
+            return "Show Branches (Diagram overlays are currently disabled)";
+        return "Show Branches";
     }
 
     showExitDiagramButton(): boolean {

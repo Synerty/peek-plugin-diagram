@@ -29,9 +29,10 @@
         </button>
         <button class="btn"
                 *ngIf="showSelectBranchesButton()"
+                [class.btn-warning]="isBranchesActive()"
                 (click)="selectBranchesClicked()"
                 nz-tooltip
-                nzTitle="Show Branches">
+                [nzTitle]="showSelectBranchesTooltip()">
             <fa name="code-branch"></fa>
         </button>
         <button class="btn"

@@ -271,16 +271,18 @@ export class PeekCanvasModel {
 
         let startTime = now();
 
-        let levelsOrderedByOrder = this.lookupCache.levelsOrderedByOrder(this._coordSetId);
-        let layersOrderedByOrder = this.lookupCache.layersOrderedByOrder(this._modelSetId);
+        const levelsOrderedByOrder = this.lookupCache.levelsOrderedByOrder(this._coordSetId);
+        const layersOrderedByOrder = this.lookupCache.layersOrderedByOrder(this._modelSetId);
+        const viewingBranchIds = this.branchService.getVisibleBranchIds(this._coordSetId);
 
         let dispIndexByGridKey = {};
 
         let disps = [];
         let dispHashIdsAdded = {};
         let branchIdsActive = {};
+        let viewingBranchesActive = viewingBranchIds.length != 0;
 
-        for (let id of this.branchService.getVisibleBranchIds(this._coordSetId)) {
+        for (let id of viewingBranchIds) {
             branchIdsActive[id] = true;
         }
 
@@ -350,7 +352,13 @@ export class PeekCanvasModel {
                         continue;
 
                     for (; nextIndex < gridOrBranchDisps.length; nextIndex++) {
-                        let disp = gridOrBranchDisps[nextIndex];
+                        const disp = gridOrBranchDisps[nextIndex];
+
+                        // Filter out overlay disps if we need to
+                        if ((isEditorActive || viewingBranchesActive
+                            || !this.config.model.overlayEnabled)
+                            && DispBase.isOverlay(disp))
+                            continue;
 
                         // Level first, as per the sortDisps function
                         let dispLevel = DispBase.level(disp);
