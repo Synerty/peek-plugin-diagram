@@ -25,6 +25,10 @@ export class ModelCoordSet extends Tuple {
     initialPanX: number;
     initialPanY: number;
     initialZoom: number;
+
+    // The pre-configured zoom level for this coord set to use when positioning.
+    positionOnZoom: number;
+    
     enabled: boolean;
 
     comment: string;
@@ -72,7 +76,7 @@ export class ModelCoordSet extends Tuple {
     editDefaultEdgeGroupName: string;
 
     // is this the landing coord set?
-    isLanding:boolean;
+    isLanding: boolean;
 
     constructor() {
         super(ModelCoordSet.tupleName)

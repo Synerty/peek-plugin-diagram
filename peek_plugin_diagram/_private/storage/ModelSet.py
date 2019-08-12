@@ -61,7 +61,9 @@ class ModelCoordSet(Tuple, DeclarativeBase):
     name = Column(String(50), nullable=False)
     initialPanX = Column(Float, nullable=False, server_default="0")
     initialPanY = Column(Float, nullable=False, server_default="0")
-    initialZoom = Column(Float, nullable=False, server_default="0")
+    initialZoom = Column(Float, nullable=False, server_default="2.0")
+    positionOnZoom = Column(Float, nullable=False, server_default="2.0")
+
     enabled = Column(Boolean, nullable=False, server_default="false")
 
     modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),

@@ -11,6 +11,7 @@ import {Observable} from "rxjs/Observable";
 import {DispKeyLocationTuple} from "../location-loader/DispKeyLocationTuple";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 import {PrivateDiagramLocationLoaderService} from "../location-loader";
+import {PrivateDiagramCoordSetService} from "./PrivateDiagramCoordSetService";
 
 
 export interface DiagramPositionI {
@@ -38,7 +39,8 @@ export interface DiagramPositionByCoordSetI {
 @Injectable()
 export class PrivateDiagramPositionService extends DiagramPositionService {
 
-    constructor(private locationIndexService: PrivateDiagramLocationLoaderService,
+    constructor(private coordSetService: PrivateDiagramCoordSetService,
+                private locationIndexService: PrivateDiagramLocationLoaderService,
                 private balloonMsg: Ng2BalloonMsgService) {
         super();
 
@@ -73,6 +75,8 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
     async positionByKey(modelSetKey: string,
                         coordSetKey: string | null,
                         opts: OptionalPositionArgsI = {}): Promise<void> {
+        if (!this.coordSetService.isReady())
+            throw new Error("positionByKey called before coordSetService is ready");
 
         if (opts.highlightKey == null || opts.highlightKey.length == 0)
             throw new Error("positionByKey must be passed opts.highlightKey");
@@ -87,6 +91,8 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
             );
         }
 
+        const coordSet = this.coordSetService.coordSetForKey(modelSetKey, coordSetKey);
+
         for (let dispKeyIndex of dispKeyIndexes) {
             // If we've been given a coord set key
             // and it doesn't match the found item:
@@ -98,7 +104,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
                 coordSetKey: dispKeyIndex.coordSetKey,
                 x: dispKeyIndex.x,
                 y: dispKeyIndex.y,
-                zoom: 2.0,
+                zoom: coordSet.positionOnZoom,
                 opts
             });
             return;
