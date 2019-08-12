@@ -79,10 +79,7 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
     }
 
     areBranchesActive(coordSetId: number): boolean {
-        const keyIdMapTuple = this.branchIdMapByCoordSetId[coordSetId];
-        if (keyIdMapTuple == null)
-            return false;
-        return Object.keys(keyIdMapTuple).length != 0;
+        return this.enabledBranches.length != 0;
     }
 
     getVisibleBranchIds(coordSetId: number): number[] {

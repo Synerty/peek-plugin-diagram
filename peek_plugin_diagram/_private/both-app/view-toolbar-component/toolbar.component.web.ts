@@ -120,7 +120,7 @@ export class ToolbarComponent extends ComponentLifecycleEventEmitter
 
     showSelectBranchesTooltip(): string {
         if (this.isBranchesActive())
-            return "Show Branches (Diagram overlays are currently disabled)";
+            return "Show Branches\n(Diagram overlays are currently disabled)";
         return "Show Branches";
     }
 
