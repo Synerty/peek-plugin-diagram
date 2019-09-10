@@ -91,12 +91,13 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
     deleteSelectedDisps() {
 
-        let disps = this.viewArgs.model.selection.selectedDisps();
-        let groupSelections = this.viewArgs.model.query.dispsInSelectedGroups;
+        const disps = this.viewArgs.model.query.decentAndAddDisps(
+            this.viewArgs.model.selection.selectedDisps()
+        );
+        const groupSelections = this.viewArgs.model.query.dispsInSelectedGroups;
         this.viewArgs.model.selection.clearSelection();
 
         this.editArgs.branchContext.branchTuple.removeDisps(disps);
-        this.editArgs.branchContext.branchTuple.removeDisps(groupSelections);
         this.editArgs.branchContext.branchTuple.touchUndo();
     }
 

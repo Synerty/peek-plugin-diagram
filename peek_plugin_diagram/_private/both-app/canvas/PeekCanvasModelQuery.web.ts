@@ -120,7 +120,7 @@ export class PeekCanvasModelQuery {
                 if (DispBase.typeOf(d) == DispType.polyline) {
                     return DispPolyline.contains(d, point, margin);
                 }
-                return d.bounds && d.bounds.contains(point.x, point.y, margin)
+                return d.bounds && d.bounds.contains(point.x, point.y, margin);
             }
         );
 
@@ -216,6 +216,15 @@ export class PeekCanvasModelQuery {
         }
 
         return result;
+    }
+
+    decentAndAddDisps(disps: any[], outDisps: any[] = []): any[] {
+        for (let disp of disps) {
+            outDisps.push(disp);
+            if (disp.disps != null)
+                this.decentAndAddDisps(disp.disps, outDisps);
+        }
+        return outDisps;
     }
 
     polylinesConnectedToDispKey(keys: string[]): PolylineEnd[] {
