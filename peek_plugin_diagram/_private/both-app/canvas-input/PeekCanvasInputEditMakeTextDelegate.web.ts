@@ -90,7 +90,6 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     }
 
     mouseDown(event, mouse) {
-        this._finaliseCreate();
         this._startMousePos = mouse;
     }
 
@@ -101,6 +100,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         }
 
         this.createDisp(mouse.x, mouse.y);
+        this._finaliseCreate();
     }
 
     touchStart(event: TouchEvent, mouse: CanvasInputPos) {
@@ -121,13 +121,15 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         // Add the shape to the branch
         this._creating = this.editArgs.branchContext.branchTuple
             .addOrUpdateDisp(this._creating, true);
+        this.editArgs.branchContext.branchTuple.touchUndo();
 
         this.viewArgs.model.recompileModel();
 
-        this.viewArgs.model.selection.replaceSelection(this._creating);
-
         this._addBranchAnchor(x, y);
         this.editArgs.setEditorSelectTool();
+
+        this.viewArgs.model.selection.replaceSelection(this._creating);
+        this.editArgs.editToolbarProps.showShapeProperties();
     }
 
     delegateWillBeTornDown() {
@@ -138,9 +140,6 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     }
 
     _finaliseCreate() {
-        this.editArgs.branchContext.branchTuple.touchUpdateDate(true);
-        this.editArgs.branchContext.branchTuple.touchUndo();
-        this.editArgs.editToolbarProps.showShapeProperties();
         this._reset();
         this.viewArgs.config.invalidate();
     }
