@@ -219,6 +219,12 @@ export class BranchTuple extends Tuple {
         return result.disp;
     }
 
+    isDispInBranch(disp: any): boolean {
+        let DispBase = require("peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
+        return this._dispsById[DispBase.id(disp)] != null
+            || this._replacementIds[DispBase.id(disp)] != null;
+    }
+
     private updateReplacedIds(disp) {
         let DispBase = require("peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
         let newGroupId = this._replacementIds[DispBase.groupId(disp)];

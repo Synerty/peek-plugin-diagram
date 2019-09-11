@@ -33,6 +33,9 @@ import {NzDescriptionsModule} from 'ng-zorro-antd/descriptions';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 
 
 // Define the root module for this plugin.
@@ -50,7 +53,10 @@ import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
         NzDescriptionsModule,
         NzModalModule,
         NzSwitchModule,
-        NzPopconfirmModule
+        NzPopconfirmModule,
+        NzSelectModule,
+        NzInputModule,
+        NzCheckboxModule
     ],
     exports: [
         DiagramComponent,

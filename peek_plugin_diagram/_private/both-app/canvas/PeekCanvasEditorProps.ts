@@ -164,6 +164,23 @@ export class PeekCanvasEditorProps {
      *
      * @param disps
      */
+    emitNewShapeContext(disp: any): void {
+        // Setup the shape edit context
+        let shapePropsContext = new PeekCanvasShapePropsContext(
+            disp, this.lookupService, this.modelSetId, this.coordSetId
+        );
+
+        DispFactory.wrapper(disp).makeShapeContext(shapePropsContext);
+        this.setShapePanelContextObservable(shapePropsContext);
+    }
+
+    // ---------------
+    // The shape selection has been updated
+
+    /** Set Selected Shapes
+     *
+     * @param disps
+     */
     setSelectedShapes(model: PeekCanvasModel,
                       branchTuple: BranchTuple): void {
 
@@ -184,14 +201,7 @@ export class PeekCanvasEditorProps {
             ? <DispGroupPointerT>disp
             : model.query.dispGroupForDisp(disp);
 
-        // Setup the shape edit context
-        let shapePropsContext = new PeekCanvasShapePropsContext(
-            disp, this.lookupService, this.modelSetId, this.coordSetId
-        );
-
-        DispFactory.wrapper(disp).makeShapeContext(shapePropsContext);
-        this.setShapePanelContextObservable(shapePropsContext);
-
+        this.emitNewShapeContext(disp);
 
         if (dispGroupPtr == null) {
             this.setGroupPtrPanelContextObservable(null);

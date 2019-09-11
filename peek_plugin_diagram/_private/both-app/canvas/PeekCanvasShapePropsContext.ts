@@ -36,6 +36,7 @@ export class ShapeProp {
 
     public comment: string;
     public allowNullOption: boolean;
+    public alternateDisp: DispBaseT | null;
 
     constructor(public type: ShapePropType,
                 public getter: ShapePropGetter,
@@ -44,11 +45,13 @@ export class ShapeProp {
                 opts: {
                     comment?: string,
                     options?: ShapePropOption[],
-                    allowNullOption?: boolean
+                    allowNullOption?: boolean,
+                    alternateDisp?: DispBaseT,
                 } = {}) {
         this.comment = opts.comment || '';
         this.options = opts.options || [];
         this.allowNullOption = opts.allowNullOption || false;
+        this.alternateDisp = opts.alternateDisp;
 
     }
 

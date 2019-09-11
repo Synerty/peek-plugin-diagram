@@ -7,7 +7,7 @@ import {
     ShapePropType
 } from "../canvas/PeekCanvasShapePropsContext";
 import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
-import {DispBase} from "../canvas-shapes/DispBase";
+import {assert} from "../DiagramUtil";
 
 
 @Component({
@@ -40,25 +40,39 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
         this.processContext(this.context);
     }
 
-    private prepForWrite() {
-        let oldDispId = DispBase.id(this.context.disp);
-        // Ensure the shape is in the branch before updating it.
-        this.context.disp = this.canvasEditor
-            .branchContext.branchTuple.addOrUpdateDisp(this.context.disp, true);
+    prepForWrite() {
+        assert(!this.isEditingEnabled(), "Disp is already prepared");
 
-        if (DispBase.id(this.context.disp) != oldDispId) {
-            this.canvasEditor.canvasModel.recompileModel();
-            this.canvasEditor.canvasModel.selection.replaceSelection(this.context.disp);
-        }
+        // Get any dependent shapes if this is a disp group pointer
+        const allDisps = this.canvasEditor.canvasModel
+            .query.decentAndAddDisps([this.context.disp]);
+
+        // Replace the primary one
+        this.context.disp = this.canvasEditor.branchContext.branchTuple
+            .addOrUpdateDisp(this.context.disp, true);
+
+        // Replace the related or child shapes
+        this.canvasEditor.branchContext.branchTuple.addOrUpdateDisps(allDisps, true);
+
+        // Replace the selection and recompile the model
+        this.canvasEditor.canvasModel.selection.replaceSelection(this.context.disp);
+        this.canvasEditor.canvasModel.recompileModel();
+
+        // Get a new shape context
+        this.canvasEditor.props.emitNewShapeContext(this.context.disp);
+    }
+
+    isEditingEnabled(): boolean {
+        return this.canvasEditor
+            .branchContext.branchTuple.isDispInBranch(this.context.disp);
     }
 
     readVal(prop: ShapeProp): any {
-        return prop.getter(this.context.disp);
+        return prop.getter(prop.alternateDisp || this.context.disp);
     }
 
     writeVal(prop: ShapeProp, val: any, touchUndo: boolean = true): void {
-        this.prepForWrite();
-        prop.setter(this.context.disp, val);
+        prop.setter(prop.alternateDisp || this.context.disp, val);
         this.canvasEditor.dispPropsUpdated(touchUndo);
     }
 
@@ -67,7 +81,7 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
     }
 
     readOptionVal(prop: ShapeProp): any {
-        let obj = prop.getter(this.context.disp);
+        let obj = prop.getter(prop.alternateDisp || this.context.disp);
         if (obj == null) {
             return 'null';
         }
@@ -77,11 +91,9 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
     }
 
     writeOptionVal(prop: ShapeProp, value: string): void {
-        this.prepForWrite();
-
         prop.__lastShowValue = null;
         let obj = value == 'null' ? null : prop.getOptionObject(value);
-        prop.setter(this.context.disp, obj);
+        prop.setter(prop.alternateDisp || this.context.disp, obj);
         this.canvasEditor.dispPropsUpdated();
     }
 
@@ -155,7 +167,7 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
         if (prop.__lastShowValue != null)
             return prop.__lastShowValue;
 
-        let layer: DispLayer = prop.getter(this.context.disp);
+        let layer: DispLayer = prop.getter(prop.alternateDisp || this.context.disp);
         prop.__lastShowValue = !layer.visible;
         return prop.__lastShowValue;
     }
@@ -168,7 +180,7 @@ export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
         if (prop.__lastShowValue != null)
             return prop.__lastShowValue;
 
-        let level: DispLevel = prop.getter(this.context.disp);
+        let level: DispLevel = prop.getter(prop.alternateDisp || this.context.disp);
         prop.__lastShowValue = !this.canvasEditor.isLevelVisible(level);
         return prop.__lastShowValue;
     }

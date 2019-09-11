@@ -218,11 +218,11 @@ export class PeekCanvasModelQuery {
         return result;
     }
 
-    decentAndAddDisps(disps: any[], outDisps: any[] = []): any[] {
+    decentAndAddDisps(disps: DispBaseT[], outDisps: DispBaseT[] = []): DispBaseT[] {
         for (let disp of disps) {
             outDisps.push(disp);
-            if (disp.disps != null)
-                this.decentAndAddDisps(disp.disps, outDisps);
+            if (disp["disps"] != null)
+                this.decentAndAddDisps(disp["disps"], outDisps);
         }
         return outDisps;
     }

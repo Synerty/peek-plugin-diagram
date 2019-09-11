@@ -32,7 +32,7 @@ export class EditPropsGroupPtrComponent extends ComponentLifecycleEventEmitter
     private coordSetCache: PrivateDiagramCoordSetService;
 
     templateCoordSets: ModelCoordSet[] = [];
-    selectedCoordSetId: string = null;
+    selectedCoordSetId: number = null;
 
     dispGroups: DispGroupT[] = [];
     selectedDispGroup = null;
@@ -73,6 +73,9 @@ export class EditPropsGroupPtrComponent extends ComponentLifecycleEventEmitter
         this.canvasEditor.props.groupPtrPanelContextObservable
             .takeUntil(this.onDestroyEvent)
             .subscribe((context: PeekCanvasGroupPtrPropsContext) => {
+                this.dispGroups = [];
+                this.selectedDispGroup = null;
+                this.selectedCoordSetId = null;
                 this.context = context;
                 this.initSelectedCoordSetId();
             });
@@ -87,8 +90,8 @@ export class EditPropsGroupPtrComponent extends ComponentLifecycleEventEmitter
         return this.selectedDispGroup != null && item.id == this.selectedDispGroup.id;
     }
 
-    selectedCoordSetIdChanged(num: string): void {
-        let coordSetId = parseInt(num);
+    selectedCoordSetIdChanged(coordSetId: number): void {
+        this.selectedCoordSetId = coordSetId;
 
         let tupleSelector = new TupleSelector(GroupDispsTuple.tupleName, {
             "coordSetId": coordSetId
@@ -129,7 +132,7 @@ export class EditPropsGroupPtrComponent extends ComponentLifecycleEventEmitter
     toggleEnabled(disp: DispGroupT): void {
         this.selectedDispGroup = disp;
         this.context.setDispGroup(
-            this.selectedDispGroup, parseInt(this.selectedCoordSetId)
+            this.selectedDispGroup, this.selectedCoordSetId
         );
     }
 
@@ -141,16 +144,16 @@ export class EditPropsGroupPtrComponent extends ComponentLifecycleEventEmitter
         let coordSetId = this.context.targetDispGroupCoordSetId;
 
         if (coordSetId != null) {
-            this.selectedCoordSetId = coordSetId.toString();
+            this.selectedCoordSetId = coordSetId;
             this.selectedCoordSetIdChanged(this.selectedCoordSetId);
 
         } else if (this.coordSet.editDefaultVertexCoordSetId != null) {
             this.selectedCoordSetId = this.coordSet
-                .editDefaultVertexCoordSetId.toString();
+                .editDefaultVertexCoordSetId;
             this.selectedCoordSetIdChanged(this.selectedCoordSetId);
 
         } else if (this.templateCoordSets.length != 0) {
-            this.selectedCoordSetId = this.templateCoordSets[0].id.toString();
+            this.selectedCoordSetId = this.templateCoordSets[0].id;
             this.selectedCoordSetIdChanged(this.selectedCoordSetId);
 
         }

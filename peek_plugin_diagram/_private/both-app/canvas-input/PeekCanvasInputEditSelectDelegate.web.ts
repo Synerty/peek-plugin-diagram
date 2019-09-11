@@ -94,7 +94,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         const disps = this.viewArgs.model.query.decentAndAddDisps(
             this.viewArgs.model.selection.selectedDisps()
         );
-        const groupSelections = this.viewArgs.model.query.dispsInSelectedGroups;
         this.viewArgs.model.selection.clearSelection();
 
         this.editArgs.branchContext.branchTuple.removeDisps(disps);
@@ -635,21 +634,11 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
         const h = this._mouseDownOnHandle;
 
-        const addDispsToList = (disps: DispBaseT[]): void => {
-            for (const disp of disps) {
-                this._selectedDispsToMove.push(disp);
-                if (DispBase.typeOf(disp) == DispType.groupPointer) {
-                    const childDisps = (<DispGroupPointerT>disp).disps;
-                    if (childDisps != null)
-                        addDispsToList(childDisps);
-                }
-            }
-        };
-
         assert(DispBase.typeOf(h.disp) == DispType.groupPointer,
             "DispGroupPtr not provided");
 
-        addDispsToList((<DispGroupPointerT>h.disp).disps)
+        this._selectedDispsToMove = this.viewArgs.model.query
+            .decentAndAddDisps((<DispGroupPointerT>h.disp).disps);
 
     }
 

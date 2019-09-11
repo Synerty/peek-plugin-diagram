@@ -1,10 +1,15 @@
-import {DispBase, DispBaseT, DispHandleI, PointI, PointsT} from "./DispBase";
-import {PeekCanvasShapePropsContext} from "../canvas/PeekCanvasShapePropsContext";
+import {DispBase, DispBaseT, DispHandleI, DispType, PointI, PointsT} from "./DispBase";
+import {
+    PeekCanvasShapePropsContext,
+    ShapeProp,
+    ShapePropType
+} from "../canvas/PeekCanvasShapePropsContext";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 import {DispGroup, DispGroupT} from "./DispGroup";
 import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
 import {calculateRotationFromHandleDelta, makeRotateHandlePoints} from "./DispUtilRotate";
+import {DispText} from "./DispText";
 
 export interface DispGroupPointerT extends DispBaseT {
 
@@ -147,26 +152,22 @@ export class DispGroupPointer extends DispBase {
     static makeShapeContext(context: PeekCanvasShapePropsContext): void {
         DispBase.makeShapeContext(context);
 
-        // context.addProp(new ShapeProp(
-        //     ShapePropType.MultilineString,
-        //     DispGroupPointer.text,
-        //     DispGroupPointer.setText,
-        //     "Text"
-        // ));
-        //
-        // context.addProp(new ShapeProp(
-        //     ShapePropType.TextStyle,
-        //     DispGroupPointer.textStyle,
-        //     DispGroupPointer.setTextStyle,
-        //     "Text Style"
-        // ));
-        //
-        // context.addProp(new ShapeProp(
-        //     ShapePropType.Color,
-        //     DispGroupPointer.color,
-        //     DispGroupPointer.setColor,
-        //     "Color"
-        // ));
+        const disp = <DispGroupPointerT>context.disp;
+
+        if (disp.disps != null) {
+            for (const childDisp of disp.disps) {
+                if (DispBase.typeOf(childDisp) == DispType.text) {
+                    context.addProp(new ShapeProp(
+                        ShapePropType.MultilineString,
+                        DispText.text,
+                        DispText.setText,
+                        "Text",
+                        {alternateDisp: childDisp}
+                    ));
+                }
+            }
+        }
+
     }
 
 
