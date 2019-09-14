@@ -78,7 +78,7 @@ class ImportDispEllipseTuple(Tuple):
     lineColorHash: Optional[str] = TupleField()
     fillColorHash: Optional[str] = TupleField()
 
-    geom: WKBElement = TupleField()
+    geom: List[float] = TupleField()
 
     xRadius: float = TupleField()
     yRadius: float = TupleField()

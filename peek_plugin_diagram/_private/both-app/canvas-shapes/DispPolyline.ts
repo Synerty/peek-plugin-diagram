@@ -257,7 +257,7 @@ export class DispPolyline extends DispPoly {
     // ---------------
     // Represent the disp as a user friendly string
 
-    static makeShapeStr(disp: DispTextT): string {
+    static makeShapeStr(disp: DispPolylineT): string {
         let center = DispPolyline.center(disp);
         return DispBase.makeShapeStr(disp)
             + `\nAt : ${parseInt(<any>center.x)}x${parseInt(<any>center.y)}`;

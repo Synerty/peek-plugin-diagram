@@ -1,10 +1,8 @@
-from geoalchemy2 import WKBElement
-from typing import Optional, List
+from typing import Optional
+
+from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
-    ImportLiveDbDispLinkTuple
-from vortex.Tuple import Tuple, addTupleType, TupleField
 
 
 @addTupleType

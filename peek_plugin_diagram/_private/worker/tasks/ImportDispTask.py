@@ -10,7 +10,7 @@ from peek_plugin_diagram._private.server.controller.DispCompilerQueueController 
     DispCompilerQueueController
 from peek_plugin_diagram._private.storage.Display import \
     DispBase, DispEllipse, DispPolygon, DispText, DispPolyline, DispGroup, \
-    DispGroupPointer, DispNull
+    DispGroupPointer, DispNull, DispLineTemplate
 from peek_plugin_diagram._private.storage.ModelSet import \
     ModelCoordSet, getOrCreateCoordSet
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
@@ -22,6 +22,8 @@ from peek_plugin_diagram.tuples.shapes.ImportDispEllipseTuple import \
 from peek_plugin_diagram.tuples.shapes.ImportDispGroupPtrTuple import \
     ImportDispGroupPtrTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispGroupTuple import ImportDispGroupTuple
+from peek_plugin_diagram.tuples.shapes.ImportDispLineTemplateTuple import \
+    ImportDispLineTemplateTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispPolygonTuple import \
     ImportDispPolygonTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
@@ -39,6 +41,7 @@ IMPORT_TUPLE_MAP = {
     ImportDispEllipseTuple.tupleType(): DispEllipse,
     ImportDispPolygonTuple.tupleType(): DispPolygon,
     ImportDispPolylineTuple.tupleType(): DispPolyline,
+    ImportDispLineTemplateTuple.tupleType(): DispLineTemplate,
     ImportDispTextTuple.tupleType(): DispText
 }
 
@@ -61,7 +64,8 @@ IMPORT_SORT_ORDER = {
     ImportDispEllipseTuple.tupleType(): 2,
     ImportDispPolygonTuple.tupleType(): 2,
     ImportDispPolylineTuple.tupleType(): 2,
-    ImportDispTextTuple.tupleType(): 2
+    ImportDispTextTuple.tupleType(): 2,
+    ImportDispLineTemplateTuple.tupleType(): 2
 }
 
 
@@ -409,6 +413,7 @@ def _bulkInsertDisps(engine, disps: List):
         (DispPolyline, (DispBase, DispPolyline)),
         (DispPolygon, (DispBase, DispPolygon)),
         (DispText, (DispBase, DispText)),
+        (DispLineTemplate, (DispBase, DispLineTemplate)),
         (DispNull, (DispBase, DispNull)),
     )
 

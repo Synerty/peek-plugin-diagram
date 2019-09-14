@@ -89,7 +89,7 @@ class ImportDispPolylineTuple(Tuple):
     # This is just one possible use case of this field.
     edgeColorHash: Optional[str] = TupleField()
 
-    geom: WKBElement = TupleField()
+    geom: List[float] = TupleField()
 
     #: Start Key, The key of another disp object if the start of this polyline is relate
     # to it. For exmaple, if you were moving the other node, the start of this line should

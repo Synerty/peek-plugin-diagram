@@ -12,7 +12,6 @@
 """
 import typing
 
-from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from sqlalchemy import Column, orm
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String, Boolean
@@ -22,6 +21,7 @@ from sqlalchemy.sql.schema import Index, Sequence
 from sqlalchemy.sql.sqltypes import Float, DateTime
 from vortex.Tuple import Tuple, addTupleType, TupleField, JSON_EXCLUDE
 
+from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from .DeclarativeBase import DeclarativeBase
 from .ModelSet import ModelCoordSet, ModelSet
 
@@ -188,6 +188,7 @@ class DispBase(Tuple, DeclarativeBase):
     TEXT = 40
     POLYGON = 50
     POLYLINE = 51
+    LINE_TEMPLATE = 52
     ELLIPSE = 60
     NULL = 70
 
@@ -440,7 +441,8 @@ class DispPolyline(DispBase):
     #: EdgeColor
     # This is an alternate line color.
     edgeColorId = Column(Integer, ForeignKey('DispColor.id',
-                                    name="DispGroupPointer_edgeColorId_fkey"), doc='ec')
+                                             name="DispGroupPointer_edgeColorId_fkey"),
+                         doc='ec')
 
     #: Start Key, The key of another disp object,
     # If the start point of this graphic is linked another disp obj
@@ -519,6 +521,12 @@ class DispEllipse(DispBase):
 
 @addTupleType
 class DispGroup(DispBase):
+    """ Disp Group
+
+    This object is used to store a template group of disps. These are used for placing
+    or updating existing disps in a DispGroupPtr
+
+    """
     __tablename__ = 'DispGroup'
     __tupleTypeShort__ = 'DG'
     __tupleType__ = diagramTuplePrefix + __tablename__
@@ -545,6 +553,49 @@ class DispGroup(DispBase):
     @reconstructor
     def __init__(self):
         DispBase.__init__(self)
+
+
+@addTupleType
+class DispLineTemplate(DispBase):
+    """ Disp Line Template
+
+    This object is used to create new lines in the diagram that also represent
+     edges in the GraphDB model.
+
+    At this stage it's just a template for a new line type.
+
+    """
+    __tablename__ = 'DispLineTemplate'
+    __tupleTypeShort__ = 'DLT'
+    __tupleType__ = diagramTuplePrefix + __tablename__
+
+    RENDERABLE_TYPE = DispBase.LINE_TEMPLATE
+    __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
+
+    id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
+                , primary_key=True, autoincrement=False)
+
+    name = Column(String, doc='n', nullable=False)
+
+    lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
+
+    lineColorId = Column(Integer, ForeignKey('DispColor.id'), doc='lc')
+    lineColor = relationship(DispColor, foreign_keys=lineColorId)
+
+    lineStyleId = Column(Integer, ForeignKey('DispLineStyle.id'), doc='ls')
+    lineStyle = relationship(DispLineStyle)
+
+    #: Start end type, is this an arrow, etc?
+    startEndType = Column(Integer, doc='st')
+
+    #: End End Type, See Start end type
+    endEndType = Column(Integer, doc='et')
+
+
+    # noinspection PyMissingConstructor
+    @orm.reconstructor
+    def __init__(self):
+        pass
 
 
 @addTupleType

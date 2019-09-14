@@ -85,7 +85,7 @@ class ImportDispPolygonTuple(Tuple):
     fillDirection: int = TupleField()
     fillPercent: int = TupleField()
 
-    geom: WKBElement = TupleField()
+    geom: List[float] = TupleField()
 
     #: Is this a retangle, with perpendicular equal sides.
     # This will effect how the polygon is edited

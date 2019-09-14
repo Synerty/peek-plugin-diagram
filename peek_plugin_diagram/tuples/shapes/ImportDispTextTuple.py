@@ -86,7 +86,7 @@ class ImportDispTextTuple(Tuple):
     V_ALLIGN_BOTTOM = 1
     verticalAlign: int = TupleField(V_ALLIGN_CENTER)
 
-    geom: WKBElement = TupleField()
+    geom: List[float] = TupleField()
 
     #: The rotation of the text
     rotation: float = TupleField()
