@@ -4,7 +4,7 @@ from typing import List, Callable
 
 import pytz
 from sqlalchemy import asc
-from twisted.internet import task
+from twisted.internet import task, reactor
 from twisted.internet.defer import inlineCallbacks
 from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
 
@@ -73,9 +73,6 @@ class DispKeyCompilerQueueController:
         if not self._readyLambdaFunc():
             return
 
-        from peek_plugin_diagram._private.worker.tasks.LocationIndexCompilerTask import \
-            compileLocationIndex
-
         # We queue the grids in bursts, reducing the work we have to do.
         if self._queueCount > self.QUEUE_MIN:
             return
@@ -93,9 +90,9 @@ class DispKeyCompilerQueueController:
             # Set the watermark
             self._lastQueueId = items[-1].id
 
-            d = compileLocationIndex.delay(items)
-            d.addCallback(self._pollCallback, datetime.now(pytz.utc), len(items))
-            d.addErrback(self._pollErrback, datetime.now(pytz.utc))
+            # This should never fail
+            d = self._sendToWorker(items)
+            d.addErrback(vortexLogFailure, logger)
 
             self._queueCount += 1
             if self._queueCount >= self.QUEUE_MAX:
@@ -103,16 +100,38 @@ class DispKeyCompilerQueueController:
 
         yield self._dedupeQueue()
 
+    @inlineCallbacks
+    def _sendToWorker(self, items: List[LocationIndexCompilerQueue]):
+        from peek_plugin_diagram._private.worker.tasks.LocationIndexCompilerTask import \
+            compileLocationIndex
+
+        startTime = datetime.now(pytz.utc)
+
+        try:
+            indexBuckets = yield compileLocationIndex.delay(items)
+            logger.debug("Time Taken = %s" % (datetime.now(pytz.utc) - startTime))
+
+            self._queueCount -= 1
+
+            self._clientLocationUpdateHandler.sendLocationIndexes(indexBuckets)
+            self._statusController.addToLocationIndexCompilerTotal(len(items))
+            self._statusController.setLocationIndexCompilerStatus(True, self._queueCount)
+
+        except Exception as e:
+            self._statusController.setDisplayCompilerError(str(e))
+            logger.warning("Retrying compile : %s", str(e))
+            reactor.callLater(2.0, self._sendToWorker, items)
+            return
+
     @deferToThreadWrapWithLogger(logger)
     def _grabQueueChunk(self):
         session = self._dbSessionCreator()
         try:
-            qry = (session.query(LocationIndexCompilerQueue)
-                   .order_by(asc(LocationIndexCompilerQueue.id))
-                   .filter(LocationIndexCompilerQueue.id > self._lastQueueId)
-                   .yield_per(self.QUEUE_MAX)
-                   .limit(self.QUEUE_MAX)
-                   )
+            qry = session.query(LocationIndexCompilerQueue) \
+                .order_by(asc(LocationIndexCompilerQueue.id)) \
+                .filter(LocationIndexCompilerQueue.id > self._lastQueueId) \
+                .yield_per(self.QUEUE_MAX) \
+                .limit(self.QUEUE_MAX)
 
             queueItems = qry.all()
             session.expunge_all()
@@ -142,16 +161,3 @@ class DispKeyCompilerQueueController:
         finally:
             session.close()
 
-    def _pollCallback(self, indexBuckets: List[str], startTime, processedCount):
-        self._queueCount -= 1
-        logger.debug("Time Taken = %s" % (datetime.now(pytz.utc) - startTime))
-        self._clientLocationUpdateHandler.sendLocationIndexes(indexBuckets)
-        self._statusController.addToLocationIndexCompilerTotal(processedCount)
-        self._statusController.setLocationIndexCompilerStatus(True, self._queueCount)
-
-    def _pollErrback(self, failure, startTime):
-        self._queueCount -= 1
-        self._statusController.setLocationIndexCompilerError(str(failure.value))
-        self._statusController.setLocationIndexCompilerStatus(True, self._queueCount)
-        logger.debug("Time Taken = %s" % (datetime.now(pytz.utc) - startTime))
-        vortexLogFailure(failure, logger)

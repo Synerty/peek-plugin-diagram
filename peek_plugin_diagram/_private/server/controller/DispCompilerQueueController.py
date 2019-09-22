@@ -4,14 +4,14 @@ from typing import List
 
 import pytz
 from sqlalchemy.sql.expression import asc
-from twisted.internet import task
+from twisted.internet import task, reactor
 from twisted.internet.defer import inlineCallbacks
+from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
 
 from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
 from peek_plugin_diagram._private.storage.GridKeyIndex import \
     DispIndexerQueue as DispIndexerQueueTable
-from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
 
 logger = logging.getLogger(__name__)
 
@@ -69,19 +69,9 @@ class DispCompilerQueueController:
         if not queueItems:
             return
 
-        queueIds = [o.id for o in queueItems]
-        dispIds = list(set([o.dispId for o in queueItems]))
-
-        from peek_plugin_diagram._private.worker.tasks.DispCompilerTask import \
-            compileDisps
-
-        try:
-            d = compileDisps.delay(queueIds, dispIds)
-            d.addCallback(self._pollCallback, datetime.now(pytz.utc), len(queueItems))
-            d.addErrback(self._pollErrback, datetime.now(pytz.utc), len(queueItems))
-        except Exception as e:
-            logger.exception(e)
-            return
+        # This should never fail
+        d = self._sendToWorker(queueItems)
+        d.addErrback(vortexLogFailure, logger)
 
         # Set the watermark
         self._lastQueueId = queueItems[-1].id
@@ -89,37 +79,47 @@ class DispCompilerQueueController:
         self._queueCount += 1
         self._statusController.setDisplayCompilerStatus(True, self._queueCount)
 
+    @inlineCallbacks
+    def _sendToWorker(self, items: List[DispIndexerQueueTable]):
+        from peek_plugin_diagram._private.worker.tasks.DispCompilerTask import \
+            compileDisps
+
+        queueIds = [o.id for o in items]
+        dispIds = list(set([o.dispId for o in items]))
+        startTime = datetime.now(pytz.utc)
+
+        try:
+            yield compileDisps.delay(queueIds, dispIds)
+            logger.debug("%s Disps, Time Taken = %s",
+                         len(items), datetime.now(pytz.utc) - startTime)
+
+            self._queueCount -= 1
+
+            self._statusController.setDisplayCompilerStatus(True, self._queueCount)
+            self._statusController.addToDisplayCompilerTotal(self.ITEMS_PER_TASK)
+
+        except Exception as e:
+            self._statusController.setDisplayCompilerError(str(e))
+            logger.warning("Retrying compile : %s", str(e))
+            reactor.callLater(2.0, self._sendToWorker, items)
+            return
+
     @deferToThreadWrapWithLogger(logger)
     def _grabQueueChunk(self):
         session = self._ormSessionCreator()
         try:
             queueItems = (session.query(DispIndexerQueueTable)
-                .order_by(asc(DispIndexerQueueTable.id))
-                .filter(DispIndexerQueueTable.id > self._lastQueueId)
-                .yield_per(self.ITEMS_PER_TASK)
-                .limit(self.ITEMS_PER_TASK)
-                .all())
+                          .order_by(asc(DispIndexerQueueTable.id))
+                          .filter(DispIndexerQueueTable.id > self._lastQueueId)
+                          .yield_per(self.ITEMS_PER_TASK)
+                          .limit(self.ITEMS_PER_TASK)
+                          .all())
 
             session.expunge_all()
             return queueItems
         finally:
             session.close()
 
-    @deferToThreadWrapWithLogger(logger)
-    def _pollCallback(self, arg, startTime, dispCount):
-        self._queueCount -= 1
-        logger.debug("%s Disps, Time Taken = %s",
-                     dispCount, datetime.now(pytz.utc) - startTime)
-        self._statusController.setDisplayCompilerStatus(True, self._queueCount)
-        self._statusController.addToDisplayCompilerTotal(self.ITEMS_PER_TASK)
-
-    def _pollErrback(self, failure, startTime, dispCount):
-        self._queueCount -= 1
-        logger.debug("%s Disps, Time Taken = %s",
-                     dispCount, datetime.now(pytz.utc) - startTime)
-        self._statusController.setDisplayCompilerStatus(True, self._queueCount)
-        self._statusController.setDisplayCompilerError(str(failure.value))
-        vortexLogFailure(failure, logger)
 
     @deferToThreadWrapWithLogger(logger)
     def queueDisps(self, dispIds):
