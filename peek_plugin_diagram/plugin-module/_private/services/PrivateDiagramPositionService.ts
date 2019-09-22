@@ -91,14 +91,17 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
             );
         }
 
-        const coordSet = this.coordSetService.coordSetForKey(modelSetKey, coordSetKey);
-
         for (let dispKeyIndex of dispKeyIndexes) {
             // If we've been given a coord set key
             // and it doesn't match the found item:
             if (coordSetKey != null && dispKeyIndex.coordSetKey != coordSetKey) {
                 continue;
             }
+
+            const coordSet = this.coordSetService.coordSetForKey(modelSetKey, dispKeyIndex.coordSetKey);
+
+            if (coordSet == null)
+                return;
 
             this.positionSubject.next({
                 coordSetKey: dispKeyIndex.coordSetKey,
