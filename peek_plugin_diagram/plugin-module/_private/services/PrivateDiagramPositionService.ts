@@ -98,7 +98,8 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
                 continue;
             }
 
-            const coordSet = this.coordSetService.coordSetForKey(modelSetKey, dispKeyIndex.coordSetKey);
+            const coordSet = this.coordSetService
+                .coordSetForKey(modelSetKey, dispKeyIndex.coordSetKey);
 
             if (coordSet == null)
                 return;

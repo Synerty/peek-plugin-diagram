@@ -10,6 +10,8 @@
  *  Synerty Pty Ltd
  *
 """
+from sqlalchemy.exc import IntegrityError
+
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
@@ -214,7 +216,10 @@ def getOrCreateModelSet(session, modelSetKey):
     qry = session.query(ModelSet).filter(ModelSet.key == modelSetKey)
     if not qry.count():
         session.add(ModelSet(name=modelSetKey, key=modelSetKey))
-        session.commit()
+        try:
+            session.commit()
+        except IntegrityError:
+            return qry.one()
 
     return qry.one()
 
@@ -238,6 +243,9 @@ def getOrCreateCoordSet(session, modelSetKey, coordSetKey):
             newGrid.coordSet = coordSet
             session.add(newGrid)
 
-        session.commit()
+        try:
+            session.commit()
+        except IntegrityError:
+            return qry.one()
 
     return qry.one()

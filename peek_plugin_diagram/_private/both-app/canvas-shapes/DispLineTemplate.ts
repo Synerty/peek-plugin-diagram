@@ -23,7 +23,7 @@ export class DispLineTemplate extends DispPoly {
      *
      * The name of this line template
      */
-    static name(disp: DispLineTemplateT): string {
+    static templateName(disp: DispLineTemplateT): string {
         return disp.n;
     }
 
