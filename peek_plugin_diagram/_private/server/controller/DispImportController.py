@@ -3,7 +3,8 @@ import time
 
 from peek_plugin_diagram._private.worker.tasks.ImportDispTask import importDispsTask
 from peek_plugin_livedb.server.LiveDBWriteApiABC import LiveDBWriteApiABC
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet import reactor
+from twisted.internet.defer import inlineCallbacks, Deferred
 from vortex.DeferUtil import deferToThreadWrapWithLogger
 
 logger = logging.getLogger(__name__)
@@ -36,6 +37,7 @@ class DispImportController:
                 modelSetKey, [i.key for i in liveDbItemsToImport]
             )
 
-    @deferToThreadWrapWithLogger(logger)
     def _sleep(self, seconds):
-        time.sleep(seconds)
+        d = Deferred()
+        reactor.callLater(seconds, d.callback, True)
+        return d

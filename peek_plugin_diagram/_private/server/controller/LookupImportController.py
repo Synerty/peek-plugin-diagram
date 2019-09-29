@@ -138,7 +138,7 @@ class LookupImportController:
                 logger.exception(e)
                 raise
 
-            logger.info("Updates for %s received, Added %s, Updated %s, Deleted %s",
+            logger.debug("Updates for %s received, Added %s, Updated %s, Deleted %s",
                         tupleType, addCount, updateCount, deleteCount)
 
         except Exception as e:
