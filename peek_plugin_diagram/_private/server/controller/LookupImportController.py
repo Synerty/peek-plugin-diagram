@@ -2,7 +2,7 @@ import ujson as json
 import logging
 from typing import List, Optional, Any, Dict
 
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks, returnValue, DeferredSemaphore
 
 from peek_plugin_diagram._private.storage.Display import DispColor, DispLayer, DispLevel, \
     DispLineStyle, DispTextStyle
@@ -33,6 +33,8 @@ class LookupImportController:
     def __init__(self, dbSessionCreator):
         self._dbSessionCreator = dbSessionCreator
 
+        self._semaphore = DeferredSemaphore(1)
+
     def shutdown(self):
         pass
 
@@ -41,7 +43,7 @@ class LookupImportController:
                       lookupTupleType: str, lookupTuples: List,
                       deleteOthers: bool, updateExisting: bool):
 
-        yield self._importInThread(modelSetKey, coordSetKey,
+        yield self._semaphore.run(self._importInThread, modelSetKey, coordSetKey,
                                    lookupTupleType, lookupTuples,
                                    deleteOthers, updateExisting)
 
