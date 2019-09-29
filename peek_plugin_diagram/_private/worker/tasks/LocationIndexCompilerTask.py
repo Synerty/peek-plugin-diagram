@@ -120,7 +120,7 @@ def compileLocationIndex(self, queueItems) -> List[str]:
         ))
 
         transaction.commit()
-        logger.debug("Compiled and Comitted %s LocationIndexCompileds in %s",
+        logger.info("Compiled and Comitted %s LocationIndexCompileds in %s",
                      total, (datetime.now(pytz.utc) - startTime))
 
         return indexBuckets

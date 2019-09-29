@@ -99,14 +99,14 @@ def compileGrids(self, queueItems) -> List[str]:
         conn.execute(queueTable.delete(queueTable.c.id.in_(queueItemIds)))
 
         transaction.commit()
-        logger.debug("Compiled and Committed %s GridKeyIndexCompileds in %s",
+        logger.info("Compiled and Committed %s GridKeyIndexCompileds in %s",
                     total, (datetime.now(pytz.utc) - startTime))
 
         return gridKeys
 
     except Exception as e:
         transaction.rollback()
-        logger.debug(e)  # Just a warning, it will retry
+        logger.debug("Compile of grids failed, retrying : %s", gridKeys)
         raise self.retry(exc=e, countdown=2)
 
     finally:
