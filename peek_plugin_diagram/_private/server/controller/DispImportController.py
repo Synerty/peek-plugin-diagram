@@ -1,11 +1,10 @@
-import ujson as json
 import logging
-from typing import List
+import time
 
 from peek_plugin_diagram._private.worker.tasks.ImportDispTask import importDispsTask
 from peek_plugin_livedb.server.LiveDBWriteApiABC import LiveDBWriteApiABC
 from twisted.internet.defer import inlineCallbacks
-from vortex.SerialiseUtil import convertFromWkbElement
+from vortex.DeferUtil import deferToThreadWrapWithLogger
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +29,13 @@ class DispImportController:
                 modelSetKey, liveDbItemsToImport
             )
 
+            # Give and connector plugins time to load the new items
+            yield self._sleep(2.0)
+
             yield self._liveDbWriteApi.pollLiveDbValueAcquisition(
                 modelSetKey, [i.key for i in liveDbItemsToImport]
             )
+
+    @deferToThreadWrapWithLogger(logger)
+    def _sleep(self, seconds):
+        time.sleep(seconds)
