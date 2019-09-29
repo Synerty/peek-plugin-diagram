@@ -38,6 +38,8 @@ class DispCompilerQueueController:
         self._lastQueueId = 0
         self._queueCount = 0
 
+        self._chunksInProgress = set()
+
     def isBusy(self) -> bool:
         return self._queueCount != 0
 
@@ -69,6 +71,10 @@ class DispCompilerQueueController:
         if not queueItems:
             return
 
+        # If we're already processing these chunks, then return and try later
+        if self._chunksInProgress & set([o.dispId for o in queueItems]):
+            return
+
         # This should never fail
         d = self._sendToWorker(queueItems)
         d.addErrback(vortexLogFailure, logger)
@@ -88,6 +94,9 @@ class DispCompilerQueueController:
         dispIds = list(set([o.dispId for o in items]))
         startTime = datetime.now(pytz.utc)
 
+        # Add the chunks we're processing to the set
+        self._chunksInProgress |= set([o.dispId for o in items])
+
         try:
             yield compileDisps.delay(queueIds, dispIds)
             logger.debug("%s Disps, Time Taken = %s",
@@ -98,9 +107,12 @@ class DispCompilerQueueController:
             self._statusController.setDisplayCompilerStatus(True, self._queueCount)
             self._statusController.addToDisplayCompilerTotal(self.ITEMS_PER_TASK)
 
+            # Success, Remove the chunks from the in-progress queue
+            self._chunksInProgress -= set([o.dispId for o in items])
+
         except Exception as e:
-            self._statusController.setDisplayCompilerError(str(e))
-            logger.warning("Retrying compile : %s", str(e))
+            # self._statusController.setDisplayCompilerError(str(e))
+            logger.debug("Retrying compile : %s", str(e))
             reactor.callLater(2.0, self._sendToWorker, items)
             return
 

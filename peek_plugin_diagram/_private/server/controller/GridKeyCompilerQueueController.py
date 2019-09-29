@@ -45,6 +45,8 @@ class GridKeyCompilerQueueController:
         self._lastQueueId = -1
         self._queueCount = 0
 
+        self._chunksInProgress = set()
+
     def start(self):
         self._statusController.setGridCompilerStatus(True, self._queueCount)
         d = self._pollLoopingCall.start(self.PERIOD, now=False)
@@ -85,6 +87,10 @@ class GridKeyCompilerQueueController:
 
             items = queueItems[start: start + self.ITEMS_PER_TASK]
 
+            # If we're already processing these chunks, then return and try later
+            if self._chunksInProgress & set([o.gridKey for o in items]):
+                return
+
             # This should never fail
             d = self._sendToWorker(items)
             d.addErrback(vortexLogFailure, logger)
@@ -105,6 +111,9 @@ class GridKeyCompilerQueueController:
 
         startTime = datetime.now(pytz.utc)
 
+        # Add the chunks we're processing to the set
+        self._chunksInProgress |= set([o.gridKey for o in items])
+
         try:
             gridKeys = yield compileGrids.delay(items)
             logger.debug("Time Taken = %s" % (datetime.now(pytz.utc) - startTime))
@@ -115,9 +124,12 @@ class GridKeyCompilerQueueController:
             self._statusController.addToGridCompilerTotal(len(items))
             self._statusController.setGridCompilerStatus(True, self._queueCount)
 
+            # Success, Remove the chunks from the in-progress queue
+            self._chunksInProgress -= set([o.gridKey for o in items])
+
         except Exception as e:
-            self._statusController.setDisplayCompilerError(str(e))
-            logger.warning("Retrying compile : %s", str(e))
+            # self._statusController.setDisplayCompilerError(str(e))
+            logger.debug("Retrying compile : %s", str(e))
             reactor.callLater(2.0, self._sendToWorker, items)
             return
 
