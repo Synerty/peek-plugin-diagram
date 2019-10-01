@@ -34,6 +34,16 @@
     <br>
 
     <button class="btn"
+            *ngIf="isEdgeTemplatePropertiesShown()"
+            [class.btn-primary]="isEdgeTemplatePropertiesActive()"
+            (click)="showEdgeTemplateProperties()"
+            nz-tooltip
+            nzTitle="Dynamic Properties">
+        <fa name="stamp"></fa>
+    </button>
+    <br>
+
+    <button class="btn"
             *ngIf="isLiveDbPropertiesShown()"
             [class.btn-primary]="isLiveDbPropertiesActive()"
             (click)="showLiveDbProperties()"

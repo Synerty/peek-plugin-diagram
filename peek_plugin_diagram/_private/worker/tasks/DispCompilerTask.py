@@ -8,7 +8,7 @@ import pytz
 import ujson as json
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.storage.Display import DispBase, DispTextStyle, \
-    DispGroup, DispGroupPointer, DispLineTemplate
+    DispGroup, DispGroupPointer, DispEdgeTemplate
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
     DispIndexerQueue, GridKeyCompilerQueue
 from peek_plugin_diagram._private.storage.LiveDbDispLink import LiveDbDispLink
@@ -437,7 +437,7 @@ def _scaleDisp(disps, coordSetById):
         geomArray = None
         # Disp Groups have no geometry
         if not isinstance(disp, DispGroup) \
-                and not isinstance(disp, DispLineTemplate):
+                and not isinstance(disp, DispEdgeTemplate):
             geomArray = json.loads(disp.geomJson)
             geomArray = _scaleDispGeomWithCoordSet(geomArray, coordSet)
             dispDict["g"] = geomArray
@@ -586,7 +586,7 @@ def _calculateGridKeys(preparedDisps: List[PreparedDisp], coordSetById, textStyl
                 addGridKey(pdisp.disp, makeDispGroupGridKey(coordSet.id))
             continue
 
-        if isinstance(pdisp.disp, DispLineTemplate):
+        if isinstance(pdisp.disp, DispEdgeTemplate):
             addGridKey(pdisp.disp, makeDispGroupGridKey(coordSet.id))
             continue
 

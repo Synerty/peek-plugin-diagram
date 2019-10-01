@@ -46,6 +46,9 @@ export class ModelCoordSet extends Tuple {
     // Show this Coord Set as a group of DispGroups to choose from in the Editor
     dispGroupTemplatesEnabled: boolean;
 
+    // Show this Coord Set as a group of Line Templates to choose from in the Editor
+    edgeTemplatesEnabled: boolean;
+
     // Show "Select Branches" button
     branchesEnabled: boolean;
 

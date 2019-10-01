@@ -23,14 +23,14 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
 
     // Stores the rectangle being created
-    private _creating = null;
+    protected _creating = null;
 
     // Used to detect dragging and its the mouse position we use
-    private _startMousePos: CanvasInputPos | null = null;
-    private _startNodeDisp = null;
-    private _endNodeDisp = null;
+    protected _startMousePos: CanvasInputPos | null = null;
+    protected _startNodeDisp = null;
+    protected _endNodeDisp = null;
 
-    private _nodes = []; //canvasInput._scope.pageData.modelRenderables;
+    protected _nodes = []; //canvasInput._scope.pageData.modelRenderables;
 
     constructor(viewArgs: InputDelegateConstructorViewArgs,
                 editArgs: InputDelegateConstructorEditArgs,
@@ -216,7 +216,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     }
 
 
-    private createDisp(inputPos: CanvasInputPos) {
+    protected createDisp(inputPos: CanvasInputPos) {
 
         // Create the Disp
         if (this.NAME == EditorToolType.EDIT_MAKE_POLYGON)

@@ -13,16 +13,16 @@ import {DispText} from "./DispText";
 
 export interface DispGroupPointerT extends DispBaseT {
 
-    // targetGroupId
-    tg: number;
-
     // verticalScale
     vs: number;
 
     // horizontalScale
     hs: number;
 
-    // Name
+    // targetGroupId
+    tg: number;
+
+    // targetGroupName
     tn: string;
 
     // Rotation

@@ -12,6 +12,7 @@
 """
 import typing
 
+from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from sqlalchemy import Column, orm
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String, Boolean
@@ -21,7 +22,6 @@ from sqlalchemy.sql.schema import Index, Sequence
 from sqlalchemy.sql.sqltypes import Float, DateTime
 from vortex.Tuple import Tuple, addTupleType, TupleField, JSON_EXCLUDE
 
-from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from .DeclarativeBase import DeclarativeBase
 from .ModelSet import ModelCoordSet, ModelSet
 
@@ -188,7 +188,7 @@ class DispBase(Tuple, DeclarativeBase):
     TEXT = 40
     POLYGON = 50
     POLYLINE = 51
-    LINE_TEMPLATE = 52
+    EDGE_TEMPLATE = 52
     ELLIPSE = 60
     NULL = 70
 
@@ -458,6 +458,15 @@ class DispPolyline(DispBase):
     #: End End Type, See Start end type
     endEndType = Column(Integer, doc='et')
 
+    targetEdgeTemplateId = Column(Integer,
+                                  ForeignKey('DispEdgeTemplate.id', ondelete='SET NULL'),
+                                  doc='ti')
+
+    targetEdgeTemplateName = Column(String, doc='tn')
+
+    __table_args__ = (
+    )
+
     __table_args__ = (
         # Commented out, we don't delete lookups during normal operation
         # and keeping this index maintained costs time
@@ -466,6 +475,7 @@ class DispPolyline(DispBase):
         # Index("idx_DispPolyline_edgeColorId", lineColorId, unique=False),
         Index("idx_DispPolyline_startKey", startKey, unique=False),
         Index("idx_DispPolyline_endKey", endKey, unique=False),
+        Index("idx_DispPolyline_targetEdgeTemplateId", targetEdgeTemplateId, unique=False),
     )
 
     # noinspection PyMissingConstructor
@@ -556,7 +566,7 @@ class DispGroup(DispBase):
 
 
 @addTupleType
-class DispLineTemplate(DispBase):
+class DispEdgeTemplate(DispBase):
     """ Disp Line Template
 
     This object is used to create new lines in the diagram that also represent
@@ -565,11 +575,11 @@ class DispLineTemplate(DispBase):
     At this stage it's just a template for a new line type.
 
     """
-    __tablename__ = 'DispLineTemplate'
+    __tablename__ = 'DispEdgeTemplate'
     __tupleTypeShort__ = 'DLT'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    RENDERABLE_TYPE = DispBase.LINE_TEMPLATE
+    RENDERABLE_TYPE = DispBase.EDGE_TEMPLATE
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
     id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
@@ -590,7 +600,6 @@ class DispLineTemplate(DispBase):
 
     #: End End Type, See Start end type
     endEndType = Column(Integer, doc='et')
-
 
     # noinspection PyMissingConstructor
     @orm.reconstructor

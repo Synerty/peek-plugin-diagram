@@ -1,0 +1,38 @@
+<div *ngIf="context != null">
+    <table class="table">
+        <tbody>
+        <tr class="tr">
+            <th class="th">Select Group :
+            </th>
+            <td class="td">
+                <nz-select style="min-width:200px"
+                           nzPlaceHolder="Select ...."
+                           (ngModelChange)="selectedCoordSetIdChanged($event)"
+                           [ngModel]="selectedCoordSetId">
+                    <nz-option *ngFor="let option of templateCoordSets"
+                               [nzValue]="option.id"
+                               [nzLabel]="option.name">
+                    </nz-option>
+                </nz-select>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <p *ngIf="noedgeTemplates()">
+        There are no template groups at this time.
+    </p>
+    <div *ngIf="!noedgeTemplates()" class="peek-tables-section">
+        <table class="table">
+            <tbody>
+            <tr class="tr"
+                *ngFor="let item of edgeTemplates; odd as odd; even as even">
+                <th class="td"
+                    [class.bg-success]="isSelectedEdgeTemplate(item)"
+                    [class.bg-warning]="!isSelectedEdgeTemplate(item)"
+                    (click)="toggleEnabled(item)">{{dispName(item)}}
+                </th>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

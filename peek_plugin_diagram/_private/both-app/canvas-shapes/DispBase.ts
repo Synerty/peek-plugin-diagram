@@ -37,6 +37,7 @@ export enum DispType {
     text,
     group,
     groupPointer,
+    edgeTemplate,
     null_
 }
 
@@ -110,6 +111,7 @@ export abstract class DispBase {
     static readonly TYPE_DE = 'DE';
     static readonly TYPE_DG = 'DG';
     static readonly TYPE_DGP = 'DGP';
+    static readonly TYPE_DET = 'DET';
     static readonly TYPE_DN = 'DN';
 
     static readonly DEEP_COPY_FIELDS_TO_IGNORE = [
@@ -129,6 +131,7 @@ export abstract class DispBase {
             DispBase._typeMap[DispBase.TYPE_DE] = [DispType.ellipse, 'Ellipse'];
             DispBase._typeMap[DispBase.TYPE_DG] = [DispType.group, 'Group'];
             DispBase._typeMap[DispBase.TYPE_DGP] = [DispType.groupPointer, 'GroupPointer'];
+            DispBase._typeMap[DispBase.TYPE_DET] = [DispType.edgeTemplate, 'EdgeTemplate'];
             DispBase._typeMap[DispBase.TYPE_DN] = [DispType.null_, 'Deleted Shape'];
         }
 

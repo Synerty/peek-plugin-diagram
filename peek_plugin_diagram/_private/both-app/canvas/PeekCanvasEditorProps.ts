@@ -8,11 +8,15 @@ import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple
 import {DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
 import {DispBase, DispType} from "../canvas-shapes/DispBase";
 import {DispFactory} from "../canvas-shapes/DispFactory";
+import {PeekCanvasEdgeTemplatePropsContext} from "./PeekCanvasEdgeTemplatePropsContext";
+import {DispEdgeTemplateT} from "../canvas-shapes/DispEdgeTemplate";
+import {DispPolyline, DispPolylineT} from "../canvas-shapes/DispPolyline";
 
 export enum EditorContextType {
     NONE,
     BRANCH_PROPERTIES,
     GROUP_PTR_PROPERTIES,
+    EDGE_TEMPLATE_PROPERTIES,
     SHAPE_PROPERTIES,
     DYNAMIC_PROPERTIES
 }
@@ -54,6 +58,14 @@ export class PeekCanvasEditorProps {
     groupPtrPanelContext: PeekCanvasGroupPtrPropsContext | null = null;
 
     // ---------------
+    // Line Template Props
+
+    private readonly _edgeTemplatePanelContextSubject
+        = new Subject<PeekCanvasEdgeTemplatePropsContext | null>();
+
+    edgeTemplatePanelContext: PeekCanvasEdgeTemplatePropsContext | null = null;
+
+    // ---------------
     // General things
 
     private modelSetId: number = -1;
@@ -87,6 +99,10 @@ export class PeekCanvasEditorProps {
         return this._groupPtrPanelContextSubject;
     }
 
+    get edgeTemplatePanelContextObservable(): Observable<PeekCanvasEdgeTemplatePropsContext | null> {
+        return this._edgeTemplatePanelContextSubject;
+    }
+
     // ---------------
     // Properties, used by UI mainly
 
@@ -109,6 +125,16 @@ export class PeekCanvasEditorProps {
         }
         this.groupPtrPanelContext = val;
         this._groupPtrPanelContextSubject.next(val);
+    }
+
+
+    private setEdgeTemplatePanelContextObservable(val: PeekCanvasEdgeTemplatePropsContext | null): void {
+        if (val == null
+            && this._contextPanelState == EditorContextType.EDGE_TEMPLATE_PROPERTIES) {
+            this.closeContext();
+        }
+        this.edgeTemplatePanelContext = val;
+        this._edgeTemplatePanelContextSubject.next(val);
     }
 
     private setLiveDbPanelContextObservable(): void {
@@ -147,6 +173,14 @@ export class PeekCanvasEditorProps {
             this._contextPanelState == EditorContextType.GROUP_PTR_PROPERTIES
                 ? EditorContextType.NONE
                 : EditorContextType.GROUP_PTR_PROPERTIES
+        );
+    }
+
+    showEdgeTemplateProperties() {
+        this.setContextPanel(
+            this._contextPanelState == EditorContextType.EDGE_TEMPLATE_PROPERTIES
+                ? EditorContextType.NONE
+                : EditorContextType.EDGE_TEMPLATE_PROPERTIES
         );
     }
 
@@ -193,11 +227,14 @@ export class PeekCanvasEditorProps {
 
             this.setShapePanelContextObservable(null);
             this.setGroupPtrPanelContextObservable(null);
+            this.setEdgeTemplatePanelContextObservable(null);
             return;
         }
 
         let disp = selectedDisps[0];
-        let dispGroupPtr = DispBase.typeOf(disp) == DispType.groupPointer
+
+        // --- Setup the DispGroup context
+        const dispGroupPtr = DispBase.typeOf(disp) == DispType.groupPointer
             ? <DispGroupPointerT>disp
             : model.query.dispGroupForDisp(disp);
 
@@ -207,11 +244,27 @@ export class PeekCanvasEditorProps {
             this.setGroupPtrPanelContextObservable(null);
 
         } else {
-            let groupPtrPropsContext = new PeekCanvasGroupPtrPropsContext(
+            const groupPtrPropsContext = new PeekCanvasGroupPtrPropsContext(
                 model, dispGroupPtr, this.lookupService, branchTuple
             );
 
             this.setGroupPtrPanelContextObservable(groupPtrPropsContext);
+        }
+
+        // --- Setup the EdgeTemplate context
+        if (DispBase.typeOf(disp) == DispType.polyline) {
+            const polyline = <DispPolylineT>disp;
+
+            if (!DispPolyline.targetEdgeTemplateName(polyline)) {
+                this.setEdgeTemplatePanelContextObservable(null);
+
+            } else {
+                const edgeTemplatePropsContext = new PeekCanvasEdgeTemplatePropsContext(
+                    model, polyline, this.lookupService, branchTuple
+                );
+
+                this.setEdgeTemplatePanelContextObservable(edgeTemplatePropsContext);
+            }
         }
 
     }

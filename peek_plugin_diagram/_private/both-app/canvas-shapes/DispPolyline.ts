@@ -5,10 +5,12 @@ import {
     ShapeProp,
     ShapePropType
 } from "../canvas/PeekCanvasShapePropsContext";
-import {DispTextT} from "./DispText";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
 import {DispColor} from "@peek/peek_plugin_diagram/lookups";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
+import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {DispEdgeTemplate, DispEdgeTemplateT} from "./DispEdgeTemplate";
 
 
 export interface DispPolylineT extends DispPolyT {
@@ -28,6 +30,13 @@ export interface DispPolylineT extends DispPolyT {
 
     // End End Type
     et: number | null;
+
+    // Target Template Line ID
+    ti: number;
+
+    // Target Template Line Name
+    tn: string;
+
 }
 
 export enum DispPolylineEndTypeE {
@@ -37,6 +46,31 @@ export enum DispPolylineEndTypeE {
 }
 
 export class DispPolyline extends DispPoly {
+
+    static targetGroupId(disp: DispPolylineT): number {
+        return disp.ti;
+    }
+
+    static setTargetEdgeTemplateId(disp: DispPolylineT, val: number): void {
+        disp.ti = val;
+    }
+
+    static setTargetEdgeTemplateName(disp: DispPolylineT, coordSetId: number,
+                              name: string): void {
+        disp.tn = `${coordSetId}|${name}`;
+    }
+
+    static targetEdgeTemplateCoordSetId(disp: DispPolylineT): number | null {
+        if (disp.tn == null || disp.tn.indexOf('|') === -1)
+            return null;
+        return parseInt(disp.tn.split('|')[0]);
+    }
+
+    static targetEdgeTemplateName(disp: DispPolylineT): string | null {
+        if (disp.tn == null || disp.tn.indexOf('|') === -1)
+            return null;
+        return disp.tn.split('|')[1];
+    }
 
 
     /** Edge Color
@@ -251,6 +285,41 @@ export class DispPolyline extends DispPoly {
             "Line End Style",
             {options: lineEndOptions}
         ));
+
+    }
+
+    /** Set Target Line
+     *
+     * Change the template that this polyline immitates
+     *
+     *
+     * @param polyline
+     * @param edgeTemplate
+     * @param edgeTemplateCoordSetId
+     * @param lookupService
+     * @param branchTuple
+     */
+    static setEdgeTemplate(polyline: DispPolylineT,
+                        edgeTemplate: DispEdgeTemplateT,
+                        edgeTemplateCoordSetId: number,
+                        lookupService: PrivateDiagramLookupService,
+                        branchTuple: BranchTuple): void {
+
+        DispPolyline.setTargetEdgeTemplateName(
+            polyline,
+            edgeTemplateCoordSetId,
+            DispEdgeTemplate.templateName(edgeTemplate)
+        );
+
+        DispPolyline.setLayer(polyline,DispEdgeTemplate.layer(edgeTemplate));
+        DispPolyline.setLevel(polyline,DispEdgeTemplate.level(edgeTemplate));
+
+        DispPolyline.setLineWidth(polyline,DispEdgeTemplate.lineWidth(edgeTemplate));
+        DispPolyline.setLineColor(polyline,DispEdgeTemplate.lineColor(edgeTemplate));
+        DispPolyline.setLineStyle(polyline,DispEdgeTemplate.lineStyle(edgeTemplate));
+
+        DispPolyline.setEndEndType(polyline,DispEdgeTemplate.endEndType(edgeTemplate));
+        DispPolyline.setStartEndType(polyline,DispEdgeTemplate.startEndType(edgeTemplate));
 
     }
 

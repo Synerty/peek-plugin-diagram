@@ -10,14 +10,14 @@ from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
 
 
 @addTupleType
-class ImportDispLineTemplateTuple(Tuple):
+class ImportDispEdgeTemplateTuple(Tuple):
     """ Imported Shape Line Template
 
     This tuple is used by other plugins to load Line Template into the diagram.
     The line template is used by the user to create new lines.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispLineTemplateTuple'
+    __tupleType__ = diagramTuplePrefix + 'ImportDispEdgeTemplateTuple'
 
     # The size of the end types are relative to the line width
     END_TYPE_NONE = ImportDispPolylineTuple.END_TYPE_NONE

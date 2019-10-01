@@ -10,7 +10,7 @@ from peek_plugin_diagram._private.server.controller.DispCompilerQueueController 
     DispCompilerQueueController
 from peek_plugin_diagram._private.storage.Display import \
     DispBase, DispEllipse, DispPolygon, DispText, DispPolyline, DispGroup, \
-    DispGroupPointer, DispNull, DispLineTemplate
+    DispGroupPointer, DispNull, DispEdgeTemplate
 from peek_plugin_diagram._private.storage.ModelSet import \
     ModelCoordSet, getOrCreateCoordSet
 from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
@@ -22,8 +22,8 @@ from peek_plugin_diagram.tuples.shapes.ImportDispEllipseTuple import \
 from peek_plugin_diagram.tuples.shapes.ImportDispGroupPtrTuple import \
     ImportDispGroupPtrTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispGroupTuple import ImportDispGroupTuple
-from peek_plugin_diagram.tuples.shapes.ImportDispLineTemplateTuple import \
-    ImportDispLineTemplateTuple
+from peek_plugin_diagram.tuples.shapes.ImportDispEdgeTemplateTuple import \
+    ImportDispEdgeTemplateTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispPolygonTuple import \
     ImportDispPolygonTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
@@ -41,7 +41,7 @@ IMPORT_TUPLE_MAP = {
     ImportDispEllipseTuple.tupleType(): DispEllipse,
     ImportDispPolygonTuple.tupleType(): DispPolygon,
     ImportDispPolylineTuple.tupleType(): DispPolyline,
-    ImportDispLineTemplateTuple.tupleType(): DispLineTemplate,
+    ImportDispEdgeTemplateTuple.tupleType(): DispEdgeTemplate,
     ImportDispTextTuple.tupleType(): DispText
 }
 
@@ -65,7 +65,7 @@ IMPORT_SORT_ORDER = {
     ImportDispPolygonTuple.tupleType(): 2,
     ImportDispPolylineTuple.tupleType(): 2,
     ImportDispTextTuple.tupleType(): 2,
-    ImportDispLineTemplateTuple.tupleType(): 2
+    ImportDispEdgeTemplateTuple.tupleType(): 2
 }
 
 
@@ -413,7 +413,7 @@ def _bulkInsertDisps(engine, disps: List):
         (DispPolyline, (DispBase, DispPolyline)),
         (DispPolygon, (DispBase, DispPolygon)),
         (DispText, (DispBase, DispText)),
-        (DispLineTemplate, (DispBase, DispLineTemplate)),
+        (DispEdgeTemplate, (DispBase, DispEdgeTemplate)),
         (DispNull, (DispBase, DispNull)),
     )
 

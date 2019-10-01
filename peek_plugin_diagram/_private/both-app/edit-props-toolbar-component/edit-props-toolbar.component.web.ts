@@ -73,6 +73,19 @@ export class EditPropsToolbarComponent extends ComponentLifecycleEventEmitter
         return this.canvasEditor.props.groupPtrPanelContext != null;
     }
 
+    // EdgeTemplate Properties
+    showEdgeTemplateProperties(): void {
+        this.canvasEditor.props.showEdgeTemplateProperties();
+    }
+
+    isEdgeTemplatePropertiesActive(): boolean {
+        return this.currentContext == EditorContextType.EDGE_TEMPLATE_PROPERTIES;
+    }
+
+    isEdgeTemplatePropertiesShown(): boolean {
+        return this.canvasEditor.props.edgeTemplatePanelContext != null;
+    }
+
     // LiveDB Properties
     showLiveDbProperties(): void {
         this.canvasEditor.props.showLiveDbProperties();

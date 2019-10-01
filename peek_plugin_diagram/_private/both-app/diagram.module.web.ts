@@ -30,12 +30,13 @@ import {NzToolTipModule} from 'ng-zorro-antd/tooltip';
 import {NzButtonModule} from 'ng-zorro-antd/button';
 import {NzTableModule} from 'ng-zorro-antd/table';
 import {NzDescriptionsModule} from 'ng-zorro-antd/descriptions';
-import { NzModalModule } from 'ng-zorro-antd/modal';
-import { NzSwitchModule } from 'ng-zorro-antd/switch';
-import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
-import { NzSelectModule } from 'ng-zorro-antd/select';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
+import {NzModalModule} from 'ng-zorro-antd/modal';
+import {NzSwitchModule} from 'ng-zorro-antd/switch';
+import {NzPopconfirmModule} from 'ng-zorro-antd/popconfirm';
+import {NzSelectModule} from 'ng-zorro-antd/select';
+import {NzInputModule} from 'ng-zorro-antd/input';
+import {NzCheckboxModule} from 'ng-zorro-antd/checkbox';
+import {EditPropsEdgeTemplateComponent} from "./edit-props-edge-template-component/edit-props-edge-template.component";
 
 
 // Define the root module for this plugin.
@@ -74,7 +75,8 @@ import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
         EditPropsComponent, EditPropsLivedbComponent,
         EditPropsShapeComponent, EditPropsToolbarComponent,
         EditPropsGroupPtrComponent,
-        PrintComponent]
+        PrintComponent,
+        EditPropsEdgeTemplateComponent]
 })
 export class PeekPluginDiagramModule {
 }

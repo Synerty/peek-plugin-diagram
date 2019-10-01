@@ -97,8 +97,11 @@ class ModelCoordSet(Tuple, DeclarativeBase):
     data = TupleField()
     isLanding = TupleField()
 
-    #: Is Editing enabled? (Also ensure ALL editDefault fields are set.
+    #: Show this Coord Set as a group of DispGroups to choose from in the Editor
     dispGroupTemplatesEnabled = Column(Boolean, nullable=False, server_default="false")
+
+    #: Show this Coord Set as a group of Line Templates to choose from in the Editor
+    edgeTemplatesEnabled = Column(Boolean, nullable=False, server_default="false")
 
     #: Is Editing enabled? (Also ensure ALL editDefault fields are set.
     branchesEnabled = Column(Boolean, nullable=False, server_default="false")

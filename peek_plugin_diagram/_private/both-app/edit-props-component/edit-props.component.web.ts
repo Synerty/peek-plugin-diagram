@@ -96,4 +96,8 @@ export class EditPropsComponent extends ComponentLifecycleEventEmitter
         return this.currentContext === EditorContextType.GROUP_PTR_PROPERTIES;
     }
 
+    isShowingEdgeTemplatePropertiesContext(): boolean {
+        return this.currentContext === EditorContextType.EDGE_TEMPLATE_PROPERTIES;
+    }
+
 }

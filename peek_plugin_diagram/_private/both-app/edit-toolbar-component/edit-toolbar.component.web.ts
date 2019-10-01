@@ -7,7 +7,7 @@ import {PeekCanvasInputEditMakeEllipseDelegate} from "../canvas-input/PeekCanvas
 import {PeekCanvasInputEditMakeDispPolygonDelegate} from "../canvas-input/PeekCanvasInputEditMakePolygonDelegate.web";
 import {PeekCanvasInputEditMakeDispPolylinDelegate} from "../canvas-input/PeekCanvasInputEditMakePolylineDelegate.web";
 import {PeekCanvasInputMakeDispGroupPtrVertexDelegate} from "../canvas-input/PeekCanvasInputEditMakeGroupPtrVertexDelegate.web";
-import {PeekCanvasInputMakeDispGroupPtrEdgeDelegate} from "../canvas-input/PeekCanvasInputEditMakeGroupPtrEdgeDelegate.web";
+import {PeekCanvasInputMakeDispPolylineEdgeDelegate} from "../canvas-input/PeekCanvasInputMakeDispPolylineEdgeDelegate.web";
 import {PeekCanvasInputEditSelectDelegate} from "../canvas-input/PeekCanvasInputEditSelectDelegate.web";
 import {PeekCanvasInputEditMakeTextDelegate} from "../canvas-input/PeekCanvasInputEditMakeTextDelegate.web";
 import {PeekCanvasInputEditMakeLineWithArrowDelegate} from "../canvas-input/PeekCanvasInputEditMakeLineWithArrowDelegate.web";
@@ -235,13 +235,13 @@ export class EditToolbarComponent extends ComponentLifecycleEventEmitter {
     // --------------------
     // Edit Make Group Ptr Edge Tool
 
-    selectEditMakeGroupPtrEdgeTool() {
-        this.canvasEditor.setInputEditDelegate(PeekCanvasInputMakeDispGroupPtrEdgeDelegate);
+    selectEditMakePolylineEdgeTool() {
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputMakeDispPolylineEdgeDelegate);
     }
 
-    isEditMakeGroupPtrEdgeActive(): boolean {
+    isEditMakePolylineEdgeActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
-        return this.selectedTool() === EditorToolType.EDIT_MAKE_DISP_GROUP_PTR_EDGE;
+        return this.selectedTool() === EditorToolType.EDIT_MAKE_DISP_POLYLINE_EDGE;
     }
 
 

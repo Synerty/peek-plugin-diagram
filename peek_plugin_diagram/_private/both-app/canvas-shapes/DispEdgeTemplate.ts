@@ -3,7 +3,7 @@ import {DispBase} from "./DispBase";
 import {DispPolylineEndTypeE} from "./DispPolyline";
 
 
-export interface DispLineTemplateT extends DispPolyT {
+export interface DispEdgeTemplateT extends DispPolyT {
 
     // Name
     n: string;
@@ -16,40 +16,40 @@ export interface DispLineTemplateT extends DispPolyT {
 }
 
 
-export class DispLineTemplate extends DispPoly {
+export class DispEdgeTemplate extends DispPoly {
 
 
     /** Name
      *
      * The name of this line template
      */
-    static templateName(disp: DispLineTemplateT): string {
+    static templateName(disp: DispEdgeTemplateT): string {
         return disp.n;
     }
 
 
     /** Start Key
      *
-     * The key of another disp object if the start of this LineTemplate is related to it
+     * The key of another disp object if the start of this EdgeTemplate is related to it
      */
-    static startEndType(disp: DispLineTemplateT): DispPolylineEndTypeE {
+    static startEndType(disp: DispEdgeTemplateT): DispPolylineEndTypeE {
         return disp.st || 0;
     }
 
-    static setStartEndType(disp: DispLineTemplateT, val: number | null): void {
+    static setStartEndType(disp: DispEdgeTemplateT, val: number | null): void {
         disp.st = val == 0 ? null : val;
     }
 
 
     /** End Key
      *
-     * The key of another disp object if the end of this LineTemplate is related to it
+     * The key of another disp object if the end of this EdgeTemplate is related to it
      */
-    static endEndType(disp: DispLineTemplateT): DispPolylineEndTypeE {
+    static endEndType(disp: DispEdgeTemplateT): DispPolylineEndTypeE {
         return disp.et || 0;
     }
 
-    static setEndEndType(disp: DispLineTemplateT, val: number | null): void {
+    static setEndEndType(disp: DispEdgeTemplateT, val: number | null): void {
         disp.et = val == 0 ? null : val;
     }
 
@@ -57,7 +57,7 @@ export class DispLineTemplate extends DispPoly {
     // ---------------
     // Represent the disp as a user friendly string
 
-    static makeShapeStr(disp: DispLineTemplateT): string {
+    static makeShapeStr(disp: DispEdgeTemplateT): string {
         return DispBase.makeShapeStr(disp)
             + `\nName : ${disp.n}`;
     }
