@@ -67,7 +67,8 @@
                 class="td"
                 [class.bg-odd]="odd"
                 [class.bg-even]="even">
-                <nz-select [disabled]="!isEditingEnabled()"
+                <nz-select style="min-width:200px"
+                           [disabled]="!isEditingEnabled()"
                            (ngModelChange)="writeOptionVal(prop, $event)"
                            [ngModel]="readOptionVal(prop)">
                     <nz-option *ngIf="prop.allowNullOption"
