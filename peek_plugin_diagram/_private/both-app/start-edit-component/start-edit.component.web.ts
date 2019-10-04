@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewChild} from "@angular/core";
+import {Component, Input, OnInit} from "@angular/core";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
@@ -82,7 +82,8 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
 
         this.globalBranchService.branches(this.modelSetKey)
             .then((tuples: BranchDetailTuple[]) => {
-                this.items = tuples;
+                this.items = tuples
+                    .sort((a, b) => b.createdDate.getTime() - a.createdDate.getTime());
             })
             .catch((e) => `Failed to load branches ${e}`);
 
