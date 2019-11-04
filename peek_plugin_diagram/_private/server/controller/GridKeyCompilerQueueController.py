@@ -10,7 +10,7 @@ from peek_plugin_diagram._private.server.controller.StatusController import \
 from peek_plugin_diagram._private.storage.GridKeyIndex import \
     GridKeyCompilerQueue
 from sqlalchemy import asc
-from twisted.internet import task, reactor
+from twisted.internet import task, reactor, defer
 from twisted.internet.defer import inlineCallbacks
 from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
 
@@ -33,6 +33,8 @@ class GridKeyCompilerQueueController:
 
     QUEUE_MAX = 100
     QUEUE_MIN = 30
+
+    TASK_TIMEOUT = 60.0
 
     def __init__(self, ormSessionCreator,
                  statusController: StatusController,
@@ -115,7 +117,10 @@ class GridKeyCompilerQueueController:
         self._chunksInProgress |= set([o.gridKey for o in items])
 
         try:
-            gridKeys = yield compileGrids.delay(items)
+            d = compileGrids.delay(items)
+            d.addTimeout(self.TASK_TIMEOUT, reactor)
+
+            gridKeys = yield d
             logger.debug("Time Taken = %s" % (datetime.now(pytz.utc) - startTime))
 
             self._queueCount -= 1
@@ -128,8 +133,11 @@ class GridKeyCompilerQueueController:
             self._chunksInProgress -= set([o.gridKey for o in items])
 
         except Exception as e:
-            # self._statusController.setDisplayCompilerError(str(e))
-            logger.debug("Retrying compile : %s", str(e))
+            if isinstance(e, defer.TimeoutError):
+                logger.info("Retrying compile, Task has timed out.")
+            else:
+                logger.debug("Retrying compile : %s", str(e))
+
             reactor.callLater(2.0, self._sendToWorker, items)
             return
 

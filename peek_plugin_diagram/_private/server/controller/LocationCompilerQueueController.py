@@ -4,7 +4,7 @@ from typing import List, Callable
 
 import pytz
 from sqlalchemy import asc
-from twisted.internet import task, reactor
+from twisted.internet import task, reactor, defer
 from twisted.internet.defer import inlineCallbacks
 from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
 
@@ -34,6 +34,8 @@ class DispKeyCompilerQueueController:
 
     QUEUE_MAX = 10
     QUEUE_MIN = 0
+
+    TASK_TIMEOUT = 60.0
 
     def __init__(self, ormSessionCreator,
                  statusController: StatusController,
@@ -117,7 +119,10 @@ class DispKeyCompilerQueueController:
         self._chunksInProgress |= set([o.indexBucket for o in items])
 
         try:
-            indexBuckets = yield compileLocationIndex.delay(items)
+            d = compileLocationIndex.delay(items)
+            d.addTimeout(self.TASK_TIMEOUT, reactor)
+
+            indexBuckets = yield d
             logger.debug("Time Taken = %s" % (datetime.now(pytz.utc) - startTime))
 
             self._queueCount -= 1
@@ -130,8 +135,11 @@ class DispKeyCompilerQueueController:
             self._chunksInProgress -= set([o.indexBucket for o in items])
 
         except Exception as e:
-            # self._statusController.setDisplayCompilerError(str(e))
-            logger.debug("Retrying compile : %s", str(e))
+            if isinstance(e, defer.TimeoutError):
+                logger.info("Retrying compile, Task has timed out.")
+            else:
+                logger.debug("Retrying compile : %s", str(e))
+
             reactor.callLater(2.0, self._sendToWorker, items)
             return
 
@@ -172,4 +180,3 @@ class DispKeyCompilerQueueController:
             session.commit()
         finally:
             session.close()
-
