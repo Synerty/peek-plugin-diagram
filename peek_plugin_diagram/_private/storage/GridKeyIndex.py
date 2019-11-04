@@ -23,6 +23,10 @@ class DispIndexerQueue(DeclarativeBase):
     id = Column(Integer, primary_key=True, autoincrement=True)
     dispId = Column(Integer, primary_key=True)
 
+    __table_args__ = (
+        Index("idx_DispCompQueue_dispId", dispId, unique=False),
+    )
+
 
 @addTupleType
 class GridKeyCompilerQueue(Tuple, DeclarativeBase):

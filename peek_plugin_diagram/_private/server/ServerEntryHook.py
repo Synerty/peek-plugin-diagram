@@ -20,8 +20,8 @@ from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexLoad
     ClientLocationIndexLoaderRpc
 from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexUpdateHandler import \
     ClientLocationIndexUpdateHandler
-from peek_plugin_diagram._private.server.controller.BranchIndexCompilerController import \
-    BranchIndexCompilerController
+from peek_plugin_diagram._private.server.controller.BranchIndexCompilerQueueController import \
+    BranchIndexCompilerQueueController
 from peek_plugin_diagram._private.server.controller.BranchLiveEditController import \
     BranchLiveEditController
 from peek_plugin_diagram._private.server.controller.BranchUpdateController import \
@@ -157,12 +157,12 @@ class ServerEntryHook(PluginServerEntryHookABC,
 
         # ----------------
         # Branch Index Compiler Controller
-        branchIndexCompilerController = BranchIndexCompilerController(
+        branchIndexCompilerQueueController = BranchIndexCompilerQueueController(
             dbSessionCreator=self.dbSessionCreator,
             statusController=statusController,
             clientUpdateHandler=clientBranchIndexChunkUpdateHandler
         )
-        self._loadedObjects.append(branchIndexCompilerController)
+        self._loadedObjects.append(branchIndexCompilerQueueController)
 
         # ----------------
         # Create the Tuple Observer
@@ -268,7 +268,7 @@ class ServerEntryHook(PluginServerEntryHookABC,
             locationIndexCompilerQueueController.start()
 
         if settings[LOCATION_COMPILER_ENABLED]:
-            branchIndexCompilerController.start()
+            branchIndexCompilerQueueController.start()
 
         logger.debug("Started")
 

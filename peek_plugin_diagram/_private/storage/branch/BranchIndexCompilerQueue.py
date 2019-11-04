@@ -1,6 +1,6 @@
 import logging
 
-from sqlalchemy import Column
+from sqlalchemy import Column, Index
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
 
@@ -24,3 +24,8 @@ class BranchIndexCompilerQueue(Tuple, DeclarativeBase):
                         autoincrement=True)
 
     chunkKey = Column(String, primary_key=True)
+
+    __table_args__ = (
+        Index("idx_BICompQueue_modelSetId_chunkKey", modelSetId, chunkKey, unique=False),
+    )
+

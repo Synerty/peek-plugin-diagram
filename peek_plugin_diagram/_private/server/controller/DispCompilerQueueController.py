@@ -4,7 +4,7 @@ from typing import List
 
 import pytz
 from sqlalchemy.sql.expression import asc
-from twisted.internet import task, reactor
+from twisted.internet import task, reactor, defer
 from twisted.internet.defer import inlineCallbacks
 from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
 
@@ -26,12 +26,16 @@ class DispCompilerQueueController:
     3) Delete from queue
     """
 
-    DE_DUPE_FETCH_SIZE = 10000
     ITEMS_PER_TASK = 500
     PERIOD = 0.200
 
+    QUEUE_MAX = 1
+    QUEUE_MIN = 0
+
+    TASK_TIMEOUT = 60.0
+
     def __init__(self, ormSessionCreator, statusController: StatusController):
-        self._ormSessionCreator = ormSessionCreator
+        self._dbSessionCreator = ormSessionCreator
         self._statusController: StatusController = statusController
 
         self._pollLoopingCall = task.LoopingCall(self._poll)
@@ -65,25 +69,36 @@ class DispCompilerQueueController:
 
     @inlineCallbacks
     def _poll(self):
+        # We queue the grids in bursts, reducing the work we have to do.
+        if self._queueCount > self.QUEUE_MIN:
+            return
 
         queueItems = yield self._grabQueueChunk()
 
         if not queueItems:
             return
 
-        # If we're already processing these chunks, then return and try later
-        if self._chunksInProgress & set([o.dispId for o in queueItems]):
-            return
+        for start in range(0, len(queueItems), self.ITEMS_PER_TASK):
 
-        # This should never fail
-        d = self._sendToWorker(queueItems)
-        d.addErrback(vortexLogFailure, logger)
+            items = queueItems[start: start + self.ITEMS_PER_TASK]
 
-        # Set the watermark
-        self._lastQueueId = queueItems[-1].id
+            # If we're already processing these chunks, then return and try later
+            if self._chunksInProgress & set([o.dispId for o in items]):
+                return
 
-        self._queueCount += 1
+            # This should never fail
+            d = self._sendToWorker(items)
+            d.addErrback(vortexLogFailure, logger)
+
+            # Set the watermark
+            self._lastQueueId = items[-1].id
+
+            self._queueCount += 1
+            if self._queueCount >= self.QUEUE_MAX:
+                break
+
         self._statusController.setDisplayCompilerStatus(True, self._queueCount)
+
 
     @inlineCallbacks
     def _sendToWorker(self, items: List[DispIndexerQueueTable]):
@@ -98,7 +113,10 @@ class DispCompilerQueueController:
         self._chunksInProgress |= set([o.dispId for o in items])
 
         try:
-            yield compileDisps.delay(queueIds, dispIds)
+            d = compileDisps.delay(queueIds, dispIds)
+            d.addTimeout(self.TASK_TIMEOUT, reactor)
+
+            yield d
             logger.debug("%s Disps, Time Taken = %s",
                          len(items), datetime.now(pytz.utc) - startTime)
 
@@ -111,20 +129,24 @@ class DispCompilerQueueController:
             self._chunksInProgress -= set([o.dispId for o in items])
 
         except Exception as e:
-            # self._statusController.setDisplayCompilerError(str(e))
-            logger.debug("Retrying compile : %s", str(e))
+            if isinstance(e, defer.TimeoutError):
+                logger.info("Retrying compile, Task has timed out.")
+            else:
+                logger.debug("Retrying compile : %s", str(e))
+
             reactor.callLater(2.0, self._sendToWorker, items)
             return
 
     @deferToThreadWrapWithLogger(logger)
     def _grabQueueChunk(self):
-        session = self._ormSessionCreator()
+        toGrab = (self.QUEUE_MAX - self._queueCount) * self.ITEMS_PER_TASK
+        session = self._dbSessionCreator()
         try:
             queueItems = (session.query(DispIndexerQueueTable)
                           .order_by(asc(DispIndexerQueueTable.id))
                           .filter(DispIndexerQueueTable.id > self._lastQueueId)
-                          .yield_per(self.ITEMS_PER_TASK)
-                          .limit(self.ITEMS_PER_TASK)
+                          .yield_per(toGrab)
+                          .limit(toGrab)
                           .all())
 
             session.expunge_all()
@@ -132,10 +154,9 @@ class DispCompilerQueueController:
         finally:
             session.close()
 
-
     @deferToThreadWrapWithLogger(logger)
     def queueDisps(self, dispIds):
-        return self.queueDispIdsToCompile(dispIds, self._ormSessionCreator)
+        return self.queueDispIdsToCompile(dispIds, self._dbSessionCreator)
 
     @classmethod
     def queueDispIdsToCompile(cls, dispIdsToCompile: List[int], ormSessionCreator):
@@ -146,6 +167,7 @@ class DispCompilerQueueController:
         try:
             cls.queueDispIdsToCompileWithSession(dispIdsToCompile, ormSession)
             ormSession.commit()
+
         finally:
             ormSession.close()
 
@@ -161,3 +183,31 @@ class DispCompilerQueueController:
             inserts.append(dict(dispId=dispId))
 
         ormSessionOrConn.execute(DispIndexerQueueTable.__table__.insert(), inserts)
+
+    @deferToThreadWrapWithLogger(logger)
+    def _dedupeQueue(self):
+        session = self._dbSessionCreator()
+        try:
+            session.execute("""
+                 with sq_raw as (
+                    SELECT "id", "dispId"
+                    FROM pl_diagram."DispCompilerQueue"
+                    WHERE id > %s
+                    LIMIT %s
+                ), sq as (
+                    SELECT min(id) as "minId", "dispId"
+                    FROM sq_raw
+                    GROUP BY  "dispId"
+                    HAVING count("dispId") > 1
+                )
+                DELETE
+                FROM pl_diagram."DispCompilerQueue"
+                     USING sq sq1
+                WHERE pl_diagram."DispCompilerQueue"."id" != sq1."minId"
+                    AND pl_diagram."DispCompilerQueue"."dispId" = sq1."dispId"
+                    
+            """ % (self._lastQueueId, self.QUEUE_MAX * self.ITEMS_PER_TASK))
+            session.commit()
+        finally:
+            session.close()
+
