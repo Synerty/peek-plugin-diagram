@@ -29,8 +29,8 @@ class DispCompilerQueueController:
     ITEMS_PER_TASK = 500
     PERIOD = 0.200
 
-    QUEUE_MAX = 1
-    QUEUE_MIN = 0
+    QUEUE_MAX = 20
+    QUEUE_MIN = 4
 
     TASK_TIMEOUT = 60.0
 
