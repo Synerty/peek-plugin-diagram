@@ -13,6 +13,7 @@ import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/se
 import {LinkedGrid} from "../cache/LinkedGrid.web";
 import {DispEdgeTemplate, DispEdgeTemplateT} from "../canvas-shapes/DispEdgeTemplate";
 import {PeekCanvasEdgeTemplatePropsContext} from "../canvas/PeekCanvasEdgeTemplatePropsContext";
+import {DispGroup} from "../canvas-shapes/DispGroup";
 
 
 @Component({
@@ -69,6 +70,9 @@ export class EditPropsEdgeTemplateComponent extends ComponentLifecycleEventEmitt
                 this.templateCoordSets.push(coordSet);
         }
 
+        this.templateCoordSets = this.templateCoordSets
+            .sort((a, b) => a.name.localeCompare(b.name));
+
         this.context = this.canvasEditor.props.edgeTemplatePanelContext;
         this.canvasEditor.props.edgeTemplatePanelContextObservable
             .takeUntil(this.onDestroyEvent)
@@ -116,7 +120,8 @@ export class EditPropsEdgeTemplateComponent extends ComponentLifecycleEventEmitt
                     .then((payload: Payload) => {
                         let gridTuple: GridTuple = payload.tuples[0];
                         let linkedGrid = new LinkedGrid(gridTuple, this.lookupService);
-                        this.edgeTemplates = linkedGrid.disps;
+                        this.edgeTemplates = linkedGrid.disps
+                            .sort((a, b) => DispGroup.groupName(a).localeCompare(DispGroup.groupName(b)));
                         this.initSelectedEdgeTemplate();
                     })
                     .catch((err) => {

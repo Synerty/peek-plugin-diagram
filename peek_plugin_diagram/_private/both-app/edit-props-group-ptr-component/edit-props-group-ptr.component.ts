@@ -56,7 +56,6 @@ export class EditPropsGroupPtrComponent extends ComponentLifecycleEventEmitter
         let coordSets = this.coordSetCache
             .coordSets(this.canvasEditor.branchContext.modelSetKey);
 
-
         for (let coordSet of coordSets) {
             if (coordSet.id === this.canvasEditor.coordSetId) {
                 this.coordSet = coordSet;
@@ -68,6 +67,9 @@ export class EditPropsGroupPtrComponent extends ComponentLifecycleEventEmitter
             if (coordSet.dispGroupTemplatesEnabled === true)
                 this.templateCoordSets.push(coordSet);
         }
+
+        this.templateCoordSets = this.templateCoordSets
+            .sort((a, b) => a.name.localeCompare(b.name));
 
         this.context = this.canvasEditor.props.groupPtrPanelContext;
         this.canvasEditor.props.groupPtrPanelContextObservable
@@ -116,7 +118,8 @@ export class EditPropsGroupPtrComponent extends ComponentLifecycleEventEmitter
                     .then((payload: Payload) => {
                         let gridTuple: GridTuple = payload.tuples[0];
                         let linkedGrid = new LinkedGrid(gridTuple, this.lookupService);
-                        this.dispGroups = linkedGrid.disps;
+                        this.dispGroups = linkedGrid.disps
+                            .sort((a, b) => DispGroup.groupName(a).localeCompare(DispGroup.groupName(b)));
                         this.initSelectedDispGroup();
                     })
                     .catch((err) => {
