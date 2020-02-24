@@ -218,6 +218,12 @@ export class DispGroupPointer extends DispBase {
 
         let newDisps = [];
         for (let disp of DispGroup.items(groupDisp)) {
+            // INTERIM FIX - DON'T COPY TEXT ITEMS
+            // This will need to be sorted more elegantly when we want to use Peek to
+            // to create patches.
+            if (DispBase.typeOf(disp) == DispType.text)
+                continue;
+
             disp = DispBase.cloneDisp(disp);
             DispBase.setSelectable(disp, false);
             DispBase.setKey(disp, null);
