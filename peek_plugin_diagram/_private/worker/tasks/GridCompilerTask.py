@@ -14,7 +14,7 @@ from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompil
     GridKeyCompilerQueue, \
     GridKeyIndex
 from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
-from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
+from peek_plugin_base.worker.CeleryApp import celeryApp
 from txcelery.defer import DeferrableTask
 from vortex.Payload import Payload
 

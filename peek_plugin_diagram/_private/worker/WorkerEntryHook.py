@@ -33,8 +33,3 @@ class WorkerEntryHook(PluginWorkerEntryHookABC):
                 LiveDbDisplayValueConverterTask.__name__,
                 ImportDispTask.__name__,
                 LocationIndexCompilerTask.__name__]
-
-    @property
-    def celeryApp(self):
-        from .CeleryApp import celeryApp
-        return celeryApp

@@ -13,7 +13,7 @@ from peek_plugin_diagram._private.storage.Display import \
     DispGroupPointer, DispNull, DispEdgeTemplate
 from peek_plugin_diagram._private.storage.ModelSet import \
     ModelCoordSet, getOrCreateCoordSet
-from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
+from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks.ImportDispLink import importDispLinks
 from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
     LookupHashConverter

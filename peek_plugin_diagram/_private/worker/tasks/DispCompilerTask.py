@@ -16,7 +16,7 @@ from peek_plugin_diagram._private.storage.LocationIndex import LocationIndex, \
     LocationIndexCompilerQueue
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, \
     makeDispGroupGridKey
-from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
+from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks._CalcDisp import \
     _scaleDispGeomWithCoordSet, _scaleDispGeom, _createHashId
 from peek_plugin_diagram._private.worker.tasks._CalcDispFromLiveDb import \

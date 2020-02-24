@@ -18,7 +18,7 @@ from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexComp
     LocationIndex
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompilerQueue
 from peek_plugin_diagram._private.tuples.location_index.LocationIndexTuple import LocationIndexTuple
-from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
+from peek_plugin_base.worker.CeleryApp import celeryApp
 from txcelery.defer import DeferrableTask
 
 logger = logging.getLogger(__name__)

@@ -9,7 +9,7 @@ from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
     DispCompilerQueueController
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
-from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
+from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks.ImportDispTask import _bulkInsertDisps
 from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
     LookupHashConverter

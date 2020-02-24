@@ -8,7 +8,7 @@ from txcelery.defer import  DeferrableTask
 
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
-from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
+from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks.LiveDbDisplayValueConverter import \
     LiveDbDisplayValueConverter
 from peek_plugin_livedb.tuples.LiveDbDisplayValueUpdateTuple import \

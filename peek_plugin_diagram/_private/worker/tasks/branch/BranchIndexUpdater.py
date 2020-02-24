@@ -17,7 +17,7 @@ from peek_plugin_diagram._private.storage.branch.BranchIndexCompilerQueue import
     BranchIndexCompilerQueue
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import \
     BranchTuple
-from peek_plugin_diagram._private.worker.CeleryApp import celeryApp
+from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks.ImportDispTask import _bulkInsertDisps
 from peek_plugin_diagram._private.worker.tasks.branch.BranchDispUpdater import \
     _deleteBranchDisps, _convertBranchDisps
