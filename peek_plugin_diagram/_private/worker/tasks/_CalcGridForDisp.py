@@ -77,6 +77,22 @@ def makeGridKeysForDisp(coordSet: ModelCoordSet,
         minGridY = int(miny / gridSize.yGrid)
         maxGridY = int(maxy / gridSize.yGrid) + 1
 
+        if 50 < abs(minGridX - maxGridX):
+            logger.warning("Ignoring massive shape with disp.id=%s,"
+                           " it crosses too many horizontal grids at"
+                           " at gridSize.id=%s,"
+                           " grid count is %s", disp.id, gridSize.id,
+                           abs(minGridX - maxGridX))
+            continue
+
+        if 50 < abs(minGridY - maxGridY):
+            logger.warning("Ignoring massive shape with disp.id=%s,"
+                           " it crosses too many vertical grids at"
+                           " at gridSize.id=%s,"
+                           " grid count is %s",
+                           disp.id, gridSize.id, abs(minGridY - maxGridY))
+            continue
+
         # Iterate through and create the grids.
         for gridX in range(minGridX, maxGridX):
             for gridY in range(minGridY, maxGridY):
