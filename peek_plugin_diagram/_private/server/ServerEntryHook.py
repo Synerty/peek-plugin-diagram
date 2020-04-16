@@ -304,8 +304,6 @@ class ServerEntryHook(PluginServerEntryHookABC,
         """
         return self._api
 
-    ###### Implement PluginServerWorkerEntryHookABC
-
     @deferToThreadWrapWithLogger(logger)
     def _loadSettings(self):
         dbSession = self.dbSessionCreator()
@@ -315,3 +313,6 @@ class ServerEntryHook(PluginServerEntryHookABC,
 
         finally:
             dbSession.close()
+
+
+    ###### Implement PluginServerWorkerEntryHookABC

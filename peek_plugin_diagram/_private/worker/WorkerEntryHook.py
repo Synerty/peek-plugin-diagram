@@ -1,8 +1,8 @@
 import logging
-from peek_plugin_base.worker.PluginWorkerEntryHookABC import PluginWorkerEntryHookABC
 
+from peek_plugin_base.worker.PluginWorkerEntryHookABC import PluginWorkerEntryHookABC
 from peek_plugin_diagram._private.worker.tasks import GridCompilerTask, \
-    ImportDispTask, LiveDbDisplayValueConverterTask, DispCompilerTask, \
+    ImportDispTask, DispCompilerTask, \
     LocationIndexCompilerTask
 from peek_plugin_diagram._private.worker.tasks.branch import BranchIndexCompiler, \
     BranchIndexImporter, BranchIndexUpdater
@@ -30,6 +30,5 @@ class WorkerEntryHook(PluginWorkerEntryHookABC):
                 BranchIndexImporter.__name__,
                 DispCompilerTask.__name__,
                 GridCompilerTask.__name__,
-                LiveDbDisplayValueConverterTask.__name__,
                 ImportDispTask.__name__,
                 LocationIndexCompilerTask.__name__]
