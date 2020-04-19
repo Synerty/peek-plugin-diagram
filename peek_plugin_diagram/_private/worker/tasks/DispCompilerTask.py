@@ -10,7 +10,8 @@ from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.storage.Display import DispBase, DispTextStyle, \
     DispGroup, DispGroupPointer, DispEdgeTemplate
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
-    DispIndexerQueue, GridKeyCompilerQueue
+    GridKeyCompilerQueue
+from peek_plugin_diagram._private.storage.DispIndex import DispIndexerQueue
 from peek_plugin_diagram._private.storage.LiveDbDispLink import LiveDbDispLink
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndex, \
     LocationIndexCompilerQueue

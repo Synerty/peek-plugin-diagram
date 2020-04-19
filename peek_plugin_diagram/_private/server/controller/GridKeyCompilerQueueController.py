@@ -1,18 +1,19 @@
 import logging
 from datetime import datetime
-from typing import List
+from typing import List, Any, Set
 
 import pytz
+from sqlalchemy import asc, select, bindparam
+from twisted.internet import task, reactor, defer
+from twisted.internet.defer import inlineCallbacks
+from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
+
 from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import \
     ClientGridUpdateHandler
 from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
 from peek_plugin_diagram._private.storage.GridKeyIndex import \
-    GridKeyCompilerQueue
-from sqlalchemy import asc
-from twisted.internet import task, reactor, defer
-from twisted.internet.defer import inlineCallbacks
-from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
+    GridKeyCompilerQueue, GridKeyCompilerQueueTuple
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +49,7 @@ class GridKeyCompilerQueueController:
         self._queueCount = 0
 
         self._chunksInProgress = set()
+        self._pausedForDuplicate = None
 
     def start(self):
         self._statusController.setGridCompilerStatus(True, self._queueCount)
@@ -74,27 +76,28 @@ class GridKeyCompilerQueueController:
 
     @inlineCallbacks
     def _poll(self):
+        # If the Queue compiler is paused, then do nothing.
+        if self._pausedForDuplicate:
+            return
 
         # We queue the grids in bursts, reducing the work we have to do.
         if self._queueCount > self.QUEUE_MIN:
             return
 
         # Check for queued items
-        queueItems = yield self._grabQueueChunk()
-        if not queueItems:
+        queueBlocks = yield self._grabQueueChunk()
+        if not queueBlocks:
             return
 
-        # Send the tasks to the peek worker
-        for start in range(0, len(queueItems), self.ITEMS_PER_TASK):
-
-            items = queueItems[start: start + self.ITEMS_PER_TASK]
+        for items, itemUniqueIds in queueBlocks:
 
             # If we're already processing these chunks, then return and try later
-            if self._chunksInProgress & set([o.gridKey for o in items]):
+            if self._chunksInProgress & itemUniqueIds:
+                self._pausedForDuplicate = itemUniqueIds
                 return
 
             # This should never fail
-            d = self._sendToWorker(items)
+            d = self._sendToWorker(items, itemUniqueIds)
             d.addErrback(vortexLogFailure, logger)
 
             # Set the watermark
@@ -104,17 +107,19 @@ class GridKeyCompilerQueueController:
             if self._queueCount >= self.QUEUE_MAX:
                 break
 
+        self._statusController.setGridCompilerStatus(True, self._queueCount)
         yield self._dedupeQueue()
 
     @inlineCallbacks
-    def _sendToWorker(self, items: List[GridKeyCompilerQueue]):
+    def _sendToWorker(self, items: List[GridKeyCompilerQueue],
+                      itemUniqueIds: Set[Any]):
         from peek_plugin_diagram._private.worker.tasks.GridCompilerTask import \
             compileGrids
 
         startTime = datetime.now(pytz.utc)
 
         # Add the chunks we're processing to the set
-        self._chunksInProgress |= set([o.gridKey for o in items])
+        self._chunksInProgress |= itemUniqueIds
 
         try:
             d = compileGrids.delay(items)
@@ -130,7 +135,11 @@ class GridKeyCompilerQueueController:
             self._statusController.setGridCompilerStatus(True, self._queueCount)
 
             # Success, Remove the chunks from the in-progress queue
-            self._chunksInProgress -= set([o.gridKey for o in items])
+            self._chunksInProgress -= itemUniqueIds
+
+            # If the queue compiler was paused for this chunk then resume it.
+            if self._pausedForDuplicate and self._pausedForDuplicate & itemUniqueIds:
+                self._pausedForDuplicate = None
 
         except Exception as e:
             if isinstance(e, defer.TimeoutError):
@@ -138,25 +147,35 @@ class GridKeyCompilerQueueController:
             else:
                 logger.debug("Retrying compile : %s", str(e))
 
-            reactor.callLater(2.0, self._sendToWorker, items)
+            reactor.callLater(2.0, self._sendToWorker, items, itemUniqueIds)
             return
 
     @deferToThreadWrapWithLogger(logger)
     def _grabQueueChunk(self):
+        queueTable = GridKeyCompilerQueue.__table__
+
+        toGrab = (self.QUEUE_MAX - self._queueCount) * self.ITEMS_PER_TASK
         session = self._dbSessionCreator()
         try:
-            qry = (session.query(GridKeyCompilerQueue)
-                   .order_by(asc(GridKeyCompilerQueue.id))
-                   .filter(GridKeyCompilerQueue.id > self._lastQueueId)
-                   .yield_per(self.QUEUE_MAX)
-                   .limit(self.QUEUE_MAX)
-                   )
+            sql = select([queueTable]) \
+                .where(queueTable.c.id > bindparam('b_id')) \
+                .order_by(asc(queueTable.c.id)) \
+                .limit(bindparam('b_toGrab'))
 
-            queueItems = qry.all()
-            session.expunge_all()
+            sqlData = session \
+                .execute(sql, dict(b_id=self._lastQueueId, b_toGrab=toGrab)) \
+                .fetchall()
 
-            # Deduplicate the values and return the ones with the lowest ID
-            return list({o.gridKey: o for o in reversed(queueItems)}.values())
+            queueItems = [GridKeyCompilerQueueTuple(o.id, o.coordSetId, o.gridKey)
+                          for o in sqlData]
+
+            queueBlocks = []
+            for start in range(0, len(queueItems), self.ITEMS_PER_TASK):
+                items = queueItems[start: start + self.ITEMS_PER_TASK]
+                itemUniqueIds = set([o.uniqueId for o in items])
+                queueBlocks.append((items, itemUniqueIds))
+
+            return queueBlocks
 
         finally:
             session.close()
@@ -164,18 +183,31 @@ class GridKeyCompilerQueueController:
     @deferToThreadWrapWithLogger(logger)
     def _dedupeQueue(self):
         session = self._dbSessionCreator()
+        dedupeLimit = self.QUEUE_MAX * self.ITEMS_PER_TASK * 2
         try:
-            session.execute("""
-                with sq as (
-                    SELECT min(id) as "minId"
+            sql = """
+                 with sq_raw as (
+                    SELECT "id", "gridKey"
                     FROM pl_diagram."GridKeyCompilerQueue"
-                    WHERE id > %s
-                    GROUP BY "coordSetId", "gridKey"
+                    WHERE id > %(id)s
+                    LIMIT %(limit)s
+                ), sq as (
+                    SELECT min(id) as "minId", "gridKey"
+                    FROM sq_raw
+                    GROUP BY  "gridKey"
+                    HAVING count("gridKey") > 1
                 )
                 DELETE
                 FROM pl_diagram."GridKeyCompilerQueue"
-                WHERE "id" not in (SELECT "minId" FROM sq)
-            """ % self._lastQueueId)
+                     USING sq sq1
+                WHERE pl_diagram."GridKeyCompilerQueue"."id" != sq1."minId"
+                    AND pl_diagram."GridKeyCompilerQueue"."id" > %(id)s
+                    AND pl_diagram."GridKeyCompilerQueue"."gridKey" = sq1."gridKey"
+
+            """ % {'id': self._lastQueueId, 'limit': dedupeLimit}
+
+            session.execute(sql)
             session.commit()
+
         finally:
             session.close()

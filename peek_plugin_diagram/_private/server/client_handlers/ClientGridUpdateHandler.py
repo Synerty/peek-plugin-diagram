@@ -1,18 +1,17 @@
 import logging
 from typing import List, Optional
 
+from sqlalchemy import select
 from twisted.internet.defer import Deferred
-
-from peek_plugin_base.PeekVortexUtil import peekClientName
-from peek_plugin_base.storage.StorageUtil import makeOrmValuesSubqueryCondition
-from peek_plugin_diagram._private.client.controller.GridCacheController import \
-    clientGridUpdateFromServerFilt
-from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
-from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
-from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import EncodedGridTuple
 from vortex.DeferUtil import vortexLogFailure, deferToThreadWrapWithLogger
 from vortex.Payload import Payload
 from vortex.VortexFactory import VortexFactory, NoVortexException
+
+from peek_plugin_base.PeekVortexUtil import peekClientName
+from peek_plugin_diagram._private.client.controller.GridCacheController import \
+    clientGridUpdateFromServerFilt
+from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
+from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import EncodedGridTuple
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +60,7 @@ class ClientGridUpdateHandler:
                     vortexMsg, destVortexName=peekClientName
                 )
 
-        d: Deferred = self._serialiseGrids(gridKeys)
+        d: Deferred = self._loadChunks(gridKeys)
         d.addCallback(send)
         d.addErrback(self._sendGridsErrback, gridKeys)
 
@@ -75,29 +74,27 @@ class ClientGridUpdateHandler:
         vortexLogFailure(failure, logger)
 
     @deferToThreadWrapWithLogger(logger)
-    def _serialiseGrids(self, gridKeys) -> Optional[bytes]:
+    def _loadChunks(self, chunkKeys: List[str]) -> Optional[bytes]:
+        table = GridKeyIndexCompiled.__table__
         session = self._dbSessionCreator()
         try:
-            ormGrids = (session.query(GridKeyIndexCompiled)
-                        .filter(makeOrmValuesSubqueryCondition(
-                            session, GridKeyIndexCompiled.gridKey, gridKeys
-                        ))
-                        .yield_per(200))
+            sql = select([table]) .where(table.c.gridKey.in_(chunkKeys))
+            sqlData = session.execute(sql).fetchall()
 
-            gridTuples: List[EncodedGridTuple] = []
-            for ormGrid in ormGrids:
-                gridTuples.append(
+            results: List[EncodedGridTuple] = []
+            for ormGrid in sqlData:
+                results.append(
                     EncodedGridTuple(gridKey=ormGrid.gridKey,
                                      encodedGridTuple=ormGrid.encodedGridTuple,
                                      lastUpdate=ormGrid.lastUpdate)
                 )
 
-            if not gridTuples:
+            if not results:
                 return None
 
             return Payload(
-                filt=clientGridUpdateFromServerFilt, tuples=gridTuples
-                           ).makePayloadEnvelope(compressionLevel=3).toVortexMsg()
+                filt=clientGridUpdateFromServerFilt, tuples=results
+            ).makePayloadEnvelope(compressionLevel=3).toVortexMsg()
 
         finally:
             session.close()

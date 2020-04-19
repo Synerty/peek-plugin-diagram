@@ -4,28 +4,16 @@ from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.schema import Index, Sequence
-from sqlalchemy.sql.sqltypes import DateTime
+from sqlalchemy.sql.schema import Index
+from vortex.Tuple import Tuple, addTupleType
 
 from peek_plugin_base.storage.TypeDecorators import PeekLargeBinary
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from vortex.Tuple import Tuple, addTupleType
 from .DeclarativeBase import DeclarativeBase
 from .Display import DispBase
 from .ModelSet import ModelCoordSet
 
 logger = logging.getLogger(__name__)
-
-
-class DispIndexerQueue(DeclarativeBase):
-    __tablename__ = 'DispCompilerQueue'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    dispId = Column(Integer, primary_key=True)
-
-    __table_args__ = (
-        Index("idx_DispCompQueue_dispId", dispId, unique=False),
-    )
 
 
 @addTupleType
@@ -46,6 +34,40 @@ class GridKeyCompilerQueue(Tuple, DeclarativeBase):
 
 
 @addTupleType
+class GridKeyCompilerQueueTuple(Tuple):
+    """ Grid Key Compiler Queue Tuple
+
+    This Tuple is designed to be as fast as possible to serialise and access
+    as it's used heavily.
+
+    """
+    __tablename__ = 'GridKeyCompilerQueueTuple'
+    __tupleType__ = diagramTuplePrefix + __tablename__
+
+    __slots__ = ("data",)
+    __rawJonableFields__ = ("data",)
+
+    def __init__(self, id: int = None, coordSetId: int = None, gridKey: str = None):
+        Tuple.__init__(self, data=(id, coordSetId, gridKey))
+
+    @property
+    def id(self) -> int:
+        return self.data[0]
+
+    @property
+    def coordSetId(self) -> int:
+        return self.data[1]
+
+    @property
+    def gridKey(self) -> str:
+        return self.data[2]
+
+    @property
+    def uniqueId(self):
+        return self.gridKey
+
+
+@addTupleType
 class GridKeyIndex(Tuple, DeclarativeBase):
     __tablename__ = 'GridKeyIndex'
     __tupleType__ = diagramTuplePrefix + __tablename__
@@ -57,7 +79,8 @@ class GridKeyIndex(Tuple, DeclarativeBase):
 
     disp = relationship(DispBase)
 
-    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete="CASCADE"), nullable=False)
+    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete="CASCADE"),
+                        nullable=False)
     coordSet = relationship(ModelCoordSet)
 
     __table_args__ = (

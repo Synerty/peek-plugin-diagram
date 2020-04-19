@@ -5,7 +5,7 @@ from typing import List
 import pytz
 from sqlalchemy import select, and_
 
-from peek_plugin_diagram._private.storage.GridKeyIndex import DispIndexerQueue
+from peek_plugin_diagram._private.storage.DispIndex import DispIndexerQueue
 from peek_plugin_diagram._private.storage.LiveDbDispLink import LiveDbDispLink
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet, ModelCoordSet
 from peek_plugin_diagram._private.worker.tasks.LiveDbDisplayValueConverter import \
