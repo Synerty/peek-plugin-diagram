@@ -5,10 +5,12 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Index
+from vortex.Tuple import Tuple, addTupleType
 
+from peek_abstract_chunked_index.private.tuples.ChunkedIndexEncodedChunkTupleABC import \
+    ChunkedIndexEncodedChunkTupleABC
 from peek_plugin_base.storage.TypeDecorators import PeekLargeBinary
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from vortex.Tuple import Tuple, addTupleType
 from .DeclarativeBase import DeclarativeBase
 from .Display import DispBase
 from .ModelSet import ModelSet
@@ -57,7 +59,8 @@ class LocationIndex(Tuple, DeclarativeBase):
 
 
 @addTupleType
-class LocationIndexCompiled(Tuple, DeclarativeBase):
+class LocationIndexCompiled(Tuple, DeclarativeBase,
+                            ChunkedIndexEncodedChunkTupleABC):
     __tablename__ = 'LocationIndexCompiled'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
@@ -76,3 +79,26 @@ class LocationIndexCompiled(Tuple, DeclarativeBase):
         Index("idx_LIIndexUpdate_modelSetId", modelSetId, unique=False),
         Index("idx_LIIndexUpdate_indexBucket", indexBucket, unique=True),
     )
+
+    @property
+    def ckiChunkKey(self):
+        return self.indexBucket
+
+    @classmethod
+    def ckiCreateDeleteEncodedChunk(cls, chunkKey: str):
+        from peek_plugin_diagram._private.tuples.location_index.EncodedLocationIndexTuple import \
+            EncodedLocationIndexTuple
+        return EncodedLocationIndexTuple(indexBucket=chunkKey)
+
+    @classmethod
+    def sqlCoreChunkKeyColumn(cls):
+        return cls.__table__.c.indexBucket
+
+    @classmethod
+    def sqlCoreLoad(cls, row):
+        from peek_plugin_diagram._private.tuples.location_index.EncodedLocationIndexTuple import \
+            EncodedLocationIndexTuple
+        return EncodedLocationIndexTuple(modelSetKey=row.key,
+                                         indexBucket=row.indexBucket,
+                                         encodedLocationIndexTuple=row.blobData,
+                                         lastUpdate=row.lastUpdate)

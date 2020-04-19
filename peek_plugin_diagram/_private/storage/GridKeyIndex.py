@@ -7,6 +7,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Index
 from vortex.Tuple import Tuple, addTupleType
 
+from peek_abstract_chunked_index.private.tuples.ChunkedIndexEncodedChunkTupleABC import \
+    ChunkedIndexEncodedChunkTupleABC
 from peek_plugin_base.storage.TypeDecorators import PeekLargeBinary
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from .DeclarativeBase import DeclarativeBase
@@ -91,7 +93,8 @@ class GridKeyIndex(Tuple, DeclarativeBase):
 
 
 @addTupleType
-class GridKeyIndexCompiled(Tuple, DeclarativeBase):
+class GridKeyIndexCompiled(Tuple, DeclarativeBase,
+                           ChunkedIndexEncodedChunkTupleABC):
     __tablename__ = 'GridKeyIndexCompiled'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
@@ -110,3 +113,25 @@ class GridKeyIndexCompiled(Tuple, DeclarativeBase):
         Index("idx_GKIndexUpdate_coordSetId", coordSetId, unique=False),
         Index("idx_GKIndexUpdate_gridKey", gridKey, unique=True),
     )
+
+    @property
+    def ckiChunkKey(self):
+        return self.gridKey
+
+    @classmethod
+    def ckiCreateDeleteEncodedChunk(cls, chunkKey: str):
+        from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import \
+            EncodedGridTuple
+        return EncodedGridTuple(gridKey=chunkKey)
+
+    @classmethod
+    def sqlCoreChunkKeyColumn(cls):
+        return cls.__table__.c.gridKey
+
+    @classmethod
+    def sqlCoreLoad(cls, row):
+        from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import \
+            EncodedGridTuple
+        return EncodedGridTuple(gridKey=row.gridKey,
+                                encodedGridTuple=row.encodedGridTuple,
+                                lastUpdate=row.lastUpdate)

@@ -130,7 +130,7 @@ class GridKeyCompilerQueueController:
 
             self._queueCount -= 1
 
-            self._clientGridUpdateHandler.sendGrids(gridKeys)
+            self._clientGridUpdateHandler.sendChunks(gridKeys)
             self._statusController.addToGridCompilerTotal(len(items))
             self._statusController.setGridCompilerStatus(True, self._queueCount)
 

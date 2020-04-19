@@ -1,21 +1,23 @@
 import logging
 from typing import List
 
+from vortex.DeferUtil import vortexLogFailure
+from vortex.rpc.RPC import vortexRPC
+
+from peek_abstract_chunked_index.private.server.client_handlers.ChunkedIndexChunkLoadRpcABC import \
+    ChunkedIndexChunkLoadRpcABC
 from peek_plugin_base.PeekVortexUtil import peekServerName, peekClientName
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
 from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import EncodedGridTuple
-from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
-from vortex.DeferUtil import vortexLogFailure
-from vortex.rpc.RPC import vortexRPC
 
 logger = logging.getLogger(__name__)
 
 
-class ClientGridLoaderRpc:
+class ClientGridLoaderRpc(ChunkedIndexChunkLoadRpcABC):
     def __init__(self, liveDbWatchController, dbSessionCreator):
+        ChunkedIndexChunkLoadRpcABC.__init__(self, dbSessionCreator)
         self._liveDbWatchController = liveDbWatchController
-        self._dbSessionCreator = dbSessionCreator
 
     def makeHandlers(self):
         """ Make Handlers
@@ -31,37 +33,10 @@ class ClientGridLoaderRpc:
         logger.debug("RPCs started")
 
     # -------------
-    @vortexRPC(peekServerName, acceptOnlyFromVortex=peekClientName,timeoutSeconds=120,
+    @vortexRPC(peekServerName, acceptOnlyFromVortex=peekClientName, timeoutSeconds=120,
                additionalFilt=diagramFilt, deferToThread=True)
-    def loadGrids(self, offset: int, count: int) -> List[GridTuple]:
-        """ Update Page Loader Status
-
-        Tell the server of the latest status of the loader
-
-        """
-        session = self._dbSessionCreator()
-        try:
-            ormGrids = (session
-                        .query(GridKeyIndexCompiled)
-                        .order_by(GridKeyIndexCompiled.id)
-                        .offset(offset)
-                        .limit(count)
-                        .yield_per(200))
-
-            gridTuples: List[GridTuple] = []
-            for ormGrid in ormGrids:
-                gridTuples.append(
-                    EncodedGridTuple(gridKey=ormGrid.gridKey,
-                              encodedGridTuple=ormGrid.encodedGridTuple,
-                              lastUpdate=ormGrid.lastUpdate)
-                )
-
-            return gridTuples
-
-        finally:
-            session.close()
-
-
+    def loadGrids(self, offset: int, count: int) -> List[EncodedGridTuple]:
+        return self.ckiInitialLoadChunksBlocking(offset, count, GridKeyIndexCompiled)
 
     # -------------
     @vortexRPC(peekServerName, acceptOnlyFromVortex=peekClientName,

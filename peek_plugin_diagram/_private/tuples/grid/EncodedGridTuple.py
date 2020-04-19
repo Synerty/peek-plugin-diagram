@@ -1,7 +1,8 @@
 from datetime import datetime
 
-from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from vortex.Tuple import addTupleType, TupleField, Tuple
+
+from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 
 
 @addTupleType
@@ -19,3 +20,7 @@ class EncodedGridTuple(Tuple):
     encodedGridTuple: str = TupleField()
 
     lastUpdate: datetime = TupleField()
+
+    @property
+    def ckiChunkKey(self):
+        return self.gridKey

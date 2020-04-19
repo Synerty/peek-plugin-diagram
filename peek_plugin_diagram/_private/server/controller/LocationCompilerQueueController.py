@@ -127,7 +127,7 @@ class DispKeyCompilerQueueController:
 
             self._queueCount -= 1
 
-            self._clientLocationUpdateHandler.sendLocationIndexes(indexBuckets)
+            self._clientLocationUpdateHandler.sendChunks(indexBuckets)
             self._statusController.addToLocationIndexCompilerTotal(len(items))
             self._statusController.setLocationIndexCompilerStatus(True, self._queueCount)
 

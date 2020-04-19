@@ -12,3 +12,7 @@ class EncodedLocationIndexTuple(Tuple):
     # The LocationIndexTuple pre-encoded to a Payload
     encodedLocationIndexTuple: bytes = TupleField()
     lastUpdate: str = TupleField()
+
+    @property
+    def ckiChunkKey(self):
+        return self.indexBucket
