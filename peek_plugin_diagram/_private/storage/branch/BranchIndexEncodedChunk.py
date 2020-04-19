@@ -7,8 +7,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Index
 from vortex.Tuple import Tuple, addTupleType
 
-from peek_abstract_chunked_index.private.tuples.ChunkedIndexEncodedChunkTupleABC import \
-    ChunkedIndexEncodedChunkTupleABC
+from peek_abstract_chunked_index.private.tuples.ACIEncodedChunkTupleABC import \
+    ACIEncodedChunkTupleABC
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from peek_plugin_diagram._private.storage.DeclarativeBase import DeclarativeBase
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 @addTupleType
 class BranchIndexEncodedChunk(Tuple, DeclarativeBase,
-                              ChunkedIndexEncodedChunkTupleABC):
+                              ACIEncodedChunkTupleABC):
     __tablename__ = 'BranchIndexEncodedChunk'
     __tupleType__ = diagramTuplePrefix + 'BranchIndexEncodedChunkTable'
 

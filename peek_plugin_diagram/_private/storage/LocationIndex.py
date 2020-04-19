@@ -7,8 +7,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Index
 from vortex.Tuple import Tuple, addTupleType
 
-from peek_abstract_chunked_index.private.tuples.ChunkedIndexEncodedChunkTupleABC import \
-    ChunkedIndexEncodedChunkTupleABC
+from peek_abstract_chunked_index.private.tuples.ACIEncodedChunkTupleABC import \
+    ACIEncodedChunkTupleABC
 from peek_plugin_base.storage.TypeDecorators import PeekLargeBinary
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from .DeclarativeBase import DeclarativeBase
@@ -60,7 +60,7 @@ class LocationIndex(Tuple, DeclarativeBase):
 
 @addTupleType
 class LocationIndexCompiled(Tuple, DeclarativeBase,
-                            ChunkedIndexEncodedChunkTupleABC):
+                            ACIEncodedChunkTupleABC):
     __tablename__ = 'LocationIndexCompiled'
     __tupleType__ = diagramTuplePrefix + __tablename__
 

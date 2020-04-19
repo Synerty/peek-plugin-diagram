@@ -1,10 +1,10 @@
 import logging
 from typing import Dict
 
-from peek_abstract_chunked_index.private.server.client_handlers.ChunkedIndexChunkUpdateHandlerABC import \
-    ChunkedIndexChunkUpdateHandlerABC
-from peek_abstract_chunked_index.private.tuples.ChunkedIndexEncodedChunkTupleABC import \
-    ChunkedIndexEncodedChunkTupleABC
+from peek_abstract_chunked_index.private.server.client_handlers.ACIChunkUpdateHandlerABC import \
+    ACIChunkUpdateHandlerABC
+from peek_abstract_chunked_index.private.tuples.ACIEncodedChunkTupleABC import \
+    ACIEncodedChunkTupleABC
 from peek_plugin_diagram._private.client.controller.GridCacheController import \
     clientGridUpdateFromServerFilt
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
@@ -12,7 +12,7 @@ from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompil
 logger = logging.getLogger(__name__)
 
 
-class ClientGridUpdateHandler(ChunkedIndexChunkUpdateHandlerABC):
-    _ChunkedTuple: ChunkedIndexEncodedChunkTupleABC = GridKeyIndexCompiled
+class ClientGridUpdateHandler(ACIChunkUpdateHandlerABC):
+    _ChunkedTuple: ACIEncodedChunkTupleABC = GridKeyIndexCompiled
     _updateFromServerFilt: Dict = clientGridUpdateFromServerFilt
     _logger: logging.Logger = logger

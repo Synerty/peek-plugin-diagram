@@ -4,8 +4,8 @@ from typing import List
 from vortex.DeferUtil import vortexLogFailure
 from vortex.rpc.RPC import vortexRPC
 
-from peek_abstract_chunked_index.private.server.client_handlers.ChunkedIndexChunkLoadRpcABC import \
-    ChunkedIndexChunkLoadRpcABC
+from peek_abstract_chunked_index.private.server.client_handlers.ACIChunkLoadRpcABC import \
+    ACIChunkLoadRpcABC
 from peek_plugin_base.PeekVortexUtil import peekServerName, peekClientName
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
@@ -14,9 +14,9 @@ from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import EncodedGri
 logger = logging.getLogger(__name__)
 
 
-class ClientGridLoaderRpc(ChunkedIndexChunkLoadRpcABC):
+class ClientGridLoaderRpc(ACIChunkLoadRpcABC):
     def __init__(self, liveDbWatchController, dbSessionCreator):
-        ChunkedIndexChunkLoadRpcABC.__init__(self, dbSessionCreator)
+        ACIChunkLoadRpcABC.__init__(self, dbSessionCreator)
         self._liveDbWatchController = liveDbWatchController
 
     def makeHandlers(self):

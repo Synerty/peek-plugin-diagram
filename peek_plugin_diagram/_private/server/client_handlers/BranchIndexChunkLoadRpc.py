@@ -3,8 +3,8 @@ from typing import List
 
 from vortex.rpc.RPC import vortexRPC
 
-from peek_abstract_chunked_index.private.server.client_handlers.ChunkedIndexChunkLoadRpcABC import \
-    ChunkedIndexChunkLoadRpcABC
+from peek_abstract_chunked_index.private.server.client_handlers.ACIChunkLoadRpcABC import \
+    ACIChunkLoadRpcABC
 from peek_plugin_base.PeekVortexUtil import peekServerName, peekClientName
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.storage.branch.BranchIndexEncodedChunk import \
@@ -13,7 +13,7 @@ from peek_plugin_diagram._private.storage.branch.BranchIndexEncodedChunk import 
 logger = logging.getLogger(__name__)
 
 
-class BranchIndexChunkLoadRpc(ChunkedIndexChunkLoadRpcABC):
+class BranchIndexChunkLoadRpc(ACIChunkLoadRpcABC):
 
     def makeHandlers(self):
         """ Make Handlers
