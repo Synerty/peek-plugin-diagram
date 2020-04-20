@@ -9,6 +9,8 @@ from vortex.Tuple import Tuple, addTupleType
 
 from peek_abstract_chunked_index.private.tuples.ACIEncodedChunkTupleABC import \
     ACIEncodedChunkTupleABC
+from peek_abstract_chunked_index.private.tuples.ACIProcessorQueueTupleABC import \
+    ACIProcessorQueueTupleABC
 from peek_plugin_base.storage.TypeDecorators import PeekLargeBinary
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from .DeclarativeBase import DeclarativeBase
@@ -19,7 +21,8 @@ logger = logging.getLogger(__name__)
 
 
 @addTupleType
-class GridKeyCompilerQueue(Tuple, DeclarativeBase):
+class GridKeyCompilerQueue(Tuple, DeclarativeBase,
+                           ACIProcessorQueueTupleABC):
     __tablename__ = 'GridKeyCompilerQueue'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
@@ -34,38 +37,12 @@ class GridKeyCompilerQueue(Tuple, DeclarativeBase):
         Index("idx_GKCompQueue_coordSetId_gridKey", coordSetId, gridKey, unique=False),
     )
 
+    @classmethod
+    def sqlCoreLoad(cls, row):
+        return GridKeyCompilerQueue(id=row.id, coordSetId=row.coordSetId,
+                                    gridKey=row.gridKey)
 
-@addTupleType
-class GridKeyCompilerQueueTuple(Tuple):
-    """ Grid Key Compiler Queue Tuple
-
-    This Tuple is designed to be as fast as possible to serialise and access
-    as it's used heavily.
-
-    """
-    __tablename__ = 'GridKeyCompilerQueueTuple'
-    __tupleType__ = diagramTuplePrefix + __tablename__
-
-    __slots__ = ("data",)
-    __rawJonableFields__ = ("data",)
-
-    def __init__(self, id: int = None, coordSetId: int = None, gridKey: str = None):
-        Tuple.__init__(self, data=(id, coordSetId, gridKey))
-
-    @property
-    def id(self) -> int:
-        return self.data[0]
-
-    @property
-    def coordSetId(self) -> int:
-        return self.data[1]
-
-    @property
-    def gridKey(self) -> str:
-        return self.data[2]
-
-    @property
-    def uniqueId(self):
+    def ckiUniqueKey(self):
         return self.gridKey
 
 

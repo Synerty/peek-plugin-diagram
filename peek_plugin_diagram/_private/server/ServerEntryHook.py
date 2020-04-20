@@ -1,6 +1,7 @@
 import logging
 
-from celery import Celery
+from twisted.internet.defer import inlineCallbacks
+from vortex.DeferUtil import deferToThreadWrapWithLogger
 
 from peek_plugin_base.server.PluginServerEntryHookABC import PluginServerEntryHookABC
 from peek_plugin_base.server.PluginServerStorageEntryHookABC import \
@@ -35,7 +36,7 @@ from peek_plugin_diagram._private.server.controller.GridKeyCompilerQueueControll
 from peek_plugin_diagram._private.server.controller.LiveDbWatchController import \
     LiveDbWatchController
 from peek_plugin_diagram._private.server.controller.LocationCompilerQueueController import \
-    DispKeyCompilerQueueController
+    LocationCompilerQueueController
 from peek_plugin_diagram._private.server.controller.LookupImportController import \
     LookupImportController
 from peek_plugin_diagram._private.storage import DeclarativeBase
@@ -46,9 +47,6 @@ from peek_plugin_diagram._private.storage.Setting import globalSetting, \
 from peek_plugin_diagram._private.tuples import loadPrivateTuples
 from peek_plugin_diagram.tuples import loadPublicTuples
 from peek_plugin_livedb.server.LiveDBApiABC import LiveDBApiABC
-from twisted.internet.defer import inlineCallbacks
-from vortex.DeferUtil import deferToThreadWrapWithLogger
-
 from .TupleActionProcessor import makeTupleActionProcessorHandler
 from .TupleDataObservable import makeTupleDataObservableHandler
 from .admin_handlers import makeAdminBackendHandlers
@@ -136,7 +134,7 @@ class ServerEntryHook(PluginServerEntryHookABC,
 
         # ----------------
         # Create the LOCATION INDEX queue
-        locationIndexCompilerQueueController = DispKeyCompilerQueueController(
+        locationIndexCompilerQueueController = LocationCompilerQueueController(
             self.dbSessionCreator, statusController, clientDispIndexUpdateHandler,
             readyLambdaFunc=locationsCanBeQueuedFunc
         )

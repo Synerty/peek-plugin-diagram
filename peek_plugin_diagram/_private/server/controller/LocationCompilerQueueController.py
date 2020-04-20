@@ -1,13 +1,12 @@
 import logging
-from datetime import datetime
-from typing import List, Callable
+from typing import Callable
 
-import pytz
-from sqlalchemy import asc
-from twisted.internet import task, reactor, defer
-from twisted.internet.defer import inlineCallbacks
-from vortex.DeferUtil import deferToThreadWrapWithLogger, vortexLogFailure
-
+from peek_abstract_chunked_index.private.server.controller.ACIProcessorQueueControllerABC import \
+    ACIProcessorQueueControllerABC, ACIProcessorQueueBlockItem
+from peek_abstract_chunked_index.private.server.controller.ACIProcessorStatusNotifierABC import \
+    ACIProcessorStatusNotifierABC
+from peek_abstract_chunked_index.private.tuples.ACIProcessorQueueTupleABC import \
+    ACIProcessorQueueTupleABC
 from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexUpdateHandler import \
     ClientLocationIndexUpdateHandler
 from peek_plugin_diagram._private.server.controller.StatusController import \
@@ -18,165 +17,77 @@ from peek_plugin_diagram._private.storage.LocationIndex import \
 logger = logging.getLogger(__name__)
 
 
-class DispKeyCompilerQueueController:
-    """ Disp Compiler
+class _Notifier(ACIProcessorStatusNotifierABC):
+    def __init__(self, adminStatusController: StatusController):
+        self._adminStatusController = adminStatusController
 
-    Compile the disp items into the grid data
+    def setProcessorStatus(self, state: bool, queueSize: int):
+        self._adminStatusController.status.locationIndexCompilerQueueStatus = state
+        self._adminStatusController.status.locationIndexCompilerQueueSize = queueSize
+        self._adminStatusController.notify()
 
-    1) Query for queue
-    2) Process queue
-    3) Delete from queue
+    def addToProcessorTotal(self, delta: int):
+        self._adminStatusController.status.locationIndexCompilerProcessedTotal += delta
+        self._adminStatusController.notify()
 
-    """
+    def setProcessorError(self, error: str):
+        self._adminStatusController.status.locationIndexCompilerLastError = error
+        self._adminStatusController.notify()
 
-    ITEMS_PER_TASK = 10
-    PERIOD = 5.000
 
-    QUEUE_MAX = 10
-    QUEUE_MIN = 0
+class LocationCompilerQueueController(ACIProcessorQueueControllerABC):
 
-    TASK_TIMEOUT = 60.0
+    QUEUE_ITEMS_PER_TASK = 10
+    POLL_PERIOD_SECONDS = 5.000
 
-    def __init__(self, ormSessionCreator,
+    QUEUE_BLOCKS_MAX = 10
+    QUEUE_BLOCKS_MIN = 0
+
+    WORKER_TASK_TIMEOUT = 60.0
+
+    _logger = logger
+    _QueueDeclarative: ACIProcessorQueueTupleABC = LocationIndexCompilerQueue
+
+    def __init__(self, dbSessionCreator,
                  statusController: StatusController,
                  clientLocationUpdateHandler: ClientLocationIndexUpdateHandler,
                  readyLambdaFunc: Callable):
-        self._dbSessionCreator = ormSessionCreator
-        self._statusController: StatusController = statusController
-        self._clientLocationUpdateHandler: ClientLocationIndexUpdateHandler = clientLocationUpdateHandler
-        self._readyLambdaFunc = readyLambdaFunc
+        ACIProcessorQueueControllerABC \
+            .__init__(self, dbSessionCreator, _Notifier(statusController),
+                      isProcessorEnabledCallable=readyLambdaFunc)
 
-        self._pollLoopingCall = task.LoopingCall(self._poll)
-        self._lastQueueId = -1
-        self._queueCount = 0
+        self._clientLocationUpdateHandler: ClientLocationIndexUpdateHandler \
+            = clientLocationUpdateHandler
 
-        self._chunksInProgress = set()
-
-    def start(self):
-        self._statusController.setLocationIndexCompilerStatus(True, self._queueCount)
-        d = self._pollLoopingCall.start(self.PERIOD, now=False)
-        d.addCallbacks(self._timerCallback, self._timerErrback)
-
-    def _timerErrback(self, failure):
-        vortexLogFailure(failure, logger)
-        self._statusController.setLocationIndexCompilerStatus(False, self._queueCount)
-        self._statusController.setLocationIndexCompilerError(str(failure.value))
-
-    def _timerCallback(self, _):
-        self._statusController.setLocationIndexCompilerStatus(False, self._queueCount)
-
-    def stop(self):
-        if self._pollLoopingCall.running:
-            self._pollLoopingCall.stop()
-
-    def shutdown(self):
-        self.stop()
-
-    @inlineCallbacks
-    def _poll(self):
-        if not self._readyLambdaFunc():
-            return
-
-        # We queue the grids in bursts, reducing the work we have to do.
-        if self._queueCount > self.QUEUE_MIN:
-            return
-
-        # Check for queued items
-        queueItems = yield self._grabQueueChunk()
-        if not queueItems:
-            return
-
-        # Send the tasks to the peek worker
-        for start in range(0, len(queueItems), self.ITEMS_PER_TASK):
-
-            items = queueItems[start: start + self.ITEMS_PER_TASK]
-
-            # If we're already processing these chunks, then return and try later
-            if self._chunksInProgress & set([o.indexBucket for o in items]):
-                return
-
-            # Set the watermark
-            self._lastQueueId = items[-1].id
-
-            # This should never fail
-            d = self._sendToWorker(items)
-            d.addErrback(vortexLogFailure, logger)
-
-            self._queueCount += 1
-            if self._queueCount >= self.QUEUE_MAX:
-                break
-
-        yield self._dedupeQueue()
-
-    @inlineCallbacks
-    def _sendToWorker(self, items: List[LocationIndexCompilerQueue]):
+    def _sendToWorker(self, block: ACIProcessorQueueBlockItem):
         from peek_plugin_diagram._private.worker.tasks.LocationIndexCompilerTask import \
             compileLocationIndex
 
-        startTime = datetime.now(pytz.utc)
+        return compileLocationIndex.delay(block.items)
 
-        # Add the chunks we're processing to the set
-        self._chunksInProgress |= set([o.indexBucket for o in items])
+    def _processWorkerResults(self, results):
+        self._clientLocationUpdateHandler.sendChunks(results)
 
-        try:
-            d = compileLocationIndex.delay(items)
-            d.addTimeout(self.TASK_TIMEOUT, reactor)
-
-            indexBuckets = yield d
-            logger.debug("Time Taken = %s" % (datetime.now(pytz.utc) - startTime))
-
-            self._queueCount -= 1
-
-            self._clientLocationUpdateHandler.sendChunks(indexBuckets)
-            self._statusController.addToLocationIndexCompilerTotal(len(items))
-            self._statusController.setLocationIndexCompilerStatus(True, self._queueCount)
-
-            # Success, Remove the chunks from the in-progress queue
-            self._chunksInProgress -= set([o.indexBucket for o in items])
-
-        except Exception as e:
-            if isinstance(e, defer.TimeoutError):
-                logger.info("Retrying compile, Task has timed out.")
-            else:
-                logger.debug("Retrying compile : %s", str(e))
-
-            reactor.callLater(2.0, self._sendToWorker, items)
-            return
-
-    @deferToThreadWrapWithLogger(logger)
-    def _grabQueueChunk(self):
-        session = self._dbSessionCreator()
-        try:
-            qry = session.query(LocationIndexCompilerQueue) \
-                .order_by(asc(LocationIndexCompilerQueue.id)) \
-                .filter(LocationIndexCompilerQueue.id > self._lastQueueId) \
-                .yield_per(self.QUEUE_MAX) \
-                .limit(self.QUEUE_MAX)
-
-            queueItems = qry.all()
-            session.expunge_all()
-
-            # Deduplicate the values and return the ones with the lowest ID
-            return list({o.indexBucket: o for o in reversed(queueItems)}.values())
-
-        finally:
-            session.close()
-
-    @deferToThreadWrapWithLogger(logger)
-    def _dedupeQueue(self):
-        session = self._dbSessionCreator()
-        try:
-            session.execute("""
-                with sq as (
-                    SELECT min(id) as "minId"
+    def _dedupeQueueSql(self, lastFetchedId: int, dedupeLimit: int):
+        return '''
+                 with sq_raw as (
+                    SELECT "id", "indexBucket"
                     FROM pl_diagram."LocationIndexCompilerQueue"
-                    WHERE id > %s
-                    GROUP BY "modelSetId", "indexBucket"
+                    WHERE id > %(id)s
+                    LIMIT %(limit)s
+                ), sq as (
+                    SELECT min(id) as "minId", "indexBucket"
+                    FROM sq_raw
+                    GROUP BY  "indexBucket"
+                    HAVING count("indexBucket") > 1
                 )
                 DELETE
                 FROM pl_diagram."LocationIndexCompilerQueue"
-                WHERE "id" not in (SELECT "minId" FROM sq)
-            """ % self._lastQueueId)
-            session.commit()
-        finally:
-            session.close()
+                     USING sq sq1
+                WHERE pl_diagram."LocationIndexCompilerQueue"."id" != sq1."minId"
+                    AND pl_diagram."LocationIndexCompilerQueue"."id" > %(id)s
+                    AND pl_diagram."LocationIndexCompilerQueue"."indexBucket" = sq1."indexBucket"
+
+            ''' % {'id': lastFetchedId, 'limit': dedupeLimit}
+
+

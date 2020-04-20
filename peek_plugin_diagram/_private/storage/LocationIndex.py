@@ -9,6 +9,8 @@ from vortex.Tuple import Tuple, addTupleType
 
 from peek_abstract_chunked_index.private.tuples.ACIEncodedChunkTupleABC import \
     ACIEncodedChunkTupleABC
+from peek_abstract_chunked_index.private.tuples.ACIProcessorQueueTupleABC import \
+    ACIProcessorQueueTupleABC
 from peek_plugin_base.storage.TypeDecorators import PeekLargeBinary
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from .DeclarativeBase import DeclarativeBase
@@ -19,7 +21,8 @@ logger = logging.getLogger(__name__)
 
 
 @addTupleType
-class LocationIndexCompilerQueue(Tuple, DeclarativeBase):
+class LocationIndexCompilerQueue(Tuple, DeclarativeBase,
+                                 ACIProcessorQueueTupleABC):
     __tablename__ = 'LocationIndexCompilerQueue'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
@@ -34,6 +37,14 @@ class LocationIndexCompilerQueue(Tuple, DeclarativeBase):
         Index("idx_LICompQueue_modelSetId_indexBucket", modelSetId, indexBucket,
               unique=False),
     )
+
+    @classmethod
+    def sqlCoreLoad(cls, row):
+        return LocationIndexCompilerQueue(id=row.id, modelSetId=row.modelSetId,
+                                          indexBucket=row.indexBucket)
+
+    def ckiUniqueKey(self):
+        raise self.indexBucket
 
 
 @addTupleType
