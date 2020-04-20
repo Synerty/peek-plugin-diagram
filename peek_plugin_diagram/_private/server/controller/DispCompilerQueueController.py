@@ -1,8 +1,6 @@
 import logging
 from typing import List
 
-from vortex.DeferUtil import deferToThreadWrapWithLogger
-
 from peek_abstract_chunked_index.private.server.controller.ACIProcessorQueueControllerABC import \
     ACIProcessorQueueControllerABC, ACIProcessorQueueBlockItem
 from peek_abstract_chunked_index.private.server.controller.ACIProcessorStatusNotifierABC import \
@@ -13,6 +11,7 @@ from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
 from peek_plugin_diagram._private.storage.DispIndex import \
     DispIndexerQueue as DispIndexerQueueTable
+from vortex.DeferUtil import deferToThreadWrapWithLogger
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +42,9 @@ class DispCompilerQueueController(ACIProcessorQueueControllerABC):
     QUEUE_BLOCKS_MIN = 4
 
     WORKER_TASK_TIMEOUT = 60.0
+
+    DEDUPE_LOOK_AHEAD_MIN_ROWS = 10 * 6  # a million rows
+    DEDUPE_PERIOD_SECONDS: float = 60.0
 
     _logger = logger
     _QueueDeclarative: ACIProcessorQueueTupleABC = DispIndexerQueueTable
