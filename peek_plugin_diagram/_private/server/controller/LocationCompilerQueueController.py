@@ -38,9 +38,9 @@ class _Notifier(ACIProcessorStatusNotifierABC):
 class LocationCompilerQueueController(ACIProcessorQueueControllerABC):
 
     QUEUE_ITEMS_PER_TASK = 10
-    POLL_PERIOD_SECONDS = 5.000
+    POLL_PERIOD_SECONDS = 2.000
 
-    QUEUE_BLOCKS_MAX = 10
+    QUEUE_BLOCKS_MAX = 5
     QUEUE_BLOCKS_MIN = 0
 
     WORKER_TASK_TIMEOUT = 60.0
@@ -53,8 +53,9 @@ class LocationCompilerQueueController(ACIProcessorQueueControllerABC):
                  clientLocationUpdateHandler: ClientLocationIndexUpdateHandler,
                  readyLambdaFunc: Callable):
         ACIProcessorQueueControllerABC \
-            .__init__(self, dbSessionCreator, _Notifier(statusController),
-                      isProcessorEnabledCallable=readyLambdaFunc)
+            .__init__(self, dbSessionCreator, _Notifier(statusController))
+                      # Disabled
+                      # isProcessorEnabledCallable=readyLambdaFunc)
 
         self._clientLocationUpdateHandler: ClientLocationIndexUpdateHandler \
             = clientLocationUpdateHandler
