@@ -22,3 +22,7 @@ class DispIndexerQueue(DeclarativeBase,
 
     def ckiUniqueKey(self):
         return self.dispId
+
+    @classmethod
+    def tupleType(cls):
+        return 'DispCompilerQueue (Not a Tuple)'
