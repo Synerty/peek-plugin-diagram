@@ -13,11 +13,10 @@ class WorkerApi:
     _FETCH_SIZE = 5000
 
     @classmethod
-    def updateLiveDbDisplayValues(cls,
-                                        ormSession,
-                                        modelSetKey: str,
-                                        liveDbRawValues: List[LiveDbDisplayValueTuple]
-                                        ) -> None:
+    def updateLiveDbDisplayValues(cls, ormSession,
+                                  modelSetKey: str,
+                                  liveDbRawValues: List[LiveDbDisplayValueTuple]
+                                  ) -> None:
         """ Convert Live DB Display Values
 
         Return an array of items representing the display values from the LiveDB.

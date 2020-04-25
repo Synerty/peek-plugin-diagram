@@ -1,25 +1,25 @@
+import hashlib
 import logging
 from _collections import defaultdict
+from base64 import b64encode
 from datetime import datetime
 from typing import List, Dict
 
-import hashlib
 import pytz
-from base64 import b64encode
-
-from peek_plugin_diagram._private.storage.ModelSet import ModelSet
+from txcelery.defer import DeferrableTask
 from vortex.Payload import Payload
 
 from peek_plugin_base.storage.StorageUtil import makeCoreValuesSubqueryCondition, \
     makeOrmValuesSubqueryCondition
 from peek_plugin_base.worker import CeleryDbConn
+from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.storage.Display import DispBase
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompiled, \
     LocationIndex
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompilerQueue
-from peek_plugin_diagram._private.tuples.location_index.LocationIndexTuple import LocationIndexTuple
-from peek_plugin_base.worker.CeleryApp import celeryApp
-from txcelery.defer import DeferrableTask
+from peek_plugin_diagram._private.storage.ModelSet import ModelSet
+from peek_plugin_diagram._private.tuples.location_index.LocationIndexTuple import \
+    LocationIndexTuple
 
 logger = logging.getLogger(__name__)
 
@@ -35,13 +35,17 @@ Compile the location indexes
 
 @DeferrableTask
 @celeryApp.task(bind=True)
-def compileLocationIndex(self, queueItems) -> List[str]:
+def compileLocationIndex(self, payloadEncodedArgs: bytes) -> List[str]:
     """ Compile Location Index Task
 
     :param self: A celery reference to this task
-    :param queueItems: An encoded payload containing the queue tuples.
+    :param payloadEncodedArgs: An encoded payload containing the queue tuples.
     :returns: A list of grid keys that have been updated.
     """
+    argData = Payload().fromEncodedPayload(payloadEncodedArgs).tuples
+    queueItems = argData[0]
+    queueItemIds: List[int] = argData[1]
+
     indexBuckets = list(set([i.indexBucket for i in queueItems]))
     modelSetIdByIndexBucket = {i.indexBucket: i.modelSetId for i in queueItems}
 
@@ -110,18 +114,18 @@ def compileLocationIndex(self, queueItems) -> List[str]:
 
         logger.debug("Compiled %s LocationIndexes, %s missing, in %s",
                      len(inserts),
-                     len(indexBuckets) - len(inserts), (datetime.now(pytz.utc) - startTime))
+                     len(indexBuckets) - len(inserts),
+                     (datetime.now(pytz.utc) - startTime))
 
         total += len(inserts)
 
-        queueItemIds = [o.id for o in queueItems]
         conn.execute(queueTable.delete(
             makeCoreValuesSubqueryCondition(engine, queueTable.c.id, queueItemIds)
         ))
 
         transaction.commit()
         logger.info("Compiled and Comitted %s LocationIndexCompileds in %s",
-                     total, (datetime.now(pytz.utc) - startTime))
+                    total, (datetime.now(pytz.utc) - startTime))
 
         return indexBuckets
 
@@ -171,6 +175,3 @@ def _buildIndex(session, indexBuckets) -> Dict[str, str]:
         jsonByIndexBucket[indexBucket] = '[' + ','.join(indexStructure) + ']'
 
     return jsonByIndexBucket
-
-
-

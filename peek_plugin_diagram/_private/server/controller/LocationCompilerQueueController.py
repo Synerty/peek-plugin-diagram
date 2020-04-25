@@ -64,7 +64,7 @@ class LocationCompilerQueueController(ACIProcessorQueueControllerABC):
         from peek_plugin_diagram._private.worker.tasks.LocationIndexCompilerTask import \
             compileLocationIndex
 
-        return compileLocationIndex.delay(block.items)
+        return compileLocationIndex.delay(block.itemsEncodedPayload)
 
     def _processWorkerResults(self, results):
         self._clientLocationUpdateHandler.sendChunks(results)

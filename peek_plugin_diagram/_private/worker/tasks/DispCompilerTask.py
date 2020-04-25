@@ -6,18 +6,24 @@ from typing import List, Dict
 
 import pytz
 import ujson as json
+from sqlalchemy import select, join
+from sqlalchemy.orm import subqueryload
+from sqlalchemy.sql.selectable import Select
+from txcelery.defer import DeferrableTask
+from vortex.Payload import Payload
+
 from peek_plugin_base.worker import CeleryDbConn
+from peek_plugin_base.worker.CeleryApp import celeryApp
+from peek_plugin_diagram._private.storage.DispIndex import DispIndexerQueue
 from peek_plugin_diagram._private.storage.Display import DispBase, DispTextStyle, \
     DispGroup, DispGroupPointer, DispEdgeTemplate
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
     GridKeyCompilerQueue
-from peek_plugin_diagram._private.storage.DispIndex import DispIndexerQueue
 from peek_plugin_diagram._private.storage.LiveDbDispLink import LiveDbDispLink
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndex, \
     LocationIndexCompilerQueue
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, \
     makeDispGroupGridKey
-from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks._CalcDisp import \
     _scaleDispGeomWithCoordSet, _scaleDispGeom, _createHashId
 from peek_plugin_diagram._private.worker.tasks._CalcDispFromLiveDb import \
@@ -26,10 +32,6 @@ from peek_plugin_diagram._private.worker.tasks._CalcGridForDisp import makeGridK
 from peek_plugin_diagram._private.worker.tasks._CalcLocation import makeLocationJson, \
     dispKeyHashBucket
 from peek_plugin_livedb.worker.WorkerApi import WorkerApi
-from sqlalchemy import select, join
-from sqlalchemy.orm import subqueryload
-from sqlalchemy.sql.selectable import Select
-from txcelery.defer import DeferrableTask
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +48,7 @@ PreparedDisp = namedtuple('PreparedDisp', ['disp', 'geomArray', 'dispDict'])
 
 @DeferrableTask
 @celeryApp.task(bind=True)
-def compileDisps(self, queueIds, dispIds):
+def compileDisps(self, payloadEncodedArgs: bytes):
     """ Compile Disps
 
     This function takes a list of Disp IDs and compiles them.
@@ -90,6 +92,9 @@ def compileDisps(self, queueIds, dispIds):
     ImportDispTask.
 
     """
+    argData = Payload().fromEncodedPayload(payloadEncodedArgs).tuples
+    dispIds = [o.dispId for o in argData[0]]
+    queueItemIds: List[int] = argData[1]
 
     # ==========================
     # 0) Load the lookups
@@ -189,7 +194,7 @@ def compileDisps(self, queueIds, dispIds):
 
         _insertToDb(dispIdsIncludingClones,
                     gridCompiledQueueItems, gridKeyIndexesByDispId,
-                    locationCompiledQueueItems, locationIndexByDispId, queueIds)
+                    locationCompiledQueueItems, locationIndexByDispId, queueItemIds)
 
     except Exception as e:
         logger.exception(e)

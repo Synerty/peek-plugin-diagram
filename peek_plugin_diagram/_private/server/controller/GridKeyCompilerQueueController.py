@@ -59,7 +59,7 @@ class GridKeyCompilerQueueController(ACIProcessorQueueControllerABC):
         from peek_plugin_diagram._private.worker.tasks.GridCompilerTask import \
             compileGrids
 
-        return compileGrids.delay(block.items)
+        return compileGrids.delay(block.itemsEncodedPayload)
 
     def _processWorkerResults(self, results):
         self._clientGridUpdateHandler.sendChunks(results)

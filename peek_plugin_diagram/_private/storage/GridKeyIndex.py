@@ -39,9 +39,13 @@ class GridKeyCompilerQueue(Tuple, DeclarativeBase,
 
     @classmethod
     def sqlCoreLoad(cls, row):
+        # This import is required otherwise the sqlalchemy mapper complains.
+        from . import LiveDbDispLink
+        LiveDbDispLink.__unused = True
         return GridKeyCompilerQueue(id=row.id, coordSetId=row.coordSetId,
                                     gridKey=row.gridKey)
 
+    @property
     def ckiUniqueKey(self):
         return self.gridKey
 

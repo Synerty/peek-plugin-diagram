@@ -8,15 +8,16 @@ from functools import cmp_to_key
 from typing import List
 
 import pytz
+from txcelery.defer import DeferrableTask
+from vortex.Payload import Payload
+
 from peek_plugin_base.worker import CeleryDbConn
+from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.storage.Display import DispLevel, DispBase, DispLayer
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled, \
     GridKeyCompilerQueue, \
     GridKeyIndex
 from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
-from peek_plugin_base.worker.CeleryApp import celeryApp
-from txcelery.defer import DeferrableTask
-from vortex.Payload import Payload
 
 logger = logging.getLogger(__name__)
 
@@ -34,13 +35,17 @@ Compile the disp items into the grid data
 
 @DeferrableTask
 @celeryApp.task(bind=True)
-def compileGrids(self, queueItems) -> List[str]:
+def compileGrids(self, payloadEncodedArgs: bytes) -> List[str]:
     """ Compile Grids Task
 
     :param self: A celery reference to this task
-    :param queueItems: An encoded payload containing the queue tuples.
+    :param payloadEncodedArgs: An encoded payload containing the queue tuples.
     :returns: A list of grid keys that have been updated.
     """
+    argData = Payload().fromEncodedPayload(payloadEncodedArgs).tuples
+    queueItems = argData[0]
+    queueItemIds: List[int] = argData[1]
+
     gridKeys = list(set([i.gridKey for i in queueItems]))
     coordSetIdByGridKey = {i.gridKey: i.coordSetId for i in queueItems}
 
@@ -56,7 +61,7 @@ def compileGrids(self, queueItems) -> List[str]:
     try:
 
         logger.debug("Staring compile of %s queueItems in %s",
-                    len(queueItems), (datetime.now(pytz.utc) - startTime))
+                     len(queueItems), (datetime.now(pytz.utc) - startTime))
 
         total = 0
         dispData = _qryDispData(session, gridKeys)
@@ -90,12 +95,11 @@ def compileGrids(self, queueItems) -> List[str]:
             conn.execute(gridTable.insert(), inserts)
 
         logger.debug("Compiled %s gridKeys, %s missing, in %s",
-                    len(inserts),
-                    len(gridKeys) - len(inserts), (datetime.now(pytz.utc) - startTime))
+                     len(inserts),
+                     len(gridKeys) - len(inserts), (datetime.now(pytz.utc) - startTime))
 
         total += len(inserts)
 
-        queueItemIds = [o.id for o in queueItems]
         conn.execute(queueTable.delete(queueTable.c.id.in_(queueItemIds)))
 
         transaction.commit()

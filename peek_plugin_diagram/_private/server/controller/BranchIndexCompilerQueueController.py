@@ -58,7 +58,7 @@ class BranchIndexCompilerQueueController(ACIProcessorQueueControllerABC):
         from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexCompiler import \
             compileBranchIndexChunk
 
-        return compileBranchIndexChunk.delay(block.items)
+        return compileBranchIndexChunk.delay(block.itemsEncodedPayload)
 
     def _processWorkerResults(self, results):
         self._clientUpdateHandler.sendChunks(results)

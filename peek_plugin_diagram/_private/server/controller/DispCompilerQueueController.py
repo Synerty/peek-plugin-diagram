@@ -57,7 +57,7 @@ class DispCompilerQueueController(ACIProcessorQueueControllerABC):
         from peek_plugin_diagram._private.worker.tasks.DispCompilerTask import \
             compileDisps
 
-        return compileDisps.delay(block.queueIds, [o.dispId for o in block.items])
+        return compileDisps.delay(block.itemsEncodedPayload)
 
     def _processWorkerResults(self, results):
         pass
