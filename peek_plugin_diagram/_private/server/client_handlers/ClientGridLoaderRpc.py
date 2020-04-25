@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Optional
 
 from vortex.DeferUtil import vortexLogFailure
 from vortex.rpc.RPC import vortexRPC
@@ -9,7 +9,6 @@ from peek_abstract_chunked_index.private.server.client_handlers.ACIChunkLoadRpcA
 from peek_plugin_base.PeekVortexUtil import peekServerName, peekClientName
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
-from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import EncodedGridTuple
 
 logger = logging.getLogger(__name__)
 
@@ -35,8 +34,9 @@ class ClientGridLoaderRpc(ACIChunkLoadRpcABC):
     # -------------
     @vortexRPC(peekServerName, acceptOnlyFromVortex=peekClientName, timeoutSeconds=120,
                additionalFilt=diagramFilt, deferToThread=True)
-    def loadGrids(self, offset: int, count: int) -> List[EncodedGridTuple]:
-        return self.ckiInitialLoadChunksBlocking(offset, count, GridKeyIndexCompiled)
+    def loadGrids(self, offset: int, count: int) -> Optional[bytes]:
+        return self.ckiInitialLoadChunksPayloadBlocking(offset, count,
+                                                        GridKeyIndexCompiled)
 
     # -------------
     @vortexRPC(peekServerName, acceptOnlyFromVortex=peekClientName,

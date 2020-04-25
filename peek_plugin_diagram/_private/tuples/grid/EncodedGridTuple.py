@@ -24,3 +24,11 @@ class EncodedGridTuple(Tuple):
     @property
     def ckiChunkKey(self):
         return self.gridKey
+
+    @property
+    def ckiHasEncodedData(self) -> bool:
+        return bool(self.encodedGridTuple)
+
+    @property
+    def ckiLastUpdate(self):
+        return self.lastUpdate

@@ -24,7 +24,7 @@ class ClientGroupDispsTupleProvider(TuplesProviderABC):
                       tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
         coordSetId = tupleSelector.selector['coordSetId']
         gridKey = makeDispGroupGridKey(coordSetId)
-        grid: Optional[EncodedGridTuple] = self.gridCacheController.grid(gridKey)
+        grid: Optional[EncodedGridTuple] = self.gridCacheController.encodedChunk(gridKey)
 
         groupDispTuple = GroupDispsTuple()
         groupDispTuple.coordSetId = coordSetId

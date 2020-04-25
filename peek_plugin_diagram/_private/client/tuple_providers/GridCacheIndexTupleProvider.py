@@ -21,7 +21,7 @@ class GridCacheIndexTupleProvider(TuplesProviderABC):
                       tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
         tuples = [
             [i[0], i[1]]
-            for i in self._gridCacheController.gridDatesByKey().items()
+            for i in self._gridCacheController.encodedChunkLastUpdateByKey().items()
         ]
         sorted(tuples, key=lambda i: i[0])
 

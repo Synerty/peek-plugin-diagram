@@ -4,18 +4,22 @@ from datetime import datetime
 from typing import List, Dict
 
 from twisted.internet.defer import DeferredList, Deferred, inlineCallbacks
+from vortex.DeferUtil import vortexLogFailure
+from vortex.Payload import Payload
+from vortex.PayloadEnvelope import PayloadEnvelope
+from vortex.VortexABC import SendVortexMsgResponseCallable
+from vortex.VortexFactory import VortexFactory
 
+from peek_abstract_chunked_index.private.client.handlers.ACICacheHandlerABC import \
+    ACICacheHandlerABC
+from peek_abstract_chunked_index.private.tuples.ACIUpdateDateTupleABC import \
+    ACIUpdateDateTupleABC
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.client.controller.GridCacheController import \
     GridCacheController
 from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import \
     ClientGridLoaderRpc
-from vortex.DeferUtil import vortexLogFailure
-from vortex.Payload import Payload
-from vortex.PayloadEndpoint import PayloadEndpoint
-from vortex.PayloadEnvelope import PayloadEnvelope
-from vortex.VortexABC import SendVortexMsgResponseCallable
-from vortex.VortexFactory import VortexFactory
+from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
 
 logger = logging.getLogger(__name__)
 
@@ -27,26 +31,25 @@ DeviceGridT = Dict[str, datetime]
 
 
 # ModelSet HANDLER
-class GridCacheHandler(object):
-    def __init__(self, gridCacheController: GridCacheController, clientId: str):
+class GridCacheHandler(ACICacheHandlerABC):
+    _UpdateDateTuple: ACIUpdateDateTupleABC = GridKeyIndexCompiled
+    _updateFromServerFilt: Dict = clientGridWatchUpdateFromDeviceFilt
+    _logger: logging.Logger = logger
+
+    def __init__(self, cacheController: GridCacheController, clientId: str):
         """ App Grid Handler
 
         This class handles the custom needs of the desktop/mobile apps observing grids.
 
         """
-        self._gridCacheController = gridCacheController
-        self._clientId = clientId
+        ACICacheHandlerABC.__init__(self, cacheController, clientId)
 
-        self._epObserve = PayloadEndpoint(
-            clientGridWatchUpdateFromDeviceFilt, self._processObserve
-        )
-
+        # We need to know who is watching what so we can tell the server.
         self._observedGridKeysByVortexUuid = defaultdict(list)
         self._observedVortexUuidsByGridKey = defaultdict(list)
 
-    def shutdown(self):
-        self._epObserve.shutdown()
-        self._epObserve = None
+        # We're not using this
+        del self._uuidsObserving
 
     # ---------------
     # Filter out offline vortexes
@@ -70,7 +73,7 @@ class GridCacheHandler(object):
     # ---------------
     # Process update from the server
 
-    def notifyOfGridUpdate(self, gridKeys: List[str]):
+    def notifyOfUpdate(self, gridKeys: List[str]):
         """ Notify of Grid Updates
 
         This method is called by the client.GridCacheController when it receives updates
@@ -83,7 +86,7 @@ class GridCacheHandler(object):
 
         for gridKey in gridKeys:
 
-            gridTuple = self._gridCacheController.grid(gridKey)
+            gridTuple = self._cacheController.encodedChunk(gridKey)
             vortexUuids = self._observedVortexUuidsByGridKey.get(gridKey, [])
 
             # Queue up the required client notifications
@@ -99,7 +102,7 @@ class GridCacheHandler(object):
 
             # Serliase in thread, and then send.
             d = payload.makePayloadEnvelopeDefer()
-            d.addCallback(lambda payloadEnvelope:payloadEnvelope.toVortexMsgDefer())
+            d.addCallback(lambda payloadEnvelope: payloadEnvelope.toVortexMsgDefer())
             d.addCallback(VortexFactory.sendVortexMsg, destVortexUuid=vortexUuid)
             dl.append(d)
 
@@ -191,7 +194,7 @@ class GridCacheHandler(object):
         # Check and send any updates
         for gridKey, lastUpdate in lastUpdateByGridKey.items():
             # NOTE: lastUpdate can be null.
-            gridTuple = self._gridCacheController.grid(gridKey)
+            gridTuple = self._cacheController.encodedChunk(gridKey)
             if not gridTuple:
                 logger.debug("Grid %s is not in the cache" % gridKey)
                 continue

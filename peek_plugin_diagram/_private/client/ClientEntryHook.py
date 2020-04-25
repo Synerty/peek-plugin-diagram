@@ -117,12 +117,12 @@ class ClientEntryHook(PluginClientEntryHookABC):
 
         # This is the custom handler for the client
         gridCacheHandler = GridCacheHandler(
-            gridCacheController=gridCacheController,
+            cacheController=gridCacheController,
             clientId=self.platform.serviceId
         )
         self._loadedObjects.append(gridCacheHandler)
 
-        gridCacheController.setGridCacheHandler(gridCacheHandler)
+        gridCacheController.setCacheHandler(gridCacheHandler)
 
         # ----- Location Index Cache Controller
 
