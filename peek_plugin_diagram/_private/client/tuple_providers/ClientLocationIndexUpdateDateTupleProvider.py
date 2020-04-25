@@ -23,8 +23,8 @@ class ClientLocationIndexUpdateDateTupleProvider(TuplesProviderABC):
                       tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
         tuple_ = LocationIndexUpdateDateTuple()
         tuple_.updateDateByChunkKey = {
-            key:self._cacheHandler.locationIndex(key).lastUpdate
-            for key in self._cacheHandler.locationIndexKeys()
+            key:self._cacheHandler.encodedChunk(key).lastUpdate
+            for key in self._cacheHandler.encodedChunkKeys()
         }
         payload = Payload(filt, tuples=[tuple_])
         payloadEnvelope = yield payload.makePayloadEnvelopeDefer()

@@ -14,5 +14,13 @@ class EncodedLocationIndexTuple(Tuple):
     lastUpdate: str = TupleField()
 
     @property
+    def ckiHasEncodedData(self) -> bool:
+        return bool(self.encodedLocationIndexTuple)
+
+    @property
+    def ckiLastUpdate(self):
+        return self.lastUpdate
+
+    @property
     def ckiChunkKey(self):
         return self.indexBucket

@@ -1,23 +1,21 @@
 import logging
-from typing import List
+from typing import Optional
 
-from sqlalchemy import select
-from vortex.rpc.RPC import vortexRPC
-
+from peek_abstract_chunked_index.private.server.client_handlers.ACIChunkLoadRpcABC import \
+    ACIChunkLoadRpcABC
+from peek_core_search._private.storage.EncodedSearchObjectChunk import \
+    EncodedSearchObjectChunk
 from peek_plugin_base.PeekVortexUtil import peekServerName, peekClientName
-from peek_plugin_base.storage.DbConnection import DbSessionCreator
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompiled
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
-from peek_plugin_diagram._private.tuples.location_index.EncodedLocationIndexTuple import \
-    EncodedLocationIndexTuple
+from sqlalchemy import select
+from vortex.rpc.RPC import vortexRPC
 
 logger = logging.getLogger(__name__)
 
 
-class ClientLocationIndexLoaderRpc:
-    def __init__(self, dbSessionCreator: DbSessionCreator):
-        self._dbSessionCreator = dbSessionCreator
+class ClientLocationIndexLoaderRpc(ACIChunkLoadRpcABC):
 
     def makeHandlers(self):
         """ Make Handlers
@@ -34,35 +32,24 @@ class ClientLocationIndexLoaderRpc:
     # -------------
     @vortexRPC(peekServerName, acceptOnlyFromVortex=peekClientName, timeoutSeconds=60,
                additionalFilt=diagramFilt, deferToThread=True)
-    def loadLocationIndexes(self, offset: int, count: int) -> List[
-        EncodedLocationIndexTuple]:
+    def loadLocationIndexes(self, offset: int, count: int) -> Optional[bytes]:
         """ Update Page Loader Status
 
         Tell the server of the latest status of the loader
 
         """
-        session = self._dbSessionCreator()
-        try:
-            chunkTable = LocationIndexCompiled.__table__
-            msTable = ModelSet.__table__
+        chunkTable = LocationIndexCompiled.__table__
+        msTable = ModelSet.__table__
 
-            sql = select([chunkTable.c.indexBucket,
-                          chunkTable.c.blobData,
-                          chunkTable.c.lastUpdate,
-                          msTable.c.key]) \
-                .select_from(chunkTable.join(msTable)) \
-                .order_by(chunkTable.c.indexBucket) \
-                .offset(offset) \
-                .limit(count)
+        sql = select([chunkTable.c.indexBucket,
+                      chunkTable.c.blobData,
+                      chunkTable.c.lastUpdate,
+                      msTable.c.key]) \
+            .select_from(chunkTable.join(msTable)) \
+            .order_by(chunkTable.c.indexBucket) \
+            .offset(offset) \
+            .limit(count)
 
-            sqlData = session.execute(sql).fetchall()
-
-            results: List[EncodedLocationIndexTuple] = [
-                LocationIndexCompiled.sqlCoreLoad(item)
-                for item in sqlData
-            ]
-
-            return results
-
-        finally:
-            session.close()
+        return self.ckiInitialLoadChunksPayloadBlocking(offset, count,
+                                                        LocationIndexCompiled,
+                                                        sql)

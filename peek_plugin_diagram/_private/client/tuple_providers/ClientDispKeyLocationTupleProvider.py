@@ -52,7 +52,7 @@ class ClientDispKeyLocationTupleProvider(TuplesProviderABC):
             keysByChunkKey[dispKeyHashBucket(modelSetKey, key)].append(key)
 
         for chunkKey, subKeys in keysByChunkKey.items():
-            chunk: EncodedLocationIndexTuple = self._locationCache.locationIndex(chunkKey)
+            chunk: EncodedLocationIndexTuple = self._locationCache.encodedChunk(chunkKey)
 
             if not chunk:
                 logger.warning("Location index chunk %s is missing from cache", chunkKey)
