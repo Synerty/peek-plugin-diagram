@@ -20,7 +20,8 @@ class ClientLocationIndexUpdateHandler(ACIChunkUpdateHandlerABC):
     _updateFromServerFilt: Dict = clientLocationIndexUpdateFromServerFilt
     _logger: logging.Logger = logger
 
-    def _makeLoadSql(self, chunkKeys: List[str]):
+    @classmethod
+    def _makeLoadSql(cls, chunkKeys: List[str]):
         chunkTable = LocationIndexCompiled.__table__
         msTable = ModelSet.__table__
 
