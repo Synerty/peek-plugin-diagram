@@ -43,6 +43,14 @@ class BranchIndexEncodedChunk(Tuple, DeclarativeBase,
     def ckiChunkKey(self):
         return self.chunkKey
 
+    @property
+    def ckiHasEncodedData(self) -> bool:
+        return bool(self.encodedData)
+
+    @property
+    def ckiLastUpdate(self):
+        return self.lastUpdate
+
     @classmethod
     def ckiCreateDeleteEncodedChunk(cls, chunkKey: str):
         return BranchIndexEncodedChunk(indexBucket=chunkKey)

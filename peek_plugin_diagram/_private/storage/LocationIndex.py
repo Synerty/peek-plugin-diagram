@@ -95,6 +95,14 @@ class LocationIndexCompiled(Tuple, DeclarativeBase,
     def ckiChunkKey(self):
         return self.indexBucket
 
+    @property
+    def ckiHasEncodedData(self) -> bool:
+        return bool(self.blobData)
+
+    @property
+    def ckiLastUpdate(self):
+        return self.lastUpdate
+
     @classmethod
     def ckiCreateDeleteEncodedChunk(cls, chunkKey: str):
         from peek_plugin_diagram._private.tuples.location_index.EncodedLocationIndexTuple import \

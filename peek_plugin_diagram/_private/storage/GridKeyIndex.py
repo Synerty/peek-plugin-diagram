@@ -95,6 +95,14 @@ class GridKeyIndexCompiled(Tuple, DeclarativeBase,
     def ckiChunkKey(self):
         return self.gridKey
 
+    @property
+    def ckiHasEncodedData(self) -> bool:
+        return bool(self.encodedGridTuple)
+
+    @property
+    def ckiLastUpdate(self):
+        return self.lastUpdate
+
     @classmethod
     def ckiCreateDeleteEncodedChunk(cls, chunkKey: str):
         from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import \
