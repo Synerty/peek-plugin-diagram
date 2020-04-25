@@ -156,7 +156,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
             clientId=self.platform.serviceId
         )
         self._loadedObjects.append(branchIndexHandler)
-        branchIndexCacheController.setBranchIndexCacheHandler(branchIndexHandler)
+        branchIndexCacheController.setCacheHandler(branchIndexHandler)
 
         # -----
         # Create the Tuple Observer

@@ -39,7 +39,7 @@ class BranchTupleProvider(TuplesProviderABC):
             keysByChunkKey[makeChunkKeyForBranchIndex(modelSetKey, key)].append(key)
 
         for chunkKey, branchKeys in keysByChunkKey.items():
-            chunk: BranchIndexEncodedChunk = self._cacheHandler.branchIndexChunk(chunkKey)
+            chunk: BranchIndexEncodedChunk = self._cacheHandler.encodedChunk(chunkKey)
 
             if not chunk:
                 logger.warning("BranchIndex chunk %s is missing from cache", chunkKey)
