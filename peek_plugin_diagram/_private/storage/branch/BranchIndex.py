@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Index, ForeignKey, DateTime
+from sqlalchemy import Column, Index, ForeignKey, DateTime, BigInteger
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import relationship
 from vortex.Tuple import Tuple, addTupleType
@@ -26,7 +26,7 @@ class BranchIndex(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + 'BranchIndexTable'
 
     #:  The unique ID of this branchIndex (database generated)
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
 
     #:  The model set for this branchIndex
     coordSetId = Column(Integer,

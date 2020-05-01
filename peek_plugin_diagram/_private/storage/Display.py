@@ -13,7 +13,7 @@
 import typing
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from sqlalchemy import Column, orm
+from sqlalchemy import Column, orm, BigInteger
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String, Boolean
 from sqlalchemy.orm import relationship
@@ -192,18 +192,14 @@ class DispBase(Tuple, DeclarativeBase):
     ELLIPSE = 60
     NULL = 70
 
-    id_seq = Sequence('DispBase_id_seq',
-                      metadata=DeclarativeBase.metadata,
-                      schema=DeclarativeBase.metadata.schema)
-    id = Column(Integer, id_seq, server_default=id_seq.next_value(),
-                primary_key=True, autoincrement=False)
+    id = Column(BigInteger, primary_key=True)
 
     type = Column(Integer, doc=JSON_EXCLUDE, nullable=False)
 
     # ===== START BRANCH
 
     #: The branch that this Disp belongs to.
-    branchId = Column(Integer, ForeignKey('BranchIndex.id', ondelete='CASCADE'),
+    branchId = Column(BigInteger, ForeignKey('BranchIndex.id', ondelete='CASCADE'),
                       doc='bi')
 
     #: The stage of the branch that this DISP
@@ -219,7 +215,7 @@ class DispBase(Tuple, DeclarativeBase):
     # ===== END BRANCH
 
     #: Used for disps that belong to a DispGroup
-    groupId = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE'),
+    groupId = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE'),
                      doc='gi')
 
     coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
@@ -309,7 +305,7 @@ class DispNull(DispBase):
 
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
-    id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
+    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
                 , primary_key=True, autoincrement=False)
 
     geomJson = Column(String, nullable=False, doc='g')
@@ -333,7 +329,7 @@ class DispText(DispBase):
 
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
-    id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
+    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
                 , primary_key=True, autoincrement=False)
 
     verticalAlign = Column(Integer, doc='va', nullable=False, server_default='-1')
@@ -376,7 +372,7 @@ class DispPolygon(DispBase):
     RENDERABLE_TYPE = DispBase.POLYGON
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
-    id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
+    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
                 , primary_key=True, autoincrement=False)
 
     cornerRadius = Column(Float, doc='cr', nullable=False, server_default='0')
@@ -425,7 +421,7 @@ class DispPolyline(DispBase):
     RENDERABLE_TYPE = DispBase.POLYLINE
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
-    id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
+    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
                 , primary_key=True, autoincrement=False)
 
     lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
@@ -493,7 +489,7 @@ class DispEllipse(DispBase):
     RENDERABLE_TYPE = DispBase.ELLIPSE
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
-    id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
+    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
                 , primary_key=True, autoincrement=False)
 
     xRadius = Column(Float, doc='xr', nullable=False, server_default='10.0')
@@ -544,7 +540,7 @@ class DispGroup(DispBase):
     RENDERABLE_TYPE = DispBase.GROUP
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
-    id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
+    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
                 , primary_key=True, autoincrement=False)
 
     # TODO: this needs to be unique WITH the coordSetId
@@ -582,7 +578,7 @@ class DispEdgeTemplate(DispBase):
     RENDERABLE_TYPE = DispBase.EDGE_TEMPLATE
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
-    id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
+    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
                 , primary_key=True, autoincrement=False)
 
     name = Column(String, doc='n', nullable=False)
@@ -616,7 +612,7 @@ class DispGroupPointer(DispBase):
     RENDERABLE_TYPE = DispBase.GROUP_PTR
     __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
 
-    id = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE')
+    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
                 , primary_key=True, autoincrement=False)
 
     rotation = Column(Integer, doc='r', server_default='0', nullable=False)
@@ -626,7 +622,7 @@ class DispGroupPointer(DispBase):
 
     geomJson = Column(String, nullable=False, doc='g')
 
-    targetDispGroupId = Column(Integer, ForeignKey('DispGroup.id', ondelete='SET NULL'),
+    targetDispGroupId = Column(BigInteger, ForeignKey('DispGroup.id', ondelete='SET NULL'),
                                doc='tg')
 
     targetDispGroupName = Column(String, doc='tn')

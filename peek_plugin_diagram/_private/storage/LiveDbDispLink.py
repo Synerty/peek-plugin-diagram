@@ -1,5 +1,5 @@
 import logging
-from sqlalchemy import Column, orm
+from sqlalchemy import Column, orm, BigInteger
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import relationship
@@ -32,17 +32,13 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
     __tablename__ = 'LiveDbDispLink'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id_seq = Sequence('LiveDbDispLink_id_seq',
-                      metadata=DeclarativeBase.metadata,
-                      schema=DeclarativeBase.metadata.schema)
-    id = Column(Integer, id_seq, server_default=id_seq.next_value(),
-                primary_key=True, autoincrement=False)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
 
     coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete="CASCADE"),
                         nullable=False)
     coordSet = relationship(ModelCoordSet)
 
-    dispId = Column(Integer, ForeignKey('DispBase.id', ondelete='CASCADE'),
+    dispId = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE'),
                     nullable=False)
     disp = relationship(DispBase)
 

@@ -1,6 +1,6 @@
 import logging
 
-from sqlalchemy import Column, Index
+from sqlalchemy import Column, Index, BigInteger
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
 from vortex.Tuple import Tuple, addTupleType
@@ -19,7 +19,7 @@ class BranchIndexCompilerQueue(Tuple, DeclarativeBase,
     __tablename__ = 'BranchIndexCompilerQueue'
     __tupleType__ = diagramTuplePrefix + 'BranchIndexCompilerQueueTable'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
 
     modelSetId = Column(Integer,
                         ForeignKey('ModelSet.id', ondelete='CASCADE'),

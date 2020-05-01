@@ -1,6 +1,6 @@
 import logging
 
-from sqlalchemy import Column
+from sqlalchemy import Column, BigInteger
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import relationship
@@ -26,7 +26,7 @@ class LocationIndexCompilerQueue(Tuple, DeclarativeBase,
     __tablename__ = 'LocationIndexCompilerQueue'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
 
     indexBucket = Column(String(100), primary_key=True)
     modelSetId = Column(Integer,
@@ -57,7 +57,7 @@ class LocationIndex(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     indexBucket = Column(String(100), primary_key=True)
-    dispId = Column(Integer,
+    dispId = Column(BigInteger,
                     ForeignKey('DispBase.id', ondelete='CASCADE'),
                     primary_key=True)
 
@@ -79,7 +79,7 @@ class LocationIndexCompiled(Tuple, DeclarativeBase,
     __tablename__ = 'LocationIndexCompiled'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
 
     indexBucket = Column(String(100), primary_key=True)
     blobData = Column(PeekLargeBinary, nullable=False)

@@ -1,6 +1,6 @@
 import logging
 
-from sqlalchemy import Column
+from sqlalchemy import Column, BigInteger
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import relationship
@@ -26,7 +26,7 @@ class GridKeyCompilerQueue(Tuple, DeclarativeBase,
     __tablename__ = 'GridKeyCompilerQueue'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
 
     gridKey = Column(String(30), primary_key=True)
     coordSetId = Column(Integer,
@@ -56,7 +56,7 @@ class GridKeyIndex(Tuple, DeclarativeBase):
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     gridKey = Column(String(30), primary_key=True)
-    dispId = Column(Integer,
+    dispId = Column(BigInteger,
                     ForeignKey('DispBase.id', ondelete='CASCADE'),
                     primary_key=True)
 
@@ -79,7 +79,7 @@ class GridKeyIndexCompiled(Tuple, DeclarativeBase,
     __tablename__ = 'GridKeyIndexCompiled'
     __tupleType__ = diagramTuplePrefix + __tablename__
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
 
     gridKey = Column(String(30), nullable=False)
     encodedGridTuple = Column(PeekLargeBinary, nullable=False)
