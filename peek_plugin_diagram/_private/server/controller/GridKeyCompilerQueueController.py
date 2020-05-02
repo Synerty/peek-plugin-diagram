@@ -11,7 +11,7 @@ from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler
 from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
 from peek_plugin_diagram._private.storage.GridKeyIndex import \
-    GridKeyCompilerQueue
+    GridKeyCompilerQueue, GridKeyIndexCompiled, GridKeyIndex
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +46,7 @@ class GridKeyCompilerQueueController(ACIProcessorQueueControllerABC):
 
     _logger = logger
     _QueueDeclarative: ACIProcessorQueueTupleABC = GridKeyCompilerQueue
+    _VacuumDeclaratives = (GridKeyCompilerQueue, GridKeyIndex, GridKeyIndexCompiled)
 
     def __init__(self, dbSessionCreator,
                  statusController: StatusController,

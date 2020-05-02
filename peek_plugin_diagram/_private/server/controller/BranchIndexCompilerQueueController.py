@@ -10,8 +10,11 @@ from peek_plugin_diagram._private.server.client_handlers.BranchIndexChunkUpdateH
     BranchIndexChunkUpdateHandler
 from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
+from peek_plugin_diagram._private.storage.branch.BranchIndex import BranchIndex
 from peek_plugin_diagram._private.storage.branch.BranchIndexCompilerQueue import \
     BranchIndexCompilerQueue
+from peek_plugin_diagram._private.storage.branch.BranchIndexEncodedChunk import \
+    BranchIndexEncodedChunk
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +48,8 @@ class BranchIndexCompilerQueueController(ACIProcessorQueueControllerABC):
 
     _logger = logger
     _QueueDeclarative: ACIProcessorQueueTupleABC = BranchIndexCompilerQueue
+    _VacuumDeclaratives = (BranchIndexCompilerQueue,
+                           BranchIndex, BranchIndexEncodedChunk)
 
     def __init__(self, dbSessionCreator,
                  statusController: StatusController,

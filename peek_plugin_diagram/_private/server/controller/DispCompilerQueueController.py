@@ -11,6 +11,9 @@ from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
 from peek_plugin_diagram._private.storage.DispIndex import \
     DispIndexerQueue as DispIndexerQueueTable
+from peek_plugin_diagram._private.storage.Display import DispBase, DispNull, DispGroup, \
+    DispPolyline, DispGroupPointer, DispPolygon, DispEdgeTemplate, DispText, DispEllipse
+from peek_plugin_diagram._private.storage.LiveDbDispLink import LiveDbDispLink
 from vortex.DeferUtil import deferToThreadWrapWithLogger
 
 logger = logging.getLogger(__name__)
@@ -48,6 +51,10 @@ class DispCompilerQueueController(ACIProcessorQueueControllerABC):
 
     _logger = logger
     _QueueDeclarative: ACIProcessorQueueTupleABC = DispIndexerQueueTable
+    _VacuumDeclaratives = (DispIndexerQueueTable,
+                           DispBase, DispNull, DispText, DispPolygon, DispPolyline,
+                           DispEllipse, DispGroup, DispEdgeTemplate, DispGroupPointer,
+                           LiveDbDispLink)
 
     def __init__(self, dbSessionCreator, statusController: StatusController):
         ACIProcessorQueueControllerABC.__init__(self, dbSessionCreator,

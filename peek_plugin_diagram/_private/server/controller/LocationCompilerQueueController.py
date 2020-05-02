@@ -12,7 +12,7 @@ from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexUpda
 from peek_plugin_diagram._private.server.controller.StatusController import \
     StatusController
 from peek_plugin_diagram._private.storage.LocationIndex import \
-    LocationIndexCompilerQueue
+    LocationIndexCompilerQueue, LocationIndexCompiled, LocationIndex
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,6 @@ class _Notifier(ACIProcessorStatusNotifierABC):
 
 
 class LocationCompilerQueueController(ACIProcessorQueueControllerABC):
-
     QUEUE_ITEMS_PER_TASK = 10
     POLL_PERIOD_SECONDS = 2.000
 
@@ -47,6 +46,8 @@ class LocationCompilerQueueController(ACIProcessorQueueControllerABC):
 
     _logger = logger
     _QueueDeclarative: ACIProcessorQueueTupleABC = LocationIndexCompilerQueue
+    _VacuumDeclaratives = (LocationIndexCompilerQueue,
+                           LocationIndex, LocationIndexCompiled)
 
     def __init__(self, dbSessionCreator,
                  statusController: StatusController,
@@ -54,8 +55,8 @@ class LocationCompilerQueueController(ACIProcessorQueueControllerABC):
                  readyLambdaFunc: Callable):
         ACIProcessorQueueControllerABC \
             .__init__(self, dbSessionCreator, _Notifier(statusController))
-                      # Disabled
-                      # isProcessorEnabledCallable=readyLambdaFunc)
+        # Disabled
+        # isProcessorEnabledCallable=readyLambdaFunc)
 
         self._clientLocationUpdateHandler: ClientLocationIndexUpdateHandler \
             = clientLocationUpdateHandler
@@ -90,5 +91,3 @@ class LocationCompilerQueueController(ACIProcessorQueueControllerABC):
                     AND pl_diagram."LocationIndexCompilerQueue"."indexBucket" = sq1."indexBucket"
 
             ''' % {'id': lastFetchedId, 'limit': dedupeLimit}
-
-
