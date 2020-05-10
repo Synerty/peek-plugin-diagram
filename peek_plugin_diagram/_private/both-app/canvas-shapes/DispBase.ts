@@ -7,7 +7,7 @@ import {
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 import {deepCopy} from "@synerty/vortexjs/src/vortex/UtilMisc";
-import {movePointFurtherFromPoint, rotatePointAboutCenter} from "./DispUtil";
+import {rotatePointAboutCenter} from "./DispUtil";
 
 export interface PointI {
     x: number;
@@ -24,7 +24,7 @@ export enum DispHandleTypeE {
 export interface DispHandleI {
     disp: DispBaseT,
     center: PointI,
-    handleType:DispHandleTypeE,
+    handleType: DispHandleTypeE,
     box?: PeekCanvasBounds,
     handleIndex?: number | null,
     lastDeltaPoint?: PointI | null
@@ -40,6 +40,24 @@ export enum DispType {
     edgeTemplate,
     null_
 }
+
+// ---------------------
+// Begin the action definitions
+
+export enum DispActionEnum {
+    none, // Or null
+    positionOn
+}
+
+export interface DispActionPositionOnDataT {
+    k: string; // coordSetKey, shortened because this is
+    x: number;
+    y: number;
+    z: number; // Zoom
+}
+
+// --------------------
+// Begin the Disp definitions
 
 /** This type defines the list of points for geometry **/
 export type PointsT = number[];
@@ -86,11 +104,14 @@ export interface DispBaseT {
     // Is Overlay
     o: boolean;
 
+    // Action
+    a: DispActionEnum | null;
+
     // Data (stringified JSON)
     d: string | null;
 
     // Geomoetry
-    g: number[];
+    g: PointsT;
 
     // bounds, this is assigned during the rendering process
     // COMPUTED PROPERTY, it's computed somewhere
@@ -256,6 +277,14 @@ export abstract class DispBase {
         disp.k = val;
     }
 
+    static action(disp: DispBaseT): DispActionEnum | null {
+        return disp.a;
+    }
+
+    static setAction(disp: DispBaseT, val: DispActionEnum | null): void {
+        disp.a = val;
+    }
+
     static data(disp: DispBaseT): {} {
         if (disp.d == null)
             return {};
@@ -316,7 +345,6 @@ export abstract class DispBase {
         console.log(`ERROR: Handles not implemented for ${DispBase.typeOf(disp)}`);
         return [];
     }
-
 
 
     // ---------------

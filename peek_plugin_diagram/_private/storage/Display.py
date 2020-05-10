@@ -1,4 +1,4 @@
-""" 
+"""
  * orm.Display.py
  *
  *  Copyright Synerty Pty Ltd 2011
@@ -6,14 +6,14 @@
  *  This software is proprietary, you are not free to copy
  *  or redistribute this code in any format.
  *
- *  All rights to this software are reserved by 
+ *  All rights to this software are reserved by
  *  Synerty Pty Ltd
  *
 """
 import typing
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from sqlalchemy import Column, orm, BigInteger
+from sqlalchemy import Column, orm, BigInteger, SmallInteger
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String, Boolean
 from sqlalchemy.orm import relationship
@@ -192,6 +192,9 @@ class DispBase(Tuple, DeclarativeBase):
     ELLIPSE = 60
     NULL = 70
 
+    ACTION_NONE = None
+    ACTION_POSITION_ON = 1
+
     id = Column(BigInteger, primary_key=True)
 
     type = Column(Integer, doc=JSON_EXCLUDE, nullable=False)
@@ -250,6 +253,9 @@ class DispBase(Tuple, DeclarativeBase):
     # data to the diagram, such as a Job, Operation, or placing a green box over a red
     # one to change it's state.
     overlay = Column(Boolean, doc='o', nullable=False, server_default='false')
+
+    #: Action, This determines what happens when a user clicks on this shape.
+    action = Column(SmallInteger, doc='a')
 
     #: Data, Generic data that is passed in the context for the item select popup
     dataJson = Column(String, doc='d')
@@ -459,9 +465,6 @@ class DispPolyline(DispBase):
                                   doc='ti')
 
     targetEdgeTemplateName = Column(String, doc='tn')
-
-    __table_args__ = (
-    )
 
     __table_args__ = (
         # Commented out, we don't delete lookups during normal operation

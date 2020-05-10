@@ -4,8 +4,12 @@ from typing import List, Dict, Tuple
 
 import pytz
 import ujson as json
+from txcelery.defer import DeferrableTask
+from vortex.Payload import Payload
+
 from peek_plugin_base.storage.DbConnection import pgCopyInsert, convertToCoreSqlaInsert
 from peek_plugin_base.worker import CeleryDbConn
+from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
     DispCompilerQueueController
 from peek_plugin_diagram._private.storage.Display import \
@@ -13,25 +17,22 @@ from peek_plugin_diagram._private.storage.Display import \
     DispGroupPointer, DispNull, DispEdgeTemplate
 from peek_plugin_diagram._private.storage.ModelSet import \
     ModelCoordSet, getOrCreateCoordSet
-from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks.ImportDispLink import importDispLinks
 from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
     LookupHashConverter
+from peek_plugin_diagram.tuples.shapes.ImportDispEdgeTemplateTuple import \
+    ImportDispEdgeTemplateTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispEllipseTuple import \
     ImportDispEllipseTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispGroupPtrTuple import \
     ImportDispGroupPtrTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispGroupTuple import ImportDispGroupTuple
-from peek_plugin_diagram.tuples.shapes.ImportDispEdgeTemplateTuple import \
-    ImportDispEdgeTemplateTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispPolygonTuple import \
     ImportDispPolygonTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
     ImportDispPolylineTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispTextTuple import ImportDispTextTuple
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
-from txcelery.defer import DeferrableTask
-from vortex.Payload import Payload
 
 logger = logging.getLogger(__name__)
 
@@ -127,8 +128,10 @@ def _loadCoordSet(modelSetKey, coordSetKey):
 
 
 def _validateImportDisps(importDisps: List):
-
     for importDisp in importDisps:
+        if hasattr(importDisp, 'overlay') and importDisp.overlay not in (None, True, False):
+            raise Exception("Disps overlay value must be True or False")
+
         isGroup = isinstance(importDisp, ImportDispGroupTuple)
         # isGroupChild = not isGroup and importDisp.parentDispGroupHash
 

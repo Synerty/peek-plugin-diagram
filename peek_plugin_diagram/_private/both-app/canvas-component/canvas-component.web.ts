@@ -29,6 +29,7 @@ import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 import {PrivateDiagramSnapshotService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramSnapshotService";
 import {PrivateDiagramOverrideService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService";
+import {PeekCanvasActioner} from "../canvas/PeekCanvasActioner";
 
 /** Canvas Component
  *
@@ -98,9 +99,16 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         // The display renderer delegates
         this.renderFactory = new PeekDispRenderFactory(this.config, this.model);
 
+        const actioner = new PeekCanvasActioner(
+            this.modelSetKey,
+            this.coordSetCache,
+            this.lookupService,
+            this.privatePosService);
+
         // The user interaction handler.
         this.input = new PeekCanvasInput(
-            this.config, this.model, this.renderFactory, this, this.objectPopupService
+            this.config, this.model, this.renderFactory, this, this.objectPopupService,
+            actioner
         );
 
         // The canvas renderer

@@ -1,5 +1,5 @@
-from geoalchemy2 import WKBElement
 from typing import Optional, List
+
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
@@ -26,6 +26,12 @@ class ImportDispEdgeTemplateTuple(Tuple):
 
     ### BEGIN DISP COMMON FIELDS ###
 
+    # The actions to perform when this line is clicked
+    ACTION_NONE = ImportDispPolylineTuple.ACTION_NONE
+    ACTION_POSITION_ON = ImportDispPolylineTuple.ACTION_POSITION_ON
+    # For ACTION_POSITION_ON, Add the following to the display data
+    # data['actionPos'] = {k='coordSetKey', x=x, y=y, z=zoom}
+
     #: Key, This value is a unique ID of the object that this graphic represents
     # It's used to link this graphical object to objects in other plugins, like vertices
     # in the peek-plugin-graphdb plugin.
@@ -34,6 +40,10 @@ class ImportDispEdgeTemplateTuple(Tuple):
 
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
     selectable: bool = TupleField()
+
+    #: Action, An action to perform when this display item is clicked.
+    # See the ACTION_NONE constants for values.
+    action: Optional[int] = TupleField(None)
 
     #: Data, Generic data, this is passed to the popup context in the UI.
     # peek_plugin_diagram doesn't care as long as it's json compatible or None

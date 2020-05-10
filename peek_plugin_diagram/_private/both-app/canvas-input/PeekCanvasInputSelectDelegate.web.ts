@@ -372,14 +372,16 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this.clearSelectableUnderMouse();
 
         // Show the tooltip
-        this.viewArgs.objectPopupService
-            .showPopup(
-                DocDbPopupTypeE.tooltipPopup,
-                diagramPluginName,
-                mouse,
-                this.viewArgs.config.controller.modelSetKey,
-                DispBase.key(newHit),
-                {triggeredForContext: this.viewArgs.config.coordSet.key});
+        if (DispBase.key(newHit) != null) {
+            this.viewArgs.objectPopupService
+                .showPopup(
+                    DocDbPopupTypeE.tooltipPopup,
+                    diagramPluginName,
+                    mouse,
+                    this.viewArgs.config.controller.modelSetKey,
+                    DispBase.key(newHit),
+                    {triggeredForContext: this.viewArgs.config.coordSet.key});
+        }
 
         this.suggestedDispToSelect = newHit;
         this.viewArgs.config.invalidate();
@@ -418,6 +420,11 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this.clearSelectableUnderMouse();
         this.viewArgs.objectPopupService.hidePopup(DocDbPopupTypeE.summaryPopup);
 
+        if (hits.length == 1 && this.viewArgs.actioner.hasAction(hits[0])) {
+            this.viewArgs.actioner.applyAction(hits[0]);
+            return;
+        }
+
         // If nothing is selected, clear the selection
         if (hits.length == 0) {
             this.viewArgs.model.selection.clearSelection();
@@ -433,7 +440,9 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                 this.viewArgs.model.selection.replaceSelection(hits);
         }
 
-        if (hits.length == 1) {
+        const hit = hits[0];
+
+        if (hit != null && DispBase.key(hit) != null) {
             // Show the tooltip
             this.viewArgs.objectPopupService
                 .showPopup(
@@ -441,12 +450,10 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                     diagramPluginName,
                     mouse,
                     this.viewArgs.config.controller.modelSetKey,
-                    DispBase.key(hits[0]),
+                    DispBase.key(hit),
                     {triggeredForContext: this.viewArgs.config.coordSet.key});
 
         }
-
-
     }
 
 
