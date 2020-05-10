@@ -22,9 +22,6 @@ export interface DispPolyT extends DispBaseT {
     // lineWidth
     w: number;
 
-    // Geom
-    g: PointsT;
-
 }
 
 export abstract class DispPoly extends DispBase {

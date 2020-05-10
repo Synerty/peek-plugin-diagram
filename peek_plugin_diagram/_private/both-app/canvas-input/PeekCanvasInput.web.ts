@@ -10,13 +10,11 @@ import {
     InputDelegateConstructorEditArgs,
     InputDelegateConstructorViewArgs
 } from "./PeekCanvasInputDelegateUtil.web";
-
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PeekCanvasInputSelectDelegate} from "./PeekCanvasInputSelectDelegate.web";
 import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
 import {PointI} from "../canvas-shapes/DispBase";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
-import {DocDbPopupService} from "@peek/peek_plugin_docdb";
+import {PeekCanvasActioner} from "../canvas/PeekCanvasActioner";
 
 
 /** Peek Canvas Input
@@ -38,8 +36,9 @@ export class PeekCanvasInput {
     constructor(private config: PeekCanvasConfig,
                 private model: PeekCanvasModel,
                 private renderFactory: PeekDispRenderFactory,
-                private lifecycleEventEmitter: ComponentLifecycleEventEmitter,
-                private objectPopupService: DocDbPopupService) {
+                private lifecycleEventEmitter,
+                private objectPopupService,
+                private actioner: PeekCanvasActioner) {
         this.delegateFinished();
     }
 
@@ -53,7 +52,8 @@ export class PeekCanvasInput {
             config: this.config,
             model: this.model,
             renderFactory: this.renderFactory,
-            objectPopupService:this.objectPopupService
+            objectPopupService: this.objectPopupService,
+            actioner: this.actioner
         };
 
         this._delegate = new Delegate(viewDelegateArgs, editArgs);

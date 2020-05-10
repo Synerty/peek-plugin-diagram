@@ -9,6 +9,7 @@ import {PeekCanvasEditorProps} from "../canvas/PeekCanvasEditorProps";
 import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {PrivateDiagramBranchContext} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchContext";
 import {DocDbPopupService} from "@peek/peek_plugin_docdb";
+import {PeekCanvasActioner} from "../canvas/PeekCanvasActioner";
 
 
 export function disableContextMenu(event) {
@@ -37,6 +38,7 @@ export interface InputDelegateConstructorViewArgs {
     model: PeekCanvasModel;
     renderFactory: PeekDispRenderFactory;
     objectPopupService: DocDbPopupService;
+    actioner: PeekCanvasActioner;
 }
 
 export interface InputDelegateConstructorEditArgs {

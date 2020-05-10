@@ -1,10 +1,11 @@
-from geoalchemy2 import WKBElement
 from typing import List, Optional
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
     ImportLiveDbDispLinkTuple
+from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
+    ImportDispPolylineTuple
 
 
 @addTupleType
@@ -17,6 +18,12 @@ class ImportDispGroupPtrTuple(Tuple):
     __tupleType__ = diagramTuplePrefix + 'ImportDispGroupPtrTuple'
 
     ### BEGIN DISP COMMON FIELDS ###
+
+    # The actions to perform when this line is clicked
+    ACTION_NONE = ImportDispPolylineTuple.ACTION_NONE
+    ACTION_POSITION_ON = ImportDispPolylineTuple.ACTION_POSITION_ON
+    # For ACTION_POSITION_ON, Add the following to the display data
+    # data['actionPos'] = {k='coordSetKey', x=x, y=y, z=zoom}
 
     #: Key, This value is a unique ID of the object that this graphic represents
     # It's used to link this graphical object to objects in other plugins, like vertices
@@ -31,6 +38,10 @@ class ImportDispGroupPtrTuple(Tuple):
     # data to the diagram, such as a Job, Operation, or placing a green box over a red
     # one to change it's state.
     overlay: bool = TupleField()
+
+    #: Action, An action to perform when this display item is clicked.
+    # See the ACTION_NONE constants for values.
+    action: Optional[int] = TupleField(None)
 
     #: Data, Generic data, this is passed to the popup context in the UI.
     # peek_plugin_diagram doesn't care as long as it's json compatible or None

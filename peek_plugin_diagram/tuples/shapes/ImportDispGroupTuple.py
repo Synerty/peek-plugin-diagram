@@ -3,6 +3,8 @@ from typing import Optional
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
+from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
+    ImportDispPolylineTuple
 
 
 @addTupleType
@@ -25,6 +27,12 @@ class ImportDispGroupTuple(Tuple):
 
     ### BEGIN DISP COMMON FIELDS ###
 
+    # The actions to perform when this line is clicked
+    ACTION_NONE = ImportDispPolylineTuple.ACTION_NONE
+    ACTION_POSITION_ON = ImportDispPolylineTuple.ACTION_POSITION_ON
+    # For ACTION_POSITION_ON, Add the following to the display data
+    # data['actionPos'] = {k='coordSetKey', x=x, y=y, z=zoom}
+
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
     selectable: bool = TupleField()
 
@@ -32,6 +40,10 @@ class ImportDispGroupTuple(Tuple):
     # data to the diagram, such as a Job, Operation, or placing a green box over a red
     # one to change it's state.
     overlay: bool = TupleField()
+
+    #: Action, An action to perform when this display item is clicked.
+    # See the ACTION_NONE constants for values.
+    action: Optional[int] = TupleField(None)
 
     #: Data, Generic data, this is passed to the popup context in the UI.
     # peek_plugin_diagram doesn't care as long as it's json compatible or None

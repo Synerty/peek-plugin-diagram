@@ -25,9 +25,6 @@ export interface DispEllipseT extends DispBaseT {
     // lineWidth
     w: number;
 
-    // Geom
-    g: PointsT;
-
     // xRadius
     xr: number;
 
