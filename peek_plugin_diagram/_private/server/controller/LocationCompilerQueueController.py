@@ -73,14 +73,14 @@ class LocationCompilerQueueController(ACIProcessorQueueControllerABC):
     def _dedupeQueueSql(self, lastFetchedId: int, dedupeLimit: int):
         return '''
                  with sq_raw as (
-                    SELECT "id", "indexBucket"
+                    SELECT "id", "indexBucket", "modelSetId"
                     FROM pl_diagram."LocationIndexCompilerQueue"
                     WHERE id > %(id)s
                     LIMIT %(limit)s
                 ), sq as (
-                    SELECT min(id) as "minId", "indexBucket"
+                    SELECT min(id) as "minId", "indexBucket", "modelSetId"
                     FROM sq_raw
-                    GROUP BY  "indexBucket"
+                    GROUP BY  "indexBucket", "modelSetId"
                     HAVING count("indexBucket") > 1
                 )
                 DELETE
@@ -89,5 +89,6 @@ class LocationCompilerQueueController(ACIProcessorQueueControllerABC):
                 WHERE pl_diagram."LocationIndexCompilerQueue"."id" != sq1."minId"
                     AND pl_diagram."LocationIndexCompilerQueue"."id" > %(id)s
                     AND pl_diagram."LocationIndexCompilerQueue"."indexBucket" = sq1."indexBucket"
+                    AND pl_diagram."LocationIndexCompilerQueue"."modelSetId" = sq1."modelSetId"
 
             ''' % {'id': lastFetchedId, 'limit': dedupeLimit}
