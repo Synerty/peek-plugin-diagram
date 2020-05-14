@@ -39,8 +39,8 @@ class GridKeyCompilerQueueController(ACIProcessorQueueControllerABC):
     POLL_PERIOD_SECONDS = 0.200
 
     # We don't deduplicate this queue, so we can fill it up
-    QUEUE_BLOCKS_MAX = 50
-    QUEUE_BLOCKS_MIN = 10
+    QUEUE_BLOCKS_MAX = 30
+    QUEUE_BLOCKS_MIN = 2
 
     WORKER_TASK_TIMEOUT = 60.0
 
