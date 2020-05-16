@@ -120,7 +120,8 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
         this.editor = new PeekCanvasEditor(this.balloonMsg,
             this.input, this.model, this.config,
             this.gridObservable,
-            this.lookupService, this.branchService, this
+            this.lookupService, this.privatePosService,
+            this.branchService, this
         );
 
         // Add the mouse class to the renderers draw list

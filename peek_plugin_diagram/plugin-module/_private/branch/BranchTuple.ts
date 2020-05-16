@@ -17,6 +17,13 @@ interface UndoDataI {
     replacementIds: {};
 }
 
+export interface BranchLastEditPositionI {
+    x: number;
+    y: number;
+    zoom: number;
+    coordSetKey: string
+}
+
 /** Diagram Branch Tuple
  *
  * This tuple is used internally to transfer branches from the client tuple provider,
@@ -42,7 +49,8 @@ export class BranchTuple extends Tuple {
     private static readonly __ANCHOR_DISP_KEYS_NUM = 7;
     private static readonly __UPDATED_BY_USER_NUM = 8;
     private static readonly __NEEDS_SAVE_NUM = 9; // Not stored in DB
-    private static readonly __LAST_INDEX_NUM = 9;
+    private static readonly __LAST_EDIT_POSITION = 10;
+    private static readonly __LAST_INDEX_NUM = 10;
 
 
     // This structure stores IDs that need to be updated, from disps that have been
@@ -170,6 +178,17 @@ export class BranchTuple extends Tuple {
 
     set updatedByUser(val: string) {
         this.packedJson__[BranchTuple.__UPDATED_BY_USER_NUM] = val;
+    }
+
+    set lastEditPosition(position: BranchLastEditPositionI) {
+        this.packedJson__[BranchTuple.__LAST_EDIT_POSITION] = JSON.stringify(position);
+    }
+
+    get lastEditPosition(): BranchLastEditPositionI | null {
+        const jsonStr = this.packedJson__[BranchTuple.__LAST_EDIT_POSITION];
+        if (jsonStr == null || jsonStr.length == 0)
+            return null;
+        return JSON.parse(jsonStr);
     }
 
     addStage(): number {

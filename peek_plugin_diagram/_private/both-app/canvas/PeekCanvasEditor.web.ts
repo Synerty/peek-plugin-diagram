@@ -1,5 +1,6 @@
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import {
     PrivateDiagramBranchContext,
     PrivateDiagramBranchService
@@ -34,6 +35,7 @@ export class PeekCanvasEditor {
                 private canvasConfig: PeekCanvasConfig,
                 private gridObservable: GridObservable,
                 public lookupService: PrivateDiagramLookupService,
+                private positionService: PrivateDiagramPositionService,
                 private branchService: PrivateDiagramBranchService,
                 private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
         this.branchService
@@ -60,6 +62,13 @@ export class PeekCanvasEditor {
                     });
 
                 this.branchContext.open();
+
+                const lastPos = branchContext.branchTuple.lastEditPosition;
+                if (lastPos != null) {
+                    this.positionService
+                        .position(lastPos.coordSetKey, lastPos.x,
+                            lastPos.y, lastPos.zoom);
+                }
 
                 this.setInputEditDelegate(PeekCanvasInputEditSelectDelegate);
                 this.canvasModel.selection.clearSelection();
@@ -180,6 +189,13 @@ export class PeekCanvasEditor {
     }
 
     save() {
+        this._currentBranch.branchTuple.lastEditPosition = ({
+            x: this.canvasConfig.viewPort.pan.x,
+            y: this.canvasConfig.viewPort.pan.y,
+            zoom: this.canvasConfig.viewPort.zoom,
+            coordSetKey: this.canvasConfig.coordSet.key
+        });
+
         this._currentBranch.save()
             .then(() => this.balloonMsg.showSuccess("Branch Save Successful"))
             .catch((e) => this.balloonMsg.showError("Failed to save branch\n" + e));
