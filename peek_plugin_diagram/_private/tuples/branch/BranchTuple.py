@@ -1,15 +1,14 @@
-from datetime import datetime
 from typing import List, Any, Optional
 
-import pytz
 import ujson
 import ujson as json
+from vortex import SerialiseUtil
+from vortex.Tuple import Tuple, addTupleType, TupleField
+
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
     LookupHashConverter
 from peek_plugin_diagram.tuples.branches.ImportBranchTuple import ImportBranchTuple
-from vortex import SerialiseUtil
-from vortex.Tuple import Tuple, addTupleType, TupleField
 
 
 @addTupleType
@@ -29,7 +28,8 @@ class BranchTuple(Tuple):
     __ANCHOR_DISP_KEYS_NUM = 7
     __UPDATED_BY_USER_NUM = 8
     __NEEDS_SAVE_NUM = 9  # Not stored in DB
-    __LAST_INDEX_NUM = 9
+    __LAST_EDIT_POSITION = 10
+    __LAST_INDEX_NUM = 10
 
     __tupleType__ = diagramTuplePrefix + 'BranchTuple'
 
@@ -101,10 +101,6 @@ class BranchTuple(Tuple):
     def id(self, value: Optional[int]):
         self.packedJson__[self.__ID_NUM] = value
 
-    @id.setter
-    def setId(self, id_: int):
-        self.packedJson__[self.__ID_NUM] = id_
-
     @property
     def coordSetId(self):
         return self.packedJson__[self.__COORD_SET_ID_NUM]
@@ -148,3 +144,7 @@ class BranchTuple(Tuple):
     def createdDate(self):
         return SerialiseUtil.fromStr(self.packedJson__[self.__CREATED_DATE],
                                      SerialiseUtil.T_DATETIME)
+
+    @property
+    def lastEditPositionJsonStr(self) -> str:
+        return self.packedJson__[self.__LAST_EDIT_POSITION]
