@@ -42,6 +42,9 @@ def compileLocationIndex(self, payloadEncodedArgs: bytes) -> List[str]:
     :param payloadEncodedArgs: An encoded payload containing the queue tuples.
     :returns: A list of grid keys that have been updated.
     """
+    from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
+    loadStorageTuples()
+
     argData = Payload().fromEncodedPayload(payloadEncodedArgs).tuples
     queueItems = argData[0]
     queueItemIds: List[int] = argData[1]
