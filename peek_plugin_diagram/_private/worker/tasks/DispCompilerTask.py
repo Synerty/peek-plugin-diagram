@@ -92,6 +92,10 @@ def compileDisps(self, payloadEncodedArgs: bytes):
     ImportDispTask.
 
     """
+
+    from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
+    loadStorageTuples()
+
     argData = Payload().fromEncodedPayload(payloadEncodedArgs).tuples
     dispIds = [o.dispId for o in argData[0]]
     queueItemIds: List[int] = argData[1]
