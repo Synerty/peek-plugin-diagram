@@ -9,6 +9,7 @@ metadata = MetaData(schema="pl_diagram")
 DeclarativeBase = declarative_base(metadata=metadata)
 
 
+# noinspection PyUnresolvedReferences
 def loadStorageTuples():
 
     """ Load Storage Tables
@@ -20,6 +21,9 @@ def loadStorageTuples():
     deserialized by the vortex.
 
     """
+    # Import the disp links first for the SQLA Mapper
+    from . import LiveDbDispLink
+
     for mod in filterModules(__package__, __file__):
         if mod.startswith("Declarative"):
             continue
