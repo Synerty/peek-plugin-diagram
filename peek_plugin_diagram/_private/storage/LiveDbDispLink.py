@@ -40,7 +40,7 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
 
     dispId = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE'),
                     nullable=False)
-    disp = relationship(DispBase)
+    disp = relationship(DispBase, backref='liveDbLinks')
 
     # # comment="The attribute of the disp item to update"
     # dispTableName = Column(String, nullable=False)
