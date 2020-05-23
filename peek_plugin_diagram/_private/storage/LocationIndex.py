@@ -38,11 +38,13 @@ class LocationIndexCompilerQueue(Tuple, DeclarativeBase,
               unique=False),
     )
 
+    # noinspection PyUnresolvedReferences
     @classmethod
     def sqlCoreLoad(cls, row):
-        # This import is required otherwise the sqlalchemy mapper complains.
-        from . import LiveDbDispLink
-        LiveDbDispLink.__unused = True
+        # This import is required otherwise the sqlalchemy mapper complains in plpython
+        from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
+        loadStorageTuples()
+
         return LocationIndexCompilerQueue(id=row.id, modelSetId=row.modelSetId,
                                           indexBucket=row.indexBucket)
 

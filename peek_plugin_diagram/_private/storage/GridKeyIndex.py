@@ -39,9 +39,10 @@ class GridKeyCompilerQueue(Tuple, DeclarativeBase,
 
     @classmethod
     def sqlCoreLoad(cls, row):
-        # This import is required otherwise the sqlalchemy mapper complains.
-        from . import LiveDbDispLink
-        LiveDbDispLink.__unused = True
+        # This import is required otherwise the sqlalchemy mapper complains in plpython
+        from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
+        loadStorageTuples()
+
         return GridKeyCompilerQueue(id=row.id, coordSetId=row.coordSetId,
                                     gridKey=row.gridKey)
 
