@@ -80,8 +80,6 @@ def importDispsTask(self, modelSetKey: str, coordSetKey: str,
     :returns None
 
     """
-    from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
-    loadStorageTuples()
 
     try:
         importDisps = Payload().fromEncodedPayload(dispsEncodedPayload).tuples

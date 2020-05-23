@@ -266,8 +266,6 @@ class DispBase(Tuple, DeclarativeBase):
     importHash = Column(String, doc=JSON_EXCLUDE)
     importGroupHash = Column(String, doc=JSON_EXCLUDE)
 
-    liveDbLinks = relationship("LiveDbDispLink")
-
     __mapper_args__ = {'polymorphic_on': type,
                        'with_polymorphic': '*'}
 
