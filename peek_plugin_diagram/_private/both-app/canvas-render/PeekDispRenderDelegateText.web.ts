@@ -20,8 +20,8 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
         super(config, model);
 
         // Create a canvas element for measuring text
-        let canvas = document.createElement('canvas');
-        this.textMeasureCtx = canvas.getContext('2d');
+        let canvas = document.createElement("canvas");
+        this.textMeasureCtx = canvas.getContext("2d");
 
     }
 
@@ -64,8 +64,8 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
         if (textHeight != null)
             fontSize = textHeight;
 
-        let font = fontSize + "px " + fontStyle.fontName + " "
-            + (fontStyle.fontStyle || '');
+        let font = (fontStyle.fontStyle || "") + " "
+            + fontSize + "px " + fontStyle.fontName;
 
 
         let lineHeight = pointToPixel(fontSize);
@@ -73,20 +73,20 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
         let textAlign = null;
         let horizontalAlignEnum = DispText.horizontalAlign(disp);
         if (horizontalAlignEnum == TextHorizontalAlign.left)
-            textAlign = 'start';
+            textAlign = "start";
         else if (horizontalAlignEnum == TextHorizontalAlign.center)
-            textAlign = 'center';
+            textAlign = "center";
         else if (horizontalAlignEnum == TextHorizontalAlign.right)
-            textAlign = 'end';
+            textAlign = "end";
 
         let textBaseline = null;
         let verticalAlignEnum = DispText.verticalAlign(disp);
         if (verticalAlignEnum == TextVerticalAlign.top)
-            textBaseline = 'top';
+            textBaseline = "top";
         else if (verticalAlignEnum == TextVerticalAlign.center)
-            textBaseline = 'middle';
+            textBaseline = "middle";
         else if (verticalAlignEnum == TextVerticalAlign.bottom)
-            textBaseline = 'bottom';
+            textBaseline = "bottom";
 
         const centerX = DispText.centerPointX(disp);
         const centerY = DispText.centerPointY(disp);
