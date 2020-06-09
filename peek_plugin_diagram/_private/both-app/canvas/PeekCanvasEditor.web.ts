@@ -172,8 +172,7 @@ export class PeekCanvasEditor {
     }
 
     isLevelVisible(level: DispLevel): boolean {
-        return level.minZoom <= this.canvasConfig.viewPort.zoom
-            && this.canvasConfig.viewPort.zoom <= level.maxZoom;
+        return level.isVisibleAtZoom(this.canvasConfig.viewPort.zoom);
     }
 
     setEditorSelectTool(): void {

@@ -16,4 +16,8 @@ export class DispLevel extends Tuple {
     constructor() {
         super(DispLevel.tupleName)
     }
+
+    isVisibleAtZoom(zoom: number): boolean {
+        return this.minZoom <= zoom && zoom < this.maxZoom;
+    }
 }

@@ -36,8 +36,7 @@ export class PeekDispRenderFactory {
         let level = DispBase.level(disp);
         let layer = DispBase.layer(disp);
 
-        let isVisible = (level.minZoom <= zoom && zoom <= level.maxZoom)
-            || this.config.editor.showAllLevels;
+        let isVisible = level.isVisibleAtZoom(zoom) || this.config.editor.showAllLevels;
 
         isVisible = isVisible && (layer.visible || this.config.editor.showAllLayers);
 

@@ -102,8 +102,8 @@ export class PeekCanvasModelQuery {
             if (!DispBase.layer(disp).visible)
                 return false;
 
-            let level = DispBase.level(disp);
-            return level.minZoom <= zoom && zoom <= level.maxZoom;
+            const level = DispBase.level(disp);
+            return level.isVisibleAtZoom(zoom);
         }
 
         return disps.filter(check);
