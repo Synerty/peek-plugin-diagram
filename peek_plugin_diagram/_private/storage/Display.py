@@ -24,6 +24,7 @@ from vortex.Tuple import Tuple, addTupleType, TupleField, JSON_EXCLUDE
 
 from .DeclarativeBase import DeclarativeBase
 from .ModelSet import ModelCoordSet, ModelSet
+from .branch.BranchIndex import BranchIndex
 
 DISP_SHORT_ATTR_NAME_MAP = {'colorId': 'c',
                             'fillColorId': 'fc',
@@ -202,7 +203,7 @@ class DispBase(Tuple, DeclarativeBase):
     # ===== START BRANCH
 
     #: The branch that this Disp belongs to.
-    branchId = Column(BigInteger, ForeignKey('BranchIndex.id', ondelete='CASCADE'),
+    branchId = Column(BigInteger, ForeignKey(BranchIndex.id, ondelete='CASCADE'),
                       doc='bi')
 
     #: The stage of the branch that this DISP
@@ -265,8 +266,6 @@ class DispBase(Tuple, DeclarativeBase):
 
     importHash = Column(String, doc=JSON_EXCLUDE)
     importGroupHash = Column(String, doc=JSON_EXCLUDE)
-
-    liveDbLinks = relationship("LiveDbDispLink")
 
     __mapper_args__ = {'polymorphic_on': type,
                        'with_polymorphic': '*'}

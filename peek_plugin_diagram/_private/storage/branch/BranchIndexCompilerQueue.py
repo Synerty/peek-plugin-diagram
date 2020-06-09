@@ -34,9 +34,6 @@ class BranchIndexCompilerQueue(Tuple, DeclarativeBase,
 
     @classmethod
     def sqlCoreLoad(cls, row):
-        # This import is required otherwise the sqlalchemy mapper complains.
-        from .. import LiveDbDispLink
-        LiveDbDispLink.__unused = True
         return BranchIndexCompilerQueue(id=row.id,
                                         modelSetId=row.modelSetId,
                                         chunkKey=row.chunkKey)
