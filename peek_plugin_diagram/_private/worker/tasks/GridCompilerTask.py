@@ -8,9 +8,6 @@ from functools import cmp_to_key
 from typing import List
 
 import pytz
-from txcelery.defer import DeferrableTask
-from vortex.Payload import Payload
-
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.storage.Display import DispLevel, DispBase, DispLayer
@@ -18,6 +15,8 @@ from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompil
     GridKeyCompilerQueue, \
     GridKeyIndex
 from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
+from txcelery.defer import DeferrableTask
+from vortex.Payload import Payload
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +30,10 @@ Compile the disp items into the grid data
 2) Process queue
 3) Delete from queue
 """
+
+
+class NotAllDispsCompiledException(Exception):
+    pass
 
 
 @DeferrableTask
@@ -108,6 +111,10 @@ def compileGrids(self, payloadEncodedArgs: bytes) -> List[str]:
 
         return gridKeys
 
+    except NotAllDispsCompiledException as e:
+        logger.warning("Retrying, Not all disps for gridKey %s are compiled", gridKeys)
+        raise self.retry(exc=e, countdown=1)
+
     except Exception as e:
         transaction.rollback()
         logger.debug("Compile of grids failed, retrying : %s", gridKeys)
@@ -160,11 +167,13 @@ def _qryDispData(session, gridKeys):
         dispsByGridKeys[item[0]].append(DispData(*item[1:]))
 
     for gridKey, dispDatas in list(dispsByGridKeys.items()):
+        if list(filter(lambda d: not d.json, dispDatas)):
+            raise NotAllDispsCompiledException("Not all disps compiled for %s" % gridKey)
+
         dispsDumpedJson = [
             d.json
-            for d in sorted(dispDatas, key=cmp_to_key(_dispBaseSortCmp))
-            if d.json
-        ]
+            for d in sorted(dispDatas, key=cmp_to_key(_dispBaseSortCmp)) \
+            ]
 
         dispJsonByGridKey[gridKey] = '[' + ','.join(dispsDumpedJson) + ']'
 
