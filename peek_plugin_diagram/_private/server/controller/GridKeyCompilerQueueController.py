@@ -73,7 +73,7 @@ class GridKeyCompilerQueueController(ACIProcessorQueueControllerABC):
                     WHERE id > %(id)s
                     LIMIT %(limit)s
                 ), sq as (
-                    SELECT max(id) as "maxId", "gridKey"
+                    SELECT min(id) as "minId", "gridKey"
                     FROM sq_raw
                     GROUP BY  "gridKey"
                     HAVING count("gridKey") > 1
@@ -81,7 +81,7 @@ class GridKeyCompilerQueueController(ACIProcessorQueueControllerABC):
                 DELETE
                 FROM pl_diagram."GridKeyCompilerQueue"
                      USING sq sq1
-                WHERE pl_diagram."GridKeyCompilerQueue"."id" != sq1."maxId"
+                WHERE pl_diagram."GridKeyCompilerQueue"."id" != sq1."minId"
                     AND pl_diagram."GridKeyCompilerQueue"."id" > %(id)s
                     AND pl_diagram."GridKeyCompilerQueue"."gridKey" = sq1."gridKey"
 
