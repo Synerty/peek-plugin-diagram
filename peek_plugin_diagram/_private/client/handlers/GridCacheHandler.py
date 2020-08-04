@@ -3,6 +3,7 @@ from collections import defaultdict
 from datetime import datetime
 from typing import List, Dict
 
+from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import EncodedGridTuple
 from twisted.internet.defer import DeferredList, Deferred, inlineCallbacks
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
@@ -87,6 +88,10 @@ class GridCacheHandler(ACICacheHandlerABC):
         for gridKey in gridKeys:
 
             gridTuple = self._cacheController.encodedChunk(gridKey)
+            if not gridTuple:
+                gridTuple = EncodedGridTuple()
+                gridTuple.gridKey = gridKeys
+
             vortexUuids = self._observedVortexUuidsByGridKey.get(gridKey, [])
 
             # Queue up the required client notifications
@@ -195,18 +200,22 @@ class GridCacheHandler(ACICacheHandlerABC):
         for gridKey, lastUpdate in lastUpdateByGridKey.items():
             # NOTE: lastUpdate can be null.
             gridTuple = self._cacheController.encodedChunk(gridKey)
-            if not gridTuple:
-                logger.debug("Grid %s is not in the cache" % gridKey)
-                continue
 
-            # We are king, If it's it's not our version, it's the wrong version ;-)
-            logger.debug("%s, %s,  %s", gridTuple.lastUpdate == lastUpdate,
-                         gridTuple.lastUpdate, lastUpdate)
-            if gridTuple.lastUpdate == lastUpdate:
-                logger.debug("Grid %s matches the cache" % gridKey)
+            # Last update is not null, we need to send an empty grid.
+            if not gridTuple:
+                gridTuple = EncodedGridTuple()
+                gridTuple.gridKey = gridKey
+                gridTuple.lastUpdate = lastUpdate
+                gridTuple.encodedGridTuple = None
+                gridTuplesToSend.append(gridTuple)
+                logger.debug("Grid %s is no loner in the cache, %s", gridKey, lastUpdate)
+
+            elif gridTuple.lastUpdate == lastUpdate:
+                logger.debug("Grid %s matches the cache, %s", gridKey, lastUpdate)
+
             else:
                 gridTuplesToSend.append(gridTuple)
-                logger.debug("Sending grid %s from the cache" % gridKey)
+                logger.debug("Sending grid %s from the cache, %s" , gridKey, lastUpdate)
 
             if len(gridTuplesToSend) == 5 and not cacheAll:
                 sendChunk(gridTuplesToSend)

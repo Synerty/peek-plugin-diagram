@@ -26,7 +26,7 @@ import {EncodedGridTuple} from "./EncodedGridTuple";
 // ----------------------------------------------------------------------------
 
 let clientGridWatchUpdateFromDeviceFilt = extend(
-    {'key': "clientGridWatchUpdateFromDevice"},
+    {"key": "clientGridWatchUpdateFromDevice"},
     diagramFilt
 );
 
@@ -413,14 +413,24 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
         let gridTuples: GridTuple[] = [];
 
         for (let encodedGridTuple of encodedGridTuples) {
-            let promise: any = Payload.fromEncodedPayload(encodedGridTuple.encodedGridTuple)
-                .then((payload: Payload) => {
-                    gridTuples.push(payload.tuples[0]);
-                })
-                .catch((err) => {
-                    console.log(`GridLoader.emitEncodedGridTuples decode error: ${err}`);
-                });
-            promises.push(promise);
+            if (encodedGridTuple.encodedGridTuple == null) {
+                // Add an empty grid
+                const gridTuple = new GridTuple();
+                gridTuple.gridKey = encodedGridTuple.gridKey;
+                gridTuple.dispJsonStr = null;
+                gridTuple.lastUpdate = null;
+                gridTuples.push(gridTuple);
+                promises.push(Promise.resolve());
+            } else {
+                let promise: any = Payload.fromEncodedPayload(encodedGridTuple.encodedGridTuple)
+                    .then((payload: Payload) => {
+                        gridTuples.push(payload.tuples[0]);
+                    })
+                    .catch((err) => {
+                        console.log(`GridLoader.emitEncodedGridTuples decode error: ${err}`);
+                    });
+                promises.push(promise);
+            }
         }
 
         Promise.all(promises)
@@ -492,14 +502,27 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
                 let promises = [];
 
                 for (let encodedGridTuple of encodedGridTuples) {
-                    this.index.updateDateByChunkKey[encodedGridTuple.gridKey]
-                        = encodedGridTuple.lastUpdate;
-                    promises.push(
-                        tx.saveTuplesEncoded(
-                            new GridKeyTupleSelector(encodedGridTuple.gridKey),
-                            encodedGridTuple.encodedGridTuple
-                        )
-                    );
+
+                    if (encodedGridTuple.encodedGridTuple == null) {
+                        delete this.index.updateDateByChunkKey[encodedGridTuple.gridKey];
+                        promises.push(
+                            tx.deleteTuples(
+                                new GridKeyTupleSelector(encodedGridTuple.gridKey)
+                            )
+                        );
+
+                    } else {
+                        this.index.updateDateByChunkKey[encodedGridTuple.gridKey]
+                            = encodedGridTuple.lastUpdate;
+
+                        promises.push(
+                            tx.saveTuplesEncoded(
+                                new GridKeyTupleSelector(encodedGridTuple.gridKey),
+                                encodedGridTuple.encodedGridTuple
+                            )
+                        );
+
+                    }
                 }
 
                 return Promise.all(promises)

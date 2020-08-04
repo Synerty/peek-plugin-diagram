@@ -91,7 +91,7 @@ class DispCompilerQueueController(ACIProcessorQueueControllerABC):
                 WHERE pl_diagram."DispCompilerQueue"."id" != sq1."minId"
                     AND pl_diagram."DispCompilerQueue"."id" > %(id)s
                     AND pl_diagram."DispCompilerQueue"."dispId" = sq1."dispId"
-                    
+
             ''' % {'id': lastFetchedId, 'limit': dedupeLimit}
 
     # ---------------

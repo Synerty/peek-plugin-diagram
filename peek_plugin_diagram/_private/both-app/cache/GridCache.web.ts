@@ -216,7 +216,12 @@ export class GridCache {
         const latestCache = this.cacheQueue[0];
 
         for (let gridTuple of gridTuples) {
-            let cachedLinkedGrid = latestCache.get(gridTuple.gridKey);
+            let cachedLinkedGrid = null;
+            if (gridTuple.dispJsonStr != null) {
+                cachedLinkedGrid = latestCache.get(gridTuple.gridKey);
+            } else {
+                this.clearGridFromCache(gridTuple.gridKey);
+            }
 
             // If the cache differs, ignore the update
             // This really shouldn't happen.
@@ -235,6 +240,19 @@ export class GridCache {
             this.updatesObservable.next(linkedGrid);
         }
 
+    }
+
+    /** Clear Grid From Cache
+     *
+     * Remove the gridKey from all of the cache.
+     *
+     * @param gridKey: The gridKey of the grid to clear
+     * @private
+     */
+    private clearGridFromCache(gridKey: string): void {
+        for (let cache of this.cacheQueue) {
+            cache.del(gridKey);
+        }
     }
 
 }

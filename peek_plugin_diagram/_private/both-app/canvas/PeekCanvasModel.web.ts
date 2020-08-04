@@ -224,8 +224,15 @@ export class PeekCanvasModel {
         for (let linkedGrid of linkedGrids) {
             console.log(`PeekCanvasModel: Received grid ${linkedGrid.gridKey},  ${linkedGrid.lastUpdate}`);
 
-            if (!linkedGrid.hasData())
+            // If the grid now has no data, then clear it from the model.
+            if (!linkedGrid.hasData()) {
+                if (this._gridBuffer[linkedGrid.gridKey] != null) {
+                    console.log(`PeekCanvasModel: Clearing grid ${linkedGrid.gridKey}`);
+                    delete this._gridBuffer[linkedGrid.gridKey]
+                    this.needsCompiling = true;
+                }
                 continue;
+            }
 
             // If we're not viewing this grid any more, discard the data.
             if (this._viewingGridKeysDict[linkedGrid.gridKey] == null)
