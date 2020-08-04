@@ -7,6 +7,7 @@ export class GridTuple extends Tuple {
     public static readonly tupleName = diagramTuplePrefix + "GridTuple";
 
     gridKey: string;
+
     // The json string.
     dispJsonStr: string | null;
     lastUpdate: string;

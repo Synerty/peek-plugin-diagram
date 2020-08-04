@@ -4,9 +4,6 @@ from typing import List, Dict, Tuple
 
 import pytz
 import ujson as json
-from txcelery.defer import DeferrableTask
-from vortex.Payload import Payload
-
 from peek_plugin_base.storage.DbConnection import pgCopyInsert, convertToCoreSqlaInsert
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_base.worker.CeleryApp import celeryApp
@@ -15,6 +12,8 @@ from peek_plugin_diagram._private.server.controller.DispCompilerQueueController 
 from peek_plugin_diagram._private.storage.Display import \
     DispBase, DispEllipse, DispPolygon, DispText, DispPolyline, DispGroup, \
     DispGroupPointer, DispNull, DispEdgeTemplate
+from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
+    GridKeyCompilerQueue
 from peek_plugin_diagram._private.storage.ModelSet import \
     ModelCoordSet, getOrCreateCoordSet
 from peek_plugin_diagram._private.worker.tasks.ImportDispLink import importDispLinks
@@ -33,6 +32,9 @@ from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
     ImportDispPolylineTuple
 from peek_plugin_diagram.tuples.shapes.ImportDispTextTuple import ImportDispTextTuple
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
+from sqlalchemy import join, select
+from txcelery.defer import DeferrableTask
+from vortex.Payload import Payload
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +132,8 @@ def _loadCoordSet(modelSetKey, coordSetKey):
 
 def _validateImportDisps(importDisps: List):
     for importDisp in importDisps:
-        if hasattr(importDisp, 'overlay') and importDisp.overlay not in (None, True, False):
+        if hasattr(importDisp, 'overlay') and importDisp.overlay not in (
+            None, True, False):
             raise Exception("Disps overlay value must be True or False")
 
         isGroup = isinstance(importDisp, ImportDispGroupTuple)
@@ -376,12 +379,25 @@ def _bulkLoadDispsTask(importGroupHash: str, disps: List):
     """
 
     dispTable = DispBase.__table__
+    gridKeyIndexTable = GridKeyIndex.__table__
+    gridQueueTable = GridKeyCompilerQueue.__table__
 
     engine = CeleryDbConn.getDbEngine()
     conn = engine.connect()
     transaction = conn.begin()
 
     try:
+
+        stmt = select([gridKeyIndexTable.c.coordSetId,
+                       gridKeyIndexTable.c.gridKey]) \
+            .where(dispTable.c.importGroupHash == importGroupHash) \
+            .select_from(join(gridKeyIndexTable, dispTable,
+                              gridKeyIndexTable.c.dispId == dispTable.c.id)) \
+            .distinct()
+
+        ins = gridQueueTable.insert().from_select(['coordSetId', 'gridKey'], stmt)
+        conn.execute(ins)
+
         conn.execute(dispTable
                      .delete()
                      .where(dispTable.c.importGroupHash == importGroupHash))
