@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import { Injectable } from "@angular/core";
 import {
     TupleActionPushNameService,
     TupleActionPushOfflineService,
@@ -11,20 +11,20 @@ import {
     TupleOfflineStorageService,
     TupleStorageFactoryService,
     VortexService,
-    VortexStatusService
+    VortexStatusService,
 } from "@synerty/vortexjs";
-
 import {
     diagramActionProcessorName,
     diagramFilt,
     diagramObservableName,
-    diagramTupleOfflineServiceName
+    diagramTupleOfflineServiceName,
 } from "../PluginNames";
-
 
 export function tupleDataObservableNameServiceFactory() {
     return new TupleDataObservableNameService(
-        diagramObservableName, diagramFilt);
+        diagramObservableName,
+        diagramFilt
+    );
 }
 
 export function tupleOfflineStorageNameServiceFactory() {
@@ -33,9 +33,10 @@ export function tupleOfflineStorageNameServiceFactory() {
 
 export function tupleActionPushNameServiceFactory() {
     return new TupleActionPushNameService(
-        diagramActionProcessorName, diagramFilt);
+        diagramActionProcessorName,
+        diagramFilt
+    );
 }
-
 
 @Injectable()
 export class PrivateDiagramTupleService {
@@ -46,12 +47,12 @@ export class PrivateDiagramTupleService {
     public action: TupleActionPushService;
     public offlineAction: TupleActionPushOfflineService;
 
-
-    constructor(storageFactory: TupleStorageFactoryService,
-                vortexService: VortexService,
-                vortexStatusService: VortexStatusService,
-                actionSingleton: TupleActionPushOfflineSingletonService) {
-
+    constructor(
+        storageFactory: TupleStorageFactoryService,
+        vortexService: VortexService,
+        vortexStatusService: VortexStatusService,
+        actionSingleton: TupleActionPushOfflineSingletonService
+    ) {
         // Create the offline storage
         this.offlineStorage = new TupleOfflineStorageService(
             storageFactory,
@@ -83,10 +84,9 @@ export class PrivateDiagramTupleService {
         );
 
         // Online Tuple Data Observer
-        this.observer = new TupleDataObserverService(this.offlineObserver, observerName);
-
-
+        this.observer = new TupleDataObserverService(
+            this.offlineObserver,
+            observerName
+        );
     }
-
-
 }

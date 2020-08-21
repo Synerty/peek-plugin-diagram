@@ -1,42 +1,45 @@
 <div>
-
-
     <nz-tabset>
         <nz-tab nzTitle="Details">
             <nz-descriptions nzLayout="vertical">
-                <nz-descriptions-item nzTitle="Name">{{globalBranch.name}}
+                <nz-descriptions-item nzTitle="Name"
+                    >{{globalBranch.name}}
                 </nz-descriptions-item>
-                <nz-descriptions-item nzTitle="Created by">{{globalBranch.userName}}
+                <nz-descriptions-item nzTitle="Created by"
+                    >{{globalBranch.userName}}
                 </nz-descriptions-item>
-                <nz-descriptions-item nzTitle="Updated">{{globalBranch.updatedDate |
-                    date:'HH:mm EE dd-MMM'}}
+                <nz-descriptions-item nzTitle="Updated"
+                    >{{globalBranch.updatedDate | date:'HH:mm EE dd-MMM'}}
                 </nz-descriptions-item>
-                <nz-descriptions-item nzTitle="Comment">{{globalBranch.comment}}
+                <nz-descriptions-item nzTitle="Comment"
+                    >{{globalBranch.comment}}
                 </nz-descriptions-item>
             </nz-descriptions>
-
         </nz-tab>
         <nz-tab nzTitle="Anchors">
             <p *ngIf="noAnchors()">
                 There are no anchor points in this branch.
             </p>
             <div *ngIf="!noAnchors()">
-
-                <nz-table class="scroll-box" nzTemplateMode
-                          ngSize="small">
+                <nz-table class="scroll-box" nzTemplateMode ngSize="small">
                     <tbody>
-                    <tr *ngFor="let item of anchorDocs"
-                        (mouseenter)="tooltipEnter($event, item) "
-                        (mouseleave)="tooltipExit($event, item)"
-                        (click)="showSummaryPopup($event, item) ">
-                        <td>
-                            <span nz-text><strong>{{item.header}}</strong></span>
-                            <span nz-text nzDisabled>, {{item.body}}<br></span>
-                        </td>
-                    </tr>
+                        <tr
+                            *ngFor="let item of anchorDocs"
+                            (mouseenter)="tooltipEnter($event, item) "
+                            (mouseleave)="tooltipExit($event, item)"
+                            (click)="showSummaryPopup($event, item) "
+                        >
+                            <td>
+                                <span nz-text
+                                    ><strong>{{item.header}}</strong></span
+                                >
+                                <span nz-text nzDisabled
+                                    >, {{item.body}}<br
+                                /></span>
+                            </td>
+                        </tr>
                     </tbody>
                 </nz-table>
-
             </div>
         </nz-tab>
         <nz-tab nzTitle="Items">
@@ -44,27 +47,34 @@
                 There are no items in this branch.
             </p>
             <div *ngIf="!noDisps()">
-
                 <nz-table nzTemplateMode ngSize="small">
                     <tbody>
-                    <tr *ngFor="let item of disps; odd as odd; even as even">
-
-                        <td>
-                            <button nz-button
-                                    (click)="positonDispOnDiagram(item.disp)">
-                                <fa name="map-marker"></fa>
-                            </button>
-                        </td>
-                        <td>
-                                <span *ngFor="let line of item.dispDesc; let last = last">
-                                     {{line}} <br *ngIf="!last"/>
+                        <tr
+                            *ngFor="let item of disps; odd as odd; even as even"
+                        >
+                            <td>
+                                <button
+                                    nz-button
+                                    (click)="positonDispOnDiagram(item.disp)"
+                                >
+                                    <i
+                                        nz-icon
+                                        nzType="environment"
+                                        nzTheme="outline"
+                                    ></i>
+                                </button>
+                            </td>
+                            <td>
+                                <span
+                                    *ngFor="let line of item.dispDesc; let last = last"
+                                >
+                                    {{line}} <br *ngIf="!last" />
                                 </span>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
                     </tbody>
                 </nz-table>
             </div>
         </nz-tab>
     </nz-tabset>
-
 </div>

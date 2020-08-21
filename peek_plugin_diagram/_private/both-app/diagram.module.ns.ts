@@ -1,22 +1,17 @@
-import {CommonModule} from "@angular/common";
-import {NgModule} from "@angular/core";
-// Import a small abstraction library to switch between nativescript and web
-import {PeekModuleFactory} from "@synerty/peek-util-ns";
-// Import the default route component
-import {DiagramComponent} from "./diagram.component.ns";
-
+import { CommonModule } from "@angular/common";
+import { NgModule } from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { NzIconModule } from "ng-zorro-antd/icon";
+import { DiagramComponent } from "./diagram.component.ns";
+import { HttpClientModule } from "@angular/common/http";
 
 // Define the root module for this plugin.
 // This module is loaded by the lazy loader, what ever this defines is what is started.
-// When it first loads, it will look up the routs and then select the component to load.
+// When it first loads, it will look up the routes and then select the component to load.
 @NgModule({
-    imports: [
-        CommonModule,
-        ...PeekModuleFactory.FormsModules,
-    ],
+    imports: [CommonModule, FormsModule, NzIconModule, HttpClientModule],
     exports: [DiagramComponent],
     providers: [],
-    declarations: [DiagramComponent]
+    declarations: [DiagramComponent],
 })
-export class PeekPluginDiagramModule {
-}
+export class PeekPluginDiagramModule {}

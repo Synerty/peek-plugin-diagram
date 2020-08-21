@@ -1,30 +1,32 @@
 <ng-template #modalHeader>
     <div>
         <div class="btn-group pull-right">
-
-            <button type="button" class="btn  bg-success "
-                    (click)="startEditing()">
+            <button
+                type="button"
+                class="btn bg-success"
+                (click)="startEditing()"
+            >
                 Start Editing
             </button>
             <button type="button" class="btn" (click)="closePopup()">
-                <fa name="times"></fa>
+                <i nz-icon nzType="close" nzTheme="outline"></i>
             </button>
         </div>
         <h4 class="modal-title">Create or Edit Diagram Branch</h4>
     </div>
 </ng-template>
 
-
-<nz-modal [nzVisible]="popupShown"
-          [nzTitle]="modalHeader"
-          [nzFooter]="null"
-          (nzOnCancel)="closePopup()"
-          [nzClosable]="false">
+<nz-modal
+    [nzVisible]="popupShown"
+    [nzTitle]="modalHeader"
+    [nzFooter]="null"
+    (nzOnCancel)="closePopup()"
+    [nzClosable]="false"
+>
     <nz-tabset (nzSelectedIndexChange)="barIndex = $event">
         <nz-tab nzTitle="Create New">
             <div class="peek-details-section">
                 <div class="container-fluid">
-
                     <!--Displayed form data -->
                     <div class="row">
                         <div class="col-xs-12">
@@ -32,8 +34,11 @@
                                 Name
                             </div>
                             <div class="details-section-value">
-                                <input class="editable" type="text"
-                                       [(ngModel)]="newBranch.name">
+                                <input
+                                    class="editable"
+                                    type="text"
+                                    [(ngModel)]="newBranch.name"
+                                />
                             </div>
                         </div>
                     </div>
@@ -44,10 +49,12 @@
                             </div>
                             <div class="details-section-value">
                                 <div class="details-section-value">
-                                            <textarea class="multiline editable"
-                                                      type="text"
-                                                      [(ngModel)]="newBranch.comment">
-                                            </textarea>
+                                    <textarea
+                                        class="multiline editable"
+                                        type="text"
+                                        [(ngModel)]="newBranch.comment"
+                                    >
+                                    </textarea>
                                 </div>
                             </div>
                         </div>
@@ -63,17 +70,19 @@
                 <div *ngIf="!noItems()">
                     <nz-table nzTemplateMode ngSize="small">
                         <tbody>
-                        <tr *ngFor="let item of items"
-                            [class.bg-info]="isBranchSelected(item)"
-                            (click)="selectBranch(item)"
-                            style="cursor:pointer">
-                            <td [class.bg-info]="isBranchSelected(item)">
-                                {{item.name}}
-                            </td>
-                            <td [class.bg-info]="isBranchSelected(item)">
-                                {{item.order}}
-                            </td>
-                        </tr>
+                            <tr
+                                *ngFor="let item of items"
+                                [class.bg-info]="isBranchSelected(item)"
+                                (click)="selectBranch(item)"
+                                style="cursor: pointer;"
+                            >
+                                <td [class.bg-info]="isBranchSelected(item)">
+                                    {{item.name}}
+                                </td>
+                                <td [class.bg-info]="isBranchSelected(item)">
+                                    {{item.order}}
+                                </td>
+                            </tr>
                         </tbody>
                     </nz-table>
                 </div>

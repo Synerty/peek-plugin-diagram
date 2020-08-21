@@ -1,34 +1,39 @@
-<nz-modal [nzVisible]="popupShown"
-          nzTitle="View Branches"
-          [nzFooter]="null"
-          (nzOnCancel)="closePopup()">
-
+<nz-modal
+    [nzVisible]="popupShown"
+    nzTitle="View Branches"
+    [nzFooter]="null"
+    (nzOnCancel)="closePopup()"
+>
     <div *ngIf="showBranchDetails()">
         <pl-diagram-branch-detail
-                [modelSetKey]="modelSetKey"
-                [coordSetKey]="coordSetKey"
-                [globalBranch]="selectedGlobalBranch"></pl-diagram-branch-detail>
+            [modelSetKey]="modelSetKey"
+            [coordSetKey]="coordSetKey"
+            [globalBranch]="selectedGlobalBranch"
+        ></pl-diagram-branch-detail>
     </div>
 
     <div *ngIf="!showBranchDetails()">
         <p *ngIf="noItems()">
             There are no branches at this time.
         </p>
-        <div *ngIf="!noItems()" >
-            <nz-table  nzTemplateMode ngSize="small">
+        <div *ngIf="!noItems()">
+            <nz-table nzTemplateMode ngSize="small">
                 <tbody>
-                <tr *ngFor="let item of items; odd as odd; even as even">
-                    <td>
-                        <nz-switch (ngModelChange)="toggleBranchEnabled(item)"
-                                   [ngModel]="isBranchEnabled(item)"></nz-switch>
-                    </td>
-                    <td>{{item.name}}
-                    </td>
-                    <td (click)="branchSelected(item)"
-                        style="cursor:pointer">
-                        <fa name="chevron-right"></fa>
-                    </td>
-                </tr>
+                    <tr *ngFor="let item of items; odd as odd; even as even">
+                        <td>
+                            <nz-switch
+                                (ngModelChange)="toggleBranchEnabled(item)"
+                                [ngModel]="isBranchEnabled(item)"
+                            ></nz-switch>
+                        </td>
+                        <td>{{item.name}}</td>
+                        <td
+                            (click)="branchSelected(item)"
+                            style="cursor: pointer;"
+                        >
+                            <i nz-icon nzType="right" nzTheme="outline"></i>
+                        </td>
+                    </tr>
                 </tbody>
             </nz-table>
         </div>

@@ -1,156 +1,202 @@
 <div class="edit-toolbar">
-
     <div class="btn-group edit-toolbar-button-group">
-
-        <button class="btn"
-                nz-popconfirm
-                [nzCondition]="!needsSave()"
-                nzTitle="Are you sure you want to exit with out saving?"
-                (nzOnConfirm)="confirmExitNoSave()"
-                nzPlacement="bottomLeft">
-            <fa  name="times"></fa>
+        <button
+            class="btn"
+            nz-popconfirm
+            [nzCondition]="!needsSave()"
+            nzTitle="Are you sure you want to exit with out saving?"
+            (nzOnConfirm)="confirmExitNoSave()"
+            nzPlacement="bottomLeft"
+        >
+            <i nz-icon nzType="close" nzTheme="outline"></i>
         </button>
 
-        <button class="btn" (click)="canvasEditor.save()"
-                nz-tooltip
-                nzTitle="Save Changes">
-            <fa name="save"></fa>
+        <button
+            class="btn"
+            (click)="canvasEditor.save()"
+            nz-tooltip
+            nzTitle="Save Changes"
+        >
+            <i nz-icon nzType="save" nzTheme="outline"></i>
         </button>
-        <button class="btn"
-                (click)="printDiagramClicked()"
-                nz-tooltip
-                nzTitle="Show Printable Image">
-            <fa name="print"></fa>
+        <button
+            class="btn"
+            (click)="printDiagramClicked()"
+            nz-tooltip
+            nzTitle="Show Printable Image"
+        >
+            <i nz-icon nzType="printer" nzTheme="outline"></i>
         </button>
     </div>
-
 
     <div class="edit-toolbar-spacer"></div>
 
     <div class="btn-group edit-toolbar-button-group">
-        <button class="btn"
-                [class.btn-primary]="isEditSelectToolActive()"
-                (click)="selectEditSelectTool()"
-                nz-tooltip
-                nzTitle="Select Tool">
-            <fa name="mouse-pointer"></fa>
+        <button
+            class="btn"
+            [class.btn-primary]="isEditSelectToolActive()"
+            (click)="selectEditSelectTool()"
+            nz-tooltip
+            nzTitle="Select Tool"
+        >
+            <i nz-icon nzType="edit" nzTheme="outline"></i>
         </button>
         <!-- Select properties TODO
-        <button class="btn"
-                nz-tooltip
-                nzTitle="Select Options">
-            <fa name="cog"></fa>
-        </button>
-        -->
-        <button class="btn"
-                [disabled]="!isDeleteShapeActive()"
-                [class.disabled]="!isDeleteShapeActive()"
-                (click)="deleteShape()"
-                nz-tooltip
-                nzTitle="Delete Shape">
-            <fa name="trash-alt"></fa>
-        </button>
-    </div>
-
-    <div class="edit-toolbar-spacer"></div>
-
-    <div class="btn-group edit-toolbar-button-group">
-        <button class="btn"
-                [disabled]="!isUndoShapeActive()"
-                [class.disabled]="!isUndoShapeActive()"
-                (click)="undoShape()"
-                nz-tooltip
-                nzTitle="Undo">
-            <fa name="undo"></fa>
-        </button>
-        <button class="btn"
-                [disabled]="!isRedoShapeActive()"
-                [class.disabled]="!isRedoShapeActive()"
-                (click)="redoShape()"
-                nz-tooltip
-                nzTitle="Redo">
-            <fa name="redo"></fa>
+        <button class="btn" nz-tooltip nzTitle="Select Options">
+            <i nz-icon nzType="setting" nzTheme="outline"></i>
+        </button> -->
+        <button
+            class="btn"
+            [disabled]="!isDeleteShapeActive()"
+            [class.disabled]="!isDeleteShapeActive()"
+            (click)="deleteShape()"
+            nz-tooltip
+            nzTitle="Delete Shape"
+        >
+            <i nz-icon nzType="delete" nzTheme="outline"></i>
         </button>
     </div>
 
     <div class="edit-toolbar-spacer"></div>
 
     <div class="btn-group edit-toolbar-button-group">
-        <button class="btn"
-                [class.btn-primary]="isEditMakeTextActive()"
-                (click)="selectEditMakeTextTool()"
-                nz-tooltip
-                nzTitle="Draw Text">
-            <fa name="font"></fa>
+        <button
+            class="btn"
+            [disabled]="!isUndoShapeActive()"
+            [class.disabled]="!isUndoShapeActive()"
+            (click)="undoShape()"
+            nz-tooltip
+            nzTitle="Undo"
+        >
+            <i nz-icon nzType="undo" nzTheme="outline"></i>
         </button>
-        <button class="btn"
-                [class.btn-primary]="isEditMakeRectangleActive()"
-                (click)="selectEditMakeRectangleTool()"
-                nz-tooltip
-                nzTitle="Draw Rectangle">
-            <fa name="vector-square"></fa>
-        </button>
-        <button class="btn"
-                [class.btn-primary]="isEditMakeLineWithArrowActive()"
-                (click)="selectEditMakeLineWithArrowTool()"
-                nz-tooltip
-                nzTitle="Draw Line with Arrow">
-            <fa name="long-arrow-alt-up"></fa>
-        </button>
-        <button class="btn"
-                [class.btn-primary]="isEditMakeEllipseActive()"
-                (click)="selectEditMakeEllipseTool()"
-                nz-tooltip
-                nzTitle="Draw Circle, Ellipse or Arc">
-            <fa name="circle-notch"></fa>
-        </button>
-        <button class="btn"
-                [class.btn-primary]="isEditMakePolygonActive()"
-                (click)="selectEditMakePolygonTool()"
-                nz-tooltip
-                nzTitle="Draw Polygon">
-            <fa name="draw-polygon"></fa>
-        </button>
-        <button class="btn"
-                [class.btn-primary]="isEditMakePolylineActive()"
-                (click)="selectEditMakePolylineTool()"
-                nz-tooltip
-                nzTitle="Draw PolyLine / Line">
-            <fa name="project-diagram"></fa>
+        <button
+            class="btn"
+            [disabled]="!isRedoShapeActive()"
+            [class.disabled]="!isRedoShapeActive()"
+            (click)="redoShape()"
+            nz-tooltip
+            nzTitle="Redo"
+        >
+            <i nz-icon nzType="redo" nzTheme="outline"></i>
         </button>
     </div>
 
     <div class="edit-toolbar-spacer"></div>
 
     <div class="btn-group edit-toolbar-button-group">
-        <button class="btn"
-                [class.btn-primary]="isEditMakeGroupPtrVertexActive()"
-                (click)="selectEditMakeGroupPtrVertexTool()"
-                nz-tooltip
-                nzTitle="Place Equipment">
-            <fa name="dot-circle"></fa>
+        <button
+            class="btn"
+            [class.btn-primary]="isEditMakeTextActive()"
+            (click)="selectEditMakeTextTool()"
+            nz-tooltip
+            nzTitle="Draw Text"
+        >
+            <i nz-icon nzType="font-size" nzTheme="outline"></i>
         </button>
-        <button class="btn"
-                [class.btn-primary]="isEditMakePolylineEdgeActive()"
-                (click)="selectEditMakePolylineEdgeTool()"
-                nz-tooltip
-                nzTitle="Place Conductor">
-            <fa name="minus"></fa>
+        <button
+            class="btn"
+            [class.btn-primary]="isEditMakeRectangleActive()"
+            (click)="selectEditMakeRectangleTool()"
+            nz-tooltip
+            nzTitle="Draw Rectangle"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048" width="1em" height="1em">
+                <path
+                    d="M1792 128v1664H128V128h1664zm-128 128H256v1408h1408V256z"
+                ></path>
+            </svg>
+        </button>
+        <button
+            class="btn"
+            [class.btn-primary]="isEditMakeLineWithArrowActive()"
+            (click)="selectEditMakeLineWithArrowTool()"
+            nz-tooltip
+            nzTitle="Draw Line with Arrow"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048" width="1em" height="1em">
+                <path
+                    d="M1024 0h1024v1024h-128V219L93 2045l-90-90L1829 128h-805V0z"
+                ></path>
+            </svg>
+        </button>
+        <button
+            class="btn"
+            [class.btn-primary]="isEditMakeEllipseActive()"
+            (click)="selectEditMakeEllipseTool()"
+            nz-tooltip
+            nzTitle="Draw Circle, Ellipse or Arc"
+        >
+            <i nz-icon nzType="loading-3-quarters" nzTheme="outline"></i>
+        </button>
+        <button
+            class="btn"
+            [class.btn-primary]="isEditMakePolygonActive()"
+            (click)="selectEditMakePolygonTool()"
+            nz-tooltip
+            nzTitle="Draw Polygon"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048" width="1em" height="1em">
+                <path
+                    d="M2024 960l-497 960H521L24 960 521 0h1006l497 960zm-144 0l-431-832H599L168 960l431 832h850l431-832z"
+                ></path>
+            </svg>
+        </button>
+        <button
+            class="btn"
+            [class.btn-primary]="isEditMakePolylineActive()"
+            (click)="selectEditMakePolylineTool()"
+            nz-tooltip
+            nzTitle="Draw PolyLine / Line"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048" width="1em" height="1em">
+                <path
+                    d="M1600 1024q66 0 124 25t101 69 69 102 26 124q0 66-25 124t-69 102-102 69-124 25q-57 0-109-19t-94-54-71-82-40-103q-99-6-192-36t-177-80-153-118-124-152v394q56 12 103 41t81 70 53 94 19 109q0 66-25 124t-69 102-102 69-124 25q-66 0-124-25t-102-68-69-102-25-125q0-57 19-109t53-93 81-71 103-41V634q-56-12-103-41t-81-70-53-94-19-109q0-66 25-124t68-101 102-69T576 0q66 0 124 25t101 69 69 102 26 124q0 57-19 108t-52 93-81 71-102 41q10 129 64 241t140 199 199 141 242 64q12-55 41-102t70-80 93-53 109-19zM384 320q0 40 15 75t41 61 61 41 75 15q40 0 75-15t61-41 41-61 15-75q0-40-15-75t-41-61-61-41-75-15q-40 0-75 15t-61 41-41 61-15 75zm384 1408q0-40-15-75t-41-61-61-41-75-15q-40 0-75 15t-61 41-41 61-15 75q0 40 15 75t41 61 61 41 75 15q40 0 75-15t61-41 41-61 15-75zm832-192q40 0 75-15t61-41 41-61 15-75q0-40-15-75t-41-61-61-41-75-15q-40 0-75 15t-61 41-41 61-15 75q0 40 15 75t41 61 61 41 75 15z"
+                ></path>
+            </svg>
         </button>
     </div>
 
     <div class="edit-toolbar-spacer"></div>
 
     <div class="btn-group edit-toolbar-button-group">
-        <button *ngFor="let btn of otherPluginButtons"
-                [class.btn-primary]="isButtonActive(btn)"
-                class="btn tool-button"
-                (click)="buttonClicked(btn)"
-                nz-tooltip
-                [nzTitle]="btn.tooltip">
-            <fa *ngIf="btn.icon" [name]="btn.icon"></fa>
+        <button
+            class="btn"
+            [class.btn-primary]="isEditMakeGroupPtrVertexActive()"
+            (click)="selectEditMakeGroupPtrVertexTool()"
+            nz-tooltip
+            nzTitle="Place Equipment"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048" width="1em" height="1em">
+                <path
+                    d="M1024 0q141 0 272 36t244 104 207 160 161 207 103 245 37 272q0 141-36 272t-104 244-160 207-207 161-245 103-272 37q-141 0-272-36t-244-104-207-160-161-207-103-245-37-272q0-141 36-272t104-244 160-207 207-161T752 37t272-37zm0 1920q124 0 238-32t214-90 181-140 140-181 91-214 32-239q0-124-32-238t-90-214-140-181-181-140-214-91-239-32q-124 0-238 32t-214 90-181 140-140 181-91 214-32 239q0 124 32 238t90 214 140 181 181 140 214 91 239 32zM640 640h768v768H640V640zm128 640h512V768H768v512z"
+                ></path>
+            </svg>
+        </button>
+        <button
+            class="btn"
+            [class.btn-primary]="isEditMakePolylineEdgeActive()"
+            (click)="selectEditMakePolylineEdgeTool()"
+            nz-tooltip
+            nzTitle="Place Conductor"
+        >
+            <i nz-icon nzType="minus" nzTheme="outline"></i>
+        </button>
+    </div>
+
+    <div class="edit-toolbar-spacer"></div>
+
+    <div class="btn-group edit-toolbar-button-group">
+        <button
+            *ngFor="let btn of otherPluginButtons"
+            [class.btn-primary]="isButtonActive(btn)"
+            class="btn tool-button"
+            (click)="buttonClicked(btn)"
+            nz-tooltip
+            [nzTitle]="btn.tooltip"
+        >
+            <!-- <i nz-icon nzType="{{btn.icon}}" nzTheme="outline" *ngIf="btn.icon"></i> -->
             {{btn.name}}
         </button>
     </div>
-
 </div>
