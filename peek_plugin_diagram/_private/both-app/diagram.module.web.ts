@@ -20,6 +20,7 @@ import {EditPropsComponent} from "./edit-props-component/edit-props.component.we
 import {EditPropsToolbarComponent} from "./edit-props-toolbar-component/edit-props-toolbar.component.web";
 import {EditPropsGroupPtrComponent} from "./edit-props-group-ptr-component/edit-props-group-ptr.component";
 import {PrintComponent} from "./print-component/print.component.web";
+import {NzIconModule} from 'ng-zorro-antd/icon';
 import {NzDropDownModule} from 'ng-zorro-antd/dropdown';
 import {NzTabsModule} from 'ng-zorro-antd/tabs';
 import {NzToolTipModule} from 'ng-zorro-antd/tooltip';
