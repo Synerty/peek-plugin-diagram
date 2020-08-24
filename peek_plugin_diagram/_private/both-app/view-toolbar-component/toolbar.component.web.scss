@@ -35,6 +35,17 @@ $toolbar_width: 250px;
 /* The edit toolbar buttons */
 .btn {
   margin-left: 1px !important ; /* This will show a line between buttons in the groups */
+    font-size: 14px;
+
+    svg {
+        fill: #fff;
+        color: inherit;
+        font-style: normal;
+        line-height: 0;
+        text-align: center;
+        text-transform: none;
+        vertical-align: -.125em;
+    }
 }
 
 /* On smaller screens, where height is less than 450px,
