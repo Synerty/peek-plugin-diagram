@@ -35,7 +35,8 @@ $toolbar_width: 250px;
 /* The edit toolbar buttons */
 .btn {
   margin-left: 1px !important ; /* This will show a line between buttons in the groups */
-    font-size: 14px;
+  font-size: 16px;
+  padding: 6px;
 
     svg {
         fill: #fff;
