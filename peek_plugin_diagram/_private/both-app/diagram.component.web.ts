@@ -1,9 +1,8 @@
-import {Component} from "@angular/core";
+import {Component, Input} from "@angular/core";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import {TitleService} from "@synerty/peek-util";
 import {DiagramComponentBase} from "./diagram.component";
-
 
 @Component({
     selector: 'peek-plugin-diagram',
@@ -12,16 +11,11 @@ import {DiagramComponentBase} from "./diagram.component";
     moduleId: module.id
 })
 export class DiagramComponent extends DiagramComponentBase {
-
-
-
+    @Input() modelSetKey;
 
     constructor(titleService: TitleService,
                 positionService: DiagramPositionService,
                 toolbarService: DiagramToolbarService) {
         super(titleService, positionService, toolbarService);
-
-
     }
-
 }
