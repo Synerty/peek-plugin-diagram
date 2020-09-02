@@ -7,7 +7,7 @@ import {PrivateDiagramTupleService} from "../services";
 import {Observable, Subject} from "rxjs";
 import {TupleSelector, VortexStatusService} from "@synerty/vortexjs";
 import {BranchLiveEditTuple} from "./BranchLiveEditTuple";
-import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
 import {PrivateDiagramLookupService} from "../services/PrivateDiagramLookupService";
 
 /** Diagram Branch Service
@@ -25,7 +25,7 @@ export class PrivateDiagramBranchContext {
     private needsLiveUpdateSend = false;
 
     constructor(private vortexStatusService: VortexStatusService,
-                private balloonMsg: Ng2BalloonMsgService,
+                private balloonMsg: BalloonMsgService,
                 private lookupCache: PrivateDiagramLookupService,
                 private branch: BranchTuple,
                 private _modelSetId: number,

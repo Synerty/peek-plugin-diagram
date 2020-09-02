@@ -1,10 +1,9 @@
 import {addTupleType, deepCopy, Tuple} from "@synerty/vortexjs";
 import {diagramTuplePrefix} from "../PluginNames";
-import SerialiseUtil from "@synerty/vortexjs/src/vortex/SerialiseUtil";
+import {SerialiseUtil} from "@synerty/vortexjs";
 import * as moment from "moment";
 import {BranchLiveEditTuple} from "./BranchLiveEditTuple";
 import {PrivateDiagramLookupService} from "../services/PrivateDiagramLookupService";
-
 
 let serUril = new SerialiseUtil();
 

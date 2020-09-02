@@ -5,7 +5,7 @@ import {
     PrivateDiagramBranchContext,
     PrivateDiagramBranchService
 } from "@peek/peek_plugin_diagram/_private/branch";
-import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
 import {PeekCanvasInput} from "../canvas-input/PeekCanvasInput.web";
 import {PeekCanvasInputEditSelectDelegate} from "../canvas-input/PeekCanvasInputEditSelectDelegate.web";
 import {PeekCanvasInputSelectDelegate} from "../canvas-input/PeekCanvasInputSelectDelegate.web";
@@ -29,7 +29,7 @@ export class PeekCanvasEditor {
 
     private readonly _props: PeekCanvasEditorProps;
 
-    constructor(public balloonMsg: Ng2BalloonMsgService,
+    constructor(public balloonMsg: BalloonMsgService,
                 public canvasInput: PeekCanvasInput,
                 public canvasModel: PeekCanvasModel,
                 private canvasConfig: PeekCanvasConfig,

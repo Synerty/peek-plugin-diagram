@@ -19,7 +19,7 @@ import {
 import {BranchKeyToIdMapTuple} from "./BranchKeyToIdMapTuple";
 import {BranchDetailTuple} from "@peek/peek_plugin_branch";
 import {UserService} from "@peek/peek_core_user";
-import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
 import {DiagramBranchDetailsI} from "../../DiagramBranchService";
 import {PrivateDiagramLookupService} from "../services/PrivateDiagramLookupService";
 
@@ -53,7 +53,7 @@ export class PrivateDiagramBranchService extends ComponentLifecycleEventEmitter 
     private activeBranchContext: PrivateDiagramBranchContext | null = null;
 
     constructor(private vortexStatusService: VortexStatusService,
-                private balloonMsg: Ng2BalloonMsgService,
+                private balloonMsg: BalloonMsgService,
                 private userService: UserService,
                 private lookupService: PrivateDiagramLookupService,
                 coordSetService: DiagramCoordSetService,

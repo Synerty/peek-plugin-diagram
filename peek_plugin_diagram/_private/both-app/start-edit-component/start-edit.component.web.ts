@@ -10,7 +10,7 @@ import {
     PrivateDiagramBranchService
 } from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 
-import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
 import {UserService} from "@peek/peek_core_user";
 
 
@@ -50,7 +50,7 @@ export class StartEditComponent extends ComponentLifecycleEventEmitter
     constructor(private branchService: PrivateDiagramBranchService,
                 abstractCoordSetService: DiagramCoordSetService,
                 private globalBranchService: BranchService,
-                private balloonMsg: Ng2BalloonMsgService,
+                private balloonMsg: BalloonMsgService,
                 private userService: UserService) {
         super();
 

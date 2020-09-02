@@ -25,7 +25,7 @@ import {
 import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
-import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 import {PrivateDiagramSnapshotService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramSnapshotService";
 import {PrivateDiagramOverrideService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService";
@@ -70,7 +70,7 @@ export class CanvasComponent extends ComponentLifecycleEventEmitter {
     showPrintPopup = false;
 
 
-    constructor(private balloonMsg: Ng2BalloonMsgService,
+    constructor(private balloonMsg: BalloonMsgService,
                 private gridObservable: GridObservable,
                 private lookupService: PrivateDiagramLookupService,
                 private coordSetCache: PrivateDiagramCoordSetService,

@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
-import {TitleService} from "@synerty/peek-util";
+import { TitleService } from "@synerty/peek-plugin-base-js"
 import {DiagramComponentBase} from "./diagram.component";
 
 import {DeviceEnrolmentService} from "@peek/peek_core_device";

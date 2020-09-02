@@ -5,7 +5,7 @@ import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/s
 import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
-import {TitleService} from "@synerty/peek-util";
+import { TitleService } from "@synerty/peek-plugin-base-js"
 
 
 export class DiagramComponentBase extends ComponentLifecycleEventEmitter {

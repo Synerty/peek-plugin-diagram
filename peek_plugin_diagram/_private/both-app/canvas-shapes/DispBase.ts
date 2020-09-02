@@ -6,7 +6,7 @@ import {
 } from "../canvas/PeekCanvasShapePropsContext";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
-import {deepCopy} from "@synerty/vortexjs/src/vortex/UtilMisc";
+import {deepCopy} from "@synerty/vortexjs";
 import {rotatePointAboutCenter} from "./DispUtil";
 
 export interface PointI {

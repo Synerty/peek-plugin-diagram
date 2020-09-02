@@ -4,7 +4,7 @@ import {NgModule} from '@angular/core';
 import {NsWebDiagramComponent} from './ns-web-diagram.component';
 import {PeekPluginDiagramModule} from "../peek_plugin_diagram/diagram.module.web";
 
-import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
 import {
     TupleStorageFactoryService,
     VortexService,
@@ -13,7 +13,7 @@ import {
 import {GridLoaderBridgeWeb} from "../service-bridge/GridLoaderBridgeWeb";
 import {PrivateDiagramGridLoaderServiceA} from "../@peek/peek_plugin_diagram/_private/grid-loader/PrivateDiagramGridLoaderServiceA";
 
-import {TitleService} from "@synerty/peek-util";
+import { TitleService } from "@synerty/peek-plugin-base-js"
 import {TupleStorageFactoryServiceBridgeWeb} from "./TupleStorageFactoryServiceBridgeWeb";
 import {PrivateDiagramTupleServiceWeb} from "./PrivateDiagramTupleServiceWeb";
 import {PrivateDiagramTupleService} from "../@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
@@ -92,7 +92,7 @@ export function titleServiceFactory() {
         PrivateDiagramCoordSetService,
         DispGroupCache,
 
-        Ng2BalloonMsgService,
+        BalloonMsgService,
 
         // Vortex Services
         VortexStatusService,

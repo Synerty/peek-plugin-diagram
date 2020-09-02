@@ -9,7 +9,7 @@ import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 
 import {DispKeyLocationTuple} from "../location-loader/DispKeyLocationTuple";
-import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
 import {PrivateDiagramLocationLoaderService} from "../location-loader";
 import {PrivateDiagramCoordSetService} from "./PrivateDiagramCoordSetService";
 
@@ -41,7 +41,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
 
     constructor(private coordSetService: PrivateDiagramCoordSetService,
                 private locationIndexService: PrivateDiagramLocationLoaderService,
-                private balloonMsg: Ng2BalloonMsgService) {
+                private balloonMsg: BalloonMsgService) {
         super();
 
     }
