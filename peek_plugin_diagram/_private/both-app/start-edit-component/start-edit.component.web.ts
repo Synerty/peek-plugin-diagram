@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from "@angular/core";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
 import {BranchDetailTuple, BranchService} from "@peek/peek_plugin_branch";
@@ -20,7 +20,7 @@ import {UserService} from "@peek/peek_core_user";
     styleUrls: ['start-edit.component.web.scss'],
     moduleId: module.id
 })
-export class StartEditComponent extends ComponentLifecycleEventEmitter
+export class StartEditComponent extends NgLifeCycleEvents
     implements OnInit {
 
     popupShown: boolean = false;

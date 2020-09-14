@@ -1,5 +1,5 @@
 import {Component, Input, OnInit, ViewChild} from "@angular/core";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import { TitleService } from "@synerty/peek-plugin-base-js"
 
 
@@ -21,7 +21,7 @@ import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
     styleUrls: ['select-layers.component.web.scss'],
     moduleId: module.id
 })
-export class SelectLayersComponent extends ComponentLifecycleEventEmitter
+export class SelectLayersComponent extends NgLifeCycleEvents
     implements OnInit {
 
     popupShown: boolean = false;

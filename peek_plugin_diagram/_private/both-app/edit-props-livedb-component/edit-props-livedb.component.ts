@@ -1,5 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 
 
@@ -9,7 +9,7 @@ import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
     styleUrls: ['edit-props-livedb.component.scss'],
     moduleId: module.id
 })
-export class EditPropsLivedbComponent extends ComponentLifecycleEventEmitter {
+export class EditPropsLivedbComponent extends NgLifeCycleEvents {
 
     @Input("canvasEditor")
     canvasEditor: PeekCanvasEditor;

@@ -1,7 +1,7 @@
 import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {PanI} from "../canvas/PeekInterfaces.web";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {Subject} from "rxjs/Subject";
@@ -36,7 +36,7 @@ export class PeekCanvasRenderer {
     constructor(private config: PeekCanvasConfig,
                 private model: PeekCanvasModel,
                 private dispDelegate: PeekDispRenderFactory,
-                private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
+                private lifecycleEventEmitter: NgLifeCycleEvents) {
 
 
     }

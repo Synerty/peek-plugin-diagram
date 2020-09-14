@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from "@angular/core";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {DiagramSnapshotService} from "@peek/peek_plugin_diagram/DiagramSnapshotService";
 import { TitleService } from "@synerty/peek-plugin-base-js"
 
@@ -10,7 +10,7 @@ import { TitleService } from "@synerty/peek-plugin-base-js"
     styleUrls: ['print.component.web.scss'],
     moduleId: module.id
 })
-export class PrintComponent extends ComponentLifecycleEventEmitter
+export class PrintComponent extends NgLifeCycleEvents
     implements OnInit {
 
     @Output('closePopup')

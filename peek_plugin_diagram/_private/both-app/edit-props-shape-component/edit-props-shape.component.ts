@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from "@angular/core";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {
     PeekCanvasShapePropsContext,
@@ -16,7 +16,7 @@ import {assert} from "../DiagramUtil";
     styleUrls: ['edit-props-shape.component.scss'],
     moduleId: module.id
 })
-export class EditPropsShapeComponent extends ComponentLifecycleEventEmitter
+export class EditPropsShapeComponent extends NgLifeCycleEvents
     implements OnInit {
 
     @Input("canvasEditor")

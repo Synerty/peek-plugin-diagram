@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from "@angular/core";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {BranchDetailTuple, BranchService} from "@peek/peek_plugin_branch";
 
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
@@ -39,7 +39,7 @@ interface DispDisplayItemI {
     styleUrls: ['branch-detail.component.web.scss'],
     moduleId: module.id,
 })
-export class BranchDetailComponent extends ComponentLifecycleEventEmitter
+export class BranchDetailComponent extends NgLifeCycleEvents
     implements OnInit {
 
     @Input("modelSetKey")

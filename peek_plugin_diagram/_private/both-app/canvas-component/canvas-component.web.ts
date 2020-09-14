@@ -1,6 +1,6 @@
 import {Component, Input, ViewChild} from "@angular/core";
 
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 
 import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {PeekDispRenderFactory} from "../canvas-render/PeekDispRenderFactory.web";
@@ -42,7 +42,7 @@ import {PeekCanvasActioner} from "../canvas/PeekCanvasActioner";
     styleUrls: ['canvas-component.web.scss'],
     moduleId: module.id
 })
-export class CanvasComponent extends ComponentLifecycleEventEmitter {
+export class CanvasComponent extends NgLifeCycleEvents {
     @ViewChild('edittoolbar', {static: true}) editToolbarView;
     @ViewChild('canvas', {static: true}) canvasView;
     @ViewChild('editprops', {static: true}) editPropsView;

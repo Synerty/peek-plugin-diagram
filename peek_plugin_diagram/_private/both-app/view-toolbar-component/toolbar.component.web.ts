@@ -10,7 +10,7 @@ import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/s
 import {PrivateDiagramConfigService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
 import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
@@ -24,7 +24,7 @@ import {DocDbPopupService, DocDbPopupTypeE} from "@peek/peek_plugin_docdb";
     styleUrls: ['toolbar.component.web.scss'],
     moduleId: module.id
 })
-export class ToolbarComponent extends ComponentLifecycleEventEmitter
+export class ToolbarComponent extends NgLifeCycleEvents
     implements OnInit {
     dispKey: string;
 

@@ -1,5 +1,5 @@
 import {WebViewInterface} from 'nativescript-webview-interface';
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 
 import {PrivateDiagramBranchLoaderServiceA} from "@peek/peek_plugin_diagram/_private/branch-loader";
 import {
@@ -15,7 +15,7 @@ export class BranchLoaderServiceBridgeNs {
     private readonly isReadyHandler: ServiceBridgeHandlerObservableSide;
 
 
-    constructor(private lifeCycleEvents: ComponentLifecycleEventEmitter,
+    constructor(private lifeCycleEvents: NgLifeCycleEvents,
                 private branchLoader: PrivateDiagramBranchLoaderServiceA,
                 private iface: WebViewInterface) {
 

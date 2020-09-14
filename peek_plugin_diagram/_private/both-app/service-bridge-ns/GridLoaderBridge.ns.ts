@@ -1,5 +1,5 @@
 import {WebViewInterface} from 'nativescript-webview-interface';
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 
 import {PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader";
 import {ServiceBridgeHandlerObservableSide} from "../service-bridge-util/ServiceBridgeHandlerObservable";
@@ -10,7 +10,7 @@ export class GridLoaderBridgeNs {
     private handlers = [];
     private readonly isReadyHandler: ServiceBridgeHandlerObservableSide;
 
-    constructor(lifeCycleEvents: ComponentLifecycleEventEmitter,
+    constructor(lifeCycleEvents: NgLifeCycleEvents,
                 private gridLoader: PrivateDiagramGridLoaderServiceA,
                 private iface: WebViewInterface) {
 

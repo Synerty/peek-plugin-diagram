@@ -5,7 +5,7 @@ import {
 
 import {DiagramPositionI} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {Injectable} from "@angular/core";
 import {ServiceBridgeHandlerObserverSide} from "../peek_plugin_diagram/service-bridge-util/ServiceBridgeHandlerObservable";
 import {ServiceBridgeHandlerCallerSide} from "../peek_plugin_diagram/service-bridge-util/ServiceBridgeHandlerCall";
@@ -13,7 +13,7 @@ import {ServiceBridgeHandlerCallerSide} from "../peek_plugin_diagram/service-bri
 @Injectable({
     providedIn: 'root'
 })
-export class PositionServiceBridgeWeb extends ComponentLifecycleEventEmitter {
+export class PositionServiceBridgeWeb extends NgLifeCycleEvents {
 
 
     private handlers = [];

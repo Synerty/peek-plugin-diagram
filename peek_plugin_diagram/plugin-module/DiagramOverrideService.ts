@@ -1,4 +1,4 @@
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {DiagramOverrideBase} from "./override/DiagramOverrideBase";
 
 /** Diagram Override Service
@@ -7,7 +7,7 @@ import {DiagramOverrideBase} from "./override/DiagramOverrideBase";
  * for example, highlighting conductors for a trace.
  *
  */
-export abstract class DiagramOverrideService extends ComponentLifecycleEventEmitter {
+export abstract class DiagramOverrideService extends NgLifeCycleEvents {
 
     protected constructor() {
         super();

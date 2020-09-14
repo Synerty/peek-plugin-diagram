@@ -7,7 +7,7 @@ import {
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 
 import {WebViewInterface} from 'nativescript-webview-interface';
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {ServiceBridgeHandlerPromiseCalleeSide} from "../service-bridge-util/ServiceBridgeHandlerPromise";
 import {ServiceBridgeHandlerObservableSide} from "../service-bridge-util/ServiceBridgeHandlerObservable";
 import {
@@ -20,7 +20,7 @@ export class PositionServiceBridgeNs {
 
     private handlers = [];
 
-    constructor(private lifeCycleEvents: ComponentLifecycleEventEmitter,
+    constructor(private lifeCycleEvents: NgLifeCycleEvents,
                 private zone: NgZone,
                 private service: DiagramPositionService,
                 private iface: WebViewInterface) {

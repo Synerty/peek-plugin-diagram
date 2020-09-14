@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {PrivateDiagramTupleService} from "./PrivateDiagramTupleService";
 import {Observable, Subject} from "rxjs";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {PrivateDiagramLookupService} from "./PrivateDiagramLookupService";
 import {DiagramConfigService} from "../../DiagramConfigService";
 
@@ -23,7 +23,7 @@ export interface PopupBranchSelectionArgsI {
  *
  */
 @Injectable()
-export class PrivateDiagramConfigService extends ComponentLifecycleEventEmitter
+export class PrivateDiagramConfigService extends NgLifeCycleEvents
     implements DiagramConfigService {
 
     private _popupLayerSelectionSubject: Subject<PopupLayerSelectionArgsI>

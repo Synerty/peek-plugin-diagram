@@ -1,4 +1,4 @@
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {Observable, Subject} from "rxjs";
 import {ServiceBridgeHandlerBase} from "./ServiceBridgeHandlerBase";
 
@@ -13,7 +13,7 @@ export class ServiceBridgeHandlerObservableSide extends ServiceBridgeHandlerBase
     constructor(key: string,
                 encodeWithPayload: boolean,
                 observable: Observable<any>,
-                lifeCycleEvents: ComponentLifecycleEventEmitter) {
+                lifeCycleEvents: NgLifeCycleEvents) {
         super(key, encodeWithPayload, false);
 
         observable

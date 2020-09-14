@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {DiagramSnapshotService} from "../../DiagramSnapshotService";
 
 export interface TakeSnapshotCallbackI {
@@ -14,7 +14,7 @@ export interface TakeSnapshotCallbackI {
  *
  */
 @Injectable()
-export class PrivateDiagramSnapshotService extends ComponentLifecycleEventEmitter
+export class PrivateDiagramSnapshotService extends NgLifeCycleEvents
     implements DiagramSnapshotService {
 
     private _callback: TakeSnapshotCallbackI | null;

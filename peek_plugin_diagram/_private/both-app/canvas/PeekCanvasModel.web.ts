@@ -1,6 +1,6 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {GridObservable} from "../cache/GridObservable.web";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {LinkedGrid} from "../cache/LinkedGrid.web";
 import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil";
 import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
@@ -72,7 +72,7 @@ export class PeekCanvasModel {
                 private lookupCache: PrivateDiagramLookupService,
                 private branchService: PrivateDiagramBranchService,
                 private overrideService: PrivateDiagramOverrideService,
-                private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
+                private lifecycleEventEmitter: NgLifeCycleEvents) {
         this._query = new PeekCanvasModelQuery(this);
         this._selection = new PeekCanvasModelSelection(this, this.config);
         this._override = new PeekCanvasModelOverride(config, lookupCache);

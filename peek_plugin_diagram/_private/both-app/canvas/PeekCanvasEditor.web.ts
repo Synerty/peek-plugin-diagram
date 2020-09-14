@@ -1,4 +1,4 @@
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import {
@@ -37,7 +37,7 @@ export class PeekCanvasEditor {
                 public lookupService: PrivateDiagramLookupService,
                 private positionService: PrivateDiagramPositionService,
                 private branchService: PrivateDiagramBranchService,
-                private lifecycleEventEmitter: ComponentLifecycleEventEmitter) {
+                private lifecycleEventEmitter: NgLifeCycleEvents) {
         this.branchService
             .startEditingWithContextObservable()
             .takeUntil(lifecycleEventEmitter.onDestroyEvent)

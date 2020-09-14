@@ -1,11 +1,11 @@
 import {Component, OnInit} from '@angular/core';
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 
 @Component({
     selector: 'ns-web-diagram',
     templateUrl: './ns-web-diagram.component.html'
 })
-export class NsWebDiagramComponent extends ComponentLifecycleEventEmitter implements OnInit {
+export class NsWebDiagramComponent extends NgLifeCycleEvents implements OnInit {
 
     modelSetKey: string | null = null;
 

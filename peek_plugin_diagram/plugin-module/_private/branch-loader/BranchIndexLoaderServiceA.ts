@@ -1,10 +1,10 @@
 import {Observable} from "rxjs/Observable";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {BranchIndexLoaderStatusTuple} from "./BranchIndexLoaderStatusTuple";
 import {BranchIndexResultI} from "./BranchIndexLoaderService";
 
 
-export abstract class BranchIndexLoaderServiceA extends ComponentLifecycleEventEmitter {
+export abstract class BranchIndexLoaderServiceA extends NgLifeCycleEvents {
     constructor() {
         super();
 
