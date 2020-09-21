@@ -3,8 +3,8 @@
 set errexit
 set nounset
 
-rm -rf src/@peek/peek_plugin_diagram
-cp -pr ../../plugin-module src/@peek/peek_plugin_diagram
+rm -rf src/@_peek/peek_plugin_diagram
+cp -pr ../../plugin-module src/@_peek/peek_plugin_diagram
 
 rm -rf src/assets/peek_plugin_diagram
 cp -pr ../ns-assets/assets/peek_plugin_diagram src/assets/

@@ -1,8 +1,8 @@
 import {Component, Input, OnInit} from "@angular/core";
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
-import {BranchDetailTuple, BranchService} from "@peek/peek_plugin_branch";
+import {BranchDetailTuple, BranchService} from "@_peek/peek_plugin_branch";
 
-import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
+import {BranchTuple} from "@_peek/peek_plugin_diagram/_private/branch/BranchTuple";
 
 import {
     DocDbPopupService,
@@ -10,17 +10,17 @@ import {
     DocDbPropertyTuple,
     DocDbService,
     DocumentResultI
-} from "@peek/peek_plugin_docdb";
+} from "@_peek/peek_plugin_docdb";
 import {DispFactory} from "../canvas-shapes/DispFactory";
-import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
-import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {PrivateDiagramBranchContext} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchContext";
-import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
+import {PrivateDiagramPositionService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
+import {DiagramPositionService} from "@_peek/peek_plugin_diagram/DiagramPositionService";
+import {PrivateDiagramBranchContext} from "@_peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchContext";
+import {PrivateDiagramBranchService} from "@_peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 import {assert} from "../DiagramUtil";
 import {Observable} from "rxjs";
 import {DispBase} from "../canvas-shapes/DispBase";
 import * as $ from "jquery";
-import {diagramPluginName} from "@peek/peek_plugin_diagram/_private/PluginNames";
+import {diagramPluginName} from "@_peek/peek_plugin_diagram/_private/PluginNames";
 
 interface AnchorDisplayItemI {
     key: string;

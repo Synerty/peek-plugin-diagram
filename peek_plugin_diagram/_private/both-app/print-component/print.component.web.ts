@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnInit, Output} from "@angular/core";
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
-import {DiagramSnapshotService} from "@peek/peek_plugin_diagram/DiagramSnapshotService";
+import {DiagramSnapshotService} from "@_peek/peek_plugin_diagram/DiagramSnapshotService";
 import { TitleService } from "@synerty/peek-plugin-base-js"
 
 

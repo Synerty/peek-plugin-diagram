@@ -17,7 +17,7 @@ export {DiagramSnapshotService} from "./DiagramSnapshotService";
 export {DiagramCoordSetService} from "./DiagramCoordSetService";
 export {DiagramBranchService, DiagramBranchDetailsI} from "./DiagramBranchService";
 
-export {PeekPluginDiagramModule} from "peek_plugin_diagram/diagram.module.web";
+export {PeekPluginDiagramModule} from "@peek/peek_plugin_diagram/diagram.module.web";
 export {DiagramCoordSetTuple} from "./tuples/DiagramCoordSetTuple";
 
 

@@ -1,7 +1,7 @@
 import {WebViewInterface} from 'nativescript-webview-interface';
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 
-import {PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader";
+import {PrivateDiagramGridLoaderServiceA} from "@_peek/peek_plugin_diagram/_private/grid-loader";
 import {ServiceBridgeHandlerObservableSide} from "../service-bridge-util/ServiceBridgeHandlerObservable";
 import {ServiceBridgeHandlerCalleeSide} from "../service-bridge-util/ServiceBridgeHandlerCall";
 

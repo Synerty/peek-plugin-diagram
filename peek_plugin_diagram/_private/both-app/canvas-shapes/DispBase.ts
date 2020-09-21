@@ -1,11 +1,11 @@
-import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
+import {DispLayer, DispLevel} from "@_peek/peek_plugin_diagram/lookups";
 import {
     PeekCanvasShapePropsContext,
     ShapeProp,
     ShapePropType
 } from "../canvas/PeekCanvasShapePropsContext";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
-import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
+import {ModelCoordSet} from "@_peek/peek_plugin_diagram/_private/tuples";
 import {deepCopy} from "@synerty/vortexjs";
 import {rotatePointAboutCenter} from "./DispUtil";
 

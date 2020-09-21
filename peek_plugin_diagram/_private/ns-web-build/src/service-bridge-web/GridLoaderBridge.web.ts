@@ -4,7 +4,7 @@ import {
     GridTuple,
     PrivateDiagramGridLoaderServiceA,
     PrivateDiagramGridLoaderStatusTuple
-} from "../@peek/peek_plugin_diagram/_private/grid-loader";
+} from "../@_peek/peek_plugin_diagram/_private/grid-loader";
 import {ServiceBridgeHandlerObserverSide} from "../peek_plugin_diagram/service-bridge-util/ServiceBridgeHandlerObservable";
 import {ServiceBridgeHandlerCallerSide} from "../peek_plugin_diagram/service-bridge-util/ServiceBridgeHandlerCall";
 

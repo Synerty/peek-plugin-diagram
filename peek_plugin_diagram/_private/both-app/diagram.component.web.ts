@@ -1,6 +1,6 @@
 import {Component, Input} from "@angular/core";
-import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
+import {DiagramPositionService} from "@_peek/peek_plugin_diagram/DiagramPositionService";
+import {DiagramToolbarService} from "@_peek/peek_plugin_diagram/DiagramToolbarService";
 import { TitleService } from "@synerty/peek-plugin-base-js"
 import {DiagramComponentBase} from "./diagram.component";
 

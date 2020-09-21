@@ -1,20 +1,20 @@
 import {AfterViewInit, Component, ViewChild} from "@angular/core";
-import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {DiagramToolbarService} from "@peek/peek_plugin_diagram/DiagramToolbarService";
+import {DiagramPositionService} from "@_peek/peek_plugin_diagram/DiagramPositionService";
+import {DiagramToolbarService} from "@_peek/peek_plugin_diagram/DiagramToolbarService";
 import { TitleService } from "@synerty/peek-plugin-base-js"
 import {DiagramComponentBase} from "./diagram.component";
 
-import {DeviceEnrolmentService} from "@peek/peek_core_device";
-import {diagramBaseUrl} from "@peek/peek_plugin_diagram/_private";
+import {DeviceEnrolmentService} from "@_peek/peek_core_device";
+import {diagramBaseUrl} from "@_peek/peek_plugin_diagram/_private";
 
 import {WebViewInterface} from 'nativescript-webview-interface';
 import {WebView} from 'ui/web-view';
-import {PrivateDiagramGridLoaderServiceA} from "@peek/peek_plugin_diagram/_private/grid-loader";
-import {PrivateDiagramTupleService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
-import {PrivateDiagramBranchLoaderServiceA} from "@peek/peek_plugin_diagram/_private/branch-loader";
+import {PrivateDiagramGridLoaderServiceA} from "@_peek/peek_plugin_diagram/_private/grid-loader";
+import {PrivateDiagramTupleService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
+import {PrivateDiagramBranchLoaderServiceA} from "@_peek/peek_plugin_diagram/_private/branch-loader";
 
 
-import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
+import {PrivateDiagramPositionService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import {PositionServiceBridgeNs} from "../service-bridge/PositionServiceBridge.ns";
 import {TupleStorageBridgeNs} from "../service-bridge/TupleStorageBridge.ns";
 import {GridLoaderBridgeNs} from "../service-bridge/GridLoaderBridge.ns";

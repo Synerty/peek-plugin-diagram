@@ -3,16 +3,16 @@ import {GridObservable} from "../cache/GridObservable.web";
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {LinkedGrid} from "../cache/LinkedGrid.web";
 import {dateStr, dictKeysFromObject, dictSetFromArray} from "../DiagramUtil";
-import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {PrivateDiagramLookupService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {DispBase, DispBaseT, DispType} from "../canvas-shapes/DispBase";
-import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
+import {PrivateDiagramBranchService} from "@_peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 import {PeekCanvasModelQuery} from "./PeekCanvasModelQuery.web";
 import {PeekCanvasModelSelection} from "./PeekCanvasModelSelection.web";
 import {PeekCanvasModelOverride} from "./PeekCanvasModelOverride.web";
 import {
     OverrideUpdateDataI,
     PrivateDiagramOverrideService
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService";
+} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService";
 import {DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
 
 // import 'rxjs/add/operator/takeUntil';

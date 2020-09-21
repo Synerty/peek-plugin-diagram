@@ -1,10 +1,10 @@
 import {NgZone} from "@angular/core";
-import {DiagramPositionService, PositionUpdatedI} from "@peek/peek_plugin_diagram/DiagramPositionService";
+import {DiagramPositionService, PositionUpdatedI} from "@_peek/peek_plugin_diagram/DiagramPositionService";
 
 import {
     DiagramPositionI,
     PrivateDiagramPositionService
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
+} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 
 import {WebViewInterface} from 'nativescript-webview-interface';
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"

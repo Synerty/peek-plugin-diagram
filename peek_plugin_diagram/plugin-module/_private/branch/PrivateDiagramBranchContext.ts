@@ -1,6 +1,6 @@
 import {BranchTuple} from "./BranchTuple";
 import {BranchLiveEditTupleAction} from "./BranchLiveEditTupleAction";
-import {UserListItemTuple} from "@peek/peek_core_user";
+import {UserListItemTuple} from "@_peek/peek_core_user";
 import {LocalBranchStorageService} from "../branch-loader/LocalBranchStorageService";
 import {BranchUpdateTupleAction} from "./BranchUpdateTupleAction";
 import {PrivateDiagramTupleService} from "../services";

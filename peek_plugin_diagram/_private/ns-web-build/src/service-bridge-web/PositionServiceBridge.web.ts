@@ -1,9 +1,9 @@
 import {
     DiagramPositionService,
     PositionUpdatedI
-} from "@peek/peek_plugin_diagram/DiagramPositionService";
+} from "@_peek/peek_plugin_diagram/DiagramPositionService";
 
-import {DiagramPositionI} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
+import {DiagramPositionI} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {Injectable} from "@angular/core";

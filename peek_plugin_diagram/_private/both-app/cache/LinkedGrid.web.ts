@@ -1,6 +1,6 @@
 import {assert} from "../DiagramUtil";
-import {GridTuple} from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
-import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {GridTuple} from "@_peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
+import {PrivateDiagramLookupService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {DispBase, DispType} from "../canvas-shapes/DispBase";
 
 /** Linked Grid

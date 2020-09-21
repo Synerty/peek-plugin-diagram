@@ -4,12 +4,12 @@ import {
     BranchIndexLoaderServiceA,
     BranchIndexLoaderStatusTuple,
     BranchIndexResultI
-} from "../@peek/peek_plugin_diagram/_private/branch-loader";
+} from "../@_peek/peek_plugin_diagram/_private/branch-loader";
 import {ServiceBridgeHandlerObserverSide} from "../peek_plugin_diagram/service-bridge-util/ServiceBridgeHandlerObservable";
 import {ServiceBridgeHandlerCallerSide} from "../peek_plugin_diagram/service-bridge-util/ServiceBridgeHandlerCall";
 import {window} from "@angular/platform-browser/src/browser/tools/browser";
 import {ServiceBridgeHandlerPromiseCallerSide} from "../peek_plugin_diagram/service-bridge-util/ServiceBridgeHandlerPromise";
-import {DiagramBranchContext} from "../@peek/peek_plugin_diagram";
+import {DiagramBranchContext} from "../@_peek/peek_plugin_diagram";
 
 
 @Injectable({

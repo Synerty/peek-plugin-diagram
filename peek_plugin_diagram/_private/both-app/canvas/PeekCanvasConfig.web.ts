@@ -1,7 +1,7 @@
 import {Subject} from "rxjs/Subject";
 import {PanI} from "./PeekInterfaces.web";
 import {PeekCanvasBounds} from "./PeekCanvasBounds";
-import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
+import {ModelCoordSet} from "@_peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDrawModeE.web";
 

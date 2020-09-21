@@ -19,18 +19,18 @@ import {
     diagramFilt,
     diagramObservableName,
     diagramTupleOfflineServiceName,
-} from "@peek/peek_plugin_diagram/_private/PluginNames";
+} from "@_peek/peek_plugin_diagram/_private/PluginNames";
 import "./canvas/PeekCanvasExtensions.web";
 import { GridCache } from "./cache/GridCache.web";
 import { GridObservable } from "./cache/GridObservable.web";
 import { LookupCache } from "./cache/LookupCache.web";
 import { DispGroupCache } from "./cache/DispGroupCache.web";
 import { CanvasComponent } from "./canvas-component/canvas-component.web";
-import { PrivateDiagramItemSelectService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
-import { PrivateDiagramLocationLoaderService } from "@peek/peek_plugin_diagram/_private/location-loader";
-import { PrivateDiagramPositionService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
-import { PrivateDiagramCoordSetService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
-import { DiagramPositionService } from "@peek/peek_plugin_diagram/DiagramPositionService";
+import { PrivateDiagramItemSelectService } from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
+import { PrivateDiagramLocationLoaderService } from "@_peek/peek_plugin_diagram/_private/location-loader";
+import { PrivateDiagramPositionService } from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
+import { PrivateDiagramCoordSetService } from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+import { DiagramPositionService } from "@_peek/peek_plugin_diagram/DiagramPositionService";
 import { LayerComponent } from "./layer-component/layer.component.web";
 import { GridLoaderBridgeWeb } from "../service-bridge/GridLoaderBridgeWeb";
 

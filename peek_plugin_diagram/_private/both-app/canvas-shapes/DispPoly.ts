@@ -1,11 +1,11 @@
 import {DispBase, DispBaseT, PointI, PointsT} from "./DispBase";
-import {DispColor, DispLineStyle} from "@peek/peek_plugin_diagram/lookups";
+import {DispColor, DispLineStyle} from "@_peek/peek_plugin_diagram/lookups";
 import {
     PeekCanvasShapePropsContext,
     ShapeProp,
     ShapePropType
 } from "../canvas/PeekCanvasShapePropsContext";
-import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
+import {ModelCoordSet} from "@_peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
 
 export interface DispPolyT extends DispBaseT {
 

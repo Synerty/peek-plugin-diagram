@@ -1,17 +1,17 @@
 import {Component, Input, OnInit} from "@angular/core";
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
-import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
-import {BranchDetailTuple, BranchService} from "@peek/peek_plugin_branch";
+import {DiagramCoordSetService} from "@_peek/peek_plugin_diagram/DiagramCoordSetService";
+import {BranchDetailTuple, BranchService} from "@_peek/peek_plugin_branch";
 
-import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+import {PrivateDiagramCoordSetService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {
     PopupEditBranchSelectionArgs,
     PrivateDiagramBranchService
-} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
+} from "@_peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 
 import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
-import {UserService} from "@peek/peek_core_user";
+import {UserService} from "@_peek/peek_core_user";
 
 
 @Component({

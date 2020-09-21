@@ -1,10 +1,10 @@
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 import {PeekCanvasShapePropsContext} from "./PeekCanvasShapePropsContext";
-import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {PrivateDiagramLookupService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {PeekCanvasGroupPtrPropsContext} from "./PeekCanvasGroupPtrPropsContext";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
-import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
+import {BranchTuple} from "@_peek/peek_plugin_diagram/_private/branch/BranchTuple";
 import {DispGroupPointerT} from "../canvas-shapes/DispGroupPointer";
 import {DispBase, DispType} from "../canvas-shapes/DispBase";
 import {DispFactory} from "../canvas-shapes/DispFactory";

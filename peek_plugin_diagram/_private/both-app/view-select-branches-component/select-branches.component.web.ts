@@ -1,13 +1,13 @@
 import { Component, Input, OnInit } from "@angular/core"
 import { NgLifeCycleEvents, TitleService } from "@synerty/peek-plugin-base-js"
-import { BranchDetailTuple, BranchService } from "@peek/peek_plugin_branch"
-import { PrivateDiagramConfigService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService"
-import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService"
-import { DiagramCoordSetService } from "@peek/peek_plugin_diagram/DiagramCoordSetService"
-import { PrivateDiagramCoordSetService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService"
+import { BranchDetailTuple, BranchService } from "@_peek/peek_plugin_branch"
+import { PrivateDiagramConfigService } from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService"
+import { PrivateDiagramLookupService } from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService"
+import { DiagramCoordSetService } from "@_peek/peek_plugin_diagram/DiagramCoordSetService"
+import { PrivateDiagramCoordSetService } from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService"
 import { PeekCanvasConfig } from "../canvas/PeekCanvasConfig.web"
-import { PrivateDiagramBranchService } from "@peek/peek_plugin_diagram/_private/branch"
-import { DocDbPopupClosedReasonE, DocDbPopupService, DocDbPopupTypeE } from "@peek/peek_plugin_docdb"
+import { PrivateDiagramBranchService } from "@_peek/peek_plugin_diagram/_private/branch"
+import { DocDbPopupClosedReasonE, DocDbPopupService, DocDbPopupTypeE } from "@_peek/peek_plugin_docdb"
 
 @Component({
     selector: "pl-diagram-view-select-branches",

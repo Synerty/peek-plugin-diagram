@@ -8,27 +8,27 @@ import {PeekCanvasRenderer} from "../canvas-render/PeekCanvasRenderer.web";
 import {PeekCanvasInput} from "../canvas-input/PeekCanvasInput.web";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 import {GridObservable} from "../cache/GridObservable.web";
-import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
-import {PrivateDiagramConfigService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
+import {PrivateDiagramLookupService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {PrivateDiagramConfigService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
 
 import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
 
 import * as $ from "jquery";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
-import {PositionUpdatedI} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {DocDbPopupService} from "@peek/peek_plugin_docdb";
+import {PositionUpdatedI} from "@_peek/peek_plugin_diagram/DiagramPositionService";
+import {DocDbPopupService} from "@_peek/peek_plugin_docdb";
 import {
     DiagramPositionByCoordSetI,
     DiagramPositionI,
     PrivateDiagramPositionService
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
-import {PrivateDiagramItemSelectService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
-import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
+import {PrivateDiagramItemSelectService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
+import {PrivateDiagramCoordSetService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
-import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
-import {PrivateDiagramSnapshotService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramSnapshotService";
-import {PrivateDiagramOverrideService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService";
+import {PrivateDiagramBranchService} from "@_peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
+import {PrivateDiagramSnapshotService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramSnapshotService";
+import {PrivateDiagramOverrideService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService";
 import {PeekCanvasActioner} from "../canvas/PeekCanvasActioner";
 
 /** Canvas Component

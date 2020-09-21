@@ -4,18 +4,18 @@ import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {
     DiagramToolbarService,
     DiagramToolButtonI
-} from "@peek/peek_plugin_diagram/DiagramToolbarService";
-import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
+} from "@_peek/peek_plugin_diagram/DiagramToolbarService";
+import {PrivateDiagramToolbarService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 
-import {PrivateDiagramConfigService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
-import {PrivateDiagramBranchService} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
+import {PrivateDiagramConfigService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
+import {PrivateDiagramBranchService} from "@_peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
-import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
-import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
-import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {DocDbPopupService, DocDbPopupTypeE} from "@peek/peek_plugin_docdb";
+import {ModelCoordSet} from "@_peek/peek_plugin_diagram/_private/tuples";
+import {PrivateDiagramCoordSetService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+import {DiagramPositionService} from "@_peek/peek_plugin_diagram/DiagramPositionService";
+import {DocDbPopupService, DocDbPopupTypeE} from "@_peek/peek_plugin_docdb";
 
 
 @Component({

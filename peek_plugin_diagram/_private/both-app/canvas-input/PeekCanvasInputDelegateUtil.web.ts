@@ -6,9 +6,9 @@ import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 import {PeekDispRenderFactory} from "../canvas-render/PeekDispRenderFactory.web";
 import {PeekCanvasEditorProps} from "../canvas/PeekCanvasEditorProps";
-import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
-import {PrivateDiagramBranchContext} from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchContext";
-import {DocDbPopupService} from "@peek/peek_plugin_docdb";
+import {PrivateDiagramLookupService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {PrivateDiagramBranchContext} from "@_peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchContext";
+import {DocDbPopupService} from "@_peek/peek_plugin_docdb";
 import {PeekCanvasActioner} from "../canvas/PeekCanvasActioner";
 
 

@@ -16,7 +16,7 @@ import {
     diagramFilt,
     diagramObservableName,
     diagramTupleOfflineServiceName
-} from "@peek/peek_plugin_diagram/_private/PluginNames";
+} from "@_peek/peek_plugin_diagram/_private/PluginNames";
 
 
 @Injectable()

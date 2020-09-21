@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from "@angular/core";
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 import {EditorContextType} from "../canvas/PeekCanvasEditorProps";
-import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
+import {BranchTuple} from "@_peek/peek_plugin_diagram/_private/branch/BranchTuple";
 import {Observable} from "rxjs";
 
 

@@ -1,5 +1,5 @@
 import {WebViewInterface} from 'nativescript-webview-interface';
-import {PrivateDiagramTupleService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
+import {PrivateDiagramTupleService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
 import {ServiceBridgeHandlerPromiseCalleeSide} from "../service-bridge-util/ServiceBridgeHandlerPromise";
 
 export class TupleStorageBridgeNs {

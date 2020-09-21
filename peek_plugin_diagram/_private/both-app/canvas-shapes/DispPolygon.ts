@@ -1,4 +1,4 @@
-import {DispColor} from "@peek/peek_plugin_diagram/lookups";
+import {DispColor} from "@_peek/peek_plugin_diagram/lookups";
 import {DispPoly, DispPolyT} from "./DispPoly";
 import {DispBase, PointI} from "./DispBase";
 import {
@@ -6,7 +6,7 @@ import {
     ShapeProp,
     ShapePropType
 } from "../canvas/PeekCanvasShapePropsContext";
-import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
+import {ModelCoordSet} from "@_peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 
 export enum PolygonFillDirection {

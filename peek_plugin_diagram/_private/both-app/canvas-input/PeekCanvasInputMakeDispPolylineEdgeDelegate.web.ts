@@ -6,7 +6,7 @@ import {
 import {InputDelegateConstructorEditArgs} from "./PeekCanvasInputDelegateUtil.web";
 import {DispPolyline, DispPolylineT} from "../canvas-shapes/DispPolyline";
 import {PeekCanvasInputEditMakeDispPolyDelegate} from "./PeekCanvasInputEditMakePolyDelegate.web";
-import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
+import {ModelCoordSet} from "@_peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
 
 /**
  * This input delegate handles :

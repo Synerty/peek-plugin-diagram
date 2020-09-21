@@ -1,6 +1,6 @@
 import {DispPolyline, DispPolylineT} from "../canvas-shapes/DispPolyline";
-import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
-import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
+import {PrivateDiagramLookupService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {BranchTuple} from "@_peek/peek_plugin_diagram/_private/branch/BranchTuple";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {DispEdgeTemplateT} from "../canvas-shapes/DispEdgeTemplate";
 

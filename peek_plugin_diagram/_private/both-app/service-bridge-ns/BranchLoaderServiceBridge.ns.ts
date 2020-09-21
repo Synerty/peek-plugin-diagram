@@ -1,11 +1,11 @@
 import {WebViewInterface} from 'nativescript-webview-interface';
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 
-import {PrivateDiagramBranchLoaderServiceA} from "@peek/peek_plugin_diagram/_private/branch-loader";
+import {PrivateDiagramBranchLoaderServiceA} from "@_peek/peek_plugin_diagram/_private/branch-loader";
 import {
     BranchTuple,
     PrivateDiagramBranchContext
-} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
+} from "@_peek/peek_plugin_diagram/_private/branch/BranchTuple";
 import {ServiceBridgeHandlerObservableSide} from "../service-bridge-util/ServiceBridgeHandlerObservable";
 import {ServiceBridgeHandlerPromiseCalleeSide} from "../service-bridge-util/ServiceBridgeHandlerPromise";
 

@@ -6,12 +6,12 @@ import { TitleService } from "@synerty/peek-plugin-base-js"
 import {
     PopupLayerSelectionArgsI,
     PrivateDiagramConfigService
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
-import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
-import {DiagramCoordSetService} from "@peek/peek_plugin_diagram/DiagramCoordSetService";
-import {DispLayer} from "@peek/peek_plugin_diagram/lookups";
+} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
+import {PrivateDiagramLookupService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {DiagramCoordSetService} from "@_peek/peek_plugin_diagram/DiagramCoordSetService";
+import {DispLayer} from "@_peek/peek_plugin_diagram/lookups";
 
-import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+import {PrivateDiagramCoordSetService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 

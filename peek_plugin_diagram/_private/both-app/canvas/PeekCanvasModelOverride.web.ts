@@ -1,10 +1,10 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
-import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {PrivateDiagramLookupService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {
     DiagramOverrideBase,
     DiagramOverrideTypeE
-} from "@peek/peek_plugin_diagram/override/DiagramOverrideBase";
-import {DiagramOverrideColor} from "@peek/peek_plugin_diagram/override/DiagramOverrideColor";
+} from "@_peek/peek_plugin_diagram/override/DiagramOverrideBase";
+import {DiagramOverrideColor} from "@_peek/peek_plugin_diagram/override/DiagramOverrideColor";
 import {DispBase} from "../canvas-shapes/DispBase";
 import {DispFactory} from "../canvas-shapes/DispFactory";
 

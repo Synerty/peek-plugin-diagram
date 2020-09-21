@@ -1,8 +1,8 @@
 import { Input } from "@angular/core"
-import { DiagramPositionService } from "@peek/peek_plugin_diagram/DiagramPositionService"
-import { DiagramToolbarService } from "@peek/peek_plugin_diagram/DiagramToolbarService"
-import { PrivateDiagramToolbarService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService"
-import { PrivateDiagramPositionService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService"
+import { DiagramPositionService } from "@_peek/peek_plugin_diagram/DiagramPositionService"
+import { DiagramToolbarService } from "@_peek/peek_plugin_diagram/DiagramToolbarService"
+import { PrivateDiagramToolbarService } from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService"
+import { PrivateDiagramPositionService } from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService"
 import { NgLifeCycleEvents, TitleService } from "@synerty/peek-plugin-base-js"
 
 export class DiagramComponentBase extends NgLifeCycleEvents {

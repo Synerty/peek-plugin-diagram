@@ -1,4 +1,4 @@
-import {BranchDetailTuple} from "@peek/peek_plugin_branch";
+import {BranchDetailTuple} from "@_peek/peek_plugin_branch";
 import {Observable} from "rxjs";
 
 export interface DiagramBranchDetailsI {
