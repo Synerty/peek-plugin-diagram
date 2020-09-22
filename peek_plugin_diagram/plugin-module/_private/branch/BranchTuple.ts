@@ -99,7 +99,7 @@ export class BranchTuple extends Tuple {
     }
 
     private assignIdsToDisps(): void {
-        let DispBase = require("peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
+        let DispBase = require("@peek/peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
         let array = this._array(BranchTuple.__DISPS_NUM);
         for (let i = 0; i < array.length; ++i) {
             let disp = array[i];
@@ -115,7 +115,7 @@ export class BranchTuple extends Tuple {
     }
 
     private static _setNewDispId(disp, index): void {
-        let DispBase = require("peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
+        let DispBase = require("@peek/peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
         let newId = this._makeUniqueId(index);
 
         if (DispBase.id(disp) == null)
@@ -238,21 +238,21 @@ export class BranchTuple extends Tuple {
     }
 
     isDispInBranch(disp: any): boolean {
-        let DispBase = require("peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
+        let DispBase = require("@peek/peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
         return this._dispsById[DispBase.id(disp)] != null
             || this._replacementIds[DispBase.id(disp)] != null;
     }
 
     private updateReplacedIds(disp) {
-        let DispBase = require("peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
+        let DispBase = require("@peek/peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
         let newGroupId = this._replacementIds[DispBase.groupId(disp)];
         if (newGroupId != null)
             DispBase.setGroupId(disp, newGroupId);
     }
 
     private addOrUpdateSingleDisp(disp: any): { disp: any, modelUpdateRequired: boolean } {
-        let DispBase = require("peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
-        let DispGroupPointer = require("peek_plugin_diagram/canvas-shapes/DispGroupPointer")["DispGroupPointer"];
+        let DispBase = require("@peek/peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
+        let DispGroupPointer = require("@peek/peek_plugin_diagram/canvas-shapes/DispGroupPointer")["DispGroupPointer"];
         let array = this._array(BranchTuple.__DISPS_NUM);
 
         // If we've already replaced this Disp, then just return the replacement disp
@@ -306,7 +306,7 @@ export class BranchTuple extends Tuple {
     }
 
     private sortDisps(): void {
-        const sortDisps = require("peek_plugin_diagram/canvas/PeekCanvasModelUtil.web")
+        const sortDisps = require("@peek/peek_plugin_diagram/canvas/PeekCanvasModelUtil.web")
             ["sortDisps"];
 
         let array = this._array(BranchTuple.__DISPS_NUM);
@@ -320,7 +320,7 @@ export class BranchTuple extends Tuple {
      * @param disps
      */
     addNewDisps(disps: any[]): void {
-        let DispBase = require("peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
+        let DispBase = require("@peek/peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
         let array = this._array(BranchTuple.__DISPS_NUM);
 
         for (let disp of disps) {
@@ -335,8 +335,8 @@ export class BranchTuple extends Tuple {
     }
 
     removeDisps(disps: any[]): void {
-        let DispBase = require("peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
-        let DispNull = require("peek_plugin_diagram/canvas-shapes/DispNull")["DispNull"];
+        let DispBase = require("@peek/peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
+        let DispNull = require("@peek/peek_plugin_diagram/canvas-shapes/DispNull")["DispNull"];
 
         let dispIdsToRemove = {};
         for (let disp of disps) {
@@ -512,7 +512,7 @@ export class BranchTuple extends Tuple {
     toJsonField(value: any,
                 jsonDict: {} | null = null,
                 name: string | null = null): any {
-        const DispBase = require("peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
+        const DispBase = require("@peek/peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
         if (name != "packedJson__")
             return Tuple.prototype.toJsonField(value, jsonDict, name);
 
@@ -530,7 +530,7 @@ export class BranchTuple extends Tuple {
     }
 
     private serialiseDisps(): string {
-        const DispBase = require("peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
+        const DispBase = require("@peek/peek_plugin_diagram/canvas-shapes/DispBase")["DispBase"];
 
         const disps = deepCopy(this._array(BranchTuple.__DISPS_NUM),
             DispBase.DEEP_COPY_FIELDS_TO_IGNORE);
