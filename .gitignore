@@ -10,8 +10,6 @@ node_modules
 *.js
 *.js.map
 
-!peek_plugin_diagram/_private/ns-assets/www/*
-
 # Distribution / packaging
 .Python
 env/

@@ -28,7 +28,6 @@ if os.path.isdir(egg_info):
 if os.path.isfile('MANIFEST'):
     os.remove('MANIFEST')
 
-includePathContents = ('ns-assets',)
 excludePathContains = ('__pycache__', 'node_modules', 'platforms', 'dist')
 excludeFilesEndWith = ('.pyc', '.js', '.js.map', '.lastHash')
 excludeFilesStartWith = ()

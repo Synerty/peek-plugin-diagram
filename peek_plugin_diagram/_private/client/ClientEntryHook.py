@@ -187,8 +187,6 @@ class ClientEntryHook(PluginClientEntryHookABC):
         # THIS WILL BE USED WHEN THE DEVICE IS RUNNING NS LIVE SYNC
         # Add in the HTTP resource that allows images to be downloaded
         resource = FileUnderlayResource()
-        distDir = osp.join(osp.dirname(osp.dirname(__file__)), "ns-assets", "www")
-        resource.addFileSystemRoot(distDir)
         resource.enableSinglePageApplication()
 
         self.platform.addMobileResource(b'web_dist', resource)
