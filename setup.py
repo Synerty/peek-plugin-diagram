@@ -36,12 +36,7 @@ excludeFilesStartWith = ()
 def find_package_files():
     paths = []
     for (path, directories, filenames) in os.walk(py_package_name):
-        # Keep the dist-web dir no matter what
-        if [e for e in includePathContents if e in path]:
-            for filename in filenames:
-                paths.append(os.path.join(path[len(py_package_name) + 1:], filename))
-            continue
-
+        # Keep the dist dir no matter what
         if [e for e in excludePathContains if e in path]:
             continue
 
