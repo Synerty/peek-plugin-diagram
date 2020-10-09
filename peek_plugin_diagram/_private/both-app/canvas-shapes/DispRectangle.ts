@@ -1,5 +1,5 @@
 import {DispBase, PointI} from "./DispBase";
-import {ModelCoordSet} from "@_peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
+import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
 import {DispPolygon, DispPolygonT} from "./DispPolygon";
 import {assert} from "../DiagramUtil";
 

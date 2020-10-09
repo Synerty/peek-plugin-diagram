@@ -2,14 +2,14 @@ import { Component } from "@angular/core"
 import {
     PrivateDiagramGridLoaderServiceA,
     PrivateDiagramGridLoaderStatusTuple
-} from "@_peek/peek_plugin_diagram/_private/grid-loader"
+} from "@peek/peek_plugin_diagram/_private/grid-loader"
 import {
     PrivateDiagramLocationLoaderService,
     PrivateDiagramLocationLoaderStatusTuple
-} from "@_peek/peek_plugin_diagram/_private/location-loader"
+} from "@peek/peek_plugin_diagram/_private/location-loader"
 import { TupleSelector } from "@synerty/vortexjs"
-import { OfflineConfigTuple } from "@_peek/peek_plugin_diagram/_private/tuples"
-import { PrivateDiagramTupleService } from "@_peek/peek_plugin_diagram/_private/services"
+import { OfflineConfigTuple } from "@peek/peek_plugin_diagram/_private/tuples"
+import { PrivateDiagramTupleService } from "@peek/peek_plugin_diagram/_private/services"
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 
 @Component({

@@ -5,11 +5,11 @@ import {
     ShapeProp,
     ShapePropType
 } from "../canvas/PeekCanvasShapePropsContext";
-import {ModelCoordSet} from "@_peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
-import {DispColor} from "@_peek/peek_plugin_diagram/lookups";
+import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
+import {DispColor} from "@peek/peek_plugin_diagram/lookups";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
-import {BranchTuple} from "@_peek/peek_plugin_diagram/_private/branch/BranchTuple";
-import {PrivateDiagramLookupService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {DispEdgeTemplate, DispEdgeTemplateT} from "./DispEdgeTemplate";
 
 

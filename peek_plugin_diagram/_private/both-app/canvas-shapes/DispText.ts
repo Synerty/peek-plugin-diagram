@@ -1,11 +1,11 @@
 import {DispBase, DispBaseT, PointI} from "./DispBase";
-import {DispColor, DispTextStyle} from "@_peek/peek_plugin_diagram/lookups";
+import {DispColor, DispTextStyle} from "@peek/peek_plugin_diagram/lookups";
 import {
     PeekCanvasShapePropsContext,
     ShapeProp,
     ShapePropType
 } from "../canvas/PeekCanvasShapePropsContext";
-import {ModelCoordSet} from "@_peek/peek_plugin_diagram/_private/tuples";
+import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 
 export enum TextVerticalAlign {
     top = -1,

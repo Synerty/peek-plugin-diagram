@@ -1,10 +1,10 @@
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
-import {PrivateDiagramLookupService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
-import {PrivateDiagramPositionService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import {
     PrivateDiagramBranchContext,
     PrivateDiagramBranchService
-} from "@_peek/peek_plugin_diagram/_private/branch";
+} from "@peek/peek_plugin_diagram/_private/branch";
 import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
 import {PeekCanvasInput} from "../canvas-input/PeekCanvasInput.web";
 import {PeekCanvasInputEditSelectDelegate} from "../canvas-input/PeekCanvasInputEditSelectDelegate.web";
@@ -12,7 +12,7 @@ import {PeekCanvasInputSelectDelegate} from "../canvas-input/PeekCanvasInputSele
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {EditorToolType} from "./PeekCanvasEditorToolType.web";
-import {DispLevel} from "@_peek/peek_plugin_diagram/lookups";
+import {DispLevel} from "@peek/peek_plugin_diagram/lookups";
 import {PeekCanvasEditorProps} from "./PeekCanvasEditorProps";
 import {GridObservable} from "../cache/GridObservable.web";
 

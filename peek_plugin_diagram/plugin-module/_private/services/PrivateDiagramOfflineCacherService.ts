@@ -5,7 +5,7 @@ import { PrivateDiagramTupleService } from "./PrivateDiagramTupleService"
 import { GroupDispsTuple, ModelCoordSet, ModelSet } from "../tuples"
 import { DispColor, DispLayer, DispLevel, DispLineStyle, DispTextStyle } from "../../lookups"
 import { BranchKeyToIdMapTuple } from "../branch/BranchKeyToIdMapTuple"
-import { BranchService } from "@_peek/peek_plugin_branch"
+import { BranchService } from "@peek/peek_plugin_branch"
 
 /** Diagram Lookups offline cacher
  *

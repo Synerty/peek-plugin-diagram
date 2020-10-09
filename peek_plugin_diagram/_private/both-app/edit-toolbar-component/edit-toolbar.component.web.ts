@@ -14,8 +14,8 @@ import {PeekCanvasInputEditMakeLineWithArrowDelegate} from "../canvas-input/Peek
 import {
     DiagramToolbarService,
     DiagramToolButtonI
-} from "@_peek/peek_plugin_diagram/DiagramToolbarService";
-import {PrivateDiagramToolbarService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
+} from "@peek/peek_plugin_diagram/DiagramToolbarService";
+import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
 
 @Component({
     selector: 'pl-diagram-edit-toolbar',

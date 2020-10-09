@@ -6,7 +6,7 @@ import {
     ShapeProp,
     ShapePropType
 } from "../canvas/PeekCanvasShapePropsContext";
-import {DispLayer, DispLevel} from "@_peek/peek_plugin_diagram/lookups";
+import {DispLayer, DispLevel} from "@peek/peek_plugin_diagram/lookups";
 import {assert} from "../DiagramUtil";
 
 

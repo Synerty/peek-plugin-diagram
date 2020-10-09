@@ -4,10 +4,10 @@ import {
     ShapeProp,
     ShapePropType
 } from "../canvas/PeekCanvasShapePropsContext";
-import {ModelCoordSet} from "@_peek/peek_plugin_diagram/_private/tuples";
+import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 import {DispGroup, DispGroupT} from "./DispGroup";
-import {PrivateDiagramLookupService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
-import {BranchTuple} from "@_peek/peek_plugin_diagram/_private/branch/BranchTuple";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
 import {calculateRotationFromHandleDelta, makeRotateHandlePoints} from "./DispUtilRotate";
 import {DispText} from "./DispText";
 

@@ -1,6 +1,6 @@
-import {PrivateDiagramLookupService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
-import {PrivateDiagramCoordSetService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
-import {PrivateDiagramPositionService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import {
     DispActionEnum,
     DispActionPositionOnDataT,

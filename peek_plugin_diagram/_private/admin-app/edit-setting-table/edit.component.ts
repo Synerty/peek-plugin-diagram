@@ -1,7 +1,7 @@
 import { Component } from "@angular/core"
 import { BalloonMsgService, NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import { extend, TupleLoader, VortexService } from "@synerty/vortexjs"
-import { diagramFilt, SettingPropertyTuple } from "@_peek/peek_plugin_diagram/_private"
+import { diagramFilt, SettingPropertyTuple } from "@peek/peek_plugin_diagram/_private"
 
 @Component({
     selector: "pl-diagram-edit-setting",

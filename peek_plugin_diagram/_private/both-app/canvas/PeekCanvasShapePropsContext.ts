@@ -1,4 +1,4 @@
-import {PrivateDiagramLookupService} from "@_peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {DispBaseT} from "../canvas-shapes/DispBase";
 
 export enum ShapePropType {
