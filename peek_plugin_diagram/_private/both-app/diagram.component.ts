@@ -3,7 +3,7 @@ import { DiagramPositionService } from "@peek/peek_plugin_diagram/DiagramPositio
 import { DiagramToolbarService } from "@peek/peek_plugin_diagram/DiagramToolbarService"
 import { PrivateDiagramToolbarService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService"
 import { PrivateDiagramPositionService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService"
-import { NgLifeCycleEvents, TitleService } from "@synerty/peek-plugin-base-js"
+import { NgLifeCycleEvents, HeaderService } from "@synerty/peek-plugin-base-js"
 
 export class DiagramComponentBase extends NgLifeCycleEvents {
     @Input("modelSetKey")
@@ -17,7 +17,7 @@ export class DiagramComponentBase extends NgLifeCycleEvents {
     protected privateToolbarService: PrivateDiagramToolbarService
     
     constructor(
-        protected titleService: TitleService,
+        protected headerService: HeaderService,
         positionService: DiagramPositionService,
         toolbarService: DiagramToolbarService
     ) {
@@ -27,11 +27,11 @@ export class DiagramComponentBase extends NgLifeCycleEvents {
         this.privateToolbarService = <PrivateDiagramToolbarService>toolbarService
         
         // Set the title
-        this.titleService.setTitle("Loading Canvas ...")
+        this.headerService.setTitle("Loading Canvas ...")
         
         // Listen to the title service
         this.privatePositionService.titleUpdatedObservable()
             .takeUntil(this.onDestroyEvent)
-            .subscribe((title: string) => this.titleService.setTitle(title))
+            .subscribe((title: string) => this.headerService.setTitle(title))
     }
 }

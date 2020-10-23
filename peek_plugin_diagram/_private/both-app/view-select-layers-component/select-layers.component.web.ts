@@ -1,6 +1,6 @@
 import {Component, Input, OnInit, ViewChild} from "@angular/core";
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
-import { TitleService } from "@synerty/peek-plugin-base-js"
+import { HeaderService } from "@synerty/peek-plugin-base-js"
 
 
 import {
@@ -42,7 +42,7 @@ export class SelectLayersComponent extends NgLifeCycleEvents
 
     items: DispLayer[] = [];
 
-    constructor(private titleService: TitleService,
+    constructor(private headerService: HeaderService,
                 private lookupService: PrivateDiagramLookupService,
                 private configService: PrivateDiagramConfigService,
                 abstractCoordSetService: DiagramCoordSetService) {

@@ -1,7 +1,7 @@
 import {Component, EventEmitter, OnInit, Output} from "@angular/core";
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {DiagramSnapshotService} from "@peek/peek_plugin_diagram/DiagramSnapshotService";
-import { TitleService } from "@synerty/peek-plugin-base-js"
+import { HeaderService } from "@synerty/peek-plugin-base-js"
 
 
 @Component({
@@ -20,7 +20,7 @@ export class PrintComponent extends NgLifeCycleEvents
 
     src: string | null;
 
-    constructor(private titleService: TitleService,
+    constructor(private headerService: HeaderService,
                 private snapshotService: DiagramSnapshotService) {
         super();
 
@@ -33,7 +33,7 @@ export class PrintComponent extends NgLifeCycleEvents
             .then((src) => this.src = src)
             .catch((e) => `Failed to load branches ${e}`);
 
-        this.titleService.setEnabled(false);
+        this.headerService.setEnabled(false);
         $(this.footerClass).hide();
     }
 
@@ -45,7 +45,7 @@ export class PrintComponent extends NgLifeCycleEvents
         this.src = null;
         this.closePopupEmitter.emit();
 
-        this.titleService.setEnabled(true);
+        this.headerService.setEnabled(true);
         $(this.footerClass).show();
     }
 
