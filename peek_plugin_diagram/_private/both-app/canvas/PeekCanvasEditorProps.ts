@@ -1,4 +1,4 @@
-import {Subject} from "rxjs/Subject";
+import {Subject} from "rxjs";
 import {Observable} from "rxjs/Observable";
 import {PeekCanvasShapePropsContext} from "./PeekCanvasShapePropsContext";
 import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";

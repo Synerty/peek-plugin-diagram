@@ -4,7 +4,7 @@ import {PeekDispRenderFactory} from "./PeekDispRenderFactory.web";
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {PanI} from "../canvas/PeekInterfaces.web";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
-import {Subject} from "rxjs/Subject";
+import {Subject} from "rxjs";
 import {DrawModeE} from "./PeekDispRenderDelegateABC.web";
 
 export class PeekCanvasPan implements PanI {

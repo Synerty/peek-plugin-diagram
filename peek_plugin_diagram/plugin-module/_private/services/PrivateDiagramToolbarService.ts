@@ -5,7 +5,7 @@ import {
     ToolbarTypeE
 } from "../../DiagramToolbarService";
 
-import {Subject} from "rxjs/Subject";
+import {Subject} from "rxjs";
 import {Observable} from "rxjs/Observable";
 
 @Injectable()

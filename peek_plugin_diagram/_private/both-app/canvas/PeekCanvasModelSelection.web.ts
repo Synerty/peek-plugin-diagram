@@ -1,6 +1,6 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
-import {Subject} from "rxjs/Subject";
+import {Subject} from "rxjs";
 import {Observable} from "rxjs/Observable";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 

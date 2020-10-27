@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {GridCache} from "./GridCache.web";
 import {LinkedGrid} from "./LinkedGrid.web";
-import {Subject} from "rxjs/Subject";
+import {Subject} from "rxjs";
 import {assert, dictKeysFromObject} from "../DiagramUtil";
 
 /** Grid Observable

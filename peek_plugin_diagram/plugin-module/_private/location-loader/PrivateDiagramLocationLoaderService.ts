@@ -18,7 +18,7 @@ import { LocationIndexUpdateDateTuple } from "./LocationIndexUpdateDateTuple"
 import { DispKeyLocationTuple } from "./DispKeyLocationTuple"
 import { PrivateDiagramCoordSetService } from "../services/PrivateDiagramCoordSetService"
 
-import { Subject } from "rxjs/Subject"
+import { Subject } from "rxjs"
 import { Observable } from "rxjs/Observable"
 import { EncodedLocationIndexTuple } from "./EncodedLocationIndexTuple"
 import { PrivateDiagramLocationLoaderStatusTuple } from "./PrivateDiagramLocationLoaderStatusTuple"

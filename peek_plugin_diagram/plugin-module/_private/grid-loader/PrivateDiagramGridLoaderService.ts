@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {GridTuple} from "./GridTuple";
 import {PrivateDiagramGridLoaderServiceA} from "./PrivateDiagramGridLoaderServiceA";
-import {Subject} from "rxjs/Subject";
+import {Subject} from "rxjs";
 import {Observable} from "rxjs/Observable";
 
 import {
