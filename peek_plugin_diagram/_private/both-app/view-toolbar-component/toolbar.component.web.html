@@ -26,7 +26,7 @@
             (click)="printDiagramClicked()"
             nz-tooltip
             nzTooltipPlacement="bottom"
-            nzTitle="Show Diagram for Print"
+            nzTooltipTitle="Show Diagram for Print"
         >
             <i nz-icon nzType="printer" nzTheme="outline"></i>
         </button>
@@ -36,7 +36,7 @@
             (click)="editDiagramClicked()"
             nz-tooltip
             nzTooltipPlacement="bottom"
-            nzTitle="Edit Diagram"
+            nzTooltipTitle="Edit Diagram"
         >
             <i nz-icon nzType="edit" nzTheme="outline"></i>
         </button>
@@ -47,7 +47,7 @@
             (click)="selectBranchesClicked()"
             nz-tooltip
             nzTooltipPlacement="bottom"
-            [nzTitle]="showSelectBranchesTooltip()"
+            [nzTooltipTitle]="showSelectBranchesTooltip()"
         >
             <i nz-icon nzType="branches" nzTheme="outline"></i>
         </button>
@@ -56,7 +56,7 @@
             (click)="selectLayersClicked()"
             nz-tooltip
             nzTooltipPlacement="bottom"
-            nzTitle="Select Layers"
+            nzTooltipTitle="Select Layers"
         >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048" width="1em" height="1em">
                 <path
@@ -75,7 +75,7 @@
             (click)="goUpParentButtonClicked(btn)"
             nz-tooltip
             nzTooltipPlacement="bottom"
-            nzTitle="Back"
+            nzTooltipTitle="Back"
         >
             <i nz-icon nzType="arrow-left" nzTheme="outline"></i>
             Back
@@ -87,7 +87,7 @@
             (click)="buttonClicked(btn)"
             nz-tooltip
             nzTooltipPlacement="bottom"
-            [nzTitle]="btn.tooltip"
+            [nzTooltipTitle]="btn.tooltip"
         >
             <i
                 nz-icon
