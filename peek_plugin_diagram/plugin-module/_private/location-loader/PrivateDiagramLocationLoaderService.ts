@@ -19,7 +19,7 @@ import { DispKeyLocationTuple } from "./DispKeyLocationTuple"
 import { PrivateDiagramCoordSetService } from "../services/PrivateDiagramCoordSetService"
 
 import { Subject } from "rxjs"
-import { Observable } from "rxjs/Observable"
+import { Observable } from "rxjs"
 import { EncodedLocationIndexTuple } from "./EncodedLocationIndexTuple"
 import { PrivateDiagramLocationLoaderStatusTuple } from "./PrivateDiagramLocationLoaderStatusTuple"
 import { PrivateDiagramTupleService } from "../services/PrivateDiagramTupleService"

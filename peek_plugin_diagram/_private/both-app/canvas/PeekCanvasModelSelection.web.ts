@@ -1,7 +1,7 @@
 import {PeekCanvasConfig} from "./PeekCanvasConfig.web";
 import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
 import {Subject} from "rxjs";
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 import {PeekCanvasModel} from "./PeekCanvasModel.web";
 
 // import 'rxjs/add/operator/takeUntil';

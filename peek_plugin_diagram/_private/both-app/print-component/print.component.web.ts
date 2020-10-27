@@ -7,8 +7,7 @@ import { HeaderService } from "@synerty/peek-plugin-base-js"
 @Component({
     selector: 'pl-diagram-print',
     templateUrl: 'print.component.web.html',
-    styleUrls: ['print.component.web.scss'],
-    moduleId: module.id
+    styleUrls: ['print.component.web.scss']
 })
 export class PrintComponent extends NgLifeCycleEvents
     implements OnInit {

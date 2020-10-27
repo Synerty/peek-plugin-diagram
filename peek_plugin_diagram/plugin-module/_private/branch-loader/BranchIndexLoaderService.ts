@@ -16,7 +16,7 @@ import {branchIndexStorageName, diagramFilt, diagramTuplePrefix} from "../Plugin
 
 
 import {Subject} from "rxjs";
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 import {BranchIndexEncodedChunkTuple} from "./BranchIndexEncodedChunkTuple";
 import {BranchIndexUpdateDateTuple} from "./BranchIndexUpdateDateTuple";
 import {BranchTuple} from "../branch/BranchTuple";

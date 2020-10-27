@@ -20,8 +20,7 @@ import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/s
 @Component({
     selector: 'pl-diagram-edit-toolbar',
     templateUrl: 'edit-toolbar.component.web.html',
-    styleUrls: ['edit-toolbar.component.web.scss'],
-    moduleId: module.id
+    styleUrls: ['edit-toolbar.component.web.scss']
 })
 export class EditToolbarComponent extends NgLifeCycleEvents {
 

@@ -1,4 +1,4 @@
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {BranchIndexLoaderStatusTuple} from "./BranchIndexLoaderStatusTuple";
 import {BranchIndexResultI} from "./BranchIndexLoaderService";

@@ -17,8 +17,7 @@ import {UserService} from "@peek/peek_core_user";
 @Component({
     selector: 'pl-diagram-start-edit',
     templateUrl: 'start-edit.component.web.html',
-    styleUrls: ['start-edit.component.web.scss'],
-    moduleId: module.id
+    styleUrls: ['start-edit.component.web.scss']
 })
 export class StartEditComponent extends NgLifeCycleEvents
     implements OnInit {

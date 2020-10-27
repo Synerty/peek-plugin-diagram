@@ -7,8 +7,7 @@ import {EditorContextType} from "../canvas/PeekCanvasEditorProps";
 @Component({
     selector: 'pl-diagram-edit-props-toolbar',
     templateUrl: 'edit-props-toolbar.component.web.html',
-    styleUrls: ['edit-props-toolbar.component.web.scss'],
-    moduleId: module.id
+    styleUrls: ['edit-props-toolbar.component.web.scss']
 })
 export class EditPropsToolbarComponent extends NgLifeCycleEvents
     implements OnInit {

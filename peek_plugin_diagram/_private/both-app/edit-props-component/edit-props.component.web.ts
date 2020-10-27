@@ -9,8 +9,7 @@ import {Observable} from "rxjs";
 @Component({
     selector: 'pl-diagram-edit-props',
     templateUrl: 'edit-props.component.web.html',
-    styleUrls: ['edit-props.component.web.scss'],
-    moduleId: module.id
+    styleUrls: ['edit-props.component.web.scss']
 })
 export class EditPropsComponent extends NgLifeCycleEvents
     implements OnInit {

@@ -12,8 +12,7 @@ import { DocDbPopupClosedReasonE, DocDbPopupService, DocDbPopupTypeE } from "@pe
 @Component({
     selector: "pl-diagram-view-select-branches",
     templateUrl: "select-branches.component.web.html",
-    styleUrls: ["select-branches.component.web.scss"],
-    moduleId: module.id
+    styleUrls: ["select-branches.component.web.scss"]
 })
 export class SelectBranchesComponent extends NgLifeCycleEvents {
     @Input("coordSetKey")

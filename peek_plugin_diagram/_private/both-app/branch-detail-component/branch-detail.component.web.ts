@@ -37,7 +37,6 @@ interface DispDisplayItemI {
     selector: 'pl-diagram-branch-detail',
     templateUrl: 'branch-detail.component.web.html',
     styleUrls: ['branch-detail.component.web.scss'],
-    moduleId: module.id,
 })
 export class BranchDetailComponent extends NgLifeCycleEvents
     implements OnInit {

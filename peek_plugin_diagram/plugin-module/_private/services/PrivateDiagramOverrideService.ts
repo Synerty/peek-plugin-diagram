@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {Subject} from "rxjs";
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 import {DiagramOverrideService} from "../../DiagramOverrideService";
 import {DiagramOverrideBase} from "../../override/DiagramOverrideBase";
 

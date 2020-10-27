@@ -39,8 +39,7 @@ import {PeekCanvasActioner} from "../canvas/PeekCanvasActioner";
 @Component({
     selector: 'pl-diagram-canvas',
     templateUrl: 'canvas-component.web.html',
-    styleUrls: ['canvas-component.web.scss'],
-    moduleId: module.id
+    styleUrls: ['canvas-component.web.scss']
 })
 export class CanvasComponent extends NgLifeCycleEvents {
     @ViewChild('edittoolbar', {static: true}) editToolbarView;

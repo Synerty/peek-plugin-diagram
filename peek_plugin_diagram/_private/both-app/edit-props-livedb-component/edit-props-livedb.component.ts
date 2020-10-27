@@ -6,8 +6,7 @@ import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
 @Component({
     selector: 'pl-diagram-edit-props-livedb',
     templateUrl: 'edit-props-livedb.component.html',
-    styleUrls: ['edit-props-livedb.component.scss'],
-    moduleId: module.id
+    styleUrls: ['edit-props-livedb.component.scss']
 })
 export class EditPropsLivedbComponent extends NgLifeCycleEvents {
 

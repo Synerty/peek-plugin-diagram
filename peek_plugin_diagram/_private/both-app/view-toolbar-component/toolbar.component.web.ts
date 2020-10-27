@@ -21,8 +21,7 @@ import {DocDbPopupService, DocDbPopupTypeE} from "@peek/peek_plugin_docdb";
 @Component({
     selector: 'pl-diagram-view-toolbar',
     templateUrl: 'toolbar.component.web.html',
-    styleUrls: ['toolbar.component.web.scss'],
-    moduleId: module.id
+    styleUrls: ['toolbar.component.web.scss']
 })
 export class ToolbarComponent extends NgLifeCycleEvents
     implements OnInit {

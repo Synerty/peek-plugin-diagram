@@ -7,8 +7,7 @@ import {DiagramComponentBase} from "./diagram.component";
 @Component({
     selector: 'peek-plugin-diagram',
     templateUrl: 'diagram.component.web.html',
-    styleUrls: ['diagram.component.web.scss'],
-    moduleId: module.id
+    styleUrls: ['diagram.component.web.scss']
 })
 export class DiagramComponent extends DiagramComponentBase {
     @Input() modelSetKey;

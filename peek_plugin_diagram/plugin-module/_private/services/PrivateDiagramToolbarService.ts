@@ -6,7 +6,7 @@ import {
 } from "../../DiagramToolbarService";
 
 import {Subject} from "rxjs";
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 
 @Injectable()
 export class PrivateDiagramToolbarService extends DiagramToolbarService {

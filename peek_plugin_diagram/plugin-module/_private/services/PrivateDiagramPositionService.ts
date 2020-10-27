@@ -6,7 +6,7 @@ import {
     PositionUpdatedI
 } from "../../DiagramPositionService";
 import {Subject} from "rxjs";
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 
 import {DispKeyLocationTuple} from "../location-loader/DispKeyLocationTuple";
 import { BalloonMsgService } from "@synerty/peek-plugin-base-js"

@@ -18,8 +18,7 @@ import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 @Component({
     selector: "pl-diagram-edit-props-group-ptr",
     templateUrl: "edit-props-group-ptr.component.html",
-    styleUrls: ["edit-props-group-ptr.component.scss"],
-    moduleId: module.id
+    styleUrls: ["edit-props-group-ptr.component.scss"]
 })
 export class EditPropsGroupPtrComponent extends NgLifeCycleEvents
     implements OnInit {

@@ -18,8 +18,7 @@ import {PeekCanvasModel} from "../canvas/PeekCanvasModel.web";
 @Component({
     selector: 'pl-diagram-view-select-layers',
     templateUrl: 'select-layers.component.web.html',
-    styleUrls: ['select-layers.component.web.scss'],
-    moduleId: module.id
+    styleUrls: ['select-layers.component.web.scss']
 })
 export class SelectLayersComponent extends NgLifeCycleEvents
     implements OnInit {

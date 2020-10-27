@@ -14,8 +14,7 @@ import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 
 @Component({
     selector: "peek-plugin-diagram-cfg",
-    templateUrl: "diagram-cfg.component.web.html",
-    moduleId: module.id
+    templateUrl: "diagram-cfg.component.web.html"
 })
 export class DiagramCfgComponent extends NgLifeCycleEvents {
     gridLoaderStatus: PrivateDiagramGridLoaderStatusTuple = new PrivateDiagramGridLoaderStatusTuple()

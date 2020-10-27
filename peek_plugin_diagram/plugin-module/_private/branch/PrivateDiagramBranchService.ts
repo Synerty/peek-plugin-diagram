@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core"
 import { Subject } from "rxjs"
-import { Observable } from "rxjs/Observable"
+import { Observable } from "rxjs"
 import { PrivateDiagramBranchContext } from "../branch/PrivateDiagramBranchContext"
 import { BranchTuple } from "../branch/BranchTuple"
 import { BranchIndexLoaderServiceA } from "../branch-loader/BranchIndexLoaderServiceA"

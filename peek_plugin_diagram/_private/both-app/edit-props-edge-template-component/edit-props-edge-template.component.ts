@@ -19,8 +19,7 @@ import { DispGroup } from "../canvas-shapes/DispGroup"
 @Component({
     selector: "pl-diagram-edit-props-edge-template",
     templateUrl: "edit-props-edge-template.component.html",
-    styleUrls: ["edit-props-edge-template.component.scss"],
-    moduleId: module.id
+    styleUrls: ["edit-props-edge-template.component.scss"]
 })
 export class EditPropsEdgeTemplateComponent extends NgLifeCycleEvents
     implements OnInit {

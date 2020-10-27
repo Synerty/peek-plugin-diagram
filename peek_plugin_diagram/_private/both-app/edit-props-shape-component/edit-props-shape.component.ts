@@ -13,8 +13,7 @@ import {assert} from "../DiagramUtil";
 @Component({
     selector: 'pl-diagram-edit-props-shape',
     templateUrl: 'edit-props-shape.component.html',
-    styleUrls: ['edit-props-shape.component.scss'],
-    moduleId: module.id
+    styleUrls: ['edit-props-shape.component.scss']
 })
 export class EditPropsShapeComponent extends NgLifeCycleEvents
     implements OnInit {
