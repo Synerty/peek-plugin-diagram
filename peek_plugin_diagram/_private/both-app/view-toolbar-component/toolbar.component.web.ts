@@ -15,7 +15,7 @@ import {PeekCanvasConfig} from "../canvas/PeekCanvasConfig.web";
 import {ModelCoordSet} from "@peek/peek_plugin_diagram/_private/tuples";
 import {PrivateDiagramCoordSetService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {DocDbPopupService, DocDbPopupTypeE} from "@peek/peek_plugin_docdb";
+import {DocDbPopupService, DocDbPopupTypeE} from "@peek/peek_core_docdb";
 
 
 @Component({

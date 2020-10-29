@@ -9,7 +9,7 @@ import {DispBase, DispBaseT, PointI} from "../canvas-shapes/DispBase";
 import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
 import {InputDelegateConstructorEditArgs} from "./PeekCanvasInputDelegateUtil.web";
 import {diagramPluginName} from "@peek/peek_plugin_diagram/_private/PluginNames";
-import {DocDbPopupTypeE} from "@peek/peek_plugin_docdb";
+import {DocDbPopupTypeE} from "@peek/peek_core_docdb";
 
 /**
  * This input delegate handles :

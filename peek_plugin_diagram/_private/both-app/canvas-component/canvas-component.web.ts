@@ -16,7 +16,7 @@ import {DispBase, DispBaseT} from "../canvas-shapes/DispBase";
 import * as $ from "jquery";
 import {PeekCanvasBounds} from "../canvas/PeekCanvasBounds";
 import {PositionUpdatedI} from "@peek/peek_plugin_diagram/DiagramPositionService";
-import {DocDbPopupService} from "@peek/peek_plugin_docdb";
+import {DocDbPopupService} from "@peek/peek_core_docdb";
 import {
     DiagramPositionByCoordSetI,
     DiagramPositionI,

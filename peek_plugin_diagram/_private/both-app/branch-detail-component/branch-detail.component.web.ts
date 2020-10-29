@@ -10,7 +10,7 @@ import {
     DocDbPropertyTuple,
     DocDbService,
     DocumentResultI
-} from "@peek/peek_plugin_docdb";
+} from "@peek/peek_core_docdb";
 import {DispFactory} from "../canvas-shapes/DispFactory";
 import {PrivateDiagramPositionService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import {DiagramPositionService} from "@peek/peek_plugin_diagram/DiagramPositionService";

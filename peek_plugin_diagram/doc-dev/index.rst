@@ -155,7 +155,7 @@ How to develop with a different backend of data.
 
 #.  For native script, this is easy. Delete the app, and redeploy it.
     When the app asks for the websocket port,
-    send it to the peek_client that has the data. EG 10.2.56.135
+    send it to the peek_office_service that has the data. EG 10.2.56.135
 
 #.  For web :
 

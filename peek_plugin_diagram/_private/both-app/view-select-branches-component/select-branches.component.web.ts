@@ -7,7 +7,7 @@ import { DiagramCoordSetService } from "@peek/peek_plugin_diagram/DiagramCoordSe
 import { PrivateDiagramCoordSetService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService"
 import { PeekCanvasConfig } from "../canvas/PeekCanvasConfig.web"
 import { PrivateDiagramBranchService } from "@peek/peek_plugin_diagram/_private/branch"
-import { DocDbPopupClosedReasonE, DocDbPopupService, DocDbPopupTypeE } from "@peek/peek_plugin_docdb"
+import { DocDbPopupClosedReasonE, DocDbPopupService, DocDbPopupTypeE } from "@peek/peek_core_docdb"
 
 @Component({
     selector: "pl-diagram-view-select-branches",
