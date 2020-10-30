@@ -7,7 +7,7 @@ Connectivity Loader plugin.
 Monitor Status
 ``````````````
 
-The progress / status of the PoF Connectivity Loader can be viewed in the Peek Admin UI
+The progress / status of the ENMAC Connectivity Loader can be viewed in the Peek Admin UI
 on the **Loader Status** page.
 
 There is a lot of processing to convert the connectivity model from the oracle tables
@@ -56,7 +56,7 @@ GraphDB plugin when it starts next.
 
 
         -- Reset the state for the connectivity model segments
-        TRUNCATE pl_pof_graphdb_loader."GraphSegmentLoadState";
+        TRUNCATE pl_enmac_graphdb_loader."GraphSegmentLoadState";
 
 
 #.  Start the Peek Agent service

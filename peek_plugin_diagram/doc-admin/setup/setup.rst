@@ -3,7 +3,7 @@
 Setup
 -----
 
-This section describes the initial connection of the Peek PoF Connectivity Loader
+This section describes the initial connection of the Peek ENMAC Connectivity Loader
 plugin to PowerOn Fusion/Advantage.
 
 Connection Settings
@@ -42,7 +42,7 @@ this connects the connectivity loader to the PowerOn Fusion/Advantage app server
 Segment Split Points
 ````````````````````
 
-The PoF Connectivity Loader splits the PowerOn model up into segments, this is
+The ENMAC Connectivity Loader splits the PowerOn model up into segments, this is
 required for the GraphDB plugin.
 
 This splitting is achieved using "split points", and split points are identified
@@ -69,7 +69,7 @@ by a set of matching criteria defined in the Peek Admin UI.
 
 To add the split point criteria, follow this procedure:
 
-#.  Open the Peek Admin UI and navigate to the **PoF Connectivity Loader** plugin.
+#.  Open the Peek Admin UI and navigate to the **ENMAC Connectivity Loader** plugin.
 
 #.  Select the **Edit Segment Split Points** tab.
 

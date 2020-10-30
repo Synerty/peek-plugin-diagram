@@ -1,4 +1,4 @@
-.. _pof__loader_general_settings:
+.. _enmac__loader_general_settings:
 
 General Settings
 ----------------
