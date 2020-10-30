@@ -14,9 +14,8 @@
         "storage",
         "admin",
         "worker",
-        "client",
-        "desktop",
-        "mobile",
+        "field",
+        "office",
         "doc-dev",
         "doc-admin",
         "doc-user"
@@ -170,7 +169,7 @@
     },
     "agent": {
     },
-    "desktop": {
+    "office": {
         "showHomeLink": false,
         "appDir": "_private/both-app",
         "assetDir": "_private/both-assets",
