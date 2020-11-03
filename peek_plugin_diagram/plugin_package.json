@@ -46,7 +46,7 @@
     },
     "worker": {
     },
-    "mobile-web": {
+    "field": {
         "showHomeLink": false,
         "appDir": "_private/both-app",
         "moduleDir": "plugin-module",
