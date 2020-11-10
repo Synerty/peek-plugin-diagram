@@ -389,7 +389,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     private clearSelectableUnderMouse(): void {
         // Hide the tooltip
-        this.viewArgs.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
+        // this.viewArgs.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
 
         this.suggestedDispToSelect = null;
         this.viewArgs.config.invalidate();
@@ -418,7 +418,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     _changeSelection(hits, mouse: MouseEvent) {
         this.clearSelectableUnderMouse();
-        this.viewArgs.objectPopupService.hidePopup(DocDbPopupTypeE.summaryPopup);
+        // this.viewArgs.objectPopupService.hidePopup(DocDbPopupTypeE.summaryPopup);
 
         if (hits.length == 1 && this.viewArgs.actioner.hasAction(hits[0])) {
             this.viewArgs.actioner.applyAction(hits[0]);
@@ -452,7 +452,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                     this.viewArgs.config.controller.modelSetKey,
                     DispBase.key(hit),
                     {triggeredForContext: this.viewArgs.config.coordSet.key});
-
         }
     }
 
