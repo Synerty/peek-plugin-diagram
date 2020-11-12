@@ -42,8 +42,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     // See mousedown and mousemove events for explanation
     _startMousePos: CanvasInputPos | null = null
     
-    private showTooltipPopupTimeout: any
-    
     // This is the disp that is shown when you hover over it.
     private suggestedDispToSelect: DispBaseT | null = null
     
@@ -169,16 +167,12 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         event: TouchEvent,
         mouse: CanvasInputPos
     ) {
-        
         if (this._state == this.STATE_CANVAS_ZOOMING) {
             this._touchZoom(event, mouse)
-            
         }
         else {
             this.mouseMove(event, mouse)
-            
         }
-        
         event.preventDefault()
     }
     
@@ -196,7 +190,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             clientX: mouse.clientX,
             clientY: mouse.clientY
         }
-        console.log(center)
         
         let dist = Math.sqrt(
             (t1x - t2x) * (t1x - t2x) +
@@ -224,7 +217,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             return
         }
         
-        delta = delta * -1 // Correct the zooming to match google maps, etc
+        // Correct the zooming to match google maps, etc
+        delta = delta * -1
         
         // begin
         let zoom = this.viewArgs.config.viewPort.zoom
@@ -269,12 +263,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     ) {
         if (this._state == this.STATE_NONE) {
             this.renderSelectablesUnderMouse(inputPos, event)
-            
-            clearTimeout(this.showTooltipPopupTimeout)
-            this.showTooltipPopupTimeout = setTimeout(() => {
-                this.renderPopupUnderMouse(inputPos, event)
-            }, 100)
-            
             return
         }
         
@@ -406,7 +394,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         mouse: MouseEvent
     ) {
         this.clearSelectableUnderMouse()
-        // this.viewArgs.objectPopupService.hidePopup(DocDbPopupTypeE.summaryPopup);
         
         if (hits.length == 1 && this.viewArgs.actioner.hasAction(hits[0])) {
             this.viewArgs.actioner.applyAction(hits[0])
@@ -478,13 +465,16 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         const hits = this.getUnderMouseHits(inputPos)
         
         if (!hits.length) {
-            return this.clearSelectableUnderMouse()
+            this.viewArgs.objectPopupService.hideAllPopups()
+            this.clearSelectableUnderMouse()
+            return
         }
         
         // Don't highlight already selected disps
         for (const selDisp of query.selectedDisps) {
             if (DispBase.id(selDisp) == DispBase.id(hits[0])) {
-                return this.clearSelectableUnderMouse()
+                this.clearSelectableUnderMouse()
+                return
             }
         }
         
@@ -496,24 +486,6 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             return
         }
         
-        this.clearSelectableUnderMouse()
-        
-        this.suggestedDispToSelect = newHit
-        this.viewArgs.config.invalidate()
-    }
-    
-    private renderPopupUnderMouse(
-        inputPos: CanvasInputPos,
-        mouse: MouseEvent
-    ) {
-        const hits = this.getUnderMouseHits(inputPos)
-        
-        if (!hits.length) {
-            return
-        }
-        
-        const newHit = hits[0]
-        
         if (DispBase.key(newHit)) {
             this.viewArgs.objectPopupService.showPopup(
                 DocDbPopupTypeE.tooltipPopup,
@@ -524,6 +496,11 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                 {triggeredForContext: this.viewArgs.config.coordSet.key}
             )
         }
+        
+        this.clearSelectableUnderMouse()
+        
+        this.suggestedDispToSelect = newHit
+        this.viewArgs.config.invalidate()
     }
     
     private clearSelectableUnderMouse(): void {
