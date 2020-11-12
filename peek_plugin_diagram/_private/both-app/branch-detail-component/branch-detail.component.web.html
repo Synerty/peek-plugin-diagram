@@ -24,10 +24,8 @@
                 <nz-table class="scroll-box" nzTemplateMode ngSize="small">
                     <tbody>
                         <tr
+                            (click)="showSummaryPopup($event, item)"
                             *ngFor="let item of anchorDocs"
-                            (mouseenter)="tooltipEnter($event, item) "
-                            (mouseleave)="tooltipExit($event, item)"
-                            (click)="showSummaryPopup($event, item) "
                         >
                             <td>
                                 <span nz-text
