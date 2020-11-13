@@ -206,36 +206,16 @@ export class BranchDetailComponent extends NgLifeCycleEvents
         );
     }
 
-    tooltipEnter($event: MouseEvent, result: AnchorDisplayItemI) {
-        const offset = $(".scroll-container").offset();
-        this.objectPopupService
-            .showPopup(
-                DocDbPopupTypeE.tooltipPopup,
-                diagramPluginName,
-                {
-                    x: $event.x + 50,
-                    y: $event.y
-                },
-                this.modelSetKey,
-                result.key);
-
-    }
-
-    tooltipExit($event: MouseEvent, result: AnchorDisplayItemI) {
-        this.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
-
-    }
-
     showSummaryPopup($event: MouseEvent, result: AnchorDisplayItemI) {
         this.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
         this.objectPopupService
             .showPopup(
+                true,
                 DocDbPopupTypeE.summaryPopup,
                 diagramPluginName,
                 $event,
                 this.modelSetKey,
-                result.key);
-
+                result.key
+            )
     }
-
 }

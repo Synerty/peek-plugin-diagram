@@ -45,6 +45,10 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     // This is the disp that is shown when you hover over it.
     private suggestedDispToSelect: DispBaseT | null = null
     
+    // Used to delay the opening of the docdb popup on hover events
+    private popupTimeout: any
+    private popupOpened: boolean
+    
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
         editArgs: InputDelegateConstructorEditArgs
@@ -422,6 +426,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         if (hit != null && DispBase.key(hit) != null) {
             // Show the tooltip
             this.viewArgs.objectPopupService.showPopup(
+                true,
                 DocDbPopupTypeE.summaryPopup,
                 diagramPluginName,
                 mouse,
@@ -465,7 +470,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         const hits = this.getUnderMouseHits(inputPos)
         
         if (!hits.length) {
-            this.viewArgs.objectPopupService.hideAllPopups()
+            clearTimeout(this.popupTimeout)
+            this.viewArgs.objectPopupService.hideHoverPopup()
             this.clearSelectableUnderMouse()
             return
         }
@@ -477,28 +483,36 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                 return
             }
         }
+      
+        if (!this.popupOpened) {
+            clearTimeout(this.popupTimeout)
+            this.popupTimeout = setTimeout(() => {
+                if (DispBase.key(newHit)) {
+                    this.popupOpened = true
+                    this.viewArgs.objectPopupService.showPopup(
+                        false,
+                        DocDbPopupTypeE.tooltipPopup,
+                        diagramPluginName,
+                        mouse,
+                        this.viewArgs.config.controller.modelSetKey,
+                        DispBase.key(newHit),
+                        {triggeredForContext: this.viewArgs.config.coordSet.key}
+                    )
+                }
+            }, 125)
+        }
         
         const newHit = hits[0]
+        
         if (
             this.suggestedDispToSelect != null
             && DispBase.id(newHit) == DispBase.id(this.suggestedDispToSelect)
         ) {
             return
         }
-        
-        if (DispBase.key(newHit)) {
-            this.viewArgs.objectPopupService.showPopup(
-                DocDbPopupTypeE.tooltipPopup,
-                diagramPluginName,
-                mouse,
-                this.viewArgs.config.controller.modelSetKey,
-                DispBase.key(newHit),
-                {triggeredForContext: this.viewArgs.config.coordSet.key}
-            )
-        }
-        
+
+        this.popupOpened = false
         this.clearSelectableUnderMouse()
-        
         this.suggestedDispToSelect = newHit
         this.viewArgs.config.invalidate()
     }
