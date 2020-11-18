@@ -1,63 +1,50 @@
-<div *ngIf="isToolbarShown()" class="edit-props-toolbar">
-    <!--    <div class="edit-props-toolbar-spacer"></div>-->
-    <!--    <br>-->
-
+<div class="vert-toolbar" *ngIf="isToolbarShown()">
+  <div class="toolbar-buttons">
     <button
-        class="btn"
-        [class.btn-primary]="isBranchPropertiesActive()"
-        (click)="showBranchProperties()"
-        nz-tooltip
-        nzTitle="Branch Properties"
+      [class.active]="isBranchPropertiesActive()"
+      (click)="showBranchProperties()"
+      nz-tooltip
+      nzTitle="Branch Properties"
     >
-        <i nz-icon nzType="branches" nzTheme="outline"></i>
+      <i nz-icon nzType="branches" nzTheme="outline"></i>
     </button>
-    <br />
-
     <button
-        class="btn"
-        *ngIf="isShapePropertiesShown()"
-        [class.btn-primary]="isShapePropertiesActive()"
-        (click)="showShapeProperties()"
-        nz-tooltip
-        nzTitle="Shape Properties"
+      *ngIf="isShapePropertiesShown()"
+      [class.active]="isShapePropertiesActive()"
+      (click)="showShapeProperties()"
+      nz-tooltip
+      nzTitle="Shape Properties"
     >
-        <i nz-icon nzType="sliders" nzTheme="outline"></i>
+      <i nz-icon nzType="sliders" nzTheme="outline"></i>
     </button>
-    <br />
-
     <button
-        class="btn"
-        *ngIf="isGroupPtrPropertiesShown()"
-        [class.btn-primary]="isGroupPtrPropertiesActive()"
-        (click)="showGroupPtrProperties()"
-        nz-tooltip
-        nzTitle="Template Selection"
+      *ngIf="isGroupPtrPropertiesShown()"
+      [class.active]="isGroupPtrPropertiesActive()"
+      (click)="showGroupPtrProperties()"
+      nz-tooltip
+      nzTitle="Template Selection"
     >
-        <i nz-icon nzType="clear" nzTheme="outline"></i>
+      <i nz-icon nzType="clear" nzTheme="outline"></i>
     </button>
-    <br />
-
     <button
-        class="btn"
-        *ngIf="isEdgeTemplatePropertiesShown()"
-        [class.btn-primary]="isEdgeTemplatePropertiesActive()"
-        (click)="showEdgeTemplateProperties()"
-        nz-tooltip
-        nzTitle="Dynamic Properties"
+      class="btn"
+      *ngIf="isEdgeTemplatePropertiesShown()"
+      [class.active]="isEdgeTemplatePropertiesActive()"
+      (click)="showEdgeTemplateProperties()"
+      nz-tooltip
+      nzTitle="Dynamic Properties"
     >
-        <i nz-icon nzType="clear" nzTheme="outline"></i>
+      <i nz-icon nzType="clear" nzTheme="outline"></i>
     </button>
-    <br />
-
     <button
-        class="btn"
-        *ngIf="isLiveDbPropertiesShown()"
-        [class.btn-primary]="isLiveDbPropertiesActive()"
-        (click)="showLiveDbProperties()"
-        nz-tooltip
-        nzTitle="Dynamic Properties"
+      class="btn"
+      *ngIf="isLiveDbPropertiesShown()"
+      [class.active]="isLiveDbPropertiesActive()"
+      (click)="showLiveDbProperties()"
+      nz-tooltip
+      nzTitle="Dynamic Properties"
     >
-        <i nz-icon nzType="thunderbolt" nzTheme="outline"></i>
+      <i nz-icon nzType="thunderbolt" nzTheme="outline"></i>
     </button>
-    <br />
+  </div>
 </div>

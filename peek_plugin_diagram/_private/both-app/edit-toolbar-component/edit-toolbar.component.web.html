@@ -1,7 +1,6 @@
-<div class="edit-toolbar">
-    <div class="btn-group edit-toolbar-button-group">
+<div class="toolbar">
+    <div class="toolbar-buttons">
         <button
-            class="btn"
             nz-popconfirm
             [nzCondition]="!needsSave()"
             nzTitle="Are you sure you want to exit with out saving?"
@@ -12,7 +11,6 @@
         </button>
 
         <button
-            class="btn"
             (click)="canvasEditor.save()"
             nz-tooltip
             nzTitle="Save Changes"
@@ -20,7 +18,6 @@
             <i nz-icon nzType="save" nzTheme="outline"></i>
         </button>
         <button
-            class="btn"
             (click)="printDiagramClicked()"
             nz-tooltip
             nzTitle="Show Printable Image"
@@ -29,12 +26,9 @@
         </button>
     </div>
 
-    <div class="edit-toolbar-spacer"></div>
-
-    <div class="btn-group edit-toolbar-button-group">
+    <div class="toolbar-buttons">
         <button
-            class="btn"
-            [class.btn-primary]="isEditSelectToolActive()"
+            [class.active]="isEditSelectToolActive()"
             (click)="selectEditSelectTool()"
             nz-tooltip
             nzTitle="Select Tool"
@@ -46,7 +40,6 @@
             <i nz-icon nzType="setting" nzTheme="outline"></i>
         </button> -->
         <button
-            class="btn"
             [disabled]="!isDeleteShapeActive()"
             [class.disabled]="!isDeleteShapeActive()"
             (click)="deleteShape()"
@@ -57,11 +50,8 @@
         </button>
     </div>
 
-    <div class="edit-toolbar-spacer"></div>
-
-    <div class="btn-group edit-toolbar-button-group">
+    <div class="toolbar-buttons">
         <button
-            class="btn"
             [disabled]="!isUndoShapeActive()"
             [class.disabled]="!isUndoShapeActive()"
             (click)="undoShape()"
@@ -71,7 +61,6 @@
             <i nz-icon nzType="undo" nzTheme="outline"></i>
         </button>
         <button
-            class="btn"
             [disabled]="!isRedoShapeActive()"
             [class.disabled]="!isRedoShapeActive()"
             (click)="redoShape()"
@@ -81,13 +70,12 @@
             <i nz-icon nzType="redo" nzTheme="outline"></i>
         </button>
     </div>
+</div>
 
-    <div class="edit-toolbar-spacer"></div>
-
-    <div class="btn-group edit-toolbar-button-group">
+<div class="vert-toolbar">
+  <div class="toolbar-buttons">
         <button
-            class="btn"
-            [class.btn-primary]="isEditMakeTextActive()"
+            [class.active]="isEditMakeTextActive()"
             (click)="selectEditMakeTextTool()"
             nz-tooltip
             nzTitle="Draw Text"
@@ -95,8 +83,7 @@
             <i nz-icon nzType="font-size" nzTheme="outline"></i>
         </button>
         <button
-            class="btn"
-            [class.btn-primary]="isEditMakeRectangleActive()"
+            [class.active]="isEditMakeRectangleActive()"
             (click)="selectEditMakeRectangleTool()"
             nz-tooltip
             nzTitle="Draw Rectangle"
@@ -108,8 +95,7 @@
             </svg>
         </button>
         <button
-            class="btn"
-            [class.btn-primary]="isEditMakeLineWithArrowActive()"
+            [class.active]="isEditMakeLineWithArrowActive()"
             (click)="selectEditMakeLineWithArrowTool()"
             nz-tooltip
             nzTitle="Draw Line with Arrow"
@@ -121,8 +107,7 @@
             </svg>
         </button>
         <button
-            class="btn"
-            [class.btn-primary]="isEditMakeEllipseActive()"
+            [class.active]="isEditMakeEllipseActive()"
             (click)="selectEditMakeEllipseTool()"
             nz-tooltip
             nzTitle="Draw Circle, Ellipse or Arc"
@@ -130,8 +115,7 @@
             <i nz-icon nzType="loading-3-quarters" nzTheme="outline"></i>
         </button>
         <button
-            class="btn"
-            [class.btn-primary]="isEditMakePolygonActive()"
+            [class.active]="isEditMakePolygonActive()"
             (click)="selectEditMakePolygonTool()"
             nz-tooltip
             nzTitle="Draw Polygon"
@@ -143,8 +127,7 @@
             </svg>
         </button>
         <button
-            class="btn"
-            [class.btn-primary]="isEditMakePolylineActive()"
+            [class.active]="isEditMakePolylineActive()"
             (click)="selectEditMakePolylineTool()"
             nz-tooltip
             nzTitle="Draw PolyLine / Line"
@@ -157,12 +140,9 @@
         </button>
     </div>
 
-    <div class="edit-toolbar-spacer"></div>
-
-    <div class="btn-group edit-toolbar-button-group">
+    <div class="toolbar-buttons">
         <button
-            class="btn"
-            [class.btn-primary]="isEditMakeGroupPtrVertexActive()"
+            [class.active]="isEditMakeGroupPtrVertexActive()"
             (click)="selectEditMakeGroupPtrVertexTool()"
             nz-tooltip
             nzTitle="Place Equipment"
@@ -174,8 +154,7 @@
             </svg>
         </button>
         <button
-            class="btn"
-            [class.btn-primary]="isEditMakePolylineEdgeActive()"
+            [class.active]="isEditMakePolylineEdgeActive()"
             (click)="selectEditMakePolylineEdgeTool()"
             nz-tooltip
             nzTitle="Place Conductor"
@@ -183,14 +162,11 @@
             <i nz-icon nzType="minus" nzTheme="outline"></i>
         </button>
     </div>
-
-    <div class="edit-toolbar-spacer"></div>
-
-    <div class="btn-group edit-toolbar-button-group">
+  
+    <div class="toolbar-buttons">
         <button
             *ngFor="let btn of otherPluginButtons"
-            [class.btn-primary]="isButtonActive(btn)"
-            class="btn tool-button"
+            [class.active]="isButtonActive(btn)"
             (click)="buttonClicked(btn)"
             nz-tooltip
             [nzTitle]="btn.tooltip"

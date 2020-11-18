@@ -1,54 +1,62 @@
-/* SideNav how-to from :
- * https://www.w3schools.com/howto/howto_js_sidenav.asp
- */
-@import '~@synerty/peek-plugin-base-js/src/styles/_mixins';
-@import '~@synerty/peek-plugin-base-js/src/styles/_variables';
+@import "src/variables.scss";
 
-$edit-props-toolbar-margin: 6px;
+:host {
+  .vert-toolbar {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    flex-direction: column;
 
-$edit_toolbar_button_width: 20px;
-$edit_toolbar_width: $edit_toolbar_button_width + 2 * $edit-props-toolbar-margin;
+    .toolbar-buttons {
+      display: flex;
+      align-items: center;
+      border-radius: 2px;
+      overflow: hidden;
+      flex-direction: column;
 
+      button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        min-height: 52px;
+        min-width: 52px;
 
-/* The side navigation menu */
-.edit-props-toolbar {
-  position: fixed; /* Stay in place */
-  z-index: 5; /* Stay on top of the popup */
-  right: 0;
-  overflow-x: hidden; /* Disable horizontal scroll */
-  transition: 0.5s; /* 0.5 second transition effect to slide in the toolbar */
-  padding-top:20px;
-}
+        > * {
+          font-size: 20px;
+          color: $color;
+          fill: $color;
+        }
+      }
 
-/* Set the style for when the toolbar is open */
-.edit-props-toolbar-is-open {
-  max-width: $edit_toolbar_width;
-}
+      button:not(:last-of-type) {
+        border-bottom: 1px solid $border-color;
+      }
 
-/* The spacer between the buttons */
-.edit-props-toolbar-spacer {
-  z-index: 1; /* Stay on top of the other toolbars exit button */
-  padding: $edit-props-toolbar-margin;
-  display: inline-block;
-  vertical-align: middle;
-  position: relative;
-  float: left;
-}
+      button[disabled],
+      button.disabled {
+        background: $disabled-background-color;
 
+        > * {
+          color: $disabled-color;
+          fill: $disabled-color;
+        }
+      }
 
-/* The edit toolbar buttons */
-.btn {
-  //min-height: $general_button_min_width;
-  margin-top: $edit-props-toolbar-margin;
-}
+      button.active {
+        background: $primary-color;
 
-/* On smaller screens, where width is less than 450px,
-    change the style of the toolbar (less padding and a smaller font size) */
-@media screen and (max-width: 450px) {
-  .edit-props-toolbar {
-    padding-top: 15px;
-  }
-  .edit-props-toolbar a {
-    font-size: 18px;
+        > * {
+          color: #fff;
+          fill: #fff;
+        }
+      }
+    }
+
+    .toolbar-buttons:not(:last-of-type) {
+      margin-bottom: 8px;
+    }
   }
 }

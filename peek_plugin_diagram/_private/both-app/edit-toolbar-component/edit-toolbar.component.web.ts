@@ -1,247 +1,238 @@
-import {Component, EventEmitter, Input, Output} from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core"
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
-import {PeekCanvasEditor} from "../canvas/PeekCanvasEditor.web";
-import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
-import {PeekCanvasInputEditMakeRectangleDelegate} from "../canvas-input/PeekCanvasInputEditMakeRectangleDelegate.web";
-import {PeekCanvasInputEditMakeEllipseDelegate} from "../canvas-input/PeekCanvasInputEditMakeEllipseDelegate.web";
-import {PeekCanvasInputEditMakeDispPolygonDelegate} from "../canvas-input/PeekCanvasInputEditMakePolygonDelegate.web";
-import {PeekCanvasInputEditMakeDispPolylinDelegate} from "../canvas-input/PeekCanvasInputEditMakePolylineDelegate.web";
-import {PeekCanvasInputMakeDispGroupPtrVertexDelegate} from "../canvas-input/PeekCanvasInputEditMakeGroupPtrVertexDelegate.web";
-import {PeekCanvasInputMakeDispPolylineEdgeDelegate} from "../canvas-input/PeekCanvasInputMakeDispPolylineEdgeDelegate.web";
-import {PeekCanvasInputEditSelectDelegate} from "../canvas-input/PeekCanvasInputEditSelectDelegate.web";
-import {PeekCanvasInputEditMakeTextDelegate} from "../canvas-input/PeekCanvasInputEditMakeTextDelegate.web";
-import {PeekCanvasInputEditMakeLineWithArrowDelegate} from "../canvas-input/PeekCanvasInputEditMakeLineWithArrowDelegate.web";
+import { PeekCanvasEditor } from "../canvas/PeekCanvasEditor.web"
+import { EditorToolType } from "../canvas/PeekCanvasEditorToolType.web"
+import { PeekCanvasInputEditMakeRectangleDelegate } from "../canvas-input/PeekCanvasInputEditMakeRectangleDelegate.web"
+import { PeekCanvasInputEditMakeEllipseDelegate } from "../canvas-input/PeekCanvasInputEditMakeEllipseDelegate.web"
+import { PeekCanvasInputEditMakeDispPolygonDelegate } from "../canvas-input/PeekCanvasInputEditMakePolygonDelegate.web"
+import { PeekCanvasInputEditMakeDispPolylinDelegate } from "../canvas-input/PeekCanvasInputEditMakePolylineDelegate.web"
+import { PeekCanvasInputMakeDispGroupPtrVertexDelegate } from "../canvas-input/PeekCanvasInputEditMakeGroupPtrVertexDelegate.web"
+import { PeekCanvasInputMakeDispPolylineEdgeDelegate } from "../canvas-input/PeekCanvasInputMakeDispPolylineEdgeDelegate.web"
+import { PeekCanvasInputEditSelectDelegate } from "../canvas-input/PeekCanvasInputEditSelectDelegate.web"
+import { PeekCanvasInputEditMakeTextDelegate } from "../canvas-input/PeekCanvasInputEditMakeTextDelegate.web"
+import { PeekCanvasInputEditMakeLineWithArrowDelegate } from "../canvas-input/PeekCanvasInputEditMakeLineWithArrowDelegate.web"
 import {
     DiagramToolbarService,
     DiagramToolButtonI
-} from "@peek/peek_plugin_diagram/DiagramToolbarService";
-import {PrivateDiagramToolbarService} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
+} from "@peek/peek_plugin_diagram/DiagramToolbarService"
+import { PrivateDiagramToolbarService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService"
 
 @Component({
-    selector: 'pl-diagram-edit-toolbar',
-    templateUrl: 'edit-toolbar.component.web.html',
-    styleUrls: ['edit-toolbar.component.web.scss']
+    selector: "pl-diagram-edit-toolbar",
+    templateUrl: "edit-toolbar.component.web.html",
+    styleUrls: ["edit-toolbar.component.web.scss"]
 })
 export class EditToolbarComponent extends NgLifeCycleEvents {
-
-
-    @Output('openPrintPopup')
-    openPrintPopupEmitter = new EventEmitter();
-
+    @Output("openPrintPopup")
+    openPrintPopupEmitter = new EventEmitter()
+    
     @Input("canvasEditor")
-    canvasEditor: PeekCanvasEditor;
-
-    protected toolbarService: PrivateDiagramToolbarService;
-
-    otherPluginButtons: DiagramToolButtonI[] = [];
-
+    canvasEditor: PeekCanvasEditor
+    
+    otherPluginButtons: DiagramToolButtonI[] = []
+    protected toolbarService: PrivateDiagramToolbarService
+    
     constructor(private abstractToolbarService: DiagramToolbarService) {
-        super();
-
-        this.toolbarService = <PrivateDiagramToolbarService>abstractToolbarService;
-
-        this.otherPluginButtons = this.toolbarService.editToolButtons;
+        super()
+        
+        this.toolbarService = <PrivateDiagramToolbarService>abstractToolbarService
+        
+        this.otherPluginButtons = this.toolbarService.editToolButtons
         this.toolbarService
             .editToolButtonsUpdatedObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe((buttons: DiagramToolButtonI[]) => {
-                this.otherPluginButtons = buttons;
-            });
-
+                this.otherPluginButtons = buttons
+            })
     }
-
-
-    private selectedTool(): EditorToolType {
-        if (this.canvasEditor == null)
-            return EditorToolType.SELECT_TOOL;
-
-        return this.canvasEditor.selectedTool();
-    }
-
-    // --------------------
-    // Other Plugin button integrations
-
+    
     buttonClicked(btn: DiagramToolButtonI): void {
         if (btn.callback != null) {
-            btn.callback();
-        } else {
+            btn.callback()
+        }
+        else {
             // Expand children?
         }
     }
-
+    
+    // --------------------
+    // Other Plugin button integrations
+    
     isButtonActive(btn: DiagramToolButtonI): boolean {
         if (btn.isActive == null)
-            return false;
-        return btn.isActive();
+            return false
+        return btn.isActive()
     }
-
+    
+    needsSave(): boolean {
+        return this.canvasEditor.branchContext.branchTuple.needsSave
+    }
+    
     // --------------------
     // EXIT
-
-    needsSave(): boolean {
-        return this.canvasEditor.branchContext.branchTuple.needsSave;
-    }
-
+    
     confirmExitNoSave(): void {
-        this.canvasEditor.closeEditor();
+        this.canvasEditor.closeEditor()
     }
-
+    
+    printDiagramClicked(): void {
+        this.openPrintPopupEmitter.next()
+    }
+    
     // --------------------
     // PRINT
-
-    printDiagramClicked(): void {
-        this.openPrintPopupEmitter.next();
+    
+    selectEditSelectTool() {
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditSelectDelegate)
     }
-
+    
     // --------------------
     // Edit Select Tool
-
-    selectEditSelectTool() {
-        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditSelectDelegate);
-    }
-
+    
     isEditSelectToolActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
-        return this.selectedTool() === EditorToolType.EDIT_SELECT_TOOL;
+        return this.selectedTool() === EditorToolType.EDIT_SELECT_TOOL
     }
-
-    // --------------------
-    // Delete Shape
-
+    
     deleteShape() {
         let delegate = <PeekCanvasInputEditSelectDelegate>
-            this.canvasEditor.canvasInput.selectedDelegate();
-
-        delegate.deleteSelectedDisps();
+            this.canvasEditor.canvasInput.selectedDelegate()
+        
+        delegate.deleteSelectedDisps()
     }
-
+    
+    // --------------------
+    // Delete Shape
+    
     isDeleteShapeActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
         return this.isEditSelectToolActive()
-            && this.canvasEditor.canvasModel.selection.selectedDisps().length != 0;
+            && this.canvasEditor.canvasModel.selection.selectedDisps().length != 0
     }
-
+    
+    undoShape() {
+        this.canvasEditor.doUndo()
+    }
+    
     // --------------------
     // Undo Shape
-
-    undoShape() {
-        this.canvasEditor.doUndo();
-    }
-
+    
     isUndoShapeActive(): boolean {
         return this.isEditSelectToolActive()
-            && this.canvasEditor.branchContext.branchTuple.isUndoPossible;
+            && this.canvasEditor.branchContext.branchTuple.isUndoPossible
     }
-
+    
+    redoShape() {
+        this.canvasEditor.doRedo()
+    }
+    
     // --------------------
     // Redo Shape
-
-    redoShape() {
-        this.canvasEditor.doRedo();
-    }
-
+    
     isRedoShapeActive(): boolean {
         return this.isEditSelectToolActive()
-            && this.canvasEditor.branchContext.branchTuple.isRedoPossible;
+            && this.canvasEditor.branchContext.branchTuple.isRedoPossible
     }
-
-
+    
+    selectEditMakeTextTool() {
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeTextDelegate)
+    }
+    
     // --------------------
     // Edit Make Text Tool
-
-    selectEditMakeTextTool() {
-        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeTextDelegate);
-    }
-
+    
     isEditMakeTextActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
-        return this.selectedTool() === EditorToolType.EDIT_MAKE_TEXT;
+        return this.selectedTool() === EditorToolType.EDIT_MAKE_TEXT
     }
-
+    
+    selectEditMakeRectangleTool() {
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeRectangleDelegate)
+    }
+    
     // --------------------
     // Edit Make Rectangle Tool
-
-    selectEditMakeRectangleTool() {
-        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeRectangleDelegate);
-    }
-
+    
     isEditMakeRectangleActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
-        return this.selectedTool() === EditorToolType.EDIT_MAKE_RECTANGLE;
+        return this.selectedTool() === EditorToolType.EDIT_MAKE_RECTANGLE
     }
-
+    
+    selectEditMakeLineWithArrowTool() {
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeLineWithArrowDelegate)
+    }
+    
     // --------------------
     // Edit Make Rectangle Tool
-
-    selectEditMakeLineWithArrowTool() {
-        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeLineWithArrowDelegate);
-    }
-
+    
     isEditMakeLineWithArrowActive(): boolean {
-        return this.selectedTool() === EditorToolType.EDIT_MAKE_LINE_WITH_ARROW;
+        return this.selectedTool() === EditorToolType.EDIT_MAKE_LINE_WITH_ARROW
     }
-
+    
+    selectEditMakeEllipseTool() {
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeEllipseDelegate)
+    }
+    
     // --------------------
     // Edit Make Circle, Ellipse, Arc Tool
-
-    selectEditMakeEllipseTool() {
-        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeEllipseDelegate);
-    }
-
+    
     isEditMakeEllipseActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
-        return this.selectedTool() === EditorToolType.EDIT_MAKE_CIRCLE_ELLIPSE_ARC;
+        return this.selectedTool() === EditorToolType.EDIT_MAKE_CIRCLE_ELLIPSE_ARC
     }
-
+    
+    selectEditMakePolygonTool() {
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeDispPolygonDelegate)
+    }
+    
     // --------------------
     // Edit Make Polygon Tool
-
-    selectEditMakePolygonTool() {
-        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeDispPolygonDelegate);
-    }
-
+    
     isEditMakePolygonActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
-        return this.selectedTool() === EditorToolType.EDIT_MAKE_POLYGON;
+        return this.selectedTool() === EditorToolType.EDIT_MAKE_POLYGON
     }
-
+    
+    selectEditMakePolylineTool() {
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeDispPolylinDelegate)
+    }
+    
     // --------------------
     // Edit Make Polyline Tool
-
-    selectEditMakePolylineTool() {
-        this.canvasEditor.setInputEditDelegate(PeekCanvasInputEditMakeDispPolylinDelegate);
-    }
-
+    
     isEditMakePolylineActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
-        return this.selectedTool() === EditorToolType.EDIT_MAKE_POLYLINE;
+        return this.selectedTool() === EditorToolType.EDIT_MAKE_POLYLINE
     }
-
-
+    
+    selectEditMakeGroupPtrVertexTool() {
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputMakeDispGroupPtrVertexDelegate)
+    }
+    
     // --------------------
     // Edit Make Group Ptr Vertex Tool
-
-    selectEditMakeGroupPtrVertexTool() {
-        this.canvasEditor.setInputEditDelegate(PeekCanvasInputMakeDispGroupPtrVertexDelegate);
-    }
-
+    
     isEditMakeGroupPtrVertexActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
-        return this.selectedTool() === EditorToolType.EDIT_MAKE_DISP_GROUP_PTR_VERTEX;
+        return this.selectedTool() === EditorToolType.EDIT_MAKE_DISP_GROUP_PTR_VERTEX
     }
-
-
+    
+    selectEditMakePolylineEdgeTool() {
+        this.canvasEditor.setInputEditDelegate(PeekCanvasInputMakeDispPolylineEdgeDelegate)
+    }
+    
     // --------------------
     // Edit Make Group Ptr Edge Tool
-
-    selectEditMakePolylineEdgeTool() {
-        this.canvasEditor.setInputEditDelegate(PeekCanvasInputMakeDispPolylineEdgeDelegate);
-    }
-
+    
     isEditMakePolylineEdgeActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
-        return this.selectedTool() === EditorToolType.EDIT_MAKE_DISP_POLYLINE_EDGE;
+        return this.selectedTool() === EditorToolType.EDIT_MAKE_DISP_POLYLINE_EDGE
     }
-
-
+    
+    private selectedTool(): EditorToolType {
+        if (this.canvasEditor == null)
+            return EditorToolType.SELECT_TOOL
+        
+        return this.canvasEditor.selectedTool()
+    }
 }

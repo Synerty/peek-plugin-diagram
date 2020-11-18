@@ -1,49 +1,49 @@
 <div
-    class="edit-props-panel"
-    [class.edit-props-is-open]="isContextShown"
-    [class.edit-props-is-closed]="!isContextShown"
+  class="edit-props-panel"
+  [class.edit-props-is-open]="isContextShown"
+  [class.edit-props-is-closed]="!isContextShown"
 >
-    <div class="panel-header">
-        <button
-            type="button"
-            class="close"
-            (click)="closePopup()"
-            aria-label="Close"
-        >
-            <i nz-icon nzType="close" nzTheme="outline"></i>
-        </button>
-
-        <h4>{{title()}}</h4>
+  <div class="panel-header">
+    <h4>{{title()}}</h4>
+    
+    <button
+      type="button"
+      class="close"
+      (click)="closePopup()"
+      aria-label="Close"
+    >
+      <i nz-icon nzType="close" nzTheme="outline"></i>
+    </button>
+  </div>
+  <div class="panel-body">
+    <div *ngIf="isShowingBranchPropertiesContext()">
+      <pl-diagram-branch-detail
+        [modelSetKey]="modelSetKey()"
+        [coordSetKey]="coordSetKey()"
+        [globalBranchKey]="globalBranchKey()"
+        [diagramBranchTuple]="diagramBranchTuple()"
+        [diagramBranchUpdatedObservable]="diagramBranchUpdatedObservable()"
+      ></pl-diagram-branch-detail>
     </div>
-    <div class="panel-body">
-        <div *ngIf="isShowingBranchPropertiesContext()">
-            <pl-diagram-branch-detail
-                [modelSetKey]="modelSetKey()"
-                [coordSetKey]="coordSetKey()"
-                [globalBranchKey]="globalBranchKey()"
-                [diagramBranchTuple]="diagramBranchTuple()"
-                [diagramBranchUpdatedObservable]="diagramBranchUpdatedObservable()"
-            ></pl-diagram-branch-detail>
-        </div>
-
-        <pl-diagram-edit-props-shape
-            *ngIf="isShowingShapePropertiesContext()"
-            [canvasEditor]="canvasEditor"
-        ></pl-diagram-edit-props-shape>
-
-        <pl-diagram-edit-props-livedb
-            *ngIf="isShowingDynamicPropertiesContext()"
-            [canvasEditor]="canvasEditor"
-        ></pl-diagram-edit-props-livedb>
-
-        <pl-diagram-edit-props-group-ptr
-            *ngIf="isShowingGroupPtrPropertiesContext()"
-            [canvasEditor]="canvasEditor"
-        ></pl-diagram-edit-props-group-ptr>
-
-        <pl-diagram-edit-props-edge-template
-            *ngIf="isShowingEdgeTemplatePropertiesContext()"
-            [canvasEditor]="canvasEditor"
-        ></pl-diagram-edit-props-edge-template>
-    </div>
+    
+    <pl-diagram-edit-props-shape
+      *ngIf="isShowingShapePropertiesContext()"
+      [canvasEditor]="canvasEditor"
+    ></pl-diagram-edit-props-shape>
+    
+    <pl-diagram-edit-props-livedb
+      *ngIf="isShowingDynamicPropertiesContext()"
+      [canvasEditor]="canvasEditor"
+    ></pl-diagram-edit-props-livedb>
+    
+    <pl-diagram-edit-props-group-ptr
+      *ngIf="isShowingGroupPtrPropertiesContext()"
+      [canvasEditor]="canvasEditor"
+    ></pl-diagram-edit-props-group-ptr>
+    
+    <pl-diagram-edit-props-edge-template
+      *ngIf="isShowingEdgeTemplatePropertiesContext()"
+      [canvasEditor]="canvasEditor"
+    ></pl-diagram-edit-props-edge-template>
+  </div>
 </div>

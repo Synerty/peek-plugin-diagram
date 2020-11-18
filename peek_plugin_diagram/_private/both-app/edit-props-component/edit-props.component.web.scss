@@ -1,9 +1,6 @@
-/* On the desktop, this slides in from the right.
-* https://www.w3schools.com/howto/howto_js_sidenav.asp
-*/
 @import '~@synerty/peek-plugin-base-js/src/styles/_mixins';
 @import '~@synerty/peek-plugin-base-js/src/styles/_variables';
-
+@import "src/variables.scss";
 
 $panel_width: 400px;
 
@@ -28,18 +25,36 @@ $edit_toolbar_height: $edit_toolbar_button_height + 2 * $panel_width;
 
 /* The side navigation menu */
 .edit-props-panel {
-  position: fixed; /* Stay in place */
+  position: absolute; /* Stay in place */
   z-index: 4; /* Stay on top */
   //top: 46px;
-  right: 0;
+  right: 8px;
+  top: 8px;
   overflow-x: hidden; /* Disable horizontal scroll */
   transition: 0.5s; /* 0.5 second transition effect to slide in the toolbar */
   background-color: white;
   margin-bottom: 0;
+  border-radius: 2px;
 }
 
 .edit-props-panel > .panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 15px;
+  background: $primary-color;
+
+  > * {
+    color: #fff;
+    fill: #fff;
+    opacity: 1;
+    margin: 0;
+  }
+
+  button {
+    padding: 0;
+    font-size: 20px;
+  }
 }
 
 .edit-props-panel > .close {
@@ -50,7 +65,6 @@ $edit_toolbar_height: $edit_toolbar_button_height + 2 * $panel_width;
 .edit-props-is-open {
   min-width: 60px;
   max-width: 50vw;
-  padding-right: 60px;
 }
 
 /* Set the style for when the toolbar is closed */
