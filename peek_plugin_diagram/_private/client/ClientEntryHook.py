@@ -189,7 +189,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
         resource = FileUnderlayResource()
         resource.enableSinglePageApplication()
 
-        self.platform.addMobileResource(b'web_dist', resource)
+        self.platform.addFieldResource(b'web_dist', resource)
 
         logger.debug("Started")
 

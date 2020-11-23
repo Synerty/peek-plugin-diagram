@@ -10,7 +10,7 @@
     },
     "requiresServices": [
         "agent",
-        "server",
+        "logic",
         "storage",
         "admin",
         "worker",
@@ -33,7 +33,7 @@
         "docDir": "doc-user",
         "docRst": "index.rst"
     },
-    "server": {
+    "logic": {
     },
     "storage": {
         "alembicDir": "_private/alembic"
