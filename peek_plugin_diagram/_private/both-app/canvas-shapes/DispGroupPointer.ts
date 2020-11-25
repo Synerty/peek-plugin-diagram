@@ -10,6 +10,7 @@ import {PrivateDiagramLookupService} from "@peek/peek_plugin_diagram/_private/se
 import {BranchTuple} from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
 import {calculateRotationFromHandleDelta, makeRotateHandlePoints} from "./DispUtilRotate";
 import {DispText} from "./DispText";
+import {DispFactory} from "./DispFactory";
 
 export interface DispGroupPointerT extends DispBaseT {
 
@@ -120,8 +121,8 @@ export class DispGroupPointer extends DispBase {
         disp.tempRotation = data.tempRotation;
 
         for (const childDisp of disp.disps) {
-            // const Wrapper = DispFactory.wrapper(childDisp);
-            DispBase.rotateAboutAxis(childDisp, center, data.deltaRotation);
+            const Wrapper = DispFactory.wrapper(childDisp);
+            Wrapper.rotateAboutAxis(childDisp, center, data.deltaRotation);
         }
         disp.bounds = null;
 
