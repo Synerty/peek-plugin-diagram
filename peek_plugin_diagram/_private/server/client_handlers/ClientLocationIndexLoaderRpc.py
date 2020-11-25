@@ -5,7 +5,7 @@ from peek_abstract_chunked_index.private.server.client_handlers.ACIChunkLoadRpcA
     ACIChunkLoadRpcABC
 from peek_core_search._private.storage.EncodedSearchObjectChunk import \
     EncodedSearchObjectChunk
-from peek_plugin_base.PeekVortexUtil import peekServerName, peekClientName
+from peek_plugin_base.PeekVortexUtil import peekServerName, peekBackendNames
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompiled
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
@@ -30,7 +30,7 @@ class ClientLocationIndexLoaderRpc(ACIChunkLoadRpcABC):
         logger.debug("RPCs started")
 
     # -------------
-    @vortexRPC(peekServerName, acceptOnlyFromVortex=peekClientName, timeoutSeconds=60,
+    @vortexRPC(peekServerName, acceptOnlyFromVortex=peekBackendNames, timeoutSeconds=60,
                additionalFilt=diagramFilt, deferToThread=True)
     def loadLocationIndexes(self, offset: int, count: int) -> Optional[bytes]:
         """ Update Page Loader Status

@@ -6,7 +6,7 @@ from vortex.rpc.RPC import vortexRPC
 
 from peek_abstract_chunked_index.private.server.client_handlers.ACIChunkLoadRpcABC import \
     ACIChunkLoadRpcABC
-from peek_plugin_base.PeekVortexUtil import peekServerName, peekClientName
+from peek_plugin_base.PeekVortexUtil import peekServerName, peekBackendNames
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
 
@@ -32,14 +32,14 @@ class ClientGridLoaderRpc(ACIChunkLoadRpcABC):
         logger.debug("RPCs started")
 
     # -------------
-    @vortexRPC(peekServerName, acceptOnlyFromVortex=peekClientName, timeoutSeconds=120,
+    @vortexRPC(peekServerName, acceptOnlyFromVortex=peekBackendNames, timeoutSeconds=120,
                additionalFilt=diagramFilt, deferToThread=True)
     def loadGrids(self, offset: int, count: int) -> Optional[bytes]:
         return self.ckiInitialLoadChunksPayloadBlocking(offset, count,
                                                         GridKeyIndexCompiled)
 
     # -------------
-    @vortexRPC(peekServerName, acceptOnlyFromVortex=peekClientName,
+    @vortexRPC(peekServerName, acceptOnlyFromVortex=peekBackendNames,
                additionalFilt=diagramFilt)
     def updateClientWatchedGrids(self, clientId: str, gridKeys: List[str]) -> None:
         """ Update Client Watched Grids
