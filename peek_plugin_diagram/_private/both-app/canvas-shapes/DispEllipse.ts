@@ -1,4 +1,4 @@
-import {DispBase, DispBaseT, PointI, PointsT} from "./DispBase";
+import {DispBase, DispBaseT, PointI} from "./DispBase";
 import {DispColor, DispLineStyle} from "@peek/peek_plugin_diagram/lookups";
 import {DispPoly} from "./DispPoly";
 import {
@@ -148,6 +148,17 @@ export class DispEllipse extends DispBase {
         disp.ea = val;
         disp.bounds = null;
     }
+
+    static rotateAboutAxis(disp, center: PointI, rotationDegrees: number) {
+        if (disp.g == null)
+            return;
+
+        DispBase.rotateAboutAxis(disp, center, rotationDegrees);
+        DispEllipse.setRotation(disp, DispEllipse.rotation(disp) + rotationDegrees);
+    }
+
+    // ---------------
+    // Create Method
 
     static create(coordSet: ModelCoordSet): DispEllipseT {
         let newDisp = {
