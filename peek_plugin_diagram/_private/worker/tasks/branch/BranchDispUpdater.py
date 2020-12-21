@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List
 
 import pytz
-import ujson as json
+import json
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.storage.Display import DispBase
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyCompilerQueue, \

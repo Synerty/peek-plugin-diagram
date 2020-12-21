@@ -1,6 +1,6 @@
 import logging
 
-import ujson
+import json
 from peek_plugin_diagram._private.server.controller.BranchLiveEditController import \
     BranchLiveEditController
 from peek_plugin_diagram._private.storage.branch.BranchIndex import BranchIndex

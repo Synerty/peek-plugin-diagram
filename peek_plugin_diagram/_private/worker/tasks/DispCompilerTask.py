@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import List, Dict
 
 import pytz
-import ujson as json
+import json
 from sqlalchemy import select, join
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.sql.selectable import Select

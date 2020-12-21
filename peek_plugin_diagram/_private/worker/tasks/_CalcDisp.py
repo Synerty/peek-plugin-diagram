@@ -1,7 +1,7 @@
 import logging
 from typing import List, Dict
 
-import ujson
+import json
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 
 logger = logging.getLogger(__name__)
@@ -52,7 +52,7 @@ def _createHashId(dispDict: Dict) -> str:
     if 'gi' in hashIdDict: del hashIdDict['gi']
 
     # Hash the actual content of the disp, and convert the integer to a string
-    hashId = hash(ujson.dumps(hashIdDict, sort_keys=True))
+    hashId = hash(json.dumps(hashIdDict, sort_keys=True))
     hashIdStr = __num_encode(hashId)
 
     # Return the hash
