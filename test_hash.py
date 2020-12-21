@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import pytz
-import ujson
+import json
 
 x = {
     "_tt": "DGP",
@@ -50,7 +50,7 @@ def num_decode(s):
 for num in range(100):
     x['g'][0] += num
     x['g'][1] += num
-    p=hash(ujson.dumps(x))
+    p=hash(json.dumps(x))
     # print(str(p))
     unique.add(p)
 
