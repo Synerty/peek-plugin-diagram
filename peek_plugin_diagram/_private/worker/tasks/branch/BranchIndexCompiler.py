@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import List, Dict
 
 import pytz
-import ujson as json
+import json
 from sqlalchemy import select
 from txcelery.defer import DeferrableTask
 from vortex.Payload import Payload

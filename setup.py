@@ -64,7 +64,6 @@ package_files = find_package_files()
 
 requirements = [
     'peek-plugin-base',
-    'ujson',
     'Numpy'
 ]
 
