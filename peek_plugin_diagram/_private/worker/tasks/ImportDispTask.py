@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Dict, Tuple
 
 import pytz
-import ujson as json
+import json
 from peek_plugin_base.storage.DbConnection import pgCopyInsert, convertToCoreSqlaInsert
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_base.worker.CeleryApp import celeryApp

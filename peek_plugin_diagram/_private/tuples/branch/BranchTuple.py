@@ -1,7 +1,7 @@
 from typing import List, Any, Optional
 
-import ujson
-import ujson as json
+import json
+import json
 from vortex import SerialiseUtil
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
@@ -79,7 +79,7 @@ class BranchTuple(Tuple):
     def loadFromJson(self, packedJsonStr: str,
                      importHash: str, importGroupHash: str) -> 'BranchTuple':
         branchTuple = BranchTuple()
-        branchTuple.packedJson__ = ujson.loads(packedJsonStr)
+        branchTuple.packedJson__ = json.loads(packedJsonStr)
         branchTuple.importHash = importHash
         branchTuple.importGroupHash = importGroupHash
 
