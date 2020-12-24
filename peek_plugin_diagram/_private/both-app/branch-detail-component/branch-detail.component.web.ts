@@ -202,7 +202,7 @@ export class BranchDetailComponent extends NgLifeCycleEvents
         let center = Wrapper.center(disp);
 
         this.diagramPosService.position(
-            this.coordSetKey, center.x, center.y, 5.0, Wrapper.key(disp)
+            this.coordSetKey, center.x, center.y, 5.0, (Wrapper.key(disp) || {})
         );
     }
 
