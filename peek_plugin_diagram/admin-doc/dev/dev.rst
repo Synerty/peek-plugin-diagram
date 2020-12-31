@@ -1,3 +1,5 @@
+.. _diagram_dev:
+
 ===========
 Development
 ===========

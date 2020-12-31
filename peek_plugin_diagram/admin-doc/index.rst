@@ -17,3 +17,4 @@ and attribute updates from the peek-plugin-livedb plugin.
     overview
     status/status
     admin_tasks
+    dev/dev
