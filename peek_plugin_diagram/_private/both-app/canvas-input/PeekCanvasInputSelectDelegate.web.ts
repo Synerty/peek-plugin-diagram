@@ -329,7 +329,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     mouseDoubleClick(
         event,
         mouse
-    ) { }
+    ) {
+    }
     
     mouseWheel(
         event,
@@ -483,7 +484,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                 return
             }
         }
-      
+        
         if (!this.popupOpened) {
             clearTimeout(this.popupTimeout)
             this.popupTimeout = setTimeout(() => {
@@ -510,7 +511,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         ) {
             return
         }
-
+        
         this.popupOpened = false
         this.clearSelectableUnderMouse()
         this.suggestedDispToSelect = newHit

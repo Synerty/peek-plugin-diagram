@@ -7,12 +7,13 @@ from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 
 @addTupleType
 class ImportBranchTuple(Tuple):
-    """ Imported Branch
+    """Imported Branch
 
     This tuple is used by other plugins to load branches into the diagram.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportBranchTuple'
+
+    __tupleType__ = diagramTuplePrefix + "ImportBranchTuple"
 
     #:  The name of the model set for this branch
     modelSetKey: str = TupleField()

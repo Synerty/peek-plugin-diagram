@@ -1,20 +1,28 @@
 import logging
 
-from peek_abstract_chunked_index.private.server.controller.ACIProcessorQueueControllerABC import \
-    ACIProcessorQueueControllerABC, ACIProcessorQueueBlockItem
-from peek_abstract_chunked_index.private.server.controller.ACIProcessorStatusNotifierABC import \
-    ACIProcessorStatusNotifierABC
-from peek_abstract_chunked_index.private.tuples.ACIProcessorQueueTupleABC import \
-    ACIProcessorQueueTupleABC
-from peek_plugin_diagram._private.server.client_handlers.BranchIndexChunkUpdateHandler import \
-    BranchIndexChunkUpdateHandler
-from peek_plugin_diagram._private.server.controller.StatusController import \
-    StatusController
+from peek_abstract_chunked_index.private.server.controller.ACIProcessorQueueControllerABC import (
+    ACIProcessorQueueControllerABC,
+    ACIProcessorQueueBlockItem,
+)
+from peek_abstract_chunked_index.private.server.controller.ACIProcessorStatusNotifierABC import (
+    ACIProcessorStatusNotifierABC,
+)
+from peek_abstract_chunked_index.private.tuples.ACIProcessorQueueTupleABC import (
+    ACIProcessorQueueTupleABC,
+)
+from peek_plugin_diagram._private.server.client_handlers.BranchIndexChunkUpdateHandler import (
+    BranchIndexChunkUpdateHandler,
+)
+from peek_plugin_diagram._private.server.controller.StatusController import (
+    StatusController,
+)
 from peek_plugin_diagram._private.storage.branch.BranchIndex import BranchIndex
-from peek_plugin_diagram._private.storage.branch.BranchIndexCompilerQueue import \
-    BranchIndexCompilerQueue
-from peek_plugin_diagram._private.storage.branch.BranchIndexEncodedChunk import \
-    BranchIndexEncodedChunk
+from peek_plugin_diagram._private.storage.branch.BranchIndexCompilerQueue import (
+    BranchIndexCompilerQueue,
+)
+from peek_plugin_diagram._private.storage.branch.BranchIndexEncodedChunk import (
+    BranchIndexEncodedChunk,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -48,20 +56,28 @@ class BranchIndexCompilerQueueController(ACIProcessorQueueControllerABC):
 
     _logger = logger
     _QueueDeclarative: ACIProcessorQueueTupleABC = BranchIndexCompilerQueue
-    _VacuumDeclaratives = (BranchIndexCompilerQueue,
-                           BranchIndex, BranchIndexEncodedChunk)
+    _VacuumDeclaratives = (
+        BranchIndexCompilerQueue,
+        BranchIndex,
+        BranchIndexEncodedChunk,
+    )
 
-    def __init__(self, dbSessionCreator,
-                 statusController: StatusController,
-                 clientUpdateHandler: BranchIndexChunkUpdateHandler):
-        ACIProcessorQueueControllerABC.__init__(self, dbSessionCreator,
-                                                _Notifier(statusController))
+    def __init__(
+        self,
+        dbSessionCreator,
+        statusController: StatusController,
+        clientUpdateHandler: BranchIndexChunkUpdateHandler,
+    ):
+        ACIProcessorQueueControllerABC.__init__(
+            self, dbSessionCreator, _Notifier(statusController)
+        )
 
         self._clientUpdateHandler: BranchIndexChunkUpdateHandler = clientUpdateHandler
 
     def _sendToWorker(self, block: ACIProcessorQueueBlockItem):
-        from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexCompiler import \
-            compileBranchIndexChunk
+        from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexCompiler import (
+            compileBranchIndexChunk,
+        )
 
         return compileBranchIndexChunk.delay(block.itemsEncodedPayload)
 
@@ -69,7 +85,7 @@ class BranchIndexCompilerQueueController(ACIProcessorQueueControllerABC):
         self._clientUpdateHandler.sendChunks(results)
 
     def _dedupeQueueSql(self, lastFetchedId: int, dedupeLimit: int):
-        return '''
+        return """
                  with sq_raw as (
                     SELECT "id", "chunkKey"
                     FROM pl_diagram."BranchIndexCompilerQueue"
@@ -88,4 +104,7 @@ class BranchIndexCompilerQueueController(ACIProcessorQueueControllerABC):
                     AND pl_diagram."BranchIndexCompilerQueue"."id" > %(id)s
                     AND pl_diagram."BranchIndexCompilerQueue"."chunkKey" = sq1."chunkKey"
 
-            ''' % {'id': lastFetchedId, 'limit': dedupeLimit}
+            """ % {
+            "id": lastFetchedId,
+            "limit": dedupeLimit,
+        }

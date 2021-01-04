@@ -9,8 +9,9 @@ from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TuplesProviderABC
 
 from peek_plugin_diagram._private.storage.branch.BranchIndex import BranchIndex
-from peek_plugin_diagram._private.tuples.branch.BranchKeyToIdMapTuple import \
-    BranchKeyToIdMapTuple
+from peek_plugin_diagram._private.tuples.branch.BranchKeyToIdMapTuple import (
+    BranchKeyToIdMapTuple,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -20,14 +21,15 @@ class BranchKeyToIdMapTupleProvider(TuplesProviderABC):
         self._ormSessionCreator = ormSessionCreator
 
     @deferToThreadWrapWithLogger(logger)
-    def makeVortexMsg(self, filt: dict,
-                      tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
+    def makeVortexMsg(
+        self, filt: dict, tupleSelector: TupleSelector
+    ) -> Union[Deferred, bytes]:
 
         session = self._ormSessionCreator()
         try:
-            tuples = session.query(BranchIndex.id,
-                                   BranchIndex.coordSetId,
-                                   BranchIndex.key).all()
+            tuples = session.query(
+                BranchIndex.id, BranchIndex.coordSetId, BranchIndex.key
+            ).all()
 
             tupleByCoordSetId = defaultdict(BranchKeyToIdMapTuple)
             for t in tuples:
@@ -37,8 +39,11 @@ class BranchKeyToIdMapTupleProvider(TuplesProviderABC):
                 newTuple.keyIdMap[t.key] = t.id
                 newTuple.coordSetId = t.coordSetId
 
-            return Payload(filt, tuples=list(tupleByCoordSetId.values())) \
-                .makePayloadEnvelope().toVortexMsg()
+            return (
+                Payload(filt, tuples=list(tupleByCoordSetId.values()))
+                .makePayloadEnvelope()
+                .toVortexMsg()
+            )
 
         finally:
             session.close()

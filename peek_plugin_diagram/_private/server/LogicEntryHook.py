@@ -4,46 +4,68 @@ from twisted.internet.defer import inlineCallbacks
 from vortex.DeferUtil import deferToThreadWrapWithLogger
 
 from peek_plugin_base.server.PluginLogicEntryHookABC import PluginLogicEntryHookABC
-from peek_plugin_base.server.PluginServerStorageEntryHookABC import \
-    PluginServerStorageEntryHookABC
-from peek_plugin_base.server.PluginServerWorkerEntryHookABC import \
-    PluginServerWorkerEntryHookABC
+from peek_plugin_base.server.PluginServerStorageEntryHookABC import (
+    PluginServerStorageEntryHookABC,
+)
+from peek_plugin_base.server.PluginServerWorkerEntryHookABC import (
+    PluginServerWorkerEntryHookABC,
+)
 from peek_plugin_diagram._private.server.api.DiagramApi import DiagramApi
-from peek_plugin_diagram._private.server.client_handlers.BranchIndexChunkLoadRpc import \
-    BranchIndexChunkLoadRpc
-from peek_plugin_diagram._private.server.client_handlers.BranchIndexChunkUpdateHandler import \
-    BranchIndexChunkUpdateHandler
-from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import \
-    ClientGridLoaderRpc
-from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import \
-    ClientGridUpdateHandler
-from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexLoaderRpc import \
-    ClientLocationIndexLoaderRpc
-from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexUpdateHandler import \
-    ClientLocationIndexUpdateHandler
-from peek_plugin_diagram._private.server.controller.BranchIndexCompilerQueueController import \
-    BranchIndexCompilerQueueController
-from peek_plugin_diagram._private.server.controller.BranchLiveEditController import \
-    BranchLiveEditController
-from peek_plugin_diagram._private.server.controller.BranchUpdateController import \
-    BranchUpdateController
-from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
-    DispCompilerQueueController
-from peek_plugin_diagram._private.server.controller.DispImportController import \
-    DispImportController
-from peek_plugin_diagram._private.server.controller.GridKeyCompilerQueueController import \
-    GridKeyCompilerQueueController
-from peek_plugin_diagram._private.server.controller.LiveDbWatchController import \
-    LiveDbWatchController
-from peek_plugin_diagram._private.server.controller.LocationCompilerQueueController import \
-    LocationCompilerQueueController
-from peek_plugin_diagram._private.server.controller.LookupImportController import \
-    LookupImportController
+from peek_plugin_diagram._private.server.client_handlers.BranchIndexChunkLoadRpc import (
+    BranchIndexChunkLoadRpc,
+)
+from peek_plugin_diagram._private.server.client_handlers.BranchIndexChunkUpdateHandler import (
+    BranchIndexChunkUpdateHandler,
+)
+from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import (
+    ClientGridLoaderRpc,
+)
+from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import (
+    ClientGridUpdateHandler,
+)
+from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexLoaderRpc import (
+    ClientLocationIndexLoaderRpc,
+)
+from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexUpdateHandler import (
+    ClientLocationIndexUpdateHandler,
+)
+from peek_plugin_diagram._private.server.controller.BranchIndexCompilerQueueController import (
+    BranchIndexCompilerQueueController,
+)
+from peek_plugin_diagram._private.server.controller.BranchLiveEditController import (
+    BranchLiveEditController,
+)
+from peek_plugin_diagram._private.server.controller.BranchUpdateController import (
+    BranchUpdateController,
+)
+from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import (
+    DispCompilerQueueController,
+)
+from peek_plugin_diagram._private.server.controller.DispImportController import (
+    DispImportController,
+)
+from peek_plugin_diagram._private.server.controller.GridKeyCompilerQueueController import (
+    GridKeyCompilerQueueController,
+)
+from peek_plugin_diagram._private.server.controller.LiveDbWatchController import (
+    LiveDbWatchController,
+)
+from peek_plugin_diagram._private.server.controller.LocationCompilerQueueController import (
+    LocationCompilerQueueController,
+)
+from peek_plugin_diagram._private.server.controller.LookupImportController import (
+    LookupImportController,
+)
 from peek_plugin_diagram._private.storage import DeclarativeBase
 from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
-from peek_plugin_diagram._private.storage.Setting import globalSetting, \
-    DISP_COMPILER_ENABLED, LOCATION_COMPILER_ENABLED, BRANCH_COMPILER_ENABLED, \
-    GRID_COMPILER_ENABLED, globalProperties
+from peek_plugin_diagram._private.storage.Setting import (
+    globalSetting,
+    DISP_COMPILER_ENABLED,
+    LOCATION_COMPILER_ENABLED,
+    BRANCH_COMPILER_ENABLED,
+    GRID_COMPILER_ENABLED,
+    globalProperties,
+)
 from peek_plugin_diagram._private.tuples import loadPrivateTuples
 from peek_plugin_diagram.tuples import loadPublicTuples
 from peek_plugin_livedb.server.LiveDBApiABC import LiveDBApiABC
@@ -55,9 +77,11 @@ from .controller.StatusController import StatusController
 logger = logging.getLogger(__name__)
 
 
-class LogicEntryHook(PluginLogicEntryHookABC,
-                      PluginServerStorageEntryHookABC,
-                      PluginServerWorkerEntryHookABC):
+class LogicEntryHook(
+    PluginLogicEntryHookABC,
+    PluginServerStorageEntryHookABC,
+    PluginServerWorkerEntryHookABC,
+):
     def __init__(self, *args, **kwargs):
         """" Constructor """
         # Call the base classes constructor
@@ -69,7 +93,7 @@ class LogicEntryHook(PluginLogicEntryHookABC,
         self._api = None
 
     def load(self) -> None:
-        """ Load
+        """Load
 
         This will be called when the plugin is loaded, just after the db is migrated.
         Place any custom initialiastion steps here.
@@ -86,7 +110,7 @@ class LogicEntryHook(PluginLogicEntryHookABC,
 
     @inlineCallbacks
     def start(self):
-        """ Start
+        """Start
 
         This will be called when the plugin is loaded, just after the db is migrated.
         Place any custom initialisation steps here.
@@ -129,14 +153,18 @@ class LogicEntryHook(PluginLogicEntryHookABC,
         self._loadedObjects.append(gridKeyCompilerQueueController)
 
         def locationsCanBeQueuedFunc() -> bool:
-            return (not gridKeyCompilerQueueController.isBusy()
-                    and not dispCompilerQueueController.isBusy())
+            return (
+                not gridKeyCompilerQueueController.isBusy()
+                and not dispCompilerQueueController.isBusy()
+            )
 
         # ----------------
         # Create the LOCATION INDEX queue
         locationIndexCompilerQueueController = LocationCompilerQueueController(
-            self.dbSessionCreator, statusController, clientDispIndexUpdateHandler,
-            readyLambdaFunc=locationsCanBeQueuedFunc
+            self.dbSessionCreator,
+            statusController,
+            clientDispIndexUpdateHandler,
+            readyLambdaFunc=locationsCanBeQueuedFunc,
         )
         self._loadedObjects.append(locationIndexCompilerQueueController)
 
@@ -158,15 +186,14 @@ class LogicEntryHook(PluginLogicEntryHookABC,
         branchIndexCompilerQueueController = BranchIndexCompilerQueueController(
             dbSessionCreator=self.dbSessionCreator,
             statusController=statusController,
-            clientUpdateHandler=clientBranchIndexChunkUpdateHandler
+            clientUpdateHandler=clientBranchIndexChunkUpdateHandler,
         )
         self._loadedObjects.append(branchIndexCompilerQueueController)
 
         # ----------------
         # Create the Tuple Observer
         tupleObservable = makeTupleDataObservableHandler(
-            self.dbSessionCreator, statusController,
-            branchLiveEditController
+            self.dbSessionCreator, statusController, branchLiveEditController
         )
         self._loadedObjects.append(tupleObservable)
 
@@ -199,7 +226,7 @@ class LogicEntryHook(PluginLogicEntryHookABC,
             liveDbWriteApi=liveDbApi.writeApi,
             tupleObservable=tupleObservable,
             liveEditController=branchLiveEditController,
-            dbSessionCreator=self.dbSessionCreator
+            dbSessionCreator=self.dbSessionCreator,
         )
         self._loadedObjects.append(branchUpdateController)
 
@@ -208,47 +235,52 @@ class LogicEntryHook(PluginLogicEntryHookABC,
         liveDbWatchController = LiveDbWatchController(
             liveDbWriteApi=liveDbApi.writeApi,
             liveDbReadApi=liveDbApi.readApi,
-            dbSessionCreator=self.dbSessionCreator
+            dbSessionCreator=self.dbSessionCreator,
         )
         self._loadedObjects.append(liveDbWatchController)
 
         # ----------------
         # Create the GRID API for the client
         self._loadedObjects.extend(
-            ClientGridLoaderRpc(liveDbWatchController=liveDbWatchController,
-                                dbSessionCreator=self.dbSessionCreator)
-                .makeHandlers()
+            ClientGridLoaderRpc(
+                liveDbWatchController=liveDbWatchController,
+                dbSessionCreator=self.dbSessionCreator,
+            ).makeHandlers()
         )
 
         # ----------------
         # Create the Branch Index for the client
         self._loadedObjects.extend(
-            BranchIndexChunkLoadRpc(dbSessionCreator=self.dbSessionCreator)
-                .makeHandlers()
+            BranchIndexChunkLoadRpc(
+                dbSessionCreator=self.dbSessionCreator
+            ).makeHandlers()
         )
 
         # ----------------
         # Create the LOCATION API for the client
         self._loadedObjects.extend(
-            ClientLocationIndexLoaderRpc(dbSessionCreator=self.dbSessionCreator)
-                .makeHandlers()
+            ClientLocationIndexLoaderRpc(
+                dbSessionCreator=self.dbSessionCreator
+            ).makeHandlers()
         )
 
         # ----------------
         # Initialise the API object that will be shared with other plugins
         self._api = DiagramApi(
-            statusController, dispImportController,
-            lookupImportController, branchUpdateController,
-            self.dbSessionCreator
+            statusController,
+            dispImportController,
+            lookupImportController,
+            branchUpdateController,
+            self.dbSessionCreator,
         )
         self._loadedObjects.append(self._api)
 
         # ----------------
         # Create the Action Processor
         self._loadedObjects.append(
-            makeTupleActionProcessorHandler(statusController,
-                                            branchUpdateController,
-                                            branchLiveEditController)
+            makeTupleActionProcessorHandler(
+                statusController, branchUpdateController, branchLiveEditController
+            )
         )
 
         # ----------------
@@ -271,7 +303,7 @@ class LogicEntryHook(PluginLogicEntryHookABC,
         logger.debug("Started")
 
     def stop(self):
-        """ Stop
+        """Stop
 
         This method is called by the platform to tell the peek app to shutdown and stop
         everything it's doing
@@ -295,8 +327,8 @@ class LogicEntryHook(PluginLogicEntryHookABC,
 
     @property
     def publishedServerApi(self) -> object:
-        """ Published Server API
-    
+        """Published Server API
+
         :return  class that implements the API that can be used by other Plugins on this
         platform service.
         """
@@ -306,11 +338,12 @@ class LogicEntryHook(PluginLogicEntryHookABC,
     def _loadSettings(self):
         dbSession = self.dbSessionCreator()
         try:
-            return {globalProperties[p.key]: p.value
-                    for p in globalSetting(dbSession).propertyObjects}
+            return {
+                globalProperties[p.key]: p.value
+                for p in globalSetting(dbSession).propertyObjects
+            }
 
         finally:
             dbSession.close()
-
 
     ###### Implement PluginServerWorkerEntryHookABC

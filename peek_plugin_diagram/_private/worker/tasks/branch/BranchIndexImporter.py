@@ -6,19 +6,24 @@ from typing import List, Dict
 
 import pytz
 from peek_plugin_base.worker import CeleryDbConn
-from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
-    DispCompilerQueueController
+from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import (
+    DispCompilerQueueController,
+)
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks.ImportDispTask import _bulkInsertDisps
-from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
-    LookupHashConverter
-from peek_plugin_diagram._private.worker.tasks._ModelSetUtil import \
-    getModelSetIdCoordSetId
-from peek_plugin_diagram._private.worker.tasks.branch.BranchDispUpdater import \
-    _convertBranchDisps
-from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexUpdater import \
-    _insertOrUpdateBranches
+from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import (
+    LookupHashConverter,
+)
+from peek_plugin_diagram._private.worker.tasks._ModelSetUtil import (
+    getModelSetIdCoordSetId,
+)
+from peek_plugin_diagram._private.worker.tasks.branch.BranchDispUpdater import (
+    _convertBranchDisps,
+)
+from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexUpdater import (
+    _insertOrUpdateBranches,
+)
 from peek_plugin_diagram.tuples.branches.ImportBranchTuple import ImportBranchTuple
 from txcelery.defer import DeferrableTask
 from vortex.Payload import Payload
@@ -29,7 +34,7 @@ logger = logging.getLogger(__name__)
 @DeferrableTask
 @celeryApp.task(bind=True)
 def createOrUpdateBranches(self, importBranchesEncodedPayload: bytes) -> None:
-    """ Convert Import Branch Tuples
+    """Convert Import Branch Tuples
 
     This method takes import branch tuples, and converts them to
     branch format used throughout the diagram plugin.
@@ -74,10 +79,12 @@ def createOrUpdateBranches(self, importBranchesEncodedPayload: bytes) -> None:
             transaction.commit()
             dbSession.commit()
 
-            logger.debug("Completed importing %s branches for coordSetId %s in %s",
-                         len(branches),
-                         coordSetId,
-                         (datetime.now(pytz.utc) - startTime))
+            logger.debug(
+                "Completed importing %s branches for coordSetId %s in %s",
+                len(branches),
+                coordSetId,
+                (datetime.now(pytz.utc) - startTime),
+            )
 
     except Exception as e:
         dbSession.rollback()
@@ -91,9 +98,10 @@ def createOrUpdateBranches(self, importBranchesEncodedPayload: bytes) -> None:
         conn.close()
 
 
-def _convertImportBranchTuples(importBranches: List[ImportBranchTuple]
-                               ) -> Dict[typing.Tuple[str, int, int], List[BranchTuple]]:
-    """ Convert Import Branch Tuples
+def _convertImportBranchTuples(
+    importBranches: List[ImportBranchTuple],
+) -> Dict[typing.Tuple[str, int, int], List[BranchTuple]]:
+    """Convert Import Branch Tuples
 
     This method takes import branch tuples, and converts them to
     branch format used throughout the diagram plugin.
@@ -110,12 +118,14 @@ def _convertImportBranchTuples(importBranches: List[ImportBranchTuple]
     # Sort out the importBranches by coordSetKey
     branchByModelKeyByCoordKey = defaultdict(lambda: defaultdict(list))
     for importBranch in importBranches:
-        branchByModelKeyByCoordKey[importBranch.modelSetKey][importBranch.coordSetKey] \
-            .append(importBranch)
+        branchByModelKeyByCoordKey[importBranch.modelSetKey][
+            importBranch.coordSetKey
+        ].append(importBranch)
 
     # Define the converted importBranches
-    convertedBranchesByCoordSetId: Dict[typing.Tuple[str, int, int], List[BranchTuple]] \
-        = {}
+    convertedBranchesByCoordSetId: Dict[
+        typing.Tuple[str, int, int], List[BranchTuple]
+    ] = {}
 
     # Get the model set
     dbSession = CeleryDbConn.getDbSession()
@@ -124,7 +134,8 @@ def _convertImportBranchTuples(importBranches: List[ImportBranchTuple]
         for modelSetKey, item in branchByModelKeyByCoordKey.items():
             for coordSetKey, importBranches in item:
                 modelSetId, coordSetId = coordSetIdByModelKeyCoordKeyTuple[
-                    (modelSetKey, coordSetKey)]
+                    (modelSetKey, coordSetKey)
+                ]
 
                 lookupHashConverter = LookupHashConverter(
                     dbSession, modelSetId, coordSetId
@@ -133,13 +144,15 @@ def _convertImportBranchTuples(importBranches: List[ImportBranchTuple]
                 convertedBranches = []
                 for importBranch in importBranches:
                     branch = BranchTuple.loadFromImportTuple(
-                        importBranch, coordSetId,
-                        lookupHashConverter=lookupHashConverter
+                        importBranch,
+                        coordSetId,
+                        lookupHashConverter=lookupHashConverter,
                     )
                     convertedBranches.append(branch)
 
-                convertedBranchesByCoordSetId[(modelSetKey, modelSetId, coordSetId)] \
-                    = convertedBranches
+                convertedBranchesByCoordSetId[
+                    (modelSetKey, modelSetId, coordSetId)
+                ] = convertedBranches
 
     finally:
         dbSession.close()

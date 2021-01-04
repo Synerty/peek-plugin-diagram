@@ -5,11 +5,13 @@ from twisted.internet.defer import Deferred
 from vortex.DeferUtil import vortexLogFailure
 from vortex.PayloadEndpoint import PayloadEndpoint
 
-from peek_abstract_chunked_index.private.client.controller.ACICacheControllerABC import \
-    ACICacheControllerABC
+from peek_abstract_chunked_index.private.client.controller.ACICacheControllerABC import (
+    ACICacheControllerABC,
+)
 from peek_plugin_diagram._private.PluginNames import diagramFilt
-from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import \
-    ClientGridLoaderRpc
+from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import (
+    ClientGridLoaderRpc,
+)
 from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import EncodedGridTuple
 from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
 
@@ -23,7 +25,7 @@ clientCoordSetUpdateFromServerFilt.update(diagramFilt)
 
 
 class GridCacheController(ACICacheControllerABC):
-    """ Grid Cache Controller
+    """Grid Cache Controller
 
     The grid cache controller stores all the grids in memory, allowing fast access from
     the mobile and desktop devices.
@@ -32,6 +34,7 @@ class GridCacheController(ACICacheControllerABC):
     are enable or disabled. Perhaps the system should just be restarted instead.
 
     """
+
     _ChunkedTuple = EncodedGridTuple
     _chunkLoadRpcMethod = ClientGridLoaderRpc.loadGrids
     _updateFromServerFilt = clientGridUpdateFromServerFilt
@@ -46,8 +49,9 @@ class GridCacheController(ACICacheControllerABC):
     def __init__(self, clientId: str):
         ACICacheControllerABC.__init__(self, clientId)
 
-        self._coordSetEndpoint = PayloadEndpoint(clientCoordSetUpdateFromServerFilt,
-                                                 self._processCoordSetPayload)
+        self._coordSetEndpoint = PayloadEndpoint(
+            clientCoordSetUpdateFromServerFilt, self._processCoordSetPayload
+        )
 
     def _processCoordSetPayload(self, *args, **kwargs):
         d: Deferred = self.reloadCache()
@@ -58,4 +62,3 @@ class GridCacheController(ACICacheControllerABC):
 
         self._coordSetEndpoint.shutdown()
         self._coordSetEndpoint = None
-

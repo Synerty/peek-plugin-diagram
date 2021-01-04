@@ -26,21 +26,22 @@ from .DeclarativeBase import DeclarativeBase
 from .ModelSet import ModelCoordSet, ModelSet
 from .branch.BranchIndex import BranchIndex
 
-DISP_SHORT_ATTR_NAME_MAP = {'colorId': 'c',
-                            'fillColorId': 'fc',
-                            'lineColorId': 'lc',
-                            'lineStyleId': 'ls',
-                            'lineWidth': 'w',
-                            'text': 'te',
-                            'groupId': 'gi',
-                            'targetGroupId': 'tg',
-                            }
+DISP_SHORT_ATTR_NAME_MAP = {
+    "colorId": "c",
+    "fillColorId": "fc",
+    "lineColorId": "lc",
+    "lineStyleId": "ls",
+    "lineWidth": "w",
+    "text": "te",
+    "groupId": "gi",
+    "targetGroupId": "tg",
+}
 
 
 @addTupleType
 class DispLayer(Tuple, DeclarativeBase):
-    __tablename__ = 'DispLayer'
-    __tupleTypeShort__ = 'DLA'
+    __tablename__ = "DispLayer"
+    __tupleTypeShort__ = "DLA"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     #: Misc data holder
@@ -48,12 +49,13 @@ class DispLayer(Tuple, DeclarativeBase):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
-    order = Column(Integer, nullable=False, server_default='0')
-    selectable = Column(Boolean, nullable=False, server_default='false')
-    visible = Column(Boolean, nullable=False, server_default='true')
+    order = Column(Integer, nullable=False, server_default="0")
+    selectable = Column(Boolean, nullable=False, server_default="false")
+    visible = Column(Boolean, nullable=False, server_default="true")
 
-    modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),
-                        nullable=False)
+    modelSetId = Column(
+        Integer, ForeignKey("ModelSet.id", ondelete="CASCADE"), nullable=False
+    )
     modelSet = relationship(ModelSet)
 
     importHash = Column(String(100), doc=JSON_EXCLUDE)
@@ -66,8 +68,8 @@ class DispLayer(Tuple, DeclarativeBase):
 
 @addTupleType
 class DispLevel(Tuple, DeclarativeBase):
-    __tablename__ = 'DispLevel'
-    __tupleTypeShort__ = 'DLE'
+    __tablename__ = "DispLevel"
+    __tupleTypeShort__ = "DLE"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     #: Misc data holder
@@ -75,13 +77,13 @@ class DispLevel(Tuple, DeclarativeBase):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
-    order = Column(Integer, nullable=False, server_default='0')
+    order = Column(Integer, nullable=False, server_default="0")
     minZoom = Column(Float)
     maxZoom = Column(Float)
 
-    coordSetId = Column(Integer,
-                        ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
-                        nullable=False)
+    coordSetId = Column(
+        Integer, ForeignKey("ModelCoordSet.id", ondelete="CASCADE"), nullable=False
+    )
     coordSet = relationship(ModelCoordSet, foreign_keys=[coordSetId])
 
     importHash = Column(String(100), doc=JSON_EXCLUDE)
@@ -94,8 +96,8 @@ class DispLevel(Tuple, DeclarativeBase):
 
 @addTupleType
 class DispTextStyle(Tuple, DeclarativeBase):
-    __tupleTypeShort__ = 'DTS'
-    __tablename__ = 'DispTextStyle'
+    __tupleTypeShort__ = "DTS"
+    __tablename__ = "DispTextStyle"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     #: Misc data holder
@@ -104,13 +106,17 @@ class DispTextStyle(Tuple, DeclarativeBase):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
     fontName = Column(String(30), nullable=False, server_default="GillSans")
-    fontSize = Column(Integer, nullable=False, server_default='9')
+    fontSize = Column(Integer, nullable=False, server_default="9")
     fontStyle = Column(String(30))
     scalable = Column(Boolean, nullable=False, server_default="true")
     scaleFactor = Column(Integer, nullable=False, server_default="1")
 
-    modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),
-                        doc=JSON_EXCLUDE, nullable=False)
+    modelSetId = Column(
+        Integer,
+        ForeignKey("ModelSet.id", ondelete="CASCADE"),
+        doc=JSON_EXCLUDE,
+        nullable=False,
+    )
     modelSet = relationship(ModelSet)
 
     importHash = Column(String(100), doc=JSON_EXCLUDE)
@@ -123,8 +129,8 @@ class DispTextStyle(Tuple, DeclarativeBase):
 
 @addTupleType
 class DispLineStyle(Tuple, DeclarativeBase):
-    __tupleTypeShort__ = 'DLS'
-    __tablename__ = 'DispLineStyle'
+    __tupleTypeShort__ = "DLS"
+    __tablename__ = "DispLineStyle"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     #: Misc data holder
@@ -132,7 +138,7 @@ class DispLineStyle(Tuple, DeclarativeBase):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
-    backgroundFillDashSpace = Column(Boolean, nullable=False, server_default='false')
+    backgroundFillDashSpace = Column(Boolean, nullable=False, server_default="false")
     capStyle = Column(String(15), nullable=False)
     joinStyle = Column(String(15), nullable=False)
     dashPattern = Column(String(50))
@@ -140,8 +146,12 @@ class DispLineStyle(Tuple, DeclarativeBase):
     endArrowSize = Column(Integer)
     winStyle = Column(Integer, nullable=False)
 
-    modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),
-                        doc=JSON_EXCLUDE, nullable=False)
+    modelSetId = Column(
+        Integer,
+        ForeignKey("ModelSet.id", ondelete="CASCADE"),
+        doc=JSON_EXCLUDE,
+        nullable=False,
+    )
     modelSet = relationship(ModelSet)
 
     importHash = Column(String(100), doc=JSON_EXCLUDE)
@@ -154,8 +164,8 @@ class DispLineStyle(Tuple, DeclarativeBase):
 
 @addTupleType
 class DispColor(Tuple, DeclarativeBase):
-    __tupleTypeShort__ = 'DC'
-    __tablename__ = 'DispColor'
+    __tupleTypeShort__ = "DC"
+    __tablename__ = "DispColor"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     #: Misc data holder
@@ -163,12 +173,16 @@ class DispColor(Tuple, DeclarativeBase):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), doc=JSON_EXCLUDE, nullable=False)
-    color = Column(String(20), server_default='orange')
+    color = Column(String(20), server_default="orange")
     altColor = Column(String(20))
     swapPeriod = Column(Float)
 
-    modelSetId = Column(Integer, ForeignKey('ModelSet.id', ondelete='CASCADE'),
-                        doc=JSON_EXCLUDE, nullable=False)
+    modelSetId = Column(
+        Integer,
+        ForeignKey("ModelSet.id", ondelete="CASCADE"),
+        doc=JSON_EXCLUDE,
+        nullable=False,
+    )
     modelSet = relationship(ModelSet)
 
     importHash = Column(String(100), doc=JSON_EXCLUDE)
@@ -180,7 +194,7 @@ class DispColor(Tuple, DeclarativeBase):
 
 
 class DispBase(Tuple, DeclarativeBase):
-    __tablename__ = 'DispBase'
+    __tablename__ = "DispBase"
 
     # Types
     # Must align with constants in javascript DispBase class
@@ -203,40 +217,45 @@ class DispBase(Tuple, DeclarativeBase):
     # ===== START BRANCH
 
     #: The branch that this Disp belongs to.
-    branchId = Column(BigInteger, ForeignKey(BranchIndex.id, ondelete='CASCADE'),
-                      doc='bi')
+    branchId = Column(
+        BigInteger, ForeignKey(BranchIndex.id, ondelete="CASCADE"), doc="bi"
+    )
 
     #: The stage of the branch that this DISP
-    branchStage = Column(Integer, doc='bs')
+    branchStage = Column(Integer, doc="bs")
 
     #: This is the unique hash of the contents of this disp within this coordSetId.
-    hashId = Column(String, doc='hid')
+    hashId = Column(String, doc="hid")
 
     #: The coordSetId+hashId that this disp replaces (for branches)
     # ForeignKey('DispBase.id', ondelete='SET NULL'),
-    replacesHashId = Column(String, doc='rid')
+    replacesHashId = Column(String, doc="rid")
 
     # ===== END BRANCH
 
     #: Used for disps that belong to a DispGroup
-    groupId = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE'),
-                     doc='gi')
+    groupId = Column(
+        BigInteger, ForeignKey("DispBase.id", ondelete="CASCADE"), doc="gi"
+    )
 
-    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
-                        doc=JSON_EXCLUDE,
-                        nullable=False)
+    coordSetId = Column(
+        Integer,
+        ForeignKey("ModelCoordSet.id", ondelete="CASCADE"),
+        doc=JSON_EXCLUDE,
+        nullable=False,
+    )
     coordSet = relationship(ModelCoordSet)
 
     #: Layer
-    layerId = Column(Integer, ForeignKey('DispLayer.id'), doc='la')
+    layerId = Column(Integer, ForeignKey("DispLayer.id"), doc="la")
     layer = relationship(DispLayer)
 
     #: Layer
-    levelId = Column(Integer, ForeignKey('DispLevel.id'), doc='le')
+    levelId = Column(Integer, ForeignKey("DispLevel.id"), doc="le")
     level = relationship(DispLevel)
 
     #: Order
-    zOrder = Column(Integer, server_default='0', nullable=False, doc='z')
+    zOrder = Column(Integer, server_default="0", nullable=False, doc="z")
 
     # MAX_STR
     dispJson = Column(String, doc=JSON_EXCLUDE)
@@ -245,21 +264,21 @@ class DispBase(Tuple, DeclarativeBase):
     locationJson = Column(String, doc=JSON_EXCLUDE)
 
     #: Key, This value is a unique ID of the object that this graphic represents
-    key = Column(String, doc='k')
+    key = Column(String, doc="k")
 
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
-    selectable = Column(Boolean, doc='s', nullable=False, server_default='false')
+    selectable = Column(Boolean, doc="s", nullable=False, server_default="false")
 
     #: Overlay, Is is this item an overlay?, Overlays are sometimes used to add dynamic
     # data to the diagram, such as a Job, Operation, or placing a green box over a red
     # one to change it's state.
-    overlay = Column(Boolean, doc='o', nullable=False, server_default='false')
+    overlay = Column(Boolean, doc="o", nullable=False, server_default="false")
 
     #: Action, This determines what happens when a user clicks on this shape.
-    action = Column(SmallInteger, doc='a')
+    action = Column(SmallInteger, doc="a")
 
     #: Data, Generic data that is passed in the context for the item select popup
-    dataJson = Column(String, doc='d')
+    dataJson = Column(String, doc="d")
 
     # THIS FIELD IS NOT USED ANYWHERE!!!!
     importUpdateDate = Column(DateTime(True), doc=JSON_EXCLUDE)
@@ -267,14 +286,12 @@ class DispBase(Tuple, DeclarativeBase):
     importHash = Column(String, doc=JSON_EXCLUDE)
     importGroupHash = Column(String, doc=JSON_EXCLUDE)
 
-    __mapper_args__ = {'polymorphic_on': type,
-                       'with_polymorphic': '*'}
+    __mapper_args__ = {"polymorphic_on": type, "with_polymorphic": "*"}
 
     __table_args__: typing.Tuple = (
         Index("idx_Disp_importGroupHash", importGroupHash, unique=False),
         # Index("idx_Disp_importHash", importHash, unique=True),
         Index("idx_Disp_importUpdateDate", importUpdateDate, unique=False),
-
         Index("idx_Disp_layerId", layerId, unique=False),
         Index("idx_Disp_levelId", levelId, unique=False),
         Index("idx_Disp_coordSetId_", coordSetId, unique=False),
@@ -287,7 +304,7 @@ class DispBase(Tuple, DeclarativeBase):
 
 @addTupleType
 class DispNull(DispBase):
-    """ Disp Null
+    """Disp Null
 
     This display type does not display at all, It's an object that marks the deletion
     of a prior Disp by a branch.
@@ -302,21 +319,25 @@ class DispNull(DispBase):
     diagram structures.
 
     """
-    __tablename__ = 'DispNull'
-    __tupleTypeShort__ = 'DN'
+
+    __tablename__ = "DispNull"
+    __tupleTypeShort__ = "DN"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.NULL
 
-    __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
+    __mapper_args__ = {"polymorphic_identity": RENDERABLE_TYPE}
 
-    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=False)
-
-    geomJson = Column(String, nullable=False, doc='g')
-
-    __table_args__: typing.Tuple = (
+    id = Column(
+        BigInteger,
+        ForeignKey("DispBase.id", ondelete="CASCADE"),
+        primary_key=True,
+        autoincrement=False,
     )
+
+    geomJson = Column(String, nullable=False, doc="g")
+
+    __table_args__: typing.Tuple = ()
 
     # noinspection PyMissingConstructor
     @orm.reconstructor
@@ -326,33 +347,38 @@ class DispNull(DispBase):
 
 @addTupleType
 class DispText(DispBase):
-    __tablename__ = 'DispText'
-    __tupleTypeShort__ = 'DT'
+    __tablename__ = "DispText"
+    __tupleTypeShort__ = "DT"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.TEXT
 
-    __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
+    __mapper_args__ = {"polymorphic_identity": RENDERABLE_TYPE}
 
-    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=False)
+    id = Column(
+        BigInteger,
+        ForeignKey("DispBase.id", ondelete="CASCADE"),
+        primary_key=True,
+        autoincrement=False,
+    )
 
-    verticalAlign = Column(Integer, doc='va', nullable=False, server_default='-1')
-    horizontalAlign = Column(Integer, doc='ha', nullable=False, server_default='0')
-    rotation = Column(Float, doc='r', nullable=False, server_default='0')
-    text = Column(String, doc='te', nullable=True, server_default="new text label")
+    verticalAlign = Column(Integer, doc="va", nullable=False, server_default="-1")
+    horizontalAlign = Column(Integer, doc="ha", nullable=False, server_default="0")
+    rotation = Column(Float, doc="r", nullable=False, server_default="0")
+    text = Column(String, doc="te", nullable=True, server_default="new text label")
     textFormat = Column(String(1000), doc=JSON_EXCLUDE, nullable=True)
 
-    textHeight = Column(Float, doc='th', nullable=True)
-    textHStretch = Column(Float, doc='hs', nullable=False, server_default="1")
+    textHeight = Column(Float, doc="th", nullable=True)
+    textHStretch = Column(Float, doc="hs", nullable=False, server_default="1")
 
-    geomJson = Column(String, nullable=False, doc='g')
+    geomJson = Column(String, nullable=False, doc="g")
 
-    colorId = Column(Integer, ForeignKey('DispColor.id'), doc='c')
+    colorId = Column(Integer, ForeignKey("DispColor.id"), doc="c")
     color = relationship(DispColor)
 
-    textStyleId = Column(Integer, ForeignKey('DispTextStyle.id'),
-                         doc='fs', nullable=False)
+    textStyleId = Column(
+        Integer, ForeignKey("DispTextStyle.id"), doc="fs", nullable=False
+    )
     textStyle = relationship(DispTextStyle)
 
     __table_args__: typing.Tuple = (
@@ -370,37 +396,40 @@ class DispText(DispBase):
 
 @addTupleType
 class DispPolygon(DispBase):
-    __tablename__ = 'DispPolygon'
-    __tupleTypeShort__ = 'DPG'
+    __tablename__ = "DispPolygon"
+    __tupleTypeShort__ = "DPG"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.POLYGON
-    __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
+    __mapper_args__ = {"polymorphic_identity": RENDERABLE_TYPE}
 
-    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=False)
+    id = Column(
+        BigInteger,
+        ForeignKey("DispBase.id", ondelete="CASCADE"),
+        primary_key=True,
+        autoincrement=False,
+    )
 
-    cornerRadius = Column(Float, doc='cr', nullable=False, server_default='0')
-    lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
+    cornerRadius = Column(Float, doc="cr", nullable=False, server_default="0")
+    lineWidth = Column(Integer, doc="w", nullable=False, server_default="2")
 
-    geomJson = Column(String, nullable=False, doc='g')
+    geomJson = Column(String, nullable=False, doc="g")
 
-    fillColorId = Column(Integer, ForeignKey('DispColor.id'), doc='fc')
+    fillColorId = Column(Integer, ForeignKey("DispColor.id"), doc="fc")
     fillColor = relationship(DispColor, foreign_keys=fillColorId)
 
     FILL_TOP_TO_BOTTOM = 0
     FILL_BOTTOM_TO_TOP = 1
     FILL_RIGHT_TO_LEFT = 2
     FILL_LEFT_TO_RIGHT = 3
-    fillDirection = Column(Integer, doc='fd')
-    fillPercent = Column(Float, doc='fp')
-    isRectangle = Column(Boolean, doc='r')
+    fillDirection = Column(Integer, doc="fd")
+    fillPercent = Column(Float, doc="fp")
+    isRectangle = Column(Boolean, doc="r")
 
-    lineColorId = Column(Integer, ForeignKey('DispColor.id'), doc='lc')
+    lineColorId = Column(Integer, ForeignKey("DispColor.id"), doc="lc")
     lineColor = relationship(DispColor, foreign_keys=lineColorId)
 
-    lineStyleId = Column(Integer, ForeignKey('DispLineStyle.id'),
-                         doc='ls')
+    lineStyleId = Column(Integer, ForeignKey("DispLineStyle.id"), doc="ls")
     lineStyle = relationship(DispLineStyle)
 
     __table_args__ = (
@@ -419,51 +448,57 @@ class DispPolygon(DispBase):
 
 @addTupleType
 class DispPolyline(DispBase):
-    __tablename__ = 'DispPolyline'
-    __tupleTypeShort__ = 'DPL'
+    __tablename__ = "DispPolyline"
+    __tupleTypeShort__ = "DPL"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.POLYLINE
-    __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
+    __mapper_args__ = {"polymorphic_identity": RENDERABLE_TYPE}
 
-    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=False)
+    id = Column(
+        BigInteger,
+        ForeignKey("DispBase.id", ondelete="CASCADE"),
+        primary_key=True,
+        autoincrement=False,
+    )
 
-    lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
+    lineWidth = Column(Integer, doc="w", nullable=False, server_default="2")
 
-    geomJson = Column(String, nullable=False, doc='g')
+    geomJson = Column(String, nullable=False, doc="g")
 
-    lineColorId = Column(Integer, ForeignKey('DispColor.id'), doc='lc')
+    lineColorId = Column(Integer, ForeignKey("DispColor.id"), doc="lc")
     lineColor = relationship(DispColor, foreign_keys=lineColorId)
 
-    lineStyleId = Column(Integer, ForeignKey('DispLineStyle.id'), doc='ls')
+    lineStyleId = Column(Integer, ForeignKey("DispLineStyle.id"), doc="ls")
     lineStyle = relationship(DispLineStyle)
 
     #: EdgeColor
     # This is an alternate line color.
-    edgeColorId = Column(Integer, ForeignKey('DispColor.id',
-                                             name="DispGroupPointer_edgeColorId_fkey"),
-                         doc='ec')
+    edgeColorId = Column(
+        Integer,
+        ForeignKey("DispColor.id", name="DispGroupPointer_edgeColorId_fkey"),
+        doc="ec",
+    )
 
     #: Start Key, The key of another disp object,
     # If the start point of this graphic is linked another disp obj
-    startKey = Column(String(50), doc='sk')
+    startKey = Column(String(50), doc="sk")
 
     #: End Key, The key of another disp object,
     # If the end point of this graphic is linked another disp obj
-    endKey = Column(String(50), doc='ek')
+    endKey = Column(String(50), doc="ek")
 
     #: Start end type, is this an arrow, etc?
-    startEndType = Column(Integer, doc='st')
+    startEndType = Column(Integer, doc="st")
 
     #: End End Type, See Start end type
-    endEndType = Column(Integer, doc='et')
+    endEndType = Column(Integer, doc="et")
 
-    targetEdgeTemplateId = Column(Integer,
-                                  ForeignKey('DispEdgeTemplate.id', ondelete='SET NULL'),
-                                  doc='ti')
+    targetEdgeTemplateId = Column(
+        Integer, ForeignKey("DispEdgeTemplate.id", ondelete="SET NULL"), doc="ti"
+    )
 
-    targetEdgeTemplateName = Column(String, doc='tn')
+    targetEdgeTemplateName = Column(String, doc="tn")
 
     __table_args__ = (
         # Commented out, we don't delete lookups during normal operation
@@ -473,7 +508,9 @@ class DispPolyline(DispBase):
         # Index("idx_DispPolyline_edgeColorId", lineColorId, unique=False),
         Index("idx_DispPolyline_startKey", startKey, unique=False),
         Index("idx_DispPolyline_endKey", endKey, unique=False),
-        Index("idx_DispPolyline_targetEdgeTemplateId", targetEdgeTemplateId, unique=False),
+        Index(
+            "idx_DispPolyline_targetEdgeTemplateId", targetEdgeTemplateId, unique=False
+        ),
     )
 
     # noinspection PyMissingConstructor
@@ -484,33 +521,36 @@ class DispPolyline(DispBase):
 
 @addTupleType
 class DispEllipse(DispBase):
-    __tablename__ = 'DispEllipse'
-    __tupleTypeShort__ = 'DE'
+    __tablename__ = "DispEllipse"
+    __tupleTypeShort__ = "DE"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.ELLIPSE
-    __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
+    __mapper_args__ = {"polymorphic_identity": RENDERABLE_TYPE}
 
-    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=False)
+    id = Column(
+        BigInteger,
+        ForeignKey("DispBase.id", ondelete="CASCADE"),
+        primary_key=True,
+        autoincrement=False,
+    )
 
-    xRadius = Column(Float, doc='xr', nullable=False, server_default='10.0')
-    yRadius = Column(Float, doc='yr', nullable=False, server_default='10.0')
-    rotation = Column(Float, doc='r', nullable=False, server_default='0')
-    startAngle = Column(Float, doc='sa', nullable=False, server_default='0')
-    endAngle = Column(Float, doc='ea', nullable=False, server_default='360')
-    lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
+    xRadius = Column(Float, doc="xr", nullable=False, server_default="10.0")
+    yRadius = Column(Float, doc="yr", nullable=False, server_default="10.0")
+    rotation = Column(Float, doc="r", nullable=False, server_default="0")
+    startAngle = Column(Float, doc="sa", nullable=False, server_default="0")
+    endAngle = Column(Float, doc="ea", nullable=False, server_default="360")
+    lineWidth = Column(Integer, doc="w", nullable=False, server_default="2")
 
-    geomJson = Column(String, nullable=False, doc='g')
+    geomJson = Column(String, nullable=False, doc="g")
 
-    fillColorId = Column(Integer, ForeignKey('DispColor.id'), doc='fc')
+    fillColorId = Column(Integer, ForeignKey("DispColor.id"), doc="fc")
     fillColor = relationship(DispColor, foreign_keys=fillColorId)
 
-    lineColorId = Column(Integer, ForeignKey('DispColor.id'), doc='lc')
+    lineColorId = Column(Integer, ForeignKey("DispColor.id"), doc="lc")
     lineColor = relationship(DispColor, foreign_keys=lineColorId)
 
-    lineStyleId = Column(Integer, ForeignKey('DispLineStyle.id'),
-                         doc='ls')
+    lineStyleId = Column(Integer, ForeignKey("DispLineStyle.id"), doc="ls")
     lineStyle = relationship(DispLineStyle)
 
     __table_args__ = (
@@ -529,34 +569,42 @@ class DispEllipse(DispBase):
 
 @addTupleType
 class DispGroup(DispBase):
-    """ Disp Group
+    """Disp Group
 
     This object is used to store a template group of disps. These are used for placing
     or updating existing disps in a DispGroupPtr
 
     """
-    __tablename__ = 'DispGroup'
-    __tupleTypeShort__ = 'DG'
+
+    __tablename__ = "DispGroup"
+    __tupleTypeShort__ = "DG"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.GROUP
-    __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
+    __mapper_args__ = {"polymorphic_identity": RENDERABLE_TYPE}
 
-    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=False)
+    id = Column(
+        BigInteger,
+        ForeignKey("DispBase.id", ondelete="CASCADE"),
+        primary_key=True,
+        autoincrement=False,
+    )
 
     # TODO: this needs to be unique WITH the coordSetId
-    name = Column(String, doc='n', nullable=False)
-    compileAsTemplate = Column(Boolean, doc=JSON_EXCLUDE,
-                               nullable=False, server_default='false')
+    name = Column(String, doc="n", nullable=False)
+    compileAsTemplate = Column(
+        Boolean, doc=JSON_EXCLUDE, nullable=False, server_default="false"
+    )
 
-    disps = relationship(DispBase,
-                         primaryjoin='DispBase.groupId==DispGroup.id',
-                         foreign_keys=[DispBase.groupId],
-                         remote_side='DispBase.groupId')
+    disps = relationship(
+        DispBase,
+        primaryjoin="DispBase.groupId==DispGroup.id",
+        foreign_keys=[DispBase.groupId],
+        remote_side="DispBase.groupId",
+    )
 
     #: This field stores an array of disps that belong to this group.
-    dispsForJson = TupleField(shortName='di')
+    dispsForJson = TupleField(shortName="di")
 
     @reconstructor
     def __init__(self):
@@ -565,7 +613,7 @@ class DispGroup(DispBase):
 
 @addTupleType
 class DispEdgeTemplate(DispBase):
-    """ Disp Line Template
+    """Disp Line Template
 
     This object is used to create new lines in the diagram that also represent
      edges in the GraphDB model.
@@ -573,31 +621,36 @@ class DispEdgeTemplate(DispBase):
     At this stage it's just a template for a new line type.
 
     """
-    __tablename__ = 'DispEdgeTemplate'
-    __tupleTypeShort__ = 'DLT'
+
+    __tablename__ = "DispEdgeTemplate"
+    __tupleTypeShort__ = "DLT"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.EDGE_TEMPLATE
-    __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
+    __mapper_args__ = {"polymorphic_identity": RENDERABLE_TYPE}
 
-    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=False)
+    id = Column(
+        BigInteger,
+        ForeignKey("DispBase.id", ondelete="CASCADE"),
+        primary_key=True,
+        autoincrement=False,
+    )
 
-    name = Column(String, doc='n', nullable=False)
+    name = Column(String, doc="n", nullable=False)
 
-    lineWidth = Column(Integer, doc='w', nullable=False, server_default='2')
+    lineWidth = Column(Integer, doc="w", nullable=False, server_default="2")
 
-    lineColorId = Column(Integer, ForeignKey('DispColor.id'), doc='lc')
+    lineColorId = Column(Integer, ForeignKey("DispColor.id"), doc="lc")
     lineColor = relationship(DispColor, foreign_keys=lineColorId)
 
-    lineStyleId = Column(Integer, ForeignKey('DispLineStyle.id'), doc='ls')
+    lineStyleId = Column(Integer, ForeignKey("DispLineStyle.id"), doc="ls")
     lineStyle = relationship(DispLineStyle)
 
     #: Start end type, is this an arrow, etc?
-    startEndType = Column(Integer, doc='st')
+    startEndType = Column(Integer, doc="st")
 
     #: End End Type, See Start end type
-    endEndType = Column(Integer, doc='et')
+    endEndType = Column(Integer, doc="et")
 
     # noinspection PyMissingConstructor
     @orm.reconstructor
@@ -607,32 +660,39 @@ class DispEdgeTemplate(DispBase):
 
 @addTupleType
 class DispGroupPointer(DispBase):
-    __tablename__ = 'DispGroupPointer'
-    __tupleTypeShort__ = 'DGP'
+    __tablename__ = "DispGroupPointer"
+    __tupleTypeShort__ = "DGP"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     RENDERABLE_TYPE = DispBase.GROUP_PTR
-    __mapper_args__ = {'polymorphic_identity': RENDERABLE_TYPE}
+    __mapper_args__ = {"polymorphic_identity": RENDERABLE_TYPE}
 
-    id = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE')
-                , primary_key=True, autoincrement=False)
+    id = Column(
+        BigInteger,
+        ForeignKey("DispBase.id", ondelete="CASCADE"),
+        primary_key=True,
+        autoincrement=False,
+    )
 
-    rotation = Column(Integer, doc='r', server_default='0', nullable=False)
+    rotation = Column(Integer, doc="r", server_default="0", nullable=False)
 
-    verticalScale = Column(Float, doc='vs', nullable=False, server_default='1.0')
-    horizontalScale = Column(Float, doc='hs', nullable=False, server_default='1.0')
+    verticalScale = Column(Float, doc="vs", nullable=False, server_default="1.0")
+    horizontalScale = Column(Float, doc="hs", nullable=False, server_default="1.0")
 
-    geomJson = Column(String, nullable=False, doc='g')
+    geomJson = Column(String, nullable=False, doc="g")
 
-    targetDispGroupId = Column(BigInteger, ForeignKey('DispGroup.id', ondelete='SET NULL'),
-                               doc='tg')
+    targetDispGroupId = Column(
+        BigInteger, ForeignKey("DispGroup.id", ondelete="SET NULL"), doc="tg"
+    )
 
-    targetDispGroupName = Column(String, doc='tn')
+    targetDispGroupName = Column(String, doc="tn")
 
-    disps = relationship(DispBase,
-                         primaryjoin='DispBase.groupId==DispGroupPointer.id',
-                         foreign_keys=[DispBase.groupId],
-                         remote_side='DispBase.groupId')
+    disps = relationship(
+        DispBase,
+        primaryjoin="DispBase.groupId==DispGroupPointer.id",
+        foreign_keys=[DispBase.groupId],
+        remote_side="DispBase.groupId",
+    )
 
     __table_args__ = (
         Index("idxDispGroupPointer_targetDispGroupId", targetDispGroupId, unique=False),

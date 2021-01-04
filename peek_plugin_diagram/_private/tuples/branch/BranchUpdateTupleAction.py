@@ -7,13 +7,14 @@ from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 
 @addTupleType
 class BranchUpdateTupleAction(TupleActionABC):
-    """ Branch Update Tuple Action
+    """Branch Update Tuple Action
 
     This is the Branch Update tuple Action
 
     """
-    __tupleType__ = diagramTuplePrefix + 'BranchUpdateTupleAction'
+
+    __tupleType__ = diagramTuplePrefix + "BranchUpdateTupleAction"
 
     doDelete: bool = TupleField(False)
-    modelSetId:int = TupleField()
+    modelSetId: int = TupleField()
     branchTuple: BranchTuple = TupleField()

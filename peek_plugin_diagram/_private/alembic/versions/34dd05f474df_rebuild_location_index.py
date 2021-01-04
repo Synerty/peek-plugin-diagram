@@ -9,8 +9,8 @@ Create Date: 2017-12-29 20:00:27.258810
 """
 
 # revision identifiers, used by Alembic.
-revision = '34dd05f474df'
-down_revision = '298b291aac2d'
+revision = "34dd05f474df"
+down_revision = "298b291aac2d"
 branch_labels = None
 depends_on = None
 
@@ -20,16 +20,20 @@ import geoalchemy2
 
 
 def upgrade():
-    op.execute('''
+    op.execute(
+        """
         TRUNCATE TABLE pl_diagram."LocationIndexCompiled" CASCADE
-    ''')
+    """
+    )
 
-    op.execute('''
+    op.execute(
+        """
         INSERT INTO pl_diagram."LocationIndexCompilerQueue"
         ("modelSetId", "indexBucket")
         SELECT "modelSetId", "indexBucket"
         FROM pl_diagram."LocationIndex"
-    ''')
+    """
+    )
 
 
 def downgrade():

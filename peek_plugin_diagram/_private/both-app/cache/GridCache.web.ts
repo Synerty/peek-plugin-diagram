@@ -1,7 +1,10 @@
 import { Injectable } from "@angular/core"
 import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService"
 import { LinkedGrid } from "./LinkedGrid.web"
-import { GridTuple, PrivateDiagramGridLoaderServiceA } from "@peek/peek_plugin_diagram/_private/grid-loader"
+import {
+    GridTuple,
+    PrivateDiagramGridLoaderServiceA
+} from "@peek/peek_plugin_diagram/_private/grid-loader"
 import { Subject } from "rxjs"
 import { Observable } from "rxjs"
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"

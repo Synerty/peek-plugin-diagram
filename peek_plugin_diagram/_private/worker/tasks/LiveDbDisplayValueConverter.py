@@ -1,8 +1,13 @@
 import logging
 from typing import Dict
 
-from peek_plugin_diagram._private.storage.Display import DispTextStyle, DispLineStyle, \
-    DispColor, DispLevel, DispLayer
+from peek_plugin_diagram._private.storage.Display import (
+    DispTextStyle,
+    DispLineStyle,
+    DispColor,
+    DispLevel,
+    DispLayer,
+)
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
 from sqlalchemy import select
 
@@ -47,8 +52,10 @@ class LiveDbDisplayValueConverter:
     @staticmethod
     def _loadLookupByModelSet(ormSession, modelSetId: int, table) -> Dict[str, int]:
         resultSet = ormSession.execute(
-            select([table.c.importHash, table.c.id])
-                .where(table.c.modelSetId == modelSetId))
+            select([table.c.importHash, table.c.id]).where(
+                table.c.modelSetId == modelSetId
+            )
+        )
 
         return dict(resultSet.fetchall())
 
@@ -62,7 +69,7 @@ class LiveDbDisplayValueConverter:
         return value
 
     def _liveDbValueTranslateText(self, value):
-        return '' if value is None else value
+        return "" if value is None else value
 
     def _liveDbValueTranslateNumber(self, value):
         return value

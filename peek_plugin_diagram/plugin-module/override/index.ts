@@ -1,1 +1,1 @@
-export {DiagramOverrideColor} from "./DiagramOverrideColor";
+export { DiagramOverrideColor } from "./DiagramOverrideColor"

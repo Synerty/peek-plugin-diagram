@@ -3,20 +3,23 @@ from typing import Optional, List
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
-    ImportLiveDbDispLinkTuple
-from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
-    ImportDispPolylineTuple
+from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import (
+    ImportLiveDbDispLinkTuple,
+)
+from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import (
+    ImportDispPolylineTuple,
+)
 
 
 @addTupleType
 class ImportDispPolygonTuple(Tuple):
-    """ Imported Display Polygon
+    """Imported Display Polygon
 
     This tuple is used by other plugins to load polygons into the diagram.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispPolygonTuple'
+
+    __tupleType__ = diagramTuplePrefix + "ImportDispPolygonTuple"
 
     ### BEGIN DISP COMMON FIELDS ###
 

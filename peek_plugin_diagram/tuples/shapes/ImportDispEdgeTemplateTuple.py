@@ -3,21 +3,24 @@ from typing import Optional, List
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
-    ImportLiveDbDispLinkTuple
-from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
-    ImportDispPolylineTuple
+from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import (
+    ImportLiveDbDispLinkTuple,
+)
+from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import (
+    ImportDispPolylineTuple,
+)
 
 
 @addTupleType
 class ImportDispEdgeTemplateTuple(Tuple):
-    """ Imported Shape Line Template
+    """Imported Shape Line Template
 
     This tuple is used by other plugins to load Line Template into the diagram.
     The line template is used by the user to create new lines.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispEdgeTemplateTuple'
+
+    __tupleType__ = diagramTuplePrefix + "ImportDispEdgeTemplateTuple"
 
     # The size of the end types are relative to the line width
     END_TYPE_NONE = ImportDispPolylineTuple.END_TYPE_NONE

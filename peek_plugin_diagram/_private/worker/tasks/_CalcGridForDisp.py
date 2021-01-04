@@ -4,17 +4,24 @@ import math
 import logging
 from typing import Dict, List
 
-from peek_plugin_diagram._private.storage.Display import DispText, \
-    DispTextStyle, DispEllipse, DispGroup, DispGroupPointer
-from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, \
-    ModelCoordSetGridSize
+from peek_plugin_diagram._private.storage.Display import (
+    DispText,
+    DispTextStyle,
+    DispEllipse,
+    DispGroup,
+    DispGroupPointer,
+)
+from peek_plugin_diagram._private.storage.ModelSet import (
+    ModelCoordSet,
+    ModelCoordSetGridSize,
+)
 
 logger = logging.getLogger(__name__)
 
 
-def makeGridKeysForDisp(coordSet: ModelCoordSet,
-                        disp, geomJson,
-                        textStyleById: Dict[int, DispTextStyle]) -> List[str]:
+def makeGridKeysForDisp(
+    coordSet: ModelCoordSet, disp, geomJson, textStyleById: Dict[int, DispTextStyle]
+) -> List[str]:
     points = geomJson
 
     if geomJson is None:
@@ -32,12 +39,15 @@ def makeGridKeysForDisp(coordSet: ModelCoordSet,
             # Skip the check if the DispGroup has no level. It will be in all levels.
             pass
 
-        elif 0.0 > (min(gridSize.max, (disp.level.maxZoom - 0.00001))
-                      - max(gridSize.min, disp.level.minZoom + 0.00001)):
+        elif 0.0 > (
+            min(gridSize.max, (disp.level.maxZoom - 0.00001))
+            - max(gridSize.min, disp.level.minZoom + 0.00001)
+        ):
             continue
 
-        if (isinstance(disp, DispText)
-            and _isTextTooSmall(disp, gridSize, textStyleById)):
+        if isinstance(disp, DispText) and _isTextTooSmall(
+            disp, gridSize, textStyleById
+        ):
             continue
 
         # If this is just a point shape/geom, then add it and continue
@@ -47,15 +57,20 @@ def makeGridKeysForDisp(coordSet: ModelCoordSet,
         elif len(points) == 2:  # 2 = [x, y]
 
             # This should be a text
-            if not isinstance(disp, DispText) \
-                    and not isinstance(disp, DispGroup) \
-                    and not isinstance(disp, DispGroupPointer):
+            if (
+                not isinstance(disp, DispText)
+                and not isinstance(disp, DispGroup)
+                and not isinstance(disp, DispGroupPointer)
+            ):
                 logger.debug("TODO Determine size for disp type %s", disp.tupleType())
 
             # Texts on the boundaries of grids could be a problem
             # They will seem them if the pan over just a little.
-            gridKeys.append(gridSize.makeGridKey(int(points[0] / gridSize.xGrid),
-                                                 int(points[1] / gridSize.yGrid)))
+            gridKeys.append(
+                gridSize.makeGridKey(
+                    int(points[0] / gridSize.xGrid), int(points[1] / gridSize.yGrid)
+                )
+            )
             continue
 
         else:
@@ -78,19 +93,27 @@ def makeGridKeysForDisp(coordSet: ModelCoordSet,
         maxGridY = int(maxy / gridSize.yGrid) + 1
 
         if 50 < abs(minGridX - maxGridX):
-            logger.warning("Ignoring massive shape with disp.id=%s,"
-                           " it crosses too many horizontal grids at"
-                           " at gridSize.id=%s,"
-                           " grid count is %s", disp.id, gridSize.id,
-                           abs(minGridX - maxGridX))
+            logger.warning(
+                "Ignoring massive shape with disp.id=%s,"
+                " it crosses too many horizontal grids at"
+                " at gridSize.id=%s,"
+                " grid count is %s",
+                disp.id,
+                gridSize.id,
+                abs(minGridX - maxGridX),
+            )
             continue
 
         if 50 < abs(minGridY - maxGridY):
-            logger.warning("Ignoring massive shape with disp.id=%s,"
-                           " it crosses too many vertical grids at"
-                           " at gridSize.id=%s,"
-                           " grid count is %s",
-                           disp.id, gridSize.id, abs(minGridY - maxGridY))
+            logger.warning(
+                "Ignoring massive shape with disp.id=%s,"
+                " it crosses too many vertical grids at"
+                " at gridSize.id=%s,"
+                " grid count is %s",
+                disp.id,
+                gridSize.id,
+                abs(minGridY - maxGridY),
+            )
             continue
 
         # Iterate through and create the grids.
@@ -105,9 +128,10 @@ def _pointToPixel(point: float) -> float:
     return point * 96 / 72
 
 
-def _isTextTooSmall(disp, gridSize: ModelCoordSetGridSize,
-                    textStyleById: Dict[int, DispTextStyle]) -> bool:
-    """ Is Text Too Small
+def _isTextTooSmall(
+    disp, gridSize: ModelCoordSetGridSize, textStyleById: Dict[int, DispTextStyle]
+) -> bool:
+    """Is Text Too Small
 
     This method calculates the size that the text will appear on the diagram at max zoom
     for the provided gird.
@@ -134,9 +158,7 @@ def _isTextTooSmall(disp, gridSize: ModelCoordSetGridSize,
 
 
 def _calcEllipseBounds(disp, x, y):
-    """ Calculate the bounds of an ellipse
-
-    """
+    """Calculate the bounds of an ellipse"""
     # NOTE: To do this accurately we should look at the start and end angles.
     # in the interest simplicity we're not going to.
     # We'll potentially include SMALLEST_SHAPE_SIZE / 2 as well, no big deal.

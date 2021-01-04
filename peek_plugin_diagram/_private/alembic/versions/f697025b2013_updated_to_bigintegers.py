@@ -9,15 +9,16 @@ Create Date: 2020-04-29 08:58:57.753872
 """
 
 # revision identifiers, used by Alembic.
-revision = 'f697025b2013'
-down_revision = '2fc6d3246717'
+revision = "f697025b2013"
+down_revision = "2fc6d3246717"
 branch_labels = None
 depends_on = None
 
 from alembic import op
 
+
 def _alterColumnPkBigInt(schemaName, tableName):
-    return '''
+    return """
         
         DO $$
             DECLARE
@@ -66,27 +67,27 @@ def _alterColumnPkBigInt(schemaName, tableName):
         ALTER TABLE %(schemaName)s."%(tableName)s"
         ALTER COLUMN "%(columnName)s" SET DEFAULT 
             nextval('%(schemaName)s."%(tableName)s_%(columnName)s_seq"'::regclass);
-        ''' % dict(schemaName=schemaName,
-                   tableName=tableName,
-                   columnName='id')
+        """ % dict(
+        schemaName=schemaName, tableName=tableName, columnName="id"
+    )
 
 
 def upgrade():
-    op.execute(_alterColumnPkBigInt('pl_diagram', "DispBase"))
+    op.execute(_alterColumnPkBigInt("pl_diagram", "DispBase"))
 
-    op.execute(_alterColumnPkBigInt('pl_diagram', "LiveDbDispLink"))
+    op.execute(_alterColumnPkBigInt("pl_diagram", "LiveDbDispLink"))
 
-    op.execute(_alterColumnPkBigInt('pl_diagram', "DispCompilerQueue"))
+    op.execute(_alterColumnPkBigInt("pl_diagram", "DispCompilerQueue"))
 
-    op.execute(_alterColumnPkBigInt('pl_diagram', "GridKeyCompilerQueue"))
-    op.execute(_alterColumnPkBigInt('pl_diagram', "GridKeyIndexCompiled"))
+    op.execute(_alterColumnPkBigInt("pl_diagram", "GridKeyCompilerQueue"))
+    op.execute(_alterColumnPkBigInt("pl_diagram", "GridKeyIndexCompiled"))
 
-    op.execute(_alterColumnPkBigInt('pl_diagram', "LocationIndexCompilerQueue"))
-    op.execute(_alterColumnPkBigInt('pl_diagram', "LocationIndexCompiled"))
+    op.execute(_alterColumnPkBigInt("pl_diagram", "LocationIndexCompilerQueue"))
+    op.execute(_alterColumnPkBigInt("pl_diagram", "LocationIndexCompiled"))
 
-    op.execute(_alterColumnPkBigInt('pl_diagram', "BranchIndex"))
-    op.execute(_alterColumnPkBigInt('pl_diagram', "BranchIndexCompilerQueue"))
-    op.execute(_alterColumnPkBigInt('pl_diagram', "BranchIndexEncodedChunk"))
+    op.execute(_alterColumnPkBigInt("pl_diagram", "BranchIndex"))
+    op.execute(_alterColumnPkBigInt("pl_diagram", "BranchIndexCompilerQueue"))
+    op.execute(_alterColumnPkBigInt("pl_diagram", "BranchIndexEncodedChunk"))
 
 
 def downgrade():

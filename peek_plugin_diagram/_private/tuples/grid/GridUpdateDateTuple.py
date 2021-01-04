@@ -10,6 +10,6 @@ class GridUpdateDateTuple(Tuple):
     __tupleType__ = diagramTuplePrefix + "GridUpdateDateTuple"
 
     # Improve performance of the JSON serialisation
-    __rawJonableFields__ = ( 'updateDateByChunkKey',)
+    __rawJonableFields__ = ("updateDateByChunkKey",)
 
     updateDateByChunkKey: Dict[str, str] = TupleField()

@@ -6,18 +6,20 @@ from vortex import SerialiseUtil
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
-    LookupHashConverter
+from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import (
+    LookupHashConverter,
+)
 from peek_plugin_diagram.tuples.branches.ImportBranchTuple import ImportBranchTuple
 
 
 @addTupleType
 class BranchTuple(Tuple):
-    """ Branch Tuple
+    """Branch Tuple
 
     This is the private branch tuple used to work with the branch.
 
     """
+
     __ID_NUM = 0
     __COORD_SET_ID_NUM = 1
     __KEY_NUM = 2
@@ -31,7 +33,7 @@ class BranchTuple(Tuple):
     __LAST_EDIT_POSITION = 10
     __LAST_INDEX_NUM = 10
 
-    __tupleType__ = diagramTuplePrefix + 'BranchTuple'
+    __tupleType__ = diagramTuplePrefix + "BranchTuple"
 
     __rawJonableFields__ = ["packedJson__"]
 
@@ -47,10 +49,13 @@ class BranchTuple(Tuple):
         self.packedJson__ = [None] * (BranchTuple.__LAST_INDEX_NUM + 1)
 
     @classmethod
-    def loadFromImportTuple(cls, importBranchTuple: ImportBranchTuple,
-                            coordSetId: int,
-                            lookupHashConverter: LookupHashConverter) -> "BranchTuple":
-        """ Load From Import Tuple
+    def loadFromImportTuple(
+        cls,
+        importBranchTuple: ImportBranchTuple,
+        coordSetId: int,
+        lookupHashConverter: LookupHashConverter,
+    ) -> "BranchTuple":
+        """Load From Import Tuple
 
         This is used by the import worker to pack this object into the index.
 
@@ -76,8 +81,9 @@ class BranchTuple(Tuple):
         return json.dumps(self.packedJson__)
 
     @classmethod
-    def loadFromJson(self, packedJsonStr: str,
-                     importHash: str, importGroupHash: str) -> 'BranchTuple':
+    def loadFromJson(
+        self, packedJsonStr: str, importHash: str, importGroupHash: str
+    ) -> "BranchTuple":
         branchTuple = BranchTuple()
         branchTuple.packedJson__ = json.loads(packedJsonStr)
         branchTuple.importHash = importHash
@@ -137,13 +143,15 @@ class BranchTuple(Tuple):
     def updatedDate(self):
         if self.packedJson__[self.__UPDATED_DATE] is None:
             return None
-        return SerialiseUtil.fromStr(self.packedJson__[self.__UPDATED_DATE],
-                                     SerialiseUtil.T_DATETIME)
+        return SerialiseUtil.fromStr(
+            self.packedJson__[self.__UPDATED_DATE], SerialiseUtil.T_DATETIME
+        )
 
     @property
     def createdDate(self):
-        return SerialiseUtil.fromStr(self.packedJson__[self.__CREATED_DATE],
-                                     SerialiseUtil.T_DATETIME)
+        return SerialiseUtil.fromStr(
+            self.packedJson__[self.__CREATED_DATE], SerialiseUtil.T_DATETIME
+        )
 
     @property
     def lastEditPositionJsonStr(self) -> str:

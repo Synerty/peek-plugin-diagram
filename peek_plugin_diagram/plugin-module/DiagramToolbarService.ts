@@ -50,9 +50,9 @@ export enum ToolbarTypeE {
  */
 export abstract class DiagramToolbarService {
     protected constructor() {
-
+    
     }
-
+    
     /** Add Tool Button
      *
      * Call this method to add new tool buttons to the diagrams tool bar.
@@ -67,20 +67,22 @@ export abstract class DiagramToolbarService {
      *
      * @param toolbarType: The type of the toolbar to add the button to.
      */
-    abstract addToolButton(modelSetKey: string | null,
-                           coordSetKey: string | null,
-                           toolButton: DiagramToolButtonI,
-                           toolbarType?: ToolbarTypeE);
-
+    abstract addToolButton(
+        modelSetKey: string | null,
+        coordSetKey: string | null,
+        toolButton: DiagramToolButtonI,
+        toolbarType?: ToolbarTypeE
+    );
+    
     /** Remove Tool Button
      *
      * @param buttonKey: The key of the button to remove.
      *
      * @param toolbarType: The type of the toolbar to add the button to.
      */
-    abstract removeToolButton(buttonKey: string,
-                              toolbarType?: ToolbarTypeE);
-
-
-
+    abstract removeToolButton(
+        buttonKey: string,
+        toolbarType?: ToolbarTypeE
+    );
+    
 }

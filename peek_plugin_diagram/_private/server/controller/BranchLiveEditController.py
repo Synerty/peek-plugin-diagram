@@ -3,10 +3,12 @@ from datetime import datetime
 from typing import Dict, Optional, Tuple
 
 import pytz
-from peek_plugin_diagram._private.tuples.branch.BranchLiveEditTuple import \
-    BranchLiveEditTuple
-from peek_plugin_diagram._private.tuples.branch.BranchLiveEditTupleAction import \
-    BranchLiveEditTupleAction
+from peek_plugin_diagram._private.tuples.branch.BranchLiveEditTuple import (
+    BranchLiveEditTuple,
+)
+from peek_plugin_diagram._private.tuples.branch.BranchLiveEditTupleAction import (
+    BranchLiveEditTupleAction,
+)
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 from twisted.internet import task
 from twisted.internet.defer import Deferred, inlineCallbacks
@@ -20,12 +22,13 @@ logger = logging.getLogger(__name__)
 
 
 class BranchLiveEditController(TupleActionProcessorDelegateABC):
-    """ Branch Live Edit
+    """Branch Live Edit
 
     This controller just stores activly edited branches, and relays them between
     each other.
 
     """
+
     PERIOD = 30.000
 
     def __init__(self):
@@ -63,10 +66,8 @@ class BranchLiveEditController(TupleActionProcessorDelegateABC):
 
     def updateBranch(self, branchTuple: BranchTuple):
         ts = TupleSelector(
-            BranchLiveEditTuple.tupleType(), dict(
-                coordSetId=branchTuple.coordSetId,
-                key=branchTuple.key
-            )
+            BranchLiveEditTuple.tupleType(),
+            dict(coordSetId=branchTuple.coordSetId, key=branchTuple.key),
         )
 
         if not self._tupleObservable.hasTupleSubscribers(ts):
@@ -85,8 +86,9 @@ class BranchLiveEditController(TupleActionProcessorDelegateABC):
     def processTupleAction(self, tupleAction: TupleActionABC) -> Deferred:
         yield None
 
-        assert isinstance(tupleAction, BranchLiveEditTupleAction), \
-            "tupleAction is not BranchLiveEditTupleAction"
+        assert isinstance(
+            tupleAction, BranchLiveEditTupleAction
+        ), "tupleAction is not BranchLiveEditTupleAction"
 
         # Ignore the updates
         if tupleAction.actionType == BranchLiveEditTupleAction.EDITING_STARTED:
@@ -105,10 +107,9 @@ class BranchLiveEditController(TupleActionProcessorDelegateABC):
         self._cache[(coordSetId, key)] = tuple_
 
         self._tupleObservable.notifyOfTupleUpdate(
-            TupleSelector(BranchLiveEditTuple.tupleName(), {
-                "coordSetId": coordSetId,
-                "key": key
-            })
+            TupleSelector(
+                BranchLiveEditTuple.tupleName(), {"coordSetId": coordSetId, "key": key}
+            )
         )
 
     def getLiveEditTuple(self, coordSetId, key) -> Optional[BranchLiveEditTuple]:

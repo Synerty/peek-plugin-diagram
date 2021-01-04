@@ -1,10 +1,17 @@
 import logging
 from typing import Dict
 
-from peek_plugin_diagram._private.storage.Display import DispTextStyle, DispLineStyle, \
-    DispColor, DispLevel, DispLayer, DispGroupPointer
-from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
-    ImportLiveDbDispLinkTuple
+from peek_plugin_diagram._private.storage.Display import (
+    DispTextStyle,
+    DispLineStyle,
+    DispColor,
+    DispLevel,
+    DispLayer,
+    DispGroupPointer,
+)
+from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import (
+    ImportLiveDbDispLinkTuple,
+)
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
 from sqlalchemy import select
 
@@ -40,16 +47,20 @@ class LookupHashConverter:
     def _loadLookupByModelSet(self, table) -> Dict[str, int]:
 
         resultSet = self._ormSession.execute(
-            select([table.c.importHash, table.c.id])
-                .where(table.c.modelSetId == self._modelSetId))
+            select([table.c.importHash, table.c.id]).where(
+                table.c.modelSetId == self._modelSetId
+            )
+        )
 
         return dict(resultSet.fetchall())
 
     def _loadLookupByCoordSet(self, table) -> Dict[str, int]:
 
         resultSet = self._ormSession.execute(
-            select([table.c.importHash, table.c.id])
-                .where(table.c.coordSetId == self._coordSetId))
+            select([table.c.importHash, table.c.id]).where(
+                table.c.coordSetId == self._coordSetId
+            )
+        )
 
         return dict(resultSet.fetchall())
 
@@ -57,33 +68,34 @@ class LookupHashConverter:
 
         T = ImportLiveDbDispLinkTuple
 
-        colourFields = {T.DISP_ATTR_FILL_COLOR, T.DISP_ATTR_COLOR,
-                        T.DISP_ATTR_LINE_COLOR, T.DISP_ATTR_EDGE_COLOR}
+        colourFields = {
+            T.DISP_ATTR_FILL_COLOR,
+            T.DISP_ATTR_COLOR,
+            T.DISP_ATTR_LINE_COLOR,
+            T.DISP_ATTR_EDGE_COLOR,
+        }
 
         for attrName in colourFields:
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
-            setattr(disp, attrName,
-                    self.getColourId(getattr(disp, attrName)))
+            setattr(disp, attrName, self.getColourId(getattr(disp, attrName)))
 
         for attrName in (T.DISP_ATTR_LINE_STYLE,):
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
-            setattr(disp, attrName,
-                    self.getLineStyleId(getattr(disp, attrName)))
+            setattr(disp, attrName, self.getLineStyleId(getattr(disp, attrName)))
 
         for attrName in (T.DISP_ATTR_TEXT_STYLE,):
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
-            setattr(disp, attrName,
-                    self.getTextStyleId(getattr(disp, attrName)))
+            setattr(disp, attrName, self.getTextStyleId(getattr(disp, attrName)))
 
-        for attrName in ['levelId']:
+        for attrName in ["levelId"]:
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
             setattr(disp, attrName, self.getLevelId(getattr(disp, attrName)))
 
-        for attrName in ['layerId']:
+        for attrName in ["layerId"]:
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
             setattr(disp, attrName, self.getLayerId(getattr(disp, attrName)))
@@ -163,7 +175,7 @@ class LookupHashConverter:
             newLevel.order = defaultOrder
         else:
             try:
-                newLevel.order  = int(importHash)
+                newLevel.order = int(importHash)
             except ValueError:
                 newLevel.order = 0
 
@@ -187,7 +199,7 @@ class LookupHashConverter:
             newLayer.order = defaultOrder
         else:
             try:
-                newLayer.order  = int(importHash)
+                newLayer.order = int(importHash)
             except ValueError:
                 newLayer.order = 0
 

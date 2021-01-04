@@ -1,18 +1,27 @@
 import logging
 from typing import Callable
 
-from peek_abstract_chunked_index.private.server.controller.ACIProcessorQueueControllerABC import \
-    ACIProcessorQueueControllerABC, ACIProcessorQueueBlockItem
-from peek_abstract_chunked_index.private.server.controller.ACIProcessorStatusNotifierABC import \
-    ACIProcessorStatusNotifierABC
-from peek_abstract_chunked_index.private.tuples.ACIProcessorQueueTupleABC import \
-    ACIProcessorQueueTupleABC
-from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexUpdateHandler import \
-    ClientLocationIndexUpdateHandler
-from peek_plugin_diagram._private.server.controller.StatusController import \
-    StatusController
-from peek_plugin_diagram._private.storage.LocationIndex import \
-    LocationIndexCompilerQueue, LocationIndexCompiled, LocationIndex
+from peek_abstract_chunked_index.private.server.controller.ACIProcessorQueueControllerABC import (
+    ACIProcessorQueueControllerABC,
+    ACIProcessorQueueBlockItem,
+)
+from peek_abstract_chunked_index.private.server.controller.ACIProcessorStatusNotifierABC import (
+    ACIProcessorStatusNotifierABC,
+)
+from peek_abstract_chunked_index.private.tuples.ACIProcessorQueueTupleABC import (
+    ACIProcessorQueueTupleABC,
+)
+from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexUpdateHandler import (
+    ClientLocationIndexUpdateHandler,
+)
+from peek_plugin_diagram._private.server.controller.StatusController import (
+    StatusController,
+)
+from peek_plugin_diagram._private.storage.LocationIndex import (
+    LocationIndexCompilerQueue,
+    LocationIndexCompiled,
+    LocationIndex,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -46,24 +55,33 @@ class LocationCompilerQueueController(ACIProcessorQueueControllerABC):
 
     _logger = logger
     _QueueDeclarative: ACIProcessorQueueTupleABC = LocationIndexCompilerQueue
-    _VacuumDeclaratives = (LocationIndexCompilerQueue,
-                           LocationIndex, LocationIndexCompiled)
+    _VacuumDeclaratives = (
+        LocationIndexCompilerQueue,
+        LocationIndex,
+        LocationIndexCompiled,
+    )
 
-    def __init__(self, dbSessionCreator,
-                 statusController: StatusController,
-                 clientLocationUpdateHandler: ClientLocationIndexUpdateHandler,
-                 readyLambdaFunc: Callable):
-        ACIProcessorQueueControllerABC \
-            .__init__(self, dbSessionCreator, _Notifier(statusController))
+    def __init__(
+        self,
+        dbSessionCreator,
+        statusController: StatusController,
+        clientLocationUpdateHandler: ClientLocationIndexUpdateHandler,
+        readyLambdaFunc: Callable,
+    ):
+        ACIProcessorQueueControllerABC.__init__(
+            self, dbSessionCreator, _Notifier(statusController)
+        )
         # Disabled
         # isProcessorEnabledCallable=readyLambdaFunc)
 
-        self._clientLocationUpdateHandler: ClientLocationIndexUpdateHandler \
-            = clientLocationUpdateHandler
+        self._clientLocationUpdateHandler: ClientLocationIndexUpdateHandler = (
+            clientLocationUpdateHandler
+        )
 
     def _sendToWorker(self, block: ACIProcessorQueueBlockItem):
-        from peek_plugin_diagram._private.worker.tasks.LocationIndexCompilerTask import \
-            compileLocationIndex
+        from peek_plugin_diagram._private.worker.tasks.LocationIndexCompilerTask import (
+            compileLocationIndex,
+        )
 
         return compileLocationIndex.delay(block.itemsEncodedPayload)
 
@@ -71,7 +89,7 @@ class LocationCompilerQueueController(ACIProcessorQueueControllerABC):
         self._clientLocationUpdateHandler.sendChunks(results)
 
     def _dedupeQueueSql(self, lastFetchedId: int, dedupeLimit: int):
-        return '''
+        return """
                  with sq_raw as (
                     SELECT "id", "indexBucket", "modelSetId"
                     FROM pl_diagram."LocationIndexCompilerQueue"
@@ -91,4 +109,7 @@ class LocationCompilerQueueController(ACIProcessorQueueControllerABC):
                     AND pl_diagram."LocationIndexCompilerQueue"."indexBucket" = sq1."indexBucket"
                     AND pl_diagram."LocationIndexCompilerQueue"."modelSetId" = sq1."modelSetId"
 
-            ''' % {'id': lastFetchedId, 'limit': dedupeLimit}
+            """ % {
+            "id": lastFetchedId,
+            "limit": dedupeLimit,
+        }

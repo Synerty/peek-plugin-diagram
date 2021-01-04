@@ -1,87 +1,118 @@
 <div *ngIf="context != null">
-
+    
     <table class="table">
         <tbody *ngIf="!isEditingEnabled()">
         <tr>
             <td></td>
-            <td >
-                <button nz-button nzType="primary"
-                        (click)="prepForWrite()">Edit this Shape
+            <td>
+                <button
+                    (click)="prepForWrite()" nz-button
+                    nzType="primary"
+                >Edit this Shape
                 </button>
             </td>
         </tr>
         </tbody>
-
+        
         <tbody>
-        <tr class="tr"
+        <tr
             *ngFor="let prop of context.props(); odd as odd; even as even"
+            [class.bg-even]="even"
             [class.bg-odd]="odd"
-            [class.bg-even]="even">
-            <th class="th"
+            class="tr"
+        >
+            <th
+                [class.bg-even]="even"
                 [class.bg-odd]="odd"
-                [class.bg-even]="even">{{prop.name}}
+                class="th"
+            >{{prop.name}}
             </th>
-            <td *ngIf="showInput(prop)"
-                class="td"
+            <td
+                *ngIf="showInput(prop)"
+                [class.bg-even]="even"
                 [class.bg-odd]="odd"
-                [class.bg-even]="even">
-                <input [disabled]="!isEditingEnabled()"
-                       nz-input
-                       type="text"
-                       (focusout)="propLostFocus()"
-                       (ngModelChange)="writeVal(prop, $event, false)"
-                       [ngModel]="readVal(prop)">
+                class="td"
+            >
+                <input
+                    (focusout)="propLostFocus()"
+                    (ngModelChange)="writeVal(prop, $event, false)"
+                    [disabled]="!isEditingEnabled()"
+                    [ngModel]="readVal(prop)"
+                    nz-input
+                    type="text"
+                >
             </td>
-            <td *ngIf="showInteger(prop)"
-                class="td"
+            <td
+                *ngIf="showInteger(prop)"
+                [class.bg-even]="even"
                 [class.bg-odd]="odd"
-                [class.bg-even]="even">
-                <input [disabled]="!isEditingEnabled()"
-                       nz-input
-                       type="number"
-                       min="0"
-                       (focusout)="propLostFocus()"
-                       (ngModelChange)="writeVal(prop, $event, false)"
-                       [ngModel]="readVal(prop)">
+                class="td"
+            >
+                <input
+                    (focusout)="propLostFocus()"
+                    (ngModelChange)="writeVal(prop, $event, false)"
+                    [disabled]="!isEditingEnabled()"
+                    [ngModel]="readVal(prop)"
+                    min="0"
+                    nz-input
+                    type="number"
+                >
             </td>
-            <td *ngIf="showTextArea(prop)"
-                class="td"
+            <td
+                *ngIf="showTextArea(prop)"
+                [class.bg-even]="even"
                 [class.bg-odd]="odd"
-                [class.bg-even]="even">
-                <textarea [disabled]="!isEditingEnabled()"
-                          nz-input
-                          (focusout)="propLostFocus()"
-                          (ngModelChange)="writeVal(prop, $event, false)"
-                          [ngModel]="readVal(prop)"></textarea>
+                class="td"
+            >
+                <textarea
+                    (focusout)="propLostFocus()"
+                    (ngModelChange)="writeVal(prop, $event, false)"
+                    [disabled]="!isEditingEnabled()"
+                    [ngModel]="readVal(prop)"
+                    nz-input
+                ></textarea>
             </td>
-            <td *ngIf="showBoolean(prop)"
-                class="td"
+            <td
+                *ngIf="showBoolean(prop)"
+                [class.bg-even]="even"
                 [class.bg-odd]="odd"
-                [class.bg-even]="even">
-                <label [disabled]="!isEditingEnabled()"
-                       nz-checkbox
-                       (ngModelChange)="writeVal(prop, $event)"
-                       [ngModel]="readVal(prop)"></label>
+                class="td"
+            >
+                <label
+                    (ngModelChange)="writeVal(prop, $event)"
+                    [disabled]="!isEditingEnabled()"
+                    [ngModel]="readVal(prop)"
+                    nz-checkbox
+                ></label>
             </td>
-            <td *ngIf="showSelectOption(prop)"
-                class="td"
+            <td
+                *ngIf="showSelectOption(prop)"
+                [class.bg-even]="even"
                 [class.bg-odd]="odd"
-                [class.bg-even]="even">
-                <nz-select style="min-width:200px"
-                           [disabled]="!isEditingEnabled()"
-                           (ngModelChange)="writeOptionVal(prop, $event)"
-                           [ngModel]="readOptionVal(prop)">
-                    <nz-option *ngIf="prop.allowNullOption"
-                               [nzValue]="null"></nz-option>
-                    <nz-option *ngFor="let option of prop.options"
-                               [nzValue]="option.value"
-                               [nzLabel]="option.name"></nz-option>
+                class="td"
+            >
+                <nz-select
+                    (ngModelChange)="writeOptionVal(prop, $event)"
+                    [disabled]="!isEditingEnabled()"
+                    [ngModel]="readOptionVal(prop)"
+                    style="min-width:200px"
+                >
+                    <nz-option
+                        *ngIf="prop.allowNullOption"
+                        [nzValue]="null"
+                    ></nz-option>
+                    <nz-option
+                        *ngFor="let option of prop.options"
+                        [nzLabel]="option.name"
+                        [nzValue]="option.value"
+                    ></nz-option>
                 </nz-select>
                 <div *ngIf="showLevelNotVisible(prop)" class="bg-warning">
                     This level is not currently visible at this zoom level.
                 </div>
                 <div *ngIf="showLayerNotVisible(prop)" class="bg-warning">
-                    This layer is not currently visible, it's disabled in layer settings.
+                    This layer is not currently visible, it's disabled in layer
+                    settings.
                 </div>
             </td>
         </tr>

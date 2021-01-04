@@ -11,20 +11,24 @@ from vortex.PayloadEnvelope import PayloadEnvelope
 from vortex.VortexABC import SendVortexMsgResponseCallable
 from vortex.VortexFactory import VortexFactory
 
-from peek_abstract_chunked_index.private.client.handlers.ACICacheHandlerABC import \
-    ACICacheHandlerABC
-from peek_abstract_chunked_index.private.tuples.ACIUpdateDateTupleABC import \
-    ACIUpdateDateTupleABC
+from peek_abstract_chunked_index.private.client.handlers.ACICacheHandlerABC import (
+    ACICacheHandlerABC,
+)
+from peek_abstract_chunked_index.private.tuples.ACIUpdateDateTupleABC import (
+    ACIUpdateDateTupleABC,
+)
 from peek_plugin_diagram._private.PluginNames import diagramFilt
-from peek_plugin_diagram._private.client.controller.GridCacheController import \
-    GridCacheController
-from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import \
-    ClientGridLoaderRpc
+from peek_plugin_diagram._private.client.controller.GridCacheController import (
+    GridCacheController,
+)
+from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import (
+    ClientGridLoaderRpc,
+)
 from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
 
 logger = logging.getLogger(__name__)
 
-clientGridWatchUpdateFromDeviceFilt = {'key': "clientGridWatchUpdateFromDevice"}
+clientGridWatchUpdateFromDeviceFilt = {"key": "clientGridWatchUpdateFromDevice"}
 clientGridWatchUpdateFromDeviceFilt.update(diagramFilt)
 
 #: This the type of the data that we get when the clients observe new grids.
@@ -38,7 +42,7 @@ class GridCacheHandler(ACICacheHandlerABC):
     _logger: logging.Logger = logger
 
     def __init__(self, cacheController: GridCacheController, clientId: str):
-        """ App Grid Handler
+        """App Grid Handler
 
         This class handles the custom needs of the desktop/mobile apps observing grids.
 
@@ -75,7 +79,7 @@ class GridCacheHandler(ACICacheHandlerABC):
     # Process update from the server
 
     def notifyOfUpdate(self, gridKeys: List[str]):
-        """ Notify of Grid Updates
+        """Notify of Grid Updates
 
         This method is called by the client.GridCacheController when it receives updates
         from the server.
@@ -96,8 +100,9 @@ class GridCacheHandler(ACICacheHandlerABC):
 
             # Queue up the required client notifications
             for vortexUuid in vortexUuids:
-                logger.debug("Sending unsolicited grid %s to vortex %s",
-                             gridKey, vortexUuid)
+                logger.debug(
+                    "Sending unsolicited grid %s to vortex %s", gridKey, vortexUuid
+                )
                 payloadsByVortexUuid[vortexUuid].tuples.append(gridTuple)
 
         # Send the updates to the clients
@@ -119,10 +124,13 @@ class GridCacheHandler(ACICacheHandlerABC):
     # Process observes from the devices
 
     @inlineCallbacks
-    def _processObserve(self, payloadEnvelope: PayloadEnvelope,
-                        vortexUuid: str,
-                        sendResponse: SendVortexMsgResponseCallable,
-                        **kwargs):
+    def _processObserve(
+        self,
+        payloadEnvelope: PayloadEnvelope,
+        vortexUuid: str,
+        sendResponse: SendVortexMsgResponseCallable,
+        **kwargs
+    ):
         cacheAll = payloadEnvelope.filt.get("cacheAll") == True
 
         payload = yield payloadEnvelope.decodePayloadDefer()
@@ -134,13 +142,12 @@ class GridCacheHandler(ACICacheHandlerABC):
             self._observedGridKeysByVortexUuid[vortexUuid] = gridKeys
             self._rebuildStructs()
 
-        self._replyToObserve(payload.filt,
-                             lastUpdateByGridKey,
-                             sendResponse,
-                             cacheAll=cacheAll)
+        self._replyToObserve(
+            payload.filt, lastUpdateByGridKey, sendResponse, cacheAll=cacheAll
+        )
 
     def _rebuildStructs(self) -> None:
-        """ Rebuild Structs
+        """Rebuild Structs
 
         Rebuild the reverse index of uuids by grid key.
 
@@ -161,18 +168,21 @@ class GridCacheHandler(ACICacheHandlerABC):
         if keysChanged:
             d = ClientGridLoaderRpc.updateClientWatchedGrids(
                 clientId=self._clientId,
-                gridKeys=list(self._observedVortexUuidsByGridKey)
+                gridKeys=list(self._observedVortexUuidsByGridKey),
             )
             d.addErrback(vortexLogFailure, logger, consumeError=False)
 
     # ---------------
     # Reply to device observe
 
-    def _replyToObserve(self, filt,
-                        lastUpdateByGridKey: DeviceGridT,
-                        sendResponse: SendVortexMsgResponseCallable,
-                        cacheAll=False) -> None:
-        """ Reply to Observe
+    def _replyToObserve(
+        self,
+        filt,
+        lastUpdateByGridKey: DeviceGridT,
+        sendResponse: SendVortexMsgResponseCallable,
+        cacheAll=False,
+    ) -> None:
+        """Reply to Observe
 
         The client has told us that it's observing a new set of grids, and the lastUpdate
         it has for each of those grids. We will send them the grids that are out of date
@@ -208,14 +218,16 @@ class GridCacheHandler(ACICacheHandlerABC):
                 gridTuple.lastUpdate = lastUpdate
                 gridTuple.encodedGridTuple = None
                 gridTuplesToSend.append(gridTuple)
-                logger.debug("Grid %s is no loner in the cache, %s", gridKey, lastUpdate)
+                logger.debug(
+                    "Grid %s is no loner in the cache, %s", gridKey, lastUpdate
+                )
 
             elif gridTuple.lastUpdate == lastUpdate:
                 logger.debug("Grid %s matches the cache, %s", gridKey, lastUpdate)
 
             else:
                 gridTuplesToSend.append(gridTuple)
-                logger.debug("Sending grid %s from the cache, %s" , gridKey, lastUpdate)
+                logger.debug("Sending grid %s from the cache, %s", gridKey, lastUpdate)
 
             if len(gridTuplesToSend) == 5 and not cacheAll:
                 sendChunk(gridTuplesToSend)

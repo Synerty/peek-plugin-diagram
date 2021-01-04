@@ -15,19 +15,19 @@ x = {
     "r": 0,
     "s": True,
     "tn": "update me",
-    "vs": 1.0
+    "vs": 1.0,
 }
 
 startTime = datetime.now(pytz.utc)
 unique = set()
 
-
 import string
-ALPHABET = string.ascii_uppercase + string.ascii_lowercase + \
-           string.digits + '-_'
+
+ALPHABET = string.ascii_uppercase + string.ascii_lowercase + string.digits + "-_"
 ALPHABET_REVERSE = dict((c, i) for (i, c) in enumerate(ALPHABET))
 BASE = len(ALPHABET)
-SIGN_CHARACTER = '$'
+SIGN_CHARACTER = "$"
+
 
 def num_encode(n):
     if n < 0:
@@ -36,8 +36,10 @@ def num_encode(n):
     while True:
         n, r = divmod(n, BASE)
         s.append(ALPHABET[r])
-        if n == 0: break
-    return ''.join(reversed(s))
+        if n == 0:
+            break
+    return "".join(reversed(s))
+
 
 def num_decode(s):
     if s[0] == SIGN_CHARACTER:
@@ -47,10 +49,11 @@ def num_decode(s):
         n = n * BASE + ALPHABET_REVERSE[c]
     return n
 
+
 for num in range(100):
-    x['g'][0] += num
-    x['g'][1] += num
-    p=hash(json.dumps(x))
+    x["g"][0] += num
+    x["g"][1] += num
+    p = hash(json.dumps(x))
     # print(str(p))
     unique.add(p)
 

@@ -7,13 +7,9 @@ from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 
 @addTupleType
 class ImportDispLineStyleTuple(Tuple):
-    """ Import Display Line Style Tuple
+    """Import Display Line Style Tuple"""
 
-
-    """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispLineStyleTuple'
-
-
+    __tupleType__ = diagramTuplePrefix + "ImportDispLineStyleTuple"
 
     name: str = TupleField()
 
@@ -40,7 +36,7 @@ class ImportDispLineStyleTuple(Tuple):
     # * None
     # an integer
     # a list of integers
-    dashPattern: Optional[Union[List[int],int]] = TupleField()
+    dashPattern: Optional[Union[List[int], int]] = TupleField()
 
     importHash: str = TupleField()
 

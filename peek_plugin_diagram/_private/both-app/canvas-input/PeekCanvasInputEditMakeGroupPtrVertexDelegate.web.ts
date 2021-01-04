@@ -1,13 +1,13 @@
-import {EditorToolType} from "../canvas/PeekCanvasEditorToolType.web";
+import { EditorToolType } from "../canvas/PeekCanvasEditorToolType.web"
 import {
     CanvasInputPos,
     InputDelegateConstructorViewArgs,
     PeekCanvasInputDelegate
-} from "./PeekCanvasInputDelegate.web";
-import {DispGroupPointer} from "../canvas-shapes/DispGroupPointer";
-import {PointI} from "../canvas-shapes/DispBase";
-import {DrawModeE} from "../canvas-render/PeekDispRenderDelegateABC.web";
-import {InputDelegateConstructorEditArgs} from "./PeekCanvasInputDelegateUtil.web";
+} from "./PeekCanvasInputDelegate.web"
+import { DispGroupPointer } from "../canvas-shapes/DispGroupPointer"
+import { PointI } from "../canvas-shapes/DispBase"
+import { DrawModeE } from "../canvas-render/PeekDispRenderDelegateABC.web"
+import { InputDelegateConstructorEditArgs } from "./PeekCanvasInputDelegateUtil.web"
 
 /**
  * This input delegate handles :
@@ -18,112 +18,136 @@ import {InputDelegateConstructorEditArgs} from "./PeekCanvasInputDelegateUtil.we
  */
 export class PeekCanvasInputMakeDispGroupPtrVertexDelegate
     extends PeekCanvasInputDelegate {
-    static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_DISP_GROUP_PTR_VERTEX;
-
-    // Used to detect dragging and its the mouse position we use
-    private _startMousePos: CanvasInputPos | null = null;
+    static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_DISP_GROUP_PTR_VERTEX
     
-
-    constructor(viewArgs: InputDelegateConstructorViewArgs,
-                editArgs: InputDelegateConstructorEditArgs) {
+    // Used to detect dragging and its the mouse position we use
+    private _startMousePos: CanvasInputPos | null = null
+    
+    constructor(
+        viewArgs: InputDelegateConstructorViewArgs,
+        editArgs: InputDelegateConstructorEditArgs
+    ) {
         super(viewArgs, editArgs,
-            PeekCanvasInputMakeDispGroupPtrVertexDelegate.TOOL_NAME);
-
-        this._reset();
+            PeekCanvasInputMakeDispGroupPtrVertexDelegate.TOOL_NAME)
+        
+        this._reset()
     }
-
+    
     _reset() {
         // See mousedown and mousemove events for explanation
-        this._startMousePos = null;
-        this._lastMousePos = null;
-
+        this._startMousePos = null
+        this._lastMousePos = null
+        
     }
-
-
+    
     // ============================================================================
     // Editor Ui Mouse
-
-
+    
     // ---------------
     // Map mouse events
-    mouseDown(event: MouseEvent, inputPos: CanvasInputPos) {
-        this.inputStart(inputPos);
+    mouseDown(
+        event: MouseEvent,
+        inputPos: CanvasInputPos
+    ) {
+        this.inputStart(inputPos)
     }
-
-    mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
-        this.inputMove(inputPos);
+    
+    mouseMove(
+        event: MouseEvent,
+        inputPos: CanvasInputPos
+    ) {
+        this.inputMove(inputPos)
     }
-
-    mouseUp(event: MouseEvent, inputPos: CanvasInputPos) {
-        this.inputEnd(inputPos);
+    
+    mouseUp(
+        event: MouseEvent,
+        inputPos: CanvasInputPos
+    ) {
+        this.inputEnd(inputPos)
     }
-
+    
     // ---------------
     // Map touch events
-    touchStart(event: TouchEvent, inputPos: CanvasInputPos) {
-        this.inputStart(inputPos);
+    touchStart(
+        event: TouchEvent,
+        inputPos: CanvasInputPos
+    ) {
+        this.inputStart(inputPos)
     };
-
-    touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
-        this.inputMove(inputPos);
+    
+    touchMove(
+        event: TouchEvent,
+        inputPos: CanvasInputPos
+    ) {
+        this.inputMove(inputPos)
     };
-
-    touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
-        this.inputEnd(inputPos);
+    
+    touchEnd(
+        event: TouchEvent,
+        inputPos: CanvasInputPos
+    ) {
+        this.inputEnd(inputPos)
     };
-
+    
     // ---------------
     // Misc delegate methods
     delegateWillBeTornDown() {
-        this._finaliseCreate();
+        this._finaliseCreate()
     }
-
-    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
+    
+    draw(
+        ctx,
+        zoom: number,
+        pan: PointI,
+        drawMode: DrawModeE
+    ) {
     }
-
+    
     // ---------------
     // Start logic
-
-    private inputStart(inputPos: CanvasInputPos) {
-        this._finaliseCreate();
-        this._startMousePos = inputPos;
+    
+    _finaliseCreate() {
+        this.editArgs.editToolbarProps.showGroupPtrProperties()
+        this._reset()
+        this.viewArgs.config.invalidate()
     }
-
+    
+    private inputStart(inputPos: CanvasInputPos) {
+        this._finaliseCreate()
+        this._startMousePos = inputPos
+    }
+    
     private inputMove(inputPos: CanvasInputPos) {
     }
-
+    
     private inputEnd(inputPos: CanvasInputPos) {
         if (this._hasPassedDragThreshold(this._startMousePos, inputPos)) {
-            this._reset();
-            return;
+            this._reset()
+            return
         }
-
-        this.createDisp(inputPos.x, inputPos.y);
+        
+        this.createDisp(inputPos.x, inputPos.y)
     };
-
-
-    private createDisp(x: number, y: number) {
+    
+    private createDisp(
+        x: number,
+        y: number
+    ) {
         // Create the Disp
-        let created = DispGroupPointer.create(this.viewArgs.config.coordSet);
-        DispGroupPointer.setCenterPoint(created, x, y);
-
-        this.editArgs.lookupService._linkDispLookups(created);
-
+        let created = DispGroupPointer.create(this.viewArgs.config.coordSet)
+        DispGroupPointer.setCenterPoint(created, x, y)
+        
+        this.editArgs.lookupService._linkDispLookups(created)
+        
         // Add the shape to the branch
         created = this.editArgs.branchContext
-            .branchTuple.addOrUpdateDisp(created, true);
-        this.editArgs.branchContext.branchTuple.touchUndo();
-
-        this.viewArgs.model.recompileModel();
-        this.viewArgs.model.selection.replaceSelection(<any> created);
-
-        this._addBranchAnchor(x, y);
-        this.editArgs.setEditorSelectTool();
-    }
-
-    _finaliseCreate() {
-        this.editArgs.editToolbarProps.showGroupPtrProperties();
-        this._reset();
-        this.viewArgs.config.invalidate();
+            .branchTuple.addOrUpdateDisp(created, true)
+        this.editArgs.branchContext.branchTuple.touchUndo()
+        
+        this.viewArgs.model.recompileModel()
+        this.viewArgs.model.selection.replaceSelection(<any>created)
+        
+        this._addBranchAnchor(x, y)
+        this.editArgs.setEditorSelectTool()
     }
 }

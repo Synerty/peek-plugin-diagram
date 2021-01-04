@@ -1,6 +1,6 @@
-import {Injectable} from "@angular/core";
+import { Injectable } from "@angular/core"
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
-import {DiagramSnapshotService} from "../../DiagramSnapshotService";
+import { DiagramSnapshotService } from "../../DiagramSnapshotService"
 
 export interface TakeSnapshotCallbackI {
     (): null | string;
@@ -16,23 +16,22 @@ export interface TakeSnapshotCallbackI {
 @Injectable()
 export class PrivateDiagramSnapshotService extends NgLifeCycleEvents
     implements DiagramSnapshotService {
-
-    private _callback: TakeSnapshotCallbackI | null;
-
+    
+    private _callback: TakeSnapshotCallbackI | null
+    
     constructor() {
-        super();
+        super()
     }
-
+    
     setImageCaptureCallback(callback: TakeSnapshotCallbackI | null): void {
-        this._callback = callback;
+        this._callback = callback
     }
-
+    
     snapshotDiagram(): Promise<string | null> {
         if (this._callback == null)
-            return null;
-
-        return Promise.resolve(this._callback());
+            return null
+        
+        return Promise.resolve(this._callback())
     }
-
-
+    
 }

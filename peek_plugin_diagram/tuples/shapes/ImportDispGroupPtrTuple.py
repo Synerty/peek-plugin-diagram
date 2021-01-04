@@ -2,20 +2,23 @@ from typing import List, Optional
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
-    ImportLiveDbDispLinkTuple
-from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
-    ImportDispPolylineTuple
+from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import (
+    ImportLiveDbDispLinkTuple,
+)
+from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import (
+    ImportDispPolylineTuple,
+)
 
 
 @addTupleType
 class ImportDispGroupPtrTuple(Tuple):
-    """ Imported Display Text
+    """Imported Display Text
 
     This tuple is used by other plugins to load TEXT objects into the diagram.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispGroupPtrTuple'
+
+    __tupleType__ = diagramTuplePrefix + "ImportDispGroupPtrTuple"
 
     ### BEGIN DISP COMMON FIELDS ###
 

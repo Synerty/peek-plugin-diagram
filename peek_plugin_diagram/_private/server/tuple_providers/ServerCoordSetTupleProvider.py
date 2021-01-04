@@ -12,19 +12,23 @@ from vortex.handler.TupleDataObservableHandler import TuplesProviderABC
 
 logger = logging.getLogger(__name__)
 
+
 class ServerCoordSetTupleProvider(TuplesProviderABC):
     def __init__(self, ormSessionCreator):
         self._ormSessionCreator = ormSessionCreator
 
     @deferToThreadWrapWithLogger(logger)
-    def makeVortexMsg(self, filt: dict,
-                      tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
+    def makeVortexMsg(
+        self, filt: dict, tupleSelector: TupleSelector
+    ) -> Union[Deferred, bytes]:
 
         session = self._ormSessionCreator()
         try:
-            all = (session.query(ModelCoordSet)
-                   .options(joinedload(ModelCoordSet.modelSet))
-                   .all())
+            all = (
+                session.query(ModelCoordSet)
+                .options(joinedload(ModelCoordSet.modelSet))
+                .all()
+            )
 
             for item in all:
                 item.data = {"modelSetKey": item.modelSet.key}

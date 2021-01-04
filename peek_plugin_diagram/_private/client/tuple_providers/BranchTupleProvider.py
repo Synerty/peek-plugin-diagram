@@ -9,12 +9,15 @@ from vortex.Payload import Payload
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TuplesProviderABC
 
-from peek_plugin_diagram._private.client.controller.BranchIndexCacheController import \
-    BranchIndexCacheController
-from peek_plugin_diagram._private.storage.branch.BranchIndexEncodedChunk import \
-    BranchIndexEncodedChunk
-from peek_plugin_diagram._private.worker.tasks.branch._BranchIndexCalcChunkKey import \
-    makeChunkKeyForBranchIndex
+from peek_plugin_diagram._private.client.controller.BranchIndexCacheController import (
+    BranchIndexCacheController,
+)
+from peek_plugin_diagram._private.storage.branch.BranchIndexEncodedChunk import (
+    BranchIndexEncodedChunk,
+)
+from peek_plugin_diagram._private.worker.tasks.branch._BranchIndexCalcChunkKey import (
+    makeChunkKeyForBranchIndex,
+)
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 
 logger = logging.getLogger(__name__)
@@ -25,8 +28,9 @@ class BranchTupleProvider(TuplesProviderABC):
         self._cacheHandler = cacheHandler
 
     @deferToThreadWrapWithLogger(logger)
-    def makeVortexMsg(self, filt: dict,
-                      tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
+    def makeVortexMsg(
+        self, filt: dict, tupleSelector: TupleSelector
+    ) -> Union[Deferred, bytes]:
         modelSetKey = tupleSelector.selector["modelSetKey"]
         coordSetId = tupleSelector.selector["coordSetId"]
         keys = tupleSelector.selector["keys"]
@@ -52,13 +56,14 @@ class BranchTupleProvider(TuplesProviderABC):
                 if branchKey not in resultsByKey:
                     logger.warning(
                         "Branch %s is missing from index, chunkKey %s",
-                        branchKey, chunkKey
+                        branchKey,
+                        chunkKey,
                     )
                     continue
 
                 packedJsons = resultsByKey[branchKey]
 
-                for packedJson  in packedJsons:
+                for packedJson in packedJsons:
                     result = BranchTuple.loadFromJson(packedJson, None, None)
                     if result.coordSetId == coordSetId or coordSetId is None:
                         results.append(result)

@@ -1,8 +1,8 @@
-import {CommonModule} from "@angular/common";
-import {FormsModule} from "@angular/forms";
-import {NgModule} from "@angular/core";
-import {RouterModule, Routes} from "@angular/router";
-import {EditSettingComponent} from "./edit-setting-table/edit.component";
+import { CommonModule } from "@angular/common"
+import { FormsModule } from "@angular/forms"
+import { NgModule } from "@angular/core"
+import { RouterModule, Routes } from "@angular/router"
+import { EditSettingComponent } from "./edit-setting-table/edit.component"
 import {
     TupleActionPushNameService,
     TupleActionPushService,
@@ -11,40 +11,39 @@ import {
     TupleOfflineStorageNameService,
     TupleOfflineStorageService,
     TupleDataOfflineObserverService
-} from "@synerty/vortexjs";
+} from "@synerty/vortexjs"
 // Import our components
-import {DiagramComponent} from "./diagram.component";
-import {StatusComponent} from "./status/status.component";
+import { DiagramComponent } from "./diagram.component"
+import { StatusComponent } from "./status/status.component"
 import {
     diagramActionProcessorName,
     diagramFilt,
     diagramObservableName,
     diagramTupleOfflineServiceName
-} from "@peek/peek_plugin_diagram/_private";
-
+} from "@peek/peek_plugin_diagram/_private"
 
 export function tupleActionPushNameServiceFactory() {
     return new TupleActionPushNameService(
-        diagramActionProcessorName, diagramFilt);
+        diagramActionProcessorName, diagramFilt)
 }
 
 export function tupleDataObservableNameServiceFactory() {
     return new TupleDataObservableNameService(
-        diagramObservableName, diagramFilt);
+        diagramObservableName, diagramFilt)
 }
 
 export function tupleOfflineStorageNameServiceFactory() {
-    return new TupleOfflineStorageNameService(diagramTupleOfflineServiceName);
+    return new TupleOfflineStorageNameService(diagramTupleOfflineServiceName)
 }
 
 // Define the routes for this Angular module
 export const pluginRoutes: Routes = [
     {
-        path: '',
+        path: "",
         component: DiagramComponent
     }
 
-];
+]
 
 // Define the module
 @NgModule({

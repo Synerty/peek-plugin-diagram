@@ -3,14 +3,15 @@ from collections import namedtuple
 import logging
 from typing import Optional, List
 
-from peek_plugin_diagram._private.tuples.location_index.DispKeyLocationTuple import \
-    DispKeyLocationTuple
+from peek_plugin_diagram._private.tuples.location_index.DispKeyLocationTuple import (
+    DispKeyLocationTuple,
+)
 from peek_plugin_diagram._private.worker.tasks._CalcGridForDisp import _calcBounds
 
 logger = logging.getLogger(__name__)
 
 CoordSetIdGridKeyTuple = namedtuple("CoordSetIdGridKeyTuple", ["coordSetId", "gridKey"])
-DispData = namedtuple('DispData', ['json', 'levelOrder', 'layerOrder'])
+DispData = namedtuple("DispData", ["json", "levelOrder", "layerOrder"])
 
 
 def makeLocationJson(disp, geomArray: List[float]) -> Optional[str]:
@@ -23,12 +24,14 @@ def makeLocationJson(disp, geomArray: List[float]) -> Optional[str]:
     x = (minx + maxx) / 2
     y = (miny + maxy) / 2
 
-    location = DispKeyLocationTuple(coordSetId=disp.coordSetId, dispId=disp.id, x=x, y=y)
+    location = DispKeyLocationTuple(
+        coordSetId=disp.coordSetId, dispId=disp.id, x=x, y=y
+    )
     return location.toLocationJson()
 
 
 def dispKeyHashBucket(modelSetKey: str, dispKey: str) -> str:
-    """ Disp Key Hash Bucket
+    """Disp Key Hash Bucket
 
     This method create an int from 0 to 255, representing the hash bucket for this
     key.

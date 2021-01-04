@@ -7,12 +7,13 @@ from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 
 @addTupleType
 class BranchLiveEditTupleAction(TupleActionABC):
-    """ Branch Live Edit Tuple Action
+    """Branch Live Edit Tuple Action
 
     This is the Branch Live Edit tuple Action
 
     """
-    __tupleType__ = diagramTuplePrefix + 'BranchLiveEditTupleAction'
+
+    __tupleType__ = diagramTuplePrefix + "BranchLiveEditTupleAction"
 
     EDITING_STARTED = 1
     EDITING_UPDATED = 2

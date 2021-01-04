@@ -3,20 +3,23 @@ from typing import Optional, List
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
-    ImportLiveDbDispLinkTuple
-from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
-    ImportDispPolylineTuple
+from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import (
+    ImportLiveDbDispLinkTuple,
+)
+from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import (
+    ImportDispPolylineTuple,
+)
 
 
 @addTupleType
 class ImportDispEllipseTuple(Tuple):
-    """ Imported Display Ellipse
+    """Imported Display Ellipse
 
     This tuple is used by other plugins to load colours into the diagram.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispEllipseTuple'
+
+    __tupleType__ = diagramTuplePrefix + "ImportDispEllipseTuple"
 
     ### BEGIN DISP COMMON FIELDS ###
 

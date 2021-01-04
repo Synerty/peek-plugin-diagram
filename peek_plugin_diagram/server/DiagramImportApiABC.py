@@ -6,9 +6,14 @@ from twisted.internet.defer import Deferred
 
 class DiagramImportApiABC(metaclass=ABCMeta):
     @abstractmethod
-    def importDisps(self, modelSetKey: str, coordSetKey: str, importGroupHash: str,
-                    dispsEncodedPayload: bytes) -> Deferred:
-        """ Import Disps
+    def importDisps(
+        self,
+        modelSetKey: str,
+        coordSetKey: str,
+        importGroupHash: str,
+        dispsEncodedPayload: bytes,
+    ) -> Deferred:
+        """Import Disps
 
         Add or replace display items in a model
 
@@ -29,11 +34,16 @@ class DiagramImportApiABC(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def importLookups(self, modelSetKey: str, coordSetKey: str,
-                      lookupTupleType: str, lookupTuples: List,
-                      deleteOthers: bool = True,
-                      updateExisting: bool = True) -> Deferred:
-        """ Import Lookups
+    def importLookups(
+        self,
+        modelSetKey: str,
+        coordSetKey: str,
+        lookupTupleType: str,
+        lookupTuples: List,
+        deleteOthers: bool = True,
+        updateExisting: bool = True,
+    ) -> Deferred:
+        """Import Lookups
 
         Add or replace diplay lookups in a model
 
@@ -50,9 +60,10 @@ class DiagramImportApiABC(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def getLookups(self, modelSetKey: str, coordSetKey: str,
-                   lookupTupleType: str) -> Deferred:
-        """ Get Lookups
+    def getLookups(
+        self, modelSetKey: str, coordSetKey: str, lookupTupleType: str
+    ) -> Deferred:
+        """Get Lookups
 
         Use this method to retrieve lookups that have been previously imported.
 

@@ -19,17 +19,16 @@ class DiagramViewerApi(DiagramViewerApiABC):
     def getCoordSets(self, modelSetKey: str):
         ormSession = self._ormSessionCreator()
         try:
-            all = (ormSession.query(ModelCoordSet)
-                   .join(ModelSet)
-                   .filter(ModelSet.name == modelSetKey)
-                   .all())
+            all = (
+                ormSession.query(ModelCoordSet)
+                .join(ModelSet)
+                .filter(ModelSet.name == modelSetKey)
+                .all()
+            )
 
             coordSetTuples = []
             for obj in all:
-                coordSetTuples.append(DiagramCoordSetTuple(
-                    key=obj.key,
-                    name=obj.name
-                ))
+                coordSetTuples.append(DiagramCoordSetTuple(key=obj.key, name=obj.name))
 
             return coordSetTuples
 

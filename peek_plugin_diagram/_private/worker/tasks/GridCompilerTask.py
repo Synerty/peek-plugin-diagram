@@ -11,16 +11,18 @@ import pytz
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.storage.Display import DispLevel, DispBase, DispLayer
-from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled, \
-    GridKeyCompilerQueue, \
-    GridKeyIndex
+from peek_plugin_diagram._private.storage.GridKeyIndex import (
+    GridKeyIndexCompiled,
+    GridKeyCompilerQueue,
+    GridKeyIndex,
+)
 from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
 from txcelery.defer import DeferrableTask
 from vortex.Payload import Payload
 
 logger = logging.getLogger(__name__)
 
-DispData = namedtuple('DispData', ['json', 'id', 'zOrder', 'levelOrder', 'layerOrder'])
+DispData = namedtuple("DispData", ["json", "id", "zOrder", "levelOrder", "layerOrder"])
 
 """ Grid Compiler
 
@@ -39,7 +41,7 @@ class NotAllDispsCompiledException(Exception):
 @DeferrableTask
 @celeryApp.task(bind=True)
 def compileGrids(self, payloadEncodedArgs: bytes) -> List[str]:
-    """ Compile Grids Task
+    """Compile Grids Task
 
     :param self: A celery reference to this task
     :param payloadEncodedArgs: An encoded payload containing the queue tuples.
@@ -63,8 +65,11 @@ def compileGrids(self, payloadEncodedArgs: bytes) -> List[str]:
     transaction = conn.begin()
     try:
 
-        logger.debug("Staring compile of %s queueItems in %s",
-                     len(queueItems), (datetime.now(pytz.utc) - startTime))
+        logger.debug(
+            "Staring compile of %s queueItems in %s",
+            len(queueItems),
+            (datetime.now(pytz.utc) - startTime),
+        )
 
         total = 0
         dispData = _qryDispData(session, gridKeys)
@@ -82,32 +87,40 @@ def compileGrids(self, payloadEncodedArgs: bytes) -> List[str]:
             gridTupleHash = b64encode(m.digest()).decode()
 
             gridTuple = GridTuple(
-                gridKey=gridKey,
-                dispJsonStr=dispJsonStr,
-                lastUpdate=gridTupleHash
+                gridKey=gridKey, dispJsonStr=dispJsonStr, lastUpdate=gridTupleHash
             )
 
             encodedGridTuple = Payload(tuples=[gridTuple]).toEncodedPayload()
 
-            inserts.append(dict(coordSetId=coordSetIdByGridKey[gridKey],
-                                gridKey=gridKey,
-                                lastUpdate=gridTupleHash,
-                                encodedGridTuple=encodedGridTuple))
+            inserts.append(
+                dict(
+                    coordSetId=coordSetIdByGridKey[gridKey],
+                    gridKey=gridKey,
+                    lastUpdate=gridTupleHash,
+                    encodedGridTuple=encodedGridTuple,
+                )
+            )
 
         if inserts:
             conn.execute(gridTable.insert(), inserts)
 
-        logger.debug("Compiled %s gridKeys, %s missing, in %s",
-                     len(inserts),
-                     len(gridKeys) - len(inserts), (datetime.now(pytz.utc) - startTime))
+        logger.debug(
+            "Compiled %s gridKeys, %s missing, in %s",
+            len(inserts),
+            len(gridKeys) - len(inserts),
+            (datetime.now(pytz.utc) - startTime),
+        )
 
         total += len(inserts)
 
         conn.execute(queueTable.delete(queueTable.c.id.in_(queueItemIds)))
 
         transaction.commit()
-        logger.info("Compiled and Committed %s GridKeyIndexCompileds in %s",
-                    total, (datetime.now(pytz.utc) - startTime))
+        logger.info(
+            "Compiled and Committed %s GridKeyIndexCompileds in %s",
+            total,
+            (datetime.now(pytz.utc) - startTime),
+        )
 
         return gridKeys
 
@@ -151,13 +164,18 @@ def _dispBaseSortCmp(dispData1, dispData2):
 
 def _qryDispData(session, gridKeys):
     indexQry = (
-        session.query(GridKeyIndex.gridKey, DispBase.dispJson,
-                      DispBase.id, DispBase.zOrder,
-                      DispLevel.order, DispLayer.order)
-            .join(DispBase, DispBase.id == GridKeyIndex.dispId)
-            .outerjoin(DispLevel)
-            .outerjoin(DispLayer)
-            .filter(GridKeyIndex.gridKey.in_(gridKeys))
+        session.query(
+            GridKeyIndex.gridKey,
+            DispBase.dispJson,
+            DispBase.id,
+            DispBase.zOrder,
+            DispLevel.order,
+            DispLayer.order,
+        )
+        .join(DispBase, DispBase.id == GridKeyIndex.dispId)
+        .outerjoin(DispLevel)
+        .outerjoin(DispLayer)
+        .filter(GridKeyIndex.gridKey.in_(gridKeys))
     )
 
     dispsByGridKeys = defaultdict(list)
@@ -168,13 +186,14 @@ def _qryDispData(session, gridKeys):
 
     for gridKey, dispDatas in list(dispsByGridKeys.items()):
         if list(filter(lambda d: not d.json, dispDatas)):
-            raise NotAllDispsCompiledException("Not all disps compiled for %s" % gridKey)
+            raise NotAllDispsCompiledException(
+                "Not all disps compiled for %s" % gridKey
+            )
 
         dispsDumpedJson = [
-            d.json
-            for d in sorted(dispDatas, key=cmp_to_key(_dispBaseSortCmp)) \
-            ]
+            d.json for d in sorted(dispDatas, key=cmp_to_key(_dispBaseSortCmp))
+        ]
 
-        dispJsonByGridKey[gridKey] = '[' + ','.join(dispsDumpedJson) + ']'
+        dispJsonByGridKey[gridKey] = "[" + ",".join(dispsDumpedJson) + "]"
 
     return dispJsonByGridKey

@@ -8,31 +8,44 @@ from peek_plugin_base.client.PluginClientEntryHookABC import PluginClientEntryHo
 from peek_plugin_diagram._private.PluginNames import diagramActionProcessorName
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.PluginNames import diagramObservableName
-from peek_plugin_diagram._private.client.TupleDataObservable import \
-    makeClientTupleDataObservableHandler
-from peek_plugin_diagram._private.client.controller.BranchIndexCacheController import \
-    BranchIndexCacheController
-from peek_plugin_diagram._private.client.controller.CoordSetCacheController import \
-    CoordSetCacheController
-from peek_plugin_diagram._private.client.controller.GridCacheController import \
-    GridCacheController
-from peek_plugin_diagram._private.client.controller.LocationIndexCacheController import \
-    LocationIndexCacheController
-from peek_plugin_diagram._private.client.controller.LookupCacheController import \
-    LookupCacheController
-from peek_plugin_diagram._private.client.controller.ModelSetCacheController import \
-    ModelSetCacheController
-from peek_plugin_diagram._private.client.handlers.BranchIndexCacheHandler import \
-    BranchIndexCacheHandler
-from peek_plugin_diagram._private.client.handlers.GridCacheHandler import GridCacheHandler
-from peek_plugin_diagram._private.client.handlers.LocationIndexCacheHandler import \
-    LocationIndexCacheHandler
+from peek_plugin_diagram._private.client.TupleDataObservable import (
+    makeClientTupleDataObservableHandler,
+)
+from peek_plugin_diagram._private.client.controller.BranchIndexCacheController import (
+    BranchIndexCacheController,
+)
+from peek_plugin_diagram._private.client.controller.CoordSetCacheController import (
+    CoordSetCacheController,
+)
+from peek_plugin_diagram._private.client.controller.GridCacheController import (
+    GridCacheController,
+)
+from peek_plugin_diagram._private.client.controller.LocationIndexCacheController import (
+    LocationIndexCacheController,
+)
+from peek_plugin_diagram._private.client.controller.LookupCacheController import (
+    LookupCacheController,
+)
+from peek_plugin_diagram._private.client.controller.ModelSetCacheController import (
+    ModelSetCacheController,
+)
+from peek_plugin_diagram._private.client.handlers.BranchIndexCacheHandler import (
+    BranchIndexCacheHandler,
+)
+from peek_plugin_diagram._private.client.handlers.GridCacheHandler import (
+    GridCacheHandler,
+)
+from peek_plugin_diagram._private.client.handlers.LocationIndexCacheHandler import (
+    LocationIndexCacheHandler,
+)
 from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
 from peek_plugin_diagram._private.tuples import loadPrivateTuples
 from peek_plugin_diagram.tuples import loadPublicTuples
 from txhttputil.site.FileUnderlayResource import FileUnderlayResource
 from vortex.handler.TupleActionProcessorProxy import TupleActionProcessorProxy
-from vortex.handler.TupleDataObservableProxyHandler import TupleDataObservableProxyHandler
+from vortex.handler.TupleDataObservableProxyHandler import (
+    TupleDataObservableProxyHandler,
+)
 from vortex.handler.TupleDataObserverClient import TupleDataObserverClient
 
 logger = logging.getLogger(__name__)
@@ -48,7 +61,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
         self._loadedObjects = []
 
     def load(self) -> None:
-        """ Load
+        """Load
 
         This will be called when the plugin is loaded, just after the db is migrated.
         Place any custom initialiastion steps here.
@@ -64,7 +77,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
 
     @inlineCallbacks
     def start(self):
-        """ Load
+        """Load
 
         This will be called when the plugin is loaded, just after the db is migrated.
         Place any custom initialiastion steps here.
@@ -76,7 +89,8 @@ class ClientEntryHook(PluginClientEntryHookABC):
             TupleActionProcessorProxy(
                 tupleActionProcessorName=diagramActionProcessorName,
                 proxyToVortexName=peekServerName,
-                additionalFilt=diagramFilt)
+                additionalFilt=diagramFilt,
+            )
         )
 
         # Provide the devices access to the servers observable
@@ -84,7 +98,8 @@ class ClientEntryHook(PluginClientEntryHookABC):
             observableName=diagramObservableName,
             proxyToVortexName=peekServerName,
             additionalFilt=diagramFilt,
-            observerName="Proxy to devices")
+            observerName="Proxy to devices",
+        )
         self._loadedObjects.append(tupleDataObservableProxyHandler)
 
         #: This is an observer for us (the client) to use to observe data
@@ -93,7 +108,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
             observableName=diagramObservableName,
             destVortexName=peekServerName,
             additionalFilt=diagramFilt,
-            observerName="Data for us"
+            observerName="Data for us",
         )
         self._loadedObjects.append(serverTupleObserver)
 
@@ -117,8 +132,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
 
         # This is the custom handler for the client
         gridCacheHandler = GridCacheHandler(
-            cacheController=gridCacheController,
-            clientId=self.platform.serviceId
+            cacheController=gridCacheController, clientId=self.platform.serviceId
         )
         self._loadedObjects.append(gridCacheHandler)
 
@@ -127,33 +141,30 @@ class ClientEntryHook(PluginClientEntryHookABC):
         # ----- Location Index Cache Controller
 
         locationIndexCacheController = LocationIndexCacheController(
-            self.platform.serviceId)
+            self.platform.serviceId
+        )
         self._loadedObjects.append(locationIndexCacheController)
 
         # This is the custom handler for the client
         locationIndexCacheHandler = LocationIndexCacheHandler(
             cacheController=locationIndexCacheController,
-            clientId=self.platform.serviceId
+            clientId=self.platform.serviceId,
         )
         self._loadedObjects.append(locationIndexCacheHandler)
 
-        locationIndexCacheController.setCacheHandler(
-            locationIndexCacheHandler)
+        locationIndexCacheController.setCacheHandler(locationIndexCacheHandler)
 
         # ----------------
         # BranchIndex Cache Controller
 
-        branchIndexCacheController = BranchIndexCacheController(
-            self.platform.serviceId
-        )
+        branchIndexCacheController = BranchIndexCacheController(self.platform.serviceId)
         self._loadedObjects.append(branchIndexCacheController)
 
         # ----------------
         # BranchIndex Cache Handler
 
         branchIndexHandler = BranchIndexCacheHandler(
-            cacheController=branchIndexCacheController,
-            clientId=self.platform.serviceId
+            cacheController=branchIndexCacheController, clientId=self.platform.serviceId
         )
         self._loadedObjects.append(branchIndexHandler)
         branchIndexCacheController.setCacheHandler(branchIndexHandler)
@@ -167,7 +178,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
             gridCacheController,
             lookupCacheController,
             locationIndexCacheController,
-            branchIndexCacheController
+            branchIndexCacheController,
         )
         # This is already in the _loadedObjects, it's tupleDataObservableProxyHandler
 
@@ -189,12 +200,12 @@ class ClientEntryHook(PluginClientEntryHookABC):
         resource = FileUnderlayResource()
         resource.enableSinglePageApplication()
 
-        self.platform.addFieldResource(b'web_dist', resource)
+        self.platform.addFieldResource(b"web_dist", resource)
 
         logger.debug("Started")
 
     def stop(self):
-        """ Stop
+        """Stop
 
         This method is called by the platform to tell the peek app to shutdown and stop
         everything it's doing

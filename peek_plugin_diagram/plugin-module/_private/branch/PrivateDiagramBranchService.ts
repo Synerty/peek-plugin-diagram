@@ -8,8 +8,14 @@ import { DiagramCoordSetService } from "../../DiagramCoordSetService"
 import { LocalBranchStorageService } from "../branch-loader/LocalBranchStorageService"
 import { BranchIndexResultI } from "../branch-loader/BranchIndexLoaderService"
 import { ModelCoordSet } from "../tuples"
-import { PrivateDiagramCoordSetService, PrivateDiagramTupleService } from "../services"
-import { BalloonMsgService, NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
+import {
+    PrivateDiagramCoordSetService,
+    PrivateDiagramTupleService
+} from "../services"
+import {
+    BalloonMsgService,
+    NgLifeCycleEvents
+} from "@synerty/peek-plugin-base-js"
 import { TupleSelector, VortexStatusService } from "@synerty/vortexjs"
 import { BranchKeyToIdMapTuple } from "./BranchKeyToIdMapTuple"
 import { BranchDetailTuple } from "@peek/peek_plugin_branch"

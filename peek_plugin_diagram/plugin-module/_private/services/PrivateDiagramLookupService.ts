@@ -1,6 +1,12 @@
 import { Injectable } from "@angular/core"
 import { TupleSelector } from "@synerty/vortexjs"
-import { DispColor, DispLayer, DispLevel, DispLineStyle, DispTextStyle } from "../../lookups"
+import {
+    DispColor,
+    DispLayer,
+    DispLevel,
+    DispLineStyle,
+    DispTextStyle
+} from "../../lookups"
 import { PrivateDiagramTupleService } from "./PrivateDiagramTupleService"
 import { Observable, Subject } from "rxjs"
 import { ModelSet } from "../tuples"

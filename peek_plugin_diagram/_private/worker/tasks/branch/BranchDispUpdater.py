@@ -7,10 +7,11 @@ import pytz
 import json
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_diagram._private.storage.Display import DispBase
-from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyCompilerQueue, \
-    GridKeyIndex
-from peek_plugin_diagram._private.tuples.branch.BranchTuple import \
-    BranchTuple
+from peek_plugin_diagram._private.storage.GridKeyIndex import (
+    GridKeyCompilerQueue,
+    GridKeyIndex,
+)
+from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 from peek_plugin_diagram._private.worker.tasks.DispCompilerTask import _packDispJson
 from sqlalchemy import select
 from vortex.Tuple import Tuple
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def _deleteBranchDisps(conn, branchIds: List[int]) -> None:
-    """ Queue Grids for Removed Branch Disps
+    """Queue Grids for Removed Branch Disps
 
     This method queues grids for compile that contain disps that are removed.
 
@@ -40,27 +41,29 @@ def _deleteBranchDisps(conn, branchIds: List[int]) -> None:
     queueTable = GridKeyCompilerQueue.__table__
 
     results = conn.execute(
-        select(distinct=True,
-               columns=[gridKeyIndexTable.c.gridKey, gridKeyIndexTable.c.coordSetId],
-               whereclause=dispBaseTable.c.branchId.in_(branchIds))
-            .select_from(gridKeyIndexTable.join(dispBaseTable))
+        select(
+            distinct=True,
+            columns=[gridKeyIndexTable.c.gridKey, gridKeyIndexTable.c.coordSetId],
+            whereclause=dispBaseTable.c.branchId.in_(branchIds),
+        ).select_from(gridKeyIndexTable.join(dispBaseTable))
     ).fetchall()
 
     if results:
         conn.execute(
             queueTable.insert(),
-            [dict(coordSetId=item.coordSetId, gridKey=item.gridKey) for item in results]
+            [
+                dict(coordSetId=item.coordSetId, gridKey=item.gridKey)
+                for item in results
+            ],
         )
 
     # Delete existing Disps
     logger.info("Deleting disps with branchId %s" % branchIds)
-    conn.execute(
-        dispBaseTable.delete(dispBaseTable.c.branchId.in_(branchIds))
-    )
+    conn.execute(dispBaseTable.delete(dispBaseTable.c.branchId.in_(branchIds)))
 
 
 def _convertBranchDisps(newBranches: List[BranchTuple]) -> typing.Tuple[List, List]:
-    """ Insert Disps for Branch
+    """Insert Disps for Branch
 
     1) Insert new Disps
     2) Queue disps for recompile
@@ -119,21 +122,24 @@ def _convertBranchDisps(newBranches: List[BranchTuple]) -> typing.Tuple[List, Li
         for disp, jsonDict in newBranchDispItems:
             if disp.replacesHashId in oldDispHashIdMap:
                 disp.replacesHashId = oldDispHashIdMap.get(disp.replacesHashId)
-                jsonDict['rid'] = disp.replacesHashId
+                jsonDict["rid"] = disp.replacesHashId
 
             disp.dispJson = json.dumps(jsonDict)
 
             # AFTER the json has been dumped to the disp, convert it for storage
             # in the branch as geom JSON is not stored as a string in the branch
             # Because it's stored in the Disp Tuple/Table "geom" field as a string
-            if 'g' in jsonDict:
-                jsonDict['g'] = json.loads(jsonDict['g'])
+            if "g" in jsonDict:
+                jsonDict["g"] = json.loads(jsonDict["g"])
 
         del newBranchDispItems
 
-    logger.debug("Converted %s disps for %s branches in %s",
-                 len(newDisps), len(newBranches),
-                 (datetime.now(pytz.utc) - startTime))
+    logger.debug(
+        "Converted %s disps for %s branches in %s",
+        len(newDisps),
+        len(newBranches),
+        (datetime.now(pytz.utc) - startTime),
+    )
 
     return newDisps, dispIdsToCompile
 
@@ -141,9 +147,7 @@ def _convertBranchDisps(newBranches: List[BranchTuple]) -> typing.Tuple[List, Li
 
 
 def _convertJsonDispsToTuples(branchTuple: BranchTuple) -> List:
-    """ Convert Json Disps to Tuples
-
-     """
+    """Convert Json Disps to Tuples"""
     disps: List = []
     for jsonDisp in branchTuple.disps:
         disp = Tuple.smallJsonDictToTuple(jsonDisp)

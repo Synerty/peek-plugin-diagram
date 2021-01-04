@@ -3,14 +3,16 @@ from vortex.Tuple import TupleField, addTupleType, Tuple
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 
+
 @addTupleType
 class ImportBranchDeltaColorOverride(Tuple):
-    """ Imported Branch Delta Color Override
+    """Imported Branch Delta Color Override
 
     This branch delta will change the color of disps.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportBranchDeltaColorOverride'
+
+    __tupleType__ = diagramTuplePrefix + "ImportBranchDeltaColorOverride"
 
     #:  A list of keys to apply this color to.
     dispKeys: List[str] = TupleField([])

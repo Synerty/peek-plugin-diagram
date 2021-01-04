@@ -1,18 +1,33 @@
 import logging
 from typing import List
 
-from peek_abstract_chunked_index.private.server.controller.ACIProcessorQueueControllerABC import \
-    ACIProcessorQueueControllerABC, ACIProcessorQueueBlockItem
-from peek_abstract_chunked_index.private.server.controller.ACIProcessorStatusNotifierABC import \
-    ACIProcessorStatusNotifierABC
-from peek_abstract_chunked_index.private.tuples.ACIProcessorQueueTupleABC import \
-    ACIProcessorQueueTupleABC
-from peek_plugin_diagram._private.server.controller.StatusController import \
-    StatusController
-from peek_plugin_diagram._private.storage.DispIndex import \
-    DispIndexerQueue as DispIndexerQueueTable
-from peek_plugin_diagram._private.storage.Display import DispBase, DispNull, DispGroup, \
-    DispPolyline, DispGroupPointer, DispPolygon, DispEdgeTemplate, DispText, DispEllipse
+from peek_abstract_chunked_index.private.server.controller.ACIProcessorQueueControllerABC import (
+    ACIProcessorQueueControllerABC,
+    ACIProcessorQueueBlockItem,
+)
+from peek_abstract_chunked_index.private.server.controller.ACIProcessorStatusNotifierABC import (
+    ACIProcessorStatusNotifierABC,
+)
+from peek_abstract_chunked_index.private.tuples.ACIProcessorQueueTupleABC import (
+    ACIProcessorQueueTupleABC,
+)
+from peek_plugin_diagram._private.server.controller.StatusController import (
+    StatusController,
+)
+from peek_plugin_diagram._private.storage.DispIndex import (
+    DispIndexerQueue as DispIndexerQueueTable,
+)
+from peek_plugin_diagram._private.storage.Display import (
+    DispBase,
+    DispNull,
+    DispGroup,
+    DispPolyline,
+    DispGroupPointer,
+    DispPolygon,
+    DispEdgeTemplate,
+    DispText,
+    DispEllipse,
+)
 from peek_plugin_diagram._private.storage.LiveDbDispLink import LiveDbDispLink
 from vortex.DeferUtil import deferToThreadWrapWithLogger
 
@@ -51,18 +66,29 @@ class DispCompilerQueueController(ACIProcessorQueueControllerABC):
 
     _logger = logger
     _QueueDeclarative: ACIProcessorQueueTupleABC = DispIndexerQueueTable
-    _VacuumDeclaratives = (DispIndexerQueueTable,
-                           DispBase, DispNull, DispText, DispPolygon, DispPolyline,
-                           DispEllipse, DispGroup, DispEdgeTemplate, DispGroupPointer,
-                           LiveDbDispLink)
+    _VacuumDeclaratives = (
+        DispIndexerQueueTable,
+        DispBase,
+        DispNull,
+        DispText,
+        DispPolygon,
+        DispPolyline,
+        DispEllipse,
+        DispGroup,
+        DispEdgeTemplate,
+        DispGroupPointer,
+        LiveDbDispLink,
+    )
 
     def __init__(self, dbSessionCreator, statusController: StatusController):
-        ACIProcessorQueueControllerABC.__init__(self, dbSessionCreator,
-                                                _Notifier(statusController))
+        ACIProcessorQueueControllerABC.__init__(
+            self, dbSessionCreator, _Notifier(statusController)
+        )
 
     def _sendToWorker(self, block: ACIProcessorQueueBlockItem):
-        from peek_plugin_diagram._private.worker.tasks.DispCompilerTask import \
-            compileDisps
+        from peek_plugin_diagram._private.worker.tasks.DispCompilerTask import (
+            compileDisps,
+        )
 
         return compileDisps.delay(block.itemsEncodedPayload)
 
@@ -73,7 +99,7 @@ class DispCompilerQueueController(ACIProcessorQueueControllerABC):
     # Deduplicate methods
 
     def _dedupeQueueSql(self, lastFetchedId: int, dedupeLimit: int):
-        return '''
+        return """
                  with sq_raw as (
                     SELECT "id", "dispId"
                     FROM pl_diagram."DispCompilerQueue"
@@ -92,7 +118,10 @@ class DispCompilerQueueController(ACIProcessorQueueControllerABC):
                     AND pl_diagram."DispCompilerQueue"."id" > %(id)s
                     AND pl_diagram."DispCompilerQueue"."dispId" = sq1."dispId"
 
-            ''' % {'id': lastFetchedId, 'limit': dedupeLimit}
+            """ % {
+            "id": lastFetchedId,
+            "limit": dedupeLimit,
+        }
 
     # ---------------
     # Insert into Queue methods

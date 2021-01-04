@@ -7,7 +7,7 @@ from vortex.handler.TupleDataObserverClient import TupleDataObserverClient
 
 
 class CoordSetCacheController:
-    """ Lookup Cache Controller
+    """Lookup Cache Controller
 
     This class caches the lookups in each client.
 
@@ -24,9 +24,11 @@ class CoordSetCacheController:
         self._tupleObservable = tupleObservable
 
     def start(self):
-        (self._tupleObserver
-         .subscribeToTupleSelector(TupleSelector(ModelCoordSet.tupleName(), {}))
-         .subscribe(self._processNewTuples))
+        (
+            self._tupleObserver.subscribeToTupleSelector(
+                TupleSelector(ModelCoordSet.tupleName(), {})
+            ).subscribe(self._processNewTuples)
+        )
 
     def shutdown(self):
         self._tupleObservable = None

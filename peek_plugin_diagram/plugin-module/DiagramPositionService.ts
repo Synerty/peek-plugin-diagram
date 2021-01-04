@@ -1,4 +1,4 @@
-import {Observable} from "rxjs";
+import { Observable } from "rxjs"
 
 export interface PositionUpdatedI {
     coordSetKey: string;
@@ -28,17 +28,20 @@ export interface DispKeyLocation {
  */
 export abstract class DiagramPositionService {
     constructor() {
-
+    
     }
-
+    
     /** Position Initial
      *
      * Loads a coordSet and positions it at the default coordinates.
      *
      * @param coordSetKey; The key of the coordSet to position on.
      */
-    abstract positionByCoordSet(modelSetKey:string, coordSetKey: string): void ;
-
+    abstract positionByCoordSet(
+        modelSetKey: string,
+        coordSetKey: string
+    ): void ;
+    
     /** Position
      *
      * @param coordSetKey: The key of the coordinate set to position.
@@ -51,10 +54,14 @@ export abstract class DiagramPositionService {
      * @param opts: An Optional set of parameters to set the state of the diagram after
      *      position.
      */
-    abstract position(coordSetKey: string, x: number, y: number,
-                      zoom: number,
-                      opts: OptionalPositionArgsI | null): void ;
-
+    abstract position(
+        coordSetKey: string,
+        x: number,
+        y: number,
+        zoom: number,
+        opts: OptionalPositionArgsI | null
+    ): void ;
+    
     /** Position By Key
      *
      * @param modelSetKey: The model set that the disp key belongs to
@@ -66,10 +73,12 @@ export abstract class DiagramPositionService {
      * @param opts: An Optional set of parameters to set the state of the diagram after
      *      position.
      */
-    abstract positionByKey(modelSetKey: string,
-                           coordSetKey: string | null,
-                           opts: OptionalPositionArgsI | null): void ;
-
+    abstract positionByKey(
+        modelSetKey: string,
+        coordSetKey: string | null,
+        opts: OptionalPositionArgsI | null
+    ): void ;
+    
     /** Can Position By Key
      *
      * @param modelSetKey: The model set that the disp key belongs to
@@ -78,8 +87,11 @@ export abstract class DiagramPositionService {
      * @returns A promise that fires if the position exists.
      *
      */
-    abstract canPositionByKey(modelSetKey: string, dispKey: string): Promise<boolean> ;
-
+    abstract canPositionByKey(
+        modelSetKey: string,
+        dispKey: string
+    ): Promise<boolean> ;
+    
     /** Locations For Key
      *
      * @param modelSetKey: The model set that the disp key belongs to
@@ -88,20 +100,22 @@ export abstract class DiagramPositionService {
      * @returns A promise that fires with all the locations for that key.
      *
      */
-    abstract locationsForKey(modelSetKey: string,
-                             dispKey: string): Promise<DispKeyLocation[]> ;
-
+    abstract locationsForKey(
+        modelSetKey: string,
+        dispKey: string
+    ): Promise<DispKeyLocation[]> ;
+    
     /** Position Updated Observable
      *
      * @return An observerable that fires when the canvas position is updated.
      */
     abstract positionUpdatedObservable(): Observable<PositionUpdatedI> ;
-
+    
     /** isReady
      *
      * @returns an observable that is fired when the diagram loads a coordset
      * or the coord set changes
      */
     abstract isReadyObservable(): Observable<boolean> ;
-
+    
 }

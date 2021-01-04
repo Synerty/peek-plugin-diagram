@@ -1,11 +1,17 @@
 import logging
 
 from peek_plugin_base.worker.PluginWorkerEntryHookABC import PluginWorkerEntryHookABC
-from peek_plugin_diagram._private.worker.tasks import GridCompilerTask, \
-    ImportDispTask, DispCompilerTask, \
-    LocationIndexCompilerTask
-from peek_plugin_diagram._private.worker.tasks.branch import BranchIndexCompiler, \
-    BranchIndexImporter, BranchIndexUpdater
+from peek_plugin_diagram._private.worker.tasks import (
+    GridCompilerTask,
+    ImportDispTask,
+    DispCompilerTask,
+    LocationIndexCompilerTask,
+)
+from peek_plugin_diagram._private.worker.tasks.branch import (
+    BranchIndexCompiler,
+    BranchIndexImporter,
+    BranchIndexUpdater,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +31,12 @@ class WorkerEntryHook(PluginWorkerEntryHookABC):
 
     @property
     def celeryAppIncludes(self):
-        return [BranchIndexUpdater.__name__,
-                BranchIndexCompiler.__name__,
-                BranchIndexImporter.__name__,
-                DispCompilerTask.__name__,
-                GridCompilerTask.__name__,
-                ImportDispTask.__name__,
-                LocationIndexCompilerTask.__name__]
+        return [
+            BranchIndexUpdater.__name__,
+            BranchIndexCompiler.__name__,
+            BranchIndexImporter.__name__,
+            DispCompilerTask.__name__,
+            GridCompilerTask.__name__,
+            ImportDispTask.__name__,
+            LocationIndexCompilerTask.__name__,
+        ]

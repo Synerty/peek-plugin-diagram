@@ -18,9 +18,13 @@ class DispImportController:
         self._liveDbWriteApi = None
 
     @inlineCallbacks
-    def importDisps(self, modelSetKey: str, coordSetKey: str,
-                    importGroupHash: str, dispsEncodedPayload: bytes):
-
+    def importDisps(
+        self,
+        modelSetKey: str,
+        coordSetKey: str,
+        importGroupHash: str,
+        dispsEncodedPayload: bytes,
+    ):
         liveDbItemsToImport = yield importDispsTask.delay(
             modelSetKey, coordSetKey, importGroupHash, dispsEncodedPayload
         )

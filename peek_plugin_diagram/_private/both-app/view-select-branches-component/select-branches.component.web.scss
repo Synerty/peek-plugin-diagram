@@ -3,18 +3,18 @@
 
 
 .modal-open.modal {
-  overflow-y: unset;
+    overflow-y: unset;
 
 }
 
 .modal-body {
-  overflow-y: auto;
-  max-height: 85vh;
+    overflow-y: auto;
+    max-height: 85vh;
 }
 
 .modal-dialog {
-  padding: $general_padding_1;
-  top: $title_bar_height;
+    padding: $general_padding_1;
+    top: $title_bar_height;
 
 }
 
@@ -30,5 +30,5 @@
 */
 
 .bar-left {
-  border-left: 2px solid LightGray;
+    border-left: 2px solid LightGray;
 }

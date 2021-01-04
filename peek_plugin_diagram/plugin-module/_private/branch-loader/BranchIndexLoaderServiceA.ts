@@ -1,26 +1,27 @@
-import {Observable} from "rxjs";
+import { Observable } from "rxjs"
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
-import {BranchIndexLoaderStatusTuple} from "./BranchIndexLoaderStatusTuple";
-import {BranchIndexResultI} from "./BranchIndexLoaderService";
-
+import { BranchIndexLoaderStatusTuple } from "./BranchIndexLoaderStatusTuple"
+import { BranchIndexResultI } from "./BranchIndexLoaderService"
 
 export abstract class BranchIndexLoaderServiceA extends NgLifeCycleEvents {
     constructor() {
-        super();
-
+        super()
+        
     }
-
+    
     abstract isReady(): boolean;
-
+    
     abstract isReadyObservable(): Observable<boolean>;
-
+    
     abstract statusObservable(): Observable<BranchIndexLoaderStatusTuple> ;
-
+    
     abstract status(): BranchIndexLoaderStatusTuple ;
-
-    abstract getBranches(modelSetKey: string,
-                         coordSetId: number | null,
-                         keys: string[]): Promise<BranchIndexResultI> ;
+    
+    abstract getBranches(
+        modelSetKey: string,
+        coordSetId: number | null,
+        keys: string[]
+    ): Promise<BranchIndexResultI> ;
 }
 
 

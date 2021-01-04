@@ -3,7 +3,13 @@ import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import { TupleSelector, VortexStatusService } from "@synerty/vortexjs"
 import { PrivateDiagramTupleService } from "./PrivateDiagramTupleService"
 import { GroupDispsTuple, ModelCoordSet, ModelSet } from "../tuples"
-import { DispColor, DispLayer, DispLevel, DispLineStyle, DispTextStyle } from "../../lookups"
+import {
+    DispColor,
+    DispLayer,
+    DispLevel,
+    DispLineStyle,
+    DispTextStyle
+} from "../../lookups"
 import { BranchKeyToIdMapTuple } from "../branch/BranchKeyToIdMapTuple"
 import { BranchService } from "@peek/peek_plugin_branch"
 

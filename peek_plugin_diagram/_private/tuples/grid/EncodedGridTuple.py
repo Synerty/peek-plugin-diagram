@@ -7,11 +7,12 @@ from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 
 @addTupleType
 class EncodedGridTuple(Tuple):
-    """ Encoded Grid Tuple
+    """Encoded Grid Tuple
 
     This tuple stores a pre-encoded version of a GridTuple
 
     """
+
     __tupleType__ = diagramTuplePrefix + "EncodedGridTuple"
 
     gridKey: str = TupleField()

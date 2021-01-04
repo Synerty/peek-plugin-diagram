@@ -14,28 +14,33 @@
 
 <div class="peek-nav-bar-padding ">
     <div class="peek-information-section">
-        <button class="btn" [class.bg-success]="gridLoaderStatus.cacheForOfflineEnabled"
-                (click)="toggleOfflineMode()">
+        <button
+            (click)="toggleOfflineMode()"
+            [class.bg-success]="gridLoaderStatus.cacheForOfflineEnabled"
+            class="btn"
+        >
             {{gridLoaderStatus.cacheForOfflineEnabled
             ? 'Disable Offline Support'
             : 'Enable Offline Support'}}
         </button>
         <p>
-
+            
             Grid Cache Offline Mode Enabled :
-            {{gridLoaderStatus.cacheForOfflineEnabled}}<br/>
-            Grid Cache Load Complete : {{gridLoaderStatus.initialLoadComplete}}<br/>
+            {{gridLoaderStatus.cacheForOfflineEnabled}}<br />
+            Grid Cache Load Complete :
+            {{gridLoaderStatus.initialLoadComplete}}<br />
             Grid Cache Load Progress :
-            {{gridLoaderStatus.loadProgress}}/{{gridLoaderStatus.loadTotal}}<br/>
-            Grid Cache Last Check Finished : {{gridLoaderStatus.lastCheck}}<br/>
-
+            {{gridLoaderStatus.loadProgress}}/{{gridLoaderStatus.loadTotal}}<br />
+            Grid Cache Last Check Finished :
+            {{gridLoaderStatus.lastCheck}}<br />
+            
             Location Index Offline Mode Enabled :
-            {{locationLoaderStatus.cacheForOfflineEnabled}}<br/>
+            {{locationLoaderStatus.cacheForOfflineEnabled}}<br />
             Location Index Load Complete :
-            {{locationLoaderStatus.initialLoadComplete}}<br/>
+            {{locationLoaderStatus.initialLoadComplete}}<br />
             Location Index Load Progress :
-            {{locationLoaderStatus.loadProgress}}/{{locationLoaderStatus.loadTotal}}<br/>
-            Location Index Last Check : {{locationLoaderStatus.lastCheck}}<br/>
+            {{locationLoaderStatus.loadProgress}}/{{locationLoaderStatus.loadTotal}}<br />
+            Location Index Last Check : {{locationLoaderStatus.lastCheck}}<br />
         </p>
     </div>
 </div>

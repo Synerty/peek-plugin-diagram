@@ -6,8 +6,9 @@ from vortex.Payload import Payload
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TuplesProviderABC
 
-from peek_plugin_diagram._private.server.controller.BranchLiveEditController import \
-    BranchLiveEditController
+from peek_plugin_diagram._private.server.controller.BranchLiveEditController import (
+    BranchLiveEditController,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +18,9 @@ class BranchLiveEditTupleProvider(TuplesProviderABC):
         self._controller = branchLiveEditController
 
     @inlineCallbacks
-    def makeVortexMsg(self, filt: dict,
-                      tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
+    def makeVortexMsg(
+        self, filt: dict, tupleSelector: TupleSelector
+    ) -> Union[Deferred, bytes]:
         coordSetId = tupleSelector.selector.get("coordSetId")
         key = tupleSelector.selector.get("key")
 

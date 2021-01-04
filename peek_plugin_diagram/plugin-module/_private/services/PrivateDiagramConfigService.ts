@@ -1,9 +1,9 @@
-import {Injectable} from "@angular/core";
-import {PrivateDiagramTupleService} from "./PrivateDiagramTupleService";
-import {Observable, Subject} from "rxjs";
+import { Injectable } from "@angular/core"
+import { PrivateDiagramTupleService } from "./PrivateDiagramTupleService"
+import { Observable, Subject } from "rxjs"
 import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
-import {PrivateDiagramLookupService} from "./PrivateDiagramLookupService";
-import {DiagramConfigService} from "../../DiagramConfigService";
+import { PrivateDiagramLookupService } from "./PrivateDiagramLookupService"
+import { DiagramConfigService } from "../../DiagramConfigService"
 
 export interface PopupLayerSelectionArgsI {
     modelSetKey: string;
@@ -25,81 +25,89 @@ export interface PopupBranchSelectionArgsI {
 @Injectable()
 export class PrivateDiagramConfigService extends NgLifeCycleEvents
     implements DiagramConfigService {
-
+    
     private _popupLayerSelectionSubject: Subject<PopupLayerSelectionArgsI>
-        = new Subject<PopupLayerSelectionArgsI>();
-
+        = new Subject<PopupLayerSelectionArgsI>()
+    
     private _popupBranchSelectionSubject: Subject<PopupBranchSelectionArgsI>
-        = new Subject<PopupBranchSelectionArgsI>();
-
-
-    private _useEdgeColorChangedSubject: Subject<boolean> = new Subject<boolean>();
-
-    private _layersUpdatedSubject: Subject<void> = new Subject<void>();
-
-
+        = new Subject<PopupBranchSelectionArgsI>()
+    
+    private _useEdgeColorChangedSubject: Subject<boolean> = new Subject<boolean>()
+    
+    private _layersUpdatedSubject: Subject<void> = new Subject<void>()
+    
     constructor(private lookupService: PrivateDiagramLookupService) {
-        super();
+        super()
     }
-
+    
     // ---------------
     // Layer Select Popup
     /** This method is called from the diagram-toolbar component */
-    popupLayerSelection(modelSetKey: string, coordSetKey: string): void {
+    popupLayerSelection(
+        modelSetKey: string,
+        coordSetKey: string
+    ): void {
         this._popupLayerSelectionSubject.next({
             modelSetKey: modelSetKey,
             coordSetKey: coordSetKey
         })
     }
-
+    
     /** This observable is subscribed to by the select layer popup */
     popupLayerSelectionObservable(): Observable<PopupLayerSelectionArgsI> {
-        return this._popupLayerSelectionSubject;
+        return this._popupLayerSelectionSubject
     }
-
+    
     // ---------------
     // Branch Select Popup
     /** This method is called from the diagram-toolbar component */
-    popupBranchesSelection(modelSetKey: string, coordSetKey: string): void {
+    popupBranchesSelection(
+        modelSetKey: string,
+        coordSetKey: string
+    ): void {
         this._popupBranchSelectionSubject.next({
             modelSetKey: modelSetKey,
             coordSetKey: coordSetKey
         })
     }
-
+    
     /** This observable is subscribed to by the select branch popup */
     popupBranchesSelectionObservable(): Observable<PopupBranchSelectionArgsI> {
-        return this._popupBranchSelectionSubject;
+        return this._popupBranchSelectionSubject
     }
-
+    
     // ---------------
     // Use Polyline Edge Colors
     /** This is a published polyline */
     setUsePolylineEdgeColors(enabled: boolean): void {
         this._useEdgeColorChangedSubject.next(enabled)
     }
-
+    
     /** This observable is subscribed to by the canvas component */
     usePolylineEdgeColorsObservable(): Observable<boolean> {
-        return this._useEdgeColorChangedSubject;
+        return this._useEdgeColorChangedSubject
     }
-
+    
     // ---------------
     // Use Polyline Edge Colors
     /** This is a published polyline */
-    setLayerVisible(modelSetKey: string, layerName: string, visible: boolean): void {
-        const layer = this.lookupService.layerForName(modelSetKey, layerName);
+    setLayerVisible(
+        modelSetKey: string,
+        layerName: string,
+        visible: boolean
+    ): void {
+        const layer = this.lookupService.layerForName(modelSetKey, layerName)
         if (layer == null) {
             throw new Error("No layer exists for modelSetKey " +
-                `'${modelSetKey}' and name ${layerName}`);
+                `'${modelSetKey}' and name ${layerName}`)
         }
-        layer.visible = visible;
+        layer.visible = visible
         this._layersUpdatedSubject.next()
     }
-
+    
     /** This observable is subscribed to by the canvas component */
     layersUpdatedObservable(): Observable<void> {
-        return this._layersUpdatedSubject;
+        return this._layersUpdatedSubject
     }
-
+    
 }

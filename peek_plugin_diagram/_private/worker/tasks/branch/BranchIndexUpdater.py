@@ -5,24 +5,29 @@ from typing import List, Set, Tuple, Dict
 
 import pytz
 from peek_plugin_base.worker import CeleryDbConn
-from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
-    DispCompilerQueueController
+from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import (
+    DispCompilerQueueController,
+)
 from peek_plugin_diagram._private.storage.Display import DispBase
-from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
-    GridKeyCompilerQueue
+from peek_plugin_diagram._private.storage.GridKeyIndex import (
+    GridKeyIndex,
+    GridKeyCompilerQueue,
+)
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
-from peek_plugin_diagram._private.storage.branch.BranchIndex import \
-    BranchIndex
-from peek_plugin_diagram._private.storage.branch.BranchIndexCompilerQueue import \
-    BranchIndexCompilerQueue
-from peek_plugin_diagram._private.tuples.branch.BranchTuple import \
-    BranchTuple
+from peek_plugin_diagram._private.storage.branch.BranchIndex import BranchIndex
+from peek_plugin_diagram._private.storage.branch.BranchIndexCompilerQueue import (
+    BranchIndexCompilerQueue,
+)
+from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.worker.tasks.ImportDispTask import _bulkInsertDisps
-from peek_plugin_diagram._private.worker.tasks.branch.BranchDispUpdater import \
-    _deleteBranchDisps, _convertBranchDisps
-from peek_plugin_diagram._private.worker.tasks.branch._BranchIndexCalcChunkKey import \
-    makeChunkKeyForBranchIndex
+from peek_plugin_diagram._private.worker.tasks.branch.BranchDispUpdater import (
+    _deleteBranchDisps,
+    _convertBranchDisps,
+)
+from peek_plugin_diagram._private.worker.tasks.branch._BranchIndexCalcChunkKey import (
+    makeChunkKeyForBranchIndex,
+)
 from sqlalchemy import select, and_, bindparam
 from sqlalchemy.orm.exc import NoResultFound
 from txcelery.defer import DeferrableTask
@@ -34,7 +39,7 @@ logger = logging.getLogger(__name__)
 @DeferrableTask
 @celeryApp.task(bind=True)
 def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
-    """ Update Branch
+    """Update Branch
 
     This method is called from the UI to update a single branch.
     It could be called from a server API as well.
@@ -78,14 +83,18 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
                     branch.id = None
 
                 if branch.id is None:
-                    branchIndex = dbSession.query(BranchIndex) \
-                        .filter(BranchIndex.coordSetId == branch.coordSetId) \
-                        .filter(BranchIndex.key == branch.key) \
+                    branchIndex = (
+                        dbSession.query(BranchIndex)
+                        .filter(BranchIndex.coordSetId == branch.coordSetId)
+                        .filter(BranchIndex.key == branch.key)
                         .one()
+                    )
                 else:
-                    branchIndex = dbSession.query(BranchIndex) \
-                        .filter(BranchIndex.id == branch.id) \
+                    branchIndex = (
+                        dbSession.query(BranchIndex)
+                        .filter(BranchIndex.id == branch.id)
                         .one()
+                    )
                 branch.id = branchIndex.id
                 branchIndex.packedJson = branch.packJson()
                 branchIndex.updatedDate = branch.updatedDate
@@ -112,8 +121,9 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
 
     try:
         if newBranchesToInsert:
-            _insertOrUpdateBranches(dbSession, modelSet.key, modelSet.id,
-                                    newBranchesToInsert)
+            _insertOrUpdateBranches(
+                dbSession, modelSet.key, modelSet.id, newBranchesToInsert
+            )
             dbSession.commit()
 
         # Make an array of all branch IDs
@@ -123,10 +133,11 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
 
         # Find out all the existing grids effected by this branch.
         gridsToRecompile = dbSession.execute(
-            select(distinct=True,
-                   columns=[gridKeyIndexTable.c.gridKey, gridKeyIndexTable.c.coordSetId],
-                   whereclause=dispBaseTable.c.branchId.in_(allBranchIds))
-                .select_from(gridKeyIndexTable.join(dispBaseTable))
+            select(
+                distinct=True,
+                columns=[gridKeyIndexTable.c.gridKey, gridKeyIndexTable.c.coordSetId],
+                whereclause=dispBaseTable.c.branchId.in_(allBranchIds),
+            ).select_from(gridKeyIndexTable.join(dispBaseTable))
         ).fetchall()
 
         allNewDisps = []
@@ -142,9 +153,9 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
             allNewDisps.extend(newDisps)
             allDispIdsToCompile.extend(dispIdsToCompile)
 
-            packedJsonUpdates.extend([
-                dict(b_id=b.id, b_packedJson=b.packJson()) for b in branches
-            ])
+            packedJsonUpdates.extend(
+                [dict(b_id=b.id, b_packedJson=b.packJson()) for b in branches]
+            )
 
         dbSession.execute(
             dispBaseTable.delete(dispBaseTable.c.branchId.in_(allBranchIds))
@@ -162,30 +173,37 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
         )
 
         # Update the JSON again back into the grid index.
-        stmt = BranchIndex.__table__.update(). \
-            where(BranchIndex.__table__.c.id == bindparam('b_id')) \
-            .values(packedJson=bindparam('b_packedJson'))
+        stmt = (
+            BranchIndex.__table__.update()
+            .where(BranchIndex.__table__.c.id == bindparam("b_id"))
+            .values(packedJson=bindparam("b_packedJson"))
+        )
         dbSession.execute(stmt, packedJsonUpdates)
 
         # 3) Queue chunks for recompile
         dbSession.execute(
             queueTable.insert(),
-            [dict(modelSetId=modelSetId, chunkKey=c) for c in chunkKeys]
+            [dict(modelSetId=modelSetId, chunkKey=c) for c in chunkKeys],
         )
 
         # 4) Queue chunks for
         if gridsToRecompile:
             dbSession.execute(
                 gridKeyCompilerQueueTable.insert(),
-                [dict(coordSetId=item.coordSetId, gridKey=item.gridKey)
-                 for item in gridsToRecompile]
+                [
+                    dict(coordSetId=item.coordSetId, gridKey=item.gridKey)
+                    for item in gridsToRecompile
+                ],
             )
 
         dbSession.commit()
 
-        logger.debug("Updated %s BranchIndexes queued %s chunks in %s",
-                     len(updatedBranches), len(chunkKeys),
-                     (datetime.now(pytz.utc) - startTime))
+        logger.debug(
+            "Updated %s BranchIndexes queued %s chunks in %s",
+            len(updatedBranches),
+            len(chunkKeys),
+            (datetime.now(pytz.utc) - startTime),
+        )
 
     except Exception as e:
         dbSession.rollback()
@@ -200,7 +218,7 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
 @DeferrableTask
 @celeryApp.task(bind=True)
 def removeBranches(self, modelSetKey: str, coordSetKey: str, keys: List[str]) -> None:
-    """ Remove Branches
+    """Remove Branches
 
     This worker task removes branches from the indexes.
 
@@ -214,10 +232,12 @@ def removeBranches(self, modelSetKey: str, coordSetKey: str, keys: List[str]) ->
     # Create a lookup of CoordSets by ID
     dbSession = CeleryDbConn.getDbSession()
     try:
-        coordSet = dbSession.query(ModelCoordSet) \
-            .filter(ModelCoordSet.modelSet.key == modelSetKey) \
-            .filter(ModelCoordSet.key == coordSetKey) \
+        coordSet = (
+            dbSession.query(ModelCoordSet)
+            .filter(ModelCoordSet.modelSet.key == modelSetKey)
+            .filter(ModelCoordSet.key == coordSetKey)
             .one()
+        )
 
         dbSession.expunge_all()
 
@@ -229,12 +249,16 @@ def removeBranches(self, modelSetKey: str, coordSetKey: str, keys: List[str]) ->
     transaction = conn.begin()
 
     try:
-        items = conn.execute(select(
-            distinct=True,
-            columns=[branchIndexTable.c.id, branchIndexTable.c.chunkKey],
-            whereclause=and_(branchIndexTable.c.key.in_(keys),
-                             branchIndexTable.c.coordSetId == coordSet.id)
-        )).fetchall()
+        items = conn.execute(
+            select(
+                distinct=True,
+                columns=[branchIndexTable.c.id, branchIndexTable.c.chunkKey],
+                whereclause=and_(
+                    branchIndexTable.c.key.in_(keys),
+                    branchIndexTable.c.coordSetId == coordSet.id,
+                ),
+            )
+        ).fetchall()
 
         branchIndexIds = [i.id for i in items]
         chunkKeys = set([i.chunkKey for i in items])
@@ -242,20 +266,21 @@ def removeBranches(self, modelSetKey: str, coordSetKey: str, keys: List[str]) ->
         _deleteBranchDisps(conn, branchIndexIds)
 
         # 1) Delete existing branches
-        conn.execute(
-            branchIndexTable.delete(branchIndexTable.c.id.in_(branchIndexIds))
-        )
+        conn.execute(branchIndexTable.delete(branchIndexTable.c.id.in_(branchIndexIds)))
 
         # 3) Queue chunks for recompile
         conn.execute(
             queueTable.insert(),
-            [dict(modelSetId=coordSet.modelSetId, chunkKey=c) for c in chunkKeys]
+            [dict(modelSetId=coordSet.modelSetId, chunkKey=c) for c in chunkKeys],
         )
 
         transaction.commit()
-        logger.debug("Deleted %s BranchIndexes queued %s chunks in %s",
-                     len(branchIndexIds), len(chunkKeys),
-                     (datetime.now(pytz.utc) - startTime))
+        logger.debug(
+            "Deleted %s BranchIndexes queued %s chunks in %s",
+            len(branchIndexIds),
+            len(chunkKeys),
+            (datetime.now(pytz.utc) - startTime),
+        )
 
     except Exception as e:
         transaction.rollback()
@@ -267,11 +292,10 @@ def removeBranches(self, modelSetKey: str, coordSetKey: str, keys: List[str]) ->
         conn.close()
 
 
-def _insertOrUpdateBranches(conn,
-                            modelSetKey: str,
-                            modelSetId: int,
-                            newBranches: List[BranchTuple]) -> None:
-    """ Insert or Update Branches
+def _insertOrUpdateBranches(
+    conn, modelSetKey: str, modelSetId: int, newBranches: List[BranchTuple]
+) -> None:
+    """Insert or Update Branches
 
     1) Delete existing branches
     2) Insert new branches
@@ -311,7 +335,7 @@ def _insertOrUpdateBranches(conn,
             importHash=newBranch.importHash,
             importGroupHash=newBranch.importGroupHash,
             chunkKey=makeChunkKeyForBranchIndex(modelSetKey, newBranch.key),
-            packedJson=branchJson
+            packedJson=branchJson,
         )
         inserts.append(existingObject.tupleToSqlaBulkInsertDict())
 
@@ -322,16 +346,20 @@ def _insertOrUpdateBranches(conn,
         # Make note of the IDs being deleted
         # FIXME : Unused
         branchIndexIdsBeingDeleted = [
-            item.id for item in
-            conn.execute(select(
-                distinct=True,
-                columns=[branchIndexTable.c.id],
-                whereclause=branchIndexTable.c.importGroupHash.in_(importHashSet)
-            ))
+            item.id
+            for item in conn.execute(
+                select(
+                    distinct=True,
+                    columns=[branchIndexTable.c.id],
+                    whereclause=branchIndexTable.c.importGroupHash.in_(importHashSet),
+                )
+            )
         ]
 
         conn.execute(
-            branchIndexTable.delete(branchIndexTable.c.importGroupHash.in_(importHashSet))
+            branchIndexTable.delete(
+                branchIndexTable.c.importGroupHash.in_(importHashSet)
+            )
         )
 
     # 2) Insert new branches
@@ -342,9 +370,12 @@ def _insertOrUpdateBranches(conn,
     if chunkKeysForQueue:
         conn.execute(
             queueTable.insert(),
-            [dict(modelSetId=m, chunkKey=c) for m, c in chunkKeysForQueue]
+            [dict(modelSetId=m, chunkKey=c) for m, c in chunkKeysForQueue],
         )
 
-    logger.debug("Inserted %s queued %s chunks in %s",
-                 len(inserts), len(chunkKeysForQueue),
-                 (datetime.now(pytz.utc) - startTime))
+    logger.debug(
+        "Inserted %s queued %s chunks in %s",
+        len(inserts),
+        len(chunkKeysForQueue),
+        (datetime.now(pytz.utc) - startTime),
+    )

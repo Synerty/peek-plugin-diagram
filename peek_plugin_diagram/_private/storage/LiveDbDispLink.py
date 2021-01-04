@@ -15,32 +15,34 @@ from .ModelSet import ModelCoordSet
 logger = logging.getLogger(__name__)
 
 LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR = {
-    'colorId': LiveDbDisplayValueTuple.DATA_TYPE_COLOR,
-    'fillColorId': LiveDbDisplayValueTuple.DATA_TYPE_COLOR,
-    'lineColorId': LiveDbDisplayValueTuple.DATA_TYPE_COLOR,
-    'fillPercent': LiveDbDisplayValueTuple.DATA_TYPE_NUMBER_VALUE,
-    'lineStyleId': LiveDbDisplayValueTuple.DATA_TYPE_LINE_STYLE,
-    'lineWidth': LiveDbDisplayValueTuple.DATA_TYPE_LINE_WIDTH,
-    'text': LiveDbDisplayValueTuple.DATA_TYPE_STRING_VALUE,
-    'targetDispGroupId': LiveDbDisplayValueTuple.DATA_TYPE_GROUP_PTR,
+    "colorId": LiveDbDisplayValueTuple.DATA_TYPE_COLOR,
+    "fillColorId": LiveDbDisplayValueTuple.DATA_TYPE_COLOR,
+    "lineColorId": LiveDbDisplayValueTuple.DATA_TYPE_COLOR,
+    "fillPercent": LiveDbDisplayValueTuple.DATA_TYPE_NUMBER_VALUE,
+    "lineStyleId": LiveDbDisplayValueTuple.DATA_TYPE_LINE_STYLE,
+    "lineWidth": LiveDbDisplayValueTuple.DATA_TYPE_LINE_WIDTH,
+    "text": LiveDbDisplayValueTuple.DATA_TYPE_STRING_VALUE,
+    "targetDispGroupId": LiveDbDisplayValueTuple.DATA_TYPE_GROUP_PTR,
 }
 
 
 @addTupleType
 class LiveDbDispLink(Tuple, DeclarativeBase):
-    __tupleTypeShort__ = 'LDL'
-    __tablename__ = 'LiveDbDispLink'
+    __tupleTypeShort__ = "LDL"
+    __tablename__ = "LiveDbDispLink"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
 
-    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete="CASCADE"),
-                        nullable=False)
+    coordSetId = Column(
+        Integer, ForeignKey("ModelCoordSet.id", ondelete="CASCADE"), nullable=False
+    )
     coordSet = relationship(ModelCoordSet)
 
-    dispId = Column(BigInteger, ForeignKey('DispBase.id', ondelete='CASCADE'),
-                    nullable=False)
-    disp = relationship(DispBase, backref='liveDbLinks')
+    dispId = Column(
+        BigInteger, ForeignKey("DispBase.id", ondelete="CASCADE"), nullable=False
+    )
+    disp = relationship(DispBase, backref="liveDbLinks")
 
     # # comment="The attribute of the disp item to update"
     # dispTableName = Column(String, nullable=False)
@@ -60,17 +62,20 @@ class LiveDbDispLink(Tuple, DeclarativeBase):
     propsJson = Column(String)
 
     __table_args__ = (
-        Index("idx_LiveDbDLink_DispKeyHash",
-              importKeyHash, importDispHash, dispAttrName, unique=False),
+        Index(
+            "idx_LiveDbDLink_DispKeyHash",
+            importKeyHash,
+            importDispHash,
+            dispAttrName,
+            unique=False,
+        ),
         Index("idx_LiveDbDLink_importGroupHash", importGroupHash, unique=False),
         Index("idx_LiveDbDLink_coordSetId", coordSetId, unique=False),
         Index("idx_LiveDbDLink_dispId", dispId, unique=False),
         Index("idx_LiveDbDLink_dispId_attr", dispId, dispAttrName, unique=True),
         Index("idx_LiveDbDLink_liveKeyId", liveDbKey, unique=False),
-
         # Designed for faster querying, it only needs to hit the index
-        Index("idx_LiveDbDLink_liveDbUpdate", dispId, liveDbKey,
-              unique=False),
+        Index("idx_LiveDbDLink_liveDbUpdate", dispId, liveDbKey, unique=False),
     )
 
     # noinspection PyMissingConstructor

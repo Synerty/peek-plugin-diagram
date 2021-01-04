@@ -14,30 +14,35 @@ from vortex.handler.TupleDataObservableHandler import TuplesProviderABC
 
 logger = logging.getLogger(__name__)
 
+
 class ServerLookupTupleProvider(TuplesProviderABC):
     def __init__(self, ormSessionCreator):
         self._ormSessionCreator = ormSessionCreator
 
     @deferToThreadWrapWithLogger(logger)
-    def makeVortexMsg(self, filt: dict,
-                      tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
+    def makeVortexMsg(
+        self, filt: dict, tupleSelector: TupleSelector
+    ) -> Union[Deferred, bytes]:
         session = self._ormSessionCreator()
         try:
             Lookup = TUPLE_TYPES_BY_NAME[tupleSelector.name]
 
             if Lookup == DispLevel:
-                all = (session.query(DispLevel)
-                       .options(joinedload(DispLevel.coordSet)
-                                .joinedload(ModelCoordSet.modelSet))
-                       .all())
+                all = (
+                    session.query(DispLevel)
+                    .options(
+                        joinedload(DispLevel.coordSet).joinedload(
+                            ModelCoordSet.modelSet
+                        )
+                    )
+                    .all()
+                )
 
                 for item in all:
                     item.data = {"modelSetKey": item.coordSet.modelSet.key}
 
             else:
-                all = (session.query(Lookup)
-                       .options(joinedload(Lookup.modelSet))
-                       .all())
+                all = session.query(Lookup).options(joinedload(Lookup.modelSet)).all()
 
                 for item in all:
                     item.data = {"modelSetKey": item.modelSet.key}

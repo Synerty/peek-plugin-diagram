@@ -4,10 +4,13 @@
  *
  */
 export abstract class DiagramConfigService {
-
-    abstract setLayerVisible(modelSetKey: string, layerName: string,
-                             visible: boolean): void;
-
+    
+    abstract setLayerVisible(
+        modelSetKey: string,
+        layerName: string,
+        visible: boolean
+    ): void;
+    
     abstract setUsePolylineEdgeColors(enabled: boolean): void ;
-
+    
 }

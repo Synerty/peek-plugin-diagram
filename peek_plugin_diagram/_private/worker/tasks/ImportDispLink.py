@@ -8,21 +8,25 @@ from peek_plugin_base.storage.DbConnection import pgCopyInsert
 
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_base.worker.CeleryDbConn import prefetchDeclarativeIds
-from peek_plugin_diagram._private.storage.LiveDbDispLink import LiveDbDispLink, \
-    LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR
+from peek_plugin_diagram._private.storage.LiveDbDispLink import (
+    LiveDbDispLink,
+    LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR,
+)
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
-from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
-    ImportLiveDbDispLinkTuple
+from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import (
+    ImportLiveDbDispLinkTuple,
+)
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
 
 logger = logging.getLogger(__name__)
 
 
-def importDispLinks(coordSet: ModelCoordSet,
-                    importGroupHash: str,
-                    importDispLinks: List[ImportLiveDbDispLinkTuple]
-                    ) -> List[ImportLiveDbItemTuple]:
-    """ Import Disps Links
+def importDispLinks(
+    coordSet: ModelCoordSet,
+    importGroupHash: str,
+    importDispLinks: List[ImportLiveDbDispLinkTuple],
+) -> List[ImportLiveDbItemTuple]:
+    """Import Disps Links
 
     1) Drop all disps with matching importGroupHash
 
@@ -41,9 +45,11 @@ def importDispLinks(coordSet: ModelCoordSet,
     ormSession = CeleryDbConn.getDbSession()
     try:
 
-        ormSession.execute(dispLinkTable
-                           .delete()
-                           .where(dispLinkTable.c.importGroupHash == importGroupHash))
+        ormSession.execute(
+            dispLinkTable.delete().where(
+                dispLinkTable.c.importGroupHash == importGroupHash
+            )
+        )
 
         if not importDispLinks:
             return []
@@ -56,9 +62,7 @@ def importDispLinks(coordSet: ModelCoordSet,
             dispLink = _convertImportDispLinkTuple(coordSet, importDispLink)
             dispLink.id = next(dispLinkIdIterator)
 
-            liveDbItem = _makeImportLiveDbItem(
-                importDispLink, liveDbItemsToImportByKey
-            )
+            liveDbItem = _makeImportLiveDbItem(importDispLink, liveDbItemsToImportByKey)
 
             dispLink.liveDbKey = liveDbItem.key
             dispLinkInserts.append(dispLink.tupleToSqlaBulkInsertDict())
@@ -76,7 +80,8 @@ def importDispLinks(coordSet: ModelCoordSet,
 
         logger.info(
             "Inserted %s LiveDbDispLinks in %s",
-            len(dispLinkInserts), (datetime.now(pytz.utc) - startTime)
+            len(dispLinkInserts),
+            (datetime.now(pytz.utc) - startTime),
         )
 
         return list(liveDbItemsToImportByKey.values())
@@ -85,21 +90,23 @@ def importDispLinks(coordSet: ModelCoordSet,
         ormSession.close()
 
 
-def _convertImportDispLinkTuple(coordSet: ModelCoordSet,
-                                importDispLink: ImportLiveDbDispLinkTuple
-                                ) -> LiveDbDispLink:
+def _convertImportDispLinkTuple(
+    coordSet: ModelCoordSet, importDispLink: ImportLiveDbDispLinkTuple
+) -> LiveDbDispLink:
     return LiveDbDispLink(
-        dispId=importDispLink.internalDispId,  # Dynamically added in DispImportController
+        dispId=importDispLink.internalDispId,
+        # Dynamically added in DispImportController
         coordSetId=coordSet.id,
         dispAttrName=importDispLink.dispAttrName,
         liveDbKey=importDispLink.liveDbKey,
         importGroupHash=importDispLink.importGroupHash,
-        propsJson=json.dumps(importDispLink.props)
+        propsJson=json.dumps(importDispLink.props),
     )
 
 
-def _makeImportLiveDbItem(importDispLink: ImportLiveDbDispLinkTuple,
-                          liveDbItemsToImportByKey: Dict):
+def _makeImportLiveDbItem(
+    importDispLink: ImportLiveDbDispLinkTuple, liveDbItemsToImportByKey: Dict
+):
     if importDispLink.liveDbKey in liveDbItemsToImportByKey:
         return liveDbItemsToImportByKey[importDispLink.liveDbKey]
 
@@ -109,10 +116,12 @@ def _makeImportLiveDbItem(importDispLink: ImportLiveDbDispLinkTuple,
     rawValue = importDispLink.internalRawValue
     displayValue = importDispLink.internalDisplayValue
 
-    newLiveDbKey = ImportLiveDbItemTuple(dataType=dataType,
-                                         rawValue=rawValue,
-                                         displayValue=displayValue,
-                                         key=importDispLink.liveDbKey)
+    newLiveDbKey = ImportLiveDbItemTuple(
+        dataType=dataType,
+        rawValue=rawValue,
+        displayValue=displayValue,
+        key=importDispLink.liveDbKey,
+    )
 
     liveDbItemsToImportByKey[importDispLink.liveDbKey] = newLiveDbKey
 

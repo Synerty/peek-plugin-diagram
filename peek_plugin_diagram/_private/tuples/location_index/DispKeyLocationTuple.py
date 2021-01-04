@@ -17,15 +17,10 @@ class DispKeyLocationTuple(Tuple):
     y: float = TupleField()
 
     def toLocationJson(self) -> str:
-        return '[%s,%s,%s,%s]' % (
-            self.coordSetId,
-            self.dispId,
-            self.x,
-            self.y
-        )
+        return "[%s,%s,%s,%s]" % (self.coordSetId, self.dispId, self.x, self.y)
 
     @classmethod
-    def fromLocationJson(self, items: List[int]) -> 'DispKeyLocationTuple':
+    def fromLocationJson(self, items: List[int]) -> "DispKeyLocationTuple":
         assert len(items) == 4, "Invalid packed data."
         newItem = DispKeyLocationTuple()
 

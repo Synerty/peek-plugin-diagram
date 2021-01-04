@@ -9,14 +9,14 @@ from peek_plugin_diagram.server.DiagramViewerApiABC import DiagramViewerApiABC
 
 class DiagramApiABC(metaclass=ABCMeta):
     def importApi(self) -> DiagramImportApiABC:
-        """ Import API
+        """Import API
 
         :return: The Import API for the diagram plugin
 
         """
 
     def viewerApi(self) -> DiagramViewerApiABC:
-        """ Viewer API
+        """Viewer API
 
         :return: The viewer API for the diagram plugin
 

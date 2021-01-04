@@ -2,18 +2,20 @@ from typing import Optional, List
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import \
-    ImportLiveDbDispLinkTuple
+from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import (
+    ImportLiveDbDispLinkTuple,
+)
 
 
 @addTupleType
 class ImportDispPolylineTuple(Tuple):
-    """ Imported Display Polyline
+    """Imported Display Polyline
 
     This tuple is used by other plugins to load Polyline into the diagram.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispPolylineTuple'
+
+    __tupleType__ = diagramTuplePrefix + "ImportDispPolylineTuple"
 
     # The size of the end types are relative to the line width
     END_TYPE_NONE = None

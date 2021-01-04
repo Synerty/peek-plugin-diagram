@@ -7,8 +7,9 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Index
 from vortex.Tuple import Tuple, addTupleType
 
-from peek_abstract_chunked_index.private.tuples.ACIEncodedChunkTupleABC import \
-    ACIEncodedChunkTupleABC
+from peek_abstract_chunked_index.private.tuples.ACIEncodedChunkTupleABC import (
+    ACIEncodedChunkTupleABC,
+)
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from peek_plugin_diagram._private.storage.DeclarativeBase import DeclarativeBase
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
@@ -17,16 +18,15 @@ logger = logging.getLogger(__name__)
 
 
 @addTupleType
-class BranchIndexEncodedChunk(Tuple, DeclarativeBase,
-                              ACIEncodedChunkTupleABC):
-    __tablename__ = 'BranchIndexEncodedChunk'
-    __tupleType__ = diagramTuplePrefix + 'BranchIndexEncodedChunkTable'
+class BranchIndexEncodedChunk(Tuple, DeclarativeBase, ACIEncodedChunkTupleABC):
+    __tablename__ = "BranchIndexEncodedChunk"
+    __tupleType__ = diagramTuplePrefix + "BranchIndexEncodedChunkTable"
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
 
-    modelSetId = Column(Integer,
-                        ForeignKey('ModelSet.id', ondelete='CASCADE'),
-                        nullable=False)
+    modelSetId = Column(
+        Integer, ForeignKey("ModelSet.id", ondelete="CASCADE"), nullable=False
+    )
     modelSet = relationship(ModelSet)
 
     chunkKey = Column(String, nullable=False)
@@ -35,8 +35,9 @@ class BranchIndexEncodedChunk(Tuple, DeclarativeBase,
     lastUpdate = Column(String, nullable=False)
 
     __table_args__ = (
-        Index("idx_BranchIndexEnc_modelSetId_chunkKey", modelSetId, chunkKey,
-              unique=False),
+        Index(
+            "idx_BranchIndexEnc_modelSetId_chunkKey", modelSetId, chunkKey, unique=False
+        ),
     )
 
     @property
@@ -61,9 +62,11 @@ class BranchIndexEncodedChunk(Tuple, DeclarativeBase,
 
     @classmethod
     def sqlCoreLoad(cls, row):
-        return BranchIndexEncodedChunk(id=row.id,
-                                       modelSetId=row.modelSetId,
-                                       chunkKey=row.chunkKey,
-                                       encodedData=row.encodedData,
-                                       encodedHash=row.encodedHash,
-                                       lastUpdate=row.lastUpdate)
+        return BranchIndexEncodedChunk(
+            id=row.id,
+            modelSetId=row.modelSetId,
+            chunkKey=row.chunkKey,
+            encodedData=row.encodedData,
+            encodedHash=row.encodedHash,
+            lastUpdate=row.lastUpdate,
+        )

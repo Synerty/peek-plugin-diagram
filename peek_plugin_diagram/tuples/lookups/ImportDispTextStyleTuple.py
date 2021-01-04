@@ -7,13 +7,9 @@ from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 
 @addTupleType
 class ImportDispTextStyleTuple(Tuple):
-    """ Import Display Text Style Tuple
+    """Import Display Text Style Tuple"""
 
-
-    """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispTextStyleTuple'
-
-
+    __tupleType__ = diagramTuplePrefix + "ImportDispTextStyleTuple"
 
     name: str = TupleField()
 

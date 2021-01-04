@@ -9,17 +9,24 @@ import pytz
 from txcelery.defer import DeferrableTask
 from vortex.Payload import Payload
 
-from peek_plugin_base.storage.StorageUtil import makeCoreValuesSubqueryCondition, \
-    makeOrmValuesSubqueryCondition
+from peek_plugin_base.storage.StorageUtil import (
+    makeCoreValuesSubqueryCondition,
+    makeOrmValuesSubqueryCondition,
+)
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.storage.Display import DispBase
-from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompiled, \
-    LocationIndex
-from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompilerQueue
+from peek_plugin_diagram._private.storage.LocationIndex import (
+    LocationIndexCompiled,
+    LocationIndex,
+)
+from peek_plugin_diagram._private.storage.LocationIndex import (
+    LocationIndexCompilerQueue,
+)
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
-from peek_plugin_diagram._private.tuples.location_index.LocationIndexTuple import \
-    LocationIndexTuple
+from peek_plugin_diagram._private.tuples.location_index.LocationIndexTuple import (
+    LocationIndexTuple,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +43,7 @@ Compile the location indexes
 @DeferrableTask
 @celeryApp.task(bind=True)
 def compileLocationIndex(self, payloadEncodedArgs: bytes) -> List[str]:
-    """ Compile Location Index Task
+    """Compile Location Index Task
 
     :param self: A celery reference to this task
     :param payloadEncodedArgs: An encoded payload containing the queue tuples.
@@ -61,15 +68,17 @@ def compileLocationIndex(self, payloadEncodedArgs: bytes) -> List[str]:
     transaction = conn.begin()
     try:
 
-        logger.debug("Staring compile of %s queueItems in %s",
-                     len(queueItems), (datetime.now(pytz.utc) - startTime))
+        logger.debug(
+            "Staring compile of %s queueItems in %s",
+            len(queueItems),
+            (datetime.now(pytz.utc) - startTime),
+        )
 
         # Get Model Sets
 
         modelSetIds = list(set(modelSetIdByIndexBucket.values()))
-        modelSetQry = (
-            session.query(ModelSet.key, ModelSet.id)
-                .filter(ModelSet.id.in_(modelSetIds))
+        modelSetQry = session.query(ModelSet.key, ModelSet.id).filter(
+            ModelSet.id.in_(modelSetIds)
         )
 
         modelSetKeyByModelSetId = {o.id: o.key for o in modelSetQry}
@@ -77,10 +86,13 @@ def compileLocationIndex(self, payloadEncodedArgs: bytes) -> List[str]:
         total = 0
         dispData = _buildIndex(session, indexBuckets)
 
-        conn.execute(compiledTable.delete(
-            makeCoreValuesSubqueryCondition(engine, compiledTable.c.indexBucket,
-                                            indexBuckets)
-        ))
+        conn.execute(
+            compiledTable.delete(
+                makeCoreValuesSubqueryCondition(
+                    engine, compiledTable.c.indexBucket, indexBuckets
+                )
+            )
+        )
         transaction.commit()
         transaction = conn.begin()
 
@@ -98,34 +110,44 @@ def compileLocationIndex(self, payloadEncodedArgs: bytes) -> List[str]:
                 modelSetKey=modelSetKey,
                 indexBucket=indexBucket,
                 jsonStr=jsonStr,
-                lastUpdate=dataHash
-
+                lastUpdate=dataHash,
             )
 
             blobData = Payload(tuples=[locationIndexTuple]).toEncodedPayload()
 
-            inserts.append(dict(modelSetId=modelSetId,
-                                indexBucket=indexBucket,
-                                lastUpdate=dataHash,
-                                blobData=blobData))
+            inserts.append(
+                dict(
+                    modelSetId=modelSetId,
+                    indexBucket=indexBucket,
+                    lastUpdate=dataHash,
+                    blobData=blobData,
+                )
+            )
 
         if inserts:
             conn.execute(compiledTable.insert(), inserts)
 
-        logger.debug("Compiled %s LocationIndexes, %s missing, in %s",
-                     len(inserts),
-                     len(indexBuckets) - len(inserts),
-                     (datetime.now(pytz.utc) - startTime))
+        logger.debug(
+            "Compiled %s LocationIndexes, %s missing, in %s",
+            len(inserts),
+            len(indexBuckets) - len(inserts),
+            (datetime.now(pytz.utc) - startTime),
+        )
 
         total += len(inserts)
 
-        conn.execute(queueTable.delete(
-            makeCoreValuesSubqueryCondition(engine, queueTable.c.id, queueItemIds)
-        ))
+        conn.execute(
+            queueTable.delete(
+                makeCoreValuesSubqueryCondition(engine, queueTable.c.id, queueItemIds)
+            )
+        )
 
         transaction.commit()
-        logger.info("Compiled and Comitted %s LocationIndexCompileds in %s",
-                    total, (datetime.now(pytz.utc) - startTime))
+        logger.info(
+            "Compiled and Comitted %s LocationIndexCompileds in %s",
+            total,
+            (datetime.now(pytz.utc) - startTime),
+        )
 
         return indexBuckets
 
@@ -142,13 +164,16 @@ def compileLocationIndex(self, payloadEncodedArgs: bytes) -> List[str]:
 
 def _buildIndex(session, indexBuckets) -> Dict[str, str]:
     indexQry = (
-        session.query(LocationIndex.indexBucket,
-                      DispBase.id, DispBase.key, DispBase.locationJson)
-            .join(DispBase, DispBase.id == LocationIndex.dispId)
-            .filter(makeOrmValuesSubqueryCondition(
-            session, LocationIndex.indexBucket, indexBuckets
-        ))
-            .order_by(DispBase.key, DispBase.id)
+        session.query(
+            LocationIndex.indexBucket, DispBase.id, DispBase.key, DispBase.locationJson
+        )
+        .join(DispBase, DispBase.id == LocationIndex.dispId)
+        .filter(
+            makeOrmValuesSubqueryCondition(
+                session, LocationIndex.indexBucket, indexBuckets
+            )
+        )
+        .order_by(DispBase.key, DispBase.id)
     )
 
     jsonByIndexBucket = {}
@@ -168,10 +193,10 @@ def _buildIndex(session, indexBuckets) -> Dict[str, str]:
         indexStructure = []
         for key, locationsJson in sortedKeyLocations:
             # Combine the key and locations into one json array
-            indexStructure.append('["%s",' % key + ','.join(locationsJson) + ']')
+            indexStructure.append('["%s",' % key + ",".join(locationsJson) + "]")
 
         # Create the blob data for this index.
         # It will be searched by a binary sort
-        jsonByIndexBucket[indexBucket] = '[' + ','.join(indexStructure) + ']'
+        jsonByIndexBucket[indexBucket] = "[" + ",".join(indexStructure) + "]"
 
     return jsonByIndexBucket

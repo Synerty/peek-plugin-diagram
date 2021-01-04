@@ -19,7 +19,7 @@ class __CrudHandler(OrmCrudHandler):
 
 
 class __ExtUpdateObservable(OrmCrudHandlerExtension):
-    """ Update Observable ORM Crud Extension
+    """Update Observable ORM Crud Extension
 
     This extension is called after events that will alter data,
     it then notifies the observer.
@@ -33,8 +33,7 @@ class __ExtUpdateObservable(OrmCrudHandlerExtension):
         selector = {}
         # Copy any filter values into the selector
         # selector["lookupName"] = payloadFilt["lookupName"]
-        tupleSelector = TupleSelector(StringIntTuple.tupleName(),
-                                      selector)
+        tupleSelector = TupleSelector(StringIntTuple.tupleName(), selector)
         self._tupleDataObserver.notifyOfTupleUpdate(tupleSelector)
         return True
 
@@ -44,8 +43,7 @@ class __ExtUpdateObservable(OrmCrudHandlerExtension):
 
 # This method creates an instance of the handler class.
 def makeStringIntTableHandler(tupleObservable, dbSessionCreator):
-    handler = __CrudHandler(dbSessionCreator, StringIntTuple,
-                            filtKey, retreiveAll=True)
+    handler = __CrudHandler(dbSessionCreator, StringIntTuple, filtKey, retreiveAll=True)
 
     logger.debug("Started")
     handler.addExtension(StringIntTuple, __ExtUpdateObservable(tupleObservable))

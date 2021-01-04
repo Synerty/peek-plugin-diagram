@@ -7,10 +7,12 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Index
 from vortex.Tuple import Tuple, addTupleType
 
-from peek_abstract_chunked_index.private.tuples.ACIEncodedChunkTupleABC import \
-    ACIEncodedChunkTupleABC
-from peek_abstract_chunked_index.private.tuples.ACIProcessorQueueTupleABC import \
-    ACIProcessorQueueTupleABC
+from peek_abstract_chunked_index.private.tuples.ACIEncodedChunkTupleABC import (
+    ACIEncodedChunkTupleABC,
+)
+from peek_abstract_chunked_index.private.tuples.ACIProcessorQueueTupleABC import (
+    ACIProcessorQueueTupleABC,
+)
 from peek_plugin_base.storage.TypeDecorators import PeekLargeBinary
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from .DeclarativeBase import DeclarativeBase
@@ -21,28 +23,32 @@ logger = logging.getLogger(__name__)
 
 
 @addTupleType
-class LocationIndexCompilerQueue(Tuple, DeclarativeBase,
-                                 ACIProcessorQueueTupleABC):
-    __tablename__ = 'LocationIndexCompilerQueue'
+class LocationIndexCompilerQueue(Tuple, DeclarativeBase, ACIProcessorQueueTupleABC):
+    __tablename__ = "LocationIndexCompilerQueue"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
 
     indexBucket = Column(String(100), primary_key=True)
-    modelSetId = Column(Integer,
-                        ForeignKey('ModelSet.id', ondelete='CASCADE'),
-                        primary_key=True)
+    modelSetId = Column(
+        Integer, ForeignKey("ModelSet.id", ondelete="CASCADE"), primary_key=True
+    )
 
     __table_args__ = (
-        Index("idx_LICompQueue_modelSetId_indexBucket", modelSetId, indexBucket,
-              unique=False),
+        Index(
+            "idx_LICompQueue_modelSetId_indexBucket",
+            modelSetId,
+            indexBucket,
+            unique=False,
+        ),
     )
 
     # noinspection PyUnresolvedReferences
     @classmethod
     def sqlCoreLoad(cls, row):
-        return LocationIndexCompilerQueue(id=row.id, modelSetId=row.modelSetId,
-                                          indexBucket=row.indexBucket)
+        return LocationIndexCompilerQueue(
+            id=row.id, modelSetId=row.modelSetId, indexBucket=row.indexBucket
+        )
 
     @property
     def ckiUniqueKey(self):
@@ -51,17 +57,17 @@ class LocationIndexCompilerQueue(Tuple, DeclarativeBase,
 
 @addTupleType
 class LocationIndex(Tuple, DeclarativeBase):
-    __tablename__ = 'LocationIndex'
+    __tablename__ = "LocationIndex"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     indexBucket = Column(String(100), primary_key=True)
-    dispId = Column(BigInteger,
-                    ForeignKey('DispBase.id', ondelete='CASCADE'),
-                    primary_key=True)
+    dispId = Column(
+        BigInteger, ForeignKey("DispBase.id", ondelete="CASCADE"), primary_key=True
+    )
 
     disp = relationship(DispBase)
 
-    modelSetId = Column(Integer, ForeignKey('ModelSet.id'), nullable=False)
+    modelSetId = Column(Integer, ForeignKey("ModelSet.id"), nullable=False)
     modelSet = relationship(ModelSet)
 
     __table_args__ = (
@@ -72,9 +78,8 @@ class LocationIndex(Tuple, DeclarativeBase):
 
 
 @addTupleType
-class LocationIndexCompiled(Tuple, DeclarativeBase,
-                            ACIEncodedChunkTupleABC):
-    __tablename__ = 'LocationIndexCompiled'
+class LocationIndexCompiled(Tuple, DeclarativeBase, ACIEncodedChunkTupleABC):
+    __tablename__ = "LocationIndexCompiled"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
@@ -83,9 +88,9 @@ class LocationIndexCompiled(Tuple, DeclarativeBase,
     blobData = Column(PeekLargeBinary, nullable=False)
     lastUpdate = Column(String(50), nullable=False)
 
-    modelSetId = Column(Integer,
-                        ForeignKey('ModelSet.id', ondelete='CASCADE'),
-                        nullable=False)
+    modelSetId = Column(
+        Integer, ForeignKey("ModelSet.id", ondelete="CASCADE"), nullable=False
+    )
     modelSet = relationship(ModelSet)
 
     __table_args__ = (
@@ -107,8 +112,10 @@ class LocationIndexCompiled(Tuple, DeclarativeBase,
 
     @classmethod
     def ckiCreateDeleteEncodedChunk(cls, chunkKey: str):
-        from peek_plugin_diagram._private.tuples.location_index.EncodedLocationIndexTuple import \
-            EncodedLocationIndexTuple
+        from peek_plugin_diagram._private.tuples.location_index.EncodedLocationIndexTuple import (
+            EncodedLocationIndexTuple,
+        )
+
         return EncodedLocationIndexTuple(indexBucket=chunkKey)
 
     @classmethod
@@ -117,9 +124,13 @@ class LocationIndexCompiled(Tuple, DeclarativeBase,
 
     @classmethod
     def sqlCoreLoad(cls, row):
-        from peek_plugin_diagram._private.tuples.location_index.EncodedLocationIndexTuple import \
-            EncodedLocationIndexTuple
-        return EncodedLocationIndexTuple(modelSetKey=row.key,
-                                         indexBucket=row.indexBucket,
-                                         encodedLocationIndexTuple=row.blobData,
-                                         lastUpdate=row.lastUpdate)
+        from peek_plugin_diagram._private.tuples.location_index.EncodedLocationIndexTuple import (
+            EncodedLocationIndexTuple,
+        )
+
+        return EncodedLocationIndexTuple(
+            modelSetKey=row.key,
+            indexBucket=row.indexBucket,
+            encodedLocationIndexTuple=row.blobData,
+            lastUpdate=row.lastUpdate,
+        )

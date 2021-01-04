@@ -1,9 +1,11 @@
 import logging
 
-from peek_abstract_chunked_index.private.server.controller.ACIProcessorStatusControllerABC import \
-    ACIProcessorStatusControllerABC
-from peek_plugin_diagram._private.tuples.DiagramImporterStatusTuple import \
-    DiagramImporterStatusTuple
+from peek_abstract_chunked_index.private.server.controller.ACIProcessorStatusControllerABC import (
+    ACIProcessorStatusControllerABC,
+)
+from peek_plugin_diagram._private.tuples.DiagramImporterStatusTuple import (
+    DiagramImporterStatusTuple,
+)
 
 logger = logging.getLogger(__name__)
 

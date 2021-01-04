@@ -3,8 +3,13 @@ from typing import List
 from copy import copy
 
 from peek_plugin_diagram._private.PluginNames import diagramFilt
-from peek_plugin_diagram._private.storage.Display import DispLevel, DispTextStyle, \
-    DispLayer, DispColor, DispLineStyle
+from peek_plugin_diagram._private.storage.Display import (
+    DispLevel,
+    DispTextStyle,
+    DispLayer,
+    DispColor,
+    DispLineStyle,
+)
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
 from vortex.handler.TupleDataObserverClient import TupleDataObserverClient
@@ -14,11 +19,12 @@ lookupCachePayloadFilt.update(diagramFilt)
 
 
 class LookupCacheController:
-    """ Lookup Cache Controller
+    """Lookup Cache Controller
 
     This class caches the lookups in each client.
 
     """
+
     #: This stores the cache of grid data for the clients
     _levelLookups: List[DispLevel] = None
     _layerLookups: List[DispLayer] = None
@@ -34,25 +40,35 @@ class LookupCacheController:
         self._tupleObservable = tupleObservable
 
     def start(self):
-        (self._tupleObserver
-         .subscribeToTupleSelector(TupleSelector(DispLevel.tupleType(), {}))
-         .subscribe(self._processNewTuples))
+        (
+            self._tupleObserver.subscribeToTupleSelector(
+                TupleSelector(DispLevel.tupleType(), {})
+            ).subscribe(self._processNewTuples)
+        )
 
-        (self._tupleObserver
-         .subscribeToTupleSelector(TupleSelector(DispLayer.tupleType(), {}))
-         .subscribe(self._processNewTuples))
+        (
+            self._tupleObserver.subscribeToTupleSelector(
+                TupleSelector(DispLayer.tupleType(), {})
+            ).subscribe(self._processNewTuples)
+        )
 
-        (self._tupleObserver
-         .subscribeToTupleSelector(TupleSelector(DispColor.tupleType(), {}))
-         .subscribe(self._processNewTuples))
+        (
+            self._tupleObserver.subscribeToTupleSelector(
+                TupleSelector(DispColor.tupleType(), {})
+            ).subscribe(self._processNewTuples)
+        )
 
-        (self._tupleObserver
-         .subscribeToTupleSelector(TupleSelector(DispLineStyle.tupleType(), {}))
-         .subscribe(self._processNewTuples))
+        (
+            self._tupleObserver.subscribeToTupleSelector(
+                TupleSelector(DispLineStyle.tupleType(), {})
+            ).subscribe(self._processNewTuples)
+        )
 
-        (self._tupleObserver
-         .subscribeToTupleSelector(TupleSelector(DispTextStyle.tupleType(), {}))
-         .subscribe(self._processNewTuples))
+        (
+            self._tupleObserver.subscribeToTupleSelector(
+                TupleSelector(DispTextStyle.tupleType(), {})
+            ).subscribe(self._processNewTuples)
+        )
 
     def shutdown(self):
         self._tupleObservable = None
@@ -86,12 +102,9 @@ class LookupCacheController:
             self._textStyleLookups = lookupTuples
 
         else:
-            raise NotImplementedError(
-                "Cache not implemented for %s" % firstTupleType)
+            raise NotImplementedError("Cache not implemented for %s" % firstTupleType)
 
-        self._tupleObservable.notifyOfTupleUpdate(
-            TupleSelector(firstTupleType, {})
-        )
+        self._tupleObservable.notifyOfTupleUpdate(TupleSelector(firstTupleType, {}))
 
     def lookups(self, lookupTupleType) -> List:
         if DispLevel.tupleType() == lookupTupleType:

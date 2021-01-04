@@ -4,23 +4,24 @@ from vortex.Tuple import Tuple, addTupleType, TupleField
 
 @addTupleType
 class ImportLiveDbDispLinkTuple(Tuple):
-    """ Imported LiveDB Display Link
+    """Imported LiveDB Display Link
 
     A LiveDB value is a value that changes based on telemetry or other updates.
     This in turn drives an update to an attribute to a primitive display object.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportLiveDbDispLinkTuple'
 
-    DISP_ATTR_FILL_COLOR = 'fillColorId'
-    DISP_ATTR_LINE_COLOR = 'lineColorId'
-    DISP_ATTR_EDGE_COLOR = 'edgeColorId'
-    DISP_ATTR_COLOR = 'colorId'
-    DISP_ATTR_LINE_STYLE = 'lineStyleId'
-    DISP_ATTR_LINE_WIDTH = 'lineWidth'
-    DISP_ATTR_TEXT = 'text'
-    DISP_ATTR_TEXT_STYLE = 'textStyleId'
-    DISP_ATTR_FILL_PERCENT = 'fillPercent'
+    __tupleType__ = diagramTuplePrefix + "ImportLiveDbDispLinkTuple"
+
+    DISP_ATTR_FILL_COLOR = "fillColorId"
+    DISP_ATTR_LINE_COLOR = "lineColorId"
+    DISP_ATTR_EDGE_COLOR = "edgeColorId"
+    DISP_ATTR_COLOR = "colorId"
+    DISP_ATTR_LINE_STYLE = "lineStyleId"
+    DISP_ATTR_LINE_WIDTH = "lineWidth"
+    DISP_ATTR_TEXT = "text"
+    DISP_ATTR_TEXT_STYLE = "textStyleId"
+    DISP_ATTR_FILL_PERCENT = "fillPercent"
 
     #:  The attribute name of the display object that this live db key updates
     dispAttrName: str = TupleField()

@@ -10,7 +10,7 @@ from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 
 @addTupleType
 class BranchIndex(Tuple, DeclarativeBase):
-    """ Branch Index
+    """Branch Index
 
     The BranchIndex is implemented to allow editing of individual branches via the UI,
     AND staging of imported branches so they are packed into the grids.
@@ -22,16 +22,17 @@ class BranchIndex(Tuple, DeclarativeBase):
     edits are performed by users, this can be unpacked and re-packed suitable fast.
 
     """
-    __tablename__ = 'BranchIndex'
-    __tupleType__ = diagramTuplePrefix + 'BranchIndexTable'
+
+    __tablename__ = "BranchIndex"
+    __tupleType__ = diagramTuplePrefix + "BranchIndexTable"
 
     #:  The unique ID of this branchIndex (database generated)
     id = Column(BigInteger, primary_key=True, autoincrement=True)
 
     #:  The model set for this branchIndex
-    coordSetId = Column(Integer,
-                        ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
-                        nullable=False)
+    coordSetId = Column(
+        Integer, ForeignKey("ModelCoordSet.id", ondelete="CASCADE"), nullable=False
+    )
     coordSet = relationship(ModelCoordSet)
 
     importHash = Column(String)
@@ -54,6 +55,7 @@ class BranchIndex(Tuple, DeclarativeBase):
         Index("idx_BranchIndex_key", coordSetId, key, unique=True),
         Index("idx_BranchIndex_chunkKey", chunkKey, unique=False),
         Index("idx_BranchIndex_importHash", coordSetId, importHash, unique=True),
-        Index("idx_BranchIndex_importGroupHash", coordSetId, importGroupHash,
-              unique=False),
+        Index(
+            "idx_BranchIndex_importGroupHash", coordSetId, importGroupHash, unique=False
+        ),
     )

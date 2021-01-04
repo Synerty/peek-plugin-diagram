@@ -7,10 +7,12 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Index
 from vortex.Tuple import Tuple, addTupleType
 
-from peek_abstract_chunked_index.private.tuples.ACIEncodedChunkTupleABC import \
-    ACIEncodedChunkTupleABC
-from peek_abstract_chunked_index.private.tuples.ACIProcessorQueueTupleABC import \
-    ACIProcessorQueueTupleABC
+from peek_abstract_chunked_index.private.tuples.ACIEncodedChunkTupleABC import (
+    ACIEncodedChunkTupleABC,
+)
+from peek_abstract_chunked_index.private.tuples.ACIProcessorQueueTupleABC import (
+    ACIProcessorQueueTupleABC,
+)
 from peek_plugin_base.storage.TypeDecorators import PeekLargeBinary
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from .DeclarativeBase import DeclarativeBase
@@ -21,17 +23,16 @@ logger = logging.getLogger(__name__)
 
 
 @addTupleType
-class GridKeyCompilerQueue(Tuple, DeclarativeBase,
-                           ACIProcessorQueueTupleABC):
-    __tablename__ = 'GridKeyCompilerQueue'
+class GridKeyCompilerQueue(Tuple, DeclarativeBase, ACIProcessorQueueTupleABC):
+    __tablename__ = "GridKeyCompilerQueue"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
 
     gridKey = Column(String(30), primary_key=True)
-    coordSetId = Column(Integer,
-                        ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
-                        primary_key=True)
+    coordSetId = Column(
+        Integer, ForeignKey("ModelCoordSet.id", ondelete="CASCADE"), primary_key=True
+    )
 
     __table_args__ = (
         Index("idx_GKCompQueue_coordSetId_gridKey", coordSetId, gridKey, unique=False),
@@ -39,8 +40,9 @@ class GridKeyCompilerQueue(Tuple, DeclarativeBase,
 
     @classmethod
     def sqlCoreLoad(cls, row):
-        return GridKeyCompilerQueue(id=row.id, coordSetId=row.coordSetId,
-                                    gridKey=row.gridKey)
+        return GridKeyCompilerQueue(
+            id=row.id, coordSetId=row.coordSetId, gridKey=row.gridKey
+        )
 
     @property
     def ckiUniqueKey(self):
@@ -49,18 +51,19 @@ class GridKeyCompilerQueue(Tuple, DeclarativeBase,
 
 @addTupleType
 class GridKeyIndex(Tuple, DeclarativeBase):
-    __tablename__ = 'GridKeyIndex'
+    __tablename__ = "GridKeyIndex"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     gridKey = Column(String(30), primary_key=True)
-    dispId = Column(BigInteger,
-                    ForeignKey('DispBase.id', ondelete='CASCADE'),
-                    primary_key=True)
+    dispId = Column(
+        BigInteger, ForeignKey("DispBase.id", ondelete="CASCADE"), primary_key=True
+    )
 
     disp = relationship(DispBase)
 
-    coordSetId = Column(Integer, ForeignKey('ModelCoordSet.id', ondelete="CASCADE"),
-                        nullable=False)
+    coordSetId = Column(
+        Integer, ForeignKey("ModelCoordSet.id", ondelete="CASCADE"), nullable=False
+    )
     coordSet = relationship(ModelCoordSet)
 
     __table_args__ = (
@@ -71,9 +74,8 @@ class GridKeyIndex(Tuple, DeclarativeBase):
 
 
 @addTupleType
-class GridKeyIndexCompiled(Tuple, DeclarativeBase,
-                           ACIEncodedChunkTupleABC):
-    __tablename__ = 'GridKeyIndexCompiled'
+class GridKeyIndexCompiled(Tuple, DeclarativeBase, ACIEncodedChunkTupleABC):
+    __tablename__ = "GridKeyIndexCompiled"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
@@ -82,9 +84,9 @@ class GridKeyIndexCompiled(Tuple, DeclarativeBase,
     encodedGridTuple = Column(PeekLargeBinary, nullable=False)
     lastUpdate = Column(String(50), nullable=False)
 
-    coordSetId = Column(Integer,
-                        ForeignKey('ModelCoordSet.id', ondelete='CASCADE'),
-                        nullable=False)
+    coordSetId = Column(
+        Integer, ForeignKey("ModelCoordSet.id", ondelete="CASCADE"), nullable=False
+    )
     coordSet = relationship(ModelCoordSet)
 
     __table_args__ = (
@@ -106,8 +108,10 @@ class GridKeyIndexCompiled(Tuple, DeclarativeBase,
 
     @classmethod
     def ckiCreateDeleteEncodedChunk(cls, chunkKey: str):
-        from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import \
-            EncodedGridTuple
+        from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import (
+            EncodedGridTuple,
+        )
+
         return EncodedGridTuple(gridKey=chunkKey)
 
     @classmethod
@@ -116,8 +120,12 @@ class GridKeyIndexCompiled(Tuple, DeclarativeBase,
 
     @classmethod
     def sqlCoreLoad(cls, row):
-        from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import \
-            EncodedGridTuple
-        return EncodedGridTuple(gridKey=row.gridKey,
-                                encodedGridTuple=row.encodedGridTuple,
-                                lastUpdate=row.lastUpdate)
+        from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import (
+            EncodedGridTuple,
+        )
+
+        return EncodedGridTuple(
+            gridKey=row.gridKey,
+            encodedGridTuple=row.encodedGridTuple,
+            lastUpdate=row.lastUpdate,
+        )

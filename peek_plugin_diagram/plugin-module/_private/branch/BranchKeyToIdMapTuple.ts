@@ -1,5 +1,5 @@
-import {addTupleType, Tuple} from "@synerty/vortexjs";
-import {diagramTuplePrefix} from "../PluginNames";
+import { addTupleType, Tuple } from "@synerty/vortexjs"
+import { diagramTuplePrefix } from "../PluginNames"
 
 /** Branch Key to ID Map Tuple
  *
@@ -9,11 +9,11 @@ import {diagramTuplePrefix} from "../PluginNames";
  */
 @addTupleType
 export class BranchKeyToIdMapTuple extends Tuple {
-    public static readonly tupleName = diagramTuplePrefix + "BranchKeyToIdMapTuple";
-
-    coordSetId: number;
-    keyIdMap: { [key: string]: number };
-
+    public static readonly tupleName = diagramTuplePrefix + "BranchKeyToIdMapTuple"
+    
+    coordSetId: number
+    keyIdMap: { [key: string]: number }
+    
     constructor() {
         super(BranchKeyToIdMapTuple.tupleName)
     }

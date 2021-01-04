@@ -4,17 +4,26 @@ from typing import List, Optional, Any, Dict
 
 from twisted.internet.defer import inlineCallbacks, returnValue, DeferredSemaphore
 
-from peek_plugin_diagram._private.storage.Display import DispColor, DispLayer, DispLevel, \
-    DispLineStyle, DispTextStyle
-from peek_plugin_diagram._private.storage.ModelSet import getOrCreateModelSet, \
-    getOrCreateCoordSet
+from peek_plugin_diagram._private.storage.Display import (
+    DispColor,
+    DispLayer,
+    DispLevel,
+    DispLineStyle,
+    DispTextStyle,
+)
+from peek_plugin_diagram._private.storage.ModelSet import (
+    getOrCreateModelSet,
+    getOrCreateCoordSet,
+)
 from peek_plugin_diagram.tuples.lookups.ImportDispColorTuple import ImportDispColorTuple
 from peek_plugin_diagram.tuples.lookups.ImportDispLayerTuple import ImportDispLayerTuple
 from peek_plugin_diagram.tuples.lookups.ImportDispLevelTuple import ImportDispLevelTuple
-from peek_plugin_diagram.tuples.lookups.ImportDispLineStyleTuple import \
-    ImportDispLineStyleTuple
-from peek_plugin_diagram.tuples.lookups.ImportDispTextStyleTuple import \
-    ImportDispTextStyleTuple
+from peek_plugin_diagram.tuples.lookups.ImportDispLineStyleTuple import (
+    ImportDispLineStyleTuple,
+)
+from peek_plugin_diagram.tuples.lookups.ImportDispTextStyleTuple import (
+    ImportDispTextStyleTuple,
+)
 from vortex.DeferUtil import deferToThreadWrapWithLogger
 from vortex.Tuple import TUPLE_TYPES_BY_NAME
 
@@ -39,22 +48,40 @@ class LookupImportController:
         pass
 
     @inlineCallbacks
-    def importLookups(self, modelSetKey: str, coordSetKey: Optional[str],
-                      lookupTupleType: str, lookupTuples: List,
-                      deleteOthers: bool, updateExisting: bool):
+    def importLookups(
+        self,
+        modelSetKey: str,
+        coordSetKey: Optional[str],
+        lookupTupleType: str,
+        lookupTuples: List,
+        deleteOthers: bool,
+        updateExisting: bool,
+    ):
 
-        yield self._semaphore.run(self._importInThread, modelSetKey, coordSetKey,
-                                   lookupTupleType, lookupTuples,
-                                   deleteOthers, updateExisting)
+        yield self._semaphore.run(
+            self._importInThread,
+            modelSetKey,
+            coordSetKey,
+            lookupTupleType,
+            lookupTuples,
+            deleteOthers,
+            updateExisting,
+        )
 
         logger.debug("TODO, Notify the observable")
 
         return True
 
     @deferToThreadWrapWithLogger(logger)
-    def _importInThread(self, modelSetKey: str, coordSetKey: str, tupleType: str,
-                        tuples,
-                        deleteOthers: bool, updateExisting: bool):
+    def _importInThread(
+        self,
+        modelSetKey: str,
+        coordSetKey: str,
+        tupleType: str,
+        tuples,
+        deleteOthers: bool,
+        updateExisting: bool,
+    ):
         LookupType = ORM_TUPLE_MAP[tupleType]
 
         if LookupType == DispLineStyle:
@@ -73,17 +100,20 @@ class LookupImportController:
             coordSet = None
 
             if coordSetKey:
-                coordSet = getOrCreateCoordSet(
-                    ormSession, modelSetKey, coordSetKey)
+                coordSet = getOrCreateCoordSet(ormSession, modelSetKey, coordSetKey)
 
-                all = (ormSession.query(LookupType)
-                       .filter(LookupType.coordSetId == coordSet.id)
-                       .all())
+                all = (
+                    ormSession.query(LookupType)
+                    .filter(LookupType.coordSetId == coordSet.id)
+                    .all()
+                )
 
             else:
-                all = (ormSession.query(LookupType)
-                       .filter(LookupType.modelSetId == modelSet.id)
-                       .all())
+                all = (
+                    ormSession.query(LookupType)
+                    .filter(LookupType.modelSetId == modelSet.id)
+                    .all()
+                )
 
             def updateFks(lookup):
                 if hasattr(lookup, "coordSetId"):
@@ -105,8 +135,7 @@ class LookupImportController:
 
                     if updateExisting:
                         for fieldName in lookup.tupleFieldNames():
-                            setattr(existing, fieldName,
-                                    getattr(lookup, fieldName))
+                            setattr(existing, fieldName, getattr(lookup, fieldName))
 
                         updateFks(existing)
                         updateCount += 1
@@ -118,8 +147,7 @@ class LookupImportController:
                     for fieldName in lookup.tupleFieldNames():
                         if fieldName in ("id", "coordSetId", "modelSetId"):
                             continue
-                        setattr(newTuple, fieldName,
-                                getattr(lookup, fieldName))
+                        setattr(newTuple, fieldName, getattr(lookup, fieldName))
 
                     updateFks(newTuple)
                     ormSession.add(newTuple)
@@ -138,8 +166,13 @@ class LookupImportController:
                 logger.exception(e)
                 raise
 
-            logger.debug("Updates for %s received, Added %s, Updated %s, Deleted %s",
-                        tupleType, addCount, updateCount, deleteCount)
+            logger.debug(
+                "Updates for %s received, Added %s, Updated %s, Deleted %s",
+                tupleType,
+                addCount,
+                updateCount,
+                deleteCount,
+            )
 
         except Exception as e:
             logger.exception(e)
@@ -149,8 +182,7 @@ class LookupImportController:
             ormSession.close()
 
     @deferToThreadWrapWithLogger(logger)
-    def getLookups(self, modelSetKey: str, coordSetKey: Optional[str],
-                   tupleType: str):
+    def getLookups(self, modelSetKey: str, coordSetKey: Optional[str], tupleType: str):
 
         LookupType = ORM_TUPLE_MAP[tupleType]
 
@@ -160,17 +192,20 @@ class LookupImportController:
             modelSet = getOrCreateModelSet(ormSession, modelSetKey)
 
             if coordSetKey:
-                coordSet = getOrCreateCoordSet(
-                    ormSession, modelSetKey, coordSetKey)
+                coordSet = getOrCreateCoordSet(ormSession, modelSetKey, coordSetKey)
 
-                all = (ormSession.query(LookupType)
-                       .filter(LookupType.coordSetId == coordSet.id)
-                       .all())
+                all = (
+                    ormSession.query(LookupType)
+                    .filter(LookupType.coordSetId == coordSet.id)
+                    .all()
+                )
 
             else:
-                all = (ormSession.query(LookupType)
-                       .filter(LookupType.modelSetId == modelSet.id)
-                       .all())
+                all = (
+                    ormSession.query(LookupType)
+                    .filter(LookupType.modelSetId == modelSet.id)
+                    .all()
+                )
 
             importTuples = []
             ImportTuple = TUPLE_TYPES_BY_NAME[tupleType]
@@ -179,15 +214,14 @@ class LookupImportController:
                 newTuple = ImportTuple()
 
                 for fieldName in newTuple.tupleFieldNames():
-                    if fieldName == 'modelSetKey':
+                    if fieldName == "modelSetKey":
                         newTuple.modelSetKey = modelSetKey
 
-                    elif fieldName == 'coordSetKey':
+                    elif fieldName == "coordSetKey":
                         newTuple.coordSetKey = coordSetKey
 
                     else:
-                        setattr(newTuple, fieldName,
-                                getattr(ormTuple, fieldName))
+                        setattr(newTuple, fieldName, getattr(ormTuple, fieldName))
 
                 importTuples.append(newTuple)
 

@@ -5,12 +5,13 @@ from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 
 @addTupleType
 class ImportDispColorTuple(Tuple):
-    """ Imported Display Color
+    """Imported Display Color
 
     This tuple is used by other plugins to load colours into the diagram.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispColorTuple'
+
+    __tupleType__ = diagramTuplePrefix + "ImportDispColorTuple"
 
     #:  The name of the color
     name: str = TupleField()

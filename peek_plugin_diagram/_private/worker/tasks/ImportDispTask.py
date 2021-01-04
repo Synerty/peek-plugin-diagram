@@ -7,29 +7,48 @@ import json
 from peek_plugin_base.storage.DbConnection import pgCopyInsert, convertToCoreSqlaInsert
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_base.worker.CeleryApp import celeryApp
-from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import \
-    DispCompilerQueueController
-from peek_plugin_diagram._private.storage.Display import \
-    DispBase, DispEllipse, DispPolygon, DispText, DispPolyline, DispGroup, \
-    DispGroupPointer, DispNull, DispEdgeTemplate
-from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex, \
-    GridKeyCompilerQueue
-from peek_plugin_diagram._private.storage.ModelSet import \
-    ModelCoordSet, getOrCreateCoordSet
+from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import (
+    DispCompilerQueueController,
+)
+from peek_plugin_diagram._private.storage.Display import (
+    DispBase,
+    DispEllipse,
+    DispPolygon,
+    DispText,
+    DispPolyline,
+    DispGroup,
+    DispGroupPointer,
+    DispNull,
+    DispEdgeTemplate,
+)
+from peek_plugin_diagram._private.storage.GridKeyIndex import (
+    GridKeyIndex,
+    GridKeyCompilerQueue,
+)
+from peek_plugin_diagram._private.storage.ModelSet import (
+    ModelCoordSet,
+    getOrCreateCoordSet,
+)
 from peek_plugin_diagram._private.worker.tasks.ImportDispLink import importDispLinks
-from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import \
-    LookupHashConverter
-from peek_plugin_diagram.tuples.shapes.ImportDispEdgeTemplateTuple import \
-    ImportDispEdgeTemplateTuple
-from peek_plugin_diagram.tuples.shapes.ImportDispEllipseTuple import \
-    ImportDispEllipseTuple
-from peek_plugin_diagram.tuples.shapes.ImportDispGroupPtrTuple import \
-    ImportDispGroupPtrTuple
+from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import (
+    LookupHashConverter,
+)
+from peek_plugin_diagram.tuples.shapes.ImportDispEdgeTemplateTuple import (
+    ImportDispEdgeTemplateTuple,
+)
+from peek_plugin_diagram.tuples.shapes.ImportDispEllipseTuple import (
+    ImportDispEllipseTuple,
+)
+from peek_plugin_diagram.tuples.shapes.ImportDispGroupPtrTuple import (
+    ImportDispGroupPtrTuple,
+)
 from peek_plugin_diagram.tuples.shapes.ImportDispGroupTuple import ImportDispGroupTuple
-from peek_plugin_diagram.tuples.shapes.ImportDispPolygonTuple import \
-    ImportDispPolygonTuple
-from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
-    ImportDispPolylineTuple
+from peek_plugin_diagram.tuples.shapes.ImportDispPolygonTuple import (
+    ImportDispPolygonTuple,
+)
+from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import (
+    ImportDispPolylineTuple,
+)
 from peek_plugin_diagram.tuples.shapes.ImportDispTextTuple import ImportDispTextTuple
 from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
 from sqlalchemy import join, select
@@ -45,20 +64,20 @@ IMPORT_TUPLE_MAP = {
     ImportDispPolygonTuple.tupleType(): DispPolygon,
     ImportDispPolylineTuple.tupleType(): DispPolyline,
     ImportDispEdgeTemplateTuple.tupleType(): DispEdgeTemplate,
-    ImportDispTextTuple.tupleType(): DispText
+    ImportDispTextTuple.tupleType(): DispText,
 }
 
 IMPORT_FIELD_NAME_MAP = {
-    'levelHash': 'levelId',
-    'layerHash': 'layerId',
-    'lineStyleHash': 'lineStyleId',
-    'colorHash': 'colorId',
-    'fillColorHash': 'fillColorId',
-    'lineColorHash': 'lineColorId',
-    'edgeColorHash': 'edgeColorId',
-    'textStyleHash': 'textStyleId',
-    'targetDispGroupHash': 'targetDispGroupId',
-    'targetDispGroupName': 'targetDispGroupName'
+    "levelHash": "levelId",
+    "layerHash": "layerId",
+    "lineStyleHash": "lineStyleId",
+    "colorHash": "colorId",
+    "fillColorHash": "fillColorId",
+    "lineColorHash": "lineColorId",
+    "edgeColorHash": "edgeColorId",
+    "textStyleHash": "textStyleId",
+    "targetDispGroupHash": "targetDispGroupId",
+    "targetDispGroupName": "targetDispGroupName",
 }
 
 IMPORT_SORT_ORDER = {
@@ -68,16 +87,20 @@ IMPORT_SORT_ORDER = {
     ImportDispPolygonTuple.tupleType(): 2,
     ImportDispPolylineTuple.tupleType(): 2,
     ImportDispTextTuple.tupleType(): 2,
-    ImportDispEdgeTemplateTuple.tupleType(): 2
+    ImportDispEdgeTemplateTuple.tupleType(): 2,
 }
 
 
 @DeferrableTask
 @celeryApp.task(bind=True)
-def importDispsTask(self, modelSetKey: str, coordSetKey: str,
-                    importGroupHash: str,
-                    dispsEncodedPayload: bytes) -> List[ImportLiveDbItemTuple]:
-    """ Import Disp Task
+def importDispsTask(
+    self,
+    modelSetKey: str,
+    coordSetKey: str,
+    importGroupHash: str,
+    dispsEncodedPayload: bytes,
+) -> List[ImportLiveDbItemTuple]:
+    """Import Disp Task
 
     :returns None
 
@@ -132,8 +155,11 @@ def _loadCoordSet(modelSetKey, coordSetKey):
 
 def _validateImportDisps(importDisps: List):
     for importDisp in importDisps:
-        if hasattr(importDisp, 'overlay') and importDisp.overlay not in (
-            None, True, False):
+        if hasattr(importDisp, "overlay") and importDisp.overlay not in (
+            None,
+            True,
+            False,
+        ):
             raise Exception("Disps overlay value must be True or False")
 
         isGroup = isinstance(importDisp, ImportDispGroupTuple)
@@ -152,22 +178,23 @@ def _validateConvertedDisps(disps: List):
     def checkInt(importDisp, attrName):
         if hasattr(importDisp, attrName):
             if type(getattr(importDisp, attrName)) not in (int, float, NoneT):
-                raise Exception('Disp %s must be int : "%s"'
-                                % (attrName, importDisp.colorHash))
+                raise Exception(
+                    'Disp %s must be int : "%s"' % (attrName, importDisp.colorHash)
+                )
 
     for disp in disps:
-        checkInt(disp, 'colorHash')
-        checkInt(disp, 'lineColorHash')
-        checkInt(disp, 'edgeColorHash')
-        checkInt(disp, 'fillColorHash')
-        checkInt(disp, 'lineStyleHash')
-        checkInt(disp, 'textStyleHash')
-        checkInt(disp, 'layerHash')
-        checkInt(disp, 'levelHash')
+        checkInt(disp, "colorHash")
+        checkInt(disp, "lineColorHash")
+        checkInt(disp, "edgeColorHash")
+        checkInt(disp, "fillColorHash")
+        checkInt(disp, "lineStyleHash")
+        checkInt(disp, "textStyleHash")
+        checkInt(disp, "layerHash")
+        checkInt(disp, "levelHash")
 
 
 def _importDisps(coordSet: ModelCoordSet, importDisps: List):
-    """ Link Disps
+    """Link Disps
 
     1) Use the AgentImportDispGridLookup to convert lookups from importHash
         to id
@@ -186,9 +213,9 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
     ormSession = CeleryDbConn.getDbSession()
     try:
 
-        lookupConverter = LookupHashConverter(ormSession,
-                                              modelSetId=coordSet.modelSetId,
-                                              coordSetId=coordSet.id)
+        lookupConverter = LookupHashConverter(
+            ormSession, modelSetId=coordSet.modelSetId, coordSetId=coordSet.id
+        )
 
         dispGroupPtrWithTargetHash: List[Tuple[DispGroupPointer, str]] = []
         dispGroupChildWithTargetHash: List[Tuple[DispBase, str]] = []
@@ -205,10 +232,9 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
         # This will store DispGroup and DispGroupPointer hashes
         groupIdByImportHash: Dict[str, int] = {
             o.importHash: o.id
-            for o in
-            ormSession.query(DispBase.importHash, DispBase.id)
-                .filter(DispBase.importHash.in_(dispGroupTargetImportHashes))
-                .filter(DispBase.coordSetId == coordSet.id)
+            for o in ormSession.query(DispBase.importHash, DispBase.id)
+            .filter(DispBase.importHash.in_(dispGroupTargetImportHashes))
+            .filter(DispBase.coordSetId == coordSet.id)
         }
 
         del dispGroupTargetImportHashes
@@ -219,8 +245,9 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
         dispGroupIds = set()
 
         # Sort the DispGroups first, so they are created before any FK references them
-        sortedImportDisps = sorted(importDisps,
-                                   key=lambda o: IMPORT_SORT_ORDER[o.tupleType()])
+        sortedImportDisps = sorted(
+            importDisps, key=lambda o: IMPORT_SORT_ORDER[o.tupleType()]
+        )
 
         for importDisp in sortedImportDisps:
             # Convert the geometry into the internal array format
@@ -246,8 +273,9 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
                 groupIdByImportHash[ormDisp.importHash] = ormDisp.id
 
                 if ormDisp.targetDispGroupName:
-                    ormDisp.targetDispGroupName = '%s|%s' % (
-                        coordSet.id, ormDisp.targetDispGroupName
+                    ormDisp.targetDispGroupName = "%s|%s" % (
+                        coordSet.id,
+                        ormDisp.targetDispGroupName,
                     )
 
                 # Not all DispGroupPointers have targets,
@@ -290,7 +318,8 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
             groupOrmObjId = groupIdByImportHash.get(groupHash)
             if groupOrmObjId is None:
                 raise Exception(
-                    "DispGroup with importHash %s doesn't exist" % groupHash)
+                    "DispGroup with importHash %s doesn't exist" % groupHash
+                )
 
             ormDisp.groupId = groupOrmObjId
 
@@ -300,10 +329,10 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
             groupOrmObjId = groupIdByImportHash.get(groupHash)
             if groupOrmObjId is None:
                 raise Exception(
-                    "DispGroup with importHash %s doesn't exist" % groupHash)
+                    "DispGroup with importHash %s doesn't exist" % groupHash
+                )
 
             ormDisp.targetDispGroupId = groupOrmObjId
-
 
     finally:
         ormSession.close()
@@ -324,16 +353,14 @@ def _convertGeom(importDisp):
 
 
 def _convertImportTuple(importDisp):
-    """ Convert Import Tuple
+    """Convert Import Tuple
 
     This method mostly copies over data from the import tuple into the storage tuple,
     converting some fields and field names as required.
 
     """
     if not importDisp.tupleType() in IMPORT_TUPLE_MAP:
-        raise Exception(
-            "Import Tuple %s is not a valid type" % importDisp.tupleType()
-        )
+        raise Exception("Import Tuple %s is not a valid type" % importDisp.tupleType())
 
     disp = IMPORT_TUPLE_MAP[importDisp.tupleType()]()
 
@@ -361,13 +388,13 @@ def _convertImportTuple(importDisp):
         setattr(disp, dispFieldName, getattr(importDisp, importFieldName))
 
     if isinstance(disp, DispGroup):
-        disp.dispsJson = '[]'
+        disp.dispsJson = "[]"
 
     return disp
 
 
 def _bulkLoadDispsTask(importGroupHash: str, disps: List):
-    """ Import Disps Links
+    """Import Disps Links
 
     1) Drop all disps with matching importGroupHash
 
@@ -388,19 +415,25 @@ def _bulkLoadDispsTask(importGroupHash: str, disps: List):
 
     try:
 
-        stmt = select([gridKeyIndexTable.c.coordSetId,
-                       gridKeyIndexTable.c.gridKey]) \
-            .where(dispTable.c.importGroupHash == importGroupHash) \
-            .select_from(join(gridKeyIndexTable, dispTable,
-                              gridKeyIndexTable.c.dispId == dispTable.c.id)) \
+        stmt = (
+            select([gridKeyIndexTable.c.coordSetId, gridKeyIndexTable.c.gridKey])
+            .where(dispTable.c.importGroupHash == importGroupHash)
+            .select_from(
+                join(
+                    gridKeyIndexTable,
+                    dispTable,
+                    gridKeyIndexTable.c.dispId == dispTable.c.id,
+                )
+            )
             .distinct()
+        )
 
-        ins = gridQueueTable.insert().from_select(['coordSetId', 'gridKey'], stmt)
+        ins = gridQueueTable.insert().from_select(["coordSetId", "gridKey"], stmt)
         conn.execute(ins)
 
-        conn.execute(dispTable
-                     .delete()
-                     .where(dispTable.c.importGroupHash == importGroupHash))
+        conn.execute(
+            dispTable.delete().where(dispTable.c.importGroupHash == importGroupHash)
+        )
 
         transaction.commit()
 
@@ -415,7 +448,7 @@ def _bulkLoadDispsTask(importGroupHash: str, disps: List):
 
 
 def _bulkInsertDisps(engine, disps: List):
-    """ Bulk Insert Disps
+    """Bulk Insert Disps
 
     1) Drop all disps with matching importGroupHash
 
@@ -449,7 +482,7 @@ def _bulkInsertDisps(engine, disps: List):
             for disp in disps:
                 if isinstance(disp, DispType):
                     insertDict = convertToCoreSqlaInsert(disp, DispType)
-                    insertDict['type'] = DispType.RENDERABLE_TYPE
+                    insertDict["type"] = DispType.RENDERABLE_TYPE
                     inserts.append(insertDict)
 
                 else:
@@ -467,8 +500,11 @@ def _bulkInsertDisps(engine, disps: List):
         if disps:
             raise Exception("_bulkInsertDisps: We didn't insert all the disps")
 
-        logger.info("Inserted %s Disps in %s",
-                    startDispsLen, (datetime.now(pytz.utc) - startTime))
+        logger.info(
+            "Inserted %s Disps in %s",
+            startDispsLen,
+            (datetime.now(pytz.utc) - startTime),
+        )
 
         rawConn.commit()
 
@@ -481,7 +517,7 @@ def _bulkInsertDisps(engine, disps: List):
 
 
 def _updateCoordSetPosition(coordSet: ModelCoordSet, disps: List):
-    """ Update CoordSet Position
+    """Update CoordSet Position
 
     1) Drop all disps with matching importGroupHash
 
@@ -503,7 +539,7 @@ def _updateCoordSetPosition(coordSet: ModelCoordSet, disps: List):
 
         # Initialise the ModelCoordSet initial position if it's not set
         for disp in disps:
-            if not hasattr(disp, 'geomJson'):
+            if not hasattr(disp, "geomJson"):
                 continue
             coords = json.loads(disp.geomJson)
             coordSet.initialPanX = coords[0]
@@ -514,8 +550,9 @@ def _updateCoordSetPosition(coordSet: ModelCoordSet, disps: List):
 
         ormSession.commit()
 
-        logger.info("Updated coordset position in %s",
-                    (datetime.now(pytz.utc) - startTime))
+        logger.info(
+            "Updated coordset position in %s", (datetime.now(pytz.utc) - startTime)
+        )
 
     finally:
         ormSession.close()

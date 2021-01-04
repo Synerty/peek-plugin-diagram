@@ -12,7 +12,10 @@ import { PrivateDiagramGridLoaderServiceA } from "@peek/peek_plugin_diagram/_pri
 import { GridTuple } from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple"
 import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService"
 import { LinkedGrid } from "../cache/LinkedGrid.web"
-import { DispEdgeTemplate, DispEdgeTemplateT } from "../canvas-shapes/DispEdgeTemplate"
+import {
+    DispEdgeTemplate,
+    DispEdgeTemplateT
+} from "../canvas-shapes/DispEdgeTemplate"
 import { PeekCanvasEdgeTemplatePropsContext } from "../canvas/PeekCanvasEdgeTemplatePropsContext"
 import { DispGroup } from "../canvas-shapes/DispGroup"
 
@@ -184,7 +187,7 @@ export class EditPropsEdgeTemplateComponent extends NgLifeCycleEvents
         
         if (name != null)
             setName(name)
-            
+        
         else if (this.coordSet.editDefaultEdgeGroupName != null)
             setName(this.coordSet.editDefaultEdgeGroupName)
     }

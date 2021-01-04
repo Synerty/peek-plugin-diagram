@@ -3,13 +3,14 @@ from typing import Optional
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import \
-    ImportDispPolylineTuple
+from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import (
+    ImportDispPolylineTuple,
+)
 
 
 @addTupleType
 class ImportDispGroupTuple(Tuple):
-    """ Imported Display Group
+    """Imported Display Group
 
     This tuple is used by other plugins to load groups of display objects
     into the diagram model.
@@ -23,7 +24,8 @@ class ImportDispGroupTuple(Tuple):
     import a ImportDispGroupPtyTuple display object.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispGroupTuple'
+
+    __tupleType__ = diagramTuplePrefix + "ImportDispGroupTuple"
 
     ### BEGIN DISP COMMON FIELDS ###
 
@@ -74,4 +76,3 @@ class ImportDispGroupTuple(Tuple):
     # If this is set to true, then this group will be available in the user interface
     # for edit support (located in the special '##|dispgroup' grid key)
     compileAsTemplate: bool = TupleField(False)
-

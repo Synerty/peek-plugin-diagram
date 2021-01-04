@@ -1,17 +1,26 @@
 import logging
 
-from peek_abstract_chunked_index.private.server.controller.ACIProcessorQueueControllerABC import \
-    ACIProcessorQueueControllerABC, ACIProcessorQueueBlockItem
-from peek_abstract_chunked_index.private.server.controller.ACIProcessorStatusNotifierABC import \
-    ACIProcessorStatusNotifierABC
-from peek_abstract_chunked_index.private.tuples.ACIProcessorQueueTupleABC import \
-    ACIProcessorQueueTupleABC
-from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import \
-    ClientGridUpdateHandler
-from peek_plugin_diagram._private.server.controller.StatusController import \
-    StatusController
-from peek_plugin_diagram._private.storage.GridKeyIndex import \
-    GridKeyCompilerQueue, GridKeyIndexCompiled, GridKeyIndex
+from peek_abstract_chunked_index.private.server.controller.ACIProcessorQueueControllerABC import (
+    ACIProcessorQueueControllerABC,
+    ACIProcessorQueueBlockItem,
+)
+from peek_abstract_chunked_index.private.server.controller.ACIProcessorStatusNotifierABC import (
+    ACIProcessorStatusNotifierABC,
+)
+from peek_abstract_chunked_index.private.tuples.ACIProcessorQueueTupleABC import (
+    ACIProcessorQueueTupleABC,
+)
+from peek_plugin_diagram._private.server.client_handlers.ClientGridUpdateHandler import (
+    ClientGridUpdateHandler,
+)
+from peek_plugin_diagram._private.server.controller.StatusController import (
+    StatusController,
+)
+from peek_plugin_diagram._private.storage.GridKeyIndex import (
+    GridKeyCompilerQueue,
+    GridKeyIndexCompiled,
+    GridKeyIndex,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -48,17 +57,22 @@ class GridKeyCompilerQueueController(ACIProcessorQueueControllerABC):
     _QueueDeclarative: ACIProcessorQueueTupleABC = GridKeyCompilerQueue
     _VacuumDeclaratives = (GridKeyCompilerQueue, GridKeyIndex, GridKeyIndexCompiled)
 
-    def __init__(self, dbSessionCreator,
-                 statusController: StatusController,
-                 clientGridUpdateHandler: ClientGridUpdateHandler):
-        ACIProcessorQueueControllerABC.__init__(self, dbSessionCreator,
-                                                _Notifier(statusController))
+    def __init__(
+        self,
+        dbSessionCreator,
+        statusController: StatusController,
+        clientGridUpdateHandler: ClientGridUpdateHandler,
+    ):
+        ACIProcessorQueueControllerABC.__init__(
+            self, dbSessionCreator, _Notifier(statusController)
+        )
 
         self._clientGridUpdateHandler: ClientGridUpdateHandler = clientGridUpdateHandler
 
     def _sendToWorker(self, block: ACIProcessorQueueBlockItem):
-        from peek_plugin_diagram._private.worker.tasks.GridCompilerTask import \
-            compileGrids
+        from peek_plugin_diagram._private.worker.tasks.GridCompilerTask import (
+            compileGrids,
+        )
 
         return compileGrids.delay(block.itemsEncodedPayload)
 
@@ -66,7 +80,7 @@ class GridKeyCompilerQueueController(ACIProcessorQueueControllerABC):
         self._clientGridUpdateHandler.sendChunks(results)
 
     def _dedupeQueueSql(self, lastFetchedId: int, dedupeLimit: int):
-        return '''
+        return """
                  with sq_raw as (
                     SELECT "id", "gridKey"
                     FROM pl_diagram."GridKeyCompilerQueue"
@@ -85,4 +99,7 @@ class GridKeyCompilerQueueController(ACIProcessorQueueControllerABC):
                     AND pl_diagram."GridKeyCompilerQueue"."id" > %(id)s
                     AND pl_diagram."GridKeyCompilerQueue"."gridKey" = sq1."gridKey"
 
-            ''' % {'id': lastFetchedId, 'limit': dedupeLimit}
+            """ % {
+            "id": lastFetchedId,
+            "limit": dedupeLimit,
+        }

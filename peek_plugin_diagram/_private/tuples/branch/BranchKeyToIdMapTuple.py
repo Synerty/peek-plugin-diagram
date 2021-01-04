@@ -7,13 +7,14 @@ from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 
 @addTupleType
 class BranchKeyToIdMapTuple(Tuple):
-    """ Branch Key to ID Map Tuple
+    """Branch Key to ID Map Tuple
 
     This tuple is used by the UI to get the IDs for branches for the
     model compiler to enable branches.
 
     """
-    __tupleType__ = diagramTuplePrefix + 'BranchKeyToIdMapTuple'
+
+    __tupleType__ = diagramTuplePrefix + "BranchKeyToIdMapTuple"
 
     # This field is server side only
     coordSetId: int = TupleField()

@@ -1,8 +1,8 @@
-import {Injectable} from "@angular/core";
-import {GridCache} from "./GridCache.web";
-import {LinkedGrid} from "./LinkedGrid.web";
-import {Subject} from "rxjs";
-import {assert, dictKeysFromObject} from "../DiagramUtil";
+import { Injectable } from "@angular/core"
+import { GridCache } from "./GridCache.web"
+import { LinkedGrid } from "./LinkedGrid.web"
+import { Subject } from "rxjs"
+import { assert, dictKeysFromObject } from "../DiagramUtil"
 
 /** Grid Observable
  *
@@ -13,25 +13,25 @@ import {assert, dictKeysFromObject} from "../DiagramUtil";
  */
 @Injectable()
 export class GridObservable {
-    private subjectByCanvasId: { [canvasId: number]: Subject<LinkedGrid> } = {};
-    private gridKeysByCanvasId: { [canvasId: number]: string[] } = {};
-    private canvasIdsByGidKey: { [gridKey: string]: number[] } = {};
-
-    private lastObservedKeysStr = "";
-
+    private subjectByCanvasId: { [canvasId: number]: Subject<LinkedGrid> } = {}
+    private gridKeysByCanvasId: { [canvasId: number]: string[] } = {}
+    private canvasIdsByGidKey: { [gridKey: string]: number[] } = {}
+    
+    private lastObservedKeysStr = ""
+    
     constructor(private gridCache: GridCache) {
-
+        
         // This is a global service, there is no point at which this will unsubscribe
         this.gridCache.observable.subscribe(
             (grid: LinkedGrid) => this.processGridUpdates(grid)
-        );
-
+        )
+        
     }
-
+    
     isReady(): boolean {
-        return this.gridCache.isReady();
+        return this.gridCache.isReady()
     }
-
+    
     /** Unsubscribe Canvas.
      *
      * The canvas component must call this to tear down and release resources used
@@ -42,85 +42,90 @@ export class GridObservable {
          * 2) Update the data structures
          * 3) Notify the grid cache
          */
-        delete this.gridKeysByCanvasId[canvasId];
-        delete this.subjectByCanvasId[canvasId];
-        this.rebuildReverseLookup();
-        this.updateGridCacheWatchedKeys();
+        delete this.gridKeysByCanvasId[canvasId]
+        delete this.subjectByCanvasId[canvasId]
+        this.rebuildReverseLookup()
+        this.updateGridCacheWatchedKeys()
     }
-
+    
     observableForCanvas(canvasId: number): Subject<LinkedGrid> {
         // Each canvas should only request the subject once
         assert(!this.subjectByCanvasId.hasOwnProperty(canvasId),
-            `Canvas ${canvasId} has already requested a subhect`);
-
-        this.subjectByCanvasId[canvasId] = new Subject<LinkedGrid>();
-        return this.subjectByCanvasId[canvasId];
-
+            `Canvas ${canvasId} has already requested a subhect`)
+        
+        this.subjectByCanvasId[canvasId] = new Subject<LinkedGrid>()
+        return this.subjectByCanvasId[canvasId]
+        
     }
-
-    updateDiagramWatchedGrids(canvasId: number, gridKeys: string[],
-                              forceCacheFlush = false): void {
+    
+    updateDiagramWatchedGrids(
+        canvasId: number,
+        gridKeys: string[],
+        forceCacheFlush = false
+    ): void {
         if (forceCacheFlush) {
-            this.gridCache.flushCache();
-            this.lastObservedKeysStr = '';
+            this.gridCache.flushCache()
+            this.lastObservedKeysStr = ""
         }
-
-        this.gridKeysByCanvasId[canvasId] = gridKeys;
-        this.rebuildReverseLookup();
-        this.updateGridCacheWatchedKeys();
+        
+        this.gridKeysByCanvasId[canvasId] = gridKeys
+        this.rebuildReverseLookup()
+        this.updateGridCacheWatchedKeys()
     }
-
+    
     resetAllDispComputedProperties(): void {
-        this.gridCache.resetAllComputedProperties();
+        this.gridCache.resetAllComputedProperties()
     }
-
+    
     private processGridUpdates(grid: LinkedGrid) {
         // If we have nothing waiting for this grid, Just disregard it.
         if (!this.canvasIdsByGidKey.hasOwnProperty(grid.gridKey))
-            return;
-
+            return
+        
         // Notify the subjects for the cavases watching this grid key
-        let canvasIds = this.canvasIdsByGidKey[grid.gridKey];
+        let canvasIds = this.canvasIdsByGidKey[grid.gridKey]
         for (let canvasId of canvasIds) {
-            this.subjectByCanvasId[canvasId].next(grid);
+            this.subjectByCanvasId[canvasId].next(grid)
         }
-
+        
     }
-
+    
     private updateGridCacheWatchedKeys() {
-        let uniqueKeysList = dictKeysFromObject(this.canvasIdsByGidKey).sort();
-        let uniqueKeysStr = uniqueKeysList.join(',');
-
+        let uniqueKeysList = dictKeysFromObject(this.canvasIdsByGidKey)
+            .sort()
+        let uniqueKeysStr = uniqueKeysList.join(",")
+        
         if (this.lastObservedKeysStr == uniqueKeysStr)
-            return;
-
-        this.lastObservedKeysStr = uniqueKeysStr;
-        this.gridCache.updateWatchedGrids(uniqueKeysList);
+            return
+        
+        this.lastObservedKeysStr = uniqueKeysStr
+        this.gridCache.updateWatchedGrids(uniqueKeysList)
     }
-
+    
     private rebuildReverseLookup() {
-        let newDict = {};
-
+        let newDict = {}
+        
         // Iterate through the canvasIds
         for (let canvasId of dictKeysFromObject(this.gridKeysByCanvasId)) {
-            let gridKeys = this.gridKeysByCanvasId[canvasId];
-
+            let gridKeys = this.gridKeysByCanvasId[canvasId]
+            
             // Iterate through the gridKeys
             for (let gridKey of gridKeys) {
                 // Get the existing array or create one
-                let array: any[] = null;
+                let array: any[] = null
                 if (newDict.hasOwnProperty(gridKey)) {
-                    array = newDict[gridKey];
-                } else {
-                    newDict[gridKey] = array = [];
+                    array = newDict[gridKey]
+                }
+                else {
+                    newDict[gridKey] = array = []
                 }
                 // Add the item to the array
-                array.push(canvasId);
+                array.push(canvasId)
             }
         }
-
+        
         // Assign the recompiled value back to the class variable
-        this.canvasIdsByGidKey = newDict;
+        this.canvasIdsByGidKey = newDict
     }
-
+    
 }

@@ -5,11 +5,9 @@ from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 
 @addTupleType
 class ImportDispLayerTuple(Tuple):
-    """ Import Display Layer Tuple
+    """Import Display Layer Tuple"""
 
-
-    """
-    __tupleType__ = diagramTuplePrefix + 'ImportDispLayerTuple'
+    __tupleType__ = diagramTuplePrefix + "ImportDispLayerTuple"
 
     name: str = TupleField()
 

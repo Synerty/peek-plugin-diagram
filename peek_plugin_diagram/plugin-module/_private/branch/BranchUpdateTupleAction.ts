@@ -1,6 +1,6 @@
-import {addTupleType, TupleActionABC} from "@synerty/vortexjs";
-import {diagramTuplePrefix} from "../PluginNames";
-import {BranchTuple} from "./BranchTuple";
+import { addTupleType, TupleActionABC } from "@synerty/vortexjs"
+import { diagramTuplePrefix } from "../PluginNames"
+import { BranchTuple } from "./BranchTuple"
 
 /** Branch Update Tuple Action
  *
@@ -9,12 +9,12 @@ import {BranchTuple} from "./BranchTuple";
  */
 @addTupleType
 export class BranchUpdateTupleAction extends TupleActionABC {
-    public static readonly tupleName = diagramTuplePrefix + "BranchUpdateTupleAction";
-
-    doDelete: boolean = false;
-    modelSetId: number = null;
-    branchTuple: BranchTuple = null;
-
+    public static readonly tupleName = diagramTuplePrefix + "BranchUpdateTupleAction"
+    
+    doDelete: boolean = false
+    modelSetId: number = null
+    branchTuple: BranchTuple = null
+    
     constructor() {
         super(BranchUpdateTupleAction.tupleName)
     }

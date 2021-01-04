@@ -12,7 +12,10 @@ import {
     VortexService,
     VortexStatusService
 } from "@synerty/vortexjs"
-import { diagramFilt, locationIndexCacheStorageName } from "@peek/peek_plugin_diagram/_private"
+import {
+    diagramFilt,
+    locationIndexCacheStorageName
+} from "@peek/peek_plugin_diagram/_private"
 import { DiagramCoordSetService } from "@peek/peek_plugin_diagram/DiagramCoordSetService"
 import { LocationIndexUpdateDateTuple } from "./LocationIndexUpdateDateTuple"
 import { DispKeyLocationTuple } from "./DispKeyLocationTuple"

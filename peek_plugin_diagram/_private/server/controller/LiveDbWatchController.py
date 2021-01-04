@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class LiveDbWatchController:
-    """ Watch Grid Controller
+    """Watch Grid Controller
 
     This controller handles most of the interactions with the LiveDB plugin..
 
@@ -30,9 +30,12 @@ class LiveDbWatchController:
 
     """
 
-    def __init__(self, liveDbWriteApi: LiveDBWriteApiABC,
-                 liveDbReadApi: LiveDBReadApiABC,
-                 dbSessionCreator):
+    def __init__(
+        self,
+        liveDbWriteApi: LiveDBWriteApiABC,
+        liveDbReadApi: LiveDBReadApiABC,
+        dbSessionCreator,
+    ):
         self._liveDbWriteApi = liveDbWriteApi
         self._liveDbReadApi = liveDbReadApi
         self._dbSessionCreator = dbSessionCreator
@@ -42,7 +45,7 @@ class LiveDbWatchController:
 
     @inlineCallbacks
     def updateClientWatchedGrids(self, clientId: str, gridKeys: List[str]) -> Deferred:
-        """ Update Client Watched Grids
+        """Update Client Watched Grids
 
         Tell the server that these grids are currently being watched by users.
 
@@ -54,7 +57,7 @@ class LiveDbWatchController:
         try:
             liveDbKeys = yield self.getLiveDbKeys(gridKeys)
             self._liveDbWriteApi.prioritiseLiveDbValueAcquisition(
-                'pofDiagram', liveDbKeys
+                "pofDiagram", liveDbKeys
             )
 
         except Exception as e:
@@ -65,14 +68,17 @@ class LiveDbWatchController:
 
         session = self._dbSessionCreator()
         try:
-            return [t[0] for t in
-                    session.query(LiveDbDispLink.liveDbKey)
-                        .join(GridKeyIndex,
-                              GridKeyIndex.dispId == LiveDbDispLink.dispId)
-                        .filter(makeOrmValuesSubqueryCondition(
+            return [
+                t[0]
+                for t in session.query(LiveDbDispLink.liveDbKey)
+                .join(GridKeyIndex, GridKeyIndex.dispId == LiveDbDispLink.dispId)
+                .filter(
+                    makeOrmValuesSubqueryCondition(
                         session, GridKeyIndex.gridKey, gridKeys
-                    ))
-                        .yield_per(1000)
-                        .distinct()]
+                    )
+                )
+                .yield_per(1000)
+                .distinct()
+            ]
         finally:
             session.close()

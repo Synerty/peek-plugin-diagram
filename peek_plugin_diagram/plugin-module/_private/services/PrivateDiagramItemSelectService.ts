@@ -1,13 +1,12 @@
-import {Injectable} from "@angular/core";
-import {Subject} from "rxjs";
-import {Observable} from "rxjs";
+import { Injectable } from "@angular/core"
+import { Subject } from "rxjs"
+import { Observable } from "rxjs"
 import {
     DiagramItemSelectService,
     SelectedItemDetailsI
-} from "../../DiagramItemSelectService";
+} from "../../DiagramItemSelectService"
 
-
-export {SelectedItemDetailsI} from "../../DiagramItemSelectService";
+export { SelectedItemDetailsI } from "../../DiagramItemSelectService"
 
 /** Item Select Service
  *
@@ -18,20 +17,20 @@ export {SelectedItemDetailsI} from "../../DiagramItemSelectService";
  */
 @Injectable()
 export class PrivateDiagramItemSelectService extends DiagramItemSelectService {
-
-    private itemSelectSubject = new Subject<SelectedItemDetailsI[]>();
-
+    
+    private itemSelectSubject = new Subject<SelectedItemDetailsI[]>()
+    
     constructor() {
-        super();
-
+        super()
+        
     }
-
+    
     itemsSelectedObservable(): Observable<SelectedItemDetailsI[]> {
-        return this.itemSelectSubject.asObservable();
+        return this.itemSelectSubject.asObservable()
     }
-
+    
     selectItems(details: SelectedItemDetailsI[]): void {
-        this.itemSelectSubject.next(details);
+        this.itemSelectSubject.next(details)
     }
-
+    
 }
