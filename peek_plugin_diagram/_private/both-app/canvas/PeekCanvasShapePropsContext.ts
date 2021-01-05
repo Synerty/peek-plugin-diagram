@@ -80,12 +80,6 @@ export class ShapeProp {
 }
 
 export class PeekCanvasShapePropsContext {
-    
-    clea
-    addP
-    prop
-    priv
-    ate
     private _props: ShapeProp[] = []
     
     constructor(
@@ -94,7 +88,21 @@ export class PeekCanvasShapePropsContext {
         private modelSetId: number | null = null,
         private coordSetId: number | null = null
     ) {
+    }
     
+    get levelOptions(): ShapePropOption[] {
+        return this.makeOptions(this.coordSetId,
+            this.lookupService.levelsOrderedByOrder(this.coordSetId))
+    }
+    
+    get layerOptions(): ShapePropOption[] {
+        return this.makeOptions(this.modelSetId,
+            this.lookupService.layersOrderedByOrder(this.modelSetId))
+    }
+    
+    get colorOptions(): ShapePropOption[] {
+        return this.makeOptions(this.modelSetId,
+            this.lookupService.colorsOrderedByName(this.modelSetId))
     }
     
     get textStyleOptions(): ShapePropOption[] {
@@ -107,34 +115,19 @@ export class PeekCanvasShapePropsContext {
             this.lookupService.lineStylesOrderedByName(this.modelSetId))
     }
     
-    get rProps() {
+    clearProps() {
         this._props = []
     }
     
-    get rop(prop: ShapeProp): void {
+    addProp(prop: ShapeProp): void {
         this._props.push(prop)
     }
     
-    get s(): ShapeProp[] {
+    props(): ShapeProp[] {
         return this._props
     }
     
-    levelOptions(): ShapePropOption[] {
-        return this.makeOptions(this.coordSetId,
-            this.lookupService.levelsOrderedByOrder(this.coordSetId))
-    }
-    
-    layerOptions(): ShapePropOption[] {
-        return this.makeOptions(this.modelSetId,
-            this.lookupService.layersOrderedByOrder(this.modelSetId))
-    }
-    
-    colorOptions(): ShapePropOption[] {
-        return this.makeOptions(this.modelSetId,
-            this.lookupService.colorsOrderedByName(this.modelSetId))
-    }
-    
-    makeOptions(
+    private makeOptions(
         groupId: number,
         items
     ): ShapePropOption[] {
@@ -151,5 +144,4 @@ export class PeekCanvasShapePropsContext {
         }
         return opts
     }
-    
 }
