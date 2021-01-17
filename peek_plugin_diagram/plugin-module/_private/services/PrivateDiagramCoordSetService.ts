@@ -1,11 +1,10 @@
 import { Injectable } from "@angular/core"
-import { TupleSelector } from "@synerty/vortexjs"
+import { NgLifeCycleEvents, TupleSelector } from "@synerty/vortexjs"
 import { ModelCoordSet } from "../tuples/ModelCoordSet"
 import { PrivateDiagramTupleService } from "./PrivateDiagramTupleService"
 import { DiagramCoordSetService } from "../../DiagramCoordSetService"
 import { DiagramCoordSetTuple } from "../../tuples/DiagramCoordSetTuple"
 import { Observable, Subject } from "rxjs"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 
 /** CoordSetCache
  *

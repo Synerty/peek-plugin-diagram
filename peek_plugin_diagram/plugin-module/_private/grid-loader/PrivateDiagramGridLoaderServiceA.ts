@@ -1,6 +1,6 @@
 import { GridTuple } from "./GridTuple"
 import { Observable } from "rxjs"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
+import { NgLifeCycleEvents } from "@synerty/vortexjs"
 import { PrivateDiagramGridLoaderStatusTuple } from "./PrivateDiagramGridLoaderStatusTuple"
 
 export abstract class PrivateDiagramGridLoaderServiceA extends NgLifeCycleEvents {

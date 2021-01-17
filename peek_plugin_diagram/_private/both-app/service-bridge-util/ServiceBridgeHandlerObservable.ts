@@ -1,4 +1,4 @@
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
+import { NgLifeCycleEvents } from "@synerty/vortexjs"
 import { Observable, Subject } from "rxjs"
 import { ServiceBridgeHandlerBase } from "./ServiceBridgeHandlerBase"
 

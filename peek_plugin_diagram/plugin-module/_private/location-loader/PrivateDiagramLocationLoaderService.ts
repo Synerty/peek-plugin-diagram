@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core"
 import { LocationIndexTuple } from "./LocationIndexTuple"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 import {
     extend,
+    NgLifeCycleEvents,
     Payload,
     PayloadEnvelope,
     TupleOfflineStorageNameService,
@@ -21,8 +21,7 @@ import { LocationIndexUpdateDateTuple } from "./LocationIndexUpdateDateTuple"
 import { DispKeyLocationTuple } from "./DispKeyLocationTuple"
 import { PrivateDiagramCoordSetService } from "../services/PrivateDiagramCoordSetService"
 
-import { Subject } from "rxjs"
-import { Observable } from "rxjs"
+import { Observable, Subject } from "rxjs"
 import { EncodedLocationIndexTuple } from "./EncodedLocationIndexTuple"
 import { PrivateDiagramLocationLoaderStatusTuple } from "./PrivateDiagramLocationLoaderStatusTuple"
 import { PrivateDiagramTupleService } from "../services/PrivateDiagramTupleService"

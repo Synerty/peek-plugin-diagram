@@ -1,9 +1,10 @@
 import { Component } from "@angular/core"
-import { TupleDataObserverService, TupleSelector, } from "@synerty/vortexjs"
 import {
-    BalloonMsgService,
-    NgLifeCycleEvents
-} from "@synerty/peek-plugin-base-js"
+    NgLifeCycleEvents,
+    TupleDataObserverService,
+    TupleSelector,
+} from "@synerty/vortexjs"
+import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
 import { DiagramImporterStatusTuple } from "../tuples/DiagramImporterStatusTuple"
 
 @Component({

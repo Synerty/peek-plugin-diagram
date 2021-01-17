@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core"
-import { TupleSelector } from "@synerty/vortexjs"
+import { NgLifeCycleEvents, TupleSelector } from "@synerty/vortexjs"
 import {
     DispColor,
     DispLayer,
@@ -10,7 +10,6 @@ import {
 import { PrivateDiagramTupleService } from "./PrivateDiagramTupleService"
 import { Observable, Subject } from "rxjs"
 import { ModelSet } from "../tuples"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 
 let dictValuesFromObject = (dict) => Object.keys(dict)
     .map(key => dict[key])

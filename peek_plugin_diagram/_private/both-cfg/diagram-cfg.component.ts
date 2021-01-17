@@ -7,10 +7,9 @@ import {
     PrivateDiagramLocationLoaderService,
     PrivateDiagramLocationLoaderStatusTuple
 } from "@peek/peek_plugin_diagram/_private/location-loader"
-import { TupleSelector } from "@synerty/vortexjs"
+import { NgLifeCycleEvents, TupleSelector } from "@synerty/vortexjs"
 import { OfflineConfigTuple } from "@peek/peek_plugin_diagram/_private/tuples"
 import { PrivateDiagramTupleService } from "@peek/peek_plugin_diagram/_private/services"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 
 @Component({
     selector: "peek-plugin-diagram-cfg",

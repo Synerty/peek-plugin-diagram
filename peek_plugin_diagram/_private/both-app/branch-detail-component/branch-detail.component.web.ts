@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from "@angular/core"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
+import { NgLifeCycleEvents } from "@synerty/vortexjs"
 import { BranchDetailTuple, BranchService } from "@peek/peek_plugin_branch"
 
 import { BranchTuple } from "@peek/peek_plugin_diagram/_private/branch/BranchTuple"
@@ -19,7 +19,6 @@ import { PrivateDiagramBranchService } from "@peek/peek_plugin_diagram/_private/
 import { assert } from "../DiagramUtil"
 import { Observable } from "rxjs"
 import { DispBase } from "../canvas-shapes/DispBase"
-import * as $ from "jquery"
 import { diagramPluginName } from "@peek/peek_plugin_diagram/_private/PluginNames"
 
 interface AnchorDisplayItemI {

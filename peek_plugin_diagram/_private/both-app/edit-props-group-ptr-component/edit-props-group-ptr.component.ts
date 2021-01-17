@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from "@angular/core"
-import { Payload, TupleSelector } from "@synerty/vortexjs"
+import { NgLifeCycleEvents, Payload, TupleSelector } from "@synerty/vortexjs"
 import { PeekCanvasEditor } from "../canvas/PeekCanvasEditor.web"
 import { PrivateDiagramCoordSetService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService"
 import { DiagramCoordSetService } from "@peek/peek_plugin_diagram/DiagramCoordSetService"
@@ -13,7 +13,6 @@ import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/
 import { LinkedGrid } from "../cache/LinkedGrid.web"
 import { DispGroup, DispGroupT } from "../canvas-shapes/DispGroup"
 import { PeekCanvasGroupPtrPropsContext } from "../canvas/PeekCanvasGroupPtrPropsContext"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 
 @Component({
     selector: "pl-diagram-edit-props-group-ptr",

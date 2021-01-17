@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from "@angular/core"
-import { Payload, TupleSelector } from "@synerty/vortexjs"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
+import { NgLifeCycleEvents, Payload, TupleSelector } from "@synerty/vortexjs"
 import { PeekCanvasEditor } from "../canvas/PeekCanvasEditor.web"
 import { PrivateDiagramCoordSetService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService"
 import { DiagramCoordSetService } from "@peek/peek_plugin_diagram/DiagramCoordSetService"

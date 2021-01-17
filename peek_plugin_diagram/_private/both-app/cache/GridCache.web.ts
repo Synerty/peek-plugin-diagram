@@ -5,9 +5,8 @@ import {
     GridTuple,
     PrivateDiagramGridLoaderServiceA
 } from "@peek/peek_plugin_diagram/_private/grid-loader"
-import { Subject } from "rxjs"
-import { Observable } from "rxjs"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
+import { Observable, Subject } from "rxjs"
+import { NgLifeCycleEvents } from "@synerty/vortexjs"
 
 class Cache {
     private cache: { [gridKey: string]: LinkedGrid } = {}

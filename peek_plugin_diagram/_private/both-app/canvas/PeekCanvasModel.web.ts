@@ -1,6 +1,6 @@
 import { PeekCanvasConfig } from "./PeekCanvasConfig.web"
 import { GridObservable } from "../cache/GridObservable.web"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
+import { NgLifeCycleEvents } from "@synerty/vortexjs"
 import { LinkedGrid } from "../cache/LinkedGrid.web"
 import { dateStr, dictKeysFromObject, dictSetFromArray } from "../DiagramUtil"
 import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService"

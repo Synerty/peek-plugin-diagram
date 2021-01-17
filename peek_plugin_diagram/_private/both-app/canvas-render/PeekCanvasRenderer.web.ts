@@ -1,7 +1,7 @@
 import { PeekCanvasConfig } from "../canvas/PeekCanvasConfig.web"
 import { PeekCanvasModel } from "../canvas/PeekCanvasModel.web"
 import { PeekDispRenderFactory } from "./PeekDispRenderFactory.web"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
+import { NgLifeCycleEvents } from "@synerty/vortexjs"
 import { PanI } from "../canvas/PeekInterfaces.web"
 import { PeekCanvasBounds } from "../canvas/PeekCanvasBounds"
 import { Subject } from "rxjs"

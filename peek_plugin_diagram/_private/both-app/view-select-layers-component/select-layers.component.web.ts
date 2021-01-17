@@ -1,5 +1,5 @@
-import { Component, Input, OnInit, ViewChild } from "@angular/core"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
+import { Component, Input, OnInit } from "@angular/core"
+import { NgLifeCycleEvents } from "@synerty/vortexjs"
 import { HeaderService } from "@synerty/peek-plugin-base-js"
 
 import {

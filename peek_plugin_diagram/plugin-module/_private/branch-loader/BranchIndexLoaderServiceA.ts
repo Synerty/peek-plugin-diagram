@@ -1,5 +1,5 @@
 import { Observable } from "rxjs"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
+import { NgLifeCycleEvents } from "@synerty/vortexjs"
 import { BranchIndexLoaderStatusTuple } from "./BranchIndexLoaderStatusTuple"
 import { BranchIndexResultI } from "./BranchIndexLoaderService"
 

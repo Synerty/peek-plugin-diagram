@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core"
-import { Subject } from "rxjs"
-import { Observable } from "rxjs"
+import { Observable, Subject } from "rxjs"
 import { PrivateDiagramBranchContext } from "../branch/PrivateDiagramBranchContext"
 import { BranchTuple } from "../branch/BranchTuple"
 import { BranchIndexLoaderServiceA } from "../branch-loader/BranchIndexLoaderServiceA"
@@ -12,11 +11,12 @@ import {
     PrivateDiagramCoordSetService,
     PrivateDiagramTupleService
 } from "../services"
+import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
 import {
-    BalloonMsgService,
-    NgLifeCycleEvents
-} from "@synerty/peek-plugin-base-js"
-import { TupleSelector, VortexStatusService } from "@synerty/vortexjs"
+    NgLifeCycleEvents,
+    TupleSelector,
+    VortexStatusService
+} from "@synerty/vortexjs"
 import { BranchKeyToIdMapTuple } from "./BranchKeyToIdMapTuple"
 import { BranchDetailTuple } from "@peek/peek_plugin_branch"
 import { UserService } from "@peek/peek_core_user"

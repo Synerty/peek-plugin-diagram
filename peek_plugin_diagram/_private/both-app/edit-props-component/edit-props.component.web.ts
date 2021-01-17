@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from "@angular/core"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
+import { NgLifeCycleEvents } from "@synerty/vortexjs"
 import { PeekCanvasEditor } from "../canvas/PeekCanvasEditor.web"
 import { EditorContextType } from "../canvas/PeekCanvasEditorProps"
 import { BranchTuple } from "@peek/peek_plugin_diagram/_private/branch/BranchTuple"

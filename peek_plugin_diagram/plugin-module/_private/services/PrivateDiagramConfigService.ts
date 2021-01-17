@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core"
-import { PrivateDiagramTupleService } from "./PrivateDiagramTupleService"
 import { Observable, Subject } from "rxjs"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
+import { NgLifeCycleEvents } from "@synerty/vortexjs"
 import { PrivateDiagramLookupService } from "./PrivateDiagramLookupService"
 import { DiagramConfigService } from "../../DiagramConfigService"
 

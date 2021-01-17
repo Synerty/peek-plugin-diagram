@@ -1,6 +1,6 @@
 import { Component, Input, ViewChild } from "@angular/core"
 
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
+import { NgLifeCycleEvents } from "@synerty/vortexjs"
 
 import { PeekCanvasConfig } from "../canvas/PeekCanvasConfig.web"
 import { PeekDispRenderFactory } from "../canvas-render/PeekDispRenderFactory.web"

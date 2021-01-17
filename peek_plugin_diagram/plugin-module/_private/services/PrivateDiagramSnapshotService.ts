@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
+import { NgLifeCycleEvents } from "@synerty/vortexjs"
 import { DiagramSnapshotService } from "../../DiagramSnapshotService"
 
 export interface TakeSnapshotCallbackI {
