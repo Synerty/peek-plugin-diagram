@@ -2,8 +2,8 @@
 @import '~@synerty/peek-plugin-base-js/src/styles/_variables';
 
 .invert-image {
-    -webkit-filter: invert(1);
-    filter: invert(1);
+    -webkit-filter: contrast(1) hue-rotate(202deg) saturate(9.9) invert(1);
+    filter: contrast(1) hue-rotate(202deg) saturate(9.9) invert(1);
 }
 
 
