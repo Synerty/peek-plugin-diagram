@@ -1,6 +1,5 @@
-from typing import Optional, List
-
-from vortex.Tuple import Tuple, addTupleType, TupleField
+from typing import List
+from typing import Optional
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import (
@@ -9,6 +8,9 @@ from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import (
 from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import (
     ImportDispPolylineTuple,
 )
+from vortex.Tuple import Tuple
+from vortex.Tuple import TupleField
+from vortex.Tuple import addTupleType
 
 
 @addTupleType
@@ -100,7 +102,7 @@ class ImportDispPolygonTuple(Tuple):
     fillDirection: int = TupleField()
     fillPercent: int = TupleField()
 
-    geom: List[float] = TupleField()
+    geom: List[List[float]] = TupleField()
 
     #: Is this a retangle, with perpendicular equal sides.
     # This will effect how the polygon is edited
