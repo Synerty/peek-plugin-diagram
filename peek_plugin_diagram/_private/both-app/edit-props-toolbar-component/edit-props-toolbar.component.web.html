@@ -4,7 +4,7 @@
             (click)="showBranchProperties()"
             [class.active]="isBranchPropertiesActive()"
             nz-tooltip
-            nzTitle="Branch Properties"
+            nzTooltipTitle="Branch Properties"
         >
             <i nz-icon nzTheme="outline" nzType="branches"></i>
         </button>
@@ -13,7 +13,7 @@
             *ngIf="isShapePropertiesShown()"
             [class.active]="isShapePropertiesActive()"
             nz-tooltip
-            nzTitle="Shape Properties"
+            nzTooltipTitle="Shape Properties"
         >
             <i nz-icon nzTheme="outline" nzType="sliders"></i>
         </button>
@@ -22,7 +22,7 @@
             *ngIf="isGroupPtrPropertiesShown()"
             [class.active]="isGroupPtrPropertiesActive()"
             nz-tooltip
-            nzTitle="Template Selection"
+            nzTooltipTitle="Template Selection"
         >
             <i nz-icon nzTheme="outline" nzType="clear"></i>
         </button>
@@ -32,7 +32,7 @@
             [class.active]="isEdgeTemplatePropertiesActive()"
             class="btn"
             nz-tooltip
-            nzTitle="Dynamic Properties"
+            nzTooltipTitle="Dynamic Properties"
         >
             <i nz-icon nzTheme="outline" nzType="clear"></i>
         </button>
@@ -42,7 +42,7 @@
             [class.active]="isLiveDbPropertiesActive()"
             class="btn"
             nz-tooltip
-            nzTitle="Dynamic Properties"
+            nzTooltipTitle="Dynamic Properties"
         >
             <i nz-icon nzTheme="outline" nzType="thunderbolt"></i>
         </button>
