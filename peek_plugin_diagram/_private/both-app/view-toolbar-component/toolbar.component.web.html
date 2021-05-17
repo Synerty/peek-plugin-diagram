@@ -22,7 +22,6 @@
         
         <button
             (click)="printDiagramClicked()"
-            [nzTooltipTrigger]="null"
             nz-tooltip
             nzTooltipPlacement="bottom"
             nzTooltipTitle="Show Diagram for Print"
@@ -32,7 +31,6 @@
         <button
             (click)="editDiagramClicked()"
             *ngIf="showEditDiagramButton()"
-            [nzTooltipTrigger]="null"
             nz-tooltip
             nzTooltipPlacement="bottom"
             nzTooltipTitle="Edit Diagram"
@@ -44,7 +42,6 @@
             *ngIf="showSelectBranchesButton()"
             [class.btn-warning]="isBranchesActive()"
             [nzTooltipTitle]="showSelectBranchesTooltip()"
-            [nzTooltipTrigger]="null"
             nz-tooltip
             nzTooltipPlacement="bottom"
         >
@@ -52,7 +49,6 @@
         </button>
         <button
             (click)="selectLayersClicked()"
-            [nzTooltipTrigger]="null"
             nz-tooltip
             nzTooltipPlacement="bottom"
             nzTooltipTitle="Select Layers"
@@ -72,7 +68,6 @@
         <button
             (click)="goUpParentButtonClicked(btn)"
             *ngIf="showGoUpParentButton()"
-            [nzTooltipTrigger]="null"
             nz-tooltip
             nzTooltipPlacement="bottom"
             nzTooltipTitle="Back"
@@ -85,7 +80,6 @@
             *ngFor="let btn of shownPluginButtons"
             [class.active]="isButtonActive(btn)"
             [nzTooltipTitle]="btn.tooltip"
-            [nzTooltipTrigger]="null"
             nz-tooltip
             nzTooltipPlacement="bottom"
         >
