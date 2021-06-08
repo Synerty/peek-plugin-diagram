@@ -120,15 +120,12 @@ export class CanvasComponent extends NgLifeCycleEvents {
                 let editToolbarHeight = $(this.editToolbarView.nativeElement)
                     .height()
                 
-                let titleBarHeight = $(".peek-title-bar")
-                    .height()
-                let footerBarHeight = $(".peek-footer")
+                let titleBarHeight = $(".peek-header-component")
                     .height()
                 let isDesktop = $(".peek-ds-mh-title")
                     .height() != null
                 
                 frameSize += `;${titleBarHeight}`
-                frameSize += `;${footerBarHeight}`
                 frameSize += `;${editToolbarHeight}`
                 
                 if (this.lastFrameSize == frameSize)
@@ -147,8 +144,8 @@ export class CanvasComponent extends NgLifeCycleEvents {
                 if (isDesktop) {
                     newHeight -= 6
                 }
-                else if (titleBarHeight != null && footerBarHeight != null) {
-                    newHeight -= (titleBarHeight + footerBarHeight + 6)
+                else if (titleBarHeight != null) {
+                    newHeight -= (titleBarHeight)
                 }
                 
                 console.log(`newHeight=${newHeight}`)
