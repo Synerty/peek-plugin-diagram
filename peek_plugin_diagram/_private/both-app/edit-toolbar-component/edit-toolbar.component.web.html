@@ -73,7 +73,7 @@
 </div>
 
 <div class="vert-toolbar">
-    <div class="toolbar-buttons">
+    <div class="toolbar-buttons modify-buttons">
         <button
             (click)="selectEditMakeTextTool()"
             [class.active]="isEditMakeTextActive()"
@@ -152,7 +152,7 @@
         </button>
     </div>
     
-    <div class="toolbar-buttons">
+    <div class="toolbar-buttons equipment-buttons">
         <button
             (click)="selectEditMakeGroupPtrVertexTool()"
             [class.active]="isEditMakeGroupPtrVertexActive()"
@@ -178,7 +178,7 @@
         </button>
     </div>
     
-    <div class="toolbar-buttons">
+    <div class="toolbar-buttons other-buttons">
         <button
             (click)="buttonClicked(btn)"
             *ngFor="let btn of otherPluginButtons"
