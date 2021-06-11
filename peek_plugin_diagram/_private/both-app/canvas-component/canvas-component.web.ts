@@ -25,6 +25,7 @@ import { PrivateDiagramBranchService } from "@peek/peek_plugin_diagram/_private/
 import { PrivateDiagramSnapshotService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramSnapshotService"
 import { PrivateDiagramOverrideService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService"
 import { PeekCanvasActioner } from "../canvas/PeekCanvasActioner"
+import { CanvasModelService } from "../canvas/canvas-model.service"
 
 /** Canvas Component
  *
@@ -69,7 +70,8 @@ export class CanvasComponent extends NgLifeCycleEvents {
         private configService: PrivateDiagramConfigService,
         private branchService: PrivateDiagramBranchService,
         private overrideService: PrivateDiagramOverrideService,
-        private snapshotService: PrivateDiagramSnapshotService
+        private snapshotService: PrivateDiagramSnapshotService,
+        private canvasModelService: CanvasModelService
     ) {
         super()
         
@@ -235,8 +237,17 @@ export class CanvasComponent extends NgLifeCycleEvents {
         this.config.controller.modelSetKey = this.modelSetKey
         
         // The model view the viewable items on the canvas
-        this.model = new PeekCanvasModel(this.config, this.gridObservable,
-            this.lookupService, this.branchService, this.overrideService, this)
+        this.model = new PeekCanvasModel(
+            this.config,
+            this.gridObservable,
+            this.lookupService,
+            this.branchService,
+            this.overrideService,
+            this
+        )
+        
+        // Assign model
+        this.canvasModelService.model = this.model
         
         // The display renderer delegates
         this.renderFactory = new PeekDispRenderFactory(this.config, this.model)
