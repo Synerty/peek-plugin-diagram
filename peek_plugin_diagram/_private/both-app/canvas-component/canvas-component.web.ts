@@ -1,7 +1,5 @@
 import { Component, Input, ViewChild } from "@angular/core"
-
 import { NgLifeCycleEvents } from "@synerty/vortexjs"
-
 import { PeekCanvasConfig } from "../canvas/PeekCanvasConfig.web"
 import { PeekDispRenderFactory } from "../canvas-render/PeekDispRenderFactory.web"
 import { PeekCanvasRenderer } from "../canvas-render/PeekCanvasRenderer.web"
@@ -10,10 +8,7 @@ import { PeekCanvasModel } from "../canvas/PeekCanvasModel.web"
 import { GridObservable } from "../cache/GridObservable.web"
 import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService"
 import { PrivateDiagramConfigService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService"
-
 import { DispBase, DispBaseT } from "../canvas-shapes/DispBase"
-
-import * as $ from "jquery"
 import { PeekCanvasBounds } from "../canvas/PeekCanvasBounds"
 import { PositionUpdatedI } from "@peek/peek_plugin_diagram/DiagramPositionService"
 import { DocDbPopupService } from "@peek/peek_core_docdb"
@@ -48,6 +43,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
     
     @Input("modelSetKey")
     modelSetKey: string
+    
     coordSetKey: string | null = null
     config: PeekCanvasConfig
     model: PeekCanvasModel
@@ -79,7 +75,6 @@ export class CanvasComponent extends NgLifeCycleEvents {
         
         // The config for the canvas
         this.config = new PeekCanvasConfig()
-        
     }
     
     isEditing(): boolean {
@@ -90,7 +85,6 @@ export class CanvasComponent extends NgLifeCycleEvents {
         return this.coordSetCache.isReady()
             && this.gridObservable.isReady()
             && this.lookupService != null
-        
     }
     
     ngOnInit() {
@@ -101,59 +95,36 @@ export class CanvasComponent extends NgLifeCycleEvents {
         this.input.setCanvas(this.canvas)
         this.renderer.setCanvas(this.canvas)
         
-        let jqCanvas = $(this.canvas)
-        let jqEditPropsView = $(this.editPropsView.nativeElement)
+        document.body.style.overflow = "hidden"
         
-        $("body")
-            .css("overflow", "hidden")
         // NOTE: If you're debugging diagram flickering, it might help to remove this.
-        jqCanvas.parent()
-            .css("background-color", this.config.renderer.backgroundColor)
+        this.canvas.style.backgroundColor = this.config.renderer.backgroundColor
         
         // Update the canvas height
         this.doCheckEvent
             .takeUntil(this.onDestroyEvent)
             .subscribe(() => {
-                let frameSize = `${$(window)
-                    .height()}`
+                let frameSize = window.innerHeight.toString()
                 
-                let editToolbarHeight = $(this.editToolbarView.nativeElement)
-                    .height()
-                
-                let titleBarHeight = $(".peek-header-component")
-                    .height()
-                let isDesktop = $(".peek-ds-mh-title")
-                    .height() != null
+                let titleBarHeight = document.getElementsByClassName("peek-header-component")
+                    ?.[0]
+                    ?.clientHeight
                 
                 frameSize += `;${titleBarHeight}`
-                frameSize += `;${editToolbarHeight}`
                 
-                if (this.lastFrameSize == frameSize)
+                if (this.lastFrameSize == frameSize) {
                     return
+                }
                 
                 this.lastFrameSize = frameSize
                 
-                // console.log(this.lastFrameSize);
-                // console.log(`titleBarHeight=${titleBarHeight}`);
-                // console.log(`footerBarHeight=${footerBarHeight}`);
-                // console.log(`editToolbarView=${editToolbarHeight}`);
+                let newHeight = window.innerHeight
                 
-                let newHeight = $(window)
-                    .height() - editToolbarHeight
-                
-                if (isDesktop) {
-                    newHeight -= 6
-                }
-                else if (titleBarHeight != null) {
+                if (titleBarHeight != null) {
                     newHeight -= (titleBarHeight)
                 }
-                
-                console.log(`newHeight=${newHeight}`)
-                
-                jqEditPropsView.find(".edit-props-panel")
-                    .css("height", `${newHeight}px`)
-                jqCanvas.css("height", `${newHeight}px`)
-                jqCanvas.css("width", "100%")
+
+                this.canvas.style.height = `${newHeight}px`
                 this.config.invalidate()
             })
         
@@ -161,20 +132,24 @@ export class CanvasComponent extends NgLifeCycleEvents {
         this.doCheckEvent
             .takeUntil(this.onDestroyEvent)
             .subscribe(() => {
-                let offset = jqCanvas.offset()
-                let bounds = new PeekCanvasBounds(
-                    offset.left, offset.top, jqCanvas.width(), jqCanvas.height()
+                const offset = {
+                    left: this.canvas.getBoundingClientRect().left,
+                    top: this.canvas.getBoundingClientRect().top
+                }
+                const bounds = new PeekCanvasBounds(
+                    offset.left, offset.top, window.innerWidth, window.innerHeight
                 )
-                let thisCanvasSize = bounds.toString()
-                
-                if (this.lastCanvasSize == thisCanvasSize)
+                const thisCanvasSize = bounds.toString()
+
+                if (this.lastCanvasSize == thisCanvasSize) {
                     return
-                
+                }
+
                 this.lastCanvasSize = thisCanvasSize
-                
+
                 this.canvas.height = this.canvas.clientHeight
                 this.canvas.width = this.canvas.clientWidth
-                
+
                 this.config.updateCanvasWindow(bounds)
             })
     }
@@ -200,7 +175,6 @@ export class CanvasComponent extends NgLifeCycleEvents {
     }
     
     connectPositionUpdateNotify(): void {
-        
         let notify = () => {
             if (this.config.controller.coordSet == null)
                 return
@@ -235,7 +209,6 @@ export class CanvasComponent extends NgLifeCycleEvents {
         this.config.editor.branchKeyChange
             .takeUntil(this.onDestroyEvent)
             .subscribe(notify)
-        
     }
     
     connectItemSelectionService(): void {
@@ -313,11 +286,9 @@ export class CanvasComponent extends NgLifeCycleEvents {
         
         // Hook up the Snapshot service
         this.connectSnapshotCallback()
-        
     }
     
     private switchToCoordSet(coordSetKey: string) {
-        
         if (!this.isReady())
             return
         
@@ -329,7 +300,6 @@ export class CanvasComponent extends NgLifeCycleEvents {
         // Update
         this.config.updateCoordSet(coordSet)
         this.coordSetKey = coordSetKey
-        
     }
     
     private connectConfigService(): void {
@@ -346,7 +316,6 @@ export class CanvasComponent extends NgLifeCycleEvents {
     }
     
     private connectDiagramService(): void {
-        
         // Watch the positionByCoordSet observable
         this.privatePosService.positionByCoordSetObservable()
             .takeUntil(this.onDestroyEvent)
@@ -398,7 +367,5 @@ export class CanvasComponent extends NgLifeCycleEvents {
                 this.privatePosService.setReady(true)
                 
             })
-        
     }
-    
 }
