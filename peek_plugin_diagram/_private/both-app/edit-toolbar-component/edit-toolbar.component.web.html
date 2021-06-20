@@ -13,6 +13,7 @@
         <button
             (click)="canvasEditor.save()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipTitle="Save Changes"
         >
             <i nz-icon nzTheme="outline" nzType="save"></i>
@@ -20,6 +21,7 @@
         <button
             (click)="printDiagramClicked()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipTitle="Show Printable Image"
         >
             <i nz-icon nzTheme="outline" nzType="printer"></i>
@@ -31,6 +33,7 @@
             (click)="selectEditSelectTool()"
             [class.active]="isEditSelectToolActive()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipTitle="Select Tool"
         >
             <i nz-icon nzTheme="outline" nzType="edit"></i>
@@ -44,6 +47,7 @@
             [class.disabled]="!isDeleteShapeActive()"
             [disabled]="!isDeleteShapeActive()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipTitle="Delete Shape"
         >
             <i nz-icon nzTheme="outline" nzType="delete"></i>
@@ -56,6 +60,7 @@
             [class.disabled]="!isUndoShapeActive()"
             [disabled]="!isUndoShapeActive()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipTitle="Undo"
         >
             <i nz-icon nzTheme="outline" nzType="undo"></i>
@@ -65,6 +70,7 @@
             [class.disabled]="!isRedoShapeActive()"
             [disabled]="!isRedoShapeActive()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipTitle="Redo"
         >
             <i nz-icon nzTheme="outline" nzType="redo"></i>
@@ -78,6 +84,7 @@
             (click)="selectEditMakeTextTool()"
             [class.active]="isEditMakeTextActive()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipTitle="Draw Text"
         >
             <i nz-icon nzTheme="outline" nzType="font-size"></i>
@@ -86,6 +93,7 @@
             (click)="selectEditMakeRectangleTool()"
             [class.active]="isEditMakeRectangleActive()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipTitle="Draw Rectangle"
         >
             <svg
@@ -101,6 +109,7 @@
             (click)="selectEditMakeLineWithArrowTool()"
             [class.active]="isEditMakeLineWithArrowActive()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipTitle="Draw Line with Arrow"
         >
             <svg
@@ -116,6 +125,7 @@
             (click)="selectEditMakeEllipseTool()"
             [class.active]="isEditMakeEllipseActive()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipTitle="Draw Circle, Ellipse or Arc"
         >
             <i nz-icon nzTheme="outline" nzType="loading-3-quarters"></i>
@@ -124,6 +134,7 @@
             (click)="selectEditMakePolygonTool()"
             [class.active]="isEditMakePolygonActive()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipTitle="Draw Polygon"
         >
             <svg
@@ -139,6 +150,7 @@
             (click)="selectEditMakePolylineTool()"
             [class.active]="isEditMakePolylineActive()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipTitle="Draw PolyLine / Line"
         >
             <svg
@@ -157,6 +169,7 @@
             (click)="selectEditMakeGroupPtrVertexTool()"
             [class.active]="isEditMakeGroupPtrVertexActive()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipTitle="Place Equipment"
         >
             <svg
@@ -172,6 +185,7 @@
             (click)="selectEditMakePolylineEdgeTool()"
             [class.active]="isEditMakePolylineEdgeActive()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipTitle="Place Conductor"
         >
             <i nz-icon nzTheme="outline" nzType="minus"></i>
@@ -185,6 +199,7 @@
             [class.active]="isButtonActive(btn)"
             [nzTitle]="btn.tooltip"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
         >
             <!-- <i nz-icon nzType="{{btn.icon}}" nzTheme="outline" *ngIf="btn.icon"></i> -->
             {{btn.name}}

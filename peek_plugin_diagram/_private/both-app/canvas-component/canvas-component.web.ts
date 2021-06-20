@@ -123,7 +123,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
                 if (titleBarHeight != null) {
                     newHeight -= (titleBarHeight)
                 }
-
+                
                 this.canvas.style.height = `${newHeight}px`
                 this.config.invalidate()
             })
@@ -140,16 +140,16 @@ export class CanvasComponent extends NgLifeCycleEvents {
                     offset.left, offset.top, window.innerWidth, window.innerHeight
                 )
                 const thisCanvasSize = bounds.toString()
-
+                
                 if (this.lastCanvasSize == thisCanvasSize) {
                     return
                 }
-
+                
                 this.lastCanvasSize = thisCanvasSize
-
+                
                 this.canvas.height = this.canvas.clientHeight
                 this.canvas.width = this.canvas.clientWidth
-
+                
                 this.config.updateCanvasWindow(bounds)
             })
     }

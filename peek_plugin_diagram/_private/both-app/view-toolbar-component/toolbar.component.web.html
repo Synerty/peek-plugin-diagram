@@ -23,8 +23,9 @@
         <button
             (click)="printDiagramClicked()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipPlacement="bottom"
-            nzTooltipTitle="Show Printable Image"
+            nzTooltipTitle="Show Diagram for Print"
         >
             <i nz-icon nzTheme="outline" nzType="printer"></i>
         </button>
@@ -32,6 +33,7 @@
             (click)="editDiagramClicked()"
             *ngIf="showEditDiagramButton()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipPlacement="bottom"
             nzTooltipTitle="Edit Diagram"
         >
@@ -43,6 +45,7 @@
             [class.btn-warning]="isBranchesActive()"
             [nzTooltipTitle]="showSelectBranchesTooltip()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipPlacement="bottom"
         >
             <i nz-icon nzTheme="outline" nzType="branches"></i>
@@ -50,6 +53,7 @@
         <button
             (click)="selectLayersClicked()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipPlacement="bottom"
             nzTooltipTitle="Select Layers"
         >
@@ -69,6 +73,7 @@
             (click)="goUpParentButtonClicked(btn)"
             *ngIf="showGoUpParentButton()"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipPlacement="bottom"
             nzTooltipTitle="Back"
         >
@@ -81,6 +86,7 @@
             [class.active]="isButtonActive(btn)"
             [nzTooltipTitle]="btn.tooltip"
             nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipPlacement="bottom"
         >
             <i
