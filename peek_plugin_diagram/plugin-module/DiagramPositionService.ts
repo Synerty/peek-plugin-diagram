@@ -28,7 +28,6 @@ export interface DispKeyLocation {
  */
 export abstract class DiagramPositionService {
     constructor() {
-    
     }
     
     /** Position Initial
@@ -40,7 +39,7 @@ export abstract class DiagramPositionService {
     abstract positionByCoordSet(
         modelSetKey: string,
         coordSetKey: string
-    ): void ;
+    ): void;
     
     /** Position
      *
@@ -60,9 +59,21 @@ export abstract class DiagramPositionService {
         y: number,
         zoom: number,
         opts: OptionalPositionArgsI | null
-    ): void ;
+    ): void;
     
-    /** Position By Key
+    /** Position By Keys
+     *
+     * @param modelSetKey: The model set that the disp key belongs to.
+     * @param keys: The equipment keys.
+     * @param coordSetKey: The key of the coord.
+     */
+    abstract positionByKeys(
+        keys: string[],
+        modelSetKey: string,
+        coordSetKey: string
+    ): void;
+    
+    /** Position By Keys
      *
      * @param modelSetKey: The model set that the disp key belongs to
      * @param dispKey: The key of the display item.
@@ -77,7 +88,7 @@ export abstract class DiagramPositionService {
         modelSetKey: string,
         coordSetKey: string | null,
         opts: OptionalPositionArgsI | null
-    ): void ;
+    ): void;
     
     /** Can Position By Key
      *
@@ -90,7 +101,7 @@ export abstract class DiagramPositionService {
     abstract canPositionByKey(
         modelSetKey: string,
         dispKey: string
-    ): Promise<boolean> ;
+    ): Promise<boolean>;
     
     /** Locations For Key
      *
@@ -103,19 +114,19 @@ export abstract class DiagramPositionService {
     abstract locationsForKey(
         modelSetKey: string,
         dispKey: string
-    ): Promise<DispKeyLocation[]> ;
+    ): Promise<DispKeyLocation[]>;
     
     /** Position Updated Observable
      *
      * @return An observerable that fires when the canvas position is updated.
      */
-    abstract positionUpdatedObservable(): Observable<PositionUpdatedI> ;
+    abstract positionUpdatedObservable(): Observable<PositionUpdatedI>;
     
     /** isReady
      *
      * @returns an observable that is fired when the diagram loads a coordset
      * or the coord set changes
      */
-    abstract isReadyObservable(): Observable<boolean> ;
+    abstract isReadyObservable(): Observable<boolean>;
     
 }

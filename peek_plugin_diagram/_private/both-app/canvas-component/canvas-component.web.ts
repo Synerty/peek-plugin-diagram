@@ -25,7 +25,6 @@ import { PrivateDiagramBranchService } from "@peek/peek_plugin_diagram/_private/
 import { PrivateDiagramSnapshotService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramSnapshotService"
 import { PrivateDiagramOverrideService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService"
 import { PeekCanvasActioner } from "../canvas/PeekCanvasActioner"
-import { CanvasModelService } from "../canvas/canvas-model.service"
 
 /** Canvas Component
  *
@@ -70,8 +69,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
         private configService: PrivateDiagramConfigService,
         private branchService: PrivateDiagramBranchService,
         private overrideService: PrivateDiagramOverrideService,
-        private snapshotService: PrivateDiagramSnapshotService,
-        private canvasModelService: CanvasModelService
+        private snapshotService: PrivateDiagramSnapshotService
     ) {
         super()
         
@@ -246,9 +244,6 @@ export class CanvasComponent extends NgLifeCycleEvents {
             this
         )
         
-        // Assign model
-        this.canvasModelService.model = this.model
-        
         // The display renderer delegates
         this.renderFactory = new PeekDispRenderFactory(this.config, this.model)
         
@@ -377,6 +372,13 @@ export class CanvasComponent extends NgLifeCycleEvents {
                 // Inform the position service that it's ready to go.
                 this.privatePosService.setReady(true)
                 
+            })
+        
+        // Watch the select observables
+        this.privatePosService.selectKeysObservable()
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((keys: string[]) => {
+                this.model.selection.tryToSelectKeys(keys)
             })
     }
 }
