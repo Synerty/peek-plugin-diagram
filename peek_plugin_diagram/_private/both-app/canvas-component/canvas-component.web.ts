@@ -235,8 +235,14 @@ export class CanvasComponent extends NgLifeCycleEvents {
         this.config.controller.modelSetKey = this.modelSetKey
         
         // The model view the viewable items on the canvas
-        this.model = new PeekCanvasModel(this.config, this.gridObservable,
-            this.lookupService, this.branchService, this.overrideService, this)
+        this.model = new PeekCanvasModel(
+            this.config,
+            this.gridObservable,
+            this.lookupService,
+            this.branchService,
+            this.overrideService,
+            this
+        )
         
         // The display renderer delegates
         this.renderFactory = new PeekDispRenderFactory(this.config, this.model)
@@ -366,6 +372,13 @@ export class CanvasComponent extends NgLifeCycleEvents {
                 // Inform the position service that it's ready to go.
                 this.privatePosService.setReady(true)
                 
+            })
+        
+        // Watch the select observables
+        this.privatePosService.selectKeysObservable()
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((keys: string[]) => {
+                this.model.selection.tryToSelectKeys(keys)
             })
     }
 }

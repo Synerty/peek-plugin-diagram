@@ -5,8 +5,7 @@ import {
     OptionalPositionArgsI,
     PositionUpdatedI
 } from "../../DiagramPositionService"
-import { Subject } from "rxjs"
-import { Observable } from "rxjs"
+import { Observable, Subject } from "rxjs"
 
 import { DispKeyLocationTuple } from "../location-loader/DispKeyLocationTuple"
 import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
@@ -42,6 +41,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
     private positionByKeySubject = new Subject<DiagramPositionByKeyI>()
     private isReadySubject = new Subject<boolean>()
     private postionUpdatedSubject = new Subject<PositionUpdatedI>()
+    private selectKeysSubject = new Subject<string[]>()
     
     constructor(
         private coordSetService: PrivateDiagramCoordSetService,
@@ -73,6 +73,47 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
             zoom: zoom,
             opts
         })
+    }
+    
+    async positionByKeys(
+        keys: string[],
+        modelSetKey: string,
+        coordSetKey: string
+    ): Promise<void> {
+        const locations: any[] = []
+        
+        for (const key of keys) {
+            const keyLocations = await this.locationsForKey(modelSetKey, key)
+            
+            if (keyLocations?.length === 0) {
+                continue
+            }
+            
+            const keyLocation = keyLocations[0].positions
+            
+            locations.push(...keyLocation)
+        }
+        
+        let x = 0
+        let y = 0
+        
+        for (const location of locations) {
+            x += location.x
+            y += location.y
+        }
+        
+        x /= locations.length
+        y /= locations.length
+        
+        this.position(
+            coordSetKey,
+            parseFloat(x.toString()),
+            parseFloat(y.toString()),
+            parseFloat("0.85"),
+            {}
+        )
+        
+        this.selectKeysSubject.next(keys)
     }
     
     async positionByKey(
@@ -198,4 +239,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
         return this.positionByCoordSetSubject
     }
     
+    selectKeysObservable(): Observable<string[]> {
+        return this.selectKeysSubject
+    }
 }
