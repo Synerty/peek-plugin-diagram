@@ -5,7 +5,7 @@
     </pl-diagram-canvas-context-menu>
     <pl-diagram-view-toolbar
         (openPrintPopup)="showPrintPopup=true"
-        *ngIf="coordSetIsValid() && !isEditing()"
+        *ngIf="showToolbar && coordSetIsValid() && !isEditing()"
         [config]="config"
         [coordSetKey]="coordSetKey"
         [modelSetKey]="modelSetKey"
