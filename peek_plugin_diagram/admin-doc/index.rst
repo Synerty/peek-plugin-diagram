@@ -18,3 +18,5 @@ and attribute updates from the peek-plugin-livedb plugin.
     status/status
     admin_tasks
     dev/dev
+    setup/setup
+    setup/setup_coord_set

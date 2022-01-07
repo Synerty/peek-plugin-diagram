@@ -18,7 +18,7 @@
         "office",
         "admin-doc",
         "field-doc",
-        "office-doc"
+
     ],
     "admin-doc": {
         "docDir": "admin-doc",
@@ -29,10 +29,7 @@
         "docDir": "both-doc",
         "docRst": "index.rst"
     },
-    "office-doc": {
-        "docDir": "both-doc",
-        "docRst": "index.rst"
-    },
+
     "logic": {
     },
     "storage": {

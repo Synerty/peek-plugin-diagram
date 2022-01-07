@@ -77,6 +77,49 @@ Zoom ranges should not overlap.
 
 After updating the Z Grid sizes, the grids for the coordinate set need to be recompiled.
 
+Setting the Zoom Limits
+```````````````````````
+
+This admin task will set the maximum and minimum zoom levels for a world view
+in the DMS diagram.
+
+Stop the Peek Services :code:`stop_peek.sh`
+
+----
+
+#. Navigate to the :code:`pl.diagram."ModelCoordSet"` table.
+#. Update the :code:`minZoom` value for the required world view.
+#. update the :code:`maxZoom` value for the required world view.
+#. Save the changes.
+
+.. image:: edit_zoom_limit.png
+
+----
+
+Restart the Peek services. :code:`restart_peek.sh`
+
+Enabling Markup Support
+```````````````````````
+
+This admin task will enable Markup support for a world view.
+
+Stop the Peek Services :code:`stop_peek.sh`
+
+----
+
+#. Navigate to :code:`pl_diagram."ModelCoordSet"`
+#. Update :code:`editEnabled` to :code:`True`
+#. Update :code:`editDefaultColorId` to the default Fault Colour.
+#. Update :code:`editDefaultLayerId` to the Default Layer Id.
+#. Update :code:`editDefaultLevelId` to the default Level Id.
+#. Update :code:`editDefaultLineStyleId` to the default Line Style.
+#. Update :code:`editDefaultTextStyleId` to the default Text Style.
+
+.. image:: enable_markup.png
+
+----
+
+Restart the Peek Services :code:`restart_peek.sh`
 
 Recompiling Coord Sets
 ``````````````````````
@@ -148,3 +191,23 @@ Each model set has it's own location index.
 ----
 
 Peek will now rebuild the location index.
+
+Edit Settings Tab
+-----------------
+
+The compilers can be toggled on an off in the **Edit Settings** Tab.
+
+To Toggle the Compilers on and off
+``````````````````````````````````
+
+#. Click on the **Value** to toggle.
+#. Click on the **Save** Button.
+
+.. image:: plugin_diagram_edit_settings.png
+
+To Discard your Changes
+```````````````````````
+
+Click **Reset** at any time to discard your changed and return the value to the previous saved settings.
+
+.. image:: plugin_diagram_edit_settings_reset.png
