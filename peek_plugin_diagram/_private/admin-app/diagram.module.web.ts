@@ -1,8 +1,8 @@
-import { CommonModule } from "@angular/common"
-import { FormsModule } from "@angular/forms"
-import { NgModule } from "@angular/core"
-import { RouterModule, Routes } from "@angular/router"
-import { EditSettingComponent } from "./edit-setting-table/edit.component"
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { NgModule } from "@angular/core";
+import { RouterModule, Routes } from "@angular/router";
+import { EditSettingComponent } from "./edit-setting-table/edit.component";
 import {
     TupleActionPushNameService,
     TupleActionPushService,
@@ -10,65 +10,66 @@ import {
     TupleDataObserverService,
     TupleOfflineStorageNameService,
     TupleOfflineStorageService,
-    TupleDataOfflineObserverService
-} from "@synerty/vortexjs"
+    TupleDataOfflineObserverService,
+} from "@synerty/vortexjs";
 // Import our components
-import { DiagramComponent } from "./diagram.component"
-import { StatusComponent } from "./status/status.component"
+import { DiagramComponent } from "./diagram.component";
+import { StatusComponent } from "./status/status.component";
 import {
     diagramActionProcessorName,
     diagramFilt,
     diagramObservableName,
-    diagramTupleOfflineServiceName
-} from "@peek/peek_plugin_diagram/_private"
+    diagramTupleOfflineServiceName,
+} from "@peek/peek_plugin_diagram/_private";
 
 export function tupleActionPushNameServiceFactory() {
     return new TupleActionPushNameService(
-        diagramActionProcessorName, diagramFilt)
+        diagramActionProcessorName,
+        diagramFilt
+    );
 }
 
 export function tupleDataObservableNameServiceFactory() {
     return new TupleDataObservableNameService(
-        diagramObservableName, diagramFilt)
+        diagramObservableName,
+        diagramFilt
+    );
 }
 
 export function tupleOfflineStorageNameServiceFactory() {
-    return new TupleOfflineStorageNameService(diagramTupleOfflineServiceName)
+    return new TupleOfflineStorageNameService(diagramTupleOfflineServiceName);
 }
 
 // Define the routes for this Angular module
 export const pluginRoutes: Routes = [
     {
         path: "",
-        component: DiagramComponent
-    }
-
-]
+        component: DiagramComponent,
+    },
+];
 
 // Define the module
 @NgModule({
-    imports: [
-        CommonModule,
-        RouterModule.forChild(pluginRoutes),
-        FormsModule
-    ],
+    imports: [CommonModule, RouterModule.forChild(pluginRoutes), FormsModule],
     exports: [],
     providers: [
-        TupleActionPushService, {
+        TupleActionPushService,
+        {
             provide: TupleActionPushNameService,
-            useFactory: tupleActionPushNameServiceFactory
+            useFactory: tupleActionPushNameServiceFactory,
         },
-        TupleOfflineStorageService, {
+        TupleOfflineStorageService,
+        {
             provide: TupleOfflineStorageNameService,
-            useFactory: tupleOfflineStorageNameServiceFactory
+            useFactory: tupleOfflineStorageNameServiceFactory,
         },
-        TupleDataObserverService, TupleDataOfflineObserverService, {
+        TupleDataObserverService,
+        TupleDataOfflineObserverService,
+        {
             provide: TupleDataObservableNameService,
-            useFactory: tupleDataObservableNameServiceFactory
+            useFactory: tupleDataObservableNameServiceFactory,
         },
     ],
-    declarations: [DiagramComponent, StatusComponent, EditSettingComponent]
+    declarations: [DiagramComponent, StatusComponent, EditSettingComponent],
 })
-export class PeekPluginDiagramModule {
-
-}
+export class PeekPluginDiagramModule {}

@@ -17,8 +17,7 @@
         "field",
         "office",
         "admin-doc",
-        "field-doc",
-
+        "field-doc"
     ],
     "admin-doc": {
         "docDir": "admin-doc",
@@ -30,8 +29,7 @@
         "docRst": "index.rst"
     },
 
-    "logic": {
-    },
+    "logic": {},
     "storage": {
         "alembicDir": "_private/alembic"
     },
@@ -41,8 +39,7 @@
         "appModule": "diagram.module.web#PeekPluginDiagramModule",
         "moduleDir": "plugin-module"
     },
-    "worker": {
-    },
+    "worker": {},
     "field": {
         "showHomeLink": false,
         "appDir": "_private/both-app",
@@ -164,8 +161,7 @@
             }
         ]
     },
-    "agent": {
-    },
+    "agent": {},
     "office": {
         "showHomeLink": false,
         "appDir": "_private/both-app",

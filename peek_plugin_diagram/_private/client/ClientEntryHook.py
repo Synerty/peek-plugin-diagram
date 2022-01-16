@@ -53,7 +53,7 @@ logger = logging.getLogger(__name__)
 
 class ClientEntryHook(PluginClientEntryHookABC):
     def __init__(self, *args, **kwargs):
-        """" Constructor """
+        """ " Constructor"""
         # Call the base classes constructor
         PluginClientEntryHookABC.__init__(self, *args, **kwargs)
 

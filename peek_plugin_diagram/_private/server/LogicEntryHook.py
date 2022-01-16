@@ -83,7 +83,7 @@ class LogicEntryHook(
     PluginServerWorkerEntryHookABC,
 ):
     def __init__(self, *args, **kwargs):
-        """" Constructor """
+        """ " Constructor"""
         # Call the base classes constructor
         PluginLogicEntryHookABC.__init__(self, *args, **kwargs)
 

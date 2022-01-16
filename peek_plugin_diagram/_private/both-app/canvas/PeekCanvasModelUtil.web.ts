@@ -1,4 +1,4 @@
-import { DispBase, DispBaseT } from "../canvas-shapes/DispBase"
+import { DispBase, DispBaseT } from "../canvas-shapes/DispBase";
 
 /** Sort Disps
  *
@@ -14,22 +14,15 @@ import { DispBase, DispBaseT } from "../canvas-shapes/DispBase"
  * @returns: A list of sorted disps
  */
 export function sortDisps(disps: DispBaseT[]): DispBaseT[] {
-    function cmp(
-        d1: DispBaseT,
-        d2: DispBaseT
-    ): number {
-        
-        let levelDiff = DispBase.level(d1).order - DispBase.level(d2).order
-        if (levelDiff != 0)
-            return levelDiff
-        
-        let layerDiff = DispBase.layer(d1).order - DispBase.layer(d2).order
-        if (layerDiff != 0)
-            return layerDiff
-        
-        return DispBase.zOrder(d1) - DispBase.zOrder(d2)
+    function cmp(d1: DispBaseT, d2: DispBaseT): number {
+        let levelDiff = DispBase.level(d1).order - DispBase.level(d2).order;
+        if (levelDiff != 0) return levelDiff;
+
+        let layerDiff = DispBase.layer(d1).order - DispBase.layer(d2).order;
+        if (layerDiff != 0) return layerDiff;
+
+        return DispBase.zOrder(d1) - DispBase.zOrder(d2);
     }
-    
-    return disps.sort(cmp)
-    
+
+    return disps.sort(cmp);
 }

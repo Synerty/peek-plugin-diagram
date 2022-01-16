@@ -1,5 +1,5 @@
-@import '~@synerty/peek-plugin-base-js/src/styles/_mixins';
-@import '~@synerty/peek-plugin-base-js/src/styles/_variables';
+@import "~@synerty/peek-plugin-base-js/src/styles/_mixins";
+@import "~@synerty/peek-plugin-base-js/src/styles/_variables";
 @import "src/variables.scss";
 
 $panel_width: 400px;
@@ -7,11 +7,9 @@ $panel_width: 400px;
 $edit_toolbar_button_height: 20px;
 $edit_toolbar_height: $edit_toolbar_button_height + 2 * $panel_width;
 
-
 .peek-tabs-section {
     width: unset;
 }
-
 
 .close {
     padding: 12px;
@@ -21,7 +19,6 @@ $edit_toolbar_height: $edit_toolbar_button_height + 2 * $panel_width;
     padding: $general_padding_1;
     top: $title_bar_height;
 }
-
 
 /* The side navigation menu */
 .edit-props-panel {

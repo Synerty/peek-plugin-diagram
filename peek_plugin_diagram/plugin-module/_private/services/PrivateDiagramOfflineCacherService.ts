@@ -1,20 +1,20 @@
-import { Injectable } from "@angular/core"
+import { Injectable } from "@angular/core";
 import {
     NgLifeCycleEvents,
     TupleSelector,
-    VortexStatusService
-} from "@synerty/vortexjs"
-import { PrivateDiagramTupleService } from "./PrivateDiagramTupleService"
-import { GroupDispsTuple, ModelCoordSet, ModelSet } from "../tuples"
+    VortexStatusService,
+} from "@synerty/vortexjs";
+import { PrivateDiagramTupleService } from "./PrivateDiagramTupleService";
+import { GroupDispsTuple, ModelCoordSet, ModelSet } from "../tuples";
 import {
     DispColor,
     DispLayer,
     DispLevel,
     DispLineStyle,
-    DispTextStyle
-} from "../../lookups"
-import { BranchKeyToIdMapTuple } from "../branch/BranchKeyToIdMapTuple"
-import { BranchService } from "@peek/peek_plugin_branch"
+    DispTextStyle,
+} from "../../lookups";
+import { BranchKeyToIdMapTuple } from "../branch/BranchKeyToIdMapTuple";
+import { BranchService } from "@peek/peek_plugin_branch";
 
 /** Diagram Lookups offline cacher
  *
@@ -26,36 +26,35 @@ import { BranchService } from "@peek/peek_plugin_branch"
  */
 @Injectable()
 export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
-    
     private static readonly LookupTuples = [
         DispLevel,
         DispLayer,
         DispColor,
         DispTextStyle,
-        DispLineStyle
-    ]
-    
-    private lookupSubs = []
-    private dispGroupSubs = []
-    
+        DispLineStyle,
+    ];
+
+    private lookupSubs = [];
+    private dispGroupSubs = [];
+
     constructor(
         private tupleService: PrivateDiagramTupleService,
         vortexStatusService: VortexStatusService,
         private globalBranchService: BranchService
     ) {
-        super()
-        
+        super();
+
         // Delete data older than 7 days
-        let date7DaysAgo = new Date(Date.now() - 7 * 24 * 3600 * 1000)
-        
-        let promise = null
+        let date7DaysAgo = new Date(Date.now() - 7 * 24 * 3600 * 1000);
+
+        let promise = null;
         if (vortexStatusService.snapshot.isOnline) {
             promise = this.tupleService.offlineStorage
                 .deleteOldTuples(date7DaysAgo)
-                .catch(err => console.log(`ERROR: Failed to delete old tuples`))
-            
-        }
-        else {
+                .catch((err) =>
+                    console.log(`ERROR: Failed to delete old tuples`)
+                );
+        } else {
             vortexStatusService.isOnline
                 .takeUntil(this.onDestroyEvent)
                 .filter((val) => val === true)
@@ -63,20 +62,20 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
                 .subscribe(() => {
                     this.tupleService.offlineStorage
                         .deleteOldTuples(date7DaysAgo)
-                        .catch(err => console.log(`ERROR: Failed to delete old tuples`))
-                })
-            promise = Promise.resolve()
+                        .catch((err) =>
+                            console.log(`ERROR: Failed to delete old tuples`)
+                        );
+                });
+            promise = Promise.resolve();
         }
-        
-        promise
-            .then(() => {
-                this.loadModelSet()
-                this.loadModelCoordSet()
-                this.loadBranchToIdMap()
-            })
-        
+
+        promise.then(() => {
+            this.loadModelSet();
+            this.loadModelCoordSet();
+            this.loadBranchToIdMap();
+        });
     }
-    
+
     /**
      * Cache Model Set
      *
@@ -84,26 +83,23 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
      *
      */
     private loadModelSet() {
-        
-        let tupleSelector = new TupleSelector(ModelSet.tupleName, {})
-        
+        let tupleSelector = new TupleSelector(ModelSet.tupleName, {});
+
         this.tupleService.offlineObserver
             .subscribeToTupleSelector(tupleSelector)
             .takeUntil(this.onDestroyEvent)
             .subscribe((modelSets: ModelSet[]) => {
-                this.tupleService.offlineObserver.flushCache(tupleSelector)
-                this.loadLookups(modelSets)
-                
+                this.tupleService.offlineObserver.flushCache(tupleSelector);
+                this.loadLookups(modelSets);
+
                 for (let modelSet of modelSets) {
-                    
                     // HACK!!!
                     // force the global branch service to cache it's stuff
-                    this.globalBranchService.branches(modelSet.key)
+                    this.globalBranchService.branches(modelSet.key);
                 }
-                
-            })
+            });
     }
-    
+
     /**
      * Cache Model Set
      *
@@ -111,19 +107,17 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
      *
      */
     private loadModelCoordSet() {
-        
-        let tupleSelector = new TupleSelector(ModelCoordSet.tupleName, {})
-        
+        let tupleSelector = new TupleSelector(ModelCoordSet.tupleName, {});
+
         this.tupleService.offlineObserver
             .subscribeToTupleSelector(tupleSelector)
             .takeUntil(this.onDestroyEvent)
             .subscribe((tuples: ModelCoordSet[]) => {
-                this.tupleService.offlineObserver.flushCache(tupleSelector)
-                this.loadDispGroups(tuples)
-            })
-        
+                this.tupleService.offlineObserver.flushCache(tupleSelector);
+                this.loadDispGroups(tuples);
+            });
     }
-    
+
     /**
      * Cache Branch KeyToIdMap Tuple
      *
@@ -131,18 +125,19 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
      *
      */
     private loadBranchToIdMap() {
-        
-        let tupleSelector = new TupleSelector(BranchKeyToIdMapTuple.tupleName, {})
-        
+        let tupleSelector = new TupleSelector(
+            BranchKeyToIdMapTuple.tupleName,
+            {}
+        );
+
         this.tupleService.offlineObserver
             .subscribeToTupleSelector(tupleSelector)
             .takeUntil(this.onDestroyEvent)
             .subscribe((tuples: BranchKeyToIdMapTuple[]) => {
-                this.tupleService.offlineObserver.flushCache(tupleSelector)
-            })
-        
+                this.tupleService.offlineObserver.flushCache(tupleSelector);
+            });
     }
-    
+
     /**
      * Cache Lookups
      *
@@ -150,29 +145,28 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
      *
      */
     private loadLookups(modelSets: ModelSet[]) {
-        
-        while (this.lookupSubs.length)
-            this.lookupSubs.pop()
-                .unsubscribe()
-        
+        while (this.lookupSubs.length) this.lookupSubs.pop().unsubscribe();
+
         for (let modelSet of modelSets) {
             for (let LookupTuple of PrivateDiagramOfflineCacherService.LookupTuples) {
                 let tupleSelector = new TupleSelector(LookupTuple.tupleName, {
-                    "modelSetKey": modelSet.key
-                })
-                
+                    modelSetKey: modelSet.key,
+                });
+
                 let sub = this.tupleService.offlineObserver
                     .subscribeToTupleSelector(tupleSelector)
                     .takeUntil(this.onDestroyEvent)
                     .subscribe((tuples: any[]) => {
-                        this.tupleService.offlineObserver.flushCache(tupleSelector)
-                    })
-                
-                this.lookupSubs.push(sub)
+                        this.tupleService.offlineObserver.flushCache(
+                            tupleSelector
+                        );
+                    });
+
+                this.lookupSubs.push(sub);
             }
         }
     }
-    
+
     /**
      * Load Disp Groups
      *
@@ -180,31 +174,25 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
      *
      */
     private loadDispGroups(coordSets: ModelCoordSet[]) {
-        
-        let subs = this.dispGroupSubs
-        
-        while (subs.length)
-            subs.pop()
-                .unsubscribe()
-        
+        let subs = this.dispGroupSubs;
+
+        while (subs.length) subs.pop().unsubscribe();
+
         for (let coordSet of coordSets) {
-            if (coordSet.dispGroupTemplatesEnabled !== true)
-                continue
-            
+            if (coordSet.dispGroupTemplatesEnabled !== true) continue;
+
             let tupleSelector = new TupleSelector(GroupDispsTuple.tupleName, {
-                "coordSetId": coordSet.id
-            })
-            
+                coordSetId: coordSet.id,
+            });
+
             let sub = this.tupleService.offlineObserver
                 .subscribeToTupleSelector(tupleSelector)
                 .takeUntil(this.onDestroyEvent)
                 .subscribe((tuples: any[]) => {
-                    this.tupleService.offlineObserver.flushCache(tupleSelector)
-                })
-            
-            subs.push(sub)
+                    this.tupleService.offlineObserver.flushCache(tupleSelector);
+                });
+
+            subs.push(sub);
         }
-        
     }
-    
 }

@@ -9,7 +9,7 @@
         >
             <i nz-icon nzTheme="outline" nzType="close"></i>
         </button>
-        
+
         <button
             (click)="canvasEditor.save()"
             nz-tooltip
@@ -27,7 +27,7 @@
             <i nz-icon nzTheme="outline" nzType="printer"></i>
         </button>
     </div>
-    
+
     <div class="toolbar-buttons">
         <button
             (click)="selectEditSelectTool()"
@@ -53,7 +53,7 @@
             <i nz-icon nzTheme="outline" nzType="delete"></i>
         </button>
     </div>
-    
+
     <div class="toolbar-buttons">
         <button
             (click)="undoShape()"
@@ -74,6 +74,29 @@
             nzTooltipTitle="Redo"
         >
             <i nz-icon nzTheme="outline" nzType="redo"></i>
+        </button>
+    </div>
+    
+    <div class="toolbar-buttons">
+        <button
+            (click)="doCopy()"
+            [class.disabled]="!canCopy()"
+            [disabled]="!canCopy()"
+            nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
+            nzTooltipTitle="Copy"
+        >
+            <i nz-icon nzTheme="outline" nzType="copy"></i>
+        </button>
+        <button
+            (click)="doPaste()"
+            [class.disabled]="!canPaste()"
+            [disabled]="!canPaste()"
+            nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
+            nzTooltipTitle="Paste"
+        >
+            <i nz-icon nzTheme="outline" nzType="file"></i>
         </button>
     </div>
 </div>
@@ -97,8 +120,10 @@
             nzTooltipTitle="Draw Rectangle"
         >
             <svg
-                height="1em" viewBox="0 0 2048 2048"
-                width="1em" xmlns="http://www.w3.org/2000/svg"
+                height="1em"
+                viewBox="0 0 2048 2048"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
             >
                 <path
                     d="M1792 128v1664H128V128h1664zm-128 128H256v1408h1408V256z"
@@ -113,8 +138,10 @@
             nzTooltipTitle="Draw Line with Arrow"
         >
             <svg
-                height="1em" viewBox="0 0 2048 2048"
-                width="1em" xmlns="http://www.w3.org/2000/svg"
+                height="1em"
+                viewBox="0 0 2048 2048"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
             >
                 <path
                     d="M1024 0h1024v1024h-128V219L93 2045l-90-90L1829 128h-805V0z"
@@ -138,8 +165,10 @@
             nzTooltipTitle="Draw Polygon"
         >
             <svg
-                height="1em" viewBox="0 0 2048 2048"
-                width="1em" xmlns="http://www.w3.org/2000/svg"
+                height="1em"
+                viewBox="0 0 2048 2048"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
             >
                 <path
                     d="M2024 960l-497 960H521L24 960 521 0h1006l497 960zm-144 0l-431-832H599L168 960l431 832h850l431-832z"
@@ -154,8 +183,10 @@
             nzTooltipTitle="Draw PolyLine / Line"
         >
             <svg
-                height="1em" viewBox="0 0 2048 2048"
-                width="1em" xmlns="http://www.w3.org/2000/svg"
+                height="1em"
+                viewBox="0 0 2048 2048"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
             >
                 <path
                     d="M1600 1024q66 0 124 25t101 69 69 102 26 124q0 66-25 124t-69 102-102 69-124 25q-57 0-109-19t-94-54-71-82-40-103q-99-6-192-36t-177-80-153-118-124-152v394q56 12 103 41t81 70 53 94 19 109q0 66-25 124t-69 102-102 69-124 25q-66 0-124-25t-102-68-69-102-25-125q0-57 19-109t53-93 81-71 103-41V634q-56-12-103-41t-81-70-53-94-19-109q0-66 25-124t68-101 102-69T576 0q66 0 124 25t101 69 69 102 26 124q0 57-19 108t-52 93-81 71-102 41q10 129 64 241t140 199 199 141 242 64q12-55 41-102t70-80 93-53 109-19zM384 320q0 40 15 75t41 61 61 41 75 15q40 0 75-15t61-41 41-61 15-75q0-40-15-75t-41-61-61-41-75-15q-40 0-75 15t-61 41-41 61-15 75zm384 1408q0-40-15-75t-41-61-61-41-75-15q-40 0-75 15t-61 41-41 61-15 75q0 40 15 75t41 61 61 41 75 15q40 0 75-15t61-41 41-61 15-75zm832-192q40 0 75-15t61-41 41-61 15-75q0-40-15-75t-41-61-61-41-75-15q-40 0-75 15t-61 41-41 61-15 75q0 40 15 75t41 61 61 41 75 15z"
@@ -163,7 +194,7 @@
             </svg>
         </button>
     </div>
-    
+
     <div class="toolbar-buttons equipment-buttons">
         <button
             (click)="selectEditMakeGroupPtrVertexTool()"
@@ -173,8 +204,10 @@
             nzTooltipTitle="Place Equipment"
         >
             <svg
-                height="1em" viewBox="0 0 2048 2048"
-                width="1em" xmlns="http://www.w3.org/2000/svg"
+                height="1em"
+                viewBox="0 0 2048 2048"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
             >
                 <path
                     d="M1024 0q141 0 272 36t244 104 207 160 161 207 103 245 37 272q0 141-36 272t-104 244-160 207-207 161-245 103-272 37q-141 0-272-36t-244-104-207-160-161-207-103-245-37-272q0-141 36-272t104-244 160-207 207-161T752 37t272-37zm0 1920q124 0 238-32t214-90 181-140 140-181 91-214 32-239q0-124-32-238t-90-214-140-181-181-140-214-91-239-32q-124 0-238 32t-214 90-181 140-140 181-91 214-32 239q0 124 32 238t90 214 140 181 181 140 214 91 239 32zM640 640h768v768H640V640zm128 640h512V768H768v512z"
@@ -191,7 +224,7 @@
             <i nz-icon nzTheme="outline" nzType="minus"></i>
         </button>
     </div>
-    
+
     <div class="toolbar-buttons other-buttons">
         <button
             (click)="buttonClicked(btn)"

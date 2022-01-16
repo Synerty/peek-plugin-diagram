@@ -1,7 +1,7 @@
-import { DispBase, PointI } from "./DispBase"
-import { ModelCoordSet } from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet"
-import { DispPolygon, DispPolygonT } from "./DispPolygon"
-import { assert } from "../DiagramUtil"
+import { DispBase, PointI } from "./DispBase";
+import { ModelCoordSet } from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
+import { DispPolygon, DispPolygonT } from "./DispPolygon";
+import { assert } from "../DiagramUtil";
 
 /** Disp Rectangle
  *
@@ -15,58 +15,42 @@ import { assert } from "../DiagramUtil"
  *
  */
 export class DispRectangle extends DispPolygon {
-    
-    static setRectanglePoint(
-        disp: DispPolygonT,
-        point: PointI
-    ): void {
+    static setRectanglePoint(disp: DispPolygonT, point: PointI): void {
         if (disp.g.length != 8)
-            throw new Error("Polygon rectangle doesn't have four points")
-        disp.g[0] = point.x
-        disp.g[1] = point.y
-        disp.g[3] = point.y
-        disp.g[6] = point.x
-        disp.bounds = null
+            throw new Error("Polygon rectangle doesn't have four points");
+        disp.g[0] = point.x;
+        disp.g[1] = point.y;
+        disp.g[3] = point.y;
+        disp.g[6] = point.x;
+        disp.bounds = null;
     }
-    
-    static setRectangleWidth(
-        disp: DispPolygonT,
-        width: number
-    ): void {
+
+    static setRectangleWidth(disp: DispPolygonT, width: number): void {
         if (disp.g.length != 8)
-            throw new Error("Polygon rectangle doesn't have four points")
-        let x = disp.g[0]
-        disp.g[2] = x + width
-        disp.g[4] = x + width
-        disp.bounds = null
+            throw new Error("Polygon rectangle doesn't have four points");
+        let x = disp.g[0];
+        disp.g[2] = x + width;
+        disp.g[4] = x + width;
+        disp.bounds = null;
     }
-    
-    static setRectangleHeight(
-        disp: DispPolygonT,
-        height: number
-    ): void {
+
+    static setRectangleHeight(disp: DispPolygonT, height: number): void {
         if (disp.g.length != 8)
-            throw new Error("Polygon rectangle doesn't have four points")
-        let y = disp.g[1]
-        disp.g[5] = y + height
-        disp.g[7] = y + height
-        disp.bounds = null
+            throw new Error("Polygon rectangle doesn't have four points");
+        let y = disp.g[1];
+        disp.g[5] = y + height;
+        disp.g[7] = y + height;
+        disp.bounds = null;
     }
-    
+
     static center(disp: DispPolygonT): PointI {
-        return {x: disp.g[0], y: disp.g[1]}
+        return { x: disp.g[0], y: disp.g[1] };
     }
-    
+
     static create(coordSet: ModelCoordSet): DispPolygonT {
-        let disp = <DispPolygonT>DispPolygon.create(coordSet)
-        DispPolygon.setIsRectangle(disp, true)
-        disp.g = [0, 0,
-            0, 0,
-            0, 0,
-            0, 0
-        ]
-        return disp
-        
+        let disp = <DispPolygonT>DispPolygon.create(coordSet);
+        DispPolygon.setIsRectangle(disp, true);
+        disp.g = [0, 0, 0, 0, 0, 0, 0, 0];
+        return disp;
     }
-    
 }

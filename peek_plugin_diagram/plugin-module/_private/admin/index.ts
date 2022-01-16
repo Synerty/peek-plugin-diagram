@@ -1,1 +1,1 @@
-export { SettingPropertyTuple } from "./SettingPropertyTuple"
+export { SettingPropertyTuple } from "./SettingPropertyTuple";

@@ -1,5 +1,5 @@
-import { addTupleType, Tuple } from "@synerty/vortexjs"
-import { diagramTuplePrefix } from "../PluginNames"
+import { addTupleType, Tuple } from "@synerty/vortexjs";
+import { diagramTuplePrefix } from "../PluginNames";
 
 // ----------------------------------------------------------------------------
 /** Grid Cache Index
@@ -11,15 +11,18 @@ import { diagramTuplePrefix } from "../PluginNames"
  */
 @addTupleType
 export class GridUpdateDateTuple extends Tuple {
-    public static readonly tupleName = diagramTuplePrefix + "GridUpdateDateTuple"
-    initialLoadComplete: boolean = false
+    public static readonly tupleName =
+        diagramTuplePrefix + "GridUpdateDateTuple";
+    initialLoadComplete: boolean = false;
     // initialLoadComplete: boolean = false;
-    updateDateByChunkKey: { [gridKey: string]: string } = {}
+    updateDateByChunkKey: { [gridKey: string]: string } = {};
     // Improve performance of the JSON serialisation
-    protected _rawJonableFields = ["initialLoadComplete", "updateDateByChunkKey"]
-    
+    protected _rawJonableFields = [
+        "initialLoadComplete",
+        "updateDateByChunkKey",
+    ];
+
     constructor() {
-        super(GridUpdateDateTuple.tupleName)
+        super(GridUpdateDateTuple.tupleName);
     }
 }
-

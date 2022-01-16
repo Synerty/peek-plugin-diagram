@@ -5,7 +5,7 @@
 >
     <div class="panel-header">
         <h4>{{title()}}</h4>
-        
+
         <button
             (click)="closePopup()"
             aria-label="Close"
@@ -25,22 +25,22 @@
                 [modelSetKey]="modelSetKey()"
             ></pl-diagram-branch-detail>
         </div>
-        
+
         <pl-diagram-edit-props-shape
             *ngIf="isShowingShapePropertiesContext()"
             [canvasEditor]="canvasEditor"
         ></pl-diagram-edit-props-shape>
-        
+
         <pl-diagram-edit-props-livedb
             *ngIf="isShowingDynamicPropertiesContext()"
             [canvasEditor]="canvasEditor"
         ></pl-diagram-edit-props-livedb>
-        
+
         <pl-diagram-edit-props-group-ptr
             *ngIf="isShowingGroupPtrPropertiesContext()"
             [canvasEditor]="canvasEditor"
         ></pl-diagram-edit-props-group-ptr>
-        
+
         <pl-diagram-edit-props-edge-template
             *ngIf="isShowingEdgeTemplatePropertiesContext()"
             [canvasEditor]="canvasEditor"

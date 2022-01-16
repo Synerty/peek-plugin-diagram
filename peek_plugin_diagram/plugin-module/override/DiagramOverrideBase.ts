@@ -10,25 +10,23 @@
  *
  *
  */
-import { Tuple } from "@synerty/vortexjs"
+import { Tuple } from "@synerty/vortexjs";
 
 export enum DiagramOverrideTypeE {
-    Color
+    Color,
 }
 
 export abstract class DiagramOverrideBase extends Tuple {
-    
-    private static overrideNum: number = 0
-    public readonly key: string
-    
+    private static overrideNum: number = 0;
+    public readonly key: string;
+
     protected constructor(
         public readonly modelSetKey: string,
         public readonly coordSetKey: string,
         public readonly overrideType: DiagramOverrideTypeE,
         tupleType: string
     ) {
-        super(tupleType)
-        this.key = `${new Date().getTime()}=${DiagramOverrideBase.overrideNum++}`
+        super(tupleType);
+        this.key = `${new Date().getTime()}=${DiagramOverrideBase.overrideNum++}`;
     }
-    
 }

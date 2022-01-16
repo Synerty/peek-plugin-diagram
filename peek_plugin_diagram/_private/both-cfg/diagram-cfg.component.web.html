@@ -12,28 +12,25 @@
     -->
 </div>
 
-<div class="peek-nav-bar-padding ">
+<div class="peek-nav-bar-padding">
     <div class="peek-information-section">
         <button
             (click)="toggleOfflineMode()"
             [class.bg-success]="gridLoaderStatus.cacheForOfflineEnabled"
             class="btn"
         >
-            {{gridLoaderStatus.cacheForOfflineEnabled
-            ? 'Disable Offline Support'
-            : 'Enable Offline Support'}}
+            {{gridLoaderStatus.cacheForOfflineEnabled ? 'Disable Offline
+            Support' : 'Enable Offline Support'}}
         </button>
         <p>
-            
             Grid Cache Offline Mode Enabled :
             {{gridLoaderStatus.cacheForOfflineEnabled}}<br />
             Grid Cache Load Complete :
             {{gridLoaderStatus.initialLoadComplete}}<br />
             Grid Cache Load Progress :
             {{gridLoaderStatus.loadProgress}}/{{gridLoaderStatus.loadTotal}}<br />
-            Grid Cache Last Check Finished :
-            {{gridLoaderStatus.lastCheck}}<br />
-            
+            Grid Cache Last Check Finished : {{gridLoaderStatus.lastCheck}}<br />
+
             Location Index Offline Mode Enabled :
             {{locationLoaderStatus.cacheForOfflineEnabled}}<br />
             Location Index Load Complete :

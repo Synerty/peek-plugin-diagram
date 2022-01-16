@@ -1,27 +1,24 @@
-import { DispBase, DispBaseT } from "./DispBase"
+import { DispBase, DispBaseT } from "./DispBase";
 
 export interface DispGroupT extends DispBaseT {
-    
     // Disp Items
     di: string;
-    
+
     // Name
     n: string;
 }
 
 export class DispGroup extends DispBase {
-    
     static items(disp: DispGroupT): DispBaseT[] {
-        if (disp.di == null)
-            return []
-        
-        return JSON.parse(disp.di)
+        if (disp.di == null) return [];
+
+        return JSON.parse(disp.di);
     }
-    
+
     static groupName(disp: DispGroupT): string {
-        return disp.n
+        return disp.n;
     }
-    
+
     /*
      static create(coordSet: ModelCoordSet): DispGroupPointerT {
      let newDisp = {
@@ -73,5 +70,4 @@ export class DispGroup extends DispBase {
      + `\nAt : ${parseInt(<any>center.x)}x${parseInt(<any>center.y)}`;
      }
      */
-    
 }

@@ -1,5 +1,5 @@
-import { addTupleType, Tuple } from "@synerty/vortexjs"
-import { diagramTuplePrefix } from "../PluginNames"
+import { addTupleType, Tuple } from "@synerty/vortexjs";
+import { diagramTuplePrefix } from "../PluginNames";
 
 /* Group Disps Tuple
  
@@ -9,14 +9,14 @@ import { diagramTuplePrefix } from "../PluginNames"
  */
 @addTupleType
 export class GroupDispsTuple extends Tuple {
-    public static readonly tupleName = diagramTuplePrefix + "GroupDispsTuple"
-    
-    coordSetId: number
-    
+    public static readonly tupleName = diagramTuplePrefix + "GroupDispsTuple";
+
+    coordSetId: number;
+
     // A GridTuple, already encoded and ready for storage in the clients cache
-    encodedGridTuple: string
-    
+    encodedGridTuple: string;
+
     constructor() {
-        super(GroupDispsTuple.tupleName)
+        super(GroupDispsTuple.tupleName);
     }
 }
