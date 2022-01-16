@@ -1,12 +1,12 @@
-import { PeekCanvasConfig } from "./PeekCanvasConfig.web"
-import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService"
+import { PeekCanvasConfig } from "./PeekCanvasConfig.web";
+import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {
     DiagramOverrideBase,
-    DiagramOverrideTypeE
-} from "@peek/peek_plugin_diagram/override/DiagramOverrideBase"
-import { DiagramOverrideColor } from "@peek/peek_plugin_diagram/override/DiagramOverrideColor"
-import { DispBase } from "../canvas-shapes/DispBase"
-import { DispFactory } from "../canvas-shapes/DispFactory"
+    DiagramOverrideTypeE,
+} from "@peek/peek_plugin_diagram/override/DiagramOverrideBase";
+import { DiagramOverrideColor } from "@peek/peek_plugin_diagram/override/DiagramOverrideColor";
+import { DispBase } from "../canvas-shapes/DispBase";
+import { DispFactory } from "../canvas-shapes/DispFactory";
 
 /**
  * Peek Canvas Model
@@ -16,102 +16,87 @@ import { DispFactory } from "../canvas-shapes/DispFactory"
  *
  */
 export class PeekCanvasModelOverride {
-    
-    private overridesByDispKey: { [key: string]: DiagramOverrideBase[] } = {}
-    
+    private overridesByDispKey: { [key: string]: DiagramOverrideBase[] } = {};
+
     constructor(
         private config: PeekCanvasConfig,
         private lookupCache: PrivateDiagramLookupService
-    ) {
-    
-    };
-    
+    ) {}
+
     // ------------------------------------------------------------------------
     // reset
-    
+
     // ------------------------------------------------------------------------
     setOverrides(overrides: DiagramOverrideBase[]): void {
-        
-        this.overridesByDispKey = {}
+        this.overridesByDispKey = {};
         for (const overrideBase of overrides) {
             if (overrideBase.overrideType == DiagramOverrideTypeE.Color) {
-                const colorOverride: DiagramOverrideColor = <any>overrideBase
+                const colorOverride: DiagramOverrideColor = <any>overrideBase;
                 for (const key of colorOverride.dispKeys) {
-                    this.getArrayForKey(key)
-                        .push(colorOverride)
+                    this.getArrayForKey(key).push(colorOverride);
                 }
             }
         }
-        
     }
-    
+
     // ------------------------------------------------------------------------
     //
     // ------------------------------------------------------------------------
-    
+
     // ------------------------------------------------------------------------
     applyOverridesToModel(disps: any[]): void {
         for (const disp of disps) {
-            const dispKey = DispBase.key(disp)
-            if (dispKey == null)
-                continue
-            
-            const array = this.getArrayForKey(dispKey, false)
-            if (array == null)
-                continue
-            
+            const dispKey = DispBase.key(disp);
+            if (dispKey == null) continue;
+
+            const array = this.getArrayForKey(dispKey, false);
+            if (array == null) continue;
+
             for (const overrideBase of array) {
                 switch (overrideBase.overrideType) {
                     case DiagramOverrideTypeE.Color: {
-                        this.applyColorOverride(disp, overrideBase)
-                        break
+                        this.applyColorOverride(disp, overrideBase);
+                        break;
                     }
-                    
+
                     default: {
-                        throw new Error("Unhandled override type "
-                            + overrideBase.overrideType)
+                        throw new Error(
+                            "Unhandled override type " +
+                                overrideBase.overrideType
+                        );
                     }
                 }
             }
         }
     }
-    
+
     // ------------------------------------------------------------------------
     // Set
-    
+
     // ------------------------------------------------------------------------
-    private reset() {
-    };
-    
+    private reset() {}
+
     // ------------------------------------------------------------------------
     // Request Display Updates
-    
-    private getArrayForKey(
-        key: string,
-        create: boolean = true
-    ): any[] {
-        let array = this.overridesByDispKey[key]
+
+    private getArrayForKey(key: string, create: boolean = true): any[] {
+        let array = this.overridesByDispKey[key];
         if (array == null && create) {
-            array = []
-            this.overridesByDispKey[key] = array
+            array = [];
+            this.overridesByDispKey[key] = array;
         }
-        return array
-    };
-    
-    private applyColorOverride(
-        disp,
-        colorOverride: DiagramOverrideColor
-    ) {
-        const Wrapper = DispFactory.wrapper(disp)
-        if (colorOverride.lineColor != null && Wrapper.setLineColor != null)
-            Wrapper.setLineColor(disp, colorOverride.lineColor)
-        
-        if (colorOverride.fillColor != null && Wrapper.setFillColor != null)
-            Wrapper.setFillColor(disp, colorOverride.fillColor)
-        
-        if (colorOverride.color != null && Wrapper.setColor != null)
-            Wrapper.setColor(disp, colorOverride.color)
-        
+        return array;
     }
-    
+
+    private applyColorOverride(disp, colorOverride: DiagramOverrideColor) {
+        const Wrapper = DispFactory.wrapper(disp);
+        if (colorOverride.lineColor != null && Wrapper.setLineColor != null)
+            Wrapper.setLineColor(disp, colorOverride.lineColor);
+
+        if (colorOverride.fillColor != null && Wrapper.setFillColor != null)
+            Wrapper.setFillColor(disp, colorOverride.fillColor);
+
+        if (colorOverride.color != null && Wrapper.setColor != null)
+            Wrapper.setColor(disp, colorOverride.color);
+    }
 }

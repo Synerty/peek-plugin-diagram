@@ -1,5 +1,5 @@
-import { DiagramCoordSetTuple } from "./tuples/DiagramCoordSetTuple"
-import { Observable } from "rxjs"
+import { DiagramCoordSetTuple } from "./tuples/DiagramCoordSetTuple";
+import { Observable } from "rxjs";
 
 /** Diagram Coord Set Service
  *
@@ -7,9 +7,9 @@ import { Observable } from "rxjs"
  * cache.
  */
 export abstract class DiagramCoordSetService {
-    abstract diagramCoordSetTuples(modelSetKey: string): Observable<DiagramCoordSetTuple[]> ;
-    
-    abstract modelSetKeys(): string[] ;
+    abstract diagramCoordSetTuples(
+        modelSetKey: string
+    ): Observable<DiagramCoordSetTuple[]>;
+
+    abstract modelSetKeys(): string[];
 }
-
-

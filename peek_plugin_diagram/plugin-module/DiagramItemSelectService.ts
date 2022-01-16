@@ -1,4 +1,4 @@
-import { Observable } from "rxjs"
+import { Observable } from "rxjs";
 
 export interface SelectedItemDetailsI {
     modelSetKey: string;
@@ -14,11 +14,9 @@ export interface SelectedItemDetailsI {
  *
  */
 export abstract class DiagramItemSelectService {
-    
     /** itemSelectObservable
      *
      * This observable is fired when an item on the diagram is selected
      */
-    abstract itemsSelectedObservable(): Observable<SelectedItemDetailsI[]> ;
-    
+    abstract itemsSelectedObservable(): Observable<SelectedItemDetailsI[]>;
 }

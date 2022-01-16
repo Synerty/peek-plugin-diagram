@@ -1,10 +1,9 @@
-@import '~@synerty/peek-plugin-base-js/src/styles/_mixins';
-@import '~@synerty/peek-plugin-base-js/src/styles/_variables';
+@import "~@synerty/peek-plugin-base-js/src/styles/_mixins";
+@import "~@synerty/peek-plugin-base-js/src/styles/_variables";
 
 .peek-tabs-section {
     width: unset;
 }
-
 
 .modal-open.modal {
     overflow-y: unset;

@@ -1,10 +1,8 @@
-@import '~@synerty/peek-plugin-base-js/src/styles/_mixins';
-@import '~@synerty/peek-plugin-base-js/src/styles/_variables';
-
+@import "~@synerty/peek-plugin-base-js/src/styles/_mixins";
+@import "~@synerty/peek-plugin-base-js/src/styles/_variables";
 
 .modal-open.modal {
     overflow-y: unset;
-
 }
 
 .modal-body {
@@ -15,7 +13,6 @@
 .modal-dialog {
     padding: $general_padding_1;
     top: $title_bar_height;
-
 }
 
 /*

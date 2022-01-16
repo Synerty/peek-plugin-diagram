@@ -5,7 +5,6 @@
  *
  */
 export abstract class DiagramSnapshotService {
-    
     /** Snapshot Diagram
      *
      * Call this method to retrieve a Base64 encoded snapshot image of the
@@ -13,5 +12,4 @@ export abstract class DiagramSnapshotService {
      *
      */
     abstract snapshotDiagram(): Promise<string | null>;
-    
 }

@@ -1,14 +1,14 @@
-import { ServiceBridgeHandlerBase } from "./ServiceBridgeHandlerBase"
+import { ServiceBridgeHandlerBase } from "./ServiceBridgeHandlerBase";
 
 interface CallDataI {
-    promId: number,
-    data: any[]
+    promId: number;
+    data: any[];
 }
 
 interface ResultDataI {
-    promId: number,
-    action: string,
-    result: any
+    promId: number;
+    action: string;
+    result: any;
 }
 
 /** Service Bridge Handler Promise Caller Side
@@ -17,42 +17,35 @@ interface ResultDataI {
  *
  * */
 export class ServiceBridgeHandlerPromiseCallerSide extends ServiceBridgeHandlerBase {
-    private promsById = {}
-    private nextPromiseId = 1
-    
-    constructor(
-        key: string,
-        encodeWithPayload: boolean = true
-    ) {
-        super(key, encodeWithPayload, false)
+    private promsById = {};
+    private nextPromiseId = 1;
+
+    constructor(key: string, encodeWithPayload: boolean = true) {
+        super(key, encodeWithPayload, false);
     }
-    
+
     call(...data: any[]): Promise<any> {
-        let promId = this.nextPromiseId++
-        
-        return new Promise<string | null>((
-            resolve,
-            reject
-        ) => {
+        let promId = this.nextPromiseId++;
+
+        return new Promise<string | null>((resolve, reject) => {
             this.promsById[promId] = {
-                "resolve": resolve,
-                "reject": reject
-            }
-            
+                resolve: resolve,
+                reject: reject,
+            };
+
             // Get some typing in here.
             let dataToSend: CallDataI = {
                 promId: promId,
-                data: data
-            }
-            this.sendData(dataToSend)
-        })
-        
+                data: data,
+            };
+            this.sendData(dataToSend);
+        });
     }
-    
+
     protected dataReceived(receivedData: any): void {
-        let args: ResultDataI = receivedData
-        this.promsById[args.promId][args.action](args.result)
-        delete this.promsById[args.promId]
+        let args: ResultDataI = receivedData;
+        this.promsById[args.promId][args.action](args.result);
+        delete this.promsById[args.promId];
     }
 }
 
@@ -63,50 +56,43 @@ export class ServiceBridgeHandlerPromiseCallerSide extends ServiceBridgeHandlerB
  *
  */
 export class ServiceBridgeHandlerPromiseCalleeSide extends ServiceBridgeHandlerBase {
-    
     constructor(
         key: string,
         encodeWithPayload: boolean,
-        private  callableReturningPromise: any
+        private callableReturningPromise: any
     ) {
-        
-        super(key, encodeWithPayload)
-        
+        super(key, encodeWithPayload);
     }
-    
-    resolveReject(
-        resultData: any,
-        promId: number,
-        action: string
-    ): void {
+
+    resolveReject(resultData: any, promId: number, action: string): void {
         // Get some typing in here.
         let dataToSend: ResultDataI = {
             promId: promId,
             action: action,
-            result: resultData
-        }
-        this.sendData(dataToSend)
+            result: resultData,
+        };
+        this.sendData(dataToSend);
     }
-    
+
     protected dataReceived(receivedData: any): void {
-        let args: CallDataI = receivedData
+        let args: CallDataI = receivedData;
         this.handlePromise(
             this.callableReturningPromise.apply(null, args.data),
             args.promId
-        )
+        );
     }
-    
-    private handlePromise(
-        promise: Promise<any>,
-        promId: number
-    ): void {
+
+    private handlePromise(promise: Promise<any>, promId: number): void {
         if (promise == null || promise.then == null) {
-            console.log(`ERROR, Callable for bridge ${this.key} didn't return a promise`)
+            console.log(
+                `ERROR, Callable for bridge ${this.key} didn't return a promise`
+            );
         }
-        
+
         promise
-            .then((resultData) => this.resolveReject(resultData, promId, "resolve"))
-            .catch((e) => this.resolveReject(e.toString(), promId, "reject"))
+            .then((resultData) =>
+                this.resolveReject(resultData, promId, "resolve")
+            )
+            .catch((e) => this.resolveReject(e.toString(), promId, "reject"));
     }
-    
 }

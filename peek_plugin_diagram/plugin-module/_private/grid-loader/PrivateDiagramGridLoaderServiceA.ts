@@ -1,30 +1,27 @@
-import { GridTuple } from "./GridTuple"
-import { Observable } from "rxjs"
-import { NgLifeCycleEvents } from "@synerty/vortexjs"
-import { PrivateDiagramGridLoaderStatusTuple } from "./PrivateDiagramGridLoaderStatusTuple"
+import { GridTuple } from "./GridTuple";
+import { Observable } from "rxjs";
+import { NgLifeCycleEvents } from "@synerty/vortexjs";
+import { PrivateDiagramGridLoaderStatusTuple } from "./PrivateDiagramGridLoaderStatusTuple";
 
 export abstract class PrivateDiagramGridLoaderServiceA extends NgLifeCycleEvents {
-    abstract observable: Observable<GridTuple[]>
-    
+    abstract observable: Observable<GridTuple[]>;
+
     constructor() {
-        super()
-        
+        super();
     }
-    
+
     abstract isReady(): boolean;
-    
+
     abstract isReadyObservable(): Observable<boolean>;
-    
-    abstract statusObservable(): Observable<PrivateDiagramGridLoaderStatusTuple> ;
-    
-    abstract status(): PrivateDiagramGridLoaderStatusTuple ;
-    
+
+    abstract statusObservable(): Observable<PrivateDiagramGridLoaderStatusTuple>;
+
+    abstract status(): PrivateDiagramGridLoaderStatusTuple;
+
     abstract watchGrids(gridKeys: string[]): void;
-    
+
     abstract loadGrids(
         currentGridUpdateTimes: { [gridKey: string]: string },
         gridKeys: string[]
     ): void;
-    
 }
-

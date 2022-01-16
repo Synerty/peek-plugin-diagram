@@ -1,4 +1,4 @@
-import { ServiceBridgeHandlerBase } from "./ServiceBridgeHandlerBase"
+import { ServiceBridgeHandlerBase } from "./ServiceBridgeHandlerBase";
 
 /** Service Bridge Handler Caller Side
  *
@@ -6,18 +6,14 @@ import { ServiceBridgeHandlerBase } from "./ServiceBridgeHandlerBase"
  *
  * */
 export class ServiceBridgeHandlerCallerSide extends ServiceBridgeHandlerBase {
-    
-    constructor(
-        key: string,
-        encodeWithPayload: boolean = true
-    ) {
-        super(key, encodeWithPayload, false)
+    constructor(key: string, encodeWithPayload: boolean = true) {
+        super(key, encodeWithPayload, false);
     }
-    
+
     call(...data: any[]): void {
-        this.sendData(data)
+        this.sendData(data);
     }
-    
+
     protected dataReceived(data: any): void {
         // We don't get any data
     }
@@ -30,19 +26,15 @@ export class ServiceBridgeHandlerCallerSide extends ServiceBridgeHandlerBase {
  *
  */
 export class ServiceBridgeHandlerCalleeSide extends ServiceBridgeHandlerBase {
-    
     constructor(
         key: string,
         encodeWithPayload: boolean,
-        private  callable: any
+        private callable: any
     ) {
-        
-        super(key, encodeWithPayload)
-        
+        super(key, encodeWithPayload);
     }
-    
+
     protected dataReceived(data: any[]): void {
-        this.callable.apply(null, data)
+        this.callable.apply(null, data);
     }
-    
 }

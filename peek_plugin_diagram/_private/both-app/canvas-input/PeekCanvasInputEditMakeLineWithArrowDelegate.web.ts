@@ -1,7 +1,7 @@
-import { EditorToolType } from "../canvas/PeekCanvasEditorToolType.web"
-import { PeekCanvasInputEditMakeDispPolyDelegate } from "./PeekCanvasInputEditMakePolyDelegate.web"
-import { InputDelegateConstructorViewArgs } from "./PeekCanvasInputDelegate.web"
-import { InputDelegateConstructorEditArgs } from "./PeekCanvasInputDelegateUtil.web"
+import { EditorToolType } from "../canvas/PeekCanvasEditorToolType.web";
+import { PeekCanvasInputEditMakeDispPolyDelegate } from "./PeekCanvasInputEditMakePolyDelegate.web";
+import { InputDelegateConstructorViewArgs } from "./PeekCanvasInputDelegate.web";
+import { InputDelegateConstructorEditArgs } from "./PeekCanvasInputDelegateUtil.web";
 
 /**
  * This input delegate handles :
@@ -10,17 +10,19 @@ import { InputDelegateConstructorEditArgs } from "./PeekCanvasInputDelegateUtil.
  * Selecting at a point (touch and mouse)
  *
  */
-export class PeekCanvasInputEditMakeLineWithArrowDelegate
-    extends PeekCanvasInputEditMakeDispPolyDelegate {
-    static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_LINE_WITH_ARROW
-    
+export class PeekCanvasInputEditMakeLineWithArrowDelegate extends PeekCanvasInputEditMakeDispPolyDelegate {
+    static readonly TOOL_NAME = EditorToolType.EDIT_MAKE_LINE_WITH_ARROW;
+
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
         editArgs: InputDelegateConstructorEditArgs
     ) {
-        super(viewArgs, editArgs, PeekCanvasInputEditMakeLineWithArrowDelegate.TOOL_NAME)
-        
-        this._reset()
+        super(
+            viewArgs,
+            editArgs,
+            PeekCanvasInputEditMakeLineWithArrowDelegate.TOOL_NAME
+        );
+
+        this._reset();
     }
-    
 }

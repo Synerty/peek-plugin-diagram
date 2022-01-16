@@ -2,17 +2,17 @@ import {
     DispBase,
     DispBaseT,
     DispType,
-    PointI
-} from "../canvas-shapes/DispBase"
-import { DispPolyline } from "../canvas-shapes/DispPolyline"
-import { DispGroupPointerT } from "../canvas-shapes/DispGroupPointer"
-import { DispPolygon } from "../canvas-shapes/DispPolygon"
+    PointI,
+} from "../canvas-shapes/DispBase";
+import { DispPolyline } from "../canvas-shapes/DispPolyline";
+import { DispGroupPointerT } from "../canvas-shapes/DispGroupPointer";
+import { DispPolygon } from "../canvas-shapes/DispPolygon";
 
 // import 'rxjs/add/operator/takeUntil';
 
 export interface PolylineEnd {
-    isStart: boolean,
-    disp: any
+    isStart: boolean;
+    disp: any;
 }
 
 export interface DispFilterCallableT {
@@ -28,86 +28,72 @@ export interface DispFilterCallableT {
  */
 
 export class PeekCanvasModelQuery {
-    
-    constructor(private model) {
-    
-    };
+    constructor(private model) {}
 
-// -------------------------------------------------------------------------------------
-// Display Items
-// -------------------------------------------------------------------------------------
-    
+    // -------------------------------------------------------------------------------------
+    // Display Items
+    // -------------------------------------------------------------------------------------
+
     get viewableDisps(): any[] {
-        return this.model.viewableDisps()
+        return this.model.viewableDisps();
     }
-    
+
     get selectableDisps(): any[] {
-        return this.viewableDisps
-            .filter(disp => DispBase.isSelectable(disp))
+        return this.viewableDisps.filter((disp) => DispBase.isSelectable(disp));
     }
-    
+
     get selectedDisps(): any[] {
-        return this.model.selection.selectedDisps()
+        return this.model.selection.selectedDisps();
     }
-    
+
     get dispsInSelectedGroups(): any[] {
-        return this.dispsForGroups(this.selectedDisps)
+        return this.dispsForGroups(this.selectedDisps);
     }
-    
+
     sortBySelectionPriority(disps): any[] {
-        function cmp(
-            disp1,
-            disp2
-        ): number {
-            
-            if (DispBase.typeOf(disp1) == DispType.groupPointer
-                && DispBase.typeOf(disp2) != DispType.groupPointer)
-                return 1
-            
-            if (DispBase.typeOf(disp1) == DispType.polygon
-                && DispBase.typeOf(disp2) != DispType.polygon)
-                return 1
-            
+        function cmp(disp1, disp2): number {
+            if (
+                DispBase.typeOf(disp1) == DispType.groupPointer &&
+                DispBase.typeOf(disp2) != DispType.groupPointer
+            )
+                return 1;
+
+            if (
+                DispBase.typeOf(disp1) == DispType.polygon &&
+                DispBase.typeOf(disp2) != DispType.polygon
+            )
+                return 1;
+
             // Put all the null bounds at one end
-            if (disp1.bounds && !disp2.bounds)
-                return 1
-            
-            if (!disp1.bounds && disp2.bounds)
-                return -1
-            
+            if (disp1.bounds && !disp2.bounds) return 1;
+
+            if (!disp1.bounds && disp2.bounds) return -1;
+
             // Bigger bounds come first
-            return disp1.bounds.area(disp2) - disp1.bounds.area(disp1)
-            
+            return disp1.bounds.area(disp2) - disp1.bounds.area(disp1);
         }
-        
-        return disps.sort(cmp)
+
+        return disps.sort(cmp);
     }
-    
-    sortByDistanceFromCenter(
-        disps,
-        point: PointI
-    ): any[] {
-        const lazyDists = {}
-        
+
+    sortByDistanceFromCenter(disps, point: PointI): any[] {
+        const lazyDists = {};
+
         function lazyGetDist(disp) {
-            if (disp.bounds == null)
-                return 99999999
-            let dist = lazyDists[DispBase.id(disp)]
-            if (dist != null)
-                return dist
-            return lazyDists[DispBase.id(disp)] = disp.bounds.distanceFromPoint(point)
+            if (disp.bounds == null) return 99999999;
+            let dist = lazyDists[DispBase.id(disp)];
+            if (dist != null) return dist;
+            return (lazyDists[DispBase.id(disp)] =
+                disp.bounds.distanceFromPoint(point));
         }
-        
-        function cmp(
-            disp1,
-            disp2
-        ): number {
-            return lazyGetDist(disp1) - lazyGetDist(disp2)
+
+        function cmp(disp1, disp2): number {
+            return lazyGetDist(disp1) - lazyGetDist(disp2);
         }
-        
-        return disps.sort(cmp)
+
+        return disps.sort(cmp);
     }
-    
+
     filterForVisibleDisps(
         disps,
         zoom,
@@ -115,18 +101,17 @@ export class PeekCanvasModelQuery {
     ): any[] {
         function check(disp): boolean {
             if (!includeShapesWithNoColor && !DispBase.hasColor(disp))
-                return false
-            
-            if (!DispBase.layer(disp).visible)
-                return false
-            
-            const level = DispBase.level(disp)
-            return level.isVisibleAtZoom(zoom)
+                return false;
+
+            if (!DispBase.layer(disp).visible) return false;
+
+            const level = DispBase.level(disp);
+            return level.isVisibleAtZoom(zoom);
         }
-        
-        return disps.filter(check)
+
+        return disps.filter(check);
     }
-    
+
     filterForDispsContainingPoint(
         disps,
         zoom: number,
@@ -134,57 +119,55 @@ export class PeekCanvasModelQuery {
         point: PointI,
         useBoxContainsForPolygons: boolean
     ): any[] {
-        margin = margin / zoom
-        return disps.filter(d => {
-                if (DispBase.typeOf(d) == DispType.polygon
-                    && !useBoxContainsForPolygons) {
-                    return DispPolygon.contains(d, point, margin)
-                }
-                if (DispBase.typeOf(d) == DispType.polyline) {
-                    return DispPolyline.contains(d, point, margin)
-                }
-                return d.bounds && d.bounds.contains(point.x, point.y, margin)
+        margin = margin / zoom;
+        return disps.filter((d) => {
+            if (
+                DispBase.typeOf(d) == DispType.polygon &&
+                !useBoxContainsForPolygons
+            ) {
+                return DispPolygon.contains(d, point, margin);
             }
-        )
-        
+            if (DispBase.typeOf(d) == DispType.polyline) {
+                return DispPolyline.contains(d, point, margin);
+            }
+            return d.bounds && d.bounds.contains(point.x, point.y, margin);
+        });
     }
-    
+
     keyOfDisps(disps: any[]): string[] {
-        let keys = []
+        let keys = [];
         for (let disp of disps) {
-            if (DispBase.key(disp) != null)
-                keys.push(DispBase.key(disp))
+            if (DispBase.key(disp) != null) keys.push(DispBase.key(disp));
         }
-        return keys
+        return keys;
     }
-    
+
     uniqueDisps(disps: any[]): string[] {
-        const ids = {}
-        return disps
-            .filter(d => ids[d.id] === true ? false : ids[d.id] = true)
+        const ids = {};
+        return disps.filter((d) =>
+            ids[d.id] === true ? false : (ids[d.id] = true)
+        );
     }
-    
+
     uniquePolylineEnds(ends: PolylineEnd[]): PolylineEnd[] {
-        const ids = {}
-        return ends.filter(d => ids[d.disp.id] === true
-            ? false
-            : ids[d.disp.id] = true)
+        const ids = {};
+        return ends.filter((d) =>
+            ids[d.disp.id] === true ? false : (ids[d.disp.id] = true)
+        );
     }
-    
+
     dispsForKeys(keys: string[]): any[] {
-        let keyDict = {}
-        for (let key of keys)
-            keyDict[key] = true
-        
-        let resultDisps = []
+        let keyDict = {};
+        for (let key of keys) keyDict[key] = true;
+
+        let resultDisps = [];
         for (let disp of this.viewableDisps) {
-            if (keyDict[DispBase.key(disp)] != null)
-                resultDisps.push(disp)
+            if (keyDict[DispBase.key(disp)] != null) resultDisps.push(disp);
         }
-        
-        return resultDisps
+
+        return resultDisps;
     }
-    
+
     /** Disp Group for Disp
      *
      * Return the DispGroupPointer that a disp belongs to.
@@ -192,132 +175,121 @@ export class PeekCanvasModelQuery {
      * @param disp
      */
     dispGroupForDisp(disp: DispBaseT): DispGroupPointerT | null {
-        let groupId = DispBase.groupId(disp)
-        
-        if (groupId == null)
-            return null
-        
+        let groupId = DispBase.groupId(disp);
+
+        if (groupId == null) return null;
+
         for (let iterDisp of this.model.viewableDisps()) {
-            if (DispBase.id(iterDisp) == groupId)
-                return iterDisp
+            if (DispBase.id(iterDisp) == groupId) return iterDisp;
         }
-        return null
+        return null;
     }
-    
+
     dispsInSameGroup(refDisp): any[] {
-        return this.dispsForGroups([refDisp])
+        return this.dispsForGroups([refDisp]);
     }
-    
+
     dispsForGroups(disps: any[]): any[] {
-        const result = []
-        const selectedGroupIds = {}
-        
+        const result = [];
+        const selectedGroupIds = {};
+
         for (let disp of disps) {
             // DispGroup and DispGroupPtrs are not selectable
-            selectedGroupIds[DispBase.id(disp)] = true
+            selectedGroupIds[DispBase.id(disp)] = true;
             if (DispBase.groupId(disp) != null)
-                selectedGroupIds[DispBase.groupId(disp)] = true
+                selectedGroupIds[DispBase.groupId(disp)] = true;
         }
-        
-        const dispIdsAdded = {} // return a unique list.
+
+        const dispIdsAdded = {}; // return a unique list.
         for (let disp of this.viewableDisps) {
-            if (dispIdsAdded[DispBase.id(disp)])
-                continue
-            dispIdsAdded[DispBase.id(disp)] = true
-            
+            if (dispIdsAdded[DispBase.id(disp)]) continue;
+            dispIdsAdded[DispBase.id(disp)] = true;
+
             if (selectedGroupIds[DispBase.groupId(disp)] === true)
-                result.push(disp)
-            
+                result.push(disp);
             else if (selectedGroupIds[DispBase.id(disp)] === true)
-                result.push(disp)
+                result.push(disp);
         }
-        
-        return result
+
+        return result;
     }
-    
+
     decentAndAddDisps(
         disps: DispBaseT[],
         outDisps: DispBaseT[] = []
     ): DispBaseT[] {
         for (let disp of disps) {
-            outDisps.push(disp)
+            outDisps.push(disp);
             if (disp["disps"] != null)
-                this.decentAndAddDisps(disp["disps"], outDisps)
+                this.decentAndAddDisps(disp["disps"], outDisps);
         }
-        return outDisps
+        return outDisps;
     }
-    
+
     polylinesConnectedToDispKey(keys: string[]): PolylineEnd[] {
-        let result: PolylineEnd[] = []
-        let keysDict = {}
-        
+        let result: PolylineEnd[] = [];
+        let keysDict = {};
+
         for (let key of keys) {
-            keysDict[key] = true
+            keysDict[key] = true;
         }
-        
+
         for (let disp of this.viewableDisps) {
-            let startKey = DispPolyline.startKey(disp)
-            let endKey = DispPolyline.endKey(disp)
-            
+            let startKey = DispPolyline.startKey(disp);
+            let endKey = DispPolyline.endKey(disp);
+
             if (startKey != null && keysDict[startKey] === true)
-                result.push({isStart: true, disp: disp})
-            
+                result.push({ isStart: true, disp: disp });
             else if (endKey != null && keysDict[endKey] === true)
-                result.push({isStart: false, disp: disp})
+                result.push({ isStart: false, disp: disp });
         }
-        
-        return result
+
+        return result;
     }
-    
+
     polylinesConnectedToPoint(points: PointI[]): PolylineEnd[] {
-        let result: PolylineEnd[] = []
-        let pointsDict = {}
-        
+        let result: PolylineEnd[] = [];
+        let pointsDict = {};
+
         for (let point of points) {
-            pointsDict[`${point.x}x${point.y}`] = true
+            pointsDict[`${point.x}x${point.y}`] = true;
         }
-        
+
         for (let disp of this.viewableDisps) {
-            if (DispBase.typeOf(disp) != DispType.polyline)
-                continue
-            
-            let fp = DispPolyline.firstPoint(disp)
-            let lp = DispPolyline.lastPoint(disp)
-            
+            if (DispBase.typeOf(disp) != DispType.polyline) continue;
+
+            let fp = DispPolyline.firstPoint(disp);
+            let lp = DispPolyline.lastPoint(disp);
+
             if (pointsDict[`${fp.x}x${fp.y}`] === true)
-                result.push({isStart: true, disp: disp})
-            
+                result.push({ isStart: true, disp: disp });
             else if (pointsDict[`${lp.x}x${lp.y}`] === true)
-                result.push({isStart: false, disp: disp})
+                result.push({ isStart: false, disp: disp });
         }
-        
-        return result
+
+        return result;
     }
-    
+
     closestDispToPoint(
         x,
         y,
         dispFiltCallable: DispFilterCallableT | null = null
     ): DispBaseT | null {
-        let closestDisp = null
-        let closestDispDistance = null
-        
+        let closestDisp = null;
+        let closestDispDistance = null;
+
         for (let disp of this.viewableDisps) {
-            if (disp.bounds == null)
-                continue
-            
-            if (dispFiltCallable != null && !dispFiltCallable(disp))
-                continue
-            
-            let distance = disp.bounds.distanceFromPoint({x, y})
+            if (disp.bounds == null) continue;
+
+            if (dispFiltCallable != null && !dispFiltCallable(disp)) continue;
+
+            let distance = disp.bounds.distanceFromPoint({ x, y });
             if (closestDisp == null || distance < closestDispDistance) {
-                closestDisp = disp
-                closestDispDistance = distance
+                closestDisp = disp;
+                closestDispDistance = distance;
             }
-            
         }
-        
-        return closestDisp
+
+        return closestDisp;
     }
-    
 }

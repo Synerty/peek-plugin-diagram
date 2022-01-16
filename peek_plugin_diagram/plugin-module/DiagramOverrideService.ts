@@ -1,5 +1,5 @@
-import { NgLifeCycleEvents } from "@synerty/vortexjs"
-import { DiagramOverrideBase } from "./override/DiagramOverrideBase"
+import { NgLifeCycleEvents } from "@synerty/vortexjs";
+import { DiagramOverrideBase } from "./override/DiagramOverrideBase";
 
 /** Diagram Override Service
  *
@@ -8,14 +8,11 @@ import { DiagramOverrideBase } from "./override/DiagramOverrideBase"
  *
  */
 export abstract class DiagramOverrideService extends NgLifeCycleEvents {
-    
     protected constructor() {
-        super()
-        
+        super();
     }
-    
-    abstract applyOverride(override: DiagramOverrideBase): void ;
-    
-    abstract removeOverride(override: DiagramOverrideBase): void ;
-    
+
+    abstract applyOverride(override: DiagramOverrideBase): void;
+
+    abstract removeOverride(override: DiagramOverrideBase): void;
 }
