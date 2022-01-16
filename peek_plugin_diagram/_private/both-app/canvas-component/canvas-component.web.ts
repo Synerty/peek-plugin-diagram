@@ -25,6 +25,8 @@ import { PrivateDiagramBranchService } from "@peek/peek_plugin_diagram/_private/
 import { PrivateDiagramSnapshotService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramSnapshotService";
 import { PrivateDiagramOverrideService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService";
 import { PeekCanvasActioner } from "../canvas/PeekCanvasActioner";
+import { CopyPasteService } from "../services/copy-paste.service";
+import { ContextMenuService } from "../services/context-menu.service";
 
 /** Canvas Component
  *
@@ -69,7 +71,9 @@ export class CanvasComponent extends NgLifeCycleEvents {
         private configService: PrivateDiagramConfigService,
         private branchService: PrivateDiagramBranchService,
         private overrideService: PrivateDiagramOverrideService,
-        private snapshotService: PrivateDiagramSnapshotService
+        private snapshotService: PrivateDiagramSnapshotService,
+        private copyPasteService: CopyPasteService,
+        private contextMenuService: ContextMenuService
     ) {
         super();
 
@@ -212,6 +216,12 @@ export class CanvasComponent extends NgLifeCycleEvents {
             .takeUntil(this.onDestroyEvent)
             .subscribe(notify);
     }
+    
+    connectCopyPasteService(): void {
+        this.copyPasteService.setModel(this.model);
+        this.copyPasteService.setConfig(this.config);
+        this.copyPasteService.setEditor(this.editor);
+    }
 
     connectItemSelectionService(): void {
         this.model.selection
@@ -263,6 +273,8 @@ export class CanvasComponent extends NgLifeCycleEvents {
             this.renderFactory,
             this,
             this.objectPopupService,
+            this.copyPasteService,
+            this.contextMenuService,
             actioner
         );
 
@@ -308,6 +320,9 @@ export class CanvasComponent extends NgLifeCycleEvents {
 
         // Hook up the Snapshot service
         this.connectSnapshotCallback();
+    
+        // Hook up the Copy and Paste service
+        this.connectCopyPasteService();
     }
 
     private switchToCoordSet(coordSetKey: string) {

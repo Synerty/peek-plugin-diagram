@@ -76,6 +76,29 @@
             <i nz-icon nzTheme="outline" nzType="redo"></i>
         </button>
     </div>
+    
+    <div class="toolbar-buttons">
+        <button
+            (click)="doCopy()"
+            [class.disabled]="!canCopy()"
+            [disabled]="!canCopy()"
+            nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
+            nzTooltipTitle="Copy"
+        >
+            <i nz-icon nzTheme="outline" nzType="copy"></i>
+        </button>
+        <button
+            (click)="doPaste()"
+            [class.disabled]="!canPaste()"
+            [disabled]="!canPaste()"
+            nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
+            nzTooltipTitle="Paste"
+        >
+            <i nz-icon nzTheme="outline" nzType="file"></i>
+        </button>
+    </div>
 </div>
 
 <div class="vert-toolbar">

@@ -34,6 +34,9 @@ import { NzSelectModule } from "ng-zorro-antd/select";
 import { NzInputModule } from "ng-zorro-antd/input";
 import { NzCheckboxModule } from "ng-zorro-antd/checkbox";
 import { EditPropsEdgeTemplateComponent } from "./edit-props-edge-template-component/edit-props-edge-template.component";
+import { CanvasContextMenuComponent } from "./canvas-context-menu-component/canvas-context-menu.component.web";
+import { CopyPasteService } from "./services/copy-paste.service";
+import { ContextMenuService } from "./services/context-menu.service";
 
 // Define the root module for this plugin.
 // This module is loaded by the lazy loader, what ever this defines is what is started.
@@ -58,7 +61,9 @@ import { EditPropsEdgeTemplateComponent } from "./edit-props-edge-template-compo
         NzCheckboxModule,
     ],
     exports: [DiagramComponent, CanvasComponent],
-    providers: [GridCache, GridObservable],
+    providers: [GridCache, GridObservable,
+        CopyPasteService,
+        ContextMenuService,],
     declarations: [
         DiagramComponent,
         CanvasComponent,
@@ -75,6 +80,7 @@ import { EditPropsEdgeTemplateComponent } from "./edit-props-edge-template-compo
         EditPropsGroupPtrComponent,
         PrintComponent,
         EditPropsEdgeTemplateComponent,
+        CanvasContextMenuComponent,
     ],
 })
 export class PeekPluginDiagramModule {}

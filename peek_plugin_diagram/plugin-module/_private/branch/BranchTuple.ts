@@ -380,6 +380,10 @@ export class BranchTuple extends Tuple {
 
         while (this.undoQueue.length > this.MAX_UNDO) this.undoQueue.shift();
     }
+    
+    get canUndo(): boolean {
+        return this.undoQueue.length > 1;
+    }
 
     doUndo(lookupService: PrivateDiagramLookupService): void {
         if (this.undoQueue.length <= 1) return;
@@ -390,6 +394,10 @@ export class BranchTuple extends Tuple {
 
         this.linkDisps(lookupService);
         this.touchUpdateDate(true);
+    }
+    
+    get canRedo(): boolean {
+        return this.redoQueue.length !== 0;
     }
 
     doRedo(lookupService: PrivateDiagramLookupService): void {

@@ -39,6 +39,8 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     private readonly STATE_MOVING_HANDLE = 4;
     private readonly STATE_CANVAS_PANNING = 5;
     private readonly STATE_CANVAS_ZOOMING = 6;
+    private readonly STATE_CANVAS_RIGHT_MOUSE_DOWN = 7;
+    private readonly STATE_CANVAS_MIDDLE_MOUSE_DOWN = 8;
 
     private _state = 0; // STATE_NONE;
     private _passedDragThreshold: boolean = false;
@@ -75,6 +77,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
         this.editArgs.branchContext.branchTuple.removeDisps(disps);
         this.editArgs.branchContext.branchTuple.touchUndo();
+        this.viewArgs.model.recompileModel();
     }
 
     // ------------------------------------------------------------------------
@@ -113,6 +116,13 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         } else if (event.keyCode == 90 && event.ctrlKey) {
             // CTRL+Z
             this.editArgs.doUndo();
+        } else if (event.keyCode == 67 && event.ctrlKey) {
+            // CTRL+C
+            this.viewArgs.copyPasteService.doCopy();
+            // this.editArgs.doCopy();
+        } else if (event.keyCode == 86 && event.ctrlKey) {
+            // CTRL+V
+            this.viewArgs.copyPasteService.doPaste();
         }
     }
 
@@ -141,9 +151,14 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this._mouseDownRightButton = event.button == 2;
         this._startMousePos = inputPos;
         this._lastMousePos = inputPos;
-
-        if (this._mouseDownMiddleButton || this._mouseDownRightButton) {
-            this._state = this.STATE_CANVAS_PANNING;
+    
+        if (this._mouseDownRightButton) {
+            this._state = this.STATE_CANVAS_RIGHT_MOUSE_DOWN;
+            return;
+        }
+    
+        if (this._mouseDownMiddleButton) {
+            this._state = this.STATE_CANVAS_MIDDLE_MOUSE_DOWN;
             return;
         }
 
@@ -221,6 +236,18 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this._passedDragThreshold =
             this._passedDragThreshold ||
             this._hasPassedDragThreshold(this._startMousePos, inputPos);
+    
+        // State conversion upon dragging
+        if (
+            this._state == this.STATE_CANVAS_RIGHT_MOUSE_DOWN ||
+            this._state == this.STATE_CANVAS_MIDDLE_MOUSE_DOWN
+        ) {
+            if (this._passedDragThreshold) {
+                this._state = this.STATE_CANVAS_PANNING;
+            } else {
+                return;
+            }
+        }
 
         // State conversion upon dragging
         if (this._state == this.STATE_SELECTING && this._passedDragThreshold) {
@@ -307,6 +334,12 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
             case this.STATE_MOVING_HANDLE:
                 this.finishStateMovingHandle();
+                break;
+    
+            case this.STATE_CANVAS_RIGHT_MOUSE_DOWN:
+                if (this._mouseDownRightButton) {
+                    this.viewArgs.contextMenuService.doOpenMenu(event);
+                }
                 break;
         }
 

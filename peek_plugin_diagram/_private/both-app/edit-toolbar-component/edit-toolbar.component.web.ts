@@ -16,6 +16,7 @@ import {
     DiagramToolButtonI,
 } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import { PrivateDiagramToolbarService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramToolbarService";
+import { CopyPasteService } from "../services/copy-paste.service";
 
 @Component({
     selector: "pl-diagram-edit-toolbar",
@@ -32,7 +33,8 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
     otherPluginButtons: DiagramToolButtonI[] = [];
     protected toolbarService: PrivateDiagramToolbarService;
 
-    constructor(private abstractToolbarService: DiagramToolbarService) {
+    constructor(private abstractToolbarService: DiagramToolbarService,
+                private copyPasteService: CopyPasteService) {
         super();
 
         this.toolbarService = <PrivateDiagramToolbarService>(
@@ -46,6 +48,12 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
             .subscribe((buttons: DiagramToolButtonI[]) => {
                 this.otherPluginButtons = buttons;
             });
+    }
+    
+    private selectedTool(): EditorToolType {
+        if (this.canvasEditor == null) return EditorToolType.SELECT_TOOL;
+        
+        return this.canvasEditor.selectedTool();
     }
 
     buttonClicked(btn: DiagramToolButtonI): void {
@@ -74,13 +82,16 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
     confirmExitNoSave(): void {
         this.canvasEditor.closeEditor();
     }
+    
+    // --------------------
+    // PRINT
 
     printDiagramClicked(): void {
         this.openPrintPopupEmitter.next();
     }
-
+    
     // --------------------
-    // PRINT
+    // Edit Select Tool
 
     selectEditSelectTool() {
         this.canvasEditor.setInputEditDelegate(
@@ -88,13 +99,13 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
         );
     }
 
-    // --------------------
-    // Edit Select Tool
-
     isEditSelectToolActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
         return this.selectedTool() === EditorToolType.EDIT_SELECT_TOOL;
     }
+    
+    // --------------------
+    // Delete Shape
 
     deleteShape() {
         let delegate = <PeekCanvasInputEditSelectDelegate>(
@@ -104,9 +115,6 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
         delegate.deleteSelectedDisps();
     }
 
-    // --------------------
-    // Delete Shape
-
     isDeleteShapeActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
         return (
@@ -114,34 +122,59 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
             this.canvasEditor.canvasModel.selection.selectedDisps().length != 0
         );
     }
+    
+    // --------------------
+    // Undo Shape
 
     undoShape() {
         this.canvasEditor.doUndo();
     }
 
-    // --------------------
-    // Undo Shape
-
     isUndoShapeActive(): boolean {
         return (
             this.isEditSelectToolActive() &&
-            this.canvasEditor.branchContext.branchTuple.isUndoPossible
+            this.canvasEditor.branchContext.branchTuple.canUndo
         );
     }
+    
+    // --------------------
+    // Redo Shape
 
     redoShape() {
         this.canvasEditor.doRedo();
     }
 
-    // --------------------
-    // Redo Shape
-
     isRedoShapeActive(): boolean {
         return (
             this.isEditSelectToolActive() &&
-            this.canvasEditor.branchContext.branchTuple.isRedoPossible
+            this.canvasEditor.branchContext.branchTuple.canRedo
         );
     }
+    
+    // --------------------
+    // Copy
+    
+    doCopy() {
+        this.copyPasteService.doCopy();
+    }
+    
+    canCopy(): boolean {
+        return this.copyPasteService.canCopy;
+    }
+    
+    // --------------------
+    // Paste
+    
+    doPaste() {
+        this.copyPasteService.doPaste();
+    }
+    
+    canPaste(): boolean {
+        return this.copyPasteService.canPaste;
+    }
+    
+    // --------------------
+    // Edit Make Text Tool
 
     selectEditMakeTextTool() {
         this.canvasEditor.setInputEditDelegate(
@@ -149,13 +182,13 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
         );
     }
 
-    // --------------------
-    // Edit Make Text Tool
-
     isEditMakeTextActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
         return this.selectedTool() === EditorToolType.EDIT_MAKE_TEXT;
     }
+    
+    // --------------------
+    // Edit Make Rectangle Tool
 
     selectEditMakeRectangleTool() {
         this.canvasEditor.setInputEditDelegate(
@@ -163,13 +196,13 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
         );
     }
 
-    // --------------------
-    // Edit Make Rectangle Tool
-
     isEditMakeRectangleActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
         return this.selectedTool() === EditorToolType.EDIT_MAKE_RECTANGLE;
     }
+    
+    // --------------------
+    // Edit Make Rectangle Tool
 
     selectEditMakeLineWithArrowTool() {
         this.canvasEditor.setInputEditDelegate(
@@ -177,12 +210,12 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
         );
     }
 
-    // --------------------
-    // Edit Make Rectangle Tool
-
     isEditMakeLineWithArrowActive(): boolean {
         return this.selectedTool() === EditorToolType.EDIT_MAKE_LINE_WITH_ARROW;
     }
+    
+    // --------------------
+    // Edit Make Circle, Ellipse, Arc Tool
 
     selectEditMakeEllipseTool() {
         this.canvasEditor.setInputEditDelegate(
@@ -190,15 +223,15 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
         );
     }
 
-    // --------------------
-    // Edit Make Circle, Ellipse, Arc Tool
-
     isEditMakeEllipseActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
         return (
             this.selectedTool() === EditorToolType.EDIT_MAKE_CIRCLE_ELLIPSE_ARC
         );
     }
+    
+    // --------------------
+    // Edit Make Polygon Tool
 
     selectEditMakePolygonTool() {
         this.canvasEditor.setInputEditDelegate(
@@ -206,13 +239,13 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
         );
     }
 
-    // --------------------
-    // Edit Make Polygon Tool
-
     isEditMakePolygonActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
         return this.selectedTool() === EditorToolType.EDIT_MAKE_POLYGON;
     }
+    
+    // --------------------
+    // Edit Make Polyline Tool
 
     selectEditMakePolylineTool() {
         this.canvasEditor.setInputEditDelegate(
@@ -220,22 +253,19 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
         );
     }
 
-    // --------------------
-    // Edit Make Polyline Tool
-
     isEditMakePolylineActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
         return this.selectedTool() === EditorToolType.EDIT_MAKE_POLYLINE;
     }
+    
+    // --------------------
+    // Edit Make Group Ptr Vertex Tool
 
     selectEditMakeGroupPtrVertexTool() {
         this.canvasEditor.setInputEditDelegate(
             PeekCanvasInputMakeDispGroupPtrVertexDelegate
         );
     }
-
-    // --------------------
-    // Edit Make Group Ptr Vertex Tool
 
     isEditMakeGroupPtrVertexActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
@@ -244,6 +274,9 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
             EditorToolType.EDIT_MAKE_DISP_GROUP_PTR_VERTEX
         );
     }
+    
+    // --------------------
+    // Edit Make Group Ptr Edge Tool
 
     selectEditMakePolylineEdgeTool() {
         this.canvasEditor.setInputEditDelegate(
@@ -251,19 +284,10 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
         );
     }
 
-    // --------------------
-    // Edit Make Group Ptr Edge Tool
-
     isEditMakePolylineEdgeActive(): boolean {
         // console.log(`Tool=${this.selectedTool()}`);
         return (
             this.selectedTool() === EditorToolType.EDIT_MAKE_DISP_POLYLINE_EDGE
         );
-    }
-
-    private selectedTool(): EditorToolType {
-        if (this.canvasEditor == null) return EditorToolType.SELECT_TOOL;
-
-        return this.canvasEditor.selectedTool();
     }
 }

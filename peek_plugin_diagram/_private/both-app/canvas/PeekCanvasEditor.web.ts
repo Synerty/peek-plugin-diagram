@@ -202,9 +202,17 @@ export class PeekCanvasEditor {
                 this.balloonMsg.showError("Failed to save branch\n" + e)
             );
     }
+    
+    get canUndo(): boolean {
+        return this._currentBranch?.branchTuple.canUndo;
+    }
 
     doUndo(): void {
         this._currentBranch.branchTuple.doUndo(this.lookupService);
+    }
+    
+    get canRedo(): boolean {
+        return this._currentBranch?.branchTuple.canRedo;
     }
 
     doRedo(): void {

@@ -89,7 +89,6 @@
                         (ngModelChange)="writeOptionVal(prop, $event)"
                         [disabled]="!isEditingEnabled()"
                         [ngModel]="readOptionVal(prop)"
-                        style="min-width: 200px"
                     >
                         <nz-option
                             *ngIf="prop.allowNullOption"

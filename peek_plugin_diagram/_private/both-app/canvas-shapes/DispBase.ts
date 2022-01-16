@@ -426,13 +426,27 @@ export abstract class DispBase {
         return `Type : ${DispBase.niceName(disp)}`;
     }
 
-    static cloneDisp(disp: DispBaseT): DispBaseT {
+    static cloneDisp(disp: DispBaseT,
+                     options: { resetUniques?: boolean } = {}
+    ): DispBaseT {
         let copy = deepCopy(disp, DispBase.DEEP_COPY_FIELDS_TO_IGNORE);
 
         // Copy over the lookup tuples, as they would have been cloned as well.
         for (let key of Object.keys(disp)) {
             if (disp[key] != null && disp[key]["__rst"] != null)
                 copy[key] = disp[key];
+        }
+    
+        if (options.resetUniques) {
+            delete copy.id; // Base: Id
+            delete copy.hid; // Base: Hash ID
+            delete copy.rid; // Base: Replaces Hash ID
+            delete copy.k; // Base: Key
+            delete copy.bi; // Base: Branch ID
+            delete copy.bs; // Base: Branch Stage
+            // delete copy.gi; // Base: Group ID
+            delete copy.sk; // Polyline: Start Key
+            delete copy.ek; // Polyline: End Key
         }
 
         return copy;

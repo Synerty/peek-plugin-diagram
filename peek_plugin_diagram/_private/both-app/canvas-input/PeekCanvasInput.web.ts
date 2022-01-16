@@ -15,6 +15,8 @@ import { EditorToolType } from "../canvas/PeekCanvasEditorToolType.web";
 import { PointI } from "../canvas-shapes/DispBase";
 import { DrawModeE } from "../canvas-render/PeekDispRenderDelegateABC.web";
 import { PeekCanvasActioner } from "../canvas/PeekCanvasActioner";
+import { CopyPasteService } from "../services/copy-paste.service";
+import { ContextMenuService } from "../services/context-menu.service";
 
 /** Peek Canvas Input
  *
@@ -38,6 +40,8 @@ export class PeekCanvasInput {
         private renderFactory: PeekDispRenderFactory,
         private lifecycleEventEmitter,
         private objectPopupService,
+        private copyPasteService: CopyPasteService,
+        private contextMenuService: ContextMenuService,
         private actioner: PeekCanvasActioner
     ) {
         this.delegateFinished();
@@ -55,6 +59,8 @@ export class PeekCanvasInput {
             model: this.model,
             renderFactory: this.renderFactory,
             objectPopupService: this.objectPopupService,
+            copyPasteService: this.copyPasteService,
+            contextMenuService: this.contextMenuService,
             actioner: this.actioner,
         };
 

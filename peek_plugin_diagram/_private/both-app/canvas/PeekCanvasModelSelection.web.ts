@@ -39,6 +39,10 @@ export class PeekCanvasModelSelection {
     selectionChangedObservable(): Observable<DispBaseT[]> {
         return this._selectionChangedSubject;
     }
+    
+    get hasSelection(): boolean {
+        return this._selection.length !== 0;
+    }
 
     selectedDisps(): DispBaseT[] {
         return this._selection;

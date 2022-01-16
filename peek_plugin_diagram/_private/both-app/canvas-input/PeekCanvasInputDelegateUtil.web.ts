@@ -10,6 +10,8 @@ import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/
 import { PrivateDiagramBranchContext } from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchContext";
 import { DocDbPopupService } from "@peek/peek_core_docdb";
 import { PeekCanvasActioner } from "../canvas/PeekCanvasActioner";
+import { CopyPasteService } from "../services/copy-paste.service";
+import { ContextMenuService } from "../services/context-menu.service";
 
 export function disableContextMenu(event) {
     event.preventDefault();
@@ -37,6 +39,8 @@ export interface InputDelegateConstructorViewArgs {
     model: PeekCanvasModel;
     renderFactory: PeekDispRenderFactory;
     objectPopupService: DocDbPopupService;
+    copyPasteService: CopyPasteService;
+    contextMenuService: ContextMenuService;
     actioner: PeekCanvasActioner;
 }
 

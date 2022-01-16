@@ -107,6 +107,10 @@ export class DispGroupPointer extends DispBase {
     static geom(disp): PointsT {
         return disp.g;
     }
+    
+    static disps(disp): DispBaseT[] | null {
+        return disp.disps;
+    }
 
     // ---------------
     // Delta move helpers
