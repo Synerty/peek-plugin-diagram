@@ -45,6 +45,8 @@ export class CanvasComponent extends NgLifeCycleEvents {
 
     @Input("modelSetKey")
     modelSetKey: string;
+    @Input("showToolbar")
+    showToolbar: boolean = true;
 
     coordSetKey: string | null = null;
     config: PeekCanvasConfig;
@@ -216,7 +218,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
             .takeUntil(this.onDestroyEvent)
             .subscribe(notify);
     }
-    
+
     connectCopyPasteService(): void {
         this.copyPasteService.setModel(this.model);
         this.copyPasteService.setConfig(this.config);
@@ -320,7 +322,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
 
         // Hook up the Snapshot service
         this.connectSnapshotCallback();
-    
+
         // Hook up the Copy and Paste service
         this.connectCopyPasteService();
     }

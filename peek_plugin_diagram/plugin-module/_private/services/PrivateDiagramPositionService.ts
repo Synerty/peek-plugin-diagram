@@ -5,7 +5,7 @@ import {
     OptionalPositionArgsI,
     PositionUpdatedI,
 } from "../../DiagramPositionService";
-import { Observable, Subject } from "rxjs";
+import { Observable, Subject, BehaviorSubject } from "rxjs";
 
 import { DispKeyLocationTuple } from "../location-loader/DispKeyLocationTuple";
 import { BalloonMsgService } from "@synerty/peek-plugin-base-js";
@@ -39,7 +39,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
         new Subject<DiagramPositionByCoordSetI>();
     private positionSubject = new Subject<DiagramPositionI>();
     private positionByKeySubject = new Subject<DiagramPositionByKeyI>();
-    private isReadySubject = new Subject<boolean>();
+    private isReadySubject = new BehaviorSubject<boolean>(false);
     private postionUpdatedSubject = new Subject<PositionUpdatedI>();
     private selectKeysSubject = new Subject<string[]>();
 
