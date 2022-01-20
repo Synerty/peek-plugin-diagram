@@ -14,14 +14,6 @@
 
 <div class="peek-nav-bar-padding">
     <div class="peek-information-section">
-        <button
-            (click)="toggleOfflineMode()"
-            [class.bg-success]="gridLoaderStatus.cacheForOfflineEnabled"
-            class="btn"
-        >
-            {{gridLoaderStatus.cacheForOfflineEnabled ? 'Disable Offline
-            Support' : 'Enable Offline Support'}}
-        </button>
         <p>
             Grid Cache Offline Mode Enabled :
             {{gridLoaderStatus.cacheForOfflineEnabled}}<br />

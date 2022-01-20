@@ -18,17 +18,19 @@ import {
     diagramTuplePrefix,
 } from "../PluginNames";
 
-import { Subject } from "rxjs";
-import { Observable } from "rxjs";
+import { Observable, Subject } from "rxjs";
 import { BranchIndexEncodedChunkTuple } from "./BranchIndexEncodedChunkTuple";
 import { BranchIndexUpdateDateTuple } from "./BranchIndexUpdateDateTuple";
 import { BranchTuple } from "../branch/BranchTuple";
 import { PrivateDiagramTupleService } from "../services/PrivateDiagramTupleService";
 import { BranchIndexLoaderStatusTuple } from "./BranchIndexLoaderStatusTuple";
-
-import { OfflineConfigTuple } from "../tuples/OfflineConfigTuple";
 import { ModelSet } from "../tuples/ModelSet";
 import { BranchIndexLoaderServiceA } from "./BranchIndexLoaderServiceA";
+import {
+    DeviceOfflineCacheControllerService,
+    OfflineCacheStatusTuple,
+} from "@peek/peek_core_device";
+import { takeUntil } from "rxjs/operators";
 
 // ----------------------------------------------------------------------------
 
@@ -135,36 +137,19 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
     private modelSetByIds: { [id: number]: ModelSet } = {};
     private _hasModelSetLoaded = false;
 
-    private offlineConfig: OfflineConfigTuple = new OfflineConfigTuple();
-
     constructor(
         private vortexService: VortexService,
         private vortexStatusService: VortexStatusService,
         storageFactory: TupleStorageFactoryService,
-        private tupleService: PrivateDiagramTupleService
+        private tupleService: PrivateDiagramTupleService,
+        private deviceCacheControllerService: DeviceOfflineCacheControllerService
     ) {
         super();
-
-        this.tupleService.offlineObserver
-            .subscribeToTupleSelector(
-                new TupleSelector(OfflineConfigTuple.tupleName, {}),
-                false,
-                false,
-                true
-            )
-            .takeUntil(this.onDestroyEvent)
-            .filter((v) => v.length != 0)
-            .subscribe((tuples: OfflineConfigTuple[]) => {
-                this.offlineConfig = tuples[0];
-                if (this.offlineConfig.cacheChunksForOffline)
-                    this.initialLoad();
-                this._notifyStatus();
-            });
 
         let modelSetTs = new TupleSelector(ModelSet.tupleName, {});
         this.tupleService.offlineObserver
             .subscribeToTupleSelector(modelSetTs)
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((tuples: ModelSet[]) => {
                 this.modelSetByIds = {};
                 for (let item of tuples) {
@@ -182,10 +167,13 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
         this.setupVortexSubscriptions();
         this._notifyStatus();
 
-        // Check for updates every so often
-        Observable.interval(this.OFFLINE_CHECK_PERIOD_MS)
+        this.deviceCacheControllerService.triggerCachingObservable
             .takeUntil(this.onDestroyEvent)
-            .subscribe(() => this.askServerForUpdates());
+            .filter((v) => v)
+            .subscribe(() => {
+                this.initialLoad();
+                this._notifyStatus();
+            });
     }
 
     isReady(): boolean {
@@ -229,7 +217,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
         // If there is no offline support, or we're online
         if (
-            !this.offlineConfig.cacheChunksForOffline ||
+            !this.deviceCacheControllerService.cachingEnabled ||
             this.vortexStatusService.snapshot.isOnline
         ) {
             let ts = new TupleSelector(BranchTuple.tupleName, {
@@ -279,7 +267,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
     private _notifyStatus(): void {
         this._status.cacheForOfflineEnabled =
-            this.offlineConfig.cacheChunksForOffline;
+            this.deviceCacheControllerService.cachingEnabled;
         this._status.initialLoadComplete = this.index.initialLoadComplete;
 
         this._status.loadProgress = Object.keys(
@@ -291,6 +279,15 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
             ).length;
 
         this._statusSubject.next(this._status);
+
+        const status = new OfflineCacheStatusTuple();
+        status.pluginName = "peek_plugin_diagram";
+        status.indexName = "Branch Index";
+        status.loadingQueueCount = this._status.loadProgress;
+        status.totalLoadedCount = this._status.loadTotal;
+        status.lastCheckDate = new Date();
+        status.initialFullLoadComplete = this._status.initialLoadComplete;
+        this.deviceCacheControllerService.updateCachingStatus(status);
     }
 
     /** Initial load
@@ -339,7 +336,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
     private areWeTalkingToTheServer(): boolean {
         return (
-            this.offlineConfig.cacheChunksForOffline &&
+            this.deviceCacheControllerService.cachingEnabled &&
             this.vortexStatusService.snapshot.isOnline
         );
     }
@@ -401,7 +398,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
         for (let key of keysNeedingUpdate) {
             indexChunk.updateDateByChunkKey[key] =
-                this.index.updateDateByChunkKey[key];
+                this.index.updateDateByChunkKey[key] || "";
             count++;
 
             if (count == this.UPDATE_CHUNK_FETCH_SIZE) {

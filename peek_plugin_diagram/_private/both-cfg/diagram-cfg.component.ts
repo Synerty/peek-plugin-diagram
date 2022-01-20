@@ -7,8 +7,7 @@ import {
     PrivateDiagramLocationLoaderService,
     PrivateDiagramLocationLoaderStatusTuple,
 } from "@peek/peek_plugin_diagram/_private/location-loader";
-import { NgLifeCycleEvents, TupleSelector } from "@synerty/vortexjs";
-import { OfflineConfigTuple } from "@peek/peek_plugin_diagram/_private/tuples";
+import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PrivateDiagramTupleService } from "@peek/peek_plugin_diagram/_private/services";
 
 @Component({
@@ -20,9 +19,6 @@ export class DiagramCfgComponent extends NgLifeCycleEvents {
         new PrivateDiagramGridLoaderStatusTuple();
     locationLoaderStatus: PrivateDiagramLocationLoaderStatusTuple =
         new PrivateDiagramLocationLoaderStatusTuple();
-    offlineConfig: OfflineConfigTuple = new OfflineConfigTuple();
-
-    private offlineTs = new TupleSelector(OfflineConfigTuple.tupleName, {});
 
     constructor(
         private gridLoader: PrivateDiagramGridLoaderServiceA,
@@ -42,26 +38,5 @@ export class DiagramCfgComponent extends NgLifeCycleEvents {
             .statusObservable()
             .takeUntil(this.onDestroyEvent)
             .subscribe((value) => (this.locationLoaderStatus = value));
-
-        this.tupleService.offlineObserver
-            .subscribeToTupleSelector(this.offlineTs, false, false, true)
-            .takeUntil(this.onDestroyEvent)
-            .subscribe((tuples: OfflineConfigTuple[]) => {
-                if (tuples.length == 0) {
-                    this.tupleService.offlineObserver.updateOfflineState(
-                        this.offlineTs,
-                        [this.offlineConfig]
-                    );
-                    return;
-                }
-            });
-    }
-
-    toggleOfflineMode(): void {
-        this.offlineConfig.cacheChunksForOffline =
-            !this.offlineConfig.cacheChunksForOffline;
-        this.tupleService.offlineObserver.updateOfflineState(this.offlineTs, [
-            this.offlineConfig,
-        ]);
     }
 }

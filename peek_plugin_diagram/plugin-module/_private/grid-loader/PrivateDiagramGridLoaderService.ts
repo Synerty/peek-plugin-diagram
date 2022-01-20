@@ -1,8 +1,7 @@
 import { Injectable } from "@angular/core";
 import { GridTuple } from "./GridTuple";
 import { PrivateDiagramGridLoaderServiceA } from "./PrivateDiagramGridLoaderServiceA";
-import { Subject } from "rxjs";
-import { Observable } from "rxjs";
+import { Observable, Subject } from "rxjs";
 
 import {
     extend,
@@ -18,9 +17,12 @@ import {
 import { diagramFilt, gridCacheStorageName } from "../PluginNames";
 import { GridUpdateDateTuple } from "./GridUpdateDateTuple";
 import { PrivateDiagramTupleService } from "../services";
-import { OfflineConfigTuple } from "../tuples";
 import { PrivateDiagramGridLoaderStatusTuple } from "./PrivateDiagramGridLoaderStatusTuple";
 import { EncodedGridTuple } from "./EncodedGridTuple";
+import {
+    DeviceOfflineCacheControllerService,
+    OfflineCacheStatusTuple,
+} from "@peek/peek_core_device";
 
 // ----------------------------------------------------------------------------
 
@@ -81,7 +83,6 @@ class GridKeyTupleSelector extends TupleSelector {
 export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderServiceA {
     private UPDATE_CHUNK_FETCH_SIZE = 5;
     private SAVE_POINT_ITERATIONS = 1000 / 5; // Every 1000 grids
-    private OFFLINE_CHECK_PERIOD_MS = 15 * 60 * 1000; // 15 minutes
 
     private isReadySubject = new Subject<boolean>();
 
@@ -104,32 +105,16 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
     private _statusSubject = new Subject<PrivateDiagramGridLoaderStatusTuple>();
     private _status = new PrivateDiagramGridLoaderStatusTuple();
 
-    private offlineConfig: OfflineConfigTuple = new OfflineConfigTuple();
-
     private readonly RETRIES = 5;
 
     constructor(
         private vortexService: VortexService,
         private vortexStatusService: VortexStatusService,
         private tupleService: PrivateDiagramTupleService,
-        storageFactory: TupleStorageFactoryService
+        storageFactory: TupleStorageFactoryService,
+        private deviceCacheControllerService: DeviceOfflineCacheControllerService
     ) {
         super();
-
-        this.tupleService.offlineObserver
-            .subscribeToTupleSelector(
-                new TupleSelector(OfflineConfigTuple.tupleName, {}),
-                false,
-                false,
-                true
-            )
-            .takeUntil(this.onDestroyEvent)
-            .filter((v) => v.length != 0)
-            .subscribe((tuples: OfflineConfigTuple[]) => {
-                this.offlineConfig = tuples[0];
-                this.askServerForUpdates();
-                this._notifyStatus();
-            });
 
         this.storage = storageFactory.create(
             new TupleOfflineStorageNameService(gridCacheStorageName)
@@ -143,10 +128,13 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
         this.setupVortexSubscriptions();
         this._notifyStatus();
 
-        // Check for updates every so often
-        Observable.interval(this.OFFLINE_CHECK_PERIOD_MS)
+        this.deviceCacheControllerService.triggerCachingObservable
             .takeUntil(this.onDestroyEvent)
-            .subscribe(() => this.askServerForUpdates());
+            .filter((v) => v)
+            .subscribe(() => {
+                this.askServerForUpdates();
+                this._notifyStatus();
+            });
     }
 
     get observable(): Observable<GridTuple[]> {
@@ -209,16 +197,26 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
 
     private _notifyStatus(): void {
         this._status.cacheForOfflineEnabled =
-            this.offlineConfig.cacheChunksForOffline;
+            this.deviceCacheControllerService.cachingEnabled;
         this._status.initialLoadComplete = this.index.initialLoadComplete;
 
         this._status.loadProgress = Object.keys(
             this.index.updateDateByChunkKey
         ).length;
+
         for (let chunk of this.askServerChunks)
             this._status.loadProgress -= Object.keys(chunk).length;
 
         this._statusSubject.next(this._status);
+
+        const status = new OfflineCacheStatusTuple();
+        status.pluginName = "peek_plugin_diagram";
+        status.indexName = "Grids";
+        status.loadingQueueCount = this._status.loadProgress;
+        status.totalLoadedCount = this._status.loadTotal;
+        status.lastCheckDate = new Date();
+        status.initialFullLoadComplete = this._status.initialLoadComplete;
+        this.deviceCacheControllerService.updateCachingStatus(status);
     }
 
     private setupVortexSubscriptions(): void {
@@ -241,7 +239,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
 
     private areWeTalkingToTheServer(): boolean {
         return (
-            this.offlineConfig.cacheChunksForOffline &&
+            this.deviceCacheControllerService.cachingEnabled &&
             this.vortexStatusService.snapshot.isOnline
         );
     }
