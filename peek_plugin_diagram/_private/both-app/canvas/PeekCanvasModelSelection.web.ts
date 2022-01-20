@@ -1,8 +1,6 @@
 import { PeekCanvasConfig } from "./PeekCanvasConfig.web";
 import { DispBase, DispBaseT } from "../canvas-shapes/DispBase";
-import { Subject } from "rxjs";
-import { Observable } from "rxjs";
-import { PeekCanvasModel } from "./PeekCanvasModel.web";
+import { Observable, Subject } from "rxjs";
 
 // import 'rxjs/add/operator/takeUntil';
 
@@ -39,7 +37,7 @@ export class PeekCanvasModelSelection {
     selectionChangedObservable(): Observable<DispBaseT[]> {
         return this._selectionChangedSubject;
     }
-    
+
     get hasSelection(): boolean {
         return this._selection.length !== 0;
     }

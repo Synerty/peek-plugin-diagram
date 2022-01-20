@@ -33,8 +33,10 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
     otherPluginButtons: DiagramToolButtonI[] = [];
     protected toolbarService: PrivateDiagramToolbarService;
 
-    constructor(private abstractToolbarService: DiagramToolbarService,
-                private copyPasteService: CopyPasteService) {
+    constructor(
+        private abstractToolbarService: DiagramToolbarService,
+        private copyPasteService: CopyPasteService
+    ) {
         super();
 
         this.toolbarService = <PrivateDiagramToolbarService>(
@@ -49,10 +51,10 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
                 this.otherPluginButtons = buttons;
             });
     }
-    
+
     private selectedTool(): EditorToolType {
         if (this.canvasEditor == null) return EditorToolType.SELECT_TOOL;
-        
+
         return this.canvasEditor.selectedTool();
     }
 
@@ -82,14 +84,14 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
     confirmExitNoSave(): void {
         this.canvasEditor.closeEditor();
     }
-    
+
     // --------------------
     // PRINT
 
     printDiagramClicked(): void {
         this.openPrintPopupEmitter.next();
     }
-    
+
     // --------------------
     // Edit Select Tool
 
@@ -103,7 +105,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
         // console.log(`Tool=${this.selectedTool()}`);
         return this.selectedTool() === EditorToolType.EDIT_SELECT_TOOL;
     }
-    
+
     // --------------------
     // Delete Shape
 
@@ -122,7 +124,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
             this.canvasEditor.canvasModel.selection.selectedDisps().length != 0
         );
     }
-    
+
     // --------------------
     // Undo Shape
 
@@ -136,7 +138,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
             this.canvasEditor.branchContext.branchTuple.canUndo
         );
     }
-    
+
     // --------------------
     // Redo Shape
 
@@ -150,29 +152,29 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
             this.canvasEditor.branchContext.branchTuple.canRedo
         );
     }
-    
+
     // --------------------
     // Copy
-    
+
     doCopy() {
         this.copyPasteService.doCopy();
     }
-    
+
     canCopy(): boolean {
         return this.copyPasteService.canCopy;
     }
-    
+
     // --------------------
     // Paste
-    
+
     doPaste() {
         this.copyPasteService.doPaste();
     }
-    
+
     canPaste(): boolean {
         return this.copyPasteService.canPaste;
     }
-    
+
     // --------------------
     // Edit Make Text Tool
 
@@ -186,7 +188,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
         // console.log(`Tool=${this.selectedTool()}`);
         return this.selectedTool() === EditorToolType.EDIT_MAKE_TEXT;
     }
-    
+
     // --------------------
     // Edit Make Rectangle Tool
 
@@ -200,7 +202,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
         // console.log(`Tool=${this.selectedTool()}`);
         return this.selectedTool() === EditorToolType.EDIT_MAKE_RECTANGLE;
     }
-    
+
     // --------------------
     // Edit Make Rectangle Tool
 
@@ -213,7 +215,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
     isEditMakeLineWithArrowActive(): boolean {
         return this.selectedTool() === EditorToolType.EDIT_MAKE_LINE_WITH_ARROW;
     }
-    
+
     // --------------------
     // Edit Make Circle, Ellipse, Arc Tool
 
@@ -229,7 +231,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
             this.selectedTool() === EditorToolType.EDIT_MAKE_CIRCLE_ELLIPSE_ARC
         );
     }
-    
+
     // --------------------
     // Edit Make Polygon Tool
 
@@ -243,7 +245,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
         // console.log(`Tool=${this.selectedTool()}`);
         return this.selectedTool() === EditorToolType.EDIT_MAKE_POLYGON;
     }
-    
+
     // --------------------
     // Edit Make Polyline Tool
 
@@ -257,7 +259,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
         // console.log(`Tool=${this.selectedTool()}`);
         return this.selectedTool() === EditorToolType.EDIT_MAKE_POLYLINE;
     }
-    
+
     // --------------------
     // Edit Make Group Ptr Vertex Tool
 
@@ -274,7 +276,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
             EditorToolType.EDIT_MAKE_DISP_GROUP_PTR_VERTEX
         );
     }
-    
+
     // --------------------
     // Edit Make Group Ptr Edge Tool
 

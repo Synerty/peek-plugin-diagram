@@ -1,6 +1,10 @@
-import { addTupleType, deepCopy, Tuple } from "@synerty/vortexjs";
+import {
+    addTupleType,
+    deepCopy,
+    SerialiseUtil,
+    Tuple
+} from "@synerty/vortexjs";
 import { diagramTuplePrefix } from "../PluginNames";
-import { SerialiseUtil } from "@synerty/vortexjs";
 import * as moment from "moment";
 import { BranchLiveEditTuple } from "./BranchLiveEditTuple";
 import { PrivateDiagramLookupService } from "../services/PrivateDiagramLookupService";
@@ -380,7 +384,7 @@ export class BranchTuple extends Tuple {
 
         while (this.undoQueue.length > this.MAX_UNDO) this.undoQueue.shift();
     }
-    
+
     get canUndo(): boolean {
         return this.undoQueue.length > 1;
     }
@@ -395,7 +399,7 @@ export class BranchTuple extends Tuple {
         this.linkDisps(lookupService);
         this.touchUpdateDate(true);
     }
-    
+
     get canRedo(): boolean {
         return this.redoQueue.length !== 0;
     }

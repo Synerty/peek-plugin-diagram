@@ -61,9 +61,12 @@ import { ContextMenuService } from "./services/context-menu.service";
         NzCheckboxModule,
     ],
     exports: [DiagramComponent, CanvasComponent],
-    providers: [GridCache, GridObservable,
+    providers: [
+        GridCache,
+        GridObservable,
         CopyPasteService,
-        ContextMenuService,],
+        ContextMenuService,
+    ],
     declarations: [
         DiagramComponent,
         CanvasComponent,

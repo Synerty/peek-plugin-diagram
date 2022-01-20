@@ -426,8 +426,9 @@ export abstract class DispBase {
         return `Type : ${DispBase.niceName(disp)}`;
     }
 
-    static cloneDisp(disp: DispBaseT,
-                     options: { resetUniques?: boolean } = {}
+    static cloneDisp(
+        disp: DispBaseT,
+        options: { resetUniques?: boolean } = {}
     ): DispBaseT {
         let copy = deepCopy(disp, DispBase.DEEP_COPY_FIELDS_TO_IGNORE);
 
@@ -436,7 +437,7 @@ export abstract class DispBase {
             if (disp[key] != null && disp[key]["__rst"] != null)
                 copy[key] = disp[key];
         }
-    
+
         if (options.resetUniques) {
             delete copy.id; // Base: Id
             delete copy.hid; // Base: Hash ID

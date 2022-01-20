@@ -9,7 +9,6 @@ import { PolylineEnd } from "../canvas/PeekCanvasModelQuery.web";
 import { assert } from "../DiagramUtil";
 import {
     DispBase,
-    DispBaseT,
     DispHandleI,
     DispType,
     PointI,
@@ -151,12 +150,12 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this._mouseDownRightButton = event.button == 2;
         this._startMousePos = inputPos;
         this._lastMousePos = inputPos;
-    
+
         if (this._mouseDownRightButton) {
             this._state = this.STATE_CANVAS_RIGHT_MOUSE_DOWN;
             return;
         }
-    
+
         if (this._mouseDownMiddleButton) {
             this._state = this.STATE_CANVAS_MIDDLE_MOUSE_DOWN;
             return;
@@ -236,7 +235,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this._passedDragThreshold =
             this._passedDragThreshold ||
             this._hasPassedDragThreshold(this._startMousePos, inputPos);
-    
+
         // State conversion upon dragging
         if (
             this._state == this.STATE_CANVAS_RIGHT_MOUSE_DOWN ||
@@ -335,7 +334,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             case this.STATE_MOVING_HANDLE:
                 this.finishStateMovingHandle();
                 break;
-    
+
             case this.STATE_CANVAS_RIGHT_MOUSE_DOWN:
                 if (this._mouseDownRightButton) {
                     this.viewArgs.contextMenuService.doOpenMenu(event);
