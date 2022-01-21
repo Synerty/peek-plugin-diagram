@@ -88,7 +88,7 @@ export class PrivateDiagramBranchContext {
 
         this.tupleService.observer
             .subscribeToTupleSelector(ts)
-            .takeUntil(this.shutdownSubject)
+            .pipe(takeUntil(this.shutdownSubject))
             .subscribe((tuples: BranchLiveEditTuple[]) => {
                 if (tuples.length == 0) return;
 
