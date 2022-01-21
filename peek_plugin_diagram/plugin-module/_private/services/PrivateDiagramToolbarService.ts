@@ -1,12 +1,10 @@
+import { Observable, Subject } from "rxjs";
 import { Injectable } from "@angular/core";
 import {
     DiagramToolbarService,
     DiagramToolButtonI,
     ToolbarTypeE,
 } from "../../DiagramToolbarService";
-
-import { Subject } from "rxjs";
-import { Observable } from "rxjs";
 
 @Injectable()
 export class PrivateDiagramToolbarService extends DiagramToolbarService {

@@ -1,5 +1,6 @@
-import { Injectable } from "@angular/core";
 import { Observable, Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
+import { Injectable } from "@angular/core";
 import { PrivateDiagramBranchContext } from "../branch/PrivateDiagramBranchContext";
 import { BranchTuple } from "../branch/BranchTuple";
 import { BranchIndexLoaderServiceA } from "../branch-loader/BranchIndexLoaderServiceA";
@@ -70,7 +71,7 @@ export class PrivateDiagramBranchService extends NgLifeCycleEvents {
 
         this.tupleService.offlineObserver
             .subscribeToTupleSelector(tupleSelector)
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((tuples: BranchKeyToIdMapTuple[]) => {
                 this.branchIdMapByCoordSetId = {};
                 for (let tuple of tuples) {

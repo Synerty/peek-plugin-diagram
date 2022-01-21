@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 import { Component, Input, OnInit } from "@angular/core";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { BranchDetailTuple, BranchService } from "@peek/peek_plugin_branch";
@@ -17,7 +19,6 @@ import { DiagramPositionService } from "@peek/peek_plugin_diagram/DiagramPositio
 import { PrivateDiagramBranchContext } from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchContext";
 import { PrivateDiagramBranchService } from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 import { assert } from "../DiagramUtil";
-import { Observable } from "rxjs";
 import { DispBase } from "../canvas-shapes/DispBase";
 import { diagramPluginName } from "@peek/peek_plugin_diagram/_private/PluginNames";
 
@@ -102,7 +103,7 @@ export class BranchDetailComponent extends NgLifeCycleEvents implements OnInit {
 
         if (this.diagramBranchUpdatedObservable != null) {
             this.diagramBranchUpdatedObservable
-                .takeUntil(this.onDestroyEvent)
+                .pipe(takeUntil(this.onDestroyEvent))
                 .subscribe(() => {
                     this.loadDiagramBranchDisps();
                     this.loadDiagramBranchAnchorKeys();

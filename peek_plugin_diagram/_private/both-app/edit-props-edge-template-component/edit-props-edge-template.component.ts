@@ -1,3 +1,5 @@
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 import { Component, Input, OnInit } from "@angular/core";
 import { NgLifeCycleEvents, Payload, TupleSelector } from "@synerty/vortexjs";
 import { PeekCanvasEditor } from "../canvas/PeekCanvasEditor.web";
@@ -6,7 +8,6 @@ import { DiagramCoordSetService } from "@peek/peek_plugin_diagram/DiagramCoordSe
 import { ModelCoordSet } from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
 import { GroupDispsTuple } from "@peek/peek_plugin_diagram/_private/tuples/GroupDispsTuple";
 import { PrivateDiagramTupleService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
-import { Subject } from "rxjs";
 import { PrivateDiagramGridLoaderServiceA } from "@peek/peek_plugin_diagram/_private/grid-loader/PrivateDiagramGridLoaderServiceA";
 import { GridTuple } from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
 import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
@@ -78,7 +79,7 @@ export class EditPropsEdgeTemplateComponent
 
         this.context = this.canvasEditor.props.edgeTemplatePanelContext;
         this.canvasEditor.props.edgeTemplatePanelContextObservable
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((context: PeekCanvasEdgeTemplatePropsContext) => {
                 this.edgeTemplates = [];
                 this.selectedEdgeTemplate = null;
@@ -111,8 +112,8 @@ export class EditPropsEdgeTemplateComponent
 
         this.tupleService.offlineObserver
             .subscribeToTupleSelector(tupleSelector)
-            .takeUntil(this.unsubSubject)
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.unsubSubject))
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((tuples: GroupDispsTuple[]) => {
                 if (tuples.length == 0) return;
 

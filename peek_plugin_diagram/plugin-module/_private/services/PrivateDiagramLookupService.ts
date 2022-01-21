@@ -1,3 +1,5 @@
+import { Observable, Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 import { Injectable } from "@angular/core";
 import { NgLifeCycleEvents, TupleSelector } from "@synerty/vortexjs";
 import {
@@ -8,7 +10,6 @@ import {
     DispTextStyle,
 } from "../../lookups";
 import { PrivateDiagramTupleService } from "./PrivateDiagramTupleService";
-import { Observable, Subject } from "rxjs";
 import { ModelSet } from "../tuples";
 
 let dictValuesFromObject = (dict) => Object.keys(dict).map((key) => dict[key]);
@@ -55,7 +56,7 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
 
         this.tupleService.offlineObserver
             .subscribeToTupleSelector(modelSetTs)
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((modelSets: ModelSet[]) => {
                 this.modelSetByKey = {};
                 for (let modelSet of modelSets)

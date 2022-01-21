@@ -1,3 +1,4 @@
+import { takeUntil } from "rxjs/operators";
 import { Component, Input, OnInit } from "@angular/core";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PeekCanvasEditor } from "../canvas/PeekCanvasEditor.web";
@@ -23,7 +24,7 @@ export class EditPropsToolbarComponent
 
     ngOnInit() {
         this.canvasEditor.props.contextPanelObservable
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((val: EditorContextType) => {
                 this.currentContext = val;
             });

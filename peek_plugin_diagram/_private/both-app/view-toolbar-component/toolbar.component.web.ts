@@ -1,3 +1,4 @@
+import { takeUntil } from "rxjs/operators";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import {
     DiagramToolbarService,
@@ -58,7 +59,7 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
         this.parentPluginButtons = [];
         this.toolbarService
             .toolButtonsUpdatedObservable()
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((buttons: DiagramToolButtonI[]) => {
                 this.shownPluginButtons = buttons;
                 this.parentPluginButtons = [];
@@ -69,7 +70,7 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
         if (this.config.coordSet != null) this.coordSet = this.config.coordSet;
 
         this.config.controller.coordSetChange
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(
                 (cs) => (this.coordSet = cs != null ? cs : new ModelCoordSet())
             );

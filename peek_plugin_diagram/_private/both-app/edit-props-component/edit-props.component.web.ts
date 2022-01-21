@@ -1,9 +1,10 @@
+import { Observable } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 import { Component, Input, OnInit } from "@angular/core";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PeekCanvasEditor } from "../canvas/PeekCanvasEditor.web";
 import { EditorContextType } from "../canvas/PeekCanvasEditorProps";
 import { BranchTuple } from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
-import { Observable } from "rxjs";
 
 @Component({
     selector: "pl-diagram-edit-props",
@@ -23,7 +24,7 @@ export class EditPropsComponent extends NgLifeCycleEvents implements OnInit {
 
     ngOnInit() {
         this.canvasEditor.props.contextPanelObservable
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((val: EditorContextType) => {
                 this.isContextShown = val !== EditorContextType.NONE;
                 this.currentContext = val;

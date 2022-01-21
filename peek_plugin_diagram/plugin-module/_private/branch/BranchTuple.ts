@@ -2,7 +2,7 @@ import {
     addTupleType,
     deepCopy,
     SerialiseUtil,
-    Tuple
+    Tuple,
 } from "@synerty/vortexjs";
 import { diagramTuplePrefix } from "../PluginNames";
 import * as moment from "moment";

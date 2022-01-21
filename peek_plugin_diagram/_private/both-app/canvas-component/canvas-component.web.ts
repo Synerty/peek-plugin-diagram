@@ -1,3 +1,4 @@
+import { takeUntil } from "rxjs/operators";
 import { Component, Input, ViewChild } from "@angular/core";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PeekCanvasConfig } from "../canvas/PeekCanvasConfig.web";
@@ -110,7 +111,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
             this.config.renderer.backgroundColor;
 
         // Update the canvas height
-        this.doCheckEvent.takeUntil(this.onDestroyEvent).subscribe(() => {
+        this.doCheckEvent.pipe(takeUntil(this.onDestroyEvent)).subscribe(() => {
             let frameSize = window.innerHeight.toString();
 
             let titleBarHeight = document.getElementsByClassName(
@@ -136,7 +137,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
         });
 
         // Watch the canvas window size
-        this.doCheckEvent.takeUntil(this.onDestroyEvent).subscribe(() => {
+        this.doCheckEvent.pipe(takeUntil(this.onDestroyEvent)).subscribe(() => {
             const offset = {
                 left: this.canvas.getBoundingClientRect().left,
                 top: this.canvas.getBoundingClientRect().top,
@@ -203,19 +204,19 @@ export class CanvasComponent extends NgLifeCycleEvents {
         };
 
         this.config.viewPort.panChange
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(notify);
 
         this.config.viewPort.zoomChange
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(notify);
 
         this.config.controller.coordSetChange
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(notify);
 
         this.config.editor.branchKeyChange
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(notify);
     }
 
@@ -228,7 +229,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
     connectItemSelectionService(): void {
         this.model.selection
             .selectionChangedObservable()
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((disps: DispBaseT[]) => {
                 const items = [];
                 for (const disp of disps) {
@@ -303,7 +304,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
 
         // Add the mouse class to the renderers draw list
         this.renderer.drawEvent
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(({ ctx, zoom, pan, drawMode }) =>
                 this.input.draw(ctx, zoom, pan, drawMode)
             );
@@ -346,7 +347,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
     private connectConfigService(): void {
         this.configService
             .usePolylineEdgeColorsObservable()
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((enabled: boolean) => {
                 this.config.renderer.useEdgeColors = enabled;
                 this.config.invalidate();
@@ -354,7 +355,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
 
         this.configService
             .layersUpdatedObservable()
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(() => this.model.recompileModel());
     }
 
@@ -362,7 +363,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
         // Watch the positionByCoordSet observable
         this.privatePosService
             .positionByCoordSetObservable()
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((data: DiagramPositionByCoordSetI) => {
                 if (this.modelSetKey != data.modelSetKey) {
                     console.log(
@@ -390,7 +391,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
         // Watch the position observables
         this.privatePosService
             .positionObservable()
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((pos: DiagramPositionI) => {
                 // Switch only if we need to
                 if (
@@ -423,7 +424,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
         // Watch the select observables
         this.privatePosService
             .selectKeysObservable()
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((keys: string[]) => {
                 this.model.selection.tryToSelectKeys(keys);
             });

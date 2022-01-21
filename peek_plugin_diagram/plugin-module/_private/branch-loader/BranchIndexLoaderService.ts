@@ -1,3 +1,5 @@
+import { Observable, Subject } from "rxjs";
+import { filter, first, takeUntil } from "rxjs/operators";
 import { Injectable } from "@angular/core";
 
 import {
@@ -17,8 +19,6 @@ import {
     diagramFilt,
     diagramTuplePrefix,
 } from "../PluginNames";
-
-import { Observable, Subject } from "rxjs";
 import { BranchIndexEncodedChunkTuple } from "./BranchIndexEncodedChunkTuple";
 import { BranchIndexUpdateDateTuple } from "./BranchIndexUpdateDateTuple";
 import { BranchTuple } from "../branch/BranchTuple";
@@ -30,7 +30,6 @@ import {
     DeviceOfflineCacheControllerService,
     OfflineCacheStatusTuple,
 } from "@peek/peek_core_device";
-import { takeUntil } from "rxjs/operators";
 
 // ----------------------------------------------------------------------------
 
@@ -168,8 +167,8 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
         this._notifyStatus();
 
         this.deviceCacheControllerService.triggerCachingObservable
-            .takeUntil(this.onDestroyEvent)
-            .filter((v) => v)
+            .pipe(takeUntil(this.onDestroyEvent))
+            .pipe(filter((v) => v))
             .subscribe(() => {
                 this.initialLoad();
                 this._notifyStatus();
@@ -230,8 +229,8 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
                 .isOnline
                 ? Promise.resolve()
                 : this.vortexStatusService.isOnline
-                      .filter((online) => online)
-                      .first()
+                      .pipe(filter((online) => online))
+                      .pipe(first())
                       .toPromise();
 
             return isOnlinePromise
@@ -252,7 +251,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
             ).then((docs) => this._populateAndIndexObjectTypes(docs));
 
         return this.isReadyObservable()
-            .first()
+            .pipe(first())
             .toPromise()
             .then(() =>
                 this.getBranchesWhenReady(modelSetKey, coordSetId, keys)
@@ -322,15 +321,15 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
                 this,
                 clientBranchIndexWatchUpdateFromDeviceFilt
             )
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((payloadEnvelope: PayloadEnvelope) => {
                 this.processBranchIndexsFromServer(payloadEnvelope);
             });
 
         // If the vortex service comes back online, update the watch grids.
         this.vortexStatusService.isOnline
-            .filter((isOnline) => isOnline == true)
-            .takeUntil(this.onDestroyEvent)
+            .pipe(filter((isOnline) => isOnline == true))
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(() => this.askServerForUpdates());
     }
 

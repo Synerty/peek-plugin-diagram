@@ -1,3 +1,4 @@
+import { takeUntil } from "rxjs/operators";
 import { Component, Input, OnInit } from "@angular/core";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PeekCanvasEditor } from "../canvas/PeekCanvasEditor.web";
@@ -51,7 +52,7 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
         );
 
         this.branchService.popupEditBranchSelectionObservable
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((v: PopupEditBranchSelectionArgs) => this.openPopup(v));
     }
 

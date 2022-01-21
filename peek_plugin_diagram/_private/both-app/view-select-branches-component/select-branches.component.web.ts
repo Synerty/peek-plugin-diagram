@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { filter, takeUntil } from "rxjs/operators";
+import { Component, Input } from "@angular/core";
 import { HeaderService } from "@synerty/peek-plugin-base-js";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { BranchDetailTuple, BranchService } from "@peek/peek_plugin_branch";
@@ -53,20 +54,26 @@ export class SelectBranchesComponent extends NgLifeCycleEvents {
 
         this.configService
             .popupBranchesSelectionObservable()
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(() => this.openPopup());
 
         this.objectPopupService
             .popupClosedObservable(DocDbPopupTypeE.summaryPopup)
-            .filter(
-                (reason) => reason == DocDbPopupClosedReasonE.userClickedAction
+            .pipe(
+                filter(
+                    (reason) =>
+                        reason == DocDbPopupClosedReasonE.userClickedAction
+                )
             )
             .subscribe(() => this.closePopupFull());
 
         this.objectPopupService
             .popupClosedObservable(DocDbPopupTypeE.detailPopup)
-            .filter(
-                (reason) => reason == DocDbPopupClosedReasonE.userClickedAction
+            .pipe(
+                filter(
+                    (reason) =>
+                        reason == DocDbPopupClosedReasonE.userClickedAction
+                )
             )
             .subscribe(() => this.closePopupFull());
     }

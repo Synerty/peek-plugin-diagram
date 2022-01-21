@@ -1,3 +1,4 @@
+import { takeUntil } from "rxjs/operators";
 import { Component, Input, OnInit, ViewChild } from "@angular/core";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import {
@@ -12,8 +13,6 @@ import { PeekCanvasEditor } from "../canvas/PeekCanvasEditor.web";
 import { CopyPasteService } from "../services/copy-paste.service";
 import { PeekCanvasModel } from "../canvas/PeekCanvasModel.web";
 import { PeekCanvasInputEditSelectDelegate } from "../canvas-input/PeekCanvasInputEditSelectDelegate.web";
-import { BehaviorSubject } from "rxjs";
-import { DispBaseT } from "../canvas-shapes/DispBase";
 
 @Component({
     selector: "pl-diagram-canvas-context-menu",
@@ -40,7 +39,7 @@ export class CanvasContextMenuComponent
     ) {
         super();
         diagramContextService.openObservable
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((event: ContextMenuPopupI) =>
                 this.handleContextMenuOpen(event)
             );

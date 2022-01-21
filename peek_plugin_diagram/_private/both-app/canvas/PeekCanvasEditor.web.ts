@@ -1,3 +1,4 @@
+import { takeUntil } from "rxjs/operators";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import { PrivateDiagramPositionService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
@@ -40,7 +41,7 @@ export class PeekCanvasEditor {
     ) {
         this.branchService
             .startEditingWithContextObservable()
-            .takeUntil(lifecycleEventEmitter.onDestroyEvent)
+            .pipe(takeUntil(lifecycleEventEmitter.onDestroyEvent))
             .subscribe((branchContext: PrivateDiagramBranchContext) => {
                 this.gridObservable.resetAllDispComputedProperties();
                 this._props.setCanvasData(this.modelSetId, this.coordSetId);
@@ -50,7 +51,7 @@ export class PeekCanvasEditor {
                 this.branchContext = branchContext;
 
                 this.branchContext.branchUpdatedObservable
-                    .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+                    .pipe(takeUntil(this.lifecycleEventEmitter.onDestroyEvent))
                     .subscribe((modelUpdateRequired: boolean) => {
                         if (modelUpdateRequired) {
                             this.canvasModel.recompileModel();
@@ -82,7 +83,7 @@ export class PeekCanvasEditor {
 
         this.branchService
             .stopEditingObservable()
-            .takeUntil(lifecycleEventEmitter.onDestroyEvent)
+            .pipe(takeUntil(lifecycleEventEmitter.onDestroyEvent))
             .subscribe(() => {
                 this.gridObservable.resetAllDispComputedProperties();
                 if (this.branchContext) this.branchContext.close();
@@ -100,7 +101,7 @@ export class PeekCanvasEditor {
 
         this.canvasModel.selection
             .selectionChangedObservable()
-            .takeUntil(lifecycleEventEmitter.onDestroyEvent)
+            .pipe(takeUntil(lifecycleEventEmitter.onDestroyEvent))
             .subscribe(() => {
                 if (!this.canvasConfig.editor.active) return;
                 this._props.setSelectedShapes(

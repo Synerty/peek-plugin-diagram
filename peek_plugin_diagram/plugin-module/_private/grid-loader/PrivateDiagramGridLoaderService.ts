@@ -1,7 +1,8 @@
+import { Observable, Subject } from "rxjs";
+import { filter, takeUntil } from "rxjs/operators";
 import { Injectable } from "@angular/core";
 import { GridTuple } from "./GridTuple";
 import { PrivateDiagramGridLoaderServiceA } from "./PrivateDiagramGridLoaderServiceA";
-import { Observable, Subject } from "rxjs";
 
 import {
     extend,
@@ -129,8 +130,8 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
         this._notifyStatus();
 
         this.deviceCacheControllerService.triggerCachingObservable
-            .takeUntil(this.onDestroyEvent)
-            .filter((v) => v)
+            .pipe(takeUntil(this.onDestroyEvent))
+            .pipe(filter((v) => v))
             .subscribe(() => {
                 this.askServerForUpdates();
                 this._notifyStatus();
@@ -229,8 +230,8 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
 
         // If the vortex service comes back online, update the watch grids.
         this.vortexStatusService.isOnline
-            .filter((isOnline) => isOnline == true)
-            .takeUntil(this.onDestroyEvent)
+            .pipe(filter((isOnline) => isOnline == true))
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(() => {
                 this.loadGrids({}, this.lastWatchedGridKeys);
                 this.askServerForUpdates();

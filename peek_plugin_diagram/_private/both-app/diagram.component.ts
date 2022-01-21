@@ -1,3 +1,4 @@
+import { takeUntil } from "rxjs/operators";
 import { Component, Input } from "@angular/core";
 import { DiagramPositionService } from "@peek/peek_plugin_diagram/DiagramPositionService";
 import { DiagramToolbarService } from "@peek/peek_plugin_diagram/DiagramToolbarService";
@@ -43,7 +44,7 @@ export class DiagramComponentBase extends NgLifeCycleEvents {
         // Listen to the title service
         this.privatePositionService
             .titleUpdatedObservable()
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((title: string) => this.headerService.setTitle(title));
     }
 }

@@ -1,3 +1,4 @@
+import { takeUntil } from "rxjs/operators";
 import { Component, Input, OnInit } from "@angular/core";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { HeaderService } from "@synerty/peek-plugin-base-js";
@@ -50,7 +51,7 @@ export class SelectLayersComponent extends NgLifeCycleEvents implements OnInit {
 
         this.configService
             .popupLayerSelectionObservable()
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((v: PopupLayerSelectionArgsI) => this.openPopup(v));
     }
 

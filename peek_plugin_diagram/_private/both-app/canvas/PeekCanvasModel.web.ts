@@ -1,3 +1,4 @@
+import { takeUntil } from "rxjs/operators";
 import { PeekCanvasConfig } from "./PeekCanvasConfig.web";
 import { GridObservable } from "../cache/GridObservable.web";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
@@ -95,7 +96,7 @@ export class PeekCanvasModel {
 
         this.gridObservable
             .observableForCanvas(this.config.canvasId)
-            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .pipe(takeUntil(this.lifecycleEventEmitter.onDestroyEvent))
             .subscribe((grid: LinkedGrid) => this._receiveGrid([grid]));
 
         this.lifecycleEventEmitter.onDestroyEvent.subscribe(() =>
@@ -104,12 +105,12 @@ export class PeekCanvasModel {
 
         // Hook up the trigger to recompile the model
         this.config.model.needsCompiling
-            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .pipe(takeUntil(this.lifecycleEventEmitter.onDestroyEvent))
             .subscribe(() => (this.needsCompiling = true));
 
         // Watch for changes to the config that effect us
         this.config.controller.coordSetChange
-            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .pipe(takeUntil(this.lifecycleEventEmitter.onDestroyEvent))
             .subscribe((coordSet) => {
                 if (coordSet == null) {
                     this._modelSetId = null;
@@ -127,12 +128,12 @@ export class PeekCanvasModel {
         // Watch the canvas settings, if they change then request and update from
         // the cache
         this.config.viewPort.windowChange
-            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .pipe(takeUntil(this.lifecycleEventEmitter.onDestroyEvent))
             .subscribe(() => (this.needsUpdate = true));
 
         // Watch the overrides, if the overrides change, then
         this.overrideService.overridesUpdatedObservable
-            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .pipe(takeUntil(this.lifecycleEventEmitter.onDestroyEvent))
             .subscribe((data: OverrideUpdateDataI) => {
                 this._override.setOverrides(data.overrides);
                 this.needsCompiling = true;

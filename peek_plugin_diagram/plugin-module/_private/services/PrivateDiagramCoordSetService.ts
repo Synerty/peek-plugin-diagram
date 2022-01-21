@@ -1,10 +1,11 @@
+import { Observable, Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 import { Injectable } from "@angular/core";
 import { NgLifeCycleEvents, TupleSelector } from "@synerty/vortexjs";
 import { ModelCoordSet } from "../tuples/ModelCoordSet";
 import { PrivateDiagramTupleService } from "./PrivateDiagramTupleService";
 import { DiagramCoordSetService } from "../../DiagramCoordSetService";
 import { DiagramCoordSetTuple } from "../../tuples/DiagramCoordSetTuple";
-import { Observable, Subject } from "rxjs";
 
 /** CoordSetCache
  *
@@ -100,7 +101,7 @@ export class PrivateDiagramCoordSetService
 
         this.tupleService.offlineObserver
             .subscribeToTupleSelector(ts)
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((tuples: ModelCoordSet[]) => {
                 this._coordSetByKeyByModelSetKey = {};
                 this._coordSetsByModelSetKey = {};

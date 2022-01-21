@@ -1,10 +1,11 @@
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 import { PeekCanvasConfig } from "../canvas/PeekCanvasConfig.web";
 import { PeekCanvasModel } from "../canvas/PeekCanvasModel.web";
 import { PeekDispRenderFactory } from "./PeekDispRenderFactory.web";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PanI } from "../canvas/PeekInterfaces.web";
 import { PeekCanvasBounds } from "../canvas/PeekCanvasBounds";
-import { Subject } from "rxjs";
 import { DrawModeE } from "./PeekDispRenderDelegateABC.web";
 
 export class PeekCanvasPan implements PanI {
@@ -53,7 +54,7 @@ export class PeekCanvasRenderer {
         // Watch zoom
 
         this.config.viewPort.zoomChange
-            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .pipe(takeUntil(this.lifecycleEventEmitter.onDestroyEvent))
             .subscribe((newVal) => {
                 if (newVal == this._zoom) return;
                 this.zoom(newVal / this._zoom);
@@ -63,21 +64,21 @@ export class PeekCanvasRenderer {
         // Apply pan
 
         this.config.viewPort.panChange
-            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .pipe(takeUntil(this.lifecycleEventEmitter.onDestroyEvent))
             .subscribe(() => this.pan());
 
         // ------------------------------------------
         // Watch for canvas size changes
 
         this.config.canvas.windowChange
-            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .pipe(takeUntil(this.lifecycleEventEmitter.onDestroyEvent))
             .subscribe(() => this.invalidate());
 
         // ------------------------------------------
         // Watch for invalidates
 
         this.config.renderer.invalidate
-            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .pipe(takeUntil(this.lifecycleEventEmitter.onDestroyEvent))
             .subscribe(() => this.invalidate());
     }
 

@@ -1,3 +1,4 @@
+import { takeUntil } from "rxjs/operators";
 import { Component } from "@angular/core";
 import {
     PrivateDiagramGridLoaderServiceA,
@@ -30,13 +31,13 @@ export class DiagramCfgComponent extends NgLifeCycleEvents {
         this.gridLoaderStatus = this.gridLoader.status();
         this.gridLoader
             .statusObservable()
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((value) => (this.gridLoaderStatus = value));
 
         this.locationLoaderStatus = this.locationLoader.status();
         this.locationLoader
             .statusObservable()
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((value) => (this.locationLoaderStatus = value));
     }
 }

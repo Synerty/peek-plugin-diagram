@@ -1,3 +1,5 @@
+import { Observable, Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 import { Injectable } from "@angular/core";
 import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import { LinkedGrid } from "./LinkedGrid.web";
@@ -5,7 +7,6 @@ import {
     GridTuple,
     PrivateDiagramGridLoaderServiceA,
 } from "@peek/peek_plugin_diagram/_private/grid-loader";
-import { Observable, Subject } from "rxjs";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 
 class Cache {
@@ -67,7 +68,7 @@ export class GridCache {
     ) {
         // Services don't have destructors, I'm not sure how to unsubscribe.
         this.gridLoader.observable
-            .takeUntil(this.NgLifeCycleEvents.onDestroyEvent)
+            .pipe(takeUntil(this.NgLifeCycleEvents.onDestroyEvent))
             .subscribe((tuples: GridTuple[]) =>
                 this.processGridUpdates(tuples)
             );
@@ -75,7 +76,7 @@ export class GridCache {
         // If the lookups reload, we need to relink all the disps
         this.lookupService
             .dispsNeedRelinkingObservable()
-            .takeUntil(this.NgLifeCycleEvents.onDestroyEvent)
+            .pipe(takeUntil(this.NgLifeCycleEvents.onDestroyEvent))
             .subscribe(() => this.relinkAllLookups());
     }
 

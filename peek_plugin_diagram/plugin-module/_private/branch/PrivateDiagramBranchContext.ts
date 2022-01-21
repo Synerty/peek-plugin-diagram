@@ -1,10 +1,11 @@
+import { Observable, Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 import { BranchTuple } from "./BranchTuple";
 import { BranchLiveEditTupleAction } from "./BranchLiveEditTupleAction";
 import { UserListItemTuple } from "@peek/peek_core_user";
 import { LocalBranchStorageService } from "../branch-loader/LocalBranchStorageService";
 import { BranchUpdateTupleAction } from "./BranchUpdateTupleAction";
 import { PrivateDiagramTupleService } from "../services";
-import { Observable, Subject } from "rxjs";
 import { TupleSelector, VortexStatusService } from "@synerty/vortexjs";
 import { BranchLiveEditTuple } from "./BranchLiveEditTuple";
 import { BalloonMsgService } from "@synerty/peek-plugin-base-js";
@@ -56,7 +57,7 @@ export class PrivateDiagramBranchContext {
      * The observable will be emitted with an
      */
     get branchUpdatedObservable(): Observable<boolean> {
-        return this._branchUpdatedSubject.takeUntil(this.shutdownSubject);
+        return this._branchUpdatedSubject.pipe(takeUntil(this.shutdownSubject));
     }
 
     async save(): Promise<void> {
@@ -126,7 +127,7 @@ export class PrivateDiagramBranchContext {
 
         this.lookupCache
             .dispsNeedRelinkingObservable()
-            .takeUntil(this.shutdownSubject)
+            .pipe(takeUntil(this.shutdownSubject))
             .subscribe(() => this.branchTuple.linkDisps(this.lookupCache));
     }
 

@@ -1,3 +1,4 @@
+import { takeUntil } from "rxjs/operators";
 import { PeekCanvasConfig } from "../canvas/PeekCanvasConfig.web";
 import { PeekCanvasModel } from "../canvas/PeekCanvasModel.web";
 
@@ -248,7 +249,7 @@ export class PeekCanvasInput {
         canvas.addEventListener("contextmenu", disableContextMenu, true);
 
         this.config.canvas.windowChange
-            .takeUntil(this.lifecycleEventEmitter.onDestroyEvent)
+            .pipe(takeUntil(this.lifecycleEventEmitter.onDestroyEvent))
             .subscribe(() => this.updateCanvasSize());
     }
 

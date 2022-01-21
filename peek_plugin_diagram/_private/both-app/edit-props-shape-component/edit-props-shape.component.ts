@@ -1,3 +1,4 @@
+import { takeUntil } from "rxjs/operators";
 import { Component, Input, OnInit } from "@angular/core";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PeekCanvasEditor } from "../canvas/PeekCanvasEditor.web";
@@ -30,7 +31,7 @@ export class EditPropsShapeComponent
     ngOnInit() {
         this.context = this.canvasEditor.props.shapePanelContext;
         this.canvasEditor.props.shapePanelContextObservable
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((context: PeekCanvasShapePropsContext) => {
                 this.context = context;
                 this.processContext(context);

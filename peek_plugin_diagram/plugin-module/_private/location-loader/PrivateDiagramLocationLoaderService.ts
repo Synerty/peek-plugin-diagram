@@ -1,3 +1,5 @@
+import { Observable, Subject } from "rxjs";
+import { filter, first, takeUntil } from "rxjs/operators";
 import { Injectable } from "@angular/core";
 import { LocationIndexTuple } from "./LocationIndexTuple";
 import {
@@ -20,9 +22,6 @@ import { DiagramCoordSetService } from "@peek/peek_plugin_diagram/DiagramCoordSe
 import { LocationIndexUpdateDateTuple } from "./LocationIndexUpdateDateTuple";
 import { DispKeyLocationTuple } from "./DispKeyLocationTuple";
 import { PrivateDiagramCoordSetService } from "../services/PrivateDiagramCoordSetService";
-
-import { Observable, Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
 import { EncodedLocationIndexTuple } from "./EncodedLocationIndexTuple";
 import { PrivateDiagramLocationLoaderStatusTuple } from "./PrivateDiagramLocationLoaderStatusTuple";
 import { PrivateDiagramTupleService } from "../services/PrivateDiagramTupleService";
@@ -146,8 +145,8 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
         this._notifyStatus();
 
         this.deviceCacheControllerService.triggerCachingObservable
-            .takeUntil(this.onDestroyEvent)
-            .filter((v) => v)
+            .pipe(takeUntil(this.onDestroyEvent))
+            .pipe(filter((v) => v))
             .subscribe(() => {
                 this.initialLoad();
                 this._notifyStatus();
@@ -203,8 +202,8 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
                 .isOnline
                 ? Promise.resolve()
                 : this.vortexStatusService.isOnline
-                      .filter((online) => online)
-                      .first()
+                      .pipe(filter((online) => online))
+                      .pipe(first())
                       .toPromise();
 
             return isOnlinePromise.then(() =>
@@ -217,7 +216,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
             return this.getLocationsFromLocal(modelSetKey, dispKey);
 
         return this.isReadyObservable()
-            .first()
+            .pipe(first())
             .toPromise()
             .then(() => this.getLocationsFromLocal(modelSetKey, dispKey));
     }
@@ -279,15 +278,15 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
                 this,
                 clientLocationIndexWatchUpdateFromDeviceFilt
             )
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((payloadEnvelope: PayloadEnvelope) => {
                 this.processLocationIndexesFromServer(payloadEnvelope);
             });
 
         // If the vortex service comes back online, update the watch grids.
         this.vortexStatusService.isOnline
-            .filter((isOnline) => isOnline == true)
-            .takeUntil(this.onDestroyEvent)
+            .pipe(filter((isOnline) => isOnline == true))
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(() => this.askServerForUpdates());
     }
 

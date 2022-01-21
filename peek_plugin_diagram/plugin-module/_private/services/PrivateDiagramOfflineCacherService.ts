@@ -1,3 +1,4 @@
+import { filter, first, takeUntil } from "rxjs/operators";
 import { Injectable } from "@angular/core";
 import {
     NgLifeCycleEvents,
@@ -56,9 +57,9 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
                 );
         } else {
             vortexStatusService.isOnline
-                .takeUntil(this.onDestroyEvent)
-                .filter((val) => val === true)
-                .first()
+                .pipe(takeUntil(this.onDestroyEvent))
+                .pipe(filter((val) => val === true))
+                .pipe(first())
                 .subscribe(() => {
                     this.tupleService.offlineStorage
                         .deleteOldTuples(date7DaysAgo)
@@ -87,7 +88,7 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
 
         this.tupleService.offlineObserver
             .subscribeToTupleSelector(tupleSelector)
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((modelSets: ModelSet[]) => {
                 this.tupleService.offlineObserver.flushCache(tupleSelector);
                 this.loadLookups(modelSets);
@@ -111,7 +112,7 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
 
         this.tupleService.offlineObserver
             .subscribeToTupleSelector(tupleSelector)
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((tuples: ModelCoordSet[]) => {
                 this.tupleService.offlineObserver.flushCache(tupleSelector);
                 this.loadDispGroups(tuples);
@@ -132,7 +133,7 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
 
         this.tupleService.offlineObserver
             .subscribeToTupleSelector(tupleSelector)
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((tuples: BranchKeyToIdMapTuple[]) => {
                 this.tupleService.offlineObserver.flushCache(tupleSelector);
             });
@@ -155,7 +156,7 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
 
                 let sub = this.tupleService.offlineObserver
                     .subscribeToTupleSelector(tupleSelector)
-                    .takeUntil(this.onDestroyEvent)
+                    .pipe(takeUntil(this.onDestroyEvent))
                     .subscribe((tuples: any[]) => {
                         this.tupleService.offlineObserver.flushCache(
                             tupleSelector
@@ -187,7 +188,7 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
 
             let sub = this.tupleService.offlineObserver
                 .subscribeToTupleSelector(tupleSelector)
-                .takeUntil(this.onDestroyEvent)
+                .pipe(takeUntil(this.onDestroyEvent))
                 .subscribe((tuples: any[]) => {
                     this.tupleService.offlineObserver.flushCache(tupleSelector);
                 });

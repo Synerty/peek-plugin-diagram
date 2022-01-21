@@ -1,3 +1,4 @@
+import { takeUntil } from "rxjs/operators";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PeekCanvasEditor } from "../canvas/PeekCanvasEditor.web";
@@ -46,7 +47,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
         this.otherPluginButtons = this.toolbarService.editToolButtons;
         this.toolbarService
             .editToolButtonsUpdatedObservable()
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((buttons: DiagramToolButtonI[]) => {
                 this.otherPluginButtons = buttons;
             });
