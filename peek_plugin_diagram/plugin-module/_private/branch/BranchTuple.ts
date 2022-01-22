@@ -10,6 +10,7 @@ import { BranchLiveEditTuple } from "./BranchLiveEditTuple";
 import { PrivateDiagramLookupService } from "../services/PrivateDiagramLookupService";
 
 let serUril = new SerialiseUtil();
+declare var require: any;
 
 interface UndoDataI {
     disps: any[];
@@ -79,14 +80,6 @@ export class BranchTuple extends Tuple {
 
     get needsSave(): boolean {
         return this.packedJson__[BranchTuple.__NEEDS_SAVE_NUM];
-    }
-
-    get isUndoPossible(): boolean {
-        return this.undoQueue.length > 1;
-    }
-
-    get isRedoPossible(): boolean {
-        return this.redoQueue.length != 0;
     }
 
     get id(): number {
@@ -244,6 +237,7 @@ export class BranchTuple extends Tuple {
     }
 
     isDispInBranch(disp: any): boolean {
+        // @ts-ignore
         let DispBase =
             require("@_peek/peek_plugin_diagram/canvas-shapes/DispBase")[
                 "DispBase"
@@ -261,6 +255,7 @@ export class BranchTuple extends Tuple {
      * @param disps
      */
     addNewDisps(disps: any[]): void {
+        // @ts-ignore
         let DispBase =
             require("@_peek/peek_plugin_diagram/canvas-shapes/DispBase")[
                 "DispBase"
@@ -278,10 +273,12 @@ export class BranchTuple extends Tuple {
     }
 
     removeDisps(disps: any[]): void {
+        // @ts-ignore
         let DispBase =
             require("@_peek/peek_plugin_diagram/canvas-shapes/DispBase")[
                 "DispBase"
             ];
+        // @ts-ignore
         let DispNull =
             require("@_peek/peek_plugin_diagram/canvas-shapes/DispNull")[
                 "DispNull"
@@ -420,6 +417,7 @@ export class BranchTuple extends Tuple {
         jsonDict: {} | null = null,
         name: string | null = null
     ): any {
+        // @ts-ignore
         const DispBase =
             require("@_peek/peek_plugin_diagram/canvas-shapes/DispBase")[
                 "DispBase"
@@ -472,6 +470,7 @@ export class BranchTuple extends Tuple {
     }
 
     private assignIdsToDisps(): void {
+        // @ts-ignore
         let DispBase =
             require("@_peek/peek_plugin_diagram/canvas-shapes/DispBase")[
                 "DispBase"
@@ -504,6 +503,7 @@ export class BranchTuple extends Tuple {
     }
 
     private updateReplacedIds(disp) {
+        // @ts-ignore
         let DispBase =
             require("@_peek/peek_plugin_diagram/canvas-shapes/DispBase")[
                 "DispBase"
@@ -516,10 +516,12 @@ export class BranchTuple extends Tuple {
         disp: any;
         modelUpdateRequired: boolean;
     } {
+        // @ts-ignore
         let DispBase =
             require("@_peek/peek_plugin_diagram/canvas-shapes/DispBase")[
                 "DispBase"
             ];
+        // @ts-ignore
         let DispGroupPointer =
             require("@_peek/peek_plugin_diagram/canvas-shapes/DispGroupPointer")[
                 "DispGroupPointer"
@@ -576,6 +578,7 @@ export class BranchTuple extends Tuple {
     }
 
     private sortDisps(): void {
+        // @ts-ignore
         const sortDisps =
             require("@_peek/peek_plugin_diagram/canvas/PeekCanvasModelUtil.web")[
                 "sortDisps"
@@ -597,6 +600,7 @@ export class BranchTuple extends Tuple {
     }
 
     private serialiseDisps(): string {
+        // @ts-ignore
         const DispBase =
             require("@_peek/peek_plugin_diagram/canvas-shapes/DispBase")[
                 "DispBase"

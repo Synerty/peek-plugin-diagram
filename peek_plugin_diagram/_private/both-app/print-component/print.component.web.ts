@@ -3,6 +3,8 @@ import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { DiagramSnapshotService } from "@peek/peek_plugin_diagram/DiagramSnapshotService";
 import { HeaderService } from "@synerty/peek-plugin-base-js";
 
+import * as $ from "jquery";
+
 @Component({
     selector: "pl-diagram-print",
     templateUrl: "print.component.web.html",
