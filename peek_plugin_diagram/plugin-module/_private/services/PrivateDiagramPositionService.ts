@@ -5,7 +5,7 @@ import {
     OptionalPositionArgsI,
     PositionUpdatedI,
 } from "../../DiagramPositionService";
-import { Observable, Subject, BehaviorSubject } from "rxjs";
+import { Observable, Subject } from "rxjs";
 
 import { DispKeyLocationTuple } from "../location-loader/DispKeyLocationTuple";
 import { BalloonMsgService } from "@synerty/peek-plugin-base-js";
@@ -24,6 +24,7 @@ export interface DiagramPositionByKeyI {
     modelSetKey: string;
     coordSetKey: string | null;
     opts: OptionalPositionArgsI;
+    dispKeyIndexes: DispKeyLocationTuple[] | null;
 }
 
 export interface DiagramPositionByCoordSetI {
@@ -39,8 +40,8 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
         new Subject<DiagramPositionByCoordSetI>();
     private positionSubject = new Subject<DiagramPositionI>();
     private positionByKeySubject = new Subject<DiagramPositionByKeyI>();
-    private isReadySubject = new BehaviorSubject<boolean>(false);
-    private postionUpdatedSubject = new Subject<PositionUpdatedI>();
+    private isReadySubject = new Subject<boolean>();
+    private positionUpdatedSubject = new Subject<PositionUpdatedI>();
     private selectKeysSubject = new Subject<string[]>();
 
     constructor(
@@ -117,15 +118,16 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
         coordSetKey: string | null,
         opts: OptionalPositionArgsI = {}
     ): Promise<void> {
-        if (!this.coordSetService.isReady())
+        if (!this.coordSetService.isReady()) {
             throw new Error(
                 "positionByKey called before coordSetService is ready"
             );
+        }
 
         if (opts.highlightKey == null || opts.highlightKey.length == 0)
             throw new Error("positionByKey must be passed opts.highlightKey");
 
-        const dispKeyIndexes: DispKeyLocationTuple[] =
+        let dispKeyIndexes: DispKeyLocationTuple[] =
             await this.locationIndexService.getLocations(
                 modelSetKey,
                 opts.highlightKey
@@ -133,27 +135,37 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
 
         if (dispKeyIndexes.length == 0) {
             this.balloonMsg.showError(
-                `Can not locate disply item ${opts.highlightKey}` +
+                `Can not locate display item ${opts.highlightKey}` +
                     ` in model set ${modelSetKey}`
             );
         }
 
-        for (let dispKeyIndex of dispKeyIndexes) {
-            // If we've been given a coord set key
-            // and it doesn't match the found item:
-            if (
-                coordSetKey != null &&
-                dispKeyIndex.coordSetKey != coordSetKey
-            ) {
-                continue;
+        if (coordSetKey != null) {
+            dispKeyIndexes = dispKeyIndexes //
+                .filter((d) => d.coordSetKey === coordSetKey);
+
+            if (!dispKeyIndexes.length) {
+                this.balloonMsg.showError(
+                    `Can not locate display item ${opts.highlightKey}` +
+                        ` in model set ${modelSetKey}, in coord set ${coordSetKey}`
+                );
             }
+        }
+
+        if (dispKeyIndexes.length === 1) {
+            const dispKeyIndex = dispKeyIndexes[0];
 
             const coordSet = this.coordSetService.coordSetForKey(
                 modelSetKey,
                 dispKeyIndex.coordSetKey
             );
 
-            if (coordSet == null) return;
+            if (coordSet == null) {
+                throw new Error(
+                    "Could not find coordSet for key=" +
+                        dispKeyIndex.coordSetKey
+                );
+            }
 
             this.positionSubject.next({
                 coordSetKey: dispKeyIndex.coordSetKey,
@@ -162,13 +174,17 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
                 zoom: coordSet.positionOnZoom,
                 opts,
             });
+
             return;
         }
 
-        this.balloonMsg.showError(
-            `Can not locate disply item ${opts.highlightKey}` +
-                ` in model set ${modelSetKey}, in coord set ${coordSetKey}`
-        );
+        // Emitting this will cause the diagram to ask the user what to do.
+        this.positionByKeySubject.next({
+            modelSetKey: modelSetKey,
+            coordSetKey: coordSetKey,
+            opts: opts,
+            dispKeyIndexes: dispKeyIndexes,
+        });
     }
 
     async canPositionByKey(
@@ -202,6 +218,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
                 locationByCoordSet[tuple.coordSetKey] = location;
                 locations.push(location);
             }
+
             location.positions.push({ x: tuple.x, y: tuple.y });
         }
         return locations;
@@ -216,7 +233,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
     }
 
     positionUpdated(pos: PositionUpdatedI): void {
-        this.postionUpdatedSubject.next(pos);
+        this.positionUpdatedSubject.next(pos);
     }
 
     isReadyObservable(): Observable<boolean> {
@@ -224,7 +241,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
     }
 
     positionUpdatedObservable(): Observable<PositionUpdatedI> {
-        return this.postionUpdatedSubject;
+        return this.positionUpdatedSubject;
     }
 
     titleUpdatedObservable(): Observable<string> {

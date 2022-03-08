@@ -28,6 +28,7 @@ import { PrivateDiagramOverrideService } from "@peek/peek_plugin_diagram/_privat
 import { PeekCanvasActioner } from "../canvas/PeekCanvasActioner";
 import { CopyPasteService } from "../services/copy-paste.service";
 import { ContextMenuService } from "../services/context-menu.service";
+import { BehaviorSubject } from "rxjs";
 
 /** Canvas Component
  *
@@ -49,19 +50,21 @@ export class CanvasComponent extends NgLifeCycleEvents {
     @Input("showToolbar")
     showToolbar: boolean = true;
 
-    coordSetKey: string | null = null;
     config: PeekCanvasConfig;
     model: PeekCanvasModel;
     input: PeekCanvasInput;
     editor: PeekCanvasEditor;
     // This is toggled by the toolbars
     showPrintPopup = false;
+
     private canvas: any = null;
     // DoCheck last value variables
     private lastCanvasSize: string = "";
     private lastFrameSize: string = "";
     private renderer: PeekCanvasRenderer;
     private renderFactory: PeekDispRenderFactory;
+
+    readonly isReadyCallable = () => this.isReady();
 
     constructor(
         private balloonMsg: BalloonMsgService,
@@ -94,6 +97,10 @@ export class CanvasComponent extends NgLifeCycleEvents {
             this.gridObservable.isReady() &&
             this.lookupService != null
         );
+    }
+
+    get coordSetKey(): string | null {
+        return this.config.controller.coordSet?.key;
     }
 
     ngOnInit() {
@@ -171,7 +178,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
     }
 
     coordSetIsValid(): boolean {
-        return this.coordSetKey != null && this.config.coordSet != null;
+        return this.config.coordSet?.key != null;
     }
 
     connectSnapshotCallback(): void {
@@ -249,6 +256,8 @@ export class CanvasComponent extends NgLifeCycleEvents {
         // this.lookupService must not be null
         this.config.controller.modelSetKey = this.modelSetKey;
 
+        // If the coord set ischanged, update our value
+
         // The model view the viewable items on the canvas
         this.model = new PeekCanvasModel(
             this.config,
@@ -316,7 +325,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
         this.connectConfigService();
 
         // Hook up the position serivce
-        this.connectDiagramService();
+        // SEE SetPositionComponent
 
         // Hook up the outward notification of position updates
         this.connectPositionUpdateNotify();
@@ -326,22 +335,6 @@ export class CanvasComponent extends NgLifeCycleEvents {
 
         // Hook up the Copy and Paste service
         this.connectCopyPasteService();
-    }
-
-    private switchToCoordSet(coordSetKey: string) {
-        if (!this.isReady()) return;
-
-        let coordSet = this.coordSetCache.coordSetForKey(
-            this.modelSetKey,
-            coordSetKey
-        );
-        this.config.updateCoordSet(coordSet);
-
-        this.privatePosService.setTitle(`Viewing ${coordSet.name}`);
-
-        // Update
-        this.config.updateCoordSet(coordSet);
-        this.coordSetKey = coordSetKey;
     }
 
     private connectConfigService(): void {
@@ -357,76 +350,5 @@ export class CanvasComponent extends NgLifeCycleEvents {
             .layersUpdatedObservable()
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(() => this.model.recompileModel());
-    }
-
-    private connectDiagramService(): void {
-        // Watch the positionByCoordSet observable
-        this.privatePosService
-            .positionByCoordSetObservable()
-            .pipe(takeUntil(this.onDestroyEvent))
-            .subscribe((data: DiagramPositionByCoordSetI) => {
-                if (this.modelSetKey != data.modelSetKey) {
-                    console.log(
-                        "ERROR, positionByCoordSet was called for " +
-                            `modelSet ${data.modelSetKey} but we're showing` +
-                            `modelSet ` +
-                            this.modelSetKey
-                    );
-                    return;
-                }
-
-                if (!this.isReady()) {
-                    console.log(
-                        "ERROR, Position was called before canvas is ready"
-                    );
-                    return;
-                }
-
-                this.switchToCoordSet(data.coordSetKey);
-
-                // Inform the position service that it's ready to go.
-                this.privatePosService.setReady(true);
-            });
-
-        // Watch the position observables
-        this.privatePosService
-            .positionObservable()
-            .pipe(takeUntil(this.onDestroyEvent))
-            .subscribe((pos: DiagramPositionI) => {
-                // Switch only if we need to
-                if (
-                    this.config.controller.coordSet == null ||
-                    this.config.controller.coordSet.key != pos.coordSetKey
-                ) {
-                    this.switchToCoordSet(pos.coordSetKey);
-                }
-
-                this.config.updateViewPortPan({ x: pos.x, y: pos.y }); // pos confirms to PanI
-                this.config.updateViewPortZoom(pos.zoom);
-
-                if (pos.opts.highlightKey != null)
-                    this.model.selection.tryToSelectKeys([
-                        pos.opts.highlightKey,
-                    ]);
-
-                if (pos.opts.editingBranch != null) {
-                    this.branchService.startEditing(
-                        this.modelSetKey,
-                        this.coordSetKey,
-                        pos.opts.editingBranch
-                    );
-                }
-
-                // Inform the position service that it's ready to go.
-                this.privatePosService.setReady(true);
-            });
-
-        // Watch the select observables
-        this.privatePosService
-            .selectKeysObservable()
-            .pipe(takeUntil(this.onDestroyEvent))
-            .subscribe((keys: string[]) => {
-                this.model.selection.tryToSelectKeys(keys);
-            });
     }
 }
