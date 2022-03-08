@@ -33,10 +33,12 @@ import { NzPopconfirmModule } from "ng-zorro-antd/popconfirm";
 import { NzSelectModule } from "ng-zorro-antd/select";
 import { NzInputModule } from "ng-zorro-antd/input";
 import { NzCheckboxModule } from "ng-zorro-antd/checkbox";
+import { NzListModule } from "ng-zorro-antd/list";
 import { EditPropsEdgeTemplateComponent } from "./edit-props-edge-template-component/edit-props-edge-template.component";
 import { CanvasContextMenuComponent } from "./canvas-context-menu-component/canvas-context-menu.component.web";
 import { CopyPasteService } from "./services/copy-paste.service";
 import { ContextMenuService } from "./services/context-menu.service";
+import { SetPositionComponent } from "./set-position-component/set-position.component";
 
 // Define the root module for this plugin.
 // This module is loaded by the lazy loader, what ever this defines is what is started.
@@ -55,6 +57,7 @@ import { ContextMenuService } from "./services/context-menu.service";
         NzDescriptionsModule,
         NzModalModule,
         NzSwitchModule,
+        NzListModule,
         NzPopconfirmModule,
         NzSelectModule,
         NzInputModule,
@@ -82,6 +85,7 @@ import { ContextMenuService } from "./services/context-menu.service";
         EditPropsToolbarComponent,
         EditPropsGroupPtrComponent,
         PrintComponent,
+        SetPositionComponent,
         EditPropsEdgeTemplateComponent,
         CanvasContextMenuComponent,
     ],

@@ -251,6 +251,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
             ).then((docs) => this._populateAndIndexObjectTypes(docs));
 
         return this.isReadyObservable()
+            .pipe(first((ready) => ready))
             .pipe(first())
             .toPromise()
             .then(() =>

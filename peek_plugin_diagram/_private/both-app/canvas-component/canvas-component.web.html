@@ -54,7 +54,7 @@
     <pl-diagram-start-edit
         *ngIf="coordSetIsValid()"
         [canvasEditor]="editor"
-        [coordSetKey]="coordSetKey"
+        [coordSetKey]="config.coordSetKey"
         [modelSetKey]="modelSetKey"
         class="no-print"
     ></pl-diagram-start-edit>
@@ -63,6 +63,17 @@
         (closePopup)="showPrintPopup=false"
         *ngIf="showPrintPopup"
     ></pl-diagram-print>
+    
+    
+    <!-- This component handles the positioning requests from the
+        PrivateDiagramPositionService
+    -->
+    <pl-diagram-set-position
+        [modelSetKey]="modelSetKey"
+        [isReadyCallable]="isReadyCallable"
+        [config]="config"
+        [model]="model"
+    ></pl-diagram-set-position>
 
     <div class="pl-canvas-container no-print">
         <p class="canvas-status-bar">{{mouseInfo()}}</p>
