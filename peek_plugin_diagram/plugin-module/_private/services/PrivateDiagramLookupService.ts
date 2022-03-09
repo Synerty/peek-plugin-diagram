@@ -27,7 +27,10 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
     private _lookupTargetCount = 6;
     private _levelsById = {};
     private _layersById = {};
-    private _colorsById = {};
+    private _colorsByModelSetIdByName: {
+        [id: number]: { [name: string]: DispColor };
+    } = {};
+    private _colorById: { [id: number]: DispColor } = {};
     private _textStyleById = {};
     private _lineStyleById = {};
     private _levelsByCoordSetIdOrderedByOrder: { [id: number]: DispLevel[] } =
@@ -65,7 +68,12 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
                 this.loadedCounter["modelSet"] = true;
             });
 
-        let sub = (lookupAttr, tupleName, callback = null) => {
+        let sub = (
+            lookupAttr,
+            tupleName,
+            callback = null,
+            indexAttrName = "id"
+        ) => {
             let ts = new TupleSelector(tupleName, {});
             this.subscriptions.push(
                 this.tupleService.offlineObserver
@@ -76,9 +84,8 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
                         this.loadedCounter[lookupAttr] = true;
                         this[lookupAttr] = {};
 
-                        for (let i = 0; i < tuples.length; i++) {
-                            let item = tuples[i];
-                            this[lookupAttr][item.id] = item;
+                        for (const item of tuples) {
+                            this[lookupAttr][item[indexAttrName]] = item;
                         }
 
                         if (callback != null) {
@@ -99,7 +106,10 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
             this.createLayersOrderedByOrder()
         );
 
-        sub("_colorsById", DispColor.tupleName, () => this._validateColors());
+        sub("_colorById", DispColor.tupleName, () => {
+            this._validateColors();
+            this.createColorByNameByModelSetKey();
+        });
 
         sub("_textStyleById", DispTextStyle.tupleName, () =>
             this.createTextStyleOrderedByName()
@@ -166,8 +176,17 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
         return this._layersById[layerId];
     }
 
+    colorForName(
+        modelSetKeyOrId: string | number,
+        name: string
+    ): DispColor | null {
+        const modelSetId = this.getModelSetId(modelSetKeyOrId);
+        const result = this._colorsByModelSetIdByName[modelSetId];
+        return result == null ? null : result[name.toLowerCase()];
+    }
+
     colorForId(colorId: number): DispColor {
-        return this._colorsById[colorId];
+        return this._colorById[colorId];
     }
 
     textStyleForId(textStyleId: number): DispTextStyle {
@@ -227,22 +246,22 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
         }
 
         if (disp.c != null) {
-            disp.cl = this._colorsById[disp.c];
+            disp.cl = this._colorById[disp.c];
             if (disp.cl == null) return null;
         }
 
         if (disp.lc != null) {
-            disp.lcl = this._colorsById[disp.lc];
+            disp.lcl = this._colorById[disp.lc];
             if (disp.lcl == null) return null;
         }
 
         if (disp.ec != null) {
-            disp.ecl = this._colorsById[disp.ec];
+            disp.ecl = this._colorById[disp.ec];
             if (disp.ecl == null) return null;
         }
 
         if (disp.fc != null) {
-            disp.fcl = this._colorsById[disp.fc];
+            disp.fcl = this._colorById[disp.fc];
             if (disp.fcl == null) return null;
         }
 
@@ -278,7 +297,7 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
             return image.style.color !== "rgb(255, 255, 255)";
         }
 
-        let colors = dictValuesFromObject(this._colorsById);
+        let colors = dictValuesFromObject(this._colorById);
         for (let i = 0; i < colors.length; i++) {
             let color = colors[i];
             if (!validTextColor(color.color)) {
@@ -289,7 +308,7 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
             }
         }
 
-        let ordered = dictValuesFromObject(this._colorsById).sort((o1, o2) =>
+        let ordered = dictValuesFromObject(this._colorById).sort((o1, o2) =>
             o1.name.localeCompare(o2.name)
         );
 
@@ -324,6 +343,21 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
             ordered,
             "modelSetId"
         );
+    }
+
+    private createColorByNameByModelSetKey() {
+        this._colorsByModelSetIdByName = {};
+
+        for (const color of Object.values(this._colorById)) {
+            let dict = this._colorsByModelSetIdByName[color.modelSetId];
+
+            if (dict == null) {
+                dict = {};
+                this._colorsByModelSetIdByName[color.modelSetId] = dict;
+            }
+
+            dict[color.name.toLowerCase()] = color;
+        }
     }
 
     private createLayersOrderedByOrder() {

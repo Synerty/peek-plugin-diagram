@@ -14,6 +14,7 @@ import { Tuple } from "@synerty/vortexjs";
 
 export enum DiagramOverrideTypeE {
     Color,
+    Highlight,
 }
 
 export abstract class DiagramOverrideBase extends Tuple {

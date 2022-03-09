@@ -9,12 +9,14 @@ import { DispBase, DispBaseT, DispType } from "../canvas-shapes/DispBase";
 import { PrivateDiagramBranchService } from "@peek/peek_plugin_diagram/_private/branch/PrivateDiagramBranchService";
 import { PeekCanvasModelQuery } from "./PeekCanvasModelQuery.web";
 import { PeekCanvasModelSelection } from "./PeekCanvasModelSelection.web";
-import { PeekCanvasModelOverride } from "./PeekCanvasModelOverride.web";
 import {
     OverrideUpdateDataI,
     PrivateDiagramOverrideService,
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramOverrideService";
 import { DispGroupPointerT } from "../canvas-shapes/DispGroupPointer";
+import { PeekCanvasModelOverrideA } from "../canvas-override/PeekCanvasModelOverrideA";
+import { PeekCanvasModelOverrideColor } from "../canvas-override/PeekCanvasModelOverrideColor";
+import { PeekCanvasModelOverrideHighlight } from "../canvas-override/PeekCanvasModelOverrideHighlight";
 
 // import 'rxjs/add/operator/takeUntil';
 
@@ -63,7 +65,7 @@ export class PeekCanvasModel {
 
     private readonly _query: PeekCanvasModelQuery;
     private readonly _selection: PeekCanvasModelSelection;
-    private readonly _override: PeekCanvasModelOverride;
+    private readonly _overrides: PeekCanvasModelOverrideA[];
 
     constructor(
         private config: PeekCanvasConfig,
@@ -75,7 +77,10 @@ export class PeekCanvasModel {
     ) {
         this._query = new PeekCanvasModelQuery(this);
         this._selection = new PeekCanvasModelSelection(this, this.config);
-        this._override = new PeekCanvasModelOverride(config, lookupCache);
+        this._overrides = [
+            new PeekCanvasModelOverrideColor(config, lookupCache),
+            new PeekCanvasModelOverrideHighlight(config, lookupCache),
+        ];
 
         this.needsUpdate = false;
 
@@ -135,7 +140,10 @@ export class PeekCanvasModel {
         this.overrideService.overridesUpdatedObservable
             .pipe(takeUntil(this.lifecycleEventEmitter.onDestroyEvent))
             .subscribe((data: OverrideUpdateDataI) => {
-                this._override.setOverrides(data.overrides);
+                for (const override of this._overrides) {
+                    override.setOverrides(data.overrides);
+                }
+
                 this.needsCompiling = true;
                 if (data.overridesRemoved) {
                     // Force the updates to load when they come back
@@ -152,30 +160,36 @@ export class PeekCanvasModel {
             });
     }
 
-    // -------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // reset
 
     get query(): PeekCanvasModelQuery {
         return this._query;
     }
 
-    // -------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Request Display Updates
 
     get selection(): PeekCanvasModelSelection {
         return this._selection;
     }
 
-    // -------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Process Display Updates
 
     viewableDisps() {
         return this._visibleDisps;
     }
 
-    // -------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // Get Overrides
+    get overrides(): PeekCanvasModelOverrideA[] {
+        return this._overrides;
+    }
+
+    // -------------------------------------------------------------------------
     // Display Items
-    // -------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
     recompileModel(): void {
         this._compileDisps(true);
@@ -323,7 +337,9 @@ export class PeekCanvasModel {
             }
         }
 
-        this._override.applyOverridesToModel(disps);
+        for (const override of this._overrides) {
+            override.compile(disps);
+        }
 
         if (isEditorActive) this.relinkDispGroups(disps);
 
@@ -341,7 +357,7 @@ export class PeekCanvasModel {
         );
     }
 
-    // -------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     private reset() {
         this.needsUpdate = false;
         this.isUpdating = false;
@@ -353,7 +369,7 @@ export class PeekCanvasModel {
         this._viewingGridKeysStr = "";
     }
 
-    // -------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     private _checkGridKeysForArea() {
         if (this._coordSetId == null) return;
 
@@ -392,7 +408,7 @@ export class PeekCanvasModel {
         );
     }
 
-    // -------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     /** Receive Grid
      *
      * NOTE: The grid data is not received in order,

@@ -1,4 +1,3 @@
-import { PeekCanvasConfig } from "./PeekCanvasConfig.web";
 import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import {
     DiagramOverrideBase,
@@ -7,6 +6,8 @@ import {
 import { DiagramOverrideColor } from "@peek/peek_plugin_diagram/override/DiagramOverrideColor";
 import { DispBase } from "../canvas-shapes/DispBase";
 import { DispFactory } from "../canvas-shapes/DispFactory";
+import { PeekCanvasModelOverrideA } from "./PeekCanvasModelOverrideA";
+import { PeekCanvasConfig } from "../canvas/PeekCanvasConfig.web";
 
 /**
  * Peek Canvas Model
@@ -15,36 +16,32 @@ import { DispFactory } from "../canvas-shapes/DispFactory";
  * objects that are within the viewable area.
  *
  */
-export class PeekCanvasModelOverride {
-    private overridesByDispKey: { [key: string]: DiagramOverrideBase[] } = {};
+export class PeekCanvasModelOverrideColor extends PeekCanvasModelOverrideA {
+    private overridesByDispKey: { [key: string]: DiagramOverrideColor[] } = {};
 
     constructor(
         private config: PeekCanvasConfig,
         private lookupCache: PrivateDiagramLookupService
-    ) {}
-
-    // ------------------------------------------------------------------------
-    // reset
+    ) {
+        super();
+    }
 
     // ------------------------------------------------------------------------
     setOverrides(overrides: DiagramOverrideBase[]): void {
         this.overridesByDispKey = {};
         for (const overrideBase of overrides) {
-            if (overrideBase.overrideType == DiagramOverrideTypeE.Color) {
-                const colorOverride: DiagramOverrideColor = <any>overrideBase;
-                for (const key of colorOverride.dispKeys) {
-                    this.getArrayForKey(key).push(colorOverride);
-                }
+            if (overrideBase.overrideType !== DiagramOverrideTypeE.Color)
+                continue;
+
+            const colorOverride: DiagramOverrideColor = <any>overrideBase;
+            for (const key of colorOverride.dispKeys) {
+                this.getArrayForKey(key).push(colorOverride);
             }
         }
     }
 
     // ------------------------------------------------------------------------
-    //
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    applyOverridesToModel(disps: any[]): void {
+    compile(disps: any[]): void {
         for (const disp of disps) {
             const dispKey = DispBase.key(disp);
             if (dispKey == null) continue;
@@ -52,32 +49,10 @@ export class PeekCanvasModelOverride {
             const array = this.getArrayForKey(dispKey, false);
             if (array == null) continue;
 
-            for (const overrideBase of array) {
-                switch (overrideBase.overrideType) {
-                    case DiagramOverrideTypeE.Color: {
-                        this.applyColorOverride(disp, overrideBase);
-                        break;
-                    }
-
-                    default: {
-                        throw new Error(
-                            "Unhandled override type " +
-                                overrideBase.overrideType
-                        );
-                    }
-                }
-            }
+            for (const override of array)
+                this.applyColorOverride(disp, override);
         }
     }
-
-    // ------------------------------------------------------------------------
-    // Set
-
-    // ------------------------------------------------------------------------
-    private reset() {}
-
-    // ------------------------------------------------------------------------
-    // Request Display Updates
 
     private getArrayForKey(key: string, create: boolean = true): any[] {
         let array = this.overridesByDispKey[key];
