@@ -28,6 +28,17 @@ export abstract class DiagramLookupService {
 
     abstract layerForName(modelSetKey: string, layerName: string): DispLayer;
 
+    /** Color for Name
+     *
+     * Returns a DispColor if there is one where .color == name
+     * @param modelSetKeyOrId
+     * @param name
+     */
+    abstract colorForName(
+        modelSetKeyOrId: string | number,
+        name: string
+    ): DispColor | null;
+
     abstract colorForId(colorId: number): DispColor;
 
     abstract textStyleForId(textStyleId: number): DispTextStyle;

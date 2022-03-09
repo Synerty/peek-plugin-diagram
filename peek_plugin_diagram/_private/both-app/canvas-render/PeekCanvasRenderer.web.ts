@@ -196,6 +196,11 @@ export class PeekCanvasRenderer {
             drawMode,
         });
 
+        // Finally render anything with the overrides
+        for (const override of this.model.overrides) {
+            override.draw(ctx, this._zoom);
+        }
+
         ctx.restore();
     }
 
