@@ -3,6 +3,8 @@ from datetime import datetime
 from typing import Dict, Optional, Tuple
 
 import pytz
+
+from peek_plugin_base.LoopingCallUtil import peekCatchErrbackWithLogger
 from peek_plugin_diagram._private.tuples.branch.BranchLiveEditTuple import (
     BranchLiveEditTuple,
 )
@@ -46,6 +48,7 @@ class BranchLiveEditController(TupleActionProcessorDelegateABC):
     def _timerErrback(self, failure):
         vortexLogFailure(failure, logger)
 
+    @peekCatchErrbackWithLogger(logger)
     def _expireCheck(self, _):
         # Clean out the old branch updates
         for key, item in list(self._cache.items()):
@@ -108,9 +111,12 @@ class BranchLiveEditController(TupleActionProcessorDelegateABC):
 
         self._tupleObservable.notifyOfTupleUpdate(
             TupleSelector(
-                BranchLiveEditTuple.tupleName(), {"coordSetId": coordSetId, "key": key}
+                BranchLiveEditTuple.tupleName(),
+                {"coordSetId": coordSetId, "key": key},
             )
         )
 
-    def getLiveEditTuple(self, coordSetId, key) -> Optional[BranchLiveEditTuple]:
+    def getLiveEditTuple(
+        self, coordSetId, key
+    ) -> Optional[BranchLiveEditTuple]:
         return self._cache.get((coordSetId, key))
