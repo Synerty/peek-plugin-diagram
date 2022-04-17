@@ -216,7 +216,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
         // If there is no offline support, or we're online
         if (
-            !this.deviceCacheControllerService.cachingEnabled ||
+            !this.deviceCacheControllerService.offlineModeEnabled ||
             this.vortexStatusService.snapshot.isOnline
         ) {
             let ts = new TupleSelector(BranchTuple.tupleName, {
@@ -336,7 +336,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
     private areWeTalkingToTheServer(): boolean {
         return (
-            this.deviceCacheControllerService.cachingEnabled &&
+            this.deviceCacheControllerService.offlineModeEnabled &&
             this.vortexStatusService.snapshot.isOnline
         );
     }
