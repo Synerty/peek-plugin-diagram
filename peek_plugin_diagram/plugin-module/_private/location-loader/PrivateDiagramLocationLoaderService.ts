@@ -189,10 +189,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
         }
 
         // If there is no offline support, or we're online
-        if (
-            !this.deviceCacheControllerService.cachingEnabled ||
-            this.vortexStatusService.snapshot.isOnline
-        ) {
+        if (this.vortexStatusService.snapshot.isOnline) {
             let ts = new TupleSelector(DispKeyLocationTuple.tupleName, {
                 modelSetKey: modelSetKey,
                 keys: [dispKey],
@@ -209,6 +206,14 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
             return isOnlinePromise.then(() =>
                 this.tupleService.offlineObserver.pollForTuples(ts, false)
             );
+        }
+
+        if (!this.deviceCacheControllerService.offlineModeEnabled) {
+            console.log(
+                "WARNING Offline support for Diagram is disabled," +
+                    " returning zero results"
+            );
+            return Promise.resolve([]);
         }
 
         // If we do have offline support
@@ -292,7 +297,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
 
     private areWeTalkingToTheServer(): boolean {
         return (
-            this.deviceCacheControllerService.cachingEnabled &&
+            this.deviceCacheControllerService.offlineModeEnabled &&
             this.vortexStatusService.snapshot.isOnline
         );
     }

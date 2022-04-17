@@ -105,8 +105,11 @@ export class PrivateDiagramCoordSetService
             .subscribe((tuples: ModelCoordSet[]) => {
                 this._coordSetByKeyByModelSetKey = {};
                 this._coordSetsByModelSetKey = {};
+                this._coordSetById = {};
 
                 for (let item of tuples) {
+                    this._coordSetById[item.id] = item;
+
                     // Coord Set by Coord Set Key, by Model Set Key
                     let coordSetByCoordSetKey =
                         this._coordSetByKeyByModelSetKey[

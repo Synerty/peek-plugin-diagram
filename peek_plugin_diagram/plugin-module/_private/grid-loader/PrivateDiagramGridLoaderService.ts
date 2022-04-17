@@ -240,7 +240,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
 
     private areWeTalkingToTheServer(): boolean {
         return (
-            this.deviceCacheControllerService.cachingEnabled &&
+            this.deviceCacheControllerService.offlineModeEnabled &&
             this.vortexStatusService.snapshot.isOnline
         );
     }

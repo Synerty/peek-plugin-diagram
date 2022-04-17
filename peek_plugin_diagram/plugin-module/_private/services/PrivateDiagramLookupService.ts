@@ -55,8 +55,7 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
     constructor(private tupleService: PrivateDiagramTupleService) {
         super();
 
-        let modelSetTs = new TupleSelector(ModelSet.tupleName, {});
-
+        const modelSetTs = new TupleSelector(ModelSet.tupleName, {});
         this.tupleService.offlineObserver
             .subscribeToTupleSelector(modelSetTs)
             .pipe(takeUntil(this.onDestroyEvent))
@@ -66,9 +65,12 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
                     this.modelSetByKey[modelSet.key] = modelSet;
 
                 this.loadedCounter["modelSet"] = true;
+
+                this._isReadySubject.next(this.isReady());
+                this.dispsNeedRelinking = true;
             });
 
-        let sub = (
+        const sub = (
             lookupAttr,
             tupleName,
             callback = null,
@@ -98,6 +100,7 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
             );
         };
 
+        // Load the lookup after the model set loads
         sub("_levelsById", DispLevel.tupleName, () =>
             this.createLevelsOrderedByOrder()
         );
