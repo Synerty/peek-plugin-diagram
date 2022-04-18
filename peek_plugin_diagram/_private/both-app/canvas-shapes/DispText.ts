@@ -94,7 +94,7 @@ export class DispText extends DispBase {
 
     static setText(disp: DispTextT, val: string): void {
         disp.te = val;
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static height(disp: DispTextT): number | null {
@@ -119,7 +119,7 @@ export class DispText extends DispBase {
 
     static setCenterPoint(disp: DispTextT, x: number, y: number): void {
         disp.g = [x, y];
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static create(coordSet: ModelCoordSet): DispTextT {

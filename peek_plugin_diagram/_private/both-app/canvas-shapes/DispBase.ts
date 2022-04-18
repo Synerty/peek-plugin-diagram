@@ -310,6 +310,14 @@ export abstract class DispBase {
         else disp.d = JSON.stringify(val);
     }
 
+    static setBoundsNull(disp: DispBaseT): void {
+        disp.bounds = null;
+
+        if (disp.dispGroup != null) {
+            DispBase.setBoundsNull(disp.dispGroup);
+        }
+    }
+
     // ---------------
     // Delta move helpers
 
@@ -320,7 +328,7 @@ export abstract class DispBase {
             disp.g[i] = disp.g[i] + dx;
             disp.g[i + 1] = disp.g[i + 1] + dy;
         }
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static deltaMoveHandle(handle: DispHandleI, dx: number, dy: number) {
@@ -330,7 +338,7 @@ export abstract class DispBase {
         let pointIndex = handle.handleIndex * 2;
         disp.g[pointIndex] = disp.g[pointIndex] + dx;
         disp.g[pointIndex + 1] = disp.g[pointIndex + 1] + dy;
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static rotateAboutAxis(disp, center: PointI, rotationDegrees: number) {
@@ -343,7 +351,7 @@ export abstract class DispBase {
             disp.g[i + 1] = point.y;
         }
 
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     // ---------------

@@ -53,8 +53,10 @@ export class PeekDispRenderFactory {
         if (drawMode == DrawModeE.ForView && !isVisible) return;
 
         let delegate = this._delegatesByType[disp._tt];
-        if (delegate == null)
+        if (delegate == null) {
             console.log(`ERROR: Unhandled render delegate for ${disp._tt}`);
+            return;
+        }
 
         // Draw only visible shapes
         if (isVisible) delegate.draw(disp, ctx, zoom, pan, drawMode);
