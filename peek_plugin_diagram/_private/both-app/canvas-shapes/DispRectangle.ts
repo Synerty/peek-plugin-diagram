@@ -22,7 +22,7 @@ export class DispRectangle extends DispPolygon {
         disp.g[1] = point.y;
         disp.g[3] = point.y;
         disp.g[6] = point.x;
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static setRectangleWidth(disp: DispPolygonT, width: number): void {
@@ -31,7 +31,7 @@ export class DispRectangle extends DispPolygon {
         let x = disp.g[0];
         disp.g[2] = x + width;
         disp.g[4] = x + width;
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static setRectangleHeight(disp: DispPolygonT, height: number): void {
@@ -40,7 +40,7 @@ export class DispRectangle extends DispPolygon {
         let y = disp.g[1];
         disp.g[5] = y + height;
         disp.g[7] = y + height;
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static center(disp: DispPolygonT): PointI {

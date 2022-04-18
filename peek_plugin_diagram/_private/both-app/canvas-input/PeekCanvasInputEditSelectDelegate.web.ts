@@ -529,12 +529,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     private _selectByPoint(inputPos: CanvasInputPos) {
         const q = this.viewArgs.model.query;
 
-        // Filter for only what the user can see
-        let disps = q.filterForVisibleDisps(
-            this.viewArgs.model.viewableDisps(),
-            this.viewArgs.config.viewPort.zoom,
-            true
-        );
+        let disps = this.viewArgs.model.viewableDisps();
 
         // Filter out disps that are apart of a group
         disps = disps.filter((d) => DispBase.groupId(d) == null);

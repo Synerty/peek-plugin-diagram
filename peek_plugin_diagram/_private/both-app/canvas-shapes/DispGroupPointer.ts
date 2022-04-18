@@ -138,7 +138,7 @@ export class DispGroupPointer extends DispBase {
             const Wrapper = DispFactory.wrapper(childDisp);
             Wrapper.rotateAboutAxis(childDisp, center, data.deltaRotation);
         }
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static rotateAboutAxis(disp, center: PointI, rotationDegrees: number) {

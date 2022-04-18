@@ -49,7 +49,7 @@ export abstract class DispPoly extends DispBase {
 
     static setLineWidth(disp: DispPolyT, val: number): void {
         disp.w = val;
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static geom(disp): PointsT {
@@ -62,13 +62,13 @@ export abstract class DispPoly extends DispBase {
 
     static popPoint(disp): void {
         disp.g.length = disp.g.length - 2;
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static addPoint(disp, point: PointI): void {
         disp.g.push(point.x);
         disp.g.push(point.y);
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static lastPoint(disp): PointI | null {

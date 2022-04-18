@@ -97,7 +97,7 @@ export class DispEllipse extends DispBase {
     static setCenter(disp: DispEllipseT, val: PointI): void {
         disp.g[0] = val.x;
         disp.g[1] = val.y;
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static xRadius(disp: DispEllipseT): number {
@@ -106,7 +106,7 @@ export class DispEllipse extends DispBase {
 
     static setXRadius(disp: DispEllipseT, val: number): void {
         disp.xr = val;
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static yRadius(disp: DispEllipseT): number {
@@ -115,7 +115,7 @@ export class DispEllipse extends DispBase {
 
     static setYRadius(disp: DispEllipseT, val: number): void {
         disp.yr = val;
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static rotation(disp: DispEllipseT): number {
@@ -124,7 +124,7 @@ export class DispEllipse extends DispBase {
 
     static setRotation(disp: DispEllipseT, val: number): void {
         disp.r = val;
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static startAngle(disp: DispEllipseT): number {
@@ -133,7 +133,7 @@ export class DispEllipse extends DispBase {
 
     static setStartAngle(disp: DispEllipseT, val: number): void {
         disp.sa = val;
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static endAngle(disp: DispEllipseT): number {
@@ -142,7 +142,7 @@ export class DispEllipse extends DispBase {
 
     static setEndAngle(disp: DispEllipseT, val: number): void {
         disp.ea = val;
-        disp.bounds = null;
+        DispBase.setBoundsNull(disp);
     }
 
     static rotateAboutAxis(disp, center: PointI, rotationDegrees: number) {

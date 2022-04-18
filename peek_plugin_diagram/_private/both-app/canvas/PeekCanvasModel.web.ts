@@ -470,7 +470,7 @@ export class PeekCanvasModel {
 
         for (const disp of disps) {
             // Reset all bounds
-            disp.bounds = null;
+            DispBase.setBoundsNull(disp);
 
             const groupId = DispBase.groupId(disp);
             if (groupId == null) continue;
