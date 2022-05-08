@@ -3,7 +3,9 @@ from collections import defaultdict
 from datetime import datetime
 from typing import List, Dict
 
-from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import EncodedGridTuple
+from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import (
+    EncodedGridTuple,
+)
 from twisted.internet.defer import DeferredList, Deferred, inlineCallbacks
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
@@ -24,7 +26,9 @@ from peek_plugin_diagram._private.client.controller.GridCacheController import (
 from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import (
     ClientGridLoaderRpc,
 )
-from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
+from peek_plugin_diagram._private.storage.GridKeyIndex import (
+    GridKeyIndexCompiled,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +69,9 @@ class GridCacheHandler(ACICacheHandlerABC):
         # Which is incomplete at this point :-|
 
         vortexUuids = set(VortexFactory.getRemoteVortexUuids())
-        vortexUuidsToRemove = set(self._observedGridKeysByVortexUuid) - vortexUuids
+        vortexUuidsToRemove = (
+            set(self._observedGridKeysByVortexUuid) - vortexUuids
+        )
 
         if not vortexUuidsToRemove:
             return
@@ -101,7 +107,9 @@ class GridCacheHandler(ACICacheHandlerABC):
             # Queue up the required client notifications
             for vortexUuid in vortexUuids:
                 logger.debug(
-                    "Sending unsolicited grid %s to vortex %s", gridKey, vortexUuid
+                    "Sending unsolicited grid %s to vortex %s",
+                    gridKey,
+                    vortexUuid,
                 )
                 payloadsByVortexUuid[vortexUuid].tuples.append(gridTuple)
 
@@ -112,8 +120,12 @@ class GridCacheHandler(ACICacheHandlerABC):
 
             # Serliase in thread, and then send.
             d = payload.makePayloadEnvelopeDefer()
-            d.addCallback(lambda payloadEnvelope: payloadEnvelope.toVortexMsgDefer())
-            d.addCallback(VortexFactory.sendVortexMsg, destVortexUuid=vortexUuid)
+            d.addCallback(
+                lambda payloadEnvelope: payloadEnvelope.toVortexMsgDefer()
+            )
+            d.addCallback(
+                VortexFactory.sendVortexMsg, destVortexUuid=vortexUuid
+            )
             dl.append(d)
 
         # Log the errors, otherwise we don't care about them
@@ -201,8 +213,10 @@ class GridCacheHandler(ACICacheHandlerABC):
                 return
 
             payload = Payload(filt=filt, tuples=toSend)
-            d: Deferred = payload.makePayloadEnvelopeDefer(compressionLevel=2)
-            d.addCallback(lambda payloadEnvelope: payloadEnvelope.toVortexMsgDefer())
+            d: Deferred = payload.makePayloadEnvelopeDefer(compressionLevel=0)
+            d.addCallback(
+                lambda payloadEnvelope: payloadEnvelope.toVortexMsgDefer()
+            )
             d.addCallback(sendResponse)
             d.addErrback(vortexLogFailure, logger, consumeError=True)
 
@@ -223,11 +237,15 @@ class GridCacheHandler(ACICacheHandlerABC):
                 )
 
             elif gridTuple.lastUpdate == lastUpdate:
-                logger.debug("Grid %s matches the cache, %s", gridKey, lastUpdate)
+                logger.debug(
+                    "Grid %s matches the cache, %s", gridKey, lastUpdate
+                )
 
             else:
                 gridTuplesToSend.append(gridTuple)
-                logger.debug("Sending grid %s from the cache, %s", gridKey, lastUpdate)
+                logger.debug(
+                    "Sending grid %s from the cache, %s", gridKey, lastUpdate
+                )
 
             if len(gridTuplesToSend) == 5 and not cacheAll:
                 sendChunk(gridTuplesToSend)
