@@ -21,7 +21,7 @@ import { PrivateDiagramTupleService } from "../services";
 import { PrivateDiagramGridLoaderStatusTuple } from "./PrivateDiagramGridLoaderStatusTuple";
 import { EncodedGridTuple } from "./EncodedGridTuple";
 import {
-    DeviceOfflineCacheControllerService,
+    DeviceOfflineCacheService,
     OfflineCacheStatusTuple,
 } from "@peek/peek_core_device";
 
@@ -113,7 +113,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
         private vortexStatusService: VortexStatusService,
         private tupleService: PrivateDiagramTupleService,
         storageFactory: TupleStorageFactoryService,
-        private deviceCacheControllerService: DeviceOfflineCacheControllerService
+        private deviceCacheControllerService: DeviceOfflineCacheService
     ) {
         super();
 
@@ -352,13 +352,18 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
 
         if (this.askServerChunks.length == 0) return;
 
-        let nextChunk = this.askServerChunks.pop();
+        this.deviceCacheControllerService //
+            .waitForGarbageCollector()
+            .then(() => {
+                let nextChunk = this.askServerChunks.pop();
 
-        let payload = new Payload({ cacheAll: true }, [nextChunk]);
-        extend(payload.filt, clientGridWatchUpdateFromDeviceFilt);
-        this.vortexService.sendPayload(payload);
+                let payload = new Payload({ cacheAll: true }, [nextChunk]);
+                extend(payload.filt, clientGridWatchUpdateFromDeviceFilt);
+                this.vortexService.sendPayload(payload);
 
-        this._status.lastCheck = new Date();
+                this._status.lastCheck = new Date();
+                this._notifyStatus();
+            });
     }
 
     //

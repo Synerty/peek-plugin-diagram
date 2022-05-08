@@ -26,7 +26,7 @@ import { EncodedLocationIndexTuple } from "./EncodedLocationIndexTuple";
 import { PrivateDiagramLocationLoaderStatusTuple } from "./PrivateDiagramLocationLoaderStatusTuple";
 import { PrivateDiagramTupleService } from "../services/PrivateDiagramTupleService";
 import {
-    DeviceOfflineCacheControllerService,
+    DeviceOfflineCacheService,
     OfflineCacheStatusTuple,
 } from "@peek/peek_core_device";
 
@@ -107,7 +107,6 @@ function dispKeyHashBucket(modelSetKey: string, dispKey: string): string {
 @Injectable()
 export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
     private UPDATE_CHUNK_FETCH_SIZE = 5;
-    private OFFLINE_CHECK_PERIOD_MS = 15 * 60 * 1000; // 15 minutes
 
     private index = new LocationIndexUpdateDateTuple();
     private askServerChunks: LocationIndexUpdateDateTuple[] = [];
@@ -129,7 +128,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
         storageFactory: TupleStorageFactoryService,
         abstractCoordSetService: DiagramCoordSetService,
         private tupleService: PrivateDiagramTupleService,
-        private deviceCacheControllerService: DeviceOfflineCacheControllerService
+        private deviceCacheControllerService: DeviceOfflineCacheService
     ) {
         super();
         this.coordSetService = <PrivateDiagramCoordSetService>(
@@ -382,15 +381,23 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
 
         if (this.askServerChunks.length == 0) return;
 
-        let indexChunk: LocationIndexUpdateDateTuple =
-            this.askServerChunks.pop();
+        this.deviceCacheControllerService //
+            .waitForGarbageCollector()
+            .then(() => {
+                let indexChunk: LocationIndexUpdateDateTuple =
+                    this.askServerChunks.pop();
 
-        let filt = extend({}, clientLocationIndexWatchUpdateFromDeviceFilt);
-        filt[cacheAll] = true;
-        let payload = new Payload(filt, [indexChunk]);
-        this.vortexService.sendPayload(payload);
+                let filt = extend(
+                    {},
+                    clientLocationIndexWatchUpdateFromDeviceFilt
+                );
+                filt[cacheAll] = true;
+                let payload = new Payload(filt, [indexChunk]);
+                this.vortexService.sendPayload(payload);
 
-        this._status.lastCheck = new Date();
+                this._status.lastCheck = new Date();
+                this._notifyStatus();
+            });
     }
 
     /** Process LocationIndexes From Server
