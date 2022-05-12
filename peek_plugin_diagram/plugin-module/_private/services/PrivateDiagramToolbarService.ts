@@ -14,6 +14,7 @@ export class PrivateDiagramToolbarService extends DiagramToolbarService {
     private _editToolButtonsUpdatedSubject = new Subject<
         DiagramToolButtonI[]
     >();
+    private _showToolbarObservable = new Subject<boolean>();
 
     constructor() {
         super();
@@ -93,5 +94,12 @@ export class PrivateDiagramToolbarService extends DiagramToolbarService {
 
     editToolButtonsUpdatedObservable(): Observable<DiagramToolButtonI[]> {
         return this._editToolButtonsUpdatedSubject;
+    }
+
+    showToolbarObservable() {
+        return this._showToolbarObservable;
+    }
+    setToolbarVisible(enabled: boolean): void {
+        this.showToolbarObservable().next(enabled);
     }
 }

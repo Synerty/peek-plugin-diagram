@@ -3,6 +3,7 @@ import { Observable, Subject } from "rxjs";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PrivateDiagramLookupService } from "./PrivateDiagramLookupService";
 import { DiagramConfigService } from "../../DiagramConfigService";
+import { DiagramToolbarService } from "@peek/peek_plugin_diagram";
 
 export interface PopupLayerSelectionArgsI {
     modelSetKey: string;
@@ -37,7 +38,10 @@ export class PrivateDiagramConfigService
 
     private _layersUpdatedSubject: Subject<void> = new Subject<void>();
 
-    constructor(private lookupService: PrivateDiagramLookupService) {
+    constructor(
+        private lookupService: PrivateDiagramLookupService,
+        private diagramToolbarService: DiagramToolbarService
+    ) {
         super();
     }
 
@@ -105,5 +109,9 @@ export class PrivateDiagramConfigService
     /** This observable is subscribed to by the canvas component */
     layersUpdatedObservable(): Observable<void> {
         return this._layersUpdatedSubject;
+    }
+
+    setToolbarVisible(enabled: boolean): void {
+        this.diagramToolbarService.setToolbarVisible(enabled);
     }
 }
