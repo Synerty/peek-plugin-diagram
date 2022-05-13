@@ -15,8 +15,6 @@ export class DiagramComponentBase extends NgLifeCycleEvents {
     @Input("modelSetKey")
     modelSetKey: string;
 
-    showToolbar: boolean = true;
-
     coordSetKey: string | null = null;
     nsToolbarRowSpan = 1;
     nsPopupRowSpan = 1;
@@ -46,10 +44,5 @@ export class DiagramComponentBase extends NgLifeCycleEvents {
             .titleUpdatedObservable()
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((title: string) => this.headerService.setTitle(title));
-
-        this.privateToolbarService
-            .showToolbarObservable()
-            .pipe(takeUntil(this.onDestroyEvent))
-            .subscribe((enabled: boolean) => (this.showToolbar = enabled));
     }
 }
