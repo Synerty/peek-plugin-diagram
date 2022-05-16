@@ -11,7 +11,6 @@ import { DiagramComponentBase } from "./diagram.component";
 })
 export class DiagramComponent extends DiagramComponentBase {
     @Input() modelSetKey;
-    @Input() showToolbar;
 
     constructor(
         headerService: HeaderService,

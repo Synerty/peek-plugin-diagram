@@ -79,4 +79,6 @@ export abstract class DiagramToolbarService {
      * @param toolbarType: The type of the toolbar to add the button to.
      */
     abstract removeToolButton(buttonKey: string, toolbarType?: ToolbarTypeE);
+
+    abstract setToolbarVisible(enabled: boolean);
 }

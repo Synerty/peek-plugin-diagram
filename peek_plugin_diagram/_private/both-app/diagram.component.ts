@@ -14,8 +14,6 @@ import { NgLifeCycleEvents } from "@synerty/vortexjs";
 export class DiagramComponentBase extends NgLifeCycleEvents {
     @Input("modelSetKey")
     modelSetKey: string;
-    @Input("showToolbar")
-    showToolbar: boolean = true;
 
     coordSetKey: string | null = null;
     nsToolbarRowSpan = 1;
