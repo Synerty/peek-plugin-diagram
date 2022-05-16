@@ -3,7 +3,9 @@ import logging
 from twisted.internet.defer import inlineCallbacks
 from vortex.DeferUtil import deferToThreadWrapWithLogger
 
-from peek_plugin_base.server.PluginLogicEntryHookABC import PluginLogicEntryHookABC
+from peek_plugin_base.server.PluginLogicEntryHookABC import (
+    PluginLogicEntryHookABC,
+)
 from peek_plugin_base.server.PluginServerStorageEntryHookABC import (
     PluginServerStorageEntryHookABC,
 )
@@ -57,15 +59,16 @@ from peek_plugin_diagram._private.server.controller.LookupImportController impor
     LookupImportController,
 )
 from peek_plugin_diagram._private.storage import DeclarativeBase
-from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
-from peek_plugin_diagram._private.storage.Setting import (
-    globalSetting,
-    DISP_COMPILER_ENABLED,
-    LOCATION_COMPILER_ENABLED,
-    BRANCH_COMPILER_ENABLED,
-    GRID_COMPILER_ENABLED,
-    globalProperties,
+from peek_plugin_diagram._private.storage.DeclarativeBase import (
+    loadStorageTuples,
 )
+from peek_plugin_diagram._private.storage.Setting import BRANCH_COMPILER_ENABLED
+from peek_plugin_diagram._private.storage.Setting import DISP_COMPILER_ENABLED
+from peek_plugin_diagram._private.storage.Setting import GRID_COMPILER_ENABLED
+from peek_plugin_diagram._private.storage.Setting import \
+    LOCATION_COMPILER_ENABLED
+from peek_plugin_diagram._private.storage.Setting import globalProperties
+from peek_plugin_diagram._private.storage.Setting import globalSetting
 from peek_plugin_diagram._private.tuples import loadPrivateTuples
 from peek_plugin_diagram.tuples import loadPublicTuples
 from peek_plugin_livedb.server.LiveDBApiABC import LiveDBApiABC
@@ -119,7 +122,9 @@ class LogicEntryHook(
 
         # ----------------
         # Get a reference to the LiveDB API
-        liveDbApi: LiveDBApiABC = self.platform.getOtherPluginApi("peek_plugin_livedb")
+        liveDbApi: LiveDBApiABC = self.platform.getOtherPluginApi(
+            "peek_plugin_livedb"
+        )
 
         # ----------------
         # create the client grid updater
@@ -210,7 +215,10 @@ class LogicEntryHook(
 
         # ----------------
         # Create the display object Import Controller
-        dispImportController = DispImportController(liveDbWriteApi=liveDbApi.writeApi)
+        dispImportController = DispImportController(
+            dbSessionCreator=self.dbSessionCreator,
+            liveDbWriteApi=liveDbApi.writeApi,
+        )
         self._loadedObjects.append(dispImportController)
 
         # ----------------
@@ -279,7 +287,9 @@ class LogicEntryHook(
         # Create the Action Processor
         self._loadedObjects.append(
             makeTupleActionProcessorHandler(
-                statusController, branchUpdateController, branchLiveEditController
+                statusController,
+                branchUpdateController,
+                branchLiveEditController,
             )
         )
 

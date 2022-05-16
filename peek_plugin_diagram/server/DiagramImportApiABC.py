@@ -1,6 +1,7 @@
+from abc import ABCMeta
+from abc import abstractmethod
 from typing import List
 
-from abc import ABCMeta, abstractmethod
 from twisted.internet.defer import Deferred
 
 
@@ -74,4 +75,12 @@ class DiagramImportApiABC(metaclass=ABCMeta):
         :return: A deferred that fires with a list of lookup tuples. These tuples
                 are the same type used during the import.
 
+        """
+
+    @abstractmethod
+    def getImportGroupHashes(self, like) -> Deferred:
+        """Get import hashes
+
+        :param like: a SQL like statement to filter and select the import hashes
+        :return: a deferred that fires with a list of import hash.
         """
