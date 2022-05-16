@@ -13,11 +13,7 @@ import { DispBase, DispBaseT } from "../canvas-shapes/DispBase";
 import { PeekCanvasBounds } from "../canvas/PeekCanvasBounds";
 import { PositionUpdatedI } from "@peek/peek_plugin_diagram/DiagramPositionService";
 import { DocDbPopupService } from "@peek/peek_core_docdb";
-import {
-    DiagramPositionByCoordSetI,
-    DiagramPositionI,
-    PrivateDiagramPositionService,
-} from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
+import { PrivateDiagramPositionService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import { PrivateDiagramItemSelectService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
 import { PrivateDiagramCoordSetService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import { PeekCanvasEditor } from "../canvas/PeekCanvasEditor.web";
@@ -28,7 +24,8 @@ import { PrivateDiagramOverrideService } from "@peek/peek_plugin_diagram/_privat
 import { PeekCanvasActioner } from "../canvas/PeekCanvasActioner";
 import { CopyPasteService } from "../services/copy-paste.service";
 import { ContextMenuService } from "../services/context-menu.service";
-import { BehaviorSubject } from "rxjs";
+import { DiagramToolbarService } from "@peek/peek_plugin_diagram";
+import { PrivateDiagramToolbarService } from "@peek/peek_plugin_diagram/_private/services";
 
 /** Canvas Component
  *
@@ -47,7 +44,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
 
     @Input("modelSetKey")
     modelSetKey: string;
-    @Input("showToolbar")
+
     showToolbar: boolean = true;
 
     config: PeekCanvasConfig;
@@ -66,6 +63,8 @@ export class CanvasComponent extends NgLifeCycleEvents {
 
     readonly isReadyCallable = () => this.isReady();
 
+    protected privateToolbarService: PrivateDiagramToolbarService;
+
     constructor(
         private balloonMsg: BalloonMsgService,
         private gridObservable: GridObservable,
@@ -79,12 +78,16 @@ export class CanvasComponent extends NgLifeCycleEvents {
         private overrideService: PrivateDiagramOverrideService,
         private snapshotService: PrivateDiagramSnapshotService,
         private copyPasteService: CopyPasteService,
-        private contextMenuService: ContextMenuService
+        private contextMenuService: ContextMenuService,
+        private toolbarService: DiagramToolbarService
     ) {
         super();
 
         // The config for the canvas
         this.config = new PeekCanvasConfig();
+        this.privateToolbarService = <PrivateDiagramToolbarService>(
+            toolbarService
+        );
     }
 
     isEditing(): boolean {
@@ -335,6 +338,8 @@ export class CanvasComponent extends NgLifeCycleEvents {
 
         // Hook up the Copy and Paste service
         this.connectCopyPasteService();
+
+        this.connectToolbarService();
     }
 
     private connectConfigService(): void {
@@ -350,5 +355,14 @@ export class CanvasComponent extends NgLifeCycleEvents {
             .layersUpdatedObservable()
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(() => this.model.recompileModel());
+    }
+
+    private connectToolbarService(): void {
+        this.privateToolbarService
+            .showToolbarObservable()
+            .pipe(takeUntil(this.onDestroyEvent))
+            .subscribe((enabled: boolean) => {
+                this.showToolbar = enabled;
+            });
     }
 }
