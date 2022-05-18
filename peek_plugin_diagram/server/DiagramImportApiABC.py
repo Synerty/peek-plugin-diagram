@@ -84,3 +84,11 @@ class DiagramImportApiABC(metaclass=ABCMeta):
         :param like: a SQL like statement to filter and select the import hashes
         :return: a deferred that fires with a list of import hash.
         """
+
+    @abstractmethod
+    def removeDispsByImportGroupHash(self, importGroupHash: str):
+        """Remove display items by importGroupHash
+
+        :param importGroupHash: str
+        :return: void
+        """
