@@ -1,6 +1,7 @@
 import logging
 from typing import List
 
+from sqlalchemy.exc import SQLAlchemyError
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 from twisted.internet.defer import inlineCallbacks
@@ -72,3 +73,23 @@ class DispImportController:
             return ret
         finally:
             ormSession.close()
+
+    def removeDispsByImportGroupHash(self, importGroupHash):
+        dispTable = DispBase.__table__
+        ormSession = self._dbSessionCreator()
+        engine = ormSession.get_bind()
+        conn = engine.connect()
+        transaction = conn.begin()
+
+        try:
+            engine.execute(
+                dispTable.delete().where(
+                    dispTable.c.importGroupHash == importGroupHash
+                )
+            )
+            transaction.commit()
+        except SQLAlchemyError:
+            transaction.rollback()
+            raise
+        finally:
+            conn.close()

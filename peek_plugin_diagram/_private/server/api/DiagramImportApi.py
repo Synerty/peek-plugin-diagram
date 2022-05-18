@@ -80,3 +80,8 @@ class DiagramImportApi(DiagramImportApiABC):
 
     def getImportGroupHashes(self, like: str) -> List[DispBase]:
         return self._dispImportController.getImportGroupHashes(like)
+
+    def removeDispsByImportGroupHash(self, importGroupHash: str):
+        return self._dispImportController.removeDispsByImportGroupHash(
+            importGroupHash
+        )
