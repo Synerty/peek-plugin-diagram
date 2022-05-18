@@ -1,6 +1,7 @@
 import logging
 from typing import List
 
+from sqlalchemy.exc import SQLAlchemyError
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 from twisted.internet.defer import inlineCallbacks
