@@ -6,11 +6,11 @@ import { PrivateDiagramGridLoaderStatusTuple } from "./PrivateDiagramGridLoaderS
 export abstract class PrivateDiagramGridLoaderServiceA extends NgLifeCycleEvents {
     abstract observable: Observable<GridTuple[]>;
 
-    constructor() {
+    protected constructor() {
         super();
     }
 
-    abstract isReady(): boolean;
+    abstract isReady(): Promise<boolean>;
 
     abstract isReadyObservable(): Observable<boolean>;
 
