@@ -26,7 +26,7 @@ export class GridObservable {
         );
     }
 
-    isReady(): boolean {
+    isReady(): Promise<boolean> {
         return this.gridCache.isReady();
     }
 

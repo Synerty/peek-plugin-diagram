@@ -17,4 +17,12 @@ export class EncodedLocationIndexTuple extends Tuple {
     constructor() {
         super(EncodedLocationIndexTuple.tupleName);
     }
+
+    get chunkKey(): string {
+        return this.indexBucket;
+    }
+
+    get encodedData(): string {
+        return this.encodedLocationIndexTuple;
+    }
 }

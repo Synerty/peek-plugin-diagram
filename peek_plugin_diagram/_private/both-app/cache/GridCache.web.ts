@@ -107,7 +107,7 @@ export class GridCache {
             linkedGrid.relinkLookups(this.lookupService);
     }
 
-    isReady(): boolean {
+    isReady(): Promise<boolean> {
         return this.gridLoader.isReady();
     }
 
