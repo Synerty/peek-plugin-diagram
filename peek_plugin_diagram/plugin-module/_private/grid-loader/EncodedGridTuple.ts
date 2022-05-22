@@ -21,4 +21,12 @@ export class EncodedGridTuple extends Tuple {
     constructor() {
         super(EncodedGridTuple.tupleName);
     }
+
+    get chunkKey(): string {
+        return this.gridKey;
+    }
+
+    get encodedData(): string | null {
+        return this.encodedGridTuple;
+    }
 }

@@ -9,6 +9,7 @@ import {
     TupleOfflineStorageNameService,
     TupleOfflineStorageService,
     TupleSelector,
+    TupleStorageBatchSaveArguments,
     TupleStorageFactoryService,
     VortexService,
     VortexStatusService,
@@ -30,6 +31,8 @@ import {
     DeviceOfflineCacheService,
     OfflineCacheStatusTuple,
 } from "@peek/peek_core_device";
+import { EncodedGridTuple } from "@peek/peek_plugin_diagram/_private/grid-loader/EncodedGridTuple";
+import { EncodedLocationIndexTuple } from "@peek/peek_plugin_diagram/_private/location-loader/EncodedLocationIndexTuple";
 
 // ----------------------------------------------------------------------------
 
@@ -120,6 +123,12 @@ function keyChunk(modelSetKey: string, key: string): string {
 @Injectable()
 export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
     private UPDATE_CHUNK_FETCH_SIZE = 5;
+
+    // Every 100 chunks from the server
+    private SAVE_POINT_ITERATIONS = 100;
+
+    // Saving the cache after each chunk is so expensive, we only do it every 20 or so
+    private chunksSavedSinceLastIndexSave = 0;
 
     private index = new BranchIndexUpdateDateTuple();
     private askServerChunks: BranchIndexUpdateDateTuple[] = [];
@@ -243,19 +252,15 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
         // If we do have offline support
         if (this.isReady())
-            return this.getBranchesWhenReady(
-                modelSetKey,
-                coordSetId,
-                keys
-            ).then((docs) => this._populateAndIndexObjectTypes(docs));
+            return this.getChunksWhenReady(modelSetKey, coordSetId, keys).then(
+                (docs) => this._populateAndIndexObjectTypes(docs)
+            );
 
         return this.isReadyObservable()
             .pipe(first((ready) => ready))
             .pipe(first())
             .toPromise()
-            .then(() =>
-                this.getBranchesWhenReady(modelSetKey, coordSetId, keys)
-            )
+            .then(() => this.getChunksWhenReady(modelSetKey, coordSetId, keys))
             .then((docs) => this._populateAndIndexObjectTypes(docs));
     }
 
@@ -323,7 +328,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
             )
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((payloadEnvelope: PayloadEnvelope) => {
-                this.processBranchIndexsFromServer(payloadEnvelope);
+                this.processChunksFromServer(payloadEnvelope);
             });
 
         // If the vortex service comes back online, update the watch grids.
@@ -441,80 +446,81 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
      *
      * Process the grids the server has sent us.
      */
-    private processBranchIndexsFromServer(payloadEnvelope: PayloadEnvelope) {
+    private async processChunksFromServer(
+        payloadEnvelope: PayloadEnvelope
+    ): Promise<void> {
         if (payloadEnvelope.result != null && payloadEnvelope.result != true) {
             console.log(`ERROR: ${payloadEnvelope.result}`);
             return;
         }
 
-        payloadEnvelope
-            .decodePayload()
-            .then((payload: Payload) => this.storeBranchIndexPayload(payload))
-            .then(() => {
-                if (this.askServerChunks.length == 0) {
-                    this.index.initialLoadComplete = true;
-                    this._hasLoaded = true;
-                    this._hasLoadedSubject.next();
-                } else if (payloadEnvelope.filt[cacheAll] == true) {
-                    this.askServerForNextUpdateChunk();
-                }
-            })
-            .then(() => this._notifyStatus())
-            .catch(
-                (e) =>
-                    `BranchIndexCache.processBranchIndexsFromServer failed: ${e}`
-            );
-    }
-
-    private storeBranchIndexPayload(payload: Payload) {
-        let tuplesToSave: BranchIndexEncodedChunkTuple[] = <
+        const tuplesToSave: BranchIndexEncodedChunkTuple[] = <
             BranchIndexEncodedChunkTuple[]
-        >payload.tuples;
-        if (tuplesToSave.length == 0) return;
+        >payloadEnvelope.data;
 
-        // 2) Store the index
-        this.storeBranchIndexChunkTuples(tuplesToSave)
-            .then(() => {
-                // 3) Store the update date
+        try {
+            await this.storeChunkTuples(tuplesToSave);
+        } catch (e) {
+            console.log(`BranchIndexCache.storeChunkTuples: ${e}`);
+        }
 
-                for (let diagramIndex of tuplesToSave) {
-                    this.index.updateDateByChunkKey[diagramIndex.chunkKey] =
-                        diagramIndex.lastUpdate;
-                }
+        if (this.askServerChunks.length == 0) {
+            this.index.initialLoadComplete = true;
+            await this.saveChunkCacheIndex(true);
+            this._hasLoaded = true;
+            this._hasLoadedSubject.next();
+        } else if (payloadEnvelope.filt[cacheAll] == true) {
+            this.askServerForNextUpdateChunk();
+        }
 
-                return this.storage.saveTuples(new UpdateDateTupleSelector(), [
-                    this.index,
-                ]);
-            })
-            .catch((e) =>
-                console.log(`BranchIndexCache.storeBranchIndexPayload: ${e}`)
-            );
+        this._notifyStatus();
     }
 
     /** Store Index Bucket
      * Stores the index bucket in the local db.
      */
-    private storeBranchIndexChunkTuples(
-        encodedBranchIndexChunkTuples: BranchIndexEncodedChunkTuple[]
+    private async storeChunkTuples(
+        tuplesToSave: BranchIndexEncodedChunkTuple[]
     ): Promise<void> {
-        let retPromise: any;
-        retPromise = this.storage.transaction(true).then((tx) => {
-            let promises = [];
+        // noinspection BadExpressionStatementJS
+        const Selector = BranchIndexChunkTupleSelector;
 
-            for (let encodedBranchIndexChunkTuple of encodedBranchIndexChunkTuples) {
-                promises.push(
-                    tx.saveTuplesEncoded(
-                        new BranchIndexChunkTupleSelector(
-                            encodedBranchIndexChunkTuple.chunkKey
-                        ),
-                        encodedBranchIndexChunkTuple.encodedData
-                    )
-                );
-            }
+        if (tuplesToSave.length == 0) return;
 
-            return Promise.all(promises).then(() => tx.close());
-        });
-        return retPromise;
+        const batchStore: TupleStorageBatchSaveArguments[] = [];
+        for (const tuple of tuplesToSave) {
+            batchStore.push({
+                tupleSelector: new Selector(tuple.chunkKey),
+                vortexMsg: tuple.encodedData,
+            });
+        }
+
+        await this.storage.batchSaveTuplesEncoded(batchStore);
+
+        for (const tuple of tuplesToSave) {
+            this.index.updateDateByChunkKey[tuple.chunkKey] = tuple.lastUpdate;
+        }
+        await this.saveChunkCacheIndex();
+    }
+
+    /** Store Chunk Cache Index
+     *
+     * Updates our running tab of the update dates of the cached chunks
+     *
+     */
+    private async saveChunkCacheIndex(force = false): Promise<void> {
+        if (
+            this.chunksSavedSinceLastIndexSave <= this.SAVE_POINT_ITERATIONS &&
+            !force
+        ) {
+            return;
+        }
+
+        this.chunksSavedSinceLastIndexSave = 0;
+
+        await this.storage.saveTuples(new UpdateDateTupleSelector(), [
+            this.index,
+        ]);
     }
 
     /** Get BranchIndexs When Ready
@@ -522,7 +528,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
      * Get the objects with matching keywords from the index..
      *
      */
-    private getBranchesWhenReady(
+    private getChunksWhenReady(
         modelSetKey: string,
         coordSetId: number,
         keys: string[]
