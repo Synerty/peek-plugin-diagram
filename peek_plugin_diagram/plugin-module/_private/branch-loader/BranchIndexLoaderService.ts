@@ -252,9 +252,8 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
         // If we do have offline support
         if (this.isReady())
-            return this.getChunksWhenReady(modelSetKey, coordSetId, keys).then(
-                (docs) => this._populateAndIndexObjectTypes(docs)
-            );
+            return this.getChunksWhenReady(modelSetKey, coordSetId, keys) //
+                .then((docs) => this._populateAndIndexObjectTypes(docs));
 
         return this.isReadyObservable()
             .pipe(first((ready) => ready))
