@@ -48,7 +48,8 @@ class GridCacheHandler(ACICacheHandlerABC):
     def __init__(self, cacheController: GridCacheController, clientId: str):
         """App Grid Handler
 
-        This class handles the custom needs of the desktop/mobile apps observing grids.
+        This class handles the custom needs of the desktop/mobile
+         apps observing grids.
 
         """
         ACICacheHandlerABC.__init__(self, cacheController, clientId)
