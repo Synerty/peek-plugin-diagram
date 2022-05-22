@@ -48,7 +48,8 @@ class GridCacheHandler(ACICacheHandlerABC):
     def __init__(self, cacheController: GridCacheController, clientId: str):
         """App Grid Handler
 
-        This class handles the custom needs of the desktop/mobile apps observing grids.
+        This class handles the custom needs of the desktop/mobile
+         apps observing grids.
 
         """
         ACICacheHandlerABC.__init__(self, cacheController, clientId)
@@ -212,11 +213,8 @@ class GridCacheHandler(ACICacheHandlerABC):
             if not toSend and not cacheAll:
                 return
 
-            payload = Payload(filt=filt, tuples=toSend)
-            d: Deferred = payload.makePayloadEnvelopeDefer(compressionLevel=0)
-            d.addCallback(
-                lambda payloadEnvelope: payloadEnvelope.toVortexMsgDefer()
-            )
+            payloadEnvelope = PayloadEnvelope(filt=filt, data=toSend)
+            d: Deferred = payloadEnvelope.toVortexMsgDefer(base64Encode=False)
             d.addCallback(sendResponse)
             d.addErrback(vortexLogFailure, logger, consumeError=True)
 

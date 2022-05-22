@@ -2,6 +2,7 @@ import logging
 from typing import List, Optional
 
 from vortex.DeferUtil import vortexLogFailure
+from vortex.Tuple import Tuple
 from vortex.rpc.RPC import vortexRPC
 
 from peek_abstract_chunked_index.private.server.client_handlers.ACIChunkLoadRpcABC import (
@@ -9,7 +10,9 @@ from peek_abstract_chunked_index.private.server.client_handlers.ACIChunkLoadRpcA
 )
 from peek_plugin_base.PeekVortexUtil import peekServerName, peekBackendNames
 from peek_plugin_diagram._private.PluginNames import diagramFilt
-from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
+from peek_plugin_diagram._private.storage.GridKeyIndex import (
+    GridKeyIndexCompiled,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +43,7 @@ class ClientGridLoaderRpc(ACIChunkLoadRpcABC):
         additionalFilt=diagramFilt,
         deferToThread=True,
     )
-    def loadGrids(self, offset: int, count: int) -> Optional[bytes]:
+    def loadGrids(self, offset: int, count: int) -> str:
         return self.ckiInitialLoadChunksPayloadBlocking(
             offset, count, GridKeyIndexCompiled
         )
@@ -51,7 +54,9 @@ class ClientGridLoaderRpc(ACIChunkLoadRpcABC):
         acceptOnlyFromVortex=peekBackendNames,
         additionalFilt=diagramFilt,
     )
-    def updateClientWatchedGrids(self, clientId: str, gridKeys: List[str]) -> None:
+    def updateClientWatchedGrids(
+        self, clientId: str, gridKeys: List[str]
+    ) -> None:
         """Update Client Watched Grids
 
         Tell the server that these grids are currently being watched by users.
@@ -61,5 +66,7 @@ class ClientGridLoaderRpc(ACIChunkLoadRpcABC):
         :returns: Nothing
         """
 
-        d = self._liveDbWatchController.updateClientWatchedGrids(clientId, gridKeys)
+        d = self._liveDbWatchController.updateClientWatchedGrids(
+            clientId, gridKeys
+        )
         d.addErrback(vortexLogFailure, logger, consumeError=True)
