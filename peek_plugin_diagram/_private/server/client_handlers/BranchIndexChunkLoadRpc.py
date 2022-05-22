@@ -1,15 +1,16 @@
 import logging
-from typing import Optional
+
+from vortex.rpc.RPC import vortexRPC
 
 from peek_abstract_chunked_index.private.server.client_handlers.ACIChunkLoadRpcABC import (
     ACIChunkLoadRpcABC,
 )
-from peek_plugin_base.PeekVortexUtil import peekServerName, peekBackendNames
+from peek_plugin_base.PeekVortexUtil import peekBackendNames
+from peek_plugin_base.PeekVortexUtil import peekServerName
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.storage.branch.BranchIndexEncodedChunk import (
     BranchIndexEncodedChunk,
 )
-from vortex.rpc.RPC import vortexRPC
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ class BranchIndexChunkLoadRpc(ACIChunkLoadRpcABC):
         additionalFilt=diagramFilt,
         deferToThread=True,
     )
-    def loadBranchIndexChunks(self, offset: int, count: int) -> Optional[bytes]:
+    def loadBranchIndexChunks(self, offset: int, count: int) -> str:
         """Update Page Loader Status
 
         Tell the server of the latest status of the loader

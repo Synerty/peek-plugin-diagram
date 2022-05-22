@@ -33,6 +33,8 @@ class GridCacheIndexTupleProvider(TuplesProviderABC):
         if start is not None and count:
             tuples = tuples[start:count]
 
-        payloadEnvelope = yield Payload(filt, tuples=tuples).makePayloadEnvelopeDefer()
+        payloadEnvelope = yield Payload(
+            filt, tuples=tuples
+        ).makePayloadEnvelopeDefer()
         vortexMsg = yield payloadEnvelope.toVortexMsgDefer()
         return vortexMsg

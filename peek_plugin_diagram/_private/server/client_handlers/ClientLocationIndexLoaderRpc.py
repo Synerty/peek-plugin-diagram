@@ -1,6 +1,8 @@
 import logging
 from typing import Optional
 
+from vortex.Tuple import Tuple
+
 from peek_abstract_chunked_index.private.server.client_handlers.ACIChunkLoadRpcABC import (
     ACIChunkLoadRpcABC,
 )
@@ -9,7 +11,9 @@ from peek_core_search._private.storage.EncodedSearchObjectChunk import (
 )
 from peek_plugin_base.PeekVortexUtil import peekServerName, peekBackendNames
 from peek_plugin_diagram._private.PluginNames import diagramFilt
-from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompiled
+from peek_plugin_diagram._private.storage.LocationIndex import (
+    LocationIndexCompiled,
+)
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
 from sqlalchemy import select
 from vortex.rpc.RPC import vortexRPC
@@ -38,7 +42,7 @@ class ClientLocationIndexLoaderRpc(ACIChunkLoadRpcABC):
         additionalFilt=diagramFilt,
         deferToThread=True,
     )
-    def loadLocationIndexes(self, offset: int, count: int) -> Optional[bytes]:
+    def loadLocationIndexes(self, offset: int, count: int) -> str:
         """Update Page Loader Status
 
         Tell the server of the latest status of the loader
