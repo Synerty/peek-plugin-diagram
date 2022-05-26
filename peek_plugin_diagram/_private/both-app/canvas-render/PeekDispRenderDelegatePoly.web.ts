@@ -77,6 +77,8 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
             ctx.strokeStyle = this.config.renderer.backgroundColor;
             ctx.lineWidth = lineWidth / zoom;
+            ctx.lineJoin = lineStyle.joinStyle;
+            ctx.lineCap = lineStyle.capStyle;
             ctx.stroke();
         }
 
@@ -125,6 +127,8 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         if (lineColor) {
             ctx.strokeStyle = lineColor.color;
             ctx.lineWidth = lineWidth / zoom;
+            ctx.lineJoin = lineStyle.joinStyle;
+            ctx.lineCap = lineStyle.capStyle;
             ctx.stroke();
         }
 
