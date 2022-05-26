@@ -29,6 +29,8 @@ export class DispLineStyle extends Tuple {
 
     modelSetId: number;
 
+    scalable: boolean;
+
     constructor() {
         super(DispLineStyle.tupleName);
     }

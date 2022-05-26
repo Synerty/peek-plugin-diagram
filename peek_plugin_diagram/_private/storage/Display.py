@@ -82,7 +82,9 @@ class DispLevel(Tuple, DeclarativeBase):
     maxZoom = Column(Float)
 
     coordSetId = Column(
-        Integer, ForeignKey("ModelCoordSet.id", ondelete="CASCADE"), nullable=False
+        Integer,
+        ForeignKey("ModelCoordSet.id", ondelete="CASCADE"),
+        nullable=False,
     )
     coordSet = relationship(ModelCoordSet, foreign_keys=[coordSetId])
 
@@ -123,7 +125,9 @@ class DispTextStyle(Tuple, DeclarativeBase):
 
     __table_args__ = (
         Index("idx_DispTextStyle_modelSetId", modelSetId, unique=False),
-        Index("idx_DispTextStyle_importHash", modelSetId, importHash, unique=True),
+        Index(
+            "idx_DispTextStyle_importHash", modelSetId, importHash, unique=True
+        ),
     )
 
 
@@ -138,7 +142,9 @@ class DispLineStyle(Tuple, DeclarativeBase):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
-    backgroundFillDashSpace = Column(Boolean, nullable=False, server_default="false")
+    backgroundFillDashSpace = Column(
+        Boolean, nullable=False, server_default="false"
+    )
     capStyle = Column(String(15), nullable=False)
     joinStyle = Column(String(15), nullable=False)
     dashPattern = Column(String(50))
@@ -155,10 +161,13 @@ class DispLineStyle(Tuple, DeclarativeBase):
     modelSet = relationship(ModelSet)
 
     importHash = Column(String(100), doc=JSON_EXCLUDE)
+    scalable = Column(Boolean, nullable=False, server_default="false")
 
     __table_args__ = (
         Index("idx_DispLineStyle_modelSetId", modelSetId, unique=False),
-        Index("idx_DispLineStyle_importHash", modelSetId, importHash, unique=True),
+        Index(
+            "idx_DispLineStyle_importHash", modelSetId, importHash, unique=True
+        ),
     )
 
 
@@ -267,7 +276,9 @@ class DispBase(Tuple, DeclarativeBase):
     key = Column(String, doc="k")
 
     #: Selectable, Is is this item selectable?, the layer also needs selectable=true
-    selectable = Column(Boolean, doc="s", nullable=False, server_default="false")
+    selectable = Column(
+        Boolean, doc="s", nullable=False, server_default="false"
+    )
 
     #: Overlay, Is is this item an overlay?, Overlays are sometimes used to add dynamic
     # data to the diagram, such as a Job, Operation, or placing a green box over a red
@@ -362,10 +373,16 @@ class DispText(DispBase):
         autoincrement=False,
     )
 
-    verticalAlign = Column(Integer, doc="va", nullable=False, server_default="-1")
-    horizontalAlign = Column(Integer, doc="ha", nullable=False, server_default="0")
+    verticalAlign = Column(
+        Integer, doc="va", nullable=False, server_default="-1"
+    )
+    horizontalAlign = Column(
+        Integer, doc="ha", nullable=False, server_default="0"
+    )
     rotation = Column(Float, doc="r", nullable=False, server_default="0")
-    text = Column(String, doc="te", nullable=True, server_default="new text label")
+    text = Column(
+        String, doc="te", nullable=True, server_default="new text label"
+    )
     textFormat = Column(String(1000), doc=JSON_EXCLUDE, nullable=True)
 
     textHeight = Column(Float, doc="th", nullable=True)
@@ -495,7 +512,9 @@ class DispPolyline(DispBase):
     endEndType = Column(Integer, doc="et")
 
     targetEdgeTemplateId = Column(
-        Integer, ForeignKey("DispEdgeTemplate.id", ondelete="SET NULL"), doc="ti"
+        Integer,
+        ForeignKey("DispEdgeTemplate.id", ondelete="SET NULL"),
+        doc="ti",
     )
 
     targetEdgeTemplateName = Column(String, doc="tn")
@@ -509,7 +528,9 @@ class DispPolyline(DispBase):
         Index("idx_DispPolyline_startKey", startKey, unique=False),
         Index("idx_DispPolyline_endKey", endKey, unique=False),
         Index(
-            "idx_DispPolyline_targetEdgeTemplateId", targetEdgeTemplateId, unique=False
+            "idx_DispPolyline_targetEdgeTemplateId",
+            targetEdgeTemplateId,
+            unique=False,
         ),
     )
 
@@ -676,8 +697,12 @@ class DispGroupPointer(DispBase):
 
     rotation = Column(Integer, doc="r", server_default="0", nullable=False)
 
-    verticalScale = Column(Float, doc="vs", nullable=False, server_default="1.0")
-    horizontalScale = Column(Float, doc="hs", nullable=False, server_default="1.0")
+    verticalScale = Column(
+        Float, doc="vs", nullable=False, server_default="1.0"
+    )
+    horizontalScale = Column(
+        Float, doc="hs", nullable=False, server_default="1.0"
+    )
 
     geomJson = Column(String, nullable=False, doc="g")
 
@@ -695,7 +720,11 @@ class DispGroupPointer(DispBase):
     )
 
     __table_args__ = (
-        Index("idxDispGroupPointer_targetDispGroupId", targetDispGroupId, unique=False),
+        Index(
+            "idxDispGroupPointer_targetDispGroupId",
+            targetDispGroupId,
+            unique=False,
+        ),
     )
 
     # noinspection PyMissingConstructor
