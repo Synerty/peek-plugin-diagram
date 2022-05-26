@@ -15,6 +15,7 @@ from peek_plugin_diagram._private.server.controller.LookupImportController impor
 from peek_plugin_diagram._private.server.controller.StatusController import (
     StatusController,
 )
+from peek_plugin_diagram._private.storage.Display import DispBase
 from peek_plugin_diagram.server.DiagramImportApiABC import DiagramImportApiABC
 
 logger = logging.getLogger(__name__)
@@ -48,7 +49,9 @@ class DiagramImportApi(DiagramImportApiABC):
         )
 
     def importBranches(self, branchesEncodedPayload: bytes) -> Deferred:
-        return self._branchUpdateController.importBranches(branchesEncodedPayload)
+        return self._branchUpdateController.importBranches(
+            branchesEncodedPayload
+        )
 
     def importLookups(
         self,
@@ -73,4 +76,12 @@ class DiagramImportApi(DiagramImportApiABC):
     ) -> Deferred:
         return self._lookupImportController.getLookups(
             modelSetKey, coordSetKey, lookupTupleType
+        )
+
+    def getImportGroupHashes(self, like: str) -> List[DispBase]:
+        return self._dispImportController.getImportGroupHashes(like)
+
+    def removeDispsByImportGroupHash(self, importGroupHash: str):
+        return self._dispImportController.removeDispsByImportGroupHash(
+            importGroupHash
         )

@@ -135,7 +135,12 @@ class LookupImportController:
 
                     if updateExisting:
                         for fieldName in lookup.tupleFieldNames():
-                            setattr(existing, fieldName, getattr(lookup, fieldName))
+                            if getattr(lookup, fieldName) is None:
+                                continue
+
+                            setattr(
+                                existing, fieldName, getattr(lookup, fieldName)
+                            )
 
                         updateFks(existing)
                         updateCount += 1
