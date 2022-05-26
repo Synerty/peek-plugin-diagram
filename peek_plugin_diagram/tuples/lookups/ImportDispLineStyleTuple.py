@@ -41,3 +41,5 @@ class ImportDispLineStyleTuple(Tuple):
     importHash: str = TupleField()
 
     modelSetKey: str = TupleField()
+
+    scalable: bool = TupleField()
