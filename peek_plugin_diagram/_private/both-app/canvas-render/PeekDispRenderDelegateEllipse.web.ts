@@ -36,6 +36,7 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
     draw(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
         let fillColor = DispEllipse.fillColor(disp);
         let lineColor = DispEllipse.lineColor(disp);
+        let lineStyle = DispEllipse.lineStyle(disp);
 
         // Null colors are also not drawn
         fillColor = fillColor && fillColor.color ? fillColor : null;
@@ -74,7 +75,7 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
 
         if (lineColor) {
             ctx.strokeStyle = lineColor.color;
-            ctx.lineWidth = lineWidth / zoom;
+            ctx.lineWidth = lineStyle.scalable ? lineWidth : lineWidth / zoom;
             ctx.stroke();
         }
 
