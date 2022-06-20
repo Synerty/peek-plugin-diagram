@@ -107,7 +107,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 
         if (textHeight != null) fontSize = textHeight;
 
-        let font =
+        const font =
             (fontStyle.fontStyle || "") +
             " " +
             fontSize +

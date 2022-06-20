@@ -39,6 +39,7 @@ export enum DispType {
     groupPointer,
     edgeTemplate,
     null_,
+    curvedText,
 }
 
 // ---------------------
@@ -125,6 +126,7 @@ export interface DispBaseT {
 
 export abstract class DispBase {
     static readonly TYPE_DT = "DT";
+    static readonly TYPE_DCT = "DCT";
     static readonly TYPE_DPG = "DPG";
     static readonly TYPE_DPL = "DPL";
     static readonly TYPE_DE = "DE";
@@ -147,6 +149,10 @@ export abstract class DispBase {
         if (!DispBase._typeMapInit) {
             DispBase._typeMapInit = true;
             DispBase._typeMap[DispBase.TYPE_DT] = [DispType.text, "Text"];
+            DispBase._typeMap[DispBase.TYPE_DCT] = [
+                DispType.curvedText,
+                "CurvedText",
+            ];
             DispBase._typeMap[DispBase.TYPE_DPG] = [
                 DispType.polygon,
                 "Polygon",

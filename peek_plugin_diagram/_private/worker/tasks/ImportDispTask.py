@@ -4,7 +4,10 @@ from typing import List, Dict, Tuple
 
 import pytz
 import json
-from peek_plugin_base.storage.DbConnection import pgCopyInsert, convertToCoreSqlaInsert
+from peek_plugin_base.storage.DbConnection import (
+    pgCopyInsert,
+    convertToCoreSqlaInsert,
+)
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_base.worker.CeleryApp import celeryApp
 from peek_plugin_diagram._private.server.controller.DispCompilerQueueController import (
@@ -21,6 +24,7 @@ from peek_plugin_diagram._private.storage.Display import (
     DispNull,
     DispEdgeTemplate,
 )
+from peek_plugin_diagram._private.storage.Display import DispCurvedText
 from peek_plugin_diagram._private.storage.GridKeyIndex import (
     GridKeyIndex,
     GridKeyCompilerQueue,
@@ -29,9 +33,14 @@ from peek_plugin_diagram._private.storage.ModelSet import (
     ModelCoordSet,
     getOrCreateCoordSet,
 )
-from peek_plugin_diagram._private.worker.tasks.ImportDispLink import importDispLinks
+from peek_plugin_diagram._private.worker.tasks.ImportDispLink import (
+    importDispLinks,
+)
 from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import (
     LookupHashConverter,
+)
+from peek_plugin_diagram.tuples.shapes.ImportDispCurvedTextTuple import (
+    ImportDispCurvedTextTuple,
 )
 from peek_plugin_diagram.tuples.shapes.ImportDispEdgeTemplateTuple import (
     ImportDispEdgeTemplateTuple,
@@ -42,15 +51,21 @@ from peek_plugin_diagram.tuples.shapes.ImportDispEllipseTuple import (
 from peek_plugin_diagram.tuples.shapes.ImportDispGroupPtrTuple import (
     ImportDispGroupPtrTuple,
 )
-from peek_plugin_diagram.tuples.shapes.ImportDispGroupTuple import ImportDispGroupTuple
+from peek_plugin_diagram.tuples.shapes.ImportDispGroupTuple import (
+    ImportDispGroupTuple,
+)
 from peek_plugin_diagram.tuples.shapes.ImportDispPolygonTuple import (
     ImportDispPolygonTuple,
 )
 from peek_plugin_diagram.tuples.shapes.ImportDispPolylineTuple import (
     ImportDispPolylineTuple,
 )
-from peek_plugin_diagram.tuples.shapes.ImportDispTextTuple import ImportDispTextTuple
-from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
+from peek_plugin_diagram.tuples.shapes.ImportDispTextTuple import (
+    ImportDispTextTuple,
+)
+from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import (
+    ImportLiveDbItemTuple,
+)
 from sqlalchemy import join, select
 from txcelery.defer import DeferrableTask
 from vortex.Payload import Payload
@@ -65,6 +80,7 @@ IMPORT_TUPLE_MAP = {
     ImportDispPolylineTuple.tupleType(): DispPolyline,
     ImportDispEdgeTemplateTuple.tupleType(): DispEdgeTemplate,
     ImportDispTextTuple.tupleType(): DispText,
+    ImportDispCurvedTextTuple.tupleType(): DispCurvedText,
 }
 
 IMPORT_FIELD_NAME_MAP = {
@@ -87,6 +103,7 @@ IMPORT_SORT_ORDER = {
     ImportDispPolygonTuple.tupleType(): 2,
     ImportDispPolylineTuple.tupleType(): 2,
     ImportDispTextTuple.tupleType(): 2,
+    ImportDispCurvedTextTuple.tupleType(): 2,
     ImportDispEdgeTemplateTuple.tupleType(): 2,
 }
 
@@ -179,7 +196,8 @@ def _validateConvertedDisps(disps: List):
         if hasattr(importDisp, attrName):
             if type(getattr(importDisp, attrName)) not in (int, float, NoneT):
                 raise Exception(
-                    'Disp %s must be int : "%s"' % (attrName, importDisp.colorHash)
+                    'Disp %s must be int : "%s"'
+                    % (attrName, importDisp.colorHash)
                 )
 
     for disp in disps:
@@ -286,9 +304,13 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
                     )
 
             # If this is a dispGroupPtr, index its targetHash so we can update it
-            parentDispGroupHash = getattr(importDisp, "parentDispGroupHash", None)
+            parentDispGroupHash = getattr(
+                importDisp, "parentDispGroupHash", None
+            )
             if parentDispGroupHash:
-                dispGroupChildWithTargetHash.append((ormDisp, parentDispGroupHash))
+                dispGroupChildWithTargetHash.append(
+                    (ormDisp, parentDispGroupHash)
+                )
 
             # Add some interim data to the import display link, so it can be created
             if hasattr(importDisp, "liveDbDispLinks"):
@@ -305,7 +327,9 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
             if hasattr(importDisp, "liveDbDispLinks"):
                 for importDispLink in importDisp.liveDbDispLinks:
                     attrName = importDispLink.dispAttrName
-                    importDispLink.internalDisplayValue = getattr(ormDisp, attrName)
+                    importDispLink.internalDisplayValue = getattr(
+                        ormDisp, attrName
+                    )
 
             # Queue the Disp to be compiled into a grid.
             # Disps belonging to a DispGroup do not get compiled into grids.
@@ -360,7 +384,9 @@ def _convertImportTuple(importDisp):
 
     """
     if not importDisp.tupleType() in IMPORT_TUPLE_MAP:
-        raise Exception("Import Tuple %s is not a valid type" % importDisp.tupleType())
+        raise Exception(
+            "Import Tuple %s is not a valid type" % importDisp.tupleType()
+        )
 
     disp = IMPORT_TUPLE_MAP[importDisp.tupleType()]()
 
@@ -383,7 +409,9 @@ def _convertImportTuple(importDisp):
             continue
 
         # Convert the field name if it exists
-        dispFieldName = IMPORT_FIELD_NAME_MAP.get(importFieldName, importFieldName)
+        dispFieldName = IMPORT_FIELD_NAME_MAP.get(
+            importFieldName, importFieldName
+        )
 
         setattr(disp, dispFieldName, getattr(importDisp, importFieldName))
 
@@ -416,7 +444,9 @@ def _bulkLoadDispsTask(importGroupHash: str, disps: List):
     try:
 
         stmt = (
-            select([gridKeyIndexTable.c.coordSetId, gridKeyIndexTable.c.gridKey])
+            select(
+                [gridKeyIndexTable.c.coordSetId, gridKeyIndexTable.c.gridKey]
+            )
             .where(dispTable.c.importGroupHash == importGroupHash)
             .select_from(
                 join(
@@ -428,11 +458,15 @@ def _bulkLoadDispsTask(importGroupHash: str, disps: List):
             .distinct()
         )
 
-        ins = gridQueueTable.insert().from_select(["coordSetId", "gridKey"], stmt)
+        ins = gridQueueTable.insert().from_select(
+            ["coordSetId", "gridKey"], stmt
+        )
         conn.execute(ins)
 
         conn.execute(
-            dispTable.delete().where(dispTable.c.importGroupHash == importGroupHash)
+            dispTable.delete().where(
+                dispTable.c.importGroupHash == importGroupHash
+            )
         )
 
         transaction.commit()
@@ -466,6 +500,7 @@ def _bulkInsertDisps(engine, disps: List):
         (DispPolyline, (DispBase, DispPolyline)),
         (DispPolygon, (DispBase, DispPolygon)),
         (DispText, (DispBase, DispText)),
+        (DispCurvedText, (DispBase, DispCurvedText)),
         (DispEdgeTemplate, (DispBase, DispEdgeTemplate)),
         (DispNull, (DispBase, DispNull)),
     )
@@ -551,7 +586,8 @@ def _updateCoordSetPosition(coordSet: ModelCoordSet, disps: List):
         ormSession.commit()
 
         logger.info(
-            "Updated coordset position in %s", (datetime.now(pytz.utc) - startTime)
+            "Updated coordset position in %s",
+            (datetime.now(pytz.utc) - startTime),
         )
 
     finally:
