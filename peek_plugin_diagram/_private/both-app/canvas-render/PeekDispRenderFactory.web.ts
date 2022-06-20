@@ -13,6 +13,7 @@ import { PeekDispRenderDelegateNull } from "./PeekDispRenderDelegateNull.web";
 import { DrawModeE } from "./PeekDispRenderDelegateABC.web";
 import { PeekCanvasModel } from "../canvas/PeekCanvasModel.web";
 import { DispGroupPointerT } from "../canvas-shapes/DispGroupPointer";
+import { PeekDispRenderDelegateCurvedText } from "./PeekDispRenderDelegateCurvedText.web";
 
 export class PeekDispRenderFactory {
     private _delegatesByType: {};
@@ -23,6 +24,10 @@ export class PeekDispRenderFactory {
     ) {
         let polyDelegate = new PeekDispRenderDelegatePoly(config, model);
         let textDelegate = new PeekDispRenderDelegateText(config, model);
+        let curvedTextDelegate = new PeekDispRenderDelegateCurvedText(
+            config,
+            model
+        );
         let ellipseDelegate = new PeekDispRenderDelegateEllipse(config, model);
         let groupPtrDelegate = new PeekDispRenderDelegateGroupPtr(
             config,
@@ -32,6 +37,7 @@ export class PeekDispRenderFactory {
 
         this._delegatesByType = {};
         this._delegatesByType[DispBase.TYPE_DT] = textDelegate;
+        this._delegatesByType[DispBase.TYPE_DCT] = curvedTextDelegate;
         this._delegatesByType[DispBase.TYPE_DPG] = polyDelegate;
         this._delegatesByType[DispBase.TYPE_DPL] = polyDelegate;
         this._delegatesByType[DispBase.TYPE_DE] = ellipseDelegate;

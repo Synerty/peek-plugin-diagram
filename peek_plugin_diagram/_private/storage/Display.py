@@ -112,6 +112,7 @@ class DispTextStyle(Tuple, DeclarativeBase):
     fontStyle = Column(String(30))
     scalable = Column(Boolean, nullable=False, server_default="true")
     scaleFactor = Column(Integer, nullable=False, server_default="1")
+    spacingBetweenTexts = Column(Float, nullable=False, server_default="100")
 
     modelSetId = Column(
         Integer,
@@ -215,6 +216,7 @@ class DispBase(Tuple, DeclarativeBase):
     EDGE_TEMPLATE = 52
     ELLIPSE = 60
     NULL = 70
+    CURVED_TEXT = 80
 
     ACTION_NONE = None
     ACTION_POSITION_ON = 1
@@ -397,6 +399,61 @@ class DispText(DispBase):
         Integer, ForeignKey("DispTextStyle.id"), doc="fs", nullable=False
     )
     textStyle = relationship(DispTextStyle)
+
+    __table_args__: typing.Tuple = (
+        # Commented out, we don't delete lookups during normal operation
+        # and keeping this index maintained costs time
+        # Index("idx_DispText_colorId", colorId, unique=False),
+        # Index("idx_DispText_styleId", textStyleId, unique=False),
+    )
+
+    # noinspection PyMissingConstructor
+    @orm.reconstructor
+    def __init__(self):
+        pass
+
+
+@addTupleType
+class DispCurvedText(DispBase):
+    __tablename__ = "DispCurvedText"
+    __tupleTypeShort__ = "DCT"
+    __tupleType__ = diagramTuplePrefix + __tablename__
+
+    RENDERABLE_TYPE = DispBase.CURVED_TEXT
+
+    __mapper_args__ = {"polymorphic_identity": RENDERABLE_TYPE}
+
+    id = Column(
+        BigInteger,
+        ForeignKey("DispBase.id", ondelete="CASCADE"),
+        primary_key=True,
+        autoincrement=False,
+    )
+
+    verticalAlign = Column(
+        Integer, doc="va", nullable=False, server_default="-1"
+    )
+    horizontalAlign = Column(
+        Integer, doc="ha", nullable=False, server_default="0"
+    )
+    text = Column(
+        String, doc="te", nullable=True, server_default="new text label"
+    )
+    textHeight = Column(Float, doc="th", nullable=True)
+    textHStretch = Column(Float, doc="hs", nullable=False, server_default="1")
+
+    geomJson = Column(String, nullable=False, doc="g")
+
+    colorId = Column(Integer, ForeignKey("DispColor.id"), doc="c")
+    color = relationship(DispColor)
+
+    textStyleId = Column(
+        Integer, ForeignKey("DispTextStyle.id"), doc="fs", nullable=False
+    )
+    textStyle = relationship(DispTextStyle)
+    spacingBetweenTexts = Column(
+        Float, doc="sbt", nullable=True, server_default="2"
+    )
 
     __table_args__: typing.Tuple = (
         # Commented out, we don't delete lookups during normal operation
