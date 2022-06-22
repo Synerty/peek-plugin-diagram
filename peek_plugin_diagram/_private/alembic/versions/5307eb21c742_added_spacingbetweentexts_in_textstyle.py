@@ -25,7 +25,7 @@ def upgrade():
         sa.Column(
             "spacingBetweenTexts",
             sa.Float(),
-            nullable=False,
+            nullable=True,
         ),
         schema="pl_diagram",
     )
@@ -35,7 +35,12 @@ def upgrade():
             SET
             "spacingBetweenTexts" = 100;"""
     )
-    op.alter_column("DispTextStyle", "spacingBetweenTexts", nullable=False)
+    op.alter_column(
+        "DispTextStyle",
+        "spacingBetweenTexts",
+        nullable=False,
+        schema="pl_diagram",
+    )
     # ### end Alembic commands ###
 
 
