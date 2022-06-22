@@ -41,7 +41,7 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
     @Input("model")
     model: PeekCanvasModel;
 
-    isVisible: boolean = false;
+    private _isVisible: boolean = false;
 
     positions: PositionToSelectI[] = [];
 
@@ -94,6 +94,8 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
     }
 
     private positionByCoordSet(data: DiagramPositionByCoordSetI) {
+        this._isVisible = false;
+
         if (this.modelSetKey !== data.modelSetKey) {
             console.log(
                 "ERROR, positionByCoordSet was called for " +
@@ -116,6 +118,8 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
     }
 
     private positionByXY(pos: DiagramPositionI) {
+        this._isVisible = false;
+
         // Switch only if we need to
         if (
             this.config.controller.coordSet == null ||
@@ -143,6 +147,8 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
     }
 
     private switchToCoordSet(coordSetKey: string) {
+        this._isVisible = false;
+
         if (!this.isReadyCallable()) return;
 
         const coordSet = this.coordSetService.coordSetForKey(
@@ -209,7 +215,15 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
             });
         }
 
-        this.isVisible = true;
+        this._isVisible = true;
+    }
+
+    get isVisible(): boolean {
+        return this._isVisible && (this.positions?.length || 0) !== 0;
+    }
+
+    set isVisible(value: boolean) {
+        this._isVisible = false;
     }
 
     handlePositionSelected(selection: PositionToSelectI): void {
@@ -220,6 +234,6 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
             zoom: selection.coordSet.positionOnZoom,
             opts: selection.opts,
         });
-        this.isVisible = false;
+        this._isVisible = false;
     }
 }
