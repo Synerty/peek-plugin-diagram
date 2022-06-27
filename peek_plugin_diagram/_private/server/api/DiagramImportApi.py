@@ -2,6 +2,7 @@ import logging
 from typing import List
 
 from twisted.internet.defer import Deferred
+from twisted.internet.defer import inlineCallbacks
 
 from peek_plugin_diagram._private.server.controller.BranchUpdateController import (
     BranchUpdateController,
@@ -78,10 +79,18 @@ class DiagramImportApi(DiagramImportApiABC):
             modelSetKey, coordSetKey, lookupTupleType
         )
 
-    def getImportGroupHashes(self, like: str) -> List[DispBase]:
-        return self._dispImportController.getImportGroupHashes(like)
+    @inlineCallbacks
+    def getImportGroupHashes(
+        self, modelSetKey: str, coordSetKey: str, importGroupHashContains: str
+    ) -> List[DispBase]:
+        yield self._dispImportController.getImportGroupHashes(
+            modelSetKey, coordSetKey, importGroupHashContains
+        )
 
-    def removeDispsByImportGroupHash(self, importGroupHash: str):
-        return self._dispImportController.removeDispsByImportGroupHash(
-            importGroupHash
+    @inlineCallbacks
+    def removeDispsByImportGroupHash(
+        self, modelSetKey: str, coordSetKey: str, importGroupHash: str
+    ):
+        yield self._dispImportController.removeDispsByImportGroupHash(
+            modelSetKey, coordSetKey, importGroupHash
         )

@@ -78,17 +78,25 @@ class DiagramImportApiABC(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def getImportGroupHashes(self, like) -> Deferred:
+    def getImportGroupHashes(
+        self, modelSetKey, coordSetKey, importGroupHashContains
+    ) -> Deferred:
         """Get import hashes
 
-        :param like: a SQL like statement to filter and select the import hashes
+        :param modelSetKey: str
+        :param coordSetKey: str
+        :param importGroupHashContains: a SQL like statement to filter and select the import hashes
         :return: a deferred that fires with a list of import hash.
         """
 
     @abstractmethod
-    def removeDispsByImportGroupHash(self, importGroupHash: str):
+    def removeDispsByImportGroupHash(
+        self, modelSetKey, coordSetKey, importGroupHash
+    ):
         """Remove display items by importGroupHash
 
+        :param modelSetKey: str
+        :param coordSetKey: str
         :param importGroupHash: str
         :return: void
         """
