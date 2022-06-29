@@ -27,7 +27,7 @@ class SqlController:
         coordSetKey: str,
         importGroupHashContains: str,
     ) -> List[str]:
-        yield runPyInPg(
+        ret = yield runPyInPg(
             logger,
             dbSessionCreator,
             cls._getImportGroupHashes,
@@ -36,6 +36,7 @@ class SqlController:
             coordSetKey=coordSetKey,
             importGroupHashContains=importGroupHashContains,
         )
+        return ret
 
     @classmethod
     def _getImportGroupHashes(
@@ -48,7 +49,7 @@ class SqlController:
         rows = plpy.execute(
             f"""
             SELECT DISTINCT
-                db."importGroupHash" as importGroupHash
+                db."importGroupHash"
             FROM
                 pl_diagram."DispBase" AS db
                 JOIN pl_diagram."ModelCoordSet" AS mcs ON mcs.id = db."coordSetId"
