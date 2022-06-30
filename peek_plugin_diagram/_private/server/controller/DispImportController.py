@@ -9,6 +9,9 @@ from vortex.Payload import Payload
 from peek_plugin_base.storage.DbConnection import DbSessionCreator
 from peek_plugin_base.storage.RunPyInPg import runPyInPg
 from peek_plugin_diagram._private.storage.Display import DispBase
+from peek_plugin_diagram.tuples.ImportGroupHashTuple import (
+    ImportGroupHashTuple,
+)
 from peek_plugin_diagram._private.worker.tasks.ImportDispTask import (
     importDispsTask,
 )
@@ -45,7 +48,7 @@ class SqlController:
         modelSetKey: str,
         coordSetKey: str,
         importGroupHashContains: str,
-    ) -> List[str]:
+    ) -> List[ImportGroupHashTuple]:
         rows = plpy.execute(
             f"""
             SELECT DISTINCT
@@ -63,7 +66,9 @@ class SqlController:
 
         ret = []
         for row in rows:
-            ret.append(row.get("importGroupHash"))
+            tuple_ = ImportGroupHashTuple()
+            tuple_.fromDict(row)
+            ret.append(tuple_)
         return ret
 
 
@@ -108,22 +113,20 @@ class DispImportController:
         reactor.callLater(seconds, d.callback, True)
         return d
 
-    @inlineCallbacks
     def getImportGroupHashes(
         self, modelSetKey: str, coordSetKey: str, importGroupHashContains: str
-    ) -> List[DispBase]:
-        yield SqlController.getImportGroupHashes(
+    ):
+        return SqlController.getImportGroupHashes(
             self._dbSessionCreator,
             modelSetKey,
             coordSetKey,
             importGroupHashContains,
         )
 
-    @inlineCallbacks
     def removeDispsByImportGroupHash(
         self, modelSetKey: str, coordSetKey: str, importGroupHash: str
     ):
-        emptyPayload = yield Payload().toEncodedPayloadDefer()
-        yield importDispsTask.delay(
+        emptyPayload = Payload(tuples=[]).toEncodedPayload()
+        return importDispsTask.delay(
             modelSetKey, coordSetKey, importGroupHash, emptyPayload
         )

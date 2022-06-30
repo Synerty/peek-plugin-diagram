@@ -79,18 +79,16 @@ class DiagramImportApi(DiagramImportApiABC):
             modelSetKey, coordSetKey, lookupTupleType
         )
 
-    @inlineCallbacks
     def getImportGroupHashes(
         self, modelSetKey: str, coordSetKey: str, importGroupHashContains: str
-    ) -> List[DispBase]:
-        yield self._dispImportController.getImportGroupHashes(
+    ) -> Deferred:
+        return self._dispImportController.getImportGroupHashes(
             modelSetKey, coordSetKey, importGroupHashContains
         )
 
-    @inlineCallbacks
     def removeDispsByImportGroupHash(
         self, modelSetKey: str, coordSetKey: str, importGroupHash: str
-    ):
+    ) -> Deferred:
         yield self._dispImportController.removeDispsByImportGroupHash(
             modelSetKey, coordSetKey, importGroupHash
         )
