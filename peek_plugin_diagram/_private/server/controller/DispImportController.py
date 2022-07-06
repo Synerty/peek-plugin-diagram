@@ -1,19 +1,75 @@
 import logging
 from typing import List
 
-from sqlalchemy.exc import SQLAlchemyError
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 from twisted.internet.defer import inlineCallbacks
+from vortex.Payload import Payload
 
 from peek_plugin_base.storage.DbConnection import DbSessionCreator
+from peek_plugin_base.storage.RunPyInPg import runPyInPg
 from peek_plugin_diagram._private.storage.Display import DispBase
+from peek_plugin_diagram.tuples.ImportGroupHashTuple import (
+    ImportGroupHashTuple,
+)
 from peek_plugin_diagram._private.worker.tasks.ImportDispTask import (
     importDispsTask,
 )
 from peek_plugin_livedb.server.LiveDBWriteApiABC import LiveDBWriteApiABC
 
 logger = logging.getLogger(__name__)
+
+
+class SqlController:
+    @classmethod
+    @inlineCallbacks
+    def getImportGroupHashes(
+        cls,
+        dbSessionCreator: DbSessionCreator,
+        modelSetKey: str,
+        coordSetKey: str,
+        importGroupHashContains: str,
+    ) -> List[str]:
+        ret = yield runPyInPg(
+            logger,
+            dbSessionCreator,
+            cls._getImportGroupHashes,
+            None,
+            modelSetKey=modelSetKey,
+            coordSetKey=coordSetKey,
+            importGroupHashContains=importGroupHashContains,
+        )
+        return ret
+
+    @classmethod
+    def _getImportGroupHashes(
+        self,
+        plpy,
+        modelSetKey: str,
+        coordSetKey: str,
+        importGroupHashContains: str,
+    ) -> List[ImportGroupHashTuple]:
+        rows = plpy.execute(
+            f"""
+            SELECT DISTINCT
+                db."importGroupHash"
+            FROM
+                pl_diagram."DispBase" AS db
+                JOIN pl_diagram."ModelCoordSet" AS mcs ON mcs.id = db."coordSetId"
+                JOIN pl_diagram."ModelSet" AS ms ON ms.id = mcs."modelSetId"
+            WHERE
+                ms.key = '{modelSetKey}'
+                AND mcs.key = '{coordSetKey}'
+                AND db."importGroupHash" LIKE '%{importGroupHashContains}%';
+            """
+        )
+
+        ret = []
+        for row in rows:
+            tuple_ = ImportGroupHashTuple()
+            tuple_.fromDict(row)
+            ret.append(tuple_)
+        return ret
 
 
 class DispImportController:
@@ -57,39 +113,20 @@ class DispImportController:
         reactor.callLater(seconds, d.callback, True)
         return d
 
-    def getImportGroupHashes(self, prefix: str) -> List[DispBase]:
-        ormSession = self._dbSessionCreator()
-        query = ormSession.query(DispBase.importGroupHash).distinct(
-            DispBase.importGroupHash
+    def getImportGroupHashes(
+        self, modelSetKey: str, coordSetKey: str, importGroupHashContains: str
+    ):
+        return SqlController.getImportGroupHashes(
+            self._dbSessionCreator,
+            modelSetKey,
+            coordSetKey,
+            importGroupHashContains,
         )
-        if prefix:
-            query = query.filter(DispBase.importGroupHash.like(f"{prefix}%"))
 
-        ret = []
-
-        try:
-            for row in query.all():
-                ret.append(row.importGroupHash)
-            return ret
-        finally:
-            ormSession.close()
-
-    def removeDispsByImportGroupHash(self, importGroupHash):
-        dispTable = DispBase.__table__
-        ormSession = self._dbSessionCreator()
-        engine = ormSession.get_bind()
-        conn = engine.connect()
-        transaction = conn.begin()
-
-        try:
-            engine.execute(
-                dispTable.delete().where(
-                    dispTable.c.importGroupHash == importGroupHash
-                )
-            )
-            transaction.commit()
-        except SQLAlchemyError:
-            transaction.rollback()
-            raise
-        finally:
-            conn.close()
+    def removeDispsByImportGroupHash(
+        self, modelSetKey: str, coordSetKey: str, importGroupHash: str
+    ):
+        emptyPayload = Payload(tuples=[]).toEncodedPayload()
+        return importDispsTask.delay(
+            modelSetKey, coordSetKey, importGroupHash, emptyPayload
+        )
