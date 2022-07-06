@@ -113,6 +113,9 @@ class ImportDispCurvedTextTuple(Tuple):
     #: Text Height (Optional, defaults to height in TextStyle lookup)
     textHeight: Optional[float] = TupleField()
 
+    #: Text Horizontal Stretch, The scale to stretch the text horizontally
+    textHStretch: float = TupleField(1)
+
     #: a parameter to put white space between text repeats along a
     # path in 'ImportDispCurvedTextTuple.geom'.
     #  'spacingBetweenTexts' is in range of (0, +∞)
