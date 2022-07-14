@@ -146,13 +146,21 @@ class LookupImportController:
                     existing = itemsByImportHash.pop(importHash)
 
                     if updateExisting:
-                        for fieldName in lookup.tupleFieldNames():
-                            setattr(
-                                existing, fieldName, getattr(lookup, fieldName)
+                        if existing.blockApiUpdate:
+                            logger.debug(
+                                f"updating existing lookup to {existing.name}"
+                                f" is blocked"
                             )
+                        else:
+                            for fieldName in lookup.tupleFieldNames():
+                                setattr(
+                                    existing,
+                                    fieldName,
+                                    getattr(lookup, fieldName),
+                                )
 
-                        updateFks(existing)
-                        updateCount += 1
+                            updateFks(existing)
+                            updateCount += 1
 
                 # If it's a new item, create it
                 else:

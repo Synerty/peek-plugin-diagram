@@ -61,6 +61,10 @@ class DispLayer(Tuple, DeclarativeBase):
 
     importHash = Column(String(100), doc=JSON_EXCLUDE)
 
+    showForEdit = Column(Boolean, nullable=False)
+
+    blockApiUpdate = Column(Boolean, nullable=False)
+
     __table_args__: typing.Tuple = (
         Index("idx_DispLayer_modelSetId", modelSetId, unique=False),
         Index("idx_DispLayer_importHash", modelSetId, importHash, unique=True),
@@ -90,6 +94,10 @@ class DispLevel(Tuple, DeclarativeBase):
     coordSet = relationship(ModelCoordSet, foreign_keys=[coordSetId])
 
     importHash = Column(String(100), doc=JSON_EXCLUDE)
+
+    showForEdit = Column(Boolean, nullable=False)
+
+    blockApiUpdate = Column(Boolean, nullable=False)
 
     __table_args__ = (
         Index("idx_DispLevel_coordSetId", coordSetId, unique=False),
@@ -126,6 +134,10 @@ class DispTextStyle(Tuple, DeclarativeBase):
     importHash = Column(String(100), doc=JSON_EXCLUDE)
 
     borderWidth = Column(Float, nullable=True)
+
+    showForEdit = Column(Boolean, nullable=False)
+
+    blockApiUpdate = Column(Boolean, nullable=False)
 
     __table_args__ = (
         Index("idx_DispTextStyle_modelSetId", modelSetId, unique=False),
@@ -167,6 +179,9 @@ class DispLineStyle(Tuple, DeclarativeBase):
     importHash = Column(String(100), doc=JSON_EXCLUDE)
     scalable = Column(Boolean, nullable=False, server_default="false")
 
+    showForEdit = Column(Boolean, nullable=False)
+    blockApiUpdate = Column(Boolean, nullable=False)
+
     __table_args__ = (
         Index("idx_DispLineStyle_modelSetId", modelSetId, unique=False),
         Index(
@@ -199,6 +214,10 @@ class DispColor(Tuple, DeclarativeBase):
     modelSet = relationship(ModelSet)
 
     importHash = Column(String(100), doc=JSON_EXCLUDE)
+
+    showForEdit = Column(Boolean, nullable=False)
+
+    blockApiUpdate = Column(Boolean, nullable=False)
 
     __table_args__ = (
         Index("idx_DispColor_modelSetId", modelSetId, unique=False),
