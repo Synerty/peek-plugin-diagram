@@ -28,6 +28,7 @@ from peek_plugin_diagram._private.storage.Display import (
     DispText,
     DispEllipse,
 )
+from peek_plugin_diagram._private.storage.Display import DispCurvedText
 from peek_plugin_diagram._private.storage.LiveDbDispLink import LiveDbDispLink
 from vortex.DeferUtil import deferToThreadWrapWithLogger
 
@@ -44,7 +45,9 @@ class _Notifier(ACIProcessorStatusNotifierABC):
         self._adminStatusController.notify()
 
     def addToProcessorTotal(self, delta: int):
-        self._adminStatusController.status.displayCompilerProcessedTotal += delta
+        self._adminStatusController.status.displayCompilerProcessedTotal += (
+            delta
+        )
         self._adminStatusController.notify()
 
     def setProcessorError(self, error: str):
@@ -71,6 +74,7 @@ class DispCompilerQueueController(ACIProcessorQueueControllerABC):
         DispBase,
         DispNull,
         DispText,
+        DispCurvedText,
         DispPolygon,
         DispPolyline,
         DispEllipse,
@@ -131,7 +135,9 @@ class DispCompilerQueueController(ACIProcessorQueueControllerABC):
         return self.queueDispIdsToCompile(dispIds, self._dbSessionCreator)
 
     @classmethod
-    def queueDispIdsToCompile(cls, dispIdsToCompile: List[int], dbSessionCreator):
+    def queueDispIdsToCompile(
+        cls, dispIdsToCompile: List[int], dbSessionCreator
+    ):
         if not dispIdsToCompile:
             return
 
@@ -144,7 +150,9 @@ class DispCompilerQueueController(ACIProcessorQueueControllerABC):
             ormSession.close()
 
     @staticmethod
-    def queueDispIdsToCompileWithSession(dispIdsToCompile: List[int], ormSessionOrConn):
+    def queueDispIdsToCompileWithSession(
+        dispIdsToCompile: List[int], ormSessionOrConn
+    ):
         if not dispIdsToCompile:
             return
 
@@ -154,4 +162,6 @@ class DispCompilerQueueController(ACIProcessorQueueControllerABC):
         for dispId in dispIdsToCompile:
             inserts.append(dict(dispId=dispId))
 
-        ormSessionOrConn.execute(DispIndexerQueueTable.__table__.insert(), inserts)
+        ormSessionOrConn.execute(
+            DispIndexerQueueTable.__table__.insert(), inserts
+        )

@@ -32,3 +32,5 @@ class ImportDispTextStyleTuple(Tuple):
     #  The spacing is the spacing distance at zoom level 1, in the coordinate
     #  system unit.
     spacingBetweenTexts: float = TupleField(defaultValue=100)
+
+    borderWidth: Optional[float] = TupleField()

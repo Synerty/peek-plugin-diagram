@@ -14,6 +14,7 @@ class ImportLiveDbDispLinkTuple(Tuple):
     __tupleType__ = diagramTuplePrefix + "ImportLiveDbDispLinkTuple"
 
     DISP_ATTR_FILL_COLOR = "fillColorId"
+    DISP_ATTR_BORDER_COLOR = "borderColorId"
     DISP_ATTR_LINE_COLOR = "lineColorId"
     DISP_ATTR_EDGE_COLOR = "edgeColorId"
     DISP_ATTR_COLOR = "colorId"

@@ -12,7 +12,9 @@ from peek_plugin_diagram._private.storage.Display import (
 from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import (
     ImportLiveDbDispLinkTuple,
 )
-from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
+from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import (
+    ImportLiveDbItemTuple,
+)
 from sqlalchemy import select
 
 # NO_SYMBOL = "NO_SYMBOL"
@@ -73,6 +75,7 @@ class LookupHashConverter:
             T.DISP_ATTR_COLOR,
             T.DISP_ATTR_LINE_COLOR,
             T.DISP_ATTR_EDGE_COLOR,
+            T.DISP_ATTR_BORDER_COLOR,
         }
 
         for attrName in colourFields:
@@ -83,12 +86,16 @@ class LookupHashConverter:
         for attrName in (T.DISP_ATTR_LINE_STYLE,):
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
-            setattr(disp, attrName, self.getLineStyleId(getattr(disp, attrName)))
+            setattr(
+                disp, attrName, self.getLineStyleId(getattr(disp, attrName))
+            )
 
         for attrName in (T.DISP_ATTR_TEXT_STYLE,):
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
                 continue
-            setattr(disp, attrName, self.getTextStyleId(getattr(disp, attrName)))
+            setattr(
+                disp, attrName, self.getTextStyleId(getattr(disp, attrName))
+            )
 
         for attrName in ["levelId"]:
             if not hasattr(disp, attrName) or getattr(disp, attrName) is None:
