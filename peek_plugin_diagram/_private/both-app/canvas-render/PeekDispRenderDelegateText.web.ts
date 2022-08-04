@@ -94,9 +94,11 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 
         let fontStyle = DispText.textStyle(disp);
         let fillColor = DispText.color(disp);
+        let borderColor = DispText.borderColor(disp);
 
         // Null colors are also not drawn
         fillColor = fillColor && fillColor.color ? fillColor : null;
+        borderColor = borderColor && borderColor.color ? borderColor : null;
 
         // TODO, Draw a box around the text, based on line style
 
@@ -177,11 +179,12 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
                 ctx.fillText(line, 0, yOffset);
             }
 
-            //if (disp.lineColor) {
-            //    ctx.lineWidth = disp.lineSize;
-            //    ctx.strokeStyle = disp.lineColor;
-            //    ctx.strokeText(line, 0, yOffset);
-            //}
+            if (fontStyle.borderWidth && borderColor !== null) {
+                // apply border width if set
+                ctx.lineWidth = fontStyle.borderWidth;
+                ctx.strokeStyle = borderColor;
+                ctx.strokeText(line, 0, yOffset);
+            }
         }
 
         let singleLineHeight = lineHeight / zoom;

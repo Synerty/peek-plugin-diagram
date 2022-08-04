@@ -253,6 +253,11 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
             if (disp.cl == null) return null;
         }
 
+        if (disp.bc != null) {
+            disp.bcl = this._colorById[disp.bc];
+            if (disp.bcl == null) return null;
+        }
+
         if (disp.lc != null) {
             disp.lcl = this._colorById[disp.lc];
             if (disp.lcl == null) return null;
