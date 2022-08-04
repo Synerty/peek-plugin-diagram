@@ -1,6 +1,7 @@
 import { takeUntil } from "rxjs/operators";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import {
+    DiagramToolbarBuiltinButtonEnum,
     DiagramToolbarService,
     DiagramToolButtonI,
 } from "@peek/peek_plugin_diagram/DiagramToolbarService";
@@ -28,6 +29,9 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
 
     @Input("config")
     config: PeekCanvasConfig;
+
+    @Input("buttonBitmask")
+    buttonBitmask: DiagramToolbarBuiltinButtonEnum;
 
     @Output("openPrintPopup")
     openPrintPopupEmitter = new EventEmitter();
@@ -106,7 +110,11 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
     }
 
     showSelectBranchesButton(): boolean {
-        return this.coordSet.branchesEnabled == true;
+        return (
+            (this.buttonBitmask &
+                DiagramToolbarBuiltinButtonEnum.BUTTON_SELECT_BRANCHES) >
+                0 && this.coordSet.branchesEnabled == true
+        );
     }
 
     showSelectBranchesTooltip(): string {
@@ -116,7 +124,11 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
     }
 
     showExitDiagramButton(): boolean {
-        return this.coordSetsForMenu.length > 1;
+        return (
+            (this.buttonBitmask &
+                DiagramToolbarBuiltinButtonEnum.BUTTON_CHANGE_COORDSET_MENU) >
+                0 && this.coordSetsForMenu.length > 1
+        );
     }
 
     changeCoordSetMenuItemClicked(coordSet: ModelCoordSet): void {
@@ -124,8 +136,19 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
         this.positionService.positionByCoordSet(this.modelSetKey, coordSet.key);
     }
 
+    showPrintDiagramButton(): boolean {
+        return (
+            (this.buttonBitmask &
+                DiagramToolbarBuiltinButtonEnum.BUTTOON_PRINT_DIAGRAM) >
+            0
+        );
+    }
+
     showEditDiagramButton(): boolean {
         return (
+            (this.buttonBitmask &
+                DiagramToolbarBuiltinButtonEnum.BUTTON_EDIT_DIAGRAM) >
+                0 &&
             this.coordSet.editEnabled == true &&
             this.coordSet.editDefaultLayerId != null &&
             this.coordSet.editDefaultLevelId != null &&
@@ -153,6 +176,14 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
         this.configService.popupBranchesSelection(
             this.modelSetKey,
             this.coordSetKey
+        );
+    }
+
+    showSelectLayers(): boolean {
+        return (
+            (this.buttonBitmask &
+                DiagramToolbarBuiltinButtonEnum.BUTTON_SELECT_LAYERS) >
+            0
         );
     }
 

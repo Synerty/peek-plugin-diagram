@@ -121,9 +121,11 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
     ) {
         let textStyle = DispCurvedText.textStyle(disp);
         let fillColor = DispCurvedText.color(disp);
+        let borderColor = DispCurvedText.borderColor(disp);
 
         // Null colors are also not drawn
         fillColor = fillColor && fillColor.color ? fillColor : null;
+        borderColor = borderColor && borderColor.color ? borderColor : null;
 
         // TODO, Draw a box around the text, based on line style
 
@@ -177,7 +179,8 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
             updateBounds,
             disp,
             lineHeight,
-            fillColor
+            fillColor,
+            borderColor
         );
 
         // restore to original state
@@ -482,7 +485,8 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
         updateBounds: boolean,
         disp: DispCurvedTextT,
         lineHeight: number,
-        fillColor: DispColor
+        fillColor: DispColor,
+        borderColor: DispColor
     ): number {
         // set up text styling
         ctx.textAlign = textAlign;
@@ -602,10 +606,16 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
                     );
                     ctx.rotate(curvedTextPathDrawingContext.nextPoint.angle);
 
-                    // TODO: stroke text
                     if (fillColor) {
                         ctx.fillStyle = fillColor.color;
                         ctx.fillText(char, 0, 0);
+                    }
+
+                    if (fontStyle.borderWidth && borderColor !== null) {
+                        // apply border width if set
+                        ctx.lineWidth = fontStyle.borderWidth;
+                        ctx.strokeStyle = borderColor;
+                        ctx.strokeText(char, 0, 0);
                     }
                     ctx.restore();
                     // add distance used for the character

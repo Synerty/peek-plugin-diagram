@@ -89,6 +89,7 @@ IMPORT_FIELD_NAME_MAP = {
     "lineStyleHash": "lineStyleId",
     "colorHash": "colorId",
     "fillColorHash": "fillColorId",
+    "borderColorHash": "borderColorId",
     "lineColorHash": "lineColorId",
     "edgeColorHash": "edgeColorId",
     "textStyleHash": "textStyleId",
@@ -205,6 +206,7 @@ def _validateConvertedDisps(disps: List):
         checkInt(disp, "lineColorHash")
         checkInt(disp, "edgeColorHash")
         checkInt(disp, "fillColorHash")
+        checkInt(disp, "borderColorHash")
         checkInt(disp, "lineStyleHash")
         checkInt(disp, "textStyleHash")
         checkInt(disp, "layerHash")

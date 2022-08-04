@@ -21,6 +21,7 @@
         </nz-dropdown-menu>
 
         <button
+            *ngIf="showPrintDiagramButton()"
             (click)="printDiagramClicked()"
             nz-tooltip
             [nzTooltipMouseEnterDelay]="1.0"
@@ -51,6 +52,7 @@
             <i nz-icon nzTheme="outline" nzType="branches"></i>
         </button>
         <button
+            *ngIf="showSelectLayers()"
             (click)="selectLayersClicked()"
             nz-tooltip
             [nzTooltipMouseEnterDelay]="1.0"
