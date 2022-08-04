@@ -2,7 +2,11 @@ import json
 import logging
 from typing import List, Optional, Any, Dict
 
-from twisted.internet.defer import inlineCallbacks, returnValue, DeferredSemaphore
+from twisted.internet.defer import (
+    inlineCallbacks,
+    returnValue,
+    DeferredSemaphore,
+)
 
 from peek_plugin_diagram._private.storage.Display import (
     DispColor,
@@ -15,9 +19,15 @@ from peek_plugin_diagram._private.storage.ModelSet import (
     getOrCreateModelSet,
     getOrCreateCoordSet,
 )
-from peek_plugin_diagram.tuples.lookups.ImportDispColorTuple import ImportDispColorTuple
-from peek_plugin_diagram.tuples.lookups.ImportDispLayerTuple import ImportDispLayerTuple
-from peek_plugin_diagram.tuples.lookups.ImportDispLevelTuple import ImportDispLevelTuple
+from peek_plugin_diagram.tuples.lookups.ImportDispColorTuple import (
+    ImportDispColorTuple,
+)
+from peek_plugin_diagram.tuples.lookups.ImportDispLayerTuple import (
+    ImportDispLayerTuple,
+)
+from peek_plugin_diagram.tuples.lookups.ImportDispLevelTuple import (
+    ImportDispLevelTuple,
+)
 from peek_plugin_diagram.tuples.lookups.ImportDispLineStyleTuple import (
     ImportDispLineStyleTuple,
 )
@@ -100,7 +110,9 @@ class LookupImportController:
             coordSet = None
 
             if coordSetKey:
-                coordSet = getOrCreateCoordSet(ormSession, modelSetKey, coordSetKey)
+                coordSet = getOrCreateCoordSet(
+                    ormSession, modelSetKey, coordSetKey
+                )
 
                 all = (
                     ormSession.query(LookupType)
@@ -134,16 +146,21 @@ class LookupImportController:
                     existing = itemsByImportHash.pop(importHash)
 
                     if updateExisting:
-                        for fieldName in lookup.tupleFieldNames():
-                            if getattr(lookup, fieldName) is None:
-                                continue
-
-                            setattr(
-                                existing, fieldName, getattr(lookup, fieldName)
+                        if existing.blockApiUpdate:
+                            logger.debug(
+                                f"updating existing lookup to {existing.name}"
+                                f" is blocked"
                             )
+                        else:
+                            for fieldName in lookup.tupleFieldNames():
+                                setattr(
+                                    existing,
+                                    fieldName,
+                                    getattr(lookup, fieldName),
+                                )
 
-                        updateFks(existing)
-                        updateCount += 1
+                            updateFks(existing)
+                            updateCount += 1
 
                 # If it's a new item, create it
                 else:
@@ -187,7 +204,9 @@ class LookupImportController:
             ormSession.close()
 
     @deferToThreadWrapWithLogger(logger)
-    def getLookups(self, modelSetKey: str, coordSetKey: Optional[str], tupleType: str):
+    def getLookups(
+        self, modelSetKey: str, coordSetKey: Optional[str], tupleType: str
+    ):
 
         LookupType = ORM_TUPLE_MAP[tupleType]
 
@@ -197,7 +216,9 @@ class LookupImportController:
             modelSet = getOrCreateModelSet(ormSession, modelSetKey)
 
             if coordSetKey:
-                coordSet = getOrCreateCoordSet(ormSession, modelSetKey, coordSetKey)
+                coordSet = getOrCreateCoordSet(
+                    ormSession, modelSetKey, coordSetKey
+                )
 
                 all = (
                     ormSession.query(LookupType)
@@ -226,7 +247,9 @@ class LookupImportController:
                         newTuple.coordSetKey = coordSetKey
 
                     else:
-                        setattr(newTuple, fieldName, getattr(ormTuple, fieldName))
+                        setattr(
+                            newTuple, fieldName, getattr(ormTuple, fieldName)
+                        )
 
                 importTuples.append(newTuple)
 
@@ -238,7 +261,9 @@ class LookupImportController:
         finally:
             ormSession.close()
 
-    def _convertLineStyles(self, importLineStyles: List[ImportDispTextStyleTuple]):
+    def _convertLineStyles(
+        self, importLineStyles: List[ImportDispTextStyleTuple]
+    ):
         for style in importLineStyles:
             dp = style.dashPattern
 

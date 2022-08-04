@@ -86,6 +86,7 @@
                     class="td"
                 >
                     <nz-select
+                        nzShowSearch
                         (ngModelChange)="writeOptionVal(prop, $event)"
                         [disabled]="!isEditingEnabled()"
                         [ngModel]="readOptionVal(prop)"

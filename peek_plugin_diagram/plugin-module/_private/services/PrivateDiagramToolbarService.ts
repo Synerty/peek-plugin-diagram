@@ -1,6 +1,7 @@
 import { Observable, Subject } from "rxjs";
 import { Injectable } from "@angular/core";
 import {
+    DiagramToolbarBuiltinButtonEnum,
     DiagramToolbarService,
     DiagramToolButtonI,
     ToolbarTypeE,
@@ -14,7 +15,7 @@ export class PrivateDiagramToolbarService extends DiagramToolbarService {
     private _editToolButtonsUpdatedSubject = new Subject<
         DiagramToolButtonI[]
     >();
-    private _showToolbarObservable = new Subject<boolean>();
+    private _showToolbarObservable = new Subject<number>();
 
     constructor() {
         super();
@@ -96,10 +97,10 @@ export class PrivateDiagramToolbarService extends DiagramToolbarService {
         return this._editToolButtonsUpdatedSubject;
     }
 
-    showToolbarObservable() {
+    setToolbarObservable() {
         return this._showToolbarObservable;
     }
-    setToolbarVisible(enabled: boolean): void {
-        this.showToolbarObservable().next(enabled);
+    setToolbarButtons(buttonBitMask: DiagramToolbarBuiltinButtonEnum): void {
+        this.setToolbarObservable().next(buttonBitMask);
     }
 }

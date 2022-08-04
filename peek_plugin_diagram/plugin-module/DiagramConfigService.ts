@@ -3,6 +3,8 @@
  * This allows other plugins to configure the diagram thats currently shown.
  *
  */
+import { DiagramToolbarBuiltinButtonEnum } from "@peek/peek_plugin_diagram/DiagramToolbarService";
+
 export abstract class DiagramConfigService {
     abstract setLayerVisible(
         modelSetKey: string,
@@ -12,5 +14,7 @@ export abstract class DiagramConfigService {
 
     abstract setUsePolylineEdgeColors(enabled: boolean): void;
 
-    abstract setToolbarVisible(enabled: boolean): void;
+    abstract setToolbarButtons(
+        buttonBitmask: DiagramToolbarBuiltinButtonEnum
+    ): void;
 }

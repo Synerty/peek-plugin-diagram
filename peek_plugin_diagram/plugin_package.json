@@ -137,6 +137,11 @@
                 "persistent": true
             },
             {
+                "file": "services/canvas.service",
+                "class": "CanvasService",
+                "locatedInAppDir": true
+            },
+            {
                 "file": "DiagramItemSelectService",
                 "class": "DiagramItemSelectService",
                 "useExistingClass": "PrivateDiagramItemSelectService"
@@ -258,6 +263,11 @@
                 "useClassFile": "_private/services/PrivateDiagramToolbarService",
                 "useClassClass": "PrivateDiagramToolbarService",
                 "persistent": true
+            },
+            {
+                "file": "services/canvas.service",
+                "class": "CanvasService",
+                "locatedInAppDir": true
             },
             {
                 "file": "DiagramItemSelectService",

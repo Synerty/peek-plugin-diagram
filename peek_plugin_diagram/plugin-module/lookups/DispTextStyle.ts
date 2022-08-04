@@ -14,6 +14,7 @@ export class DispTextStyle extends Tuple {
     scaleFactor: number;
     modelSetId: number;
     spacingBetweenTexts: number;
+    borderWidth: number;
 
     constructor() {
         super(DispTextStyle.tupleName);

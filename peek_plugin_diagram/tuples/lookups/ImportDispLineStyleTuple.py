@@ -14,7 +14,7 @@ class ImportDispLineStyleTuple(Tuple):
     name: str = TupleField()
 
     #: Fill the dash space, or let the what ever is underneath show.
-    backgroundFillDashSpace: bool = TupleField()
+    backgroundFillDashSpace: bool = TupleField(defaultValue=False)
 
     CAP_BUTT = "butt"
     CAP_ROUND = "round"
@@ -42,4 +42,4 @@ class ImportDispLineStyleTuple(Tuple):
 
     modelSetKey: str = TupleField()
 
-    scalable: bool = TupleField()
+    scalable: bool = TupleField(defaultValue=True)

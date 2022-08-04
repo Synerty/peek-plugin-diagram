@@ -95,6 +95,7 @@ export class SelectBranchesComponent extends NgLifeCycleEvents {
         }
         this.branchService.setVisibleBranches(branches);
         this.config.setModelNeedsCompiling();
+        this.config.invalidate();
 
         this.popupShown = false;
 

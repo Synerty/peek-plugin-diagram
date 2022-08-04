@@ -26,6 +26,8 @@ import { CopyPasteService } from "../services/copy-paste.service";
 import { ContextMenuService } from "../services/context-menu.service";
 import { DiagramToolbarService } from "@peek/peek_plugin_diagram";
 import { PrivateDiagramToolbarService } from "@peek/peek_plugin_diagram/_private/services";
+import { DiagramToolbarBuiltinButtonEnum } from "@peek/peek_plugin_diagram/DiagramToolbarService";
+import { CanvasService } from "../services/canvas.service";
 
 /** Canvas Component
  *
@@ -45,7 +47,13 @@ export class CanvasComponent extends NgLifeCycleEvents {
     @Input("modelSetKey")
     modelSetKey: string;
 
-    showToolbar: boolean = true;
+    buttonBitmask: DiagramToolbarBuiltinButtonEnum =
+        // show all default buttons by default
+        DiagramToolbarBuiltinButtonEnum.BUTTON_CHANGE_COORDSET_MENU +
+        DiagramToolbarBuiltinButtonEnum.BUTTOON_PRINT_DIAGRAM +
+        DiagramToolbarBuiltinButtonEnum.BUTTON_EDIT_DIAGRAM +
+        DiagramToolbarBuiltinButtonEnum.BUTTON_SELECT_BRANCHES +
+        DiagramToolbarBuiltinButtonEnum.BUTTON_SELECT_LAYERS;
 
     config: PeekCanvasConfig;
     model: PeekCanvasModel;
@@ -79,7 +87,8 @@ export class CanvasComponent extends NgLifeCycleEvents {
         private snapshotService: PrivateDiagramSnapshotService,
         private copyPasteService: CopyPasteService,
         private contextMenuService: ContextMenuService,
-        private toolbarService: DiagramToolbarService
+        private toolbarService: DiagramToolbarService,
+        private canvasService: CanvasService
     ) {
         super();
 
@@ -88,6 +97,29 @@ export class CanvasComponent extends NgLifeCycleEvents {
         this.privateToolbarService = <PrivateDiagramToolbarService>(
             toolbarService
         );
+    }
+
+    isToolbarVisible(): boolean {
+        // if BUTTON_NULL is set
+        if (this.buttonBitmask == 0 || this.buttonBitmask < 0) {
+            return false;
+        }
+
+        // if invalid enum value is contained in the bitmask
+        let visible = false;
+        for (const buttonValue of Object.values(
+            DiagramToolbarBuiltinButtonEnum
+        )) {
+            if (buttonValue == DiagramToolbarBuiltinButtonEnum.BUTTON_NULL) {
+                continue;
+            }
+            // any valid value will turn visible to true
+            visible = visible || (Number(buttonValue) & this.buttonBitmask) > 0;
+            if (visible) {
+                return visible;
+            }
+        }
+        return visible;
     }
 
     isEditing(): boolean {
@@ -340,6 +372,8 @@ export class CanvasComponent extends NgLifeCycleEvents {
         this.connectCopyPasteService();
 
         this.connectToolbarService();
+
+        this.connectCanvasService();
     }
 
     private connectConfigService(): void {
@@ -359,10 +393,14 @@ export class CanvasComponent extends NgLifeCycleEvents {
 
     private connectToolbarService(): void {
         this.privateToolbarService
-            .showToolbarObservable()
+            .setToolbarObservable()
             .pipe(takeUntil(this.onDestroyEvent))
-            .subscribe((enabled: boolean) => {
-                this.showToolbar = enabled;
+            .subscribe((buttonBitmask: DiagramToolbarBuiltinButtonEnum) => {
+                this.buttonBitmask = buttonBitmask;
             });
+    }
+
+    private connectCanvasService(): void {
+        this.canvasService.setConfig(this.config);
     }
 }

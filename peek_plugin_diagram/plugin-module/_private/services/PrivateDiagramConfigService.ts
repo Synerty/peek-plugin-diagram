@@ -4,6 +4,7 @@ import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PrivateDiagramLookupService } from "./PrivateDiagramLookupService";
 import { DiagramConfigService } from "../../DiagramConfigService";
 import { DiagramToolbarService } from "@peek/peek_plugin_diagram";
+import { DiagramToolbarBuiltinButtonEnum } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 
 export interface PopupLayerSelectionArgsI {
     modelSetKey: string;
@@ -111,7 +112,7 @@ export class PrivateDiagramConfigService
         return this._layersUpdatedSubject;
     }
 
-    setToolbarVisible(enabled: boolean): void {
-        this.diagramToolbarService.setToolbarVisible(enabled);
+    setToolbarButtons(buttonBitmask: DiagramToolbarBuiltinButtonEnum): void {
+        this.diagramToolbarService.setToolbarButtons(buttonBitmask);
     }
 }

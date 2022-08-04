@@ -80,5 +80,14 @@ export abstract class DiagramToolbarService {
      */
     abstract removeToolButton(buttonKey: string, toolbarType?: ToolbarTypeE);
 
-    abstract setToolbarVisible(enabled: boolean);
+    abstract setToolbarButtons(buttonBitMask: number);
+}
+
+export enum DiagramToolbarBuiltinButtonEnum {
+    BUTTON_NULL = 0,
+    BUTTON_CHANGE_COORDSET_MENU = 1 << 0,
+    BUTTOON_PRINT_DIAGRAM = 1 << 1,
+    BUTTON_EDIT_DIAGRAM = 1 << 2,
+    BUTTON_SELECT_BRANCHES = 1 << 3,
+    BUTTON_SELECT_LAYERS = 1 << 4,
 }

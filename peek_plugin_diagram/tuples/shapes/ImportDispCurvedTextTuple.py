@@ -90,6 +90,7 @@ class ImportDispCurvedTextTuple(Tuple):
 
     textStyleHash: str = TupleField()
     colorHash: Optional[str] = TupleField()
+    borderColorHash: Optional[str] = TupleField()
 
     H_ALLIGN_LEFT = -1
     H_ALLIGN_CENTER = 0
@@ -112,6 +113,9 @@ class ImportDispCurvedTextTuple(Tuple):
 
     #: Text Height (Optional, defaults to height in TextStyle lookup)
     textHeight: Optional[float] = TupleField()
+
+    #: Text Horizontal Stretch, The scale to stretch the text horizontally
+    textHStretch: float = TupleField(1)
 
     #: a parameter to put white space between text repeats along a
     # path in 'ImportDispCurvedTextTuple.geom'.

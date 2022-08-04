@@ -1,10 +1,13 @@
 import logging
 
+from peek_plugin_diagram._private.storage.Display import DispCurvedText
 from peek_plugin_diagram._private.storage.Display import DispText
 from peek_plugin_diagram._private.storage.LiveDbDispLink import (
     LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR,
 )
-from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
+from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import (
+    ImportLiveDbItemTuple,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +51,10 @@ def _mergeInLiveDbValue(disp, dispLink, liveDbItem, value=None):
 
     # ----------------------------
     # Not text
-    if not (isinstance(disp, DispText) and dispLink.dispAttrName == "text"):
+    if not (
+        (isinstance(disp, DispText) or isinstance(disp, DispCurvedText))
+        and dispLink.dispAttrName == "text"
+    ):
         setattr(disp, dispLink.dispAttrName, value)
         return
 
@@ -80,7 +86,9 @@ def _applyTextFormat(disp, dispLink, liveDbItem, value):
         # Lazy format type detection
         try:
             if "number is required" in message:
-                return _applyTextFormat(disp, dispLink, liveDbItem, float(value))
+                return _applyTextFormat(
+                    disp, dispLink, liveDbItem, float(value)
+                )
 
             if "invalid literal for int" in message:
                 return _applyTextFormat(disp, dispLink, liveDbItem, int(value))
@@ -89,13 +97,19 @@ def _applyTextFormat(disp, dispLink, liveDbItem, value):
                 return _applyTextFormat(disp, dispLink, liveDbItem, int(value))
 
             if "float is required" in message:
-                return _applyTextFormat(disp, dispLink, liveDbItem, float(value))
+                return _applyTextFormat(
+                    disp, dispLink, liveDbItem, float(value)
+                )
 
             if "must be real number, not str" in message:
-                return _applyTextFormat(disp, dispLink, liveDbItem, float(value))
+                return _applyTextFormat(
+                    disp, dispLink, liveDbItem, float(value)
+                )
 
             if "could not convert string to float" in message:
-                return _applyTextFormat(disp, dispLink, liveDbItem, float(value))
+                return _applyTextFormat(
+                    disp, dispLink, liveDbItem, float(value)
+                )
 
         except ValueError as e:
             disp.text = disp.textFormat
