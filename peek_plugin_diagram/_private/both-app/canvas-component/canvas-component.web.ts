@@ -27,6 +27,7 @@ import { ContextMenuService } from "../services/context-menu.service";
 import { DiagramToolbarService } from "@peek/peek_plugin_diagram";
 import { PrivateDiagramToolbarService } from "@peek/peek_plugin_diagram/_private/services";
 import { DiagramToolbarBuiltinButtonEnum } from "@peek/peek_plugin_diagram/DiagramToolbarService";
+import { CanvasService } from "../services/canvas.service";
 
 /** Canvas Component
  *
@@ -86,7 +87,8 @@ export class CanvasComponent extends NgLifeCycleEvents {
         private snapshotService: PrivateDiagramSnapshotService,
         private copyPasteService: CopyPasteService,
         private contextMenuService: ContextMenuService,
-        private toolbarService: DiagramToolbarService
+        private toolbarService: DiagramToolbarService,
+        private canvasService: CanvasService
     ) {
         super();
 
@@ -370,6 +372,8 @@ export class CanvasComponent extends NgLifeCycleEvents {
         this.connectCopyPasteService();
 
         this.connectToolbarService();
+
+        this.connectCanvasService();
     }
 
     private connectConfigService(): void {
@@ -394,5 +398,9 @@ export class CanvasComponent extends NgLifeCycleEvents {
             .subscribe((buttonBitmask: DiagramToolbarBuiltinButtonEnum) => {
                 this.buttonBitmask = buttonBitmask;
             });
+    }
+
+    private connectCanvasService(): void {
+        this.canvasService.setConfig(this.config);
     }
 }
