@@ -20,3 +20,7 @@ class ImportDispLayerTuple(Tuple):
     importHash: str = TupleField()
 
     modelSetKey: str = TupleField()
+
+    showForEdit: bool = TupleField(defaultValue=False)
+
+    blockApiUpdate: bool = TupleField(defaultValue=False)
