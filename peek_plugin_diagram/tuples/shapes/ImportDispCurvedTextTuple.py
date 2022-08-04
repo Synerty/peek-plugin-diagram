@@ -90,6 +90,7 @@ class ImportDispCurvedTextTuple(Tuple):
 
     textStyleHash: str = TupleField()
     colorHash: Optional[str] = TupleField()
+    borderColorHash: Optional[str] = TupleField()
 
     H_ALLIGN_LEFT = -1
     H_ALLIGN_CENTER = 0

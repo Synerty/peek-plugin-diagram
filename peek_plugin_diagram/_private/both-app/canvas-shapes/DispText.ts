@@ -28,6 +28,10 @@ export interface DispTextT extends DispBaseT {
     c: number;
     cl: DispColor;
 
+    // border colour
+    bc: number;
+    bcl: DispColor;
+
     // Vertical Alignment
     va: number;
 
@@ -57,6 +61,15 @@ export class DispText extends DispBase {
         // This is set from the short id in PrivateDiagramLookupService._linkDispLookups
         disp.fsl = val;
         disp.fs = val == null ? null : val.id;
+    }
+
+    static borderColor(disp: DispTextT): DispColor {
+        return disp.bcl;
+    }
+
+    static setBorderColor(disp: DispTextT, val: DispColor): void {
+        disp.bcl = val;
+        disp.bc = val == null ? null : val.id;
     }
 
     static color(disp: DispTextT): DispColor {
@@ -178,6 +191,15 @@ export class DispText extends DispBase {
                 DispText.color,
                 DispText.setColor,
                 "Color"
+            )
+        );
+
+        context.addProp(
+            new ShapeProp(
+                ShapePropType.Color,
+                DispText.borderColor,
+                DispText.setBorderColor,
+                "Border Color"
             )
         );
     }
