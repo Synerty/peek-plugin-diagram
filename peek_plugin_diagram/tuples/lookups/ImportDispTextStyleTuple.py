@@ -19,8 +19,8 @@ class ImportDispTextStyleTuple(Tuple):
     STYLE_BOLD = "bold"
     fontStyle: str = TupleField()
 
-    scalable: bool = TupleField()
-    scaleFactor: float = TupleField()
+    scalable: bool = TupleField(defaultValue=True)
+    scaleFactor: float = TupleField(defaultValue=1)
 
     importHash: str = TupleField()
 
