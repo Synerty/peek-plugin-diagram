@@ -43,3 +43,7 @@ class ImportDispLineStyleTuple(Tuple):
     modelSetKey: str = TupleField()
 
     scalable: bool = TupleField(defaultValue=True)
+
+    showForEdit: bool = TupleField(defaultValue=False)
+
+    blockApiUpdate: bool = TupleField(defaultValue=False)

@@ -34,3 +34,7 @@ class ImportDispTextStyleTuple(Tuple):
     spacingBetweenTexts: float = TupleField(defaultValue=100)
 
     borderWidth: Optional[float] = TupleField()
+
+    showForEdit: bool = TupleField(defaultValue=False)
+
+    blockApiUpdate: bool = TupleField(defaultValue=False)

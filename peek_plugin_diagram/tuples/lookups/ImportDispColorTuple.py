@@ -30,3 +30,7 @@ class ImportDispColorTuple(Tuple):
 
     #:  The import hash for this colour
     importHash: str = TupleField()
+
+    showForEdit: bool = TupleField(defaultValue=False)
+
+    blockApiUpdate: bool = TupleField(defaultValue=False)
