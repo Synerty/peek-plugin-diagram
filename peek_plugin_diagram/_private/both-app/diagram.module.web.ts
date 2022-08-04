@@ -39,6 +39,7 @@ import { CanvasContextMenuComponent } from "./canvas-context-menu-component/canv
 import { CopyPasteService } from "./services/copy-paste.service";
 import { ContextMenuService } from "./services/context-menu.service";
 import { SetPositionComponent } from "./set-position-component/set-position.component";
+import { CanvasService } from "./services/canvas.service";
 
 // Define the root module for this plugin.
 // This module is loaded by the lazy loader, what ever this defines is what is started.
@@ -69,6 +70,7 @@ import { SetPositionComponent } from "./set-position-component/set-position.comp
         GridObservable,
         CopyPasteService,
         ContextMenuService,
+        CanvasService,
     ],
     declarations: [
         DiagramComponent,
