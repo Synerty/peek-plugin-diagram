@@ -3,7 +3,8 @@
     </pl-diagram-canvas-context-menu>
     <pl-diagram-view-toolbar
         (openPrintPopup)="showPrintPopup=true"
-        *ngIf="showToolbar && coordSetIsValid() && !isEditing()"
+        *ngIf="isToolbarVisible() && coordSetIsValid() && !isEditing()"
+        [buttonBitmask]="buttonBitmask"
         [config]="config"
         [coordSetKey]="coordSetKey"
         [modelSetKey]="modelSetKey"
@@ -63,8 +64,7 @@
         (closePopup)="showPrintPopup=false"
         *ngIf="showPrintPopup"
     ></pl-diagram-print>
-    
-    
+
     <!-- This component handles the positioning requests from the
         PrivateDiagramPositionService
     -->
