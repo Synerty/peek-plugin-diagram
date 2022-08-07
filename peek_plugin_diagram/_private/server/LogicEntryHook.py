@@ -65,8 +65,9 @@ from peek_plugin_diagram._private.storage.DeclarativeBase import (
 from peek_plugin_diagram._private.storage.Setting import BRANCH_COMPILER_ENABLED
 from peek_plugin_diagram._private.storage.Setting import DISP_COMPILER_ENABLED
 from peek_plugin_diagram._private.storage.Setting import GRID_COMPILER_ENABLED
-from peek_plugin_diagram._private.storage.Setting import \
-    LOCATION_COMPILER_ENABLED
+from peek_plugin_diagram._private.storage.Setting import (
+    LOCATION_COMPILER_ENABLED,
+)
 from peek_plugin_diagram._private.storage.Setting import globalProperties
 from peek_plugin_diagram._private.storage.Setting import globalSetting
 from peek_plugin_diagram._private.tuples import loadPrivateTuples
@@ -305,10 +306,10 @@ class LogicEntryHook(
             gridKeyCompilerQueueController.start()
 
         if settings[BRANCH_COMPILER_ENABLED]:
-            locationIndexCompilerQueueController.start()
+            branchIndexCompilerQueueController.start()
 
         if settings[LOCATION_COMPILER_ENABLED]:
-            branchIndexCompilerQueueController.start()
+            locationIndexCompilerQueueController.start()
 
         logger.debug("Started")
 
