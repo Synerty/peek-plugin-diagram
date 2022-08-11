@@ -120,6 +120,8 @@ class LookupHashConverter:
         textStyle.modelSetId = self._modelSetId
         textStyle.name = "Peek Created %s" % importHash
         textStyle.importHash = importHash
+        textStyle.blockApiUpdate = False
+        textStyle.showForEdit = False
 
         self._ormSession.add(textStyle)
         self._ormSession.commit()
@@ -139,6 +141,8 @@ class LookupHashConverter:
         newLine.joinStyle = "miter"
         newLine.winStyle = 1
         newLine.importHash = importHash
+        newLine.blockApiUpdate = False
+        newLine.showForEdit = False
 
         self._ormSession.add(newLine)
         self._ormSession.commit()
@@ -159,6 +163,8 @@ class LookupHashConverter:
         newColor.name = "Peek Created %s" % importHash
         newColor.color = "#ffffff"
         newColor.importHash = importHash
+        newColor.blockApiUpdate = False
+        newColor.showForEdit = False
 
         self._ormSession.add(newColor)
         self._ormSession.commit()
@@ -177,6 +183,8 @@ class LookupHashConverter:
         newLevel.importHash = importHash
         newLevel.minZoom = 0
         newLevel.maxZoom = 10000
+        newLevel.blockApiUpdate = False
+        newLevel.showForEdit = False
 
         if defaultOrder is not None:
             newLevel.order = defaultOrder
@@ -201,6 +209,8 @@ class LookupHashConverter:
         newLayer.modelSetId = self._modelSetId
         newLayer.name = "Peek Created %s" % importHash
         newLayer.importHash = importHash
+        newLayer.blockApiUpdate = False
+        newLayer.showForEdit = False
 
         if defaultOrder is not None:
             newLayer.order = defaultOrder
