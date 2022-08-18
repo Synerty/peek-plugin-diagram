@@ -55,8 +55,13 @@ export class ShapeProp {
 
     private _options: ShapePropOption[] | null = null;
 
+    filteredOptions(includeValue:any): ShapePropOption[] {
+        return this._options
+            .filter(opt => opt.object["showForEdit"] !== false || opt.value === includeValue);
+    }
+
     get options(): ShapePropOption[] {
-        return this._options;
+        return this._options.filter(opt => opt["showForEdit"] !== false);
     }
 
     set options(options: ShapePropOption[]) {

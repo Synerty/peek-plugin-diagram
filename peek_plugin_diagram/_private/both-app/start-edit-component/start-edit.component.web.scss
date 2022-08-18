@@ -1,22 +1,45 @@
 @import "~@synerty/peek-plugin-base-js/src/styles/_mixins";
 @import "~@synerty/peek-plugin-base-js/src/styles/_variables";
 
-.peek-tabs-section {
-    width: unset;
-}
 
-.modal-open.modal {
-    overflow-y: unset;
-}
+$height: calc(100vh - 450px);
 
-.modal-body {
-    overflow-y: auto;
-    max-height: 85vh;
+
+.selected {
+    background-color:  #26abe2;;
 }
 
 .edit-create-branch-dialog {
     padding: $general_padding_1;
     top: $title_bar_height;
+}
+
+
+.filter-div {
+    display: flex;
+    flex-direction: row;
+}
+
+nz-switch {
+    padding-top: $general_padding_1;
+    padding-left: $general_padding_1;
+}
+
+.scroll-outer {
+    max-height: $height;
+    height: $height;
+    overflow-y: scroll;
+}
+
+.button-div {
+    display: flex;
+    div:first-child {
+        flex-grow: 1;
+    }
+
+    div.btn-group {
+        flex-grow: 0;
+    }
 }
 
 /*

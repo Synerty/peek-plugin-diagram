@@ -1,6 +1,8 @@
 @import "~@synerty/peek-plugin-base-js/src/styles/_mixins";
 @import "~@synerty/peek-plugin-base-js/src/styles/_variables";
 
+$height: calc(100vh - 300px);
+
 .modal-open.modal {
     overflow-y: unset;
 }
@@ -14,6 +16,13 @@
     padding: $general_padding_1;
     top: $title_bar_height;
 }
+
+.scroll-outer {
+    max-height: $height;
+    height: $height;
+    overflow-y: scroll;
+}
+
 
 /*
 .modal-backdrop {
