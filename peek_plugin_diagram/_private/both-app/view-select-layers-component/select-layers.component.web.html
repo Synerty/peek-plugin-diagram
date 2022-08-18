@@ -3,21 +3,33 @@
     [nzFooter]="null"
     [nzVisible]="popupShown"
     nzTitle="Select Layers"
+    [nzWidth]="600"
 >
-    <p *ngIf="noItems()">There are no layers to view at this time.</p>
-    <div *ngIf="!noItems()">
+    <input
+        [(ngModel)]="filterText"
+        nz-input
+        placeholder="Filter"
+        type="text"
+        nz-tooltip
+        [nzTooltipMouseEnterDelay]="1.0"
+        nzTooltipTitle="Enter some text here to filter the list"
+        nzTooltipPlacement="top"
+    />
+    <p *ngIf="noItems()">There are no layers matching your filter or no
+                         layers availile.</p>
+    <div *ngIf="!noItems()" class="scroll-outer">
         <nz-table ngSize="small" nzTemplateMode>
             <tbody>
-                <tr *ngFor="let item of items">
-                    <td>
-                        <nz-switch
-                            (ngModelChange)="toggleLayerVisible(item)"
-                            [ngModel]="item.visible"
-                        ></nz-switch>
-                    </td>
-                    <td>{{item.name}}</td>
-                    <td>{{item.order}}</td>
-                </tr>
+            <tr *ngFor="let item of items">
+                <td>
+                    <nz-switch
+                        (ngModelChange)="toggleLayerVisible(item)"
+                        [ngModel]="item.visible"
+                    ></nz-switch>
+                </td>
+                <td>{{item.name}}</td>
+                <td>{{item.order}}</td>
+            </tr>
             </tbody>
         </nz-table>
     </div>

@@ -96,7 +96,7 @@
                             [nzValue]="null"
                         ></nz-option>
                         <nz-option
-                            *ngFor="let option of prop.options"
+                            *ngFor="let option of prop.filteredOptions(readOptionVal(prop))"
                             [nzLabel]="option.name"
                             [nzValue]="option.value"
                         ></nz-option>
