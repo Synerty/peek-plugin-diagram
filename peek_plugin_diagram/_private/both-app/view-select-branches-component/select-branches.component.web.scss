@@ -1,6 +1,8 @@
 @import "~@synerty/peek-plugin-base-js/src/styles/_mixins";
 @import "~@synerty/peek-plugin-base-js/src/styles/_variables";
 
+$height: calc(100vh - 300px);
+
 .modal-open.modal {
     overflow-y: unset;
 }
@@ -13,6 +15,22 @@
 .modal-dialog {
     padding: $general_padding_1;
     top: $title_bar_height;
+}
+
+.filter-div {
+    display: flex;
+    flex-direction: row;
+}
+
+nz-switch {
+    padding-top: $general_padding_1;
+    padding-left: $general_padding_1;
+}
+
+.scroll-outer {
+    max-height: $height;
+    height: $height;
+    overflow-y: scroll;
 }
 
 /*

@@ -4,6 +4,7 @@ import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PeekCanvasEditor } from "../canvas/PeekCanvasEditor.web";
 import { DiagramCoordSetService } from "@peek/peek_plugin_diagram/DiagramCoordSetService";
 import { BranchDetailTuple, BranchService } from "@peek/peek_plugin_branch";
+import { BehaviorSubject } from "rxjs";
 
 import { PrivateDiagramCoordSetService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {
@@ -21,23 +22,29 @@ import { UserService } from "@peek/peek_core_user";
 })
 export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
     popupShown: boolean = false;
-
+    
     @Input("coordSetKey")
     coordSetKey: string;
-
+    
     @Input("modelSetKey")
     modelSetKey: string;
-
+    
     @Input("canvasEditor")
     canvasEditor: PeekCanvasEditor;
-    items: BranchDetailTuple[] = [];
     NEW_TAB = 0;
     EXISTING_TAB = 1;
     barIndex: number = 0;
     selectedBranch: BranchDetailTuple = null;
     newBranch: BranchDetailTuple = new BranchDetailTuple();
     private coordSetService: PrivateDiagramCoordSetService;
-
+    
+    private _filterText: string = "";
+    private _showOnlyMine: boolean = true;
+    private _sortByDate: boolean = true;
+    
+    items$ = new BehaviorSubject<BranchDetailTuple[]>([]);
+    private allItems: BranchDetailTuple[] = [];
+    
     constructor(
         private branchService: PrivateDiagramBranchService,
         abstractCoordSetService: DiagramCoordSetService,
@@ -46,32 +53,116 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
         private userService: UserService
     ) {
         super();
-
+        
         this.coordSetService = <PrivateDiagramCoordSetService>(
             abstractCoordSetService
         );
-
+        
         this.branchService.popupEditBranchSelectionObservable
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((v: PopupEditBranchSelectionArgs) => this.openPopup(v));
     }
-
-    ngOnInit() {}
-
+    
+    ngOnInit() {
+    }
+    
     closePopup(): void {
         this.popupShown = false;
-
+        
         // Discard the integration additions
-        this.items = [];
+        this.allItems = [];
+        this.refilter();
     }
-
+    
+    get items(): BranchDetailTuple[] {
+        return this.items$.value;
+    }
+    
+    get showOnlyMine(): boolean {
+        return this._showOnlyMine;
+    }
+    
+    set showOnlyMine(value: boolean) {
+        this._showOnlyMine = value;
+        this.refilter();
+    }
+    
+    get sortByDate(): boolean {
+        return this._sortByDate;
+    }
+    
+    set sortByDate(value: boolean) {
+        this._sortByDate = value;
+        this.refilter();
+    }
+    
+    get filterText(): string {
+        return this._filterText;
+    }
+    
+    set filterText(value: string) {
+        this._filterText = value;
+        this.refilter();
+    }
+    
+    private refilter(): void {
+        console.log(this.userService.userDetails);
+        console.log(this.allItems[0]);
+        const filtByStr = i => {
+            return this._filterText.length === 0
+                || i.name.indexOf(this._filterText) !== -1;
+        };
+        
+        const filtByName = i => {
+            return !this._showOnlyMine
+                || i.userName == this.userService.userDetails.userId;
+        };
+        
+        const compStr = (
+            a,
+            b
+        ) => a == b ? 0 : a < b ? -1 : 1;
+        
+        let items = this.allItems
+            .filter(i => filtByStr(i) && filtByName(i));
+        
+        if (this._sortByDate) {
+            items = items.sort(
+                (
+                    a,
+                    b
+                ) => b.createdDate.getTime() - a.createdDate.getTime()
+            );
+        }
+        else {
+            items = items.sort(
+                (
+                    a,
+                    b
+                ) => compStr(a.name.toLowerCase(), b.name.toLowerCase())
+            );
+        }
+        this.items$.next(items);
+        
+    }
+    
     // --------------------
     //
-
-    noItems(): boolean {
-        return this.items.length == 0;
+    
+    noAllItems(): boolean {
+        return this.allItems.length === 0;
     }
-
+    
+    noItems(): boolean {
+        return this.items.length == 0
+            && (this._filterText.length === 0 || this.noAllItems());
+    }
+    
+    noFilteredItems(): boolean {
+        return this.items.length == 0
+            && this._filterText.length !== 0;
+    }
+    
     isBranchSelected(item: BranchDetailTuple): boolean {
         return (
             item != null &&
@@ -79,14 +170,14 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
             item.id == this.selectedBranch.id
         );
     }
-
+    
     selectBranch(item: BranchDetailTuple): void {
         this.selectedBranch = item;
     }
-
+    
     startEditing() {
         let branchToEdit = null;
-
+        
         if (this.barIndex == this.NEW_TAB) {
             let nb = this.newBranch;
             if (nb.name == null || nb.name.length == 0) {
@@ -95,25 +186,26 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
                 );
                 return;
             }
-
+            
             nb.key = `${nb.userName}|${nb.createdDate.getTime()}|${nb.name}`;
-
+            
             this.globalBranchService
                 .createBranch(nb)
                 .catch((e) =>
                     this.balloonMsg.showError(`Failed to create branch : ${e}`)
                 );
-
+            
             branchToEdit = this.newBranch;
-        } else if (this.barIndex == this.EXISTING_TAB) {
+        }
+        else if (this.barIndex == this.EXISTING_TAB) {
             if (this.selectedBranch == null) {
                 this.balloonMsg.showWarning("You must select a branch to edit");
                 return;
             }
-
+            
             branchToEdit = this.selectedBranch;
         }
-
+        
         this.branchService.startEditing(
             this.modelSetKey,
             this.coordSetKey,
@@ -121,30 +213,29 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
         );
         this.closePopup();
     }
-
-    protected openPopup({ coordSetKey, modelSetKey }) {
+    
+    protected openPopup({coordSetKey, modelSetKey}) {
         const userDetail = this.userService.userDetails;
-
+        
         this.newBranch = new BranchDetailTuple();
         this.newBranch.modelSetKey = this.modelSetKey;
         this.newBranch.createdDate = new Date();
         this.newBranch.updatedDate = new Date();
         this.newBranch.userName = userDetail.userName;
-
+        
         // let coordSet = this.coordSetService.coordSetForKey(coordSetKey);
         console.log("Opening Start Edit popup");
-
+        
         this.globalBranchService
             .branches(this.modelSetKey)
             .then((tuples: BranchDetailTuple[]) => {
-                this.items = tuples.sort(
-                    (a, b) => b.createdDate.getTime() - a.createdDate.getTime()
-                );
+                this.allItems = tuples;
+                this.refilter();
+                
             })
             .catch((e) => `Failed to load branches ${e}`);
-
-        this.items = [];
-
+        
         this.popupShown = true;
     }
+    
 }
