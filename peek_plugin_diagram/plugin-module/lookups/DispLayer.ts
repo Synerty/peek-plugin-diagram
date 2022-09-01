@@ -11,6 +11,7 @@ export class DispLayer extends Tuple {
     selectable: boolean;
     visible: boolean;
     modelSetId: number;
+    showForEdit: boolean;
 
     constructor() {
         super(DispLayer.tupleName);

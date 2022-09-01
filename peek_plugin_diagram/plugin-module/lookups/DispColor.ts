@@ -11,6 +11,7 @@ export class DispColor extends Tuple {
     altColor: string;
     swapPeriod: number;
     modelSetId: number;
+    showForEdit: boolean;
 
     constructor() {
         super(DispColor.tupleName);

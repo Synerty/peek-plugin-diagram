@@ -31,6 +31,8 @@ export class DispLineStyle extends Tuple {
 
     scalable: boolean;
 
+    showForEdit: boolean;
+
     constructor() {
         super(DispLineStyle.tupleName);
     }
