@@ -11,6 +11,7 @@ export class DispLevel extends Tuple {
     minZoom: number;
     maxZoom: number;
     coordSetId: number;
+    showForEdit: boolean;
 
     constructor() {
         super(DispLevel.tupleName);
