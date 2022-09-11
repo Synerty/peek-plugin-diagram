@@ -10,6 +10,9 @@ from peek_plugin_diagram._private.server.client_handlers.ClientLocationIndexLoad
 from peek_plugin_diagram._private.tuples.location_index.EncodedLocationIndexTuple import (
     EncodedLocationIndexTuple,
 )
+from peek_plugin_diagram._private.tuples.location_index.LocationIndexUpdateDateTuple import (
+    LocationIndexUpdateDateTuple,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +31,10 @@ class LocationIndexCacheController(ACICacheControllerABC):
     """
 
     _ChunkedTuple = EncodedLocationIndexTuple
+    _UpdateDateTupleABC = LocationIndexUpdateDateTuple
     _chunkLoadRpcMethod = ClientLocationIndexLoaderRpc.loadLocationIndexes
+    _chunkIndexDeltaRpcMethod = (
+        ClientLocationIndexLoaderRpc.loadLocationIndexDelta
+    )
     _updateFromServerFilt = clientLocationIndexUpdateFromServerFilt
     _logger = logger

@@ -1,9 +1,14 @@
 import json
 import logging
 from collections import defaultdict
-from typing import Union, List
+from typing import List
+from typing import Union
 
 from twisted.internet.defer import Deferred
+from vortex.DeferUtil import deferToThreadWrapWithLogger
+from vortex.Payload import Payload
+from vortex.TupleSelector import TupleSelector
+from vortex.handler.TupleDataObservableHandler import TuplesProviderABC
 
 from peek_plugin_diagram._private.client.controller.CoordSetCacheController import (
     CoordSetCacheController,
@@ -11,7 +16,6 @@ from peek_plugin_diagram._private.client.controller.CoordSetCacheController impo
 from peek_plugin_diagram._private.client.controller.LocationIndexCacheController import (
     LocationIndexCacheController,
 )
-from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompiled
 from peek_plugin_diagram._private.tuples.location_index.DispKeyLocationTuple import (
     DispKeyLocationTuple,
 )
@@ -21,11 +25,9 @@ from peek_plugin_diagram._private.tuples.location_index.EncodedLocationIndexTupl
 from peek_plugin_diagram._private.tuples.location_index.LocationIndexTuple import (
     LocationIndexTuple,
 )
-from peek_plugin_diagram._private.worker.tasks._CalcLocation import dispKeyHashBucket
-from vortex.DeferUtil import deferToThreadWrapWithLogger
-from vortex.Payload import Payload
-from vortex.TupleSelector import TupleSelector
-from vortex.handler.TupleDataObservableHandler import TuplesProviderABC
+from peek_plugin_diagram._private.worker.tasks._CalcLocation import (
+    dispKeyHashBucket,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +104,8 @@ class ClientDispKeyLocationTupleProvider(TuplesProviderABC):
 
                     if coordSet is None:
                         logger.warning(
-                            "Can not find coordSet with ID %s", dispLocation.coordSetId
+                            "Can not find coordSet with ID %s",
+                            dispLocation.coordSetId,
                         )
                         continue
 

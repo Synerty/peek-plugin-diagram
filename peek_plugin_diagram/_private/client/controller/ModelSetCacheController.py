@@ -1,9 +1,11 @@
-from typing import List, Dict, Optional
+from typing import Dict
+from typing import List
 
-from peek_plugin_diagram._private.storage.ModelSet import ModelSet
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
 from vortex.handler.TupleDataObserverClient import TupleDataObserverClient
+
+from peek_plugin_diagram._private.storage.ModelSet import ModelSet
 
 
 class ModelSetCacheController:

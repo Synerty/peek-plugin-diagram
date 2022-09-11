@@ -36,13 +36,20 @@ class BranchIndexEncodedChunk(Tuple, DeclarativeBase, ACIEncodedChunkTupleABC):
 
     __table_args__ = (
         Index(
-            "idx_BranchIndexEnc_modelSetId_chunkKey", modelSetId, chunkKey, unique=False
+            "idx_BranchIndexEnc_modelSetId_chunkKey",
+            modelSetId,
+            chunkKey,
+            unique=False,
         ),
     )
 
     @property
     def ckiChunkKey(self):
         return self.chunkKey
+
+    @property
+    def ckiEncodedData(self):
+        return self.encodedData
 
     @property
     def ckiHasEncodedData(self) -> bool:
@@ -59,6 +66,10 @@ class BranchIndexEncodedChunk(Tuple, DeclarativeBase, ACIEncodedChunkTupleABC):
     @classmethod
     def sqlCoreChunkKeyColumn(cls):
         return cls.__table__.c.chunkKey
+
+    @classmethod
+    def sqlCoreLastUpdateColumn(cls):
+        return cls.__table__.c.lastUpdate
 
     @classmethod
     def sqlCoreLoad(cls, row):

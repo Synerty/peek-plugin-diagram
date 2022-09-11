@@ -1,10 +1,17 @@
 import logging
-from os import path as osp
 
 from twisted.internet.defer import inlineCallbacks
+from txhttputil.site.FileUnderlayResource import FileUnderlayResource
+from vortex.handler.TupleActionProcessorProxy import TupleActionProcessorProxy
+from vortex.handler.TupleDataObservableProxyHandler import (
+    TupleDataObservableProxyHandler,
+)
+from vortex.handler.TupleDataObserverClient import TupleDataObserverClient
 
 from peek_plugin_base.PeekVortexUtil import peekServerName
-from peek_plugin_base.client.PluginClientEntryHookABC import PluginClientEntryHookABC
+from peek_plugin_base.client.PluginClientEntryHookABC import (
+    PluginClientEntryHookABC,
+)
 from peek_plugin_diagram._private.PluginNames import diagramActionProcessorName
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.PluginNames import diagramObservableName
@@ -38,15 +45,11 @@ from peek_plugin_diagram._private.client.handlers.GridCacheHandler import (
 from peek_plugin_diagram._private.client.handlers.LocationIndexCacheHandler import (
     LocationIndexCacheHandler,
 )
-from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
+from peek_plugin_diagram._private.storage.DeclarativeBase import (
+    loadStorageTuples,
+)
 from peek_plugin_diagram._private.tuples import loadPrivateTuples
 from peek_plugin_diagram.tuples import loadPublicTuples
-from txhttputil.site.FileUnderlayResource import FileUnderlayResource
-from vortex.handler.TupleActionProcessorProxy import TupleActionProcessorProxy
-from vortex.handler.TupleDataObservableProxyHandler import (
-    TupleDataObservableProxyHandler,
-)
-from vortex.handler.TupleDataObserverClient import TupleDataObserverClient
 
 logger = logging.getLogger(__name__)
 
@@ -127,12 +130,15 @@ class ClientEntryHook(PluginClientEntryHookABC):
         self._loadedObjects.append(coordSetCacheController)
 
         # ----- Grid Cache Controller
-        gridCacheController = GridCacheController(self.platform.serviceId)
+        gridCacheController = GridCacheController(
+            self.platform.serviceId, self.platform.fileStorageDirectory
+        )
         self._loadedObjects.append(gridCacheController)
 
         # This is the custom handler for the client
         gridCacheHandler = GridCacheHandler(
-            cacheController=gridCacheController, clientId=self.platform.serviceId
+            cacheController=gridCacheController,
+            clientId=self.platform.serviceId,
         )
         self._loadedObjects.append(gridCacheHandler)
 
@@ -141,7 +147,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
         # ----- Location Index Cache Controller
 
         locationIndexCacheController = LocationIndexCacheController(
-            self.platform.serviceId
+            self.platform.serviceId, self.platform.fileStorageDirectory
         )
         self._loadedObjects.append(locationIndexCacheController)
 
@@ -157,14 +163,17 @@ class ClientEntryHook(PluginClientEntryHookABC):
         # ----------------
         # BranchIndex Cache Controller
 
-        branchIndexCacheController = BranchIndexCacheController(self.platform.serviceId)
+        branchIndexCacheController = BranchIndexCacheController(
+            self.platform.serviceId, self.platform.fileStorageDirectory
+        )
         self._loadedObjects.append(branchIndexCacheController)
 
         # ----------------
         # BranchIndex Cache Handler
 
         branchIndexHandler = BranchIndexCacheHandler(
-            cacheController=branchIndexCacheController, clientId=self.platform.serviceId
+            cacheController=branchIndexCacheController,
+            clientId=self.platform.serviceId,
         )
         self._loadedObjects.append(branchIndexHandler)
         branchIndexCacheController.setCacheHandler(branchIndexHandler)

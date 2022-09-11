@@ -23,3 +23,13 @@ class LocationIndexUpdateDateTuple(Tuple, ACIUpdateDateTupleABC):
     @property
     def ckiUpdateDateByChunkKey(self):
         return self.updateDateByChunkKey
+
+    def ckiSetUpdateDateByChunkKey(self, value: Dict[str, str]) -> None:
+        self.updateDateByChunkKey = value
+
+    @property
+    def ckiInitialLoadComplete(self) -> bool:
+        return self.initialLoadComplete
+
+    def ckiSetInitialLoadComplete(self, value: bool) -> None:
+        self.initialLoadComplete = value

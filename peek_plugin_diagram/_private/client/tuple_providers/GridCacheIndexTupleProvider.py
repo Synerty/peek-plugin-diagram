@@ -1,14 +1,15 @@
 import logging
 from typing import Union
 
-from twisted.internet.defer import Deferred, inlineCallbacks
+from twisted.internet.defer import Deferred
+from twisted.internet.defer import inlineCallbacks
+from vortex.Payload import Payload
+from vortex.TupleSelector import TupleSelector
+from vortex.handler.TupleDataObservableHandler import TuplesProviderABC
 
 from peek_plugin_diagram._private.client.controller.GridCacheController import (
     GridCacheController,
 )
-from vortex.Payload import Payload
-from vortex.TupleSelector import TupleSelector
-from vortex.handler.TupleDataObservableHandler import TuplesProviderABC
 
 logger = logging.getLogger(__name__)
 

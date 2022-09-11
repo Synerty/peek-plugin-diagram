@@ -1,22 +1,19 @@
 import logging
-from typing import Optional
 
+from sqlalchemy import select
 from vortex.Tuple import Tuple
+from vortex.rpc.RPC import vortexRPC
 
 from peek_abstract_chunked_index.private.server.client_handlers.ACIChunkLoadRpcABC import (
     ACIChunkLoadRpcABC,
 )
-from peek_core_search._private.storage.EncodedSearchObjectChunk import (
-    EncodedSearchObjectChunk,
-)
-from peek_plugin_base.PeekVortexUtil import peekServerName, peekBackendNames
+from peek_plugin_base.PeekVortexUtil import peekBackendNames
+from peek_plugin_base.PeekVortexUtil import peekServerName
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.storage.LocationIndex import (
     LocationIndexCompiled,
 )
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
-from sqlalchemy import select
-from vortex.rpc.RPC import vortexRPC
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +28,7 @@ class ClientLocationIndexLoaderRpc(ACIChunkLoadRpcABC):
 
         """
 
+        yield self.loadLocationIndexDelta.start(funcSelf=self)
         yield self.loadLocationIndexes.start(funcSelf=self)
         logger.debug("RPCs started")
 
@@ -42,7 +40,20 @@ class ClientLocationIndexLoaderRpc(ACIChunkLoadRpcABC):
         additionalFilt=diagramFilt,
         deferToThread=True,
     )
-    def loadLocationIndexes(self, offset: int, count: int) -> str:
+    def loadLocationIndexDelta(self, indexEncodedPayload: bytes) -> bytes:
+        return self.ckiChunkIndexDeltaBlocking(
+            indexEncodedPayload, LocationIndexCompiled
+        )
+
+    # -------------
+    @vortexRPC(
+        peekServerName,
+        acceptOnlyFromVortex=peekBackendNames,
+        timeoutSeconds=60,
+        additionalFilt=diagramFilt,
+        deferToThread=True,
+    )
+    def loadLocationIndexes(self, chunkKeys: list[str]) -> list[Tuple]:
         """Update Page Loader Status
 
         Tell the server of the latest status of the loader
@@ -61,11 +72,9 @@ class ClientLocationIndexLoaderRpc(ACIChunkLoadRpcABC):
                 ]
             )
             .select_from(chunkTable.join(msTable))
-            .order_by(chunkTable.c.indexBucket)
-            .offset(offset)
-            .limit(count)
+            .where(chunkTable.c.indexBucket.in_(chunkKeys))
         )
 
         return self.ckiInitialLoadChunksPayloadBlocking(
-            offset, count, LocationIndexCompiled, sql
+            chunkKeys, LocationIndexCompiled, sql
         )

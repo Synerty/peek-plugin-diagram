@@ -47,14 +47,13 @@ from peek_plugin_diagram._private.client.tuple_providers.ClientModelSetTupleProv
 from peek_plugin_diagram._private.client.tuple_providers.GridCacheIndexTupleProvider import (
     GridCacheIndexTupleProvider,
 )
-from peek_plugin_diagram._private.storage.Display import (
-    DispLevel,
-    DispTextStyle,
-    DispLineStyle,
-    DispColor,
-    DispLayer,
-)
-from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
+from peek_plugin_diagram._private.storage.Display import DispColor
+from peek_plugin_diagram._private.storage.Display import DispLayer
+from peek_plugin_diagram._private.storage.Display import DispLevel
+from peek_plugin_diagram._private.storage.Display import DispLineStyle
+from peek_plugin_diagram._private.storage.Display import DispTextStyle
+from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
+from peek_plugin_diagram._private.storage.ModelSet import ModelSet
 from peek_plugin_diagram._private.tuples.GroupDispsTuple import GroupDispsTuple
 from peek_plugin_diagram._private.tuples.branch.BranchIndexUpdateDateTuple import (
     BranchIndexUpdateDateTuple,
@@ -102,17 +101,23 @@ def makeClientTupleDataObservableHandler(
     tupleObservable.addTupleProvider(DispLevel.tupleName(), lookupTupleProvider)
     tupleObservable.addTupleProvider(DispLayer.tupleName(), lookupTupleProvider)
     tupleObservable.addTupleProvider(DispColor.tupleName(), lookupTupleProvider)
-    tupleObservable.addTupleProvider(DispLineStyle.tupleName(), lookupTupleProvider)
-    tupleObservable.addTupleProvider(DispTextStyle.tupleName(), lookupTupleProvider)
+    tupleObservable.addTupleProvider(
+        DispLineStyle.tupleName(), lookupTupleProvider
+    )
+    tupleObservable.addTupleProvider(
+        DispTextStyle.tupleName(), lookupTupleProvider
+    )
 
     # Add the CoordSet providers
 
     tupleObservable.addTupleProvider(
-        ModelSet.tupleName(), ClientModelSetTupleProvider(modelSetCacheController)
+        ModelSet.tupleName(),
+        ClientModelSetTupleProvider(modelSetCacheController),
     )
 
     tupleObservable.addTupleProvider(
-        ModelCoordSet.tupleName(), ClientCoordSetTupleProvider(coordSetCacheController)
+        ModelCoordSet.tupleName(),
+        ClientCoordSetTupleProvider(coordSetCacheController),
     )
 
     tupleObservable.addTupleProvider(
@@ -142,7 +147,8 @@ def makeClientTupleDataObservableHandler(
     )
 
     tupleObservable.addTupleProvider(
-        GroupDispsTuple.tupleName(), ClientGroupDispsTupleProvider(gridCacheController)
+        GroupDispsTuple.tupleName(),
+        ClientGroupDispsTupleProvider(gridCacheController),
     )
 
     return tupleObservable

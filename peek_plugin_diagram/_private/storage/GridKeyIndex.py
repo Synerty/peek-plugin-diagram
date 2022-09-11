@@ -31,11 +31,18 @@ class GridKeyCompilerQueue(Tuple, DeclarativeBase, ACIProcessorQueueTupleABC):
 
     gridKey = Column(String(30), primary_key=True)
     coordSetId = Column(
-        Integer, ForeignKey("ModelCoordSet.id", ondelete="CASCADE"), primary_key=True
+        Integer,
+        ForeignKey("ModelCoordSet.id", ondelete="CASCADE"),
+        primary_key=True,
     )
 
     __table_args__ = (
-        Index("idx_GKCompQueue_coordSetId_gridKey", coordSetId, gridKey, unique=False),
+        Index(
+            "idx_GKCompQueue_coordSetId_gridKey",
+            coordSetId,
+            gridKey,
+            unique=False,
+        ),
     )
 
     @classmethod
@@ -56,13 +63,17 @@ class GridKeyIndex(Tuple, DeclarativeBase):
 
     gridKey = Column(String(30), primary_key=True)
     dispId = Column(
-        BigInteger, ForeignKey("DispBase.id", ondelete="CASCADE"), primary_key=True
+        BigInteger,
+        ForeignKey("DispBase.id", ondelete="CASCADE"),
+        primary_key=True,
     )
 
     disp = relationship(DispBase)
 
     coordSetId = Column(
-        Integer, ForeignKey("ModelCoordSet.id", ondelete="CASCADE"), nullable=False
+        Integer,
+        ForeignKey("ModelCoordSet.id", ondelete="CASCADE"),
+        nullable=False,
     )
     coordSet = relationship(ModelCoordSet)
 
@@ -85,7 +96,9 @@ class GridKeyIndexCompiled(Tuple, DeclarativeBase, ACIEncodedChunkTupleABC):
     lastUpdate = Column(String(50), nullable=False)
 
     coordSetId = Column(
-        Integer, ForeignKey("ModelCoordSet.id", ondelete="CASCADE"), nullable=False
+        Integer,
+        ForeignKey("ModelCoordSet.id", ondelete="CASCADE"),
+        nullable=False,
     )
     coordSet = relationship(ModelCoordSet)
 
@@ -97,6 +110,10 @@ class GridKeyIndexCompiled(Tuple, DeclarativeBase, ACIEncodedChunkTupleABC):
     @property
     def ckiChunkKey(self):
         return self.gridKey
+
+    @property
+    def ckiEncodedData(self):
+        return self.encodedGridTuple
 
     @property
     def ckiHasEncodedData(self) -> bool:
@@ -117,6 +134,10 @@ class GridKeyIndexCompiled(Tuple, DeclarativeBase, ACIEncodedChunkTupleABC):
     @classmethod
     def sqlCoreChunkKeyColumn(cls):
         return cls.__table__.c.gridKey
+
+    @classmethod
+    def sqlCoreLastUpdateColumn(cls):
+        return cls.__table__.c.lastUpdate
 
     @classmethod
     def sqlCoreLoad(cls, row):

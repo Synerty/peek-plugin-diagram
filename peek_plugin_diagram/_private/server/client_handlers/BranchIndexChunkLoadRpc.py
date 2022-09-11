@@ -1,5 +1,6 @@
 import logging
 
+from vortex.Tuple import Tuple
 from vortex.rpc.RPC import vortexRPC
 
 from peek_abstract_chunked_index.private.server.client_handlers.ACIChunkLoadRpcABC import (
@@ -26,6 +27,7 @@ class BranchIndexChunkLoadRpc(ACIChunkLoadRpcABC):
         """
 
         yield self.loadBranchIndexChunks.start(funcSelf=self)
+        yield self.loadBranchIndexDelta.start(funcSelf=self)
         logger.debug("RPCs started")
 
     # -------------
@@ -36,12 +38,25 @@ class BranchIndexChunkLoadRpc(ACIChunkLoadRpcABC):
         additionalFilt=diagramFilt,
         deferToThread=True,
     )
-    def loadBranchIndexChunks(self, offset: int, count: int) -> str:
+    def loadBranchIndexDelta(self, indexEncodedPayload: bytes) -> bytes:
+        return self.ckiChunkIndexDeltaBlocking(
+            indexEncodedPayload, BranchIndexEncodedChunk
+        )
+
+    # -------------
+    @vortexRPC(
+        peekServerName,
+        acceptOnlyFromVortex=peekBackendNames,
+        timeoutSeconds=60,
+        additionalFilt=diagramFilt,
+        deferToThread=True,
+    )
+    def loadBranchIndexChunks(self, chunkKeys: list[str]) -> list[Tuple]:
         """Update Page Loader Status
 
         Tell the server of the latest status of the loader
 
         """
         return self.ckiInitialLoadChunksPayloadBlocking(
-            offset, count, BranchIndexEncodedChunk
+            chunkKeys, BranchIndexEncodedChunk
         )

@@ -1,18 +1,16 @@
+from copy import copy
 from typing import List
 
-from copy import copy
-
-from peek_plugin_diagram._private.PluginNames import diagramFilt
-from peek_plugin_diagram._private.storage.Display import (
-    DispLevel,
-    DispTextStyle,
-    DispLayer,
-    DispColor,
-    DispLineStyle,
-)
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
 from vortex.handler.TupleDataObserverClient import TupleDataObserverClient
+
+from peek_plugin_diagram._private.PluginNames import diagramFilt
+from peek_plugin_diagram._private.storage.Display import DispColor
+from peek_plugin_diagram._private.storage.Display import DispLayer
+from peek_plugin_diagram._private.storage.Display import DispLevel
+from peek_plugin_diagram._private.storage.Display import DispLineStyle
+from peek_plugin_diagram._private.storage.Display import DispTextStyle
 
 lookupCachePayloadFilt = dict(key="client.lookup.update")
 lookupCachePayloadFilt.update(diagramFilt)
@@ -102,9 +100,13 @@ class LookupCacheController:
             self._textStyleLookups = lookupTuples
 
         else:
-            raise NotImplementedError("Cache not implemented for %s" % firstTupleType)
+            raise NotImplementedError(
+                "Cache not implemented for %s" % firstTupleType
+            )
 
-        self._tupleObservable.notifyOfTupleUpdate(TupleSelector(firstTupleType, {}))
+        self._tupleObservable.notifyOfTupleUpdate(
+            TupleSelector(firstTupleType, {})
+        )
 
     def lookups(self, lookupTupleType) -> List:
         if DispLevel.tupleType() == lookupTupleType:
@@ -122,4 +124,6 @@ class LookupCacheController:
         if DispTextStyle.tupleType() == lookupTupleType:
             return copy(self._textStyleLookups)
 
-        raise NotImplementedError("Cache not implemented for %s" % lookupTupleType)
+        raise NotImplementedError(
+            "Cache not implemented for %s" % lookupTupleType
+        )

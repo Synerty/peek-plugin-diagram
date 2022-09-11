@@ -1,12 +1,12 @@
 import logging
 from collections import defaultdict
 from datetime import datetime
-from typing import List, Dict
+from typing import Dict
+from typing import List
 
-from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import (
-    EncodedGridTuple,
-)
-from twisted.internet.defer import DeferredList, Deferred, inlineCallbacks
+from twisted.internet.defer import Deferred
+from twisted.internet.defer import DeferredList
+from twisted.internet.defer import inlineCallbacks
 from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
 from vortex.PayloadEnvelope import PayloadEnvelope
@@ -28,6 +28,9 @@ from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc imp
 )
 from peek_plugin_diagram._private.storage.GridKeyIndex import (
     GridKeyIndexCompiled,
+)
+from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import (
+    EncodedGridTuple,
 )
 
 logger = logging.getLogger(__name__)
@@ -231,7 +234,7 @@ class GridCacheHandler(ACICacheHandlerABC):
                 gridTuple.encodedGridTuple = None
                 gridTuplesToSend.append(gridTuple)
                 logger.debug(
-                    "Grid %s is no loner in the cache, %s", gridKey, lastUpdate
+                    "Grid %s is no longer in the cache, %s", gridKey, lastUpdate
                 )
 
             elif gridTuple.lastUpdate == lastUpdate:

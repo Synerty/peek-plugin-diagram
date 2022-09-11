@@ -1,7 +1,8 @@
 import json
 import logging
 from collections import defaultdict
-from typing import Union, List
+from typing import List
+from typing import Union
 
 from twisted.internet.defer import Deferred
 from vortex.DeferUtil import deferToThreadWrapWithLogger
@@ -15,10 +16,10 @@ from peek_plugin_diagram._private.client.controller.BranchIndexCacheController i
 from peek_plugin_diagram._private.storage.branch.BranchIndexEncodedChunk import (
     BranchIndexEncodedChunk,
 )
+from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 from peek_plugin_diagram._private.worker.tasks.branch._BranchIndexCalcChunkKey import (
     makeChunkKeyForBranchIndex,
 )
-from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 
 logger = logging.getLogger(__name__)
 
@@ -40,16 +41,24 @@ class BranchTupleProvider(TuplesProviderABC):
         results: List[BranchTuple] = []
 
         for key in keys:
-            keysByChunkKey[makeChunkKeyForBranchIndex(modelSetKey, key)].append(key)
+            keysByChunkKey[makeChunkKeyForBranchIndex(modelSetKey, key)].append(
+                key
+            )
 
         for chunkKey, branchKeys in keysByChunkKey.items():
-            chunk: BranchIndexEncodedChunk = self._cacheHandler.encodedChunk(chunkKey)
+            chunk: BranchIndexEncodedChunk = self._cacheHandler.encodedChunk(
+                chunkKey
+            )
 
             if not chunk:
-                logger.warning("BranchIndex chunk %s is missing from cache", chunkKey)
+                logger.warning(
+                    "BranchIndex chunk %s is missing from cache", chunkKey
+                )
                 continue
 
-            resultsByKeyStr = Payload().fromEncodedPayload(chunk.encodedData).tuples[0]
+            resultsByKeyStr = (
+                Payload().fromEncodedPayload(chunk.encodedData).tuples[0]
+            )
             resultsByKey = json.loads(resultsByKeyStr)
 
             for branchKey in branchKeys:

@@ -4,9 +4,13 @@ from vortex.Tuple import addTupleType, TupleField, Tuple
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 
+from peek_abstract_chunked_index.private.tuples.ACIEncodedChunkTupleABC import (
+    ACIEncodedChunkTupleABC,
+)
+
 
 @addTupleType
-class EncodedGridTuple(Tuple):
+class EncodedGridTuple(Tuple, ACIEncodedChunkTupleABC):
     """Encoded Grid Tuple
 
     This tuple stores a pre-encoded version of a GridTuple
@@ -25,6 +29,10 @@ class EncodedGridTuple(Tuple):
     @property
     def ckiChunkKey(self):
         return self.gridKey
+
+    @property
+    def ckiEncodedData(self):
+        return self.encodedGridTuple
 
     @property
     def ckiHasEncodedData(self) -> bool:

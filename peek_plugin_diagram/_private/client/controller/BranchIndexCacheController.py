@@ -10,10 +10,15 @@ from peek_plugin_diagram._private.server.client_handlers.BranchIndexChunkLoadRpc
 from peek_plugin_diagram._private.storage.branch.BranchIndexEncodedChunk import (
     BranchIndexEncodedChunk,
 )
+from peek_plugin_diagram._private.tuples.branch.BranchIndexUpdateDateTuple import (
+    BranchIndexUpdateDateTuple,
+)
 
 logger = logging.getLogger(__name__)
 
-clientBranchIndexUpdateFromServerFilt = dict(key="clientBranchIndexUpdateFromServer")
+clientBranchIndexUpdateFromServerFilt = dict(
+    key="clientBranchIndexUpdateFromServer"
+)
 clientBranchIndexUpdateFromServerFilt.update(diagramFilt)
 
 
@@ -26,6 +31,8 @@ class BranchIndexCacheController(ACICacheControllerABC):
     """
 
     _ChunkedTuple = BranchIndexEncodedChunk
+    _UpdateDateTupleABC = BranchIndexUpdateDateTuple
     _chunkLoadRpcMethod = BranchIndexChunkLoadRpc.loadBranchIndexChunks
+    _chunkIndexDeltaRpcMethod = BranchIndexChunkLoadRpc.loadBranchIndexDelta
     _updateFromServerFilt = clientBranchIndexUpdateFromServerFilt
     _logger = logger

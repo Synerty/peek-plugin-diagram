@@ -23,7 +23,9 @@ logger = logging.getLogger(__name__)
 
 
 @addTupleType
-class LocationIndexCompilerQueue(Tuple, DeclarativeBase, ACIProcessorQueueTupleABC):
+class LocationIndexCompilerQueue(
+    Tuple, DeclarativeBase, ACIProcessorQueueTupleABC
+):
     __tablename__ = "LocationIndexCompilerQueue"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
@@ -62,7 +64,9 @@ class LocationIndex(Tuple, DeclarativeBase):
 
     indexBucket = Column(String(100), primary_key=True)
     dispId = Column(
-        BigInteger, ForeignKey("DispBase.id", ondelete="CASCADE"), primary_key=True
+        BigInteger,
+        ForeignKey("DispBase.id", ondelete="CASCADE"),
+        primary_key=True,
     )
 
     disp = relationship(DispBase)
@@ -103,6 +107,10 @@ class LocationIndexCompiled(Tuple, DeclarativeBase, ACIEncodedChunkTupleABC):
         return self.indexBucket
 
     @property
+    def ckiEncodedData(self):
+        return self.blobData
+
+    @property
     def ckiHasEncodedData(self) -> bool:
         return bool(self.blobData)
 
@@ -121,6 +129,10 @@ class LocationIndexCompiled(Tuple, DeclarativeBase, ACIEncodedChunkTupleABC):
     @classmethod
     def sqlCoreChunkKeyColumn(cls):
         return cls.__table__.c.indexBucket
+
+    @classmethod
+    def sqlCoreLastUpdateColumn(cls):
+        return cls.__table__.c.lastUpdate
 
     @classmethod
     def sqlCoreLoad(cls, row):

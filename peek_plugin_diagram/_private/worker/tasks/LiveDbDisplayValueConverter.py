@@ -1,15 +1,16 @@
 import logging
 from typing import Dict
 
-from peek_plugin_diagram._private.storage.Display import (
-    DispTextStyle,
-    DispLineStyle,
-    DispColor,
-    DispLevel,
-    DispLayer,
-)
-from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
 from sqlalchemy import select
+
+from peek_plugin_diagram._private.storage.Display import DispColor
+from peek_plugin_diagram._private.storage.Display import DispLayer
+from peek_plugin_diagram._private.storage.Display import DispLevel
+from peek_plugin_diagram._private.storage.Display import DispLineStyle
+from peek_plugin_diagram._private.storage.Display import DispTextStyle
+from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import (
+    ImportLiveDbItemTuple,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +51,9 @@ class LiveDbDisplayValueConverter:
         return self._liveDbTranslators[dataType](self, rawValue)
 
     @staticmethod
-    def _loadLookupByModelSet(ormSession, modelSetId: int, table) -> Dict[str, int]:
+    def _loadLookupByModelSet(
+        ormSession, modelSetId: int, table
+    ) -> Dict[str, int]:
         resultSet = ormSession.execute(
             select([table.c.importHash, table.c.id]).where(
                 table.c.modelSetId == modelSetId

@@ -1,5 +1,6 @@
 import logging
-from typing import Dict, List
+from pathlib import Path
+from typing import Dict
 
 from twisted.internet.defer import Deferred
 from vortex.DeferUtil import vortexLogFailure
@@ -12,8 +13,13 @@ from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import (
     ClientGridLoaderRpc,
 )
-from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import EncodedGridTuple
+from peek_plugin_diagram._private.tuples.grid.EncodedGridTuple import (
+    EncodedGridTuple,
+)
 from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
+from peek_plugin_diagram._private.tuples.grid.GridUpdateDateTuple import (
+    GridUpdateDateTuple,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +42,9 @@ class GridCacheController(ACICacheControllerABC):
     """
 
     _ChunkedTuple = EncodedGridTuple
+    _UpdateDateTupleABC = GridUpdateDateTuple
     _chunkLoadRpcMethod = ClientGridLoaderRpc.loadGrids
+    _chunkIndexDeltaRpcMethod = ClientGridLoaderRpc.loadGridsIndexDelta
     _updateFromServerFilt = clientGridUpdateFromServerFilt
     _logger = logger
 
@@ -46,8 +54,8 @@ class GridCacheController(ACICacheControllerABC):
     _LOAD_CHUNK_SIZE = 75
     _LOAD_CHUNK_PARALLELISM = 4
 
-    def __init__(self, clientId: str):
-        ACICacheControllerABC.__init__(self, clientId)
+    def __init__(self, clientId: str, pluginDataDir: Path):
+        ACICacheControllerABC.__init__(self, clientId, pluginDataDir)
 
         self._coordSetEndpoint = PayloadEndpoint(
             clientCoordSetUpdateFromServerFilt, self._processCoordSetPayload

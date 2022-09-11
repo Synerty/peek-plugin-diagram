@@ -33,7 +33,21 @@ class ClientGridLoaderRpc(ACIChunkLoadRpcABC):
 
         yield self.loadGrids.start(funcSelf=self)
         yield self.updateClientWatchedGrids.start(funcSelf=self)
+        yield self.loadGridsIndexDelta.start(funcSelf=self)
         logger.debug("RPCs started")
+
+    # -------------
+    @vortexRPC(
+        peekServerName,
+        acceptOnlyFromVortex=peekBackendNames,
+        timeoutSeconds=60,
+        additionalFilt=diagramFilt,
+        deferToThread=True,
+    )
+    def loadGridsIndexDelta(self, indexEncodedPayload: bytes) -> bytes:
+        return self.ckiChunkIndexDeltaBlocking(
+            indexEncodedPayload, GridKeyIndexCompiled
+        )
 
     # -------------
     @vortexRPC(
@@ -43,9 +57,9 @@ class ClientGridLoaderRpc(ACIChunkLoadRpcABC):
         additionalFilt=diagramFilt,
         deferToThread=True,
     )
-    def loadGrids(self, offset: int, count: int) -> str:
+    def loadGrids(self, chunkKeys: list[str]) -> list[Tuple]:
         return self.ckiInitialLoadChunksPayloadBlocking(
-            offset, count, GridKeyIndexCompiled
+            chunkKeys, GridKeyIndexCompiled
         )
 
     # -------------

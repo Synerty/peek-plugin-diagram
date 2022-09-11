@@ -1,21 +1,16 @@
 import logging
 from typing import Dict
 
-from peek_plugin_diagram._private.storage.Display import (
-    DispTextStyle,
-    DispLineStyle,
-    DispColor,
-    DispLevel,
-    DispLayer,
-    DispGroupPointer,
-)
+from sqlalchemy import select
+
+from peek_plugin_diagram._private.storage.Display import DispColor
+from peek_plugin_diagram._private.storage.Display import DispLayer
+from peek_plugin_diagram._private.storage.Display import DispLevel
+from peek_plugin_diagram._private.storage.Display import DispLineStyle
+from peek_plugin_diagram._private.storage.Display import DispTextStyle
 from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import (
     ImportLiveDbDispLinkTuple,
 )
-from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import (
-    ImportLiveDbItemTuple,
-)
-from sqlalchemy import select
 
 # NO_SYMBOL = "NO_SYMBOL"
 #
