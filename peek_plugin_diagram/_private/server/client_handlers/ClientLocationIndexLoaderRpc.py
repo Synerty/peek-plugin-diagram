@@ -14,6 +14,9 @@ from peek_plugin_diagram._private.storage.LocationIndex import (
     LocationIndexCompiled,
 )
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
+from peek_plugin_diagram._private.tuples.location_index.LocationIndexUpdateDateTuple import (
+    LocationIndexUpdateDateTuple,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +45,9 @@ class ClientLocationIndexLoaderRpc(ACIChunkLoadRpcABC):
     )
     def loadLocationIndexDelta(self, indexEncodedPayload: bytes) -> bytes:
         return self.ckiChunkIndexDeltaBlocking(
-            indexEncodedPayload, LocationIndexCompiled
+            indexEncodedPayload,
+            LocationIndexCompiled,
+            LocationIndexUpdateDateTuple,
         )
 
     # -------------

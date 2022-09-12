@@ -12,6 +12,9 @@ from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.storage.branch.BranchIndexEncodedChunk import (
     BranchIndexEncodedChunk,
 )
+from peek_plugin_diagram._private.tuples.branch.BranchIndexUpdateDateTuple import (
+    BranchIndexUpdateDateTuple,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +43,9 @@ class BranchIndexChunkLoadRpc(ACIChunkLoadRpcABC):
     )
     def loadBranchIndexDelta(self, indexEncodedPayload: bytes) -> bytes:
         return self.ckiChunkIndexDeltaBlocking(
-            indexEncodedPayload, BranchIndexEncodedChunk
+            indexEncodedPayload,
+            BranchIndexEncodedChunk,
+            BranchIndexUpdateDateTuple,
         )
 
     # -------------

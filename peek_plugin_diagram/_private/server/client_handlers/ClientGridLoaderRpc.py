@@ -13,6 +13,9 @@ from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.storage.GridKeyIndex import (
     GridKeyIndexCompiled,
 )
+from peek_plugin_diagram._private.tuples.grid.GridUpdateDateTuple import (
+    GridUpdateDateTuple,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +49,7 @@ class ClientGridLoaderRpc(ACIChunkLoadRpcABC):
     )
     def loadGridsIndexDelta(self, indexEncodedPayload: bytes) -> bytes:
         return self.ckiChunkIndexDeltaBlocking(
-            indexEncodedPayload, GridKeyIndexCompiled
+            indexEncodedPayload, GridKeyIndexCompiled, GridUpdateDateTuple
         )
 
     # -------------
