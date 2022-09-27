@@ -26,7 +26,7 @@ export class PeekCanvasConfig {
     renderer = {
         invalidate: new Subject<void>(), // Set this to true to cause the renderer to redraw
         drawInterval: 60,
-        backgroundColor: "black",
+        backgroundColor: "#000000",
         useEdgeColors: false,
         selection: {
             color: "white",
@@ -50,14 +50,14 @@ export class PeekCanvasConfig {
         },
         invisible: {
             // Draw invisble items in edit mode
-            color: "grey",
+            color: "#808080",
             width: 2,
             dashLen: 2,
         },
         grid: {
             show: false,
             size: 16,
-            color: "#CCC",
+            color: "#CCCCCC",
             font: "12px Arial",
             lineWidth: 1,
             snapDashedLen: 2,
