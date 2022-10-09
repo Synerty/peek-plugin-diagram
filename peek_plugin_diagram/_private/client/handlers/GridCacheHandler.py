@@ -97,14 +97,19 @@ class GridCacheHandler(ACICacheHandlerABC):
         """
         self._filterOutOfflineVortexes()
 
-        payloadsByVortexUuid = defaultdict(Payload)
+        def cratePayloadEnvelope():
+            payloadEnvelope = PayloadEnvelope()
+            payloadEnvelope.data = []
+            return payloadEnvelope
+
+        payloadsByVortexUuid = defaultdict(cratePayloadEnvelope)
 
         for gridKey in gridKeys:
 
             gridTuple = self._cacheController.encodedChunk(gridKey)
             if not gridTuple:
                 gridTuple = EncodedGridTuple()
-                gridTuple.gridKey = gridKeys
+                gridTuple.gridKey = gridKey
 
             vortexUuids = self._observedVortexUuidsByGridKey.get(gridKey, [])
 
@@ -115,18 +120,15 @@ class GridCacheHandler(ACICacheHandlerABC):
                     gridKey,
                     vortexUuid,
                 )
-                payloadsByVortexUuid[vortexUuid].tuples.append(gridTuple)
+                payloadsByVortexUuid[vortexUuid].data.append(gridTuple)
 
         # Send the updates to the clients
         dl = []
-        for vortexUuid, payload in list(payloadsByVortexUuid.items()):
+        for vortexUuid, payloadEnvelope in list(payloadsByVortexUuid.items()):
             payload.filt = clientGridWatchUpdateFromDeviceFilt
 
             # Serliase in thread, and then send.
-            d = payload.makePayloadEnvelopeDefer()
-            d.addCallback(
-                lambda payloadEnvelope: payloadEnvelope.toVortexMsgDefer()
-            )
+            d = payloadEnvelope.toVortexMsgDefer(base64Encode=False)
             d.addCallback(
                 VortexFactory.sendVortexMsg, destVortexUuid=vortexUuid
             )
