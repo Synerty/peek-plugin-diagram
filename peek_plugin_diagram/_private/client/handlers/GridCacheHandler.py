@@ -125,7 +125,7 @@ class GridCacheHandler(ACICacheHandlerABC):
         # Send the updates to the clients
         dl = []
         for vortexUuid, payloadEnvelope in list(payloadsByVortexUuid.items()):
-            payload.filt = clientGridWatchUpdateFromDeviceFilt
+            payloadEnvelope.filt = clientGridWatchUpdateFromDeviceFilt
 
             # Serliase in thread, and then send.
             d = payloadEnvelope.toVortexMsgDefer(base64Encode=False)
