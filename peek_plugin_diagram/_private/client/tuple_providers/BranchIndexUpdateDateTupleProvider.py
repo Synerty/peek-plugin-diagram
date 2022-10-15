@@ -3,15 +3,12 @@ from typing import Union
 
 from twisted.internet.defer import Deferred
 from twisted.internet.defer import inlineCallbacks
-from vortex.Payload import Payload
+from vortex.PayloadEnvelope import PayloadEnvelope
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TuplesProviderABC
 
 from peek_plugin_diagram._private.client.controller.BranchIndexCacheController import (
     BranchIndexCacheController,
-)
-from peek_plugin_diagram._private.tuples.branch.BranchIndexUpdateDateTuple import (
-    BranchIndexUpdateDateTuple,
 )
 
 logger = logging.getLogger(__name__)
@@ -25,12 +22,7 @@ class BranchIndexUpdateDateTupleProvider(TuplesProviderABC):
     def makeVortexMsg(
         self, filt: dict, tupleSelector: TupleSelector
     ) -> Union[Deferred, bytes]:
-        tuple_ = BranchIndexUpdateDateTuple()
-        tuple_.updateDateByChunkKey = {
-            key: self._cacheHandler.encodedChunk(key).lastUpdate
-            for key in self._cacheHandler.encodedChunkKeys()
-        }
-        payload = Payload(filt, tuples=[tuple_])
-        payloadEnvelope = yield payload.makePayloadEnvelopeDefer()
-        vortexMsg = yield payloadEnvelope.toVortexMsg()
+        encodedPayload = self._cacheHandler.offlineUpdateDateTuplePayload()
+        payloadEnvelope = PayloadEnvelope(filt, encodedPayload=encodedPayload)
+        vortexMsg = yield payloadEnvelope.toVortexMsgDefer()
         return vortexMsg

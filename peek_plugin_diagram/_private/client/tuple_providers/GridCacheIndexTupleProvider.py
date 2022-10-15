@@ -4,6 +4,7 @@ from typing import Union
 from twisted.internet.defer import Deferred
 from twisted.internet.defer import inlineCallbacks
 from vortex.Payload import Payload
+from vortex.PayloadEnvelope import PayloadEnvelope
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TuplesProviderABC
 
@@ -22,20 +23,24 @@ class GridCacheIndexTupleProvider(TuplesProviderABC):
     def makeVortexMsg(
         self, filt: dict, tupleSelector: TupleSelector
     ) -> Union[Deferred, bytes]:
-        tuples = [
-            [i[0], i[1]]
-            for i in self._gridCacheController.encodedChunkLastUpdateByKey().items()
-        ]
-        sorted(tuples, key=lambda i: i[0])
 
-        start = tupleSelector.selector.get("start")
-        count = tupleSelector.selector.get("count")
+        index = tupleSelector.selector.get("index")
 
-        if start is not None and count:
-            tuples = tuples[start:count]
+        if index is None:
+            # Make it backwards compatible with v3.3.0 and below
+            start = tupleSelector.selector.get("start")
+            count = tupleSelector.selector.get("count")
 
-        payloadEnvelope = yield Payload(
-            filt, tuples=tuples
-        ).makePayloadEnvelopeDefer()
+            if count is None or count != 5000:
+                return PayloadEnvelope(
+                    filt, encodedPayload=Payload().toEncodedPayload()
+                ).toVortexMsg()
+
+            index = start / count
+
+        encodedPayload = (
+            self._gridCacheController.offlineUpdateDateByChunkKeyPayload(index)
+        )
+        payloadEnvelope = PayloadEnvelope(filt, encodedPayload=encodedPayload)
         vortexMsg = yield payloadEnvelope.toVortexMsgDefer()
         return vortexMsg
