@@ -222,9 +222,15 @@ class ClientEntryHook(PluginClientEntryHookABC):
         modelSetCacheController.setTupleObservable(tupleObservable)
         coordSetCacheController.setTupleObservable(tupleObservable)
 
+        yield locationIndexCacheHandler.start()
         yield locationIndexCacheController.start()
+
+        yield branchIndexHandler.start()
         yield branchIndexCacheController.start()
+
+        yield gridCacheHandler.start()
         yield gridCacheController.start()
+
         lookupCacheController.start()
         modelSetCacheController.start()
         coordSetCacheController.start()
