@@ -12,7 +12,9 @@ from peek_abstract_chunked_index.private.tuples.ACIEncodedChunkTupleABC import (
 from peek_plugin_diagram._private.client.controller.LocationIndexCacheController import (
     clientLocationIndexUpdateFromServerFilt,
 )
-from peek_plugin_diagram._private.storage.LocationIndex import LocationIndexCompiled
+from peek_plugin_diagram._private.storage.LocationIndex import (
+    LocationIndexCompiled,
+)
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
 
 logger = logging.getLogger(__name__)
@@ -20,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 class ClientLocationIndexUpdateHandler(ACIChunkUpdateHandlerABC):
     _ChunkedTuple: ACIEncodedChunkTupleABC = LocationIndexCompiled
-    _updateFromServerFilt: Dict = clientLocationIndexUpdateFromServerFilt
+    _updateFromLogicFilt: Dict = clientLocationIndexUpdateFromServerFilt
     _logger: logging.Logger = logger
 
     @classmethod

@@ -23,6 +23,9 @@ from peek_plugin_diagram._private.PluginNames import diagramFilt
 from peek_plugin_diagram._private.client.controller.GridCacheController import (
     GridCacheController,
 )
+from peek_plugin_diagram._private.client.controller.GridCacheController import (
+    clientGridUpdateFromServerFilt,
+)
 from peek_plugin_diagram._private.server.client_handlers.ClientGridLoaderRpc import (
     ClientGridLoaderRpc,
 )
@@ -45,7 +48,8 @@ DeviceGridT = Dict[str, datetime]
 # ModelSet HANDLER
 class GridCacheHandler(ACICacheHandlerABC):
     _UpdateDateTuple: ACIUpdateDateTupleABC = GridKeyIndexCompiled
-    _updateFromServerFilt: Dict = clientGridWatchUpdateFromDeviceFilt
+    _updateFromDeviceFilt: Dict = clientGridWatchUpdateFromDeviceFilt
+    _updateFromLogicFilt: Dict = clientGridUpdateFromServerFilt
     _logger: logging.Logger = logger
 
     def __init__(self, cacheController: GridCacheController, clientId: str):

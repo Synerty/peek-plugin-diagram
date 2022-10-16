@@ -19,5 +19,5 @@ logger = logging.getLogger(__name__)
 
 class BranchIndexChunkUpdateHandler(ACIChunkUpdateHandlerABC):
     _ChunkedTuple: ACIEncodedChunkTupleABC = BranchIndexEncodedChunk
-    _updateFromServerFilt: Dict = clientBranchIndexUpdateFromServerFilt
+    _updateFromLogicFilt: Dict = clientBranchIndexUpdateFromServerFilt
     _logger: logging.Logger = logger

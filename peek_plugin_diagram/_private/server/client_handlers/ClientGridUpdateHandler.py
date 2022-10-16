@@ -10,12 +10,14 @@ from peek_abstract_chunked_index.private.tuples.ACIEncodedChunkTupleABC import (
 from peek_plugin_diagram._private.client.controller.GridCacheController import (
     clientGridUpdateFromServerFilt,
 )
-from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndexCompiled
+from peek_plugin_diagram._private.storage.GridKeyIndex import (
+    GridKeyIndexCompiled,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class ClientGridUpdateHandler(ACIChunkUpdateHandlerABC):
     _ChunkedTuple: ACIEncodedChunkTupleABC = GridKeyIndexCompiled
-    _updateFromServerFilt: Dict = clientGridUpdateFromServerFilt
+    _updateFromLogicFilt: Dict = clientGridUpdateFromServerFilt
     _logger: logging.Logger = logger

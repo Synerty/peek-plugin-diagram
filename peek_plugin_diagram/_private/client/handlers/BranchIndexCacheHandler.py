@@ -8,6 +8,9 @@ from peek_abstract_chunked_index.private.tuples.ACIUpdateDateTupleABC import (
     ACIUpdateDateTupleABC,
 )
 from peek_plugin_diagram._private.PluginNames import diagramFilt
+from peek_plugin_diagram._private.client.controller.BranchIndexCacheController import (
+    clientBranchIndexUpdateFromServerFilt,
+)
 from peek_plugin_diagram._private.tuples.branch.BranchIndexUpdateDateTuple import (
     BranchIndexUpdateDateTuple,
 )
@@ -23,5 +26,6 @@ clientBranchIndexWatchUpdateFromDeviceFilt.update(diagramFilt)
 # ModelSet HANDLER
 class BranchIndexCacheHandler(ACICacheHandlerABC):
     _UpdateDateTuple: ACIUpdateDateTupleABC = BranchIndexUpdateDateTuple
-    _updateFromServerFilt: Dict = clientBranchIndexWatchUpdateFromDeviceFilt
+    _updateFromDeviceFilt: Dict = clientBranchIndexWatchUpdateFromDeviceFilt
+    _updateFromLogicFilt: Dict = clientBranchIndexUpdateFromServerFilt
     _logger: logging.Logger = logger
