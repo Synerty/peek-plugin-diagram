@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from peek_plugin_diagram._private.ColorUtil import invertColor
+from peek_plugin_diagram.tuples.ColorUtil import invertColor
 
 
 class TestColorInversion(TestCase):
