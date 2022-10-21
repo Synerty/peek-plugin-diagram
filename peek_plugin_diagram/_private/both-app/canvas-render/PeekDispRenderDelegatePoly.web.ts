@@ -40,7 +40,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         if (!isPolygon && this.config.renderer.useEdgeColors) {
             const edgeColor = DispPolyline.edgeColor(<DispPolylineT>disp);
 
-            if (edgeColor?.color != null) {
+            if (edgeColor?.darkColor != null) {
                 /* We expect both backgroundColour and edgeColour to be in the
                  format #AARRGGBB or #RRGGBB, take the last 6 letters and
                  compare them.
@@ -48,7 +48,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
                 let bgColorStr = this.config.renderer.backgroundColor || "";
                 bgColorStr = bgColorStr.substr(bgColorStr.length - 6);
 
-                let edgeColorStr = edgeColor?.color || "";
+                let edgeColorStr = edgeColor?.darkColor || "";
                 edgeColorStr = edgeColorStr.substr(edgeColorStr.length - 6);
 
                 if (bgColorStr !== edgeColorStr) {
@@ -62,9 +62,9 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             dashPattern = lineStyle.dashPatternParsed;
 
         // Null colors are also not drawn
-        fillColor = fillColor && fillColor.color ? fillColor : null;
+        fillColor = fillColor && fillColor.darkColor ? fillColor : null;
         lineColor =
-            lineStyle && lineColor && lineColor.color ? lineColor : null;
+            lineStyle && lineColor && lineColor.darkColor ? lineColor : null;
 
         let geom = DispPolygon.geom(disp);
 
@@ -140,7 +140,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         }
 
         if (lineColor) {
-            ctx.strokeStyle = lineColor.color;
+            ctx.strokeStyle = lineColor.darkColor;
             ctx.lineWidth = lineStyle.scalable ? lineWidth : lineWidth / zoom;
             ctx.lineJoin = lineStyle.joinStyle;
             ctx.lineCap = lineStyle.capStyle;
@@ -157,7 +157,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
                     fillPercentage
                 );
             } else {
-                ctx.fillStyle = fillColor.color;
+                ctx.fillStyle = fillColor.darkColor;
                 ctx.fill();
             }
         }

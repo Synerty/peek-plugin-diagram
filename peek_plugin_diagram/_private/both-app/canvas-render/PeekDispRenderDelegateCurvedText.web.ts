@@ -124,8 +124,8 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
         let borderColor = DispCurvedText.borderColor(disp);
 
         // Null colors are also not drawn
-        fillColor = fillColor && fillColor.color ? fillColor : null;
-        borderColor = borderColor && borderColor.color ? borderColor : null;
+        fillColor = fillColor && fillColor.darkColor ? fillColor : null;
+        borderColor = borderColor && borderColor.darkColor ? borderColor : null;
 
         // TODO, Draw a box around the text, based on line style
 
@@ -607,7 +607,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
                     ctx.rotate(curvedTextPathDrawingContext.nextPoint.angle);
 
                     if (fillColor) {
-                        ctx.fillStyle = fillColor.color;
+                        ctx.fillStyle = fillColor.darkColor;
                         ctx.fillText(char, 0, 0);
                     }
 
