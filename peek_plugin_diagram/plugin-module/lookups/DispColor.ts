@@ -12,8 +12,8 @@ export class DispColor extends Tuple {
     modelSetId: number;
     showForEdit: boolean;
 
-    private darkColor: string;
-    private lightColor: string;
+    darkColor: string;
+    lightColor: string;
 
     constructor() {
         super(DispColor.tupleName);
@@ -21,9 +21,5 @@ export class DispColor extends Tuple {
 
     get color(): string {
         return this.darkColor;
-    }
-
-    set color(value) {
-        this.darkColor = value;
     }
 }

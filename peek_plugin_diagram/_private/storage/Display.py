@@ -25,6 +25,7 @@ from vortex.Tuple import Tuple, addTupleType, TupleField, JSON_EXCLUDE
 from .DeclarativeBase import DeclarativeBase
 from .ModelSet import ModelCoordSet, ModelSet
 from .branch.BranchIndex import BranchIndex
+from ...tuples.ColorUtil import invertColor
 
 DISP_SHORT_ATTR_NAME_MAP = {
     "colorId": "c",
@@ -228,6 +229,11 @@ class DispColor(Tuple, DeclarativeBase):
     @property
     def color(self):
         return self.darkColor
+
+    @color.setter
+    def color(self, value: str):
+        self.darkColor = value
+        self.lightColor = invertColor(value, "#fff")
 
 
 class DispBase(Tuple, DeclarativeBase):
