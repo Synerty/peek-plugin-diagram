@@ -8,8 +8,8 @@ class TestColorInversion(TestCase):
         pass
 
     def test_twoWayInversion(self):
-        black = "#000000ff"
-        white = "#ffffffff"
+        black = "#000000"
+        white = "#ffffff"
 
         to = _invertColor(white, black, calibrate=False)
         back = _invertColor(to, white, calibrate=False)
@@ -17,8 +17,8 @@ class TestColorInversion(TestCase):
 
     def test_cssColorHexShort(self):
         shortBlack = "#000"
-        black = "#000000ff"
-        white = "#ffffffff"
+        black = "#000000"
+        white = "#ffffff"
 
         to = _invertColor(shortBlack, white, calibrate=False)
         back = _invertColor(to, black, calibrate=False)
@@ -26,8 +26,8 @@ class TestColorInversion(TestCase):
 
     def test_cssColorLiteral(self):
         whiteLiteral = "white"
-        black = "#000000ff"
-        white = "#ffffffff"
+        black = "#000000"
+        white = "#ffffff"
 
         to = _invertColor(whiteLiteral, black, calibrate=False)
         back = _invertColor(to, white, calibrate=False)
@@ -43,11 +43,11 @@ class TestColorInversion(TestCase):
         self.assertEqual(back, blackWithAlpha)
 
     def test_calibrate(self):
-        black = "#000000ff"
-        white = "#ffffffff"
+        black = "#000000"
+        white = "#ffffff"
 
         to = _invertColor(black, white, calibrate=True, colorShift=0.05)
-        self.assertEqual(to, "#f1f1f1ff")
+        self.assertEqual(to, "#f1f1f1")
 
         to = _invertColor(white, black, calibrate=True, colorShift=0.05)
-        self.assertEqual(to, "#070707ff")
+        self.assertEqual(to, "#070707")
