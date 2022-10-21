@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from peek_plugin_diagram.tuples.ColorUtil import invertColor
+from peek_plugin_diagram.tuples.ColorUtil import _invertColor
 
 
 class TestColorInversion(TestCase):
@@ -11,8 +11,8 @@ class TestColorInversion(TestCase):
         black = "#000000ff"
         white = "#ffffffff"
 
-        to = invertColor(white, black, calibrate=False)
-        back = invertColor(to, white, calibrate=False)
+        to = _invertColor(white, black, calibrate=False)
+        back = _invertColor(to, white, calibrate=False)
         self.assertEqual(back, white)
 
     def test_cssColorHexShort(self):
@@ -20,8 +20,8 @@ class TestColorInversion(TestCase):
         black = "#000000ff"
         white = "#ffffffff"
 
-        to = invertColor(shortBlack, white, calibrate=False)
-        back = invertColor(to, black, calibrate=False)
+        to = _invertColor(shortBlack, white, calibrate=False)
+        back = _invertColor(to, black, calibrate=False)
         self.assertEqual(back, black)
 
     def test_cssColorLiteral(self):
@@ -29,8 +29,8 @@ class TestColorInversion(TestCase):
         black = "#000000ff"
         white = "#ffffffff"
 
-        to = invertColor(whiteLiteral, black, calibrate=False)
-        back = invertColor(to, white, calibrate=False)
+        to = _invertColor(whiteLiteral, black, calibrate=False)
+        back = _invertColor(to, white, calibrate=False)
         self.assertEqual(back, white)
 
     def test_alpha(self):
@@ -38,16 +38,16 @@ class TestColorInversion(TestCase):
         black = "#000000ff"
         white = "#ffffffff"
 
-        to = invertColor(blackWithAlpha, black, calibrate=False)
-        back = invertColor(to, white, calibrate=False)
+        to = _invertColor(blackWithAlpha, black, calibrate=False)
+        back = _invertColor(to, white, calibrate=False)
         self.assertEqual(back, blackWithAlpha)
 
     def test_calibrate(self):
         black = "#000000ff"
         white = "#ffffffff"
 
-        to = invertColor(black, white, calibrate=True, colorShift=0.05)
+        to = _invertColor(black, white, calibrate=True, colorShift=0.05)
         self.assertEqual(to, "#f1f1f1ff")
 
-        to = invertColor(white, black, calibrate=True, colorShift=0.05)
+        to = _invertColor(white, black, calibrate=True, colorShift=0.05)
         self.assertEqual(to, "#070707ff")
