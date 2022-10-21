@@ -7,6 +7,10 @@ Revises: 0db3aedfee95
 Create Date: 2022-10-20 15:56:02.384820
 
 """
+from sqlalchemy.orm import Session
+
+from peek_plugin_diagram._private.storage.Display import DispColor
+from peek_plugin_diagram.tuples.ColorUtil import invertColor
 
 # revision identifiers, used by Alembic.
 revision = "0ad02369aaea"
@@ -32,6 +36,15 @@ def upgrade():
         sa.Column("lightColor", sa.String(), nullable=True),
         schema="pl_diagram",
     )
+
+    session = Session(bind=op.get_bind())
+    rows = (
+        session.query(DispColor).filter(DispColor.darkColor.isnot(None)).all()
+    )
+
+    for row in rows:
+        row.lightColor = invertColor(row.darkColor, "#fff")
+    session.commit()
 
 
 def downgrade():
