@@ -23,6 +23,9 @@ class GridCacheIndexTupleProvider(TuplesProviderABC):
     def makeVortexMsg(
         self, filt: dict, tupleSelector: TupleSelector
     ) -> Union[Deferred, bytes]:
+        emptyPayloadVortexMsg = PayloadEnvelope(
+            filt, encodedPayload=Payload().toEncodedPayload()
+        ).toVortexMsg()
 
         index = tupleSelector.selector.get("index")
 
@@ -31,16 +34,23 @@ class GridCacheIndexTupleProvider(TuplesProviderABC):
             start = tupleSelector.selector.get("start")
             count = tupleSelector.selector.get("count")
 
+            if count is not None and start is not None:
+                count = count - start
+
             if count is None or count != 5000:
-                return PayloadEnvelope(
-                    filt, encodedPayload=Payload().toEncodedPayload()
-                ).toVortexMsg()
+                return emptyPayloadVortexMsg
 
             index = start / count
 
-        encodedPayload = (
-            self._gridCacheController.offlineUpdateDateByChunkKeyPayload(index)
-        )
+        try:
+            encodedPayload = (
+                self._gridCacheController.offlineUpdateDateByChunkKeyPayload(
+                    index
+                )
+            )
+        except IndexError:
+            return emptyPayloadVortexMsg
+
         payloadEnvelope = PayloadEnvelope(filt, encodedPayload=encodedPayload)
         vortexMsg = yield payloadEnvelope.toVortexMsgDefer()
         return vortexMsg
