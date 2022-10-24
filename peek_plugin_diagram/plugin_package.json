@@ -41,6 +41,7 @@
     },
     "worker": {},
     "field": {
+        "subprocessGroup": "livedb+diagram",
         "showHomeLink": false,
         "appDir": "_private/both-app",
         "moduleDir": "plugin-module",
@@ -170,6 +171,7 @@
     },
     "agent": {},
     "office": {
+        "subprocessGroup": "livedb+diagram",
         "showHomeLink": false,
         "appDir": "_private/both-app",
         "assetDir": "_private/both-assets",
