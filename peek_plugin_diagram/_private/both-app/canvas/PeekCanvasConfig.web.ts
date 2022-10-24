@@ -26,7 +26,7 @@ export class PeekCanvasConfig {
     renderer = {
         invalidate: new Subject<void>(), // Set this to true to cause the renderer to redraw
         drawInterval: 60,
-        backgroundColor: "#000000",
+        backgroundColor: "#ffffff",
         useEdgeColors: false,
         selection: {
             color: "white",
@@ -125,6 +125,18 @@ export class PeekCanvasConfig {
 
     constructor() {
         this.canvasId = PeekCanvasConfig.canvasIdCounter++;
+    }
+
+    get isLightMode(): boolean {
+        // TODO: !!!get from config
+        return true;
+    }
+
+    set isLightMode(value: boolean) {
+        value === true
+            ? (this.renderer.backgroundColor = "#ffffff")
+            : (this.renderer.backgroundColor = "#000000");
+        this.invalidate();
     }
 
     get coordSet(): ModelCoordSet | null {

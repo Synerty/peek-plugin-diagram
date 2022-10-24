@@ -18,4 +18,8 @@ export class DispColor extends Tuple {
     constructor() {
         super(DispColor.tupleName);
     }
+
+    getColor(isLightMode: boolean): string {
+        return isLightMode ? this.lightColor : this.darkColor;
+    }
 }

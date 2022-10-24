@@ -39,8 +39,14 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
         let lineStyle = DispEllipse.lineStyle(disp);
 
         // Null colors are also not drawn
-        fillColor = fillColor && fillColor.darkColor ? fillColor : null;
-        lineColor = lineColor && lineColor.darkColor ? lineColor : null;
+        fillColor =
+            fillColor && fillColor.getColor(this.config.isLightMode)
+                ? fillColor
+                : null;
+        lineColor =
+            lineColor && lineColor.getColor(this.config.isLightMode)
+                ? lineColor
+                : null;
 
         let xRadius = DispEllipse.xRadius(disp);
         let yRadius = DispEllipse.yRadius(disp);
@@ -69,12 +75,12 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
 
         if (fillColor) {
             ctx.lineTo(0, 0); // Make it fill to the center, not just the ends of the arc
-            ctx.fillStyle = fillColor.darkColor;
+            ctx.fillStyle = fillColor.getColor(this.config.isLightMode);
             ctx.fill();
         }
 
         if (lineColor) {
-            ctx.strokeStyle = lineColor.darkColor;
+            ctx.strokeStyle = lineColor.getColor(this.config.isLightMode);
             ctx.lineWidth = lineStyle.scalable ? lineWidth : lineWidth / zoom;
             ctx.stroke();
         }
