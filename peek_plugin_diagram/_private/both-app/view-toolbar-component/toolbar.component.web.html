@@ -1,4 +1,4 @@
-<div class="toolbar">
+<div class="toolbar" style="border: 1px solid rgba(0, 0, 0, 0.1)">
     <div class="toolbar-buttons">
         <button
             *ngIf="showExitDiagramButton()"
@@ -20,6 +20,20 @@
             </ul>
         </nz-dropdown-menu>
 
+        <button
+            *ngIf="showToggleColorModeButton()"
+            (click)="toggleColorModeButton()"
+            nz-tooltip
+            [nzTooltipMouseEnterDelay]="1.0"
+            nzTooltipPlacement="bottom"
+            nzTooltipTitle="Toggle to dark/light mode"
+        >
+            <i
+                nz-icon
+                [nzTheme]='isLightMode() === true ? "fill" : "outline"'
+                nzType="read"
+            ></i>
+        </button>
         <button
             *ngIf="showPrintDiagramButton()"
             (click)="printDiagramClicked()"
