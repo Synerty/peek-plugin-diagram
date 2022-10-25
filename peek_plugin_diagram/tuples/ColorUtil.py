@@ -78,7 +78,7 @@ def _invertColor(
     # ╚═══════════════╩════════════════════════════════════════╝
     colorDifference = calculateColorDifference(labColor, backgroundLabColor)
 
-    if colorDifference <= 0.5:
+    if colorDifference <= 0.5 or colorDifference >= 99.999:
         # invert lighting if color is too similar to background color
         invertedLabColor = LabColor(
             lab_l=100 - labColor.lab_l,  # invert the lighting
@@ -88,7 +88,7 @@ def _invertColor(
     else:
         invertedLabColor = labColor
 
-    if calibrate:
+    if calibrate and colorDifference < 99.999:
         # when inverted color looks too similar to background color
         lightingShift = min(10, colorShift * invertedLabColor.lab_l)
 
