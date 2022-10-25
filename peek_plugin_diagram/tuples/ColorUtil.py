@@ -67,18 +67,30 @@ def _invertColor(
         backgroundCssColor.blue,
     )
 
-    invertedLabColor = LabColor(
-        lab_l=100 - labColor.lab_l,  # invert the lighting
-        lab_a=labColor.lab_a,
-        lab_b=labColor.lab_b,
-    )
+    # ╔═══════════════╦════════════════════════════════════════╗
+    # ║ Delta E Value ║               Perception               ║
+    # ╠═══════════════╬════════════════════════════════════════╣
+    # ║ <= 1.0        ║ Not perceptible by human eyes.         ║
+    # ║ 1 - 2         ║ Perceptible through close observation. ║
+    # ║ 2 - 10        ║ Perceptible at a glance.               ║
+    # ║ 11 - 49       ║ Colors are more similar than opposite. ║
+    # ║ 100           ║ Colors are exact opposite.             ║
+    # ╚═══════════════╩════════════════════════════════════════╝
+    colorDifference = calculateColorDifference(labColor, backgroundLabColor)
 
-    if (
-        calibrate
-        and calculateColorDifference(invertedLabColor, backgroundLabColor) < 2.0
-    ):
+    if colorDifference <= 0.5:
+        # invert lighting if color is too similar to background color
+        invertedLabColor = LabColor(
+            lab_l=100 - labColor.lab_l,  # invert the lighting
+            lab_a=labColor.lab_a,
+            lab_b=labColor.lab_b,
+        )
+    else:
+        invertedLabColor = labColor
+
+    if calibrate:
         # when inverted color looks too similar to background color
-        lightingShift = max(2, colorShift * invertedLabColor.lab_l)
+        lightingShift = min(10, colorShift * invertedLabColor.lab_l)
 
         newLighting = invertedLabColor.lab_l
 
