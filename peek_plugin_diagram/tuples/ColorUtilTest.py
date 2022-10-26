@@ -43,11 +43,18 @@ class TestColorInversion(TestCase):
         self.assertEqual(back, blackWithAlpha)
 
     def test_calibrate(self):
-        black = "#000000"
+        black = "#000011"
         white = "#ffffff"
 
         to = _invertColor(black, white, calibrate=True, colorShift=0.05)
-        self.assertEqual(to, "#f1f1f1")
+        self.assertEqual(to, "#020011")
 
-        to = _invertColor(white, black, calibrate=True, colorShift=0.05)
-        self.assertEqual(to, "#070707")
+    def test_colorIsTotalOppositeColor(self):
+        # TODO: update ALL tests
+        black = "#000000"
+        whiteBackground = "#ffffff"
+
+        to = _invertColor(
+            black, whiteBackground, calibrate=True, colorShift=0.05
+        )
+        self.assertEqual(to, whiteBackground)
