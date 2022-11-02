@@ -49,7 +49,9 @@ def find_package_files():
             if [e for e in excludeFilesStartWith if filename.startswith(e)]:
                 continue
 
-            paths.append(os.path.join(path[len(py_package_name) + 1 :], filename))
+            paths.append(
+                os.path.join(path[len(py_package_name) + 1 :], filename)
+            )
 
     return paths
 
@@ -62,14 +64,21 @@ package_files = find_package_files()
 # Ensure the dependency is the same major number
 # and no older then this version
 
-requirements = ["peek-plugin-base", "Numpy"]
+requirements = [
+    "peek-plugin-base",
+    "Numpy",
+    "tinycss2>=1.2.1,<2.0",
+    "colormath>=3.0.0,<4.0",
+]
 
 # Force the dependencies to be the same branch
 reqVer = ".".join(package_version.split(".")[0:2]) + ".*"
 
 # >=2.0.*,>=2.0.6
 requirements = [
-    "%s==%s,>=%s" % (pkg, reqVer, package_version.split("+")[0]) if pkg.startswith("peek") else pkg
+    "%s==%s,>=%s" % (pkg, reqVer, package_version.split("+")[0])
+    if pkg.startswith("peek")
+    else pkg
     for pkg in requirements
 ]
 
@@ -78,7 +87,9 @@ requirements = [
 
 setup(
     name=pip_package_name,
-    packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
+    packages=find_packages(
+        exclude=["*.tests", "*.tests.*", "tests.*", "tests"]
+    ),
     package_data={"": package_files},
     install_requires=requirements,
     version=package_version,

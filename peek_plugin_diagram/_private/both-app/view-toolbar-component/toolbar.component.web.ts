@@ -136,6 +136,22 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
         this.positionService.positionByCoordSet(this.modelSetKey, coordSet.key);
     }
 
+    showToggleColorModeButton(): boolean {
+        return (
+            (this.buttonBitmask &
+                DiagramToolbarBuiltinButtonEnum.BUTTON_COLOR_MODES) >
+            0
+        );
+    }
+
+    isLightMode(): boolean {
+        return this.config.isLightMode;
+    }
+
+    toggleColorModeButton(): void {
+        this.config.isLightMode = !this.config.isLightMode;
+    }
+
     showPrintDiagramButton(): boolean {
         return (
             (this.buttonBitmask &

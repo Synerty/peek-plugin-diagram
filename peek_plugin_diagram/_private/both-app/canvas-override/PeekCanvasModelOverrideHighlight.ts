@@ -115,7 +115,7 @@ export class PeekCanvasModelOverrideHighlight extends PeekCanvasModelOverrideA {
         const h = bounds.h + twiceOffset;
 
         ctx.dashedRect(x, y, w, h, selectionConfig.dashLen / zoom);
-        ctx.strokeStyle = override.color.color;
+        ctx.strokeStyle = override.color.getColor(this.config.isLightMode);
         ctx.lineWidth = selectionConfig.width / zoom;
         ctx.stroke();
     }

@@ -53,7 +53,8 @@ export class CanvasComponent extends NgLifeCycleEvents {
         DiagramToolbarBuiltinButtonEnum.BUTTOON_PRINT_DIAGRAM +
         DiagramToolbarBuiltinButtonEnum.BUTTON_EDIT_DIAGRAM +
         DiagramToolbarBuiltinButtonEnum.BUTTON_SELECT_BRANCHES +
-        DiagramToolbarBuiltinButtonEnum.BUTTON_SELECT_LAYERS;
+        DiagramToolbarBuiltinButtonEnum.BUTTON_SELECT_LAYERS +
+        DiagramToolbarBuiltinButtonEnum.BUTTON_COLOR_MODES;
 
     config: PeekCanvasConfig;
     model: PeekCanvasModel;

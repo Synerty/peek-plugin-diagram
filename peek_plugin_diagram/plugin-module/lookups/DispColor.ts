@@ -7,13 +7,19 @@ export class DispColor extends Tuple {
 
     id: number;
     name: string;
-    color: string;
     altColor: string;
     swapPeriod: number;
     modelSetId: number;
     showForEdit: boolean;
 
+    darkColor: string;
+    lightColor: string;
+
     constructor() {
         super(DispColor.tupleName);
+    }
+
+    getColor(isLightMode: boolean): string {
+        return isLightMode ? this.lightColor : this.darkColor;
     }
 }

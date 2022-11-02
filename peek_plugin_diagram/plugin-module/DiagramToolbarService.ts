@@ -90,4 +90,5 @@ export enum DiagramToolbarBuiltinButtonEnum {
     BUTTON_EDIT_DIAGRAM = 1 << 2,
     BUTTON_SELECT_BRANCHES = 1 << 3,
     BUTTON_SELECT_LAYERS = 1 << 4,
+    BUTTON_COLOR_MODES = 1 << 5,
 }

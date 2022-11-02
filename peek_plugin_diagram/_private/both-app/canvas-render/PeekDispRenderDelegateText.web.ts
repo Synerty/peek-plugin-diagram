@@ -97,8 +97,14 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
         let borderColor = DispText.borderColor(disp);
 
         // Null colors are also not drawn
-        fillColor = fillColor && fillColor.color ? fillColor : null;
-        borderColor = borderColor && borderColor.color ? borderColor : null;
+        fillColor =
+            fillColor && fillColor.getColor(this.config.isLightMode)
+                ? fillColor
+                : null;
+        borderColor =
+            borderColor && borderColor.getColor(this.config.isLightMode)
+                ? borderColor
+                : null;
 
         // TODO, Draw a box around the text, based on line style
 
@@ -175,7 +181,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
             }
 
             if (fillColor) {
-                ctx.fillStyle = fillColor.color;
+                ctx.fillStyle = fillColor.getColor(this.config.isLightMode);
                 ctx.fillText(line, 0, yOffset);
             }
 

@@ -13,6 +13,8 @@ import { DrawModeE } from "../canvas-render/PeekDispRenderDrawModeE.web";
  */
 export class PeekCanvasConfig {
     private static canvasIdCounter = 0;
+    private static whiteBackground = "#ffffff";
+    private static blackBackground = "#000000";
 
     canvasId: number;
 
@@ -26,7 +28,7 @@ export class PeekCanvasConfig {
     renderer = {
         invalidate: new Subject<void>(), // Set this to true to cause the renderer to redraw
         drawInterval: 60,
-        backgroundColor: "#000000",
+        backgroundColor: PeekCanvasConfig.blackBackground,
         useEdgeColors: false,
         selection: {
             color: "white",
@@ -125,6 +127,21 @@ export class PeekCanvasConfig {
 
     constructor() {
         this.canvasId = PeekCanvasConfig.canvasIdCounter++;
+    }
+
+    get isLightMode(): boolean {
+        return this.renderer.backgroundColor ===
+            PeekCanvasConfig.whiteBackground
+            ? true
+            : false;
+    }
+
+    set isLightMode(value: boolean) {
+        value === true
+            ? (this.renderer.backgroundColor = PeekCanvasConfig.whiteBackground)
+            : (this.renderer.backgroundColor =
+                  PeekCanvasConfig.blackBackground);
+        this.invalidate();
     }
 
     get coordSet(): ModelCoordSet | null {
