@@ -34,5 +34,5 @@ class BranchIndexCacheController(ACICacheControllerABC):
     _UpdateDateTupleABC = BranchIndexUpdateDateTuple
     _chunkLoadRpcMethod = BranchIndexChunkLoadRpc.loadBranchIndexChunks
     _chunkIndexDeltaRpcMethod = BranchIndexChunkLoadRpc.loadBranchIndexDelta
-    _updateFromServerFilt = clientBranchIndexUpdateFromServerFilt
+    _updateFromLogicFilt = clientBranchIndexUpdateFromServerFilt
     _logger = logger
