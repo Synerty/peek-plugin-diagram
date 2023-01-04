@@ -36,5 +36,5 @@ class LocationIndexCacheController(ACICacheControllerABC):
     _chunkIndexDeltaRpcMethod = (
         ClientLocationIndexLoaderRpc.loadLocationIndexDelta
     )
-    _updateFromServerFilt = clientLocationIndexUpdateFromServerFilt
+    _updateFromLogicFilt = clientLocationIndexUpdateFromServerFilt
     _logger = logger
