@@ -113,7 +113,9 @@ def compileLocationIndex(self, payloadEncodedArgs: bytes) -> List[str]:
                 lastUpdate=dataHash,
             )
 
-            blobData = Payload(tuples=[locationIndexTuple]).toEncodedPayload()
+            blobData = (
+                Payload(tuples=[locationIndexTuple]).toEncodedPayload().encode()
+            )
 
             inserts.append(
                 dict(
