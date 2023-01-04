@@ -10,7 +10,11 @@ from typing import List
 import pytz
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_base.worker.CeleryApp import celeryApp
-from peek_plugin_diagram._private.storage.Display import DispLevel, DispBase, DispLayer
+from peek_plugin_diagram._private.storage.Display import (
+    DispLevel,
+    DispBase,
+    DispLayer,
+)
 from peek_plugin_diagram._private.storage.GridKeyIndex import (
     GridKeyIndexCompiled,
     GridKeyCompilerQueue,
@@ -22,7 +26,9 @@ from vortex.Payload import Payload
 
 logger = logging.getLogger(__name__)
 
-DispData = namedtuple("DispData", ["json", "id", "zOrder", "levelOrder", "layerOrder"])
+DispData = namedtuple(
+    "DispData", ["json", "id", "zOrder", "levelOrder", "layerOrder"]
+)
 
 """ Grid Compiler
 
@@ -40,7 +46,7 @@ class NotAllDispsCompiledException(Exception):
 
 @DeferrableTask
 @celeryApp.task(bind=True)
-def compileGrids(self, payloadEncodedArgs: bytes) -> List[str]:
+def compileGrids(self, payloadEncodedArgs: bytes) -> dict[str, str]:
     """Compile Grids Task
 
     :param self: A celery reference to this task
@@ -53,6 +59,8 @@ def compileGrids(self, payloadEncodedArgs: bytes) -> List[str]:
 
     gridKeys = list(set([i.gridKey for i in queueItems]))
     coordSetIdByGridKey = {i.gridKey: i.coordSetId for i in queueItems}
+
+    lastUpdateByChunkKey = {}
 
     queueTable = GridKeyCompilerQueue.__table__
     gridTable = GridKeyIndexCompiled.__table__
@@ -86,8 +94,12 @@ def compileGrids(self, payloadEncodedArgs: bytes) -> List[str]:
             m.update(dispJsonStr.encode())
             gridTupleHash = b64encode(m.digest()).decode()
 
+            lastUpdateByChunkKey[str(gridKey)] = gridTupleHash
+
             gridTuple = GridTuple(
-                gridKey=gridKey, dispJsonStr=dispJsonStr, lastUpdate=gridTupleHash
+                gridKey=gridKey,
+                dispJsonStr=dispJsonStr,
+                lastUpdate=gridTupleHash,
             )
 
             encodedGridTuple = (
@@ -124,10 +136,12 @@ def compileGrids(self, payloadEncodedArgs: bytes) -> List[str]:
             (datetime.now(pytz.utc) - startTime),
         )
 
-        return gridKeys
+        return lastUpdateByChunkKey
 
     except NotAllDispsCompiledException as e:
-        logger.warning("Retrying, Not all disps for gridKey %s are compiled", gridKeys)
+        logger.warning(
+            "Retrying, Not all disps for gridKey %s are compiled", gridKeys
+        )
         raise self.retry(exc=e, countdown=1)
 
     except Exception as e:

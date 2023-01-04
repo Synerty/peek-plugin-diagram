@@ -35,7 +35,7 @@ Compile the index-blueprintindexes
 
 @DeferrableTask
 @celeryApp.task(bind=True)
-def compileBranchIndexChunk(self, payloadEncodedArgs: bytes) -> List[int]:
+def compileBranchIndexChunk(self, payloadEncodedArgs: bytes) -> dict[str, str]:
     """Compile BranchIndex Index Task
 
     :param self: A bound parameter from celery
@@ -55,8 +55,13 @@ def compileBranchIndexChunk(self, payloadEncodedArgs: bytes) -> List[int]:
         for queueItem in queueItems:
             queueItemsByModelSetId[queueItem.modelSetId].append(queueItem)
 
+        lastUpdateByChunkKey = {}
         for modelSetId, modelSetQueueItems in queueItemsByModelSetId.items():
-            _compileBranchIndexChunk(conn, transaction, modelSetId, modelSetQueueItems)
+            lastUpdateByChunkKey.update(
+                _compileBranchIndexChunk(
+                    conn, transaction, modelSetId, modelSetQueueItems
+                )
+            )
 
         queueTable = BranchIndexCompilerQueue.__table__
 
@@ -72,12 +77,15 @@ def compileBranchIndexChunk(self, payloadEncodedArgs: bytes) -> List[int]:
     finally:
         conn.close()
 
-    return list(set([i.chunkKey for i in queueItems]))
+    return lastUpdateByChunkKey
 
 
 def _compileBranchIndexChunk(
-    conn, transaction, modelSetId: int, queueItems: List[BranchIndexCompilerQueue]
-) -> None:
+    conn,
+    transaction,
+    modelSetId: int,
+    queueItems: List[BranchIndexCompilerQueue],
+) -> dict[str, str]:
     chunkKeys = list(set([i.chunkKey for i in queueItems]))
 
     compiledTable = BranchIndexEncodedChunk.__table__
@@ -98,8 +106,13 @@ def _compileBranchIndexChunk(
     encKwPayloadByChunkKey = _buildIndex(chunkKeys)
     chunksToDelete = []
 
+    lastUpdateByChunkKey = {}
+
     inserts = []
-    for chunkKey, diagramIndexChunkEncodedPayload in encKwPayloadByChunkKey.items():
+    for (
+        chunkKey,
+        diagramIndexChunkEncodedPayload,
+    ) in encKwPayloadByChunkKey.items():
         m = hashlib.sha256()
         m.update(diagramIndexChunkEncodedPayload)
         encodedHash = b64encode(m.digest()).decode()
@@ -110,6 +123,8 @@ def _compileBranchIndexChunk(
             # but inserts are quicker
             if encodedHash == existingHashes.pop(chunkKey):
                 continue
+
+        lastUpdateByChunkKey[chunkKey] = lastUpdate
 
         chunksToDelete.append(chunkKey)
         inserts.append(
@@ -127,10 +142,14 @@ def _compileBranchIndexChunk(
 
     if chunksToDelete:
         # Delete the old chunks
-        conn.execute(compiledTable.delete(compiledTable.c.chunkKey.in_(chunksToDelete)))
+        conn.execute(
+            compiledTable.delete(compiledTable.c.chunkKey.in_(chunksToDelete))
+        )
 
     if inserts:
-        newIdGen = CeleryDbConn.prefetchDeclarativeIds(BranchIndex, len(inserts))
+        newIdGen = CeleryDbConn.prefetchDeclarativeIds(
+            BranchIndex, len(inserts)
+        )
         for insert in inserts:
             insert["id"] = next(newIdGen)
 
@@ -156,6 +175,8 @@ def _compileBranchIndexChunk(
         (datetime.now(pytz.utc) - startTime),
     )
 
+    return lastUpdateByChunkKey
+
 
 def _loadExistingHashes(conn, chunkKeys: List[str]) -> Dict[str, str]:
     compiledTable = BranchIndexEncodedChunk.__table__
@@ -175,7 +196,9 @@ def _buildIndex(chunkKeys) -> Dict[str, bytes]:
 
     try:
         indexQry = (
-            session.query(BranchIndex.chunkKey, BranchIndex.key, BranchIndex.packedJson)
+            session.query(
+                BranchIndex.chunkKey, BranchIndex.key, BranchIndex.packedJson
+            )
             .filter(BranchIndex.chunkKey.in_(chunkKeys))
             .order_by(BranchIndex.key)
             .yield_per(1000)
@@ -193,12 +216,17 @@ def _buildIndex(chunkKeys) -> Dict[str, bytes]:
         encPayloadByChunkKey = {}
 
         # Sort each bucket by the key
-        for chunkKey, packedJsonsByKey in packagedJsonsByObjKeyByChunkKey.items():
+        for (
+            chunkKey,
+            packedJsonsByKey,
+        ) in packagedJsonsByObjKeyByChunkKey.items():
             tuples = json.dumps(packedJsonsByKey, sort_keys=True)
 
             # Create the blob data for this index.
             # It will be index-blueprint by a binary sort
-            encPayloadByChunkKey[chunkKey] = Payload(tuples=tuples).toEncodedPayload()
+            encPayloadByChunkKey[chunkKey] = Payload(
+                tuples=tuples
+            ).toEncodedPayload()
 
         return encPayloadByChunkKey
 
