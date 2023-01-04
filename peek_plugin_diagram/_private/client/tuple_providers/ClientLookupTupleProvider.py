@@ -3,6 +3,7 @@ from typing import Union
 
 from twisted.internet.defer import Deferred
 from twisted.internet.defer import inlineCallbacks
+from vortex.DeferUtil import deferToThreadWrapWithLogger
 from vortex.Payload import Payload
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TuplesProviderABC
@@ -18,14 +19,10 @@ class ClientLookupTupleProvider(TuplesProviderABC):
     def __init__(self, lookupCacheController: LookupCacheController):
         self._lookupCacheController = lookupCacheController
 
-    @inlineCallbacks
+    @deferToThreadWrapWithLogger(logger)
     def makeVortexMsg(
         self, filt: dict, tupleSelector: TupleSelector
     ) -> Union[Deferred, bytes]:
-        tuples = self._lookupCacheController.lookups(tupleSelector.name)
-
-        payloadEnvelope = yield Payload(
-            filt, tuples=tuples
-        ).makePayloadEnvelopeDefer()
-        vortexMsg = yield payloadEnvelope.toVortexMsgDefer()
-        return vortexMsg
+        return self._lookupCacheController.cachedVortexMsgBlocking(
+            lookupTupleType=tupleSelector.name, filt=filt
+        )

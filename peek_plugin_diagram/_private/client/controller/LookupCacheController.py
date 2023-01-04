@@ -1,6 +1,7 @@
 from copy import copy
 from typing import List
 
+from vortex.Payload import Payload
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
 from vortex.handler.TupleDataObserverClient import TupleDataObserverClient
@@ -33,6 +34,7 @@ class LookupCacheController:
     def __init__(self, tupleObserver: TupleDataObserverClient):
         self._tupleObserver = tupleObserver
         self._tupleObservable = None
+        self._vortexMsgCache: dict[str, bytes] = {}
 
     def setTupleObservable(self, tupleObservable: TupleDataObservableHandler):
         self._tupleObservable = tupleObservable
@@ -72,6 +74,8 @@ class LookupCacheController:
         self._tupleObservable = None
         self._tupleObserver = None
 
+        self._vortexMsgCache = {}
+
         self._levelLookups = []
         self._layerLookups = []
         self._colorLookups = []
@@ -104,6 +108,8 @@ class LookupCacheController:
                 "Cache not implemented for %s" % firstTupleType
             )
 
+        self._vortexMsgCache.pop(firstTupleType, None)
+
         self._tupleObservable.notifyOfTupleUpdate(
             TupleSelector(firstTupleType, {})
         )
@@ -127,3 +133,18 @@ class LookupCacheController:
         raise NotImplementedError(
             "Cache not implemented for %s" % lookupTupleType
         )
+
+    def cachedVortexMsgBlocking(
+        self, lookupTupleType: str, filt: dict
+    ) -> bytes:
+        if lookupTupleType in self._vortexMsgCache:
+            return self._vortexMsgCache[lookupTupleType]
+
+        data = self.lookups(lookupTupleType=lookupTupleType)
+
+        # Create the vortex message
+        vortexMsg = (
+            Payload(filt, tuples=data).makePayloadEnvelope().toVortexMsg()
+        )
+        self._vortexMsgCache[lookupTupleType] = vortexMsg
+        return vortexMsg
