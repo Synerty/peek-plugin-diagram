@@ -1,6 +1,7 @@
 from typing import Dict
 from typing import List
 
+from vortex.Payload import Payload
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
 from vortex.handler.TupleDataObserverClient import TupleDataObserverClient
@@ -22,6 +23,8 @@ class ModelSetCacheController:
         #: This stores the cache of grid data for the clients
         self._cache: Dict[int, ModelSet] = {}
 
+        self._vortexMsgCache = None
+
     def setTupleObservable(self, tupleObservable: TupleDataObservableHandler):
         self._tupleObservable = tupleObservable
 
@@ -36,12 +39,15 @@ class ModelSetCacheController:
         self._tupleObservable = None
         self._tupleObserver = None
         self._cache = {}
+        self._vortexMsgCache = None
 
     def _processNewTuples(self, tuples):
         if not tuples:
             return
 
         self._cache = {c.id: c for c in tuples}
+
+        self._vortexMsgCache = None
 
         self._tupleObservable.notifyOfTupleUpdate(
             TupleSelector(ModelSet.tupleName(), {})
@@ -50,3 +56,16 @@ class ModelSetCacheController:
     @property
     def modelSets(self) -> List[ModelSet]:
         return list(self._cache.values())
+
+    def cachedVortexMsgBlocking(self, filt: dict) -> bytes:
+        if self._vortexMsgCache:
+            return self._vortexMsgCache
+
+        data = self.modelSets
+
+        # Create the vortex message
+        vortexMsg = (
+            Payload(filt, tuples=data).makePayloadEnvelope().toVortexMsg()
+        )
+        self._vortexMsgCache = vortexMsg
+        return vortexMsg

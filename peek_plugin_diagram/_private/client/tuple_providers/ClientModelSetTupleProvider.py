@@ -2,8 +2,7 @@ import logging
 from typing import Union
 
 from twisted.internet.defer import Deferred
-from twisted.internet.defer import inlineCallbacks
-from vortex.Payload import Payload
+from vortex.DeferUtil import deferToThreadWrapWithLogger
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TuplesProviderABC
 
@@ -18,14 +17,8 @@ class ClientModelSetTupleProvider(TuplesProviderABC):
     def __init__(self, modelSetCacheController: ModelSetCacheController):
         self.modelSetCacheController = modelSetCacheController
 
-    @inlineCallbacks
+    @deferToThreadWrapWithLogger(logger)
     def makeVortexMsg(
         self, filt: dict, tupleSelector: TupleSelector
     ) -> Union[Deferred, bytes]:
-        tuples = self.modelSetCacheController.modelSets
-
-        payloadEnvelope = yield Payload(
-            filt, tuples=tuples
-        ).makePayloadEnvelopeDefer()
-        vortexMsg = yield payloadEnvelope.toVortexMsgDefer()
-        return vortexMsg
+        return self.modelSetCacheController.cachedVortexMsgBlocking(filt=filt)
