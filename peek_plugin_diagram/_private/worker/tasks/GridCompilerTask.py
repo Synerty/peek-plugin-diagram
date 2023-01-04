@@ -90,7 +90,9 @@ def compileGrids(self, payloadEncodedArgs: bytes) -> List[str]:
                 gridKey=gridKey, dispJsonStr=dispJsonStr, lastUpdate=gridTupleHash
             )
 
-            encodedGridTuple = Payload(tuples=[gridTuple]).toEncodedPayload()
+            encodedGridTuple = (
+                Payload(tuples=[gridTuple]).toEncodedPayload().encode()
+            )
 
             inserts.append(
                 dict(
