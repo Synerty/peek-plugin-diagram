@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Dict
 from typing import List
 
+import pytz
 from twisted.internet.defer import Deferred
 from twisted.internet.defer import DeferredList
 from twisted.internet.defer import inlineCallbacks
@@ -11,7 +12,7 @@ from vortex.DeferUtil import vortexLogFailure
 from vortex.Payload import Payload
 from vortex.PayloadEnvelope import PayloadEnvelope
 from vortex.VortexABC import SendVortexMsgResponseCallable
-from vortex.VortexFactory import VortexFactory
+from vortex.VortexFactory import VortexFactory, NoVortexException
 
 from peek_abstract_chunked_index.private.client.handlers.ACICacheHandlerABC import (
     ACICacheHandlerABC,
@@ -92,6 +93,7 @@ class GridCacheHandler(ACICacheHandlerABC):
     # ---------------
     # Process update from the server
 
+    @inlineCallbacks
     def notifyOfUpdate(self, gridKeys: List[str]):
         """Notify of Grid Updates
 
@@ -127,20 +129,22 @@ class GridCacheHandler(ACICacheHandlerABC):
                 payloadsByVortexUuid[vortexUuid].data.append(gridTuple)
 
         # Send the updates to the clients
-        dl = []
-        for vortexUuid, payloadEnvelope in list(payloadsByVortexUuid.items()):
+        for vortexUuid, payloadEnvelope in payloadsByVortexUuid.items():
             payloadEnvelope.filt = clientGridWatchUpdateFromDeviceFilt
 
-            # Serliase in thread, and then send.
-            d = payloadEnvelope.toVortexMsgDefer(base64Encode=False)
-            d.addCallback(
-                VortexFactory.sendVortexMsg, destVortexUuid=vortexUuid
+            vortexMsg = yield payloadEnvelope.toVortexMsgDefer(
+                base64Encode=False
             )
-            dl.append(d)
 
-        # Log the errors, otherwise we don't care about them
-        dl = DeferredList(dl, fireOnOneErrback=True)
-        dl.addErrback(vortexLogFailure, logger, consumeError=True)
+            try:
+                yield VortexFactory.sendVortexMsg(
+                    vortexMsg, destVortexUuid=vortexUuid
+                )
+
+            except NoVortexException:
+                pass
+            except Exception as e:
+                self._logger.exception(e)
 
     # ---------------
     # Process observes from the devices
@@ -153,7 +157,7 @@ class GridCacheHandler(ACICacheHandlerABC):
         sendResponse: SendVortexMsgResponseCallable,
         **kwargs
     ):
-        cacheAll = payloadEnvelope.filt.get("cacheAll") == True
+        cacheAll = payloadEnvelope.filt.get("cacheAll") is True
 
         payload = yield payloadEnvelope.decodePayloadDefer()
 
@@ -164,8 +168,12 @@ class GridCacheHandler(ACICacheHandlerABC):
             self._observedGridKeysByVortexUuid[vortexUuid] = gridKeys
             self._rebuildStructs()
 
-        self._replyToObserve(
-            payload.filt, lastUpdateByGridKey, sendResponse, cacheAll=cacheAll
+        yield self._replyToObserve(
+            payload.filt,
+            lastUpdateByGridKey,
+            sendResponse,
+            vortexUuid=vortexUuid,
+            cacheAll=cacheAll,
         )
 
     def _rebuildStructs(self) -> None:
@@ -197,11 +205,13 @@ class GridCacheHandler(ACICacheHandlerABC):
     # ---------------
     # Reply to device observe
 
+    @inlineCallbacks
     def _replyToObserve(
         self,
         filt,
         lastUpdateByGridKey: DeviceGridT,
         sendResponse: SendVortexMsgResponseCallable,
+        vortexUuid: str,
         cacheAll=False,
     ) -> None:
         """Reply to Observe
@@ -216,16 +226,11 @@ class GridCacheHandler(ACICacheHandlerABC):
         :returns: None
 
         """
+        startTime = datetime.now(pytz.utc)
         gridTuplesToSend = []
-
-        def sendChunk(toSend):
-            if not toSend and not cacheAll:
-                return
-
-            payloadEnvelope = PayloadEnvelope(filt=filt, data=toSend)
-            d: Deferred = payloadEnvelope.toVortexMsgDefer(base64Encode=False)
-            d.addCallback(sendResponse)
-            d.addErrback(vortexLogFailure, logger, consumeError=True)
+        updateCount = 0
+        sameCount = 0
+        deletedCount = 0
 
         # Check and send any updates
         for gridKey, lastUpdate in lastUpdateByGridKey.items():
@@ -234,28 +239,51 @@ class GridCacheHandler(ACICacheHandlerABC):
 
             # Last update is not null, we need to send an empty grid.
             if not gridTuple:
+                deletedCount += 1
                 gridTuple = EncodedGridTuple()
                 gridTuple.gridKey = gridKey
                 gridTuple.lastUpdate = lastUpdate
                 gridTuple.encodedGridTuple = None
                 gridTuplesToSend.append(gridTuple)
-                logger.debug(
-                    "Grid %s is no longer in the cache, %s", gridKey, lastUpdate
-                )
+
+                if self._DEBUG_LOGGING:
+                    logger.debug(
+                        "Grid %s is no longer in the cache, %s",
+                        gridKey,
+                        lastUpdate,
+                    )
 
             elif gridTuple.lastUpdate == lastUpdate:
-                logger.debug(
-                    "Grid %s matches the cache, %s", gridKey, lastUpdate
-                )
+                sameCount += 1
+                if self._DEBUG_LOGGING:
+                    logger.debug(
+                        "Grid %s matches the cache, %s", gridKey, lastUpdate
+                    )
 
             else:
+                updateCount += 1
                 gridTuplesToSend.append(gridTuple)
-                logger.debug(
-                    "Sending grid %s from the cache, %s", gridKey, lastUpdate
-                )
+                if self._DEBUG_LOGGING:
+                    logger.debug(
+                        "Sending grid %s from the cache, %s",
+                        gridKey,
+                        lastUpdate,
+                    )
 
             if len(gridTuplesToSend) == 5 and not cacheAll:
-                sendChunk(gridTuplesToSend)
+                yield self._sendData(
+                    sendResponse, filt, cacheAll, gridTuplesToSend
+                )
                 gridTuplesToSend = []
 
-        sendChunk(gridTuplesToSend)
+        yield self._sendData(sendResponse, filt, cacheAll, gridTuplesToSend)
+
+        logger.debug(
+            "Sent %s updates and %s deletes, %s matched/not sent"
+            " to %s in %s",
+            updateCount,
+            deletedCount,
+            sameCount,
+            vortexUuid,
+            datetime.now(pytz.utc) - startTime,
+        )
