@@ -42,7 +42,7 @@ Compile the location indexes
 
 @DeferrableTask
 @celeryApp.task(bind=True)
-def compileLocationIndex(self, payloadEncodedArgs: bytes) -> List[str]:
+def compileLocationIndex(self, payloadEncodedArgs: bytes) -> dict[str, str]:
     """Compile Location Index Task
 
     :param self: A celery reference to this task
@@ -59,6 +59,8 @@ def compileLocationIndex(self, payloadEncodedArgs: bytes) -> List[str]:
     queueTable = LocationIndexCompilerQueue.__table__
     compiledTable = LocationIndexCompiled.__table__
     lastUpdate = datetime.now(pytz.utc).isoformat()
+
+    lastUpdateByChunkKey = {}
 
     startTime = datetime.now(pytz.utc)
 
@@ -106,6 +108,8 @@ def compileLocationIndex(self, payloadEncodedArgs: bytes) -> List[str]:
             m.update(jsonStr.encode())
             dataHash = b64encode(m.digest()).decode()
 
+            lastUpdateByChunkKey[str(indexBucket)] = dataHash
+
             locationIndexTuple = LocationIndexTuple(
                 modelSetKey=modelSetKey,
                 indexBucket=indexBucket,
@@ -140,7 +144,9 @@ def compileLocationIndex(self, payloadEncodedArgs: bytes) -> List[str]:
 
         conn.execute(
             queueTable.delete(
-                makeCoreValuesSubqueryCondition(engine, queueTable.c.id, queueItemIds)
+                makeCoreValuesSubqueryCondition(
+                    engine, queueTable.c.id, queueItemIds
+                )
             )
         )
 
@@ -151,7 +157,7 @@ def compileLocationIndex(self, payloadEncodedArgs: bytes) -> List[str]:
             (datetime.now(pytz.utc) - startTime),
         )
 
-        return indexBuckets
+        return lastUpdateByChunkKey
 
     except Exception as e:
         transaction.rollback()
@@ -167,7 +173,10 @@ def compileLocationIndex(self, payloadEncodedArgs: bytes) -> List[str]:
 def _buildIndex(session, indexBuckets) -> Dict[str, str]:
     indexQry = (
         session.query(
-            LocationIndex.indexBucket, DispBase.id, DispBase.key, DispBase.locationJson
+            LocationIndex.indexBucket,
+            DispBase.id,
+            DispBase.key,
+            DispBase.locationJson,
         )
         .join(DispBase, DispBase.id == LocationIndex.dispId)
         .filter(
@@ -183,19 +192,25 @@ def _buildIndex(session, indexBuckets) -> Dict[str, str]:
     # Create the IndexBucket -> Key -> [Locations] structure
     locationByKeyByBucket = defaultdict(lambda: defaultdict(list))
     for item in indexQry:
-        locationByKeyByBucket[item.indexBucket][item.key].append(item.locationJson)
+        locationByKeyByBucket[item.indexBucket][item.key].append(
+            item.locationJson
+        )
 
     # Sort each bucket by the key
     for indexBucket, locationByKey in locationByKeyByBucket.items():
 
         # Create a list of of key, [locationJson, locationJson, locationJson]
-        sortedKeyLocations = list(sorted(locationByKey.items(), key=lambda i: i[0]))
+        sortedKeyLocations = list(
+            sorted(locationByKey.items(), key=lambda i: i[0])
+        )
 
         # [even] is a key, [odd] is the locations json string
         indexStructure = []
         for key, locationsJson in sortedKeyLocations:
             # Combine the key and locations into one json array
-            indexStructure.append('["%s",' % key + ",".join(locationsJson) + "]")
+            indexStructure.append(
+                '["%s",' % key + ",".join(locationsJson) + "]"
+            )
 
         # Create the blob data for this index.
         # It will be searched by a binary sort

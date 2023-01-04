@@ -45,17 +45,18 @@ class GridCacheController(ACICacheControllerABC):
     _UpdateDateTupleABC = GridUpdateDateTuple
     _chunkLoadRpcMethod = ClientGridLoaderRpc.loadGrids
     _chunkIndexDeltaRpcMethod = ClientGridLoaderRpc.loadGridsIndexDelta
-    _updateFromServerFilt = clientGridUpdateFromServerFilt
+    _updateFromLogicFilt = clientGridUpdateFromServerFilt
     _logger = logger
 
     #: This stores the cache of grid data for the clients
     _cache: Dict[str, GridTuple] = None
 
-    _LOAD_CHUNK_SIZE = 75
-    _LOAD_CHUNK_PARALLELISM = 4
-
     def __init__(self, clientId: str, pluginDataDir: Path):
         ACICacheControllerABC.__init__(self, clientId, pluginDataDir)
+
+        self._loadFromLogicMixin._LOAD_CHUNK_SIZE = 75
+        self._loadFromLogicMixin._LOAD_CHUNK_INITIAL_PARALLELISM = 4
+        self._loadFromLogicMixin._LOAD_CHUNK_UPDATE_PARALLELISM = 1
 
         self._coordSetEndpoint = PayloadEndpoint(
             clientCoordSetUpdateFromServerFilt, self._processCoordSetPayload
