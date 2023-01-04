@@ -39,7 +39,7 @@ class ClientLocationIndexLoaderRpc(ACIChunkLoadRpcABC):
     @vortexRPC(
         peekServerName,
         acceptOnlyFromVortex=peekBackendNames,
-        timeoutSeconds=60,
+        timeoutSeconds=120,
         additionalFilt=diagramFilt,
         deferToThread=True,
     )
@@ -54,7 +54,7 @@ class ClientLocationIndexLoaderRpc(ACIChunkLoadRpcABC):
     @vortexRPC(
         peekServerName,
         acceptOnlyFromVortex=peekBackendNames,
-        timeoutSeconds=60,
+        timeoutSeconds=120,
         additionalFilt=diagramFilt,
         deferToThread=True,
     )
