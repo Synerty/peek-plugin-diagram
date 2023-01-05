@@ -103,9 +103,6 @@ class GridCacheHandler(ACICacheHandlerABC):
         """
         self._filterOutOfflineVortexes()
 
-        if not self._uuidsObserving:
-            return
-
         def cratePayloadEnvelope():
             payloadEnvelope = PayloadEnvelope()
             payloadEnvelope.data = []
