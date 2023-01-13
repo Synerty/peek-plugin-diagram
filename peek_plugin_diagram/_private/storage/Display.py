@@ -122,7 +122,9 @@ class DispTextStyle(Tuple, DeclarativeBase):
     fontStyle = Column(String(30))
     scalable = Column(Boolean, nullable=False, server_default="true")
     scaleFactor = Column(Integer, nullable=False, server_default="1")
-    spacingBetweenTexts = Column(Float, nullable=False, server_default="100")
+    spacingBetweenTexts = Column(
+        Float, nullable=False, server_default="100", default=100
+    )
 
     modelSetId = Column(
         Integer,
