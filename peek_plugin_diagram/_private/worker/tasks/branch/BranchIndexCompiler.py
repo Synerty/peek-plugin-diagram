@@ -114,7 +114,7 @@ def _compileBranchIndexChunk(
         diagramIndexChunkEncodedPayload,
     ) in encKwPayloadByChunkKey.items():
         m = hashlib.sha256()
-        m.update(diagramIndexChunkEncodedPayload)
+        m.update(diagramIndexChunkEncodedPayload.encode())
         encodedHash = b64encode(m.digest()).decode()
 
         # Compare the hash, AND delete the chunk key
