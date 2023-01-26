@@ -11,7 +11,9 @@ from peek_plugin_diagram._private.server.controller.DispCompilerQueueController 
 )
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 from peek_plugin_base.worker.CeleryApp import celeryApp
-from peek_plugin_diagram._private.worker.tasks.ImportDispTask import _bulkInsertDisps
+from peek_plugin_diagram._private.worker.tasks.ImportDispTask import (
+    _bulkInsertDisps,
+)
 from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import (
     LookupHashConverter,
 )
@@ -21,10 +23,12 @@ from peek_plugin_diagram._private.worker.tasks._ModelSetUtil import (
 from peek_plugin_diagram._private.worker.tasks.branch.BranchDispUpdater import (
     _convertBranchDisps,
 )
-from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexUpdater import (
+from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexUpdaterTask import (
     _insertOrUpdateBranches,
 )
-from peek_plugin_diagram.tuples.branches.ImportBranchTuple import ImportBranchTuple
+from peek_plugin_diagram.tuples.branches.ImportBranchTuple import (
+    ImportBranchTuple,
+)
 from txcelery.defer import DeferrableTask
 from vortex.Payload import Payload
 
@@ -62,7 +66,11 @@ def createOrUpdateBranches(self, importBranchesEncodedPayload: bytes) -> None:
     transaction = conn.begin()
 
     try:
-        for (modelSetKey, modelSetId, coordSetId), branches in groupedBranches.items():
+        for (
+            modelSetKey,
+            modelSetId,
+            coordSetId,
+        ), branches in groupedBranches.items():
             _insertOrUpdateBranches(conn, modelSetKey, modelSetId, branches)
 
             newDisps, dispIdsToCompile = _convertBranchDisps(branches)
@@ -111,9 +119,13 @@ def _convertImportBranchTuples(
     """
 
     # Get a map for the coordSetIds
-    modelKeyCoordKeyTuples = [(b.modelSetKey, b.coordSetKey) for b in importBranches]
+    modelKeyCoordKeyTuples = [
+        (b.modelSetKey, b.coordSetKey) for b in importBranches
+    ]
 
-    coordSetIdByModelKeyCoordKeyTuple = getModelSetIdCoordSetId(modelKeyCoordKeyTuples)
+    coordSetIdByModelKeyCoordKeyTuple = getModelSetIdCoordSetId(
+        modelKeyCoordKeyTuples
+    )
 
     # Sort out the importBranches by coordSetKey
     branchByModelKeyByCoordKey = defaultdict(lambda: defaultdict(list))

@@ -1,6 +1,8 @@
 import logging
 
-from peek_plugin_base.worker.PluginWorkerEntryHookABC import PluginWorkerEntryHookABC
+from peek_plugin_base.worker.PluginWorkerEntryHookABC import (
+    PluginWorkerEntryHookABC,
+)
 from peek_plugin_diagram._private.worker.tasks import (
     GridCompilerTask,
     ImportDispTask,
@@ -8,9 +10,9 @@ from peek_plugin_diagram._private.worker.tasks import (
     LocationIndexCompilerTask,
 )
 from peek_plugin_diagram._private.worker.tasks.branch import (
-    BranchIndexCompiler,
-    BranchIndexImporter,
-    BranchIndexUpdater,
+    BranchIndexCompilerTask,
+    BranchIndexImporterTask,
+    BranchIndexUpdaterTask,
 )
 
 logger = logging.getLogger(__name__)

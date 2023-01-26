@@ -15,10 +15,10 @@ from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 from peek_plugin_diagram._private.tuples.branch.BranchUpdateTupleAction import (
     BranchUpdateTupleAction,
 )
-from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexImporter import (
+from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexImporterTask import (
     createOrUpdateBranches,
 )
-from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexUpdater import (
+from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexUpdaterTask import (
     updateBranches,
 )
 from peek_plugin_livedb.server.LiveDBWriteApiABC import LiveDBWriteApiABC
@@ -85,7 +85,9 @@ class BranchUpdateController(TupleActionProcessorDelegateABC):
         return defer.succeed([])
 
     @inlineCallbacks
-    def __processUpdateFromClient(self, tupleAction: TupleActionABC) -> Deferred:
+    def __processUpdateFromClient(
+        self, tupleAction: TupleActionABC
+    ) -> Deferred:
 
         dbSession = self._dbSessionCreator()
         try:
@@ -99,7 +101,9 @@ class BranchUpdateController(TupleActionProcessorDelegateABC):
             # that there is an update.
             branchIndex = (
                 dbSession.query(BranchIndex)
-                .filter(BranchIndex.coordSetId == tupleAction.branchTuple.coordSetId)
+                .filter(
+                    BranchIndex.coordSetId == tupleAction.branchTuple.coordSetId
+                )
                 .filter(BranchIndex.key == tupleAction.branchTuple.key)
                 .one()
             )

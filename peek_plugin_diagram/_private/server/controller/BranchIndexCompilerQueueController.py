@@ -32,12 +32,18 @@ class _Notifier(ACIProcessorStatusNotifierABC):
         self._adminStatusController = adminStatusController
 
     def setProcessorStatus(self, state: bool, queueSize: int):
-        self._adminStatusController.status.branchIndexCompilerQueueStatus = state
-        self._adminStatusController.status.branchIndexCompilerQueueSize = queueSize
+        self._adminStatusController.status.branchIndexCompilerQueueStatus = (
+            state
+        )
+        self._adminStatusController.status.branchIndexCompilerQueueSize = (
+            queueSize
+        )
         self._adminStatusController.notify()
 
     def addToProcessorTotal(self, delta: int):
-        self._adminStatusController.status.branchIndexCompilerProcessedTotal += delta
+        self._adminStatusController.status.branchIndexCompilerProcessedTotal += (
+            delta
+        )
         self._adminStatusController.notify()
 
     def setProcessorError(self, error: str):
@@ -72,10 +78,12 @@ class BranchIndexCompilerQueueController(ACIProcessorQueueControllerABC):
             self, dbSessionCreator, _Notifier(statusController)
         )
 
-        self._clientUpdateHandler: BranchIndexChunkUpdateHandler = clientUpdateHandler
+        self._clientUpdateHandler: BranchIndexChunkUpdateHandler = (
+            clientUpdateHandler
+        )
 
     def _sendToWorker(self, block: ACIProcessorQueueBlockItem):
-        from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexCompiler import (
+        from peek_plugin_diagram._private.worker.tasks.branch.BranchIndexCompilerTask import (
             compileBranchIndexChunk,
         )
 
