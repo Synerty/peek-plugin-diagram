@@ -131,7 +131,7 @@ def _compileBranchIndexChunk(
             dict(
                 modelSetId=modelSetId,
                 chunkKey=chunkKey,
-                encodedData=diagramIndexChunkEncodedPayload,
+                encodedData=diagramIndexChunkEncodedPayload.encode(),
                 encodedHash=encodedHash,
                 lastUpdate=lastUpdate,
             )
