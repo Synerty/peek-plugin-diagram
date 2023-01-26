@@ -34,9 +34,9 @@ class WorkerEntryHook(PluginWorkerEntryHookABC):
     @property
     def celeryAppIncludes(self):
         return [
-            BranchIndexUpdater.__name__,
-            BranchIndexCompiler.__name__,
-            BranchIndexImporter.__name__,
+            BranchIndexUpdaterTask.__name__,
+            BranchIndexCompilerTask.__name__,
+            BranchIndexImporterTask.__name__,
             DispCompilerTask.__name__,
             GridCompilerTask.__name__,
             ImportDispTask.__name__,
