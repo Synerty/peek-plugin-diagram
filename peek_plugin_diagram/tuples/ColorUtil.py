@@ -1,3 +1,9 @@
+import logging
+
+logging.getLogger("colormath.color_conversions").setLevel(logging.INFO)
+logging.getLogger("colormath.color_objects").setLevel(logging.INFO)
+logging.getLogger("colormath.chromatic_adaptation").setLevel(logging.INFO)
+
 from colormath import color_diff_matrix
 from colormath.color_conversions import convert_color
 from colormath.color_diff import _get_lab_color1_vector
@@ -6,6 +12,8 @@ from colormath.color_objects import sRGBColor
 from colormath.color_objects import LabColor
 from tinycss2.color3 import RGBA
 from tinycss2.color3 import parse_color
+
+logger = logging.getLogger(__name__)
 
 
 def deltaECie2000(color1, color2, Kl=1, Kc=1, Kh=1):
@@ -22,7 +30,20 @@ def deltaECie2000(color1, color2, Kl=1, Kc=1, Kh=1):
 
 
 def parseCSSColor(color: str) -> RGBA:
-    return parse_color(color)
+    assert color != "None", "There is a string 'None' in the source data"
+    try:
+        result = parse_color(color)
+
+    except Exception as e:
+        logger.error(f"Failure to parse colour '{color}' of type {type(color)}")
+        raise
+
+    if not result:
+        raise Exception(
+            f"Failure to parse colour '{color} of type" f" {type(color)}"
+        )
+
+    return result
 
 
 def rgbaToHexA(r: float, g: float, b: float, a: float) -> str:
@@ -117,9 +138,7 @@ def _invertColor(
 
     if cssColor.alpha == 1.0:
         return rgbaToHex(
-            invertedRgb.rgb_r,
-            invertedRgb.rgb_g,
-            invertedRgb.rgb_b,
+            invertedRgb.rgb_r, invertedRgb.rgb_g, invertedRgb.rgb_b
         )
 
     # return invertedRgb

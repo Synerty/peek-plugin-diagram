@@ -36,6 +36,13 @@ def upgrade():
         sa.Column("lightColor", sa.String(), nullable=True),
         schema="pl_diagram",
     )
+    op.execute(
+        """
+        UPDATE pl_diagram."DispColor"
+        SET "darkColor" = null
+        WHERE "darkColor" = 'None'
+        """
+    )
 
     session = Session(bind=op.get_bind())
     rows = (
