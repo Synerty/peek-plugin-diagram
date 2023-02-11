@@ -1,0 +1,66 @@
+from peek_plugin_diagram._private.storage.Display import DispColor
+from peek_plugin_diagram._private.storage.Display import DispLineStyle
+from peek_plugin_diagram.worker.canvas_shapes.ShapeBase import Point
+from peek_plugin_diagram.worker.canvas_shapes.ShapeBase import ShapeBase
+
+
+class ShapeEllipse(ShapeBase):
+    @staticmethod
+    def fillColor(disp) -> DispColor:
+        return disp.get("fcl")
+
+    @staticmethod
+    def lineColor(disp) -> DispColor:
+        return disp.get("lcl")
+
+    @staticmethod
+    def lineStyle(disp) -> DispLineStyle:
+        return disp.get("lsl")
+
+    @staticmethod
+    def lineWidth(disp) -> float:
+        return disp.get("w")
+
+    @staticmethod
+    def centerPointX(disp) -> float:
+        return disp.get("g")[0]
+
+    @staticmethod
+    def centerPointY(disp) -> float:
+        return disp.get("g")[1]
+
+    @staticmethod
+    def center(disp) -> Point:
+        return Point(
+            x=ShapeEllipse.centerPointX(disp), y=ShapeEllipse.centerPointY(disp)
+        )
+
+    @staticmethod
+    def xRadius(disp) -> float:
+        return disp.get("xr")
+
+    @staticmethod
+    def yRadius(disp) -> float:
+        return disp.get("yr")
+
+    @staticmethod
+    def rotation(disp) -> float:
+        return disp.get("r")
+
+    @staticmethod
+    def startAngle(disp) -> float:
+        """
+
+        :param disp: a dict
+        :return: startAngle in degrees
+        """
+        return disp.get("sa")
+
+    @staticmethod
+    def endAngle(disp) -> float:
+        """
+
+        :param disp: a dict
+        :return:  endAngle in degrees
+        """
+        return disp.get("ea")

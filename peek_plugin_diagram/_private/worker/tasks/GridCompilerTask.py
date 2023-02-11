@@ -119,7 +119,7 @@ def compileGrids(self, payloadEncodedArgs: bytes) -> dict[str, str]:
             conn.execute(gridTable.insert(), inserts)
 
         logger.debug(
-            "Compiled %s gridKeys, %s missing, in %s",
+            "Compiled %s gridKeyTuples, %s missing, in %s",
             len(inserts),
             len(gridKeys) - len(inserts),
             (datetime.now(pytz.utc) - startTime),

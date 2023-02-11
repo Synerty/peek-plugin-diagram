@@ -10,7 +10,9 @@
  *  Synerty Pty Ltd
  *
 """
+import json
 import typing
+from typing import Callable
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from sqlalchemy import Column, orm, BigInteger, SmallInteger
@@ -48,6 +50,7 @@ class DispLayer(Tuple, DeclarativeBase):
 
     #: Misc data holder
     data = TupleField()
+    key = TupleField()
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
@@ -71,6 +74,24 @@ class DispLayer(Tuple, DeclarativeBase):
         Index("idx_DispLayer_importHash", modelSetId, importHash, unique=True),
     )
 
+    def toTuple(self, idEncoder: Callable) -> DispLayer:
+        tuple_ = DispLayer()
+
+        tuple_.data = {"modelSetKey": self.modelSet.key}
+        tuple_.key = idEncoder(self.id)
+
+        tuple_.id = self.id
+        tuple_.name = self.name
+        tuple_.order = self.order
+        tuple_.selectable = self.selectable
+        tuple_.visible = self.visible
+        tuple_.modelSetId = self.modelSetId
+        tuple_.importHash = self.importHash
+        tuple_.blockApiUpdate = self.blockApiUpdate
+        tuple_.showForEdit = self.showForEdit
+
+        return tuple_
+
 
 @addTupleType
 class DispLevel(Tuple, DeclarativeBase):
@@ -80,6 +101,7 @@ class DispLevel(Tuple, DeclarativeBase):
 
     #: Misc data holder
     data = TupleField()
+    key = TupleField()
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
@@ -105,6 +127,26 @@ class DispLevel(Tuple, DeclarativeBase):
         Index("idx_DispLevel_importHash", coordSetId, importHash, unique=True),
     )
 
+    def isVisibleAtZoom(self, zoom: float) -> bool:
+        return self.minZoom <= zoom < self.maxZoom
+
+    def toTuple(self, idEncoder: Callable):
+        tuple_ = DispLevel()
+
+        tuple_.data = {"coordSetKey": self.coordSet.key}
+        tuple_.key = idEncoder(self.id)
+
+        tuple_.id = self.id
+        tuple_.name = self.name
+        tuple_.order = self.order
+        tuple_.minZoom = self.minZoom
+        tuple_.maxZoom = self.maxZoom
+        tuple_.importHash = self.importHash
+        tuple_.showForEdit = self.showForEdit
+        tuple_.blockApiUpdate = self.blockApiUpdate
+
+        return tuple_
+
 
 @addTupleType
 class DispTextStyle(Tuple, DeclarativeBase):
@@ -114,6 +156,7 @@ class DispTextStyle(Tuple, DeclarativeBase):
 
     #: Misc data holder
     data = TupleField()
+    key = TupleField()
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
@@ -149,6 +192,28 @@ class DispTextStyle(Tuple, DeclarativeBase):
         ),
     )
 
+    def toTuple(self, idEncoder: Callable):
+        tuple_ = DispTextStyle()
+
+        tuple_.data = {"modelSetKey": self.modelSet.key}
+        tuple_.key = idEncoder(self.id)
+
+        tuple_.id = self.id
+        tuple_.name = self.name
+        tuple_.fontName = self.fontName
+        tuple_.fontSize = self.fontSize
+        tuple_.fontStyle = self.fontStyle
+        tuple_.scalable = self.scalable
+        tuple_.scaleFactor = self.scaleFactor
+        tuple_.modelSetId = self.modelSetId
+        tuple_.importHash = self.importHash
+        tuple_.spacingBetweenTexts = self.spacingBetweenTexts
+        tuple_.borderWidth = self.borderWidth
+        tuple_.blockApiUpdate = self.blockApiUpdate
+        tuple_.showForEdit = self.showForEdit
+
+        return tuple_
+
 
 @addTupleType
 class DispLineStyle(Tuple, DeclarativeBase):
@@ -158,6 +223,7 @@ class DispLineStyle(Tuple, DeclarativeBase):
 
     #: Misc data holder
     data = TupleField()
+    key = TupleField()
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
@@ -192,6 +258,35 @@ class DispLineStyle(Tuple, DeclarativeBase):
         ),
     )
 
+    @property
+    def dashPatternParsed(self):
+        if self.dashPattern is None:
+            return None
+        return json.loads(self.dashPattern)
+
+    def toTuple(self, idEncoder: Callable):
+        tuple_ = DispLineStyle()
+
+        tuple_.data = {"modelSetKey": self.modelSet.key}
+        tuple_.key = idEncoder(self.id)
+
+        tuple_.id = self.id
+        tuple_.name = self.name
+        tuple_.backgroundFillDashSpace = self.backgroundFillDashSpace
+        tuple_.capStyle = self.capStyle
+        tuple_.joinStyle = self.joinStyle
+        tuple_.dashPattern = self.dashPattern
+        tuple_.startArrowSize = self.startArrowSize
+        tuple_.endArrowSize = self.endArrowSize
+        tuple_.winStyle = self.winStyle
+        tuple_.modelSetId = self.modelSetId
+        tuple_.importHash = self.importHash
+        tuple_.scalable = self.scalable
+        tuple_.showForEdit = self.showForEdit
+        tuple_.blockApiUpdate = self.blockApiUpdate
+
+        return tuple_
+
 
 @addTupleType
 class DispColor(Tuple, DeclarativeBase):
@@ -201,6 +296,7 @@ class DispColor(Tuple, DeclarativeBase):
 
     #: Misc data holder
     data = TupleField()
+    key = TupleField()
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), doc=JSON_EXCLUDE, nullable=False)
@@ -235,7 +331,28 @@ class DispColor(Tuple, DeclarativeBase):
     @color.setter
     def color(self, value: str):
         self.darkColor = value
-        self.lightColor = invertColor(value, "#fff")
+        if value:
+            self.lightColor = invertColor(value, "#fff")
+
+    def toTuple(self, idEncoder: Callable):
+        tuple_ = DispColor()
+
+        tuple_.data = self.data
+        tuple_.key = idEncoder(self.id)
+
+        tuple_.id = self.id
+        tuple_.name = self.name
+        tuple_.darkColor = self.darkColor
+        tuple_.lightColor = self.lightColor
+        tuple_.altColor = self.altColor
+        tuple_.swapPeriod = self.swapPeriod
+        tuple_.modelSetId = self.modelSetId
+        tuple_.importHash = self.importHash
+        tuple_.showForEdit = self.showForEdit
+        tuple_.blockApiUpdate = self.blockApiUpdate
+        tuple_.color = self.color
+
+        return tuple_
 
 
 class DispBase(Tuple, DeclarativeBase):
