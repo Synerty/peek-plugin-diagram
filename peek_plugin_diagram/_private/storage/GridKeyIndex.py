@@ -5,6 +5,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Index
+from vortex.Payload import Payload
 from vortex.Tuple import Tuple, addTupleType
 
 from peek_abstract_chunked_index.private.tuples.ACIEncodedChunkTupleABC import (
@@ -114,6 +115,12 @@ class GridKeyIndexCompiled(Tuple, DeclarativeBase, ACIEncodedChunkTupleABC):
     @property
     def ckiEncodedData(self):
         return self.encodedGridTuple
+
+    @property
+    def decodedDataBlocking(self) -> Payload:
+        if not self.ckiHasEncodedData:
+            return Payload()
+        return Payload().fromEncodedPayload(self.encodedGridTuple)
 
     @property
     def ckiHasEncodedData(self) -> bool:

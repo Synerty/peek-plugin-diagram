@@ -104,7 +104,7 @@ export class GridObservable {
         for (let canvasId of dictKeysFromObject(this.gridKeysByCanvasId)) {
             let gridKeys = this.gridKeysByCanvasId[canvasId];
 
-            // Iterate through the gridKeys
+            // Iterate through the gridKeyTuples
             for (let gridKey of gridKeys) {
                 // Get the existing array or create one
                 let array: any[] = null;
