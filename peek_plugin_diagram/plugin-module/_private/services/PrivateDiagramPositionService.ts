@@ -1,11 +1,12 @@
 import { Injectable } from "@angular/core";
 import {
+    CoordSetViewWindowI,
     DiagramPositionService,
     DispKeyLocation,
     OptionalPositionArgsI,
     PositionUpdatedI,
 } from "../../DiagramPositionService";
-import { Observable, Subject } from "rxjs";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
 
 import { DispKeyLocationTuple } from "../location-loader/DispKeyLocationTuple";
 import { BalloonMsgService } from "@synerty/peek-plugin-base-js";
@@ -41,7 +42,11 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
     private positionSubject = new Subject<DiagramPositionI>();
     private positionByKeySubject = new Subject<DiagramPositionByKeyI>();
     private isReadySubject = new Subject<boolean>();
+
     private positionUpdatedSubject = new Subject<PositionUpdatedI>();
+    private coordSetViewSubject =
+        new BehaviorSubject<null | CoordSetViewWindowI>(null);
+
     private selectKeysSubject = new Subject<string[]>();
 
     constructor(
@@ -232,8 +237,12 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
         this.titleUpdatedSubject.next(value);
     }
 
-    positionUpdated(pos: PositionUpdatedI): void {
+    positionUpdated(
+        pos: PositionUpdatedI,
+        coordSetViewData: CoordSetViewWindowI
+    ): void {
         this.positionUpdatedSubject.next(pos);
+        this.coordSetViewSubject.next(coordSetViewData);
     }
 
     isReadyObservable(): Observable<boolean> {
@@ -242,6 +251,14 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
 
     positionUpdatedObservable(): Observable<PositionUpdatedI> {
         return this.positionUpdatedSubject;
+    }
+
+    coordSetViewUpdatedObservable(): Observable<CoordSetViewWindowI | null> {
+        return this.coordSetViewSubject.asObservable();
+    }
+
+    coordSetView(): CoordSetViewWindowI | null {
+        return this.coordSetViewSubject.getValue();
     }
 
     titleUpdatedObservable(): Observable<string> {

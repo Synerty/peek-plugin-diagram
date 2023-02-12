@@ -113,6 +113,8 @@ class WorkerDiagramGridApiImpl:
                 .first()
             )
 
+            # @louis.lu please fix this
+            # ERROR: gridSizeRow can be null
             xGrid = gridSizeRow.xGrid
             yGrid = gridSizeRow.yGrid
 

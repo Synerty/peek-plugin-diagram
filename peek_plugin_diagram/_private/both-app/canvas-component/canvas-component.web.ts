@@ -11,7 +11,10 @@ import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/
 import { PrivateDiagramConfigService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
 import { DispBase, DispBaseT } from "../canvas-shapes/DispBase";
 import { PeekCanvasBounds } from "../canvas/PeekCanvasBounds";
-import { PositionUpdatedI } from "@peek/peek_plugin_diagram/DiagramPositionService";
+import {
+    CoordSetViewWindowI,
+    PositionUpdatedI,
+} from "@peek/peek_plugin_diagram/DiagramPositionService";
 import { DocDbPopupService } from "@peek/peek_core_docdb";
 import { PrivateDiagramPositionService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramPositionService";
 import { PrivateDiagramItemSelectService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramItemSelectService";
@@ -235,7 +238,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
             if (this.config.editor.active)
                 editingBranch = this.editor.branchContext.branchTuple.key;
 
-            let data: PositionUpdatedI = {
+            const positionUpdatedData: PositionUpdatedI = {
                 coordSetKey: this.config.controller.coordSet.key,
                 x: this.config.viewPort.pan.x,
                 y: this.config.viewPort.pan.y,
@@ -243,7 +246,19 @@ export class CanvasComponent extends NgLifeCycleEvents {
                 editingBranch: editingBranch,
             };
 
-            this.privatePosService.positionUpdated(data);
+            const coordSetViewData: CoordSetViewWindowI = {
+                modelSetKey: this.config.controller.modelSetKey,
+                coordSetKey: this.config.controller.coordSet.key,
+                x: this.config.viewPort.window.x,
+                y: this.config.viewPort.window.y,
+                width: this.config.viewPort.window.w,
+                height: this.config.viewPort.window.h,
+            };
+
+            this.privatePosService.positionUpdated(
+                positionUpdatedData,
+                coordSetViewData
+            );
         };
 
         this.config.viewPort.panChange

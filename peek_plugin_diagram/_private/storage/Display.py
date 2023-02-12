@@ -74,7 +74,7 @@ class DispLayer(Tuple, DeclarativeBase):
         Index("idx_DispLayer_importHash", modelSetId, importHash, unique=True),
     )
 
-    def toTuple(self, idEncoder: Callable) -> DispLayer:
+    def toTuple(self, idEncoder: Callable) -> "DispLayer":
         tuple_ = DispLayer()
 
         tuple_.data = {"modelSetKey": self.modelSet.key}

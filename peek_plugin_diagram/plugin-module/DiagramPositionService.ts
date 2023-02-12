@@ -1,5 +1,19 @@
 import { Observable } from "rxjs";
 
+export interface CoordSetViewWindowI {
+    modelSetKey: string;
+    coordSetKey: string;
+
+    // Left most X
+    x: number;
+
+    // Lowest Y
+    y: number;
+
+    width: number;
+    height: number;
+}
+
 export interface PositionUpdatedI {
     coordSetKey: string;
     x: number;
@@ -117,6 +131,19 @@ export abstract class DiagramPositionService {
      * @return An observerable that fires when the canvas position is updated.
      */
     abstract positionUpdatedObservable(): Observable<PositionUpdatedI>;
+
+    /** Coordinate Set View Updated
+     *
+     * @returns an observable that is fired when the diagrams coordinate set
+     * or canvas window changes. For example, from zooming out.
+     */
+    abstract coordSetViewUpdatedObservable(): Observable<CoordSetViewWindowI | null>;
+
+    /** Last Coord Set View
+     *
+     * @returns the current coordinate set view window
+     */
+    abstract coordSetView(): CoordSetViewWindowI | null;
 
     /** isReady
      *
