@@ -36,7 +36,9 @@ class ModelSet(Tuple, DeclarativeBase):
     comment = Column(String)
 
     landingCoordSetId = Column(
-        Integer, ForeignKey("ModelCoordSet.id", ondelete="CASCADE"), nullable=True
+        Integer,
+        ForeignKey("ModelCoordSet.id", ondelete="CASCADE"),
+        nullable=True,
     )
 
     coordSets = relationship(
@@ -79,7 +81,9 @@ class ModelCoordSet(Tuple, DeclarativeBase):
 
     # Grid size settings
     gridSizes = relationship(
-        "ModelCoordSetGridSize", lazy="subquery", order_by="ModelCoordSetGridSize.key"
+        "ModelCoordSetGridSize",
+        lazy="subquery",
+        order_by="ModelCoordSetGridSize.key",
     )
 
     minZoom = Column(Float, nullable=False, server_default="0.01")
@@ -101,10 +105,14 @@ class ModelCoordSet(Tuple, DeclarativeBase):
     isLanding = TupleField()
 
     #: Show this Coord Set as a group of DispGroups to choose from in the Editor
-    dispGroupTemplatesEnabled = Column(Boolean, nullable=False, server_default="false")
+    dispGroupTemplatesEnabled = Column(
+        Boolean, nullable=False, server_default="false"
+    )
 
     #: Show this Coord Set as a group of Line Templates to choose from in the Editor
-    edgeTemplatesEnabled = Column(Boolean, nullable=False, server_default="false")
+    edgeTemplatesEnabled = Column(
+        Boolean, nullable=False, server_default="false"
+    )
 
     #: Is Editing enabled? (Also ensure ALL editDefault fields are set.
     branchesEnabled = Column(Boolean, nullable=False, server_default="false")
@@ -128,7 +136,9 @@ class ModelCoordSet(Tuple, DeclarativeBase):
     editDefaultTextStyleId = Column(Integer, ForeignKey("DispTextStyle.id"))
 
     #: Default Vertex/Node/Equipment Coord Set
-    editDefaultVertexCoordSetId = Column(Integer, ForeignKey("ModelCoordSet.id"))
+    editDefaultVertexCoordSetId = Column(
+        Integer, ForeignKey("ModelCoordSet.id")
+    )
     editDefaultVertexGroupName = Column(String)
 
     #: Default Edge/Conductor Coord Set
@@ -140,14 +150,24 @@ class ModelCoordSet(Tuple, DeclarativeBase):
         Index("idxCoordSetImportId1", importId1, unique=False),
         Index("idxCoordSetImportId2", importId2, unique=False),
         Index("idxCoordModelSetId", modelSetId, unique=False),
-        Index("idxCoordModel_editDefaultLayerId", editDefaultLayerId, unique=False),
-        Index("idxCoordModel_editDefaultLevelId", editDefaultLevelId, unique=False),
-        Index("idxCoordModel_editDefaultColorId", editDefaultColorId, unique=False),
         Index(
-            "idxCoordModel_editDefaultLineStyleId", editDefaultLineStyleId, unique=False
+            "idxCoordModel_editDefaultLayerId", editDefaultLayerId, unique=False
         ),
         Index(
-            "idxCoordModel_editDefaultTextStyleId", editDefaultTextStyleId, unique=False
+            "idxCoordModel_editDefaultLevelId", editDefaultLevelId, unique=False
+        ),
+        Index(
+            "idxCoordModel_editDefaultColorId", editDefaultColorId, unique=False
+        ),
+        Index(
+            "idxCoordModel_editDefaultLineStyleId",
+            editDefaultLineStyleId,
+            unique=False,
+        ),
+        Index(
+            "idxCoordModel_editDefaultTextStyleId",
+            editDefaultTextStyleId,
+            unique=False,
         ),
         Index(
             "idxCoordModel_editDefaultVertexCoordSetId",
@@ -185,11 +205,15 @@ class ModelCoordSetGridSize(Tuple, DeclarativeBase):
     smallestShapeSize = Column(Float, nullable=False, server_default="2.0")
 
     coordSetId = Column(
-        Integer, ForeignKey("ModelCoordSet.id", ondelete="CASCADE"), nullable=False
+        Integer,
+        ForeignKey("ModelCoordSet.id", ondelete="CASCADE"),
+        nullable=False,
     )
     coordSet = relationship(ModelCoordSet)
 
-    __table_args__ = (Index("idx_CoordSetGridSize_key", coordSetId, key, unique=True),)
+    __table_args__ = (
+        Index("idx_CoordSetGridSize_key", coordSetId, key, unique=True),
+    )
 
     DEFAULT = [
         # These defaults are good for Aurora
@@ -239,6 +263,10 @@ class ModelCoordSetGridSize(Tuple, DeclarativeBase):
         x, y = Grid coordinates, top left
         """
         return "%s|%s.%sx%s" % (self.coordSetId, self.key, x, y)
+
+    @classmethod
+    def makeGridKeyStartsWith(cls, coordSetId: int, gridKeySize: int):
+        return "%s|%s." % (coordSetId, gridKeySize)
 
 
 def makeDispGroupGridKey(coordSetId: int):

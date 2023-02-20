@@ -462,6 +462,8 @@ class DispBase(Tuple, DeclarativeBase):
         Index("idx_Disp_coordSetId_", coordSetId, unique=False),
         Index("idx_Disp_groupId", groupId, unique=False),
         Index("idx_Disp_branchId", branchId, unique=False),
+        # We need this for the diagram API method getGridKeysFromShapeKeys
+        Index("idx_Disp_key", key, unique=False),
         # Index("idx_Disp_hashId", coordSetId, hashId, unique=True),
         # Index("idx_Disp_replacesHashId", replacesHashId),
     )

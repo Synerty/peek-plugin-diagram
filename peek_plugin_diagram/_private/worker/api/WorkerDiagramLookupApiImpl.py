@@ -30,70 +30,90 @@ class WorkerDiagramLookupApiImpl:
     @classmethod
     def getColors(cls) -> List[DispColor]:
         ormSession = CeleryDbConn.getDbSession()
-        hasher = _Hasher()
+        try:
+            hasher = _Hasher()
 
-        rows = ormSession.query(DispColor).all()
+            rows = ormSession.query(DispColor).all()
 
-        tuples = []
+            tuples = []
 
-        for row in rows:
-            tuple_ = row.toTuple(hasher.encode)
-            tuples.append(tuple_)
+            for row in rows:
+                tuple_ = row.toTuple(hasher.encode)
+                tuples.append(tuple_)
 
-        return tuples
+            return tuples
+
+        finally:
+            ormSession.close()
 
     @classmethod
     def getLineStyles(cls) -> List[DispLineStyle]:
         ormSession = CeleryDbConn.getDbSession()
-        hasher = _Hasher()
+        try:
+            hasher = _Hasher()
 
-        rows = ormSession.query(DispLineStyle).all()
+            rows = ormSession.query(DispLineStyle).all()
 
-        tuples = []
-        for row in rows:
-            tuple_ = row.toTuple(hasher.encode)
-            tuples.append(tuple_)
+            tuples = []
+            for row in rows:
+                tuple_ = row.toTuple(hasher.encode)
+                tuples.append(tuple_)
 
-        return tuples
+            return tuples
+
+        finally:
+            ormSession.close()
 
     @classmethod
     def getTextStyles(cls) -> List[DispTextStyle]:
         ormSession = CeleryDbConn.getDbSession()
-        hasher = _Hasher()
+        try:
+            hasher = _Hasher()
 
-        rows = ormSession.query(DispTextStyle).all()
+            rows = ormSession.query(DispTextStyle).all()
 
-        tuples = []
-        for row in rows:
-            tuple_ = row.toTuple(hasher.encode)
-            tuples.append(tuple_)
+            tuples = []
+            for row in rows:
+                tuple_ = row.toTuple(hasher.encode)
+                tuples.append(tuple_)
 
-        return tuples
+            return tuples
+
+        finally:
+            ormSession.close()
 
     @classmethod
     def getLayers(cls) -> List[DispLayer]:
         ormSession = CeleryDbConn.getDbSession()
-        hasher = _Hasher()
+        try:
+            hasher = _Hasher()
 
-        rows = ormSession.query(DispLayer).all()
+            rows = ormSession.query(DispLayer).all()
 
-        tuples = []
-        for row in rows:
-            tuple_ = row.toTuple(hasher.encode)
-            tuples.append(tuple_)
+            tuples = []
+            for row in rows:
+                tuple_ = row.toTuple(hasher.encode)
+                tuples.append(tuple_)
 
-        return tuples
+            return tuples
+
+        finally:
+            ormSession.close()
 
     @classmethod
     def getLevels(cls) -> List[DispLevel]:
         ormSession = CeleryDbConn.getDbSession()
-        hasher = _Hasher()
+        try:
+            hasher = _Hasher()
 
-        rows = ormSession.query(DispLevel).all()
+            rows = ormSession.query(DispLevel).all()
 
-        tuples = []
-        for row in rows:
-            tuple_ = row.toTuple(hasher.encode)
-            tuples.append(tuple_)
+            tuples = []
+            for row in rows:
+                tuple_ = row.toTuple(hasher.encode)
+                tuples.append(tuple_)
 
-        return tuples
+            return tuples
+
+        finally:
+            ormSession.close()

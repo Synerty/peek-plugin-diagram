@@ -7,12 +7,15 @@ from typing import Dict
 from typing import List
 
 from sqlalchemy import and_
+from sqlalchemy import select
 from sqlalchemy import text
+from sqlalchemy.sql.functions import min
+from vortex.DeferUtil import noMainThread
 from vortex.Payload import Payload
 
 from peek_plugin_base.worker import CeleryDbConn
-from peek_plugin_diagram._private.storage.Display import DispLayer
-from peek_plugin_diagram._private.storage.Display import DispLevel
+from peek_plugin_diagram._private.storage.Display import DispBase
+from peek_plugin_diagram._private.storage.GridKeyIndex import GridKeyIndex
 from peek_plugin_diagram._private.storage.GridKeyIndex import (
     GridKeyIndexCompiled,
 )
@@ -27,9 +30,6 @@ from peek_plugin_diagram.tuples.grids.DecodedCompiledGridTuple import (
     DecodedCompiledGridTuple,
 )
 from peek_plugin_diagram.tuples.grids.GridKeyTuple import GridKeyTuple
-from peek_plugin_diagram.worker.WorkerDiagramLookupApi import (
-    WorkerDiagramLookupApi,
-)
 from peek_plugin_diagram.worker.canvas_shapes.ShapeBase import ShapeBase
 
 logger = logging.getLogger(__name__)
@@ -43,111 +43,105 @@ class WorkerDiagramGridApiImpl:
         coordSetKey: str,
         boundingBox: Annotated[List[float], 4] = None,
     ) -> List[GridKeyTuple]:
-        engine = CeleryDbConn.getDbEngine()
-
-        query = text(
-            dedent(
-                f"""
-            WITH gridInfo AS (
+        session = CeleryDbConn.getDbSession()
+        try:
+            query = text(
+                dedent(
+                    f"""
+                WITH gridInfo AS (
+                    SELECT
+                        m1."xGrid" AS "xGrid",
+                        m1."yGrid" AS "yGrid",
+                        (mcs.id || '|' || m1.key || '.%')::text AS pattern
+                    FROM
+                        pl_diagram."ModelCoordSetGridSize" AS m1
+                        JOIN pl_diagram."ModelCoordSet" AS mcs ON m1."coordSetId" = mcs.id
+                        JOIN pl_diagram."ModelSet" AS ms ON ms.id = mcs."modelSetId"
+                    WHERE
+                        mcs."key" = '{coordSetKey}'
+                        AND ms.key = '{modelSetKey}'
+                    ORDER BY
+                        m1."max" DESC
+                    LIMIT 1)
+               
                 SELECT
-                    m1."xGrid" AS "xGrid",
-                    m1."yGrid" AS "yGrid",
-                    (mcs.id || '|' || m1.key || '.%')::text AS pattern
+                    "gridKey" AS gridKey,
+                    (
+                        SELECT
+                            "xGrid"
+                        FROM
+                            gridInfo) AS width,
+                    (
+                        SELECT
+                            "yGrid"
+                        FROM
+                            gridInfo) AS height,
+                    count(*) AS shapeCount
                 FROM
-                    pl_diagram."ModelCoordSetGridSize" AS m1
-                    JOIN pl_diagram."ModelCoordSet" AS mcs ON m1."coordSetId" = mcs.id
-                    JOIN pl_diagram."ModelSet" AS ms ON ms.id = mcs."modelSetId"
+                    pl_diagram."GridKeyIndex" AS gi
                 WHERE
-                    mcs."key" = '{coordSetKey}'
-                    AND ms.key = '{modelSetKey}'
-                ORDER BY
-                    m1."max" DESC
-                LIMIT 1)
-           
-            SELECT
-                "gridKey" AS gridKey,
-                (
-                    SELECT
-                        "xGrid"
-                    FROM
-                        gridInfo) AS width,
-                (
-                    SELECT
-                        "yGrid"
-                    FROM
-                        gridInfo) AS height,
-                count(*) AS shapeCount
-            FROM
-                pl_diagram."GridKeyIndex" AS gi
-            WHERE
-                gi."gridKey" LIKE (
-                    SELECT
-                        pattern
-                    FROM
-                        gridInfo)
-            GROUP BY
-                gi."gridKey";
-        """
-            )
-        )
-
-        rows = engine.execute(query)
-
-        if boundingBox is not None and len(boundingBox) == 4:
-            session = CeleryDbConn.getDbSession()
-
-            gridSizeRow = (
-                session.query(ModelCoordSetGridSize)
-                .join(
-                    ModelCoordSet,
-                    and_(ModelCoordSet.id == ModelCoordSetGridSize.coordSetId),
+                    gi."gridKey" LIKE (
+                        SELECT
+                            pattern
+                        FROM
+                            gridInfo)
+                GROUP BY
+                    gi."gridKey";
+            """
                 )
-                .join(ModelSet, and_(ModelSet.id == ModelCoordSet.modelSetId))
-                .filter(
-                    and_(
-                        ModelSet.key == modelSetKey,
-                        ModelCoordSet.key == coordSetKey,
+            )
+
+            rows = session.execute(query)
+
+            if boundingBox is not None and len(boundingBox) == 4:
+                gridSizeRow = (
+                    session.query(ModelCoordSetGridSize)
+                    .join(
+                        ModelCoordSet,
+                        and_(
+                            ModelCoordSet.id == ModelCoordSetGridSize.coordSetId
+                        ),
                     )
+                    .join(
+                        ModelSet, and_(ModelSet.id == ModelCoordSet.modelSetId)
+                    )
+                    .filter(
+                        and_(
+                            ModelSet.key == modelSetKey,
+                            ModelCoordSet.key == coordSetKey,
+                        )
+                    )
+                    .order_by(ModelCoordSetGridSize.max.desc())
+                    .first()
                 )
-                .order_by(ModelCoordSetGridSize.max.desc())
-                .first()
-            )
 
-            # @louis.lu please fix this
-            # ERROR: gridSizeRow can be null
-            xGrid = gridSizeRow.xGrid
-            yGrid = gridSizeRow.yGrid
+                # if we have no shapes in this area of the diagram, then return
+                # an array of no grid keys.
+                if not gridSizeRow:
+                    return []
 
-            topLeftX = int(boundingBox[0] / xGrid)
-            topLeftY = int(boundingBox[1] / yGrid)
-            bottomRightX = int(boundingBox[2] / xGrid)
-            bottomRightY = int(boundingBox[3] / yGrid)
+                xGrid = gridSizeRow.xGrid
+                yGrid = gridSizeRow.yGrid
 
-        gridKeys = []
-        for row in rows:
-            _, _, xy = row[0].partition(".")  # gridKey
-            x, _, y = xy.partition("x")
+                topLeftX = int(boundingBox[0] / xGrid)
+                topLeftY = int(boundingBox[1] / yGrid)
+                bottomRightX = int(boundingBox[2] / xGrid)
+                bottomRightY = int(boundingBox[3] / yGrid)
 
-            x = int(x)
-            y = int(y)
+            gridKeys = []
+            for row in rows:
+                _, _, xy = row[0].partition(".")  # gridKey
+                x, _, y = xy.partition("x")
 
-            if (
-                boundingBox is not None
-                and (topLeftX <= x <= bottomRightX)
-                and (topLeftY <= y <= bottomRightY)
-            ):
-                g = GridKeyTuple(
-                    gridKey=row[0],
-                    width=float(row[1]),
-                    height=float(row[2]),
-                    shapeCount=int(row[3]),
-                    modelSetKey=modelSetKey,
-                    coordSetKey=coordSetKey,
-                )
-                gridKeys.append(g)
-            elif boundingBox is None:
-                gridKeys.append(
-                    GridKeyTuple(
+                x = int(x)
+                y = int(y)
+
+                if (
+                    boundingBox is not None
+                    and (topLeftX <= x <= bottomRightX)
+                    and (topLeftY <= y <= bottomRightY)
+                ):
+                    g = GridKeyTuple(
                         gridKey=row[0],
                         width=float(row[1]),
                         height=float(row[2]),
@@ -155,9 +149,23 @@ class WorkerDiagramGridApiImpl:
                         modelSetKey=modelSetKey,
                         coordSetKey=coordSetKey,
                     )
-                )
+                    gridKeys.append(g)
+                elif boundingBox is None:
+                    gridKeys.append(
+                        GridKeyTuple(
+                            gridKey=row[0],
+                            width=float(row[1]),
+                            height=float(row[2]),
+                            shapeCount=int(row[3]),
+                            modelSetKey=modelSetKey,
+                            coordSetKey=coordSetKey,
+                        )
+                    )
 
-        return gridKeys
+            return gridKeys
+
+        finally:
+            session.close()
 
     @classmethod
     def getShapesByGridKeys(
@@ -172,24 +180,27 @@ class WorkerDiagramGridApiImpl:
         """
         s = time.monotonic()
         session = CeleryDbConn.getDbSession()
-        query = session.query(GridKeyIndexCompiled).filter(
-            GridKeyIndexCompiled.gridKey.in_(gridKeys)
-        )
+        try:
+            query = session.query(GridKeyIndexCompiled).filter(
+                GridKeyIndexCompiled.gridKey.in_(gridKeys)
+            )
 
-        rows = query.all()
-        decodedCompiledGridTuplesByGridKey = {}
+            rows = query.all()
+            decodedCompiledGridTuplesByGridKey = {}
 
-        for row in rows:
-            # get encoded chunk and decode it as `Payload`
-            gridTuplesPayload: Payload = row.decodedDataBlocking
-            # get the GridTuple from Payload
-            gridTuple: GridTuple = gridTuplesPayload.tuples[0]
+            for row in rows:
+                # get encoded chunk and decode it as `Payload`
+                gridTuplesPayload: Payload = row.decodedDataBlocking
+                # get the GridTuple from Payload
+                gridTuple: GridTuple = gridTuplesPayload.tuples[0]
 
-            decodedCompiledGridTuplesByGridKey[
-                gridTuple.gridKey
-            ] = gridTuple.toDecodedCompiledGridTuple()
+                decodedCompiledGridTuplesByGridKey[
+                    gridTuple.gridKey
+                ] = gridTuple.toDecodedCompiledGridTuple()
 
-        return decodedCompiledGridTuplesByGridKey
+            return decodedCompiledGridTuplesByGridKey
+        finally:
+            session.close()
 
     @classmethod
     def linkShapes(
@@ -240,7 +251,6 @@ class WorkerDiagramGridApiImpl:
                     continue
 
                 for decodedCompiledGridTuple in decodedCompiledGridTuples:
-
                     gridKey = decodedCompiledGridTuple.gridKey
 
                     # default is 0 if key doesn't exist
@@ -283,28 +293,68 @@ class WorkerDiagramGridApiImpl:
 
     @classmethod
     def getGridKeysFromShapeKeys(
-        cls, modelSetKey, coordSetKey, shapeKeys, smallestGridKeySize
+        cls, modelSetKey, coordSetKey, shapeKeys, smallestGridKeySize=False
     ):
-        shapeKeysStr = ','.join(f"('{k}')" for k in shapeKeys])
+        noMainThread()
 
-        engine = CeleryDbConn.getDbEngine()
-        rows = engine.execute(
-            f"""
-            DROP TABLE IF EXISTS _shapeKeys;
-            CREATE TEMPORARY TABLE _shapeKeys (key character varying);
-            INSERT INTO _shapeKeys (key) VALUES {shapeKeysStr};
+        gridKeyIndexTable = GridKeyIndex.__table__
+        dispBaseTable = DispBase.__table__
 
-            SELECT
-                distinct gki."gridKey"
-            FROM
-                pl_diagram."DispBase" AS db
-                JOIN pl_diagram."ModelCoordSet" AS mcs ON db."coordSetId" = mcs.id
-                JOIN pl_diagram."ModelSet" AS ms ON ms.id = mcs."modelSetId"
-                JOIN _shapeKeys on _shapeKeys.key = db.key
-                JOIN pl_diagram."GridKeyIndex" as gki on gki."dispId" = db.id
-            WHERE
-                mcs.key = {modelSetKey}
-                AND ms.key = {coordSetKey};
-        """
-        )
-        return []
+        # Ensure there are no duplicate keys or empty keys
+        shapeKeys = list(set(filter(lambda k: k, shapeKeys)))
+
+        ormSession = CeleryDbConn.getDbSession()
+        try:
+            coordSetId = (
+                ormSession.query(ModelCoordSet.id)
+                .filter(
+                    ModelCoordSet.key == coordSetKey
+                    and ModelCoordSet.modelSet.key == modelSetKey
+                )
+                .scalar()
+            )
+
+            gridKeysSet = set()
+            # Start a transaction so we have consistent results.
+            CHUNK_SIZE = 1000
+
+            for i in range(0, len(shapeKeys), CHUNK_SIZE):
+                chunkedShapeKeys = shapeKeys[i : i + CHUNK_SIZE]
+                sql = (
+                    select([gridKeyIndexTable.c.gridKey])
+                    .select_from(
+                        gridKeyIndexTable.join(
+                            dispBaseTable,
+                            dispBaseTable.c.id == gridKeyIndexTable.c.dispId,
+                        )
+                    )
+                    .where(dispBaseTable.c.key.in_(chunkedShapeKeys))
+                    .distinct()
+                )
+
+                newGridKeys = [r.gridKey for r in ormSession.execute(sql)]
+
+                gridKeysSet.update(newGridKeys)
+
+            if not smallestGridKeySize:
+                return list(gridKeysSet)
+
+            minKey = (
+                ormSession.query(min(ModelCoordSetGridSize.key))
+                .filter(ModelCoordSetGridSize.coordSetId == coordSetId)
+                .one()
+            )
+
+            startsWithStr = ModelCoordSetGridSize.makeGridKeyStartsWith(
+                coordSetId, minKey
+            )
+
+            return list(
+                filter(
+                    lambda gridKey: gridKey.startswith(startsWithStr),
+                    gridKeysSet,
+                )
+            )
+
+        finally:
+            ormSession.close()
