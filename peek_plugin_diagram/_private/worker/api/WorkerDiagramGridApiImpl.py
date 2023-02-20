@@ -36,6 +36,8 @@ logger = logging.getLogger(__name__)
 
 
 class WorkerDiagramGridApiImpl:
+    _DEBUG_LOGGING = False
+
     @classmethod
     def getGridKeys(
         cls,
@@ -358,3 +360,92 @@ class WorkerDiagramGridApiImpl:
 
         finally:
             ormSession.close()
+
+    @classmethod
+    def filterShapesByShapeKey(
+        cls, shapes: list[dict], filterForKeys: set[str]
+    ) -> list[dict]:
+        assert isinstance(filterForKeys, set), (
+            "Please convert filterForKeys "
+            "to a set before passing it to filterShapesByShapeKey"
+        )
+        if cls._DEBUG_LOGGING:
+            logger.debug(
+                "filterShapesByShapeKey: Started,"
+                " with %s shapes and %s filter keys",
+                len(shapes),
+                len(filterForKeys),
+            )
+
+        # Index the shapes so we know which shapes belong to which group id
+        shapesByGroupId: dict[int, list[tuple[int, dict]]] = defaultdict(list)
+        for index, shape in enumerate(shapes):
+            groupId = ShapeBase.groupId(shape)
+            if groupId is not None:
+                shapesByGroupId[groupId].append((index, shape))
+
+        if cls._DEBUG_LOGGING:
+            logger.debug(
+                "filterShapesByShapeKey: Completed indexing shapes by groupId, We've found %s groupIds",
+                len(shapesByGroupId),
+            )
+
+        # This is all the shapes we want to collect
+        shapeIndexes = set()
+
+        # This is the list of shape groups we need to include the group
+        # members for
+        groupShapeParentIds = []
+
+        # First, iterate over the shapes and filter for the shapes by keys
+        for index, shape in enumerate(shapes):
+            if ShapeBase.key(shape) in filterForKeys:
+                shapeIndexes.add(index)
+                groupShapeParentIds.append(ShapeBase.id(shape))
+
+                groupId = ShapeBase.groupId(shape)
+                if groupId:
+                    groupShapeParentIds.append(groupId)
+
+        if cls._DEBUG_LOGGING:
+            logger.debug(
+                "filterShapesByShapeKey: Completed filtering by key, %s shapes selected",
+                len(shapeIndexes),
+            )
+
+        # Next we include the shapes that are group memebers of the shapes in
+        # the last loop.
+        # We also include those shapes in our next check and include those
+        # shapes members - groups can have groups in them.
+        loop = 1
+        while groupShapeParentIds:
+            nextGroupShapeParentIds = []
+
+            for groupId in groupShapeParentIds:
+                memberIndexShapeTuples = shapesByGroupId.get(groupId, [])
+                for index, shape in memberIndexShapeTuples:
+                    shapeIndexes.add(index)
+                    nextGroupShapeParentIds.append(ShapeBase.id(shape))
+
+            if cls._DEBUG_LOGGING:
+                logger.debug(
+                    "filterShapesByShapeKey: Completed filtering for"
+                    " level %s group members"
+                    " of %s groups,"
+                    " found %s shapes",
+                    loop,
+                    len(groupShapeParentIds),
+                    len(nextGroupShapeParentIds),
+                )
+
+            groupShapeParentIds = nextGroupShapeParentIds
+            loop += 1
+
+        if cls._DEBUG_LOGGING:
+            logger.debug(
+                "filterShapesByShapeKey: Completed, returning %s shapes.",
+                len(shapeIndexes),
+            )
+
+        # return sortedFilteredShapes
+        return [shapes[index] for index in sorted(shapeIndexes)]

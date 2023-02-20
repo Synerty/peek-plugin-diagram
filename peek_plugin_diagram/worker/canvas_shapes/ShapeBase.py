@@ -37,11 +37,7 @@ class ShapeBase:
     TYPE_DET = "DET"
     TYPE_DN = "DN"
 
-    DEEP_COPY_FIELDS_TO_IGNORE = [
-        "bounds",
-        "disps",
-        "dispGroup",
-    ]
+    DEEP_COPY_FIELDS_TO_IGNORE = ["bounds", "disps", "dispGroup"]
 
     _typeMapInit = False
     _typeMap = {}
@@ -53,22 +49,10 @@ class ShapeBase:
         if not cls._typeMapInit:
             cls._typeMapInit = True
             cls._typeMap[cls.TYPE_DT] = [ShapeType.text, "Text"]
-            cls._typeMap[cls.TYPE_DCT] = [
-                ShapeType.curvedText,
-                "CurvedText",
-            ]
-            cls._typeMap[cls.TYPE_DPG] = [
-                ShapeType.polygon,
-                "Polygon",
-            ]
-            cls._typeMap[cls.TYPE_DPL] = [
-                ShapeType.polyline,
-                "Polyline",
-            ]
-            cls._typeMap[cls.TYPE_DE] = [
-                ShapeType.ellipse,
-                "Ellipse",
-            ]
+            cls._typeMap[cls.TYPE_DCT] = [ShapeType.curvedText, "CurvedText"]
+            cls._typeMap[cls.TYPE_DPG] = [ShapeType.polygon, "Polygon"]
+            cls._typeMap[cls.TYPE_DPL] = [ShapeType.polyline, "Polyline"]
+            cls._typeMap[cls.TYPE_DE] = [ShapeType.ellipse, "Ellipse"]
             cls._typeMap[cls.TYPE_DG] = [ShapeType.group, "Group"]
             cls._typeMap[cls.TYPE_DGP] = [
                 ShapeType.groupPointer,
@@ -78,10 +62,7 @@ class ShapeBase:
                 ShapeType.edgeTemplate,
                 "EdgeTemplate",
             ]
-            cls._typeMap[cls.TYPE_DN] = [
-                ShapeType.null_,
-                "Deleted Shape",
-            ]
+            cls._typeMap[cls.TYPE_DN] = [ShapeType.null_, "Deleted Shape"]
 
         return cls._typeMap
 
@@ -129,7 +110,7 @@ class ShapeBase:
 
     @staticmethod
     def groupId(disp) -> Union[int, None]:
-        return disp["gi"]
+        return disp.get("gi")
 
     @staticmethod
     def branchId(disp) -> int:
@@ -157,7 +138,7 @@ class ShapeBase:
 
     @staticmethod
     def key(disp) -> Union[str, None]:
-        return disp["k"]
+        return disp.get("k")
 
     @staticmethod
     def action(disp) -> Union[ShapeActionEnum, None]:

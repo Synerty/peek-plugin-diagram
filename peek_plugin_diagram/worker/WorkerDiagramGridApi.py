@@ -77,3 +77,15 @@ class WorkerDiagramGridApi:
             shapeKeys=shapeKeys,
             smallestGridKeySize=smallestGridKeySize,
         )
+
+    @classmethod
+    def filterShapesByShapeKey(
+        cls, shapes: list[dict], filterForKeys: set[str]
+    ) -> list[dict]:
+        from peek_plugin_diagram._private.worker.api.WorkerDiagramGridApiImpl import (
+            WorkerDiagramGridApiImpl,
+        )
+
+        return WorkerDiagramGridApiImpl.filterShapesByShapeKey(
+            shapes=shapes, filterForKeys=filterForKeys
+        )
