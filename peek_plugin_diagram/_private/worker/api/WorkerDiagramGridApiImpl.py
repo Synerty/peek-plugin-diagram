@@ -280,3 +280,31 @@ class WorkerDiagramGridApiImpl:
                     dispIndexByGridKey[gridKey] = nextIndex
 
         return disps
+
+    @classmethod
+    def getGridKeysFromShapeKeys(
+        cls, modelSetKey, coordSetKey, shapeKeys, smallestGridKeySize
+    ):
+        shapeKeysStr = ','.join(f"('{k}')" for k in shapeKeys])
+
+        engine = CeleryDbConn.getDbEngine()
+        rows = engine.execute(
+            f"""
+            DROP TABLE IF EXISTS _shapeKeys;
+            CREATE TEMPORARY TABLE _shapeKeys (key character varying);
+            INSERT INTO _shapeKeys (key) VALUES {shapeKeysStr};
+
+            SELECT
+                distinct gki."gridKey"
+            FROM
+                pl_diagram."DispBase" AS db
+                JOIN pl_diagram."ModelCoordSet" AS mcs ON db."coordSetId" = mcs.id
+                JOIN pl_diagram."ModelSet" AS ms ON ms.id = mcs."modelSetId"
+                JOIN _shapeKeys on _shapeKeys.key = db.key
+                JOIN pl_diagram."GridKeyIndex" as gki on gki."dispId" = db.id
+            WHERE
+                mcs.key = {modelSetKey}
+                AND ms.key = {coordSetKey};
+        """
+        )
+        return []

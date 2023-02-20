@@ -1,6 +1,7 @@
 from typing import Annotated
 from typing import Dict
 from typing import List
+from typing import Optional
 
 from vortex.Tuple import Tuple
 
@@ -56,4 +57,23 @@ class WorkerDiagramGridApi:
             decodedCompiledGridTuples=decodedCompiledGridTuples,
             levelsOrderedByOrder=levelsOrderedByOrder,
             layersOrderedByOrder=layersOrderedByOrder,
+        )
+
+    @classmethod
+    def getGridKeysFromShapeKeys(
+        cls,
+        modelSetKey,
+        coordSetKey,
+        shapeKeys: list[str],
+        smallestGridKeySize: Optional[bool] = False,
+    ) -> list[str]:
+        from peek_plugin_diagram._private.worker.api.WorkerDiagramGridApiImpl import (
+            WorkerDiagramGridApiImpl,
+        )
+
+        return WorkerDiagramGridApiImpl.getGridKeysFromShapeKeys(
+            modelSetKey=modelSetKey,
+            coordSetKey=coordSetKey,
+            shapeKeys=shapeKeys,
+            smallestGridKeySize=smallestGridKeySize,
         )
