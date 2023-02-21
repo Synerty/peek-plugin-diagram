@@ -1,15 +1,16 @@
 import logging
 import time
 from collections import defaultdict
+from collections import namedtuple
 from textwrap import dedent
 from typing import Annotated
 from typing import Dict
 from typing import List
 
 from sqlalchemy import and_
+from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy import text
-from sqlalchemy.sql.functions import min
 from vortex.DeferUtil import noMainThread
 from vortex.Payload import Payload
 
@@ -294,9 +295,11 @@ class WorkerDiagramGridApiImpl:
         return disps
 
     @classmethod
-    def getGridKeysFromShapeKeys(
+    def getGridKeyTuplesFromShapeKeys(
         cls, modelSetKey, coordSetKey, shapeKeys, smallestGridKeySize=False
-    ):
+    ) -> List[GridKeyTuple]:
+        _GridData = namedtuple("_GridData", ("gridKey", "width", "height"))
+
         noMainThread()
 
         gridKeyIndexTable = GridKeyIndex.__table__
@@ -316,7 +319,8 @@ class WorkerDiagramGridApiImpl:
                 .scalar()
             )
 
-            gridKeysSet = set()
+            gridKeysIterable = set()
+
             # Start a transaction so we have consistent results.
             CHUNK_SIZE = 1000
 
@@ -334,29 +338,70 @@ class WorkerDiagramGridApiImpl:
                     .distinct()
                 )
 
-                newGridKeys = [r.gridKey for r in ormSession.execute(sql)]
-
-                gridKeysSet.update(newGridKeys)
-
-            if not smallestGridKeySize:
-                return list(gridKeysSet)
-
-            minKey = (
-                ormSession.query(min(ModelCoordSetGridSize.key))
-                .filter(ModelCoordSetGridSize.coordSetId == coordSetId)
-                .one()
-            )
-
-            startsWithStr = ModelCoordSetGridSize.makeGridKeyStartsWith(
-                coordSetId, minKey
-            )
-
-            return list(
-                filter(
-                    lambda gridKey: gridKey.startswith(startsWithStr),
-                    gridKeysSet,
+                gridKeysIterable.update(
+                    [row.gridKey for row in ormSession.execute(sql)]
                 )
+
+            # Query for the grid size data
+            gridKeySizesByKey = {
+                gs.key: gs
+                for gs in ormSession.query(ModelCoordSetGridSize).filter(
+                    ModelCoordSetGridSize.coordSetId == coordSetId
+                )
+            }
+
+            # If we just want the smallest grids, filter for them
+            if smallestGridKeySize:
+                minKey = min([i.key for i in gridKeySizesByKey.values()])
+
+                ## Filter the grid sizes
+                gridKeySizesByKey = {minKey: gridKeySizesByKey[minKey]}
+
+                # Filter the grids
+                startsWithStr = ModelCoordSetGridSize.makeGridKeyStartsWith(
+                    coordSetId, minKey
+                )
+
+                gridKeysIterable = list(
+                    filter(
+                        lambda gridKey: gridKey.startswith(startsWithStr),
+                        gridKeysIterable,
+                    )
+                )
+
+            # Query for the shape counts and create the GridKeyTuple
+            sql = (
+                select(
+                    [
+                        gridKeyIndexTable.c.gridKey,
+                        func.count(gridKeyIndexTable.c.gridKey).label(
+                            "shapeCount"
+                        ),
+                    ]
+                )
+                .where(gridKeyIndexTable.c.gridKey.in_(gridKeysIterable))
+                .group_by(gridKeyIndexTable.c.gridKey)
             )
+
+            gridKeyTuples = []
+
+            for row in ormSession.execute(sql):
+                gridSize = gridKeySizesByKey[
+                    ModelCoordSetGridSize.gridSizeKeyFromGridKey(row.gridKey)
+                ]
+
+                gridKeyTuples.append(
+                    GridKeyTuple(
+                        gridKey=row.gridKey,
+                        width=float(gridSize.xGrid),
+                        height=float(gridSize.yGrid),
+                        shapeCount=row.shapeCount,
+                        modelSetKey=modelSetKey,
+                        coordSetKey=coordSetKey,
+                    )
+                )
+
+            return gridKeyTuples
 
         finally:
             ormSession.close()

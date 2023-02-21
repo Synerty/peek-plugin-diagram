@@ -5,6 +5,8 @@ from typing import Optional
 
 from vortex.Tuple import Tuple
 
+from peek_plugin_diagram.tuples.grids.GridKeyTuple import GridKeyTuple
+
 
 class WorkerDiagramGridApi:
     @classmethod
@@ -60,18 +62,18 @@ class WorkerDiagramGridApi:
         )
 
     @classmethod
-    def getGridKeysFromShapeKeys(
+    def getGridKeyTuplesFromShapeKeys(
         cls,
         modelSetKey,
         coordSetKey,
         shapeKeys: list[str],
         smallestGridKeySize: Optional[bool] = False,
-    ) -> list[str]:
+    ) -> List[GridKeyTuple]:
         from peek_plugin_diagram._private.worker.api.WorkerDiagramGridApiImpl import (
             WorkerDiagramGridApiImpl,
         )
 
-        return WorkerDiagramGridApiImpl.getGridKeysFromShapeKeys(
+        return WorkerDiagramGridApiImpl.getGridKeyTuplesFromShapeKeys(
             modelSetKey=modelSetKey,
             coordSetKey=coordSetKey,
             shapeKeys=shapeKeys,

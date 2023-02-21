@@ -35,19 +35,21 @@ class WorkerDiagramGridApiImpl(TestCase):
     def _test_getGridKeysFromShapeKeys_All(self):
         from .WorkerDiagramGridApiImpl import WorkerDiagramGridApiImpl
 
-        result = WorkerDiagramGridApiImpl.getGridKeysFromShapeKeys(
+        result = WorkerDiagramGridApiImpl.getGridKeyTuplesFromShapeKeys(
             "pofDiagram", "Distribution World", testKeys
         )
         self.assertTrue(result)
+        print(result)
 
     # Disabled, this needs specific data
     def _test_getGridKeysFromShapeKeys_Smallest(self):
         from .WorkerDiagramGridApiImpl import WorkerDiagramGridApiImpl
 
-        result = WorkerDiagramGridApiImpl.getGridKeysFromShapeKeys(
+        result = WorkerDiagramGridApiImpl.getGridKeyTuplesFromShapeKeys(
             "pofDiagram", "Distribution World", testKeys
         )
         self.assertTrue(result)
+        print(result)
 
     # Disabled, this needs specific data
     def _test_filterShapesByShapeKey(self):

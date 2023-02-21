@@ -10,19 +10,25 @@
  *  Synerty Pty Ltd
  *
 """
-from sqlalchemy.exc import IntegrityError
+import logging
 
-from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
-from sqlalchemy import Integer, String
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Index
 from sqlalchemy.sql.sqltypes import Boolean
 from sqlalchemy.types import Float
-from vortex.Tuple import addTupleType, Tuple, TupleField
+from vortex.Tuple import Tuple
+from vortex.Tuple import TupleField
+from vortex.Tuple import addTupleType
 
+from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from .DeclarativeBase import DeclarativeBase
+
+logger = logging.getLogger(__name__)
 
 
 @addTupleType
@@ -267,6 +273,14 @@ class ModelCoordSetGridSize(Tuple, DeclarativeBase):
     @classmethod
     def makeGridKeyStartsWith(cls, coordSetId: int, gridKeySize: int):
         return "%s|%s." % (coordSetId, gridKeySize)
+
+    @classmethod
+    def gridSizeKeyFromGridKey(cls, gridKey: str):
+        try:
+            return int(gridKey.split("|")[1].split(".")[0])
+        except:
+            logger.error("Grid key [%s] is malformed", gridKey)
+            raise
 
 
 def makeDispGroupGridKey(coordSetId: int):
