@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
-import { BranchIndexLoaderStatusTuple } from "./BranchIndexLoaderStatusTuple";
+import { OfflineCacheLoaderStatusTuple } from "@peek/peek_core_device";
 import { BranchIndexResultI } from "./BranchIndexLoaderService";
 
 export abstract class BranchIndexLoaderServiceA extends NgLifeCycleEvents {
@@ -12,9 +12,9 @@ export abstract class BranchIndexLoaderServiceA extends NgLifeCycleEvents {
 
     abstract isReadyObservable(): Observable<boolean>;
 
-    abstract statusObservable(): Observable<BranchIndexLoaderStatusTuple>;
+    abstract statusObservable(): Observable<OfflineCacheLoaderStatusTuple>;
 
-    abstract status(): BranchIndexLoaderStatusTuple;
+    abstract status(): OfflineCacheLoaderStatusTuple;
 
     abstract getBranches(
         modelSetKey: string,

@@ -1,7 +1,7 @@
 import { GridTuple } from "./GridTuple";
 import { Observable } from "rxjs";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
-import { PrivateDiagramGridLoaderStatusTuple } from "./PrivateDiagramGridLoaderStatusTuple";
+import { OfflineCacheLoaderStatusTuple } from "@peek/peek_core_device";
 
 export abstract class PrivateDiagramGridLoaderServiceA extends NgLifeCycleEvents {
     abstract observable: Observable<GridTuple[]>;
@@ -14,9 +14,9 @@ export abstract class PrivateDiagramGridLoaderServiceA extends NgLifeCycleEvents
 
     abstract isReadyObservable(): Observable<boolean>;
 
-    abstract statusObservable(): Observable<PrivateDiagramGridLoaderStatusTuple>;
+    abstract statusObservable(): Observable<OfflineCacheLoaderStatusTuple>;
 
-    abstract status(): PrivateDiagramGridLoaderStatusTuple;
+    abstract status(): OfflineCacheLoaderStatusTuple;
 
     abstract watchGrids(gridKeys: string[]): void;
 

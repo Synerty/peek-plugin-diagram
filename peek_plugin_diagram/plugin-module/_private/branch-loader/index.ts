@@ -6,4 +6,3 @@ export {
     BranchIndexLoaderService,
     BranchIndexResultI,
 } from "./BranchIndexLoaderService";
-export { BranchIndexLoaderStatusTuple } from "./BranchIndexLoaderStatusTuple";

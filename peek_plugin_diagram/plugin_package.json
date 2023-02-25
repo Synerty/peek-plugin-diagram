@@ -45,8 +45,6 @@
         "showHomeLink": false,
         "appDir": "_private/both-app",
         "moduleDir": "plugin-module",
-        "cfgDir": "_private/both-cfg",
-        "cfgModule": "diagram-cfg.module#DiagramCfgModule",
         "rootServices": [
             {
                 "file": "_private/services/PrivateDiagramTupleService",

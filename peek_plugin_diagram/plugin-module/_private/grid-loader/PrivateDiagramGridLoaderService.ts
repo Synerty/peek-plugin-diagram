@@ -19,11 +19,10 @@ import {
 import { diagramFilt, gridCacheStorageName } from "../PluginNames";
 import { GridUpdateDateTuple } from "./GridUpdateDateTuple";
 import { PrivateDiagramTupleService } from "../services";
-import { PrivateDiagramGridLoaderStatusTuple } from "./PrivateDiagramGridLoaderStatusTuple";
 import { EncodedGridTuple } from "./EncodedGridTuple";
 import {
     DeviceOfflineCacheService,
-    OfflineCacheStatusTuple,
+    OfflineCacheLoaderStatusTuple,
 } from "@peek/peek_core_device";
 
 // ----------------------------------------------------------------------------
@@ -100,8 +99,8 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
     // The queue of grids to cache
     private askServerChunks = [];
 
-    private _statusSubject = new Subject<PrivateDiagramGridLoaderStatusTuple>();
-    private _status = new PrivateDiagramGridLoaderStatusTuple();
+    private _statusSubject = new Subject<OfflineCacheLoaderStatusTuple>();
+    private _status = new OfflineCacheLoaderStatusTuple();
 
     constructor(
         private vortexService: VortexService,
@@ -111,6 +110,9 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
         private deviceCacheControllerService: DeviceOfflineCacheService
     ) {
         super();
+
+        this._status.pluginName = "peek_plugin_diagram";
+        this._status.indexName = "Grids";
 
         this.storage = storageFactory.create(
             new TupleOfflineStorageNameService(gridCacheStorageName)
@@ -122,14 +124,29 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
             .catch((e) => console.log(`Failed to open grid cache db ${e}`));
 
         this.setupVortexSubscriptions();
-        this._notifyStatus();
 
-        this.deviceCacheControllerService.triggerCachingObservable
+        // This is loaded regardless for the GridLoader
+        // this.deviceCacheControllerService.offlineModeEnabled$
+        //     .pipe(takeUntil(this.onDestroyEvent))
+        //     .pipe(filter((v) => v))
+        //     .pipe(first())
+        //     .subscribe(() => {
+        //         this.initialLoad();
+        //     });
+
+        this.deviceCacheControllerService.triggerCachingStartObservable
             .pipe(takeUntil(this.onDestroyEvent))
             .pipe(filter((v) => v))
             .subscribe(() => {
                 this.askServerForUpdates();
                 this._notifyStatus();
+            });
+
+        this.deviceCacheControllerService.triggerCachingResumeObservable
+            .pipe(takeUntil(this.onDestroyEvent))
+            .subscribe(() => {
+                this._notifyStatus();
+                this.askServerForNextUpdateChunk();
             });
     }
 
@@ -145,11 +162,11 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
         return this.isReadySubject;
     }
 
-    statusObservable(): Observable<PrivateDiagramGridLoaderStatusTuple> {
+    statusObservable(): Observable<OfflineCacheLoaderStatusTuple> {
         return this._statusSubject;
     }
 
-    status(): PrivateDiagramGridLoaderStatusTuple {
+    status(): OfflineCacheLoaderStatusTuple {
         return this._status;
     }
 
@@ -180,25 +197,19 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
         this.sendWatchedGridsToServer(currentGridUpdateTimes);
     }
 
-    private _notifyStatus(): void {
-        this._status.cacheForOfflineEnabled =
-            this.deviceCacheControllerService.cachingEnabled;
-        this._status.initialLoadComplete = this.index.initialLoadComplete;
+    private _notifyStatus(paused: boolean = false): void {
+        this._status.lastCheckDate = new Date();
+        this._status.paused = paused;
+        this._status.initialFullLoadComplete = this.index.initialLoadComplete;
 
-        this._status.loadProgress = Object.values(
+        this._status.loadingQueueCount = Object.values(
             this.index.updateDateByChunkKey
-        ).filter((v) => v != null).length;
+        ).filter((v) => v == null).length;
 
         this._statusSubject.next(this._status);
-
-        const status = new OfflineCacheStatusTuple();
-        status.pluginName = "peek_plugin_diagram";
-        status.indexName = "Grids";
-        status.loadingQueueCount = this._status.loadProgress;
-        status.totalLoadedCount = this._status.loadTotal;
-        status.lastCheckDate = new Date();
-        status.initialFullLoadComplete = this._status.initialLoadComplete;
-        this.deviceCacheControllerService.updateCachingStatus(status);
+        this.deviceCacheControllerService.updateLoaderCachingStatus(
+            this._status
+        );
     }
 
     private setupVortexSubscriptions(): void {
@@ -246,7 +257,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
         let chunkSize = 5000;
 
         let complete = () => {
-            this._status.loadTotal = total;
+            this._status.totalLoadedCount = total;
             this.queueChunksToAskServer(keysNeedingUpdate);
         };
 
@@ -277,7 +288,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
                     }
 
                     total += tuples.length;
-                    this._status.loadTotal = total;
+                    this._status.totalLoadedCount = total;
 
                     for (let item of tuples) {
                         let chunkKey = item[0];
@@ -297,7 +308,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
                             keysNeedingUpdate.push(chunkKey);
                         }
                     }
-                    this._status.lastCheck = new Date();
+                    this._status.lastCheckDate = new Date();
                     this._notifyStatus();
                     setTimeout(() => queueNext(), 0);
                 })
@@ -333,7 +344,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
 
         this.askServerForNextUpdateChunk();
 
-        this._status.lastCheck = new Date();
+        this._status.lastCheckDate = new Date();
         this._notifyStatus();
     }
 
@@ -346,18 +357,21 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
 
         if (this.askServerChunks.length == 0) return;
 
-        this.deviceCacheControllerService //
-            .waitForGarbageCollector()
-            .then(() => {
-                let nextChunk = this.askServerChunks.pop();
+        if (this.deviceCacheControllerService.isOfflineCachingPaused) {
+            this.saveChunkCacheIndex(true) //
+                .catch((e) => console.log(`ERROR saveChunkCacheIndex: ${e}`));
+            this._notifyStatus(true);
+            return;
+        }
 
-                let payload = new Payload({ cacheAll: true }, [nextChunk]);
-                extend(payload.filt, clientGridWatchUpdateFromDeviceFilt);
-                this.vortexService.sendPayload(payload);
+        let nextChunk = this.askServerChunks.pop();
 
-                this._status.lastCheck = new Date();
-                this._notifyStatus();
-            });
+        let payload = new Payload({ cacheAll: true }, [nextChunk]);
+        extend(payload.filt, clientGridWatchUpdateFromDeviceFilt);
+        this.vortexService.sendPayload(payload);
+
+        this._status.lastCheckDate = new Date();
+        this._notifyStatus();
     }
 
     //
