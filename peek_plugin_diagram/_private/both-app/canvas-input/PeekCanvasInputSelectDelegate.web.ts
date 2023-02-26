@@ -199,6 +199,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         if (!delta) {
             return;
         }
+        this.clearPopupTimeout();
+        this.clearSelectableUnderMouse();
 
         // Correct the zooming to match google maps, etc
         delta = delta * -1;
@@ -429,7 +431,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         const hits = this.getUnderMouseHits(inputPos);
 
         if (!hits.length) {
-            clearTimeout(this.popupTimeout);
+            this.clearPopupTimeout();
             this.viewArgs.objectPopupService.hideHoverPopup();
             this.clearSelectableUnderMouse();
             return;
@@ -442,29 +444,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                 return;
             }
         }
-
-        if (!this.popupOpened) {
-            clearTimeout(this.popupTimeout);
-            this.popupTimeout = setTimeout(() => {
-                if (DispBase.key(newHit)) {
-                    this.popupOpened = true;
-                    this.viewArgs.objectPopupService.showPopup(
-                        false,
-                        DocDbPopupTypeE.tooltipPopup,
-                        diagramPluginName,
-                        mouse,
-                        this.viewArgs.config.controller.modelSetKey,
-                        DispBase.key(newHit),
-                        {
-                            triggeredForContext:
-                                this.viewArgs.config.coordSet.key,
-                        }
-                    );
-                }
-            }, 125);
-        }
-
         const newHit = hits[0];
+        this.popupTooltip(newHit, mouse);
 
         if (
             this.suggestedDispToSelect != null &&
@@ -477,6 +458,45 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this.clearSelectableUnderMouse();
         this.suggestedDispToSelect = newHit;
         this.viewArgs.config.invalidate();
+    }
+
+    private popupTooltip(newHit, mouse: MouseEvent) {
+        if (this.popupOpened) {
+            return;
+        }
+
+        if (DispBase.key(newHit) == null) {
+            return;
+        }
+
+        this.clearPopupTimeout();
+        this.popupTimeout = setTimeout(() => {
+            if (this.popupTimeout == null) {
+                return;
+            }
+
+            this.popupOpened = true;
+
+            this.viewArgs.objectPopupService.showPopup(
+                false,
+                DocDbPopupTypeE.tooltipPopup,
+                diagramPluginName,
+                mouse,
+                this.viewArgs.config.controller.modelSetKey,
+                DispBase.key(newHit),
+                {
+                    triggeredForContext: this.viewArgs.config.coordSet.key,
+                }
+            );
+        }, 250);
+    }
+
+    private clearPopupTimeout(): void {
+        if (this.popupTimeout != null) {
+            clearTimeout(this.popupTimeout);
+        }
+        this.popupTimeout = null;
+        this.viewArgs.objectPopupService.hideHoverPopup();
     }
 
     private clearSelectableUnderMouse(): void {
