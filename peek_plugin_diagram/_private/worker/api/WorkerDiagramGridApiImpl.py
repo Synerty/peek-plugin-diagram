@@ -352,14 +352,14 @@ class WorkerDiagramGridApiImpl:
 
             # If we just want the smallest grids, filter for them
             if smallestGridKeySize:
-                minKey = min([i.key for i in gridKeySizesByKey.values()])
+                maxKey = max([i.key for i in gridKeySizesByKey.values()])
 
                 ## Filter the grid sizes
-                gridKeySizesByKey = {minKey: gridKeySizesByKey[minKey]}
+                gridKeySizesByKey = {maxKey: gridKeySizesByKey[maxKey]}
 
                 # Filter the grids
                 startsWithStr = ModelCoordSetGridSize.makeGridKeyStartsWith(
-                    coordSetId, minKey
+                    coordSetId, maxKey
                 )
 
                 gridKeysIterable = list(

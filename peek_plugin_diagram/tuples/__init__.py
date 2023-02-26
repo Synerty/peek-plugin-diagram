@@ -28,3 +28,7 @@ def loadPublicTuples():
     from .model import loadModelTuples
 
     loadModelTuples()
+
+    from .grids import loadGridTuples
+
+    loadGridTuples()
