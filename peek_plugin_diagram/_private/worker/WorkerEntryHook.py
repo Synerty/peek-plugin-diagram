@@ -14,12 +14,14 @@ from peek_plugin_diagram._private.worker.tasks.branch import (
     BranchIndexImporterTask,
     BranchIndexUpdaterTask,
 )
+from peek_plugin_diagram.tuples import loadPublicTuples
 
 logger = logging.getLogger(__name__)
 
 
 class WorkerEntryHook(PluginWorkerEntryHookABC):
     def load(self):
+        loadPublicTuples()
         logger.debug("loaded")
 
     def start(self):
