@@ -14,15 +14,15 @@ The coordinate sets can be edited in the database, they are located in the table
 
 The fields most often customised are as follows :
 
-:name:  The name of the coordinaate set, this is displayed to the user.
+:name:  The name of the coordinate set, this is displayed to the user.
 
 :enabled: Is the coordinate set enabled, It's best to delete it if it's not.
 
-:initialPanX: The initial canvas X position when the coorinate set is loaded.
+:initialPanX: The initial canvas X position when the coordinate set is loaded.
 
-:initialPanY: The initial canvas Y position when the coorinate set is loaded.
+:initialPanY: The initial canvas Y position when the coordinate set is loaded.
 
-:initialZoom: The initial canvas zoom level when the coorinate set is loaded.
+:initialZoom: The initial canvas zoom level when the coordinate set is loaded.
 
 Update the values in the table accordingly, then restart the Peek Client service.
 
@@ -61,7 +61,7 @@ This represents the rules used by the Diagram compiler to compile the grids.
 
 Zoom ranges should not overlap.
 
-:min: The minumum zoom level that this Z Grid will be shown at.
+:min: The minimum zoom level that this Z Grid will be shown at.
 
 :max: The maximum zoom level that this Z Grid will be shown at.
 
@@ -128,7 +128,7 @@ This admin task will recompile all grids for a given coordinate set.
 
 ----
 
-#.  Find the :code:`coordSetId` of the coorinate set to be recompiled.
+#.  Find the :code:`coordSetId` of the coordinate set to be recompiled.
 
 #.  Stop all peek services
 
@@ -211,3 +211,24 @@ To Discard your Changes
 Click **Reset** at any time to discard your changed and return the value to the previous saved settings.
 
 .. image:: plugin_diagram_edit_settings_reset.png
+
+Edit Light Mode Colours
+------------------------
+
+.. note:: The colour fields only accept hexadecimal colour codes in the form
+    #000000
+
+#. Using PSQL, update the blockApiUpdate value and new light colour::
+
+        UPDATE pl_diagram."DispColor"
+        SET
+        "blockApiUpdate" = TRUE,
+        "lightColor" = [New Color]
+        WHERE "lightColor" = [Old Color]
+
+
+#. Restart the Office and Field services.::
+
+        sudo systemctl restart peek_office
+        sudo systemctl restart peek_field
+
