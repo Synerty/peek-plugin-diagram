@@ -219,15 +219,6 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
             .subscribe((payloadEnvelope: PayloadEnvelope) =>
                 this.processChunksFromServer(payloadEnvelope)
             );
-
-        // If the vortex service comes back online, update the watch grids.
-        this.vortexStatusService.isOnline
-            .pipe(filter((isOnline) => isOnline == true))
-            .pipe(takeUntil(this.onDestroyEvent))
-            .subscribe(() => {
-                this.loadGrids({}, this.lastWatchedGridKeys);
-                this.askServerForUpdates();
-            });
     }
 
     private areWeTalkingToTheServer(): boolean {
