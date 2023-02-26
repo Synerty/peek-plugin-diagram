@@ -20,7 +20,7 @@ import {
     makeRotateHandlePoints,
 } from "./DispUtilRotate";
 import { DispText } from "./DispText";
-import { DispFactory } from "./DispFactory";
+import { getWrapper } from "./DispFactoryTypeMap";
 
 export interface DispGroupPointerT extends DispBaseT {
     // verticalScale
@@ -135,7 +135,7 @@ export class DispGroupPointer extends DispBase {
         disp.tempRotation = data.tempRotation;
 
         for (const childDisp of disp.disps) {
-            const Wrapper = DispFactory.wrapper(childDisp);
+            const Wrapper = getWrapper(DispBase.type(childDisp));
             Wrapper.rotateAboutAxis(childDisp, center, data.deltaRotation);
         }
         DispBase.setBoundsNull(disp);

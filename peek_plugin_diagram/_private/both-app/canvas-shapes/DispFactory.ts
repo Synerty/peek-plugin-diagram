@@ -6,28 +6,22 @@ import { DispEllipse } from "./DispEllipse";
 import { DispGroupPointer } from "./DispGroupPointer";
 import { DispGroup } from "./DispGroup";
 import { DispNull } from "./DispNull";
+import { getWrapper, registerType } from "./DispFactoryTypeMap";
 
 export class DispFactory {
     private static _typeMapInit = false;
-    private static _typeMap = {};
-
-    // Lazy instantiation, because the string types are defined elsewhere
-    private static get typeMap() {
-        if (!DispFactory._typeMapInit) {
-            DispFactory._typeMapInit = true;
-            DispFactory._typeMap[DispBase.TYPE_DT] = [DispText];
-            DispFactory._typeMap[DispBase.TYPE_DPG] = [DispPolygon];
-            DispFactory._typeMap[DispBase.TYPE_DPL] = [DispPolyline];
-            DispFactory._typeMap[DispBase.TYPE_DE] = [DispEllipse];
-            DispFactory._typeMap[DispBase.TYPE_DG] = [DispGroup];
-            DispFactory._typeMap[DispBase.TYPE_DGP] = [DispGroupPointer];
-            DispFactory._typeMap[DispBase.TYPE_DN] = [DispNull];
-        }
-
-        return DispFactory._typeMap;
-    }
 
     static wrapper(disp): any {
-        return DispFactory.typeMap[disp._tt][0];
+        if (!DispFactory._typeMapInit) {
+            DispFactory._typeMapInit = true;
+            registerType(DispBase.TYPE_DT, DispText);
+            registerType(DispBase.TYPE_DPG, DispPolygon);
+            registerType(DispBase.TYPE_DPL, DispPolyline);
+            registerType(DispBase.TYPE_DE, DispEllipse);
+            registerType(DispBase.TYPE_DG, DispGroup);
+            registerType(DispBase.TYPE_DGP, DispGroupPointer);
+            registerType(DispBase.TYPE_DN, DispNull);
+        }
+        return getWrapper(disp._tt);
     }
 }

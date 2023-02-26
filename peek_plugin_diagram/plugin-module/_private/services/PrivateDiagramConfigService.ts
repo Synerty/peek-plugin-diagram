@@ -3,7 +3,7 @@ import { Observable, Subject } from "rxjs";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PrivateDiagramLookupService } from "./PrivateDiagramLookupService";
 import { DiagramConfigService } from "../../DiagramConfigService";
-import { DiagramToolbarService } from "@peek/peek_plugin_diagram";
+import { DiagramToolbarService } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import { DiagramToolbarBuiltinButtonEnum } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 
 export interface PopupLayerSelectionArgsI {
@@ -20,7 +20,7 @@ export interface PopupBranchSelectionArgsI {
  *
  * This class is responsible for buffering the coord sets in memory.
  *
- * Typically there will be less than 20 of these.
+ * Typically, there will be less than 20 of these.
  *
  */
 @Injectable()

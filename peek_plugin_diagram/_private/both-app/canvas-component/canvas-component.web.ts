@@ -27,7 +27,7 @@ import { PrivateDiagramOverrideService } from "@peek/peek_plugin_diagram/_privat
 import { PeekCanvasActioner } from "../canvas/PeekCanvasActioner";
 import { CopyPasteService } from "../services/copy-paste.service";
 import { ContextMenuService } from "../services/context-menu.service";
-import { DiagramToolbarService } from "@peek/peek_plugin_diagram";
+import { DiagramToolbarService } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import { PrivateDiagramToolbarService } from "@peek/peek_plugin_diagram/_private/services";
 import { DiagramToolbarBuiltinButtonEnum } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import { CanvasService } from "../services/canvas.service";
