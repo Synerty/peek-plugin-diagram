@@ -1,3 +1,5 @@
+from typing import Optional
+
 from peek_plugin_diagram._private.storage.Display import DispColor
 from peek_plugin_diagram._private.storage.Display import DispLineStyle
 from peek_plugin_diagram.worker.canvas_shapes.ShapeBase import Point
@@ -50,8 +52,8 @@ class ShapePolygon(ShapeBase):
             return PolygonFillDirectionEnum.fillLeftToRight
 
     @staticmethod
-    def fillPercent(disp) -> float:
-        return disp.get("fp")
+    def fillPercent(disp) -> Optional[float]:
+        return float(disp.get("fp")) if disp.get("fp") else None
 
     @staticmethod
     def isRectangle(disp) -> bool:
