@@ -81,8 +81,6 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
 
         let fillDirection = DispPolygon.fillDirection(disp);
         let fillPercentage = DispPolygon.fillPercent(disp);
-        if (fillPercentage != null)
-            fillPercentage = Math.min(100, fillPercentage);
 
         let firstPointX = geom[0]; // get details of point
         let firstPointY = geom[1]; // get details of point

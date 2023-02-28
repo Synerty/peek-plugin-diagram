@@ -65,6 +65,7 @@ export class DispPolygon extends DispPoly {
         if (val == PolygonFillDirection.fillLeftToRight)
             return PolygonFillDirection.fillLeftToRight;
 
+        // Else, default to Top to Bottom
         return PolygonFillDirection.fillTopToBottom;
     }
 
@@ -72,8 +73,11 @@ export class DispPolygon extends DispPoly {
         disp.fd = val;
     }
 
-    static fillPercent(disp: DispPolygonT): number {
-        return disp.fp;
+    static fillPercent(disp: DispPolygonT): number | null {
+        const fillPercentage = disp.fp;
+        if (fillPercentage == null) return null;
+
+        return Math.max(0.0, Math.min(100.0, fillPercentage));
     }
 
     static setFillPercent(disp: DispPolygonT, val: number): void {

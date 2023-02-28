@@ -7,6 +7,7 @@ from peek_plugin_diagram.worker.canvas_shapes.ShapeBase import ShapeBase
 
 
 class PolygonFillDirectionEnum:
+    fillBottomToTop = 0
     fillBottomToTop = 1
     fillRightToLeft = 2
     fillLeftToRight = 3
@@ -41,19 +42,24 @@ class ShapePolygon(ShapeBase):
     @staticmethod
     def fillDirection(disp) -> int:
         fillDirection = disp.get("fd")
+        if fillDirection in (
+            ShapePolygon.FILL_BOTTOM_TO_TOP,
+            ShapePolygon.FILL_RIGHT_TO_LEFT,
+            ShapePolygon.FILL_LEFT_TO_RIGHT,
+        ):
+            return fillDirection
 
-        if fillDirection == PolygonFillDirectionEnum.fillBottomToTop:
-            return PolygonFillDirectionEnum.fillBottomToTop
-
-        if fillDirection == PolygonFillDirectionEnum.fillRightToLeft:
-            return PolygonFillDirectionEnum.fillRightToLeft
-
-        if fillDirection == PolygonFillDirectionEnum.fillLeftToRight:
-            return PolygonFillDirectionEnum.fillLeftToRight
+        # Else, default to Top to Bottom
+        return ShapePolygon.FILL_TOP_TO_BOTTOM
 
     @staticmethod
     def fillPercent(disp) -> Optional[float]:
-        return float(disp.get("fp")) if disp.get("fp") else None
+        fillPercentage = float(disp.get("fp")) if disp.get("fp") else None
+
+        if fillPercentage is None:
+            return None
+
+        return max(0.0, min(100.0, fillPercentage))
 
     @staticmethod
     def isRectangle(disp) -> bool:
