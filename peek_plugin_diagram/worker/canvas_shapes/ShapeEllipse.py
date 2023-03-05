@@ -2,6 +2,7 @@ from peek_plugin_diagram._private.storage.Display import DispColor
 from peek_plugin_diagram._private.storage.Display import DispLineStyle
 from peek_plugin_diagram.worker.canvas_shapes.ShapeBase import Point
 from peek_plugin_diagram.worker.canvas_shapes.ShapeBase import ShapeBase
+from typing import Optional
 
 
 class ShapeEllipse(ShapeBase):
@@ -18,8 +19,8 @@ class ShapeEllipse(ShapeBase):
         return disp.get("lsl")
 
     @staticmethod
-    def lineWidth(disp) -> float:
-        return disp.get("w")
+    def lineWidth(disp) -> Optional[float]:
+        return float(disp.get("w")) if disp.get("w") else None
 
     @staticmethod
     def centerPointX(disp) -> float:
