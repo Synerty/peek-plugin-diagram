@@ -227,6 +227,7 @@ class WorkerDiagramGridApiImpl:
         decodedCompiledGridTuples,
         levelsOrderedByOrder,
         layersOrderedByOrder,
+        shapeSelectionZoomLevel,
     ):
         """an equivalent of PeekCanvasModel._compileDisps()
 
@@ -236,6 +237,8 @@ class WorkerDiagramGridApiImpl:
         tuplefield `order`
         :param layersOrderedByOrder: a list of layers already ordered by
         tuplefield `order`
+        :param shapeSelectionZoomLevel: a zoom level to filter out shapes
+        that are displayed above the zoom level
         :return: a list of dicts of shapes that are ready for factory renderer
         """
         # levelsOrderedByOrder = cls._getLevelsOrderedByOrder(
@@ -287,6 +290,15 @@ class WorkerDiagramGridApiImpl:
 
                         if layer.order < shapeLayer.order:
                             break
+
+                        # If we should filter based on zoom level, then do that.
+                        if not (
+                            shapeSelectionZoomLevel is None or
+                            shapeLevel.minZoom
+                            <= shapeSelectionZoomLevel
+                            <= shapeLevel.maxZoom
+                        ):
+                            continue
 
                         disps.append(shape)
 

@@ -50,6 +50,7 @@ class WorkerDiagramGridApi:
         decodedCompiledGridTuples: List,
         levelsOrderedByOrder,
         layersOrderedByOrder,
+        shapeSelectionZoomLevel=2.0,
     ):
         from peek_plugin_diagram._private.worker.api.WorkerDiagramGridApiImpl import (
             WorkerDiagramGridApiImpl,
@@ -59,6 +60,7 @@ class WorkerDiagramGridApi:
             decodedCompiledGridTuples=decodedCompiledGridTuples,
             levelsOrderedByOrder=levelsOrderedByOrder,
             layersOrderedByOrder=layersOrderedByOrder,
+            shapeSelectionZoomLevel=shapeSelectionZoomLevel,
         )
 
     @classmethod
