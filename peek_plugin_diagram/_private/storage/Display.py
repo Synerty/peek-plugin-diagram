@@ -185,6 +185,8 @@ class DispTextStyle(Tuple, DeclarativeBase):
 
     blockApiUpdate = Column(Boolean, nullable=False)
 
+    wrapTextAtChars = Column(Integer, nullable=True)
+
     __table_args__ = (
         Index("idx_DispTextStyle_modelSetId", modelSetId, unique=False),
         Index(
