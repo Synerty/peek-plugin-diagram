@@ -169,9 +169,23 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
             disp.bounds.w = 0;
         }
 
-        let lines = DispText.text(disp).split("\n");
-        for (let lineIndex = 0; lineIndex < lines.length; ++lineIndex) {
-            let line = lines[lineIndex];
+        let renderedLines = [];
+        if ((fontStyle.wrapTextAtChars || 0) <= 0) {
+            renderedLines = DispText.text(disp).split("\n");
+        } else {
+            const wrappedLines = this.wrapText(
+                DispText.text(disp),
+                fontStyle.wrapTextAtChars
+            );
+            for (const wrappedLine of wrappedLines) {
+                for (const renderedLine of wrappedLine.split("\n")) {
+                    renderedLines.push(renderedLine);
+                }
+            }
+        }
+
+        for (let lineIndex = 0; lineIndex < renderedLines.length; ++lineIndex) {
+            let line = renderedLines[lineIndex];
             let yOffset = lineHeight * lineIndex;
 
             // Measure the width
@@ -195,7 +209,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
 
         let singleLineHeight = lineHeight / zoom;
         if (updateBounds) {
-            disp.bounds.h = singleLineHeight * lines.length;
+            disp.bounds.h = singleLineHeight * renderedLines.length;
         }
 
         // restore to original state
@@ -216,5 +230,14 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
             else if (verticalAlignEnum == TextVerticalAlign.bottom)
                 disp.bounds.y = centerY - singleLineHeight;
         }
+    }
+
+    private wrapText(text: string, width: number): string[] {
+        const substrings: string[] = [];
+        for (let i = 0; i < text.length; i += width) {
+            const substring = text.slice(i, i + width);
+            substrings.push(substring);
+        }
+        return substrings;
     }
 }

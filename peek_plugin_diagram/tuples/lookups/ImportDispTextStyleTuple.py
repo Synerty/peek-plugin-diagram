@@ -38,3 +38,5 @@ class ImportDispTextStyleTuple(Tuple):
     showForEdit: bool = TupleField(defaultValue=False)
 
     blockApiUpdate: bool = TupleField(defaultValue=False)
+
+    wrapTextAtChars: int = TupleField(defaultValue=None)
