@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Observable, Subject } from "rxjs";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PrivateDiagramLookupService } from "./PrivateDiagramLookupService";
 import { DiagramConfigService } from "../../DiagramConfigService";
@@ -34,8 +34,7 @@ export class PrivateDiagramConfigService
     private _popupBranchSelectionSubject: Subject<PopupBranchSelectionArgsI> =
         new Subject<PopupBranchSelectionArgsI>();
 
-    private _useEdgeColorChangedSubject: Subject<boolean> =
-        new Subject<boolean>();
+    private _useEdgeColorChangedSubject = new BehaviorSubject<boolean>(false);
 
     private _layersUpdatedSubject: Subject<void> = new Subject<void>();
 
@@ -83,9 +82,13 @@ export class PrivateDiagramConfigService
         this._useEdgeColorChangedSubject.next(enabled);
     }
 
+    usePolylineEdgeColors(): boolean {
+        return this._useEdgeColorChangedSubject.getValue();
+    }
+
     /** This observable is subscribed to by the canvas component */
     usePolylineEdgeColorsObservable(): Observable<boolean> {
-        return this._useEdgeColorChangedSubject;
+        return this._useEdgeColorChangedSubject.asObservable();
     }
 
     // ---------------

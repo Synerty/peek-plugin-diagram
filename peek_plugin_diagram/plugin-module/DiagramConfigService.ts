@@ -12,6 +12,8 @@ export abstract class DiagramConfigService {
         visible: boolean
     ): void;
 
+    abstract usePolylineEdgeColors(): boolean;
+
     abstract setUsePolylineEdgeColors(enabled: boolean): void;
 
     abstract setToolbarButtons(

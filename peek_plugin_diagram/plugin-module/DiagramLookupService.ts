@@ -24,9 +24,13 @@ export abstract class DiagramLookupService {
 
     abstract levelForId(levelId: number): DispLevel;
 
+    abstract levels(modelSetKey: string, coordSetKey: string): DispLevel[];
+
     abstract layerForId(layerId: number): DispLayer;
 
     abstract layerForName(modelSetKey: string, layerName: string): DispLayer;
+
+    abstract layers(modelSetKey: string): DispLayer[];
 
     /** Color for Name
      *
