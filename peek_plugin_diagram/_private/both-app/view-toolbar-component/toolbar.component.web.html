@@ -27,6 +27,7 @@
             [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipPlacement="bottom"
             nzTooltipTitle="Toggle to dark/light mode"
+            [nzTooltipTrigger]="tooltipTrigger"
         >
             <i
                 nz-icon
@@ -41,6 +42,7 @@
             [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipPlacement="bottom"
             nzTooltipTitle="Show Diagram for Print"
+            [nzTooltipTrigger]="tooltipTrigger"
         >
             <i nz-icon nzTheme="outline" nzType="printer"></i>
         </button>
@@ -51,6 +53,7 @@
             [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipPlacement="bottom"
             nzTooltipTitle="Edit Diagram"
+            [nzTooltipTrigger]="tooltipTrigger"
         >
             <i nz-icon nzTheme="outline" nzType="edit"></i>
         </button>
@@ -62,6 +65,7 @@
             nz-tooltip
             [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipPlacement="bottom"
+            [nzTooltipTrigger]="tooltipTrigger"
         >
             <i nz-icon nzTheme="outline" nzType="branches"></i>
         </button>
@@ -72,6 +76,7 @@
             [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipPlacement="bottom"
             nzTooltipTitle="Select Layers"
+            [nzTooltipTrigger]="tooltipTrigger"
         >
             <svg
                 height="1em"
@@ -94,6 +99,7 @@
             [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipPlacement="bottom"
             nzTooltipTitle="Back"
+            [nzTooltipTrigger]="tooltipTrigger"
         >
             <i nz-icon nzTheme="outline" nzType="arrow-left"></i>
             Back
@@ -106,6 +112,7 @@
             nz-tooltip
             [nzTooltipMouseEnterDelay]="1.0"
             nzTooltipPlacement="bottom"
+            [nzTooltipTrigger]="tooltipTrigger"
         >
             <i
                 *ngIf="btn.icon"

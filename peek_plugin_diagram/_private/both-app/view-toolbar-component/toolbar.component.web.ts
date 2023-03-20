@@ -14,6 +14,7 @@ import { ModelCoordSet } from "@peek/peek_plugin_diagram/_private/tuples";
 import { PrivateDiagramCoordSetService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import { DiagramPositionService } from "@peek/peek_plugin_diagram/DiagramPositionService";
 import { DocDbPopupService, DocDbPopupTypeE } from "@peek/peek_core_docdb";
+import { DeviceEnrolmentService } from "@peek/peek_core_device";
 
 @Component({
     selector: "pl-diagram-view-toolbar",
@@ -42,6 +43,8 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
     toolbarIsOpen: boolean = false;
     coordSetsForMenu: ModelCoordSet[] = [];
 
+    tooltipTrigger = "hover";
+
     protected toolbarService: PrivateDiagramToolbarService;
     private parentPluginButtons: DiagramToolButtonI[][] = [];
 
@@ -51,7 +54,8 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
         private branchService: PrivateDiagramBranchService,
         private configService: PrivateDiagramConfigService,
         private coordSetService: PrivateDiagramCoordSetService,
-        private positionService: DiagramPositionService
+        private positionService: DiagramPositionService,
+        private deviceEnrolmentService: DeviceEnrolmentService
     ) {
         super();
 
@@ -68,6 +72,11 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
                 this.shownPluginButtons = buttons;
                 this.parentPluginButtons = [];
             });
+
+        // While we're using ant.design v10, disable tooltips for field / iOS
+        if (this.deviceEnrolmentService.isFieldService()) {
+            this.tooltipTrigger = null;
+        }
     }
 
     ngOnInit() {
