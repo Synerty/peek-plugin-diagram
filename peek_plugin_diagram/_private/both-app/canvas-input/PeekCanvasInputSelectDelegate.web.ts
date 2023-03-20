@@ -103,6 +103,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     // }
 
     touchStart(event: TouchEvent, mouse) {
+        this.clearPopupTimeout();
         if (event.targetTouches.length == 2) {
             this._state = this.STATE_CANVAS_ZOOMING;
             this._lastPinchDist = null;
@@ -112,6 +113,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     }
 
     mouseDown(event, mouse: CanvasInputPos) {
+        this.clearPopupTimeout();
         this.suggestedDispToSelect = null;
         this._mouseDownWithShift = event.shiftKey;
         this._mouseDownWithCtrl = event.ctrlKey;
