@@ -24,27 +24,27 @@ import { BranchDetailTuple } from "@peek/peek_plugin_branch";
 })
 export class SelectLayersComponent extends NgLifeCycleEvents implements OnInit {
     popupShown: boolean = false;
-    
+
     @Input("coordSetKey")
     coordSetKey: string;
-    
+
     @Input("modelSetKey")
     modelSetKey: string;
-    
+
     @Input("model")
     model: PeekCanvasModel;
-    
+
     @Input("config")
     config: PeekCanvasConfig;
-    
+
     allItems: DispLayer[] = [];
-    
+
     items$ = new BehaviorSubject<DispLayer[]>([]);
-    
+
     private coordSetService: PrivateDiagramCoordSetService;
-    
+
     private _filterText: string = "";
-    
+
     constructor(
         private headerService: HeaderService,
         private lookupService: PrivateDiagramLookupService,
@@ -52,82 +52,77 @@ export class SelectLayersComponent extends NgLifeCycleEvents implements OnInit {
         abstractCoordSetService: DiagramCoordSetService
     ) {
         super();
-        
+
         this.coordSetService = <PrivateDiagramCoordSetService>(
             abstractCoordSetService
         );
-        
+
         this.configService
             .popupLayerSelectionObservable()
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((v: PopupLayerSelectionArgsI) => this.openPopup(v));
     }
-    
-    ngOnInit() {
-    }
-    
+
+    ngOnInit() {}
+
     closePopup(): void {
         this.popupShown = false;
         this.allItems = [];
         this.refilter();
     }
-    
+
     noItems(): boolean {
         return this.items.length == 0;
     }
-    
+
     get items(): DispLayer[] {
         return this.items$.value;
     }
-    
+
     get filterText(): string {
         return this._filterText;
     }
-    
+
     set filterText(value: string) {
-        this._filterText = value;
+        this._filterText = value.toLowerCase();
         this.refilter();
     }
-    
+
     private refilter(): void {
-        const filtByStr = i => {
-            return this._filterText.length === 0
-                || i.name.indexOf(this._filterText) !== -1;
+        const filtByStr = (i) => {
+            return (
+                this._filterText.length === 0 ||
+                i.name.toLowerCase().indexOf(this._filterText) !== -1
+            );
         };
-        
-        let items = this.allItems.filter(i => filtByStr(i));
-        
-        const compStr = (
-            a,
-            b
-        ) => a == b ? 0 : a < b ? -1 : 1;
-        items = items.sort((
-                a,
-                b
-            ) =>
-                a.name == b.name ? 0 : a.name < b.name ? -1 : 1
+
+        let items = this.allItems.filter((i) => filtByStr(i));
+
+        const compStr = (a, b) => (a == b ? 0 : a < b ? -1 : 1);
+        items = items.sort((a, b) =>
+                compStr(a.name.toLowerCase(), b.name.toLowerCase())
         );
-        
+
         this.items$.next(items);
     }
-    
+
     toggleLayerVisible(layer: DispLayer): void {
         layer.visible = !layer.visible;
         if (this.model != null) this.model.recompileModel();
     }
-    
-    protected openPopup({coordSetKey, modelSetKey}) {
+
+    protected openPopup({ coordSetKey, modelSetKey }) {
         let coordSet = this.coordSetService.coordSetForKey(
             modelSetKey,
             coordSetKey
         );
         console.log("Opening Layer Select popup");
-        
+
         this.allItems = this.lookupService.layersOrderedByOrder(
             coordSet.modelSetId
         );
         this.refilter();
-        
+
         this.popupShown = true;
     }
 }
