@@ -16,6 +16,7 @@ export class DispTextStyle extends Tuple {
     spacingBetweenTexts: number;
     borderWidth: number;
     showForEdit: boolean;
+    wrapTextAtChars: number;
 
     constructor() {
         super(DispTextStyle.tupleName);
