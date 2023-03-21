@@ -26,13 +26,11 @@ from peek_plugin_diagram._private.server.tuple_providers.ServerLookupTupleProvid
 from peek_plugin_diagram._private.server.tuple_providers.ServerModelSetTupleProvider import (
     ServerModelSetTupleProvider,
 )
-from peek_plugin_diagram._private.storage.Display import (
-    DispLevel,
-    DispLayer,
-    DispColor,
-    DispLineStyle,
-    DispTextStyle,
-)
+from peek_plugin_diagram._private.storage.Lookups import DispColor
+from peek_plugin_diagram._private.storage.Lookups import DispLineStyle
+from peek_plugin_diagram._private.storage.Lookups import DispTextStyle
+from peek_plugin_diagram._private.storage.Lookups import DispLevel
+from peek_plugin_diagram._private.storage.Lookups import DispLayer
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
 from peek_plugin_diagram._private.tuples.DiagramImporterStatusTuple import (
     DiagramImporterStatusTuple,

@@ -6,11 +6,11 @@ from typing import Dict, List
 
 from peek_plugin_diagram._private.storage.Display import (
     DispText,
-    DispTextStyle,
     DispEllipse,
     DispGroup,
     DispGroupPointer,
 )
+from peek_plugin_diagram._private.storage.Lookups import DispTextStyle
 from peek_plugin_diagram._private.storage.ModelSet import (
     ModelCoordSet,
     ModelCoordSetGridSize,
@@ -20,7 +20,10 @@ logger = logging.getLogger(__name__)
 
 
 def makeGridKeysForDisp(
-    coordSet: ModelCoordSet, disp, geomJson, textStyleById: Dict[int, DispTextStyle]
+    coordSet: ModelCoordSet,
+    disp,
+    geomJson,
+    textStyleById: Dict[int, DispTextStyle],
 ) -> List[str]:
     points = geomJson
 
@@ -52,23 +55,27 @@ def makeGridKeysForDisp(
 
         # If this is just a point shape/geom, then add it and continue
         if isinstance(disp, DispEllipse):
-            minx, miny, maxx, maxy = _calcEllipseBounds(disp, points[0], points[1])
+            minx, miny, maxx, maxy = _calcEllipseBounds(
+                disp, points[0], points[1]
+            )
 
         elif len(points) == 2:  # 2 = [x, y]
-
             # This should be a text
             if (
                 not isinstance(disp, DispText)
                 and not isinstance(disp, DispGroup)
                 and not isinstance(disp, DispGroupPointer)
             ):
-                logger.debug("TODO Determine size for disp type %s", disp.tupleType())
+                logger.debug(
+                    "TODO Determine size for disp type %s", disp.tupleType()
+                )
 
             # Texts on the boundaries of grids could be a problem
             # They will seem them if the pan over just a little.
             gridKeys.append(
                 gridSize.makeGridKey(
-                    int(points[0] / gridSize.xGrid), int(points[1] / gridSize.yGrid)
+                    int(points[0] / gridSize.xGrid),
+                    int(points[1] / gridSize.yGrid),
                 )
             )
             continue
@@ -129,7 +136,9 @@ def _pointToPixel(point: float) -> float:
 
 
 def _isTextTooSmall(
-    disp, gridSize: ModelCoordSetGridSize, textStyleById: Dict[int, DispTextStyle]
+    disp,
+    gridSize: ModelCoordSetGridSize,
+    textStyleById: Dict[int, DispTextStyle],
 ) -> bool:
     """Is Text Too Small
 

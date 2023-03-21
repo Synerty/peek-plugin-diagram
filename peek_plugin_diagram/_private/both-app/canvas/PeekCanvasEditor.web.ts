@@ -13,7 +13,7 @@ import { PeekCanvasInputSelectDelegate } from "../canvas-input/PeekCanvasInputSe
 import { PeekCanvasModel } from "./PeekCanvasModel.web";
 import { PeekCanvasConfig } from "./PeekCanvasConfig.web";
 import { EditorToolType } from "./PeekCanvasEditorToolType.web";
-import { DispLevel } from "@peek/peek_plugin_diagram/lookups";
+import { DispLevel } from "@peek/peek_plugin_diagram/_private/lookups";
 import { PeekCanvasEditorProps } from "./PeekCanvasEditorProps";
 import { GridObservable } from "../cache/GridObservable.web";
 

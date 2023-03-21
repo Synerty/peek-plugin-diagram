@@ -2,9 +2,8 @@ import json
 from collections import namedtuple
 from typing import Union
 
-from peek_plugin_diagram._private.storage.Display import DispLayer
-from peek_plugin_diagram._private.storage.Display import DispLevel
-
+from peek_plugin_diagram._private.storage.Lookups import DispLayer
+from peek_plugin_diagram._private.storage.Lookups import DispLevel
 
 Point = namedtuple("Point", ["x", "y"])
 

@@ -1,12 +1,19 @@
 import { addTupleType, Tuple } from "@synerty/vortexjs";
 import { diagramTuplePrefix } from "@peek/peek_plugin_diagram/_private";
+import { ShapeLineStyleTuple } from "@peek/peek_plugin_diagram/lookup_tuples";
 
 @addTupleType
 export class DispLineStyle extends Tuple {
     public static readonly tupleName = diagramTuplePrefix + "DispLineStyle";
 
+    // Tuple Fields
+    key: string;
+    modelSetKey: string;
+
     id: number;
     name: string;
+    showForEdit: boolean;
+
     backgroundFillDashSpace: string;
 
     readonly CAP_BUTT = "butt";
@@ -31,9 +38,27 @@ export class DispLineStyle extends Tuple {
 
     scalable: boolean;
 
-    showForEdit: boolean;
-
     constructor() {
         super(DispLineStyle.tupleName);
+    }
+
+    toTuple(): ShapeLineStyleTuple {
+        const tuple_ = new ShapeLineStyleTuple();
+        tuple_.key = this.key;
+        tuple_.modelSetKey = this.modelSetKey;
+
+        tuple_.name = this.name;
+        tuple_.showForEdit = this.showForEdit;
+
+        tuple_.backgroundFillDashSpace = this.backgroundFillDashSpace;
+        tuple_.capStyle = this.capStyle;
+        tuple_.joinStyle = this.joinStyle;
+        tuple_.dashPattern = this.dashPattern;
+        tuple_.dashPatternParsed = this.dashPatternParsed;
+        tuple_.startArrowSize = this.startArrowSize;
+        tuple_.endArrowSize = this.endArrowSize;
+        tuple_.scalable = this.scalable;
+
+        return tuple_;
     }
 }

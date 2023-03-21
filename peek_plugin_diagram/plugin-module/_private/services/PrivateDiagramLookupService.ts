@@ -8,10 +8,14 @@ import {
     DispLevel,
     DispLineStyle,
     DispTextStyle,
-} from "../../lookups";
+} from "../lookups";
 import { PrivateDiagramTupleService } from "./PrivateDiagramTupleService";
 import { ModelSet } from "../tuples";
 import { PrivateDiagramCoordSetService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
+import {
+    ShapeLayerTuple,
+    ShapeLevelTuple,
+} from "@peek/peek_plugin_diagram/lookup_tuples";
 
 let dictValuesFromObject = (dict) => Object.keys(dict).map((key) => dict[key]);
 
@@ -172,23 +176,11 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
         return this._levelsById[levelId];
     }
 
-    levels(modelSetKey: string, coordSetKey: string): DispLevel[] {
-        const coordSet = this.coordSetService.coordSetForKey(
-            modelSetKey,
-            coordSetKey
-        );
-        return this.levelsOrderedByOrder(coordSet.id).slice();
-    }
-
     layerForName(modelSetKey: string, layerName: string): DispLayer | null {
         for (let layer of this.layersOrderedByOrder(modelSetKey)) {
             if (layer.name == layerName) return layer;
         }
         return null;
-    }
-
-    layers(modelSetKey: string): DispLayer[] {
-        return this.layersOrderedByOrder(modelSetKey).slice();
     }
 
     layerForId(layerId: number): DispLayer {

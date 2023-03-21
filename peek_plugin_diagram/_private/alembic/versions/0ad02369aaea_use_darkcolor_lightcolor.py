@@ -9,7 +9,7 @@ Create Date: 2022-10-20 15:56:02.384820
 """
 from sqlalchemy.orm import Session
 
-from peek_plugin_diagram._private.storage.Display import DispColor
+from peek_plugin_diagram._private.storage.Lookups import DispColor
 from peek_plugin_diagram.tuples.ColorUtil import invertColor
 
 # revision identifiers, used by Alembic.

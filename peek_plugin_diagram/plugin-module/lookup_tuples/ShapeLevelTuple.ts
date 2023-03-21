@@ -2,19 +2,20 @@ import { addTupleType, Tuple } from "@synerty/vortexjs";
 import { diagramTuplePrefix } from "@peek/peek_plugin_diagram/_private";
 
 @addTupleType
-export class DispLevel extends Tuple {
-    public static readonly tupleName = diagramTuplePrefix + "DispLevel";
+export class ShapeLevelTuple extends Tuple {
+    public static readonly tupleName = diagramTuplePrefix + "ShapeLevelTuple";
 
-    id: number;
+    key: string;
+    modelSetKey: string;
+    coordSetKey: string;
     name: string;
     order: number;
     minZoom: number;
     maxZoom: number;
-    coordSetId: number;
     showForEdit: boolean;
 
     constructor() {
-        super(DispLevel.tupleName);
+        super(ShapeLevelTuple.tupleName);
     }
 
     isVisibleAtZoom(zoom: number): boolean {

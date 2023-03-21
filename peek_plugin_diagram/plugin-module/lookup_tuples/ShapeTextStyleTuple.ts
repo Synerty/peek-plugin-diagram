@@ -2,23 +2,25 @@ import { addTupleType, Tuple } from "@synerty/vortexjs";
 import { diagramTuplePrefix } from "@peek/peek_plugin_diagram/_private";
 
 @addTupleType
-export class DispTextStyle extends Tuple {
-    public static readonly tupleName = diagramTuplePrefix + "DispTextStyle";
+export class ShapeTextStyleTuple extends Tuple {
+    public static readonly tupleName =
+        diagramTuplePrefix + "ShapeTextStyleTuple";
 
-    id: number;
+    key: string;
+    modelSetKey: string;
+
     name: string;
     fontName: string;
     fontSize: number;
     fontStyle: string | null;
     scalable: boolean;
     scaleFactor: number;
-    modelSetId: number;
     spacingBetweenTexts: number;
     borderWidth: number;
     showForEdit: boolean;
     wrapTextAtChars: number;
 
     constructor() {
-        super(DispTextStyle.tupleName);
+        super(ShapeTextStyleTuple.tupleName);
     }
 }

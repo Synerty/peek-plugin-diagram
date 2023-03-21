@@ -1,11 +1,13 @@
-import {
-    DispColor,
-    DispLayer,
-    DispLevel,
-    DispLineStyle,
-    DispTextStyle,
-} from "./lookups";
 import { Observable } from "rxjs";
+import {
+    ShapeColorTuple,
+    ShapeLayerTuple,
+    ShapeLevelTuple,
+} from "@peek/peek_plugin_diagram/lookup_tuples";
+import { Injectable } from "@angular/core";
+import { NgLifeCycleEvents } from "@synerty/vortexjs";
+import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
+import { PrivateDiagramCoordSetService } from "@peek/peek_plugin_diagram/_private/services";
 
 /** Lookup Cache
  *
@@ -14,54 +16,55 @@ import { Observable } from "rxjs";
  * Typically there will be only a few hundred of these.
  *
  */
-export abstract class DiagramLookupService {
-    abstract isReady(): boolean;
+@Injectable()
+export class DiagramLookupService extends NgLifeCycleEvents {
+    constructor(
+        private privateService: PrivateDiagramLookupService,
+        private coordSetService: PrivateDiagramCoordSetService
+    ) {
+        super();
+    }
 
-    abstract isReadyObservable(): Observable<boolean>;
+    isReady(): boolean {
+        return this.privateService.isReady();
+    }
+
+    isReadyObservable(): Observable<boolean> {
+        return this.privateService.isReadyObservable();
+    }
 
     // ============================================================================
     // Accessors
 
-    abstract levelForId(levelId: number): DispLevel;
+    levels(modelSetKey: string, coordSetKey: string): ShapeLevelTuple[] {
+        const coordSet = this.coordSetService.coordSetForKey(
+            modelSetKey,
+            coordSetKey
+        );
+        return this.privateService
+            .levelsOrderedByOrder(coordSet.id)
+            .map((t) => t.toTuple());
+    }
 
-    abstract levels(modelSetKey: string, coordSetKey: string): DispLevel[];
-
-    abstract layerForId(layerId: number): DispLayer;
-
-    abstract layerForName(modelSetKey: string, layerName: string): DispLayer;
-
-    abstract layers(modelSetKey: string): DispLayer[];
+    layers(modelSetKey: string): ShapeLayerTuple[] {
+        return this.privateService
+            .layersOrderedByOrder(modelSetKey)
+            .map((t) => t.toTuple());
+    }
 
     /** Color for Name
      *
      * Returns a DispColor if there is one where .color == name
-     * @param modelSetKeyOrId
+     * @param modelSetKey
      * @param name
      */
-    abstract colorForName(
-        modelSetKeyOrId: string | number,
-        name: string
-    ): DispColor | null;
+    colorForName(modelSetKey: string, name: string): ShapeColorTuple | null {
+        return this.privateService.colorForName(modelSetKey, name)?.toTuple();
+    }
 
-    abstract colorForId(colorId: number): DispColor;
-
-    abstract textStyleForId(textStyleId: number): DispTextStyle;
-
-    abstract lineStyleForId(lineStyleId: number): DispLineStyle;
-
-    abstract layersOrderedByOrder(
-        modelSetKeyOrId: number | string
-    ): DispLayer[];
-
-    abstract levelsOrderedByOrder(coordSetId: number): DispLevel[];
-
-    abstract colorsOrderedByName(modelSetKeyOrId: number | string): DispColor[];
-
-    abstract textStylesOrderedByName(
-        modelSetKeyOrId: number | string
-    ): DispTextStyle[];
-
-    abstract lineStylesOrderedByName(
-        modelSetKeyOrId: number | string
-    ): DispLineStyle[];
+    colorsOrderedByName(modelSetKey: string): ShapeColorTuple[] {
+        return this.privateService
+            .colorsOrderedByName(modelSetKey)
+            .map((t) => t.toTuple());
+    }
 }

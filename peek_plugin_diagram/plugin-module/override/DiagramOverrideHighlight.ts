@@ -3,7 +3,7 @@ import {
     DiagramOverrideTypeE,
 } from "./DiagramOverrideBase";
 import { addTupleType } from "@synerty/vortexjs";
-import { DispColor } from "../lookups";
+import { DispColor } from "../_private/lookups";
 import { diagramTuplePrefix } from "../_private/PluginNames";
 
 /** Diagram Delta Color Override Tuple

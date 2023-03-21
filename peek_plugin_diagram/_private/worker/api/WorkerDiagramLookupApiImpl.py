@@ -1,38 +1,22 @@
 from typing import List
 
-from hashids import Hashids
 
 from peek_plugin_base.worker import CeleryDbConn
-from peek_plugin_diagram._private.storage.Display import DispColor
-from peek_plugin_diagram._private.storage.Display import DispLayer
-from peek_plugin_diagram._private.storage.Display import DispLevel
-from peek_plugin_diagram._private.storage.Display import DispLineStyle
-from peek_plugin_diagram._private.storage.Display import DispTextStyle
-
-
-class _Hasher:
-    def __init__(self):
-        self._hashids = Hashids(salt="7013b24ca9ff46188a1fbbb1fd0129e1")
-
-    @property
-    def encode(self):
-        return self._hashids.encode
-
-    @property
-    def decode(self):
-        return self._hashids.decode
+from peek_plugin_diagram._private.storage.Lookups import DispColor
+from peek_plugin_diagram._private.storage.Lookups import DispLayer
+from peek_plugin_diagram._private.storage.Lookups import DispLevel
+from peek_plugin_diagram._private.storage.Lookups import DispLineStyle
+from peek_plugin_diagram._private.storage.Lookups import DispTextStyle
 
 
 class WorkerDiagramLookupApiImpl:
     def __init__(self):
-        self._hasher = _Hasher()
+        pass
 
     @classmethod
     def getColors(cls) -> List[DispColor]:
         ormSession = CeleryDbConn.getDbSession()
         try:
-            hasher = _Hasher()
-
             rows = ormSession.query(DispColor).all()
 
             tuples = []

@@ -1,4 +1,4 @@
-import { DispColor } from "@peek/peek_plugin_diagram/lookups";
+import { DispColor } from "@peek/peek_plugin_diagram/_private/lookups";
 import { DispPoly, DispPolyT } from "./DispPoly";
 import { DispBase, PointI } from "./DispBase";
 import {

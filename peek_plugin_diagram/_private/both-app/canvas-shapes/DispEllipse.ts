@@ -1,5 +1,8 @@
 import { DispBase, DispBaseT, PointI } from "./DispBase";
-import { DispColor, DispLineStyle } from "@peek/peek_plugin_diagram/lookups";
+import {
+    DispColor,
+    DispLineStyle,
+} from "@peek/peek_plugin_diagram/_private/lookups";
 import { DispPoly } from "./DispPoly";
 import {
     PeekCanvasShapePropsContext,

@@ -3,11 +3,11 @@ from typing import Dict
 
 from sqlalchemy import select
 
-from peek_plugin_diagram._private.storage.Display import DispColor
-from peek_plugin_diagram._private.storage.Display import DispLayer
-from peek_plugin_diagram._private.storage.Display import DispLevel
-from peek_plugin_diagram._private.storage.Display import DispLineStyle
-from peek_plugin_diagram._private.storage.Display import DispTextStyle
+from peek_plugin_diagram._private.storage.Lookups import DispColor
+from peek_plugin_diagram._private.storage.Lookups import DispLayer
+from peek_plugin_diagram._private.storage.Lookups import DispLevel
+from peek_plugin_diagram._private.storage.Lookups import DispLineStyle
+from peek_plugin_diagram._private.storage.Lookups import DispTextStyle
 from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import (
     ImportLiveDbDispLinkTuple,
 )
@@ -42,7 +42,6 @@ class LookupHashConverter:
         self._layerByImportHash = self._loadLookupByModelSet(layerTable)
 
     def _loadLookupByModelSet(self, table) -> Dict[str, int]:
-
         resultSet = self._ormSession.execute(
             select([table.c.importHash, table.c.id]).where(
                 table.c.modelSetId == self._modelSetId
@@ -52,7 +51,6 @@ class LookupHashConverter:
         return dict(resultSet.fetchall())
 
     def _loadLookupByCoordSet(self, table) -> Dict[str, int]:
-
         resultSet = self._ormSession.execute(
             select([table.c.importHash, table.c.id]).where(
                 table.c.coordSetId == self._coordSetId
@@ -62,7 +60,6 @@ class LookupHashConverter:
         return dict(resultSet.fetchall())
 
     def convertLookups(self, disp):
-
         T = ImportLiveDbDispLinkTuple
 
         colourFields = {

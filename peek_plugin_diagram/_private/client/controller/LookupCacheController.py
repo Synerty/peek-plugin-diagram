@@ -7,11 +7,11 @@ from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
 from vortex.handler.TupleDataObserverClient import TupleDataObserverClient
 
 from peek_plugin_diagram._private.PluginNames import diagramFilt
-from peek_plugin_diagram._private.storage.Display import DispColor
-from peek_plugin_diagram._private.storage.Display import DispLayer
-from peek_plugin_diagram._private.storage.Display import DispLevel
-from peek_plugin_diagram._private.storage.Display import DispLineStyle
-from peek_plugin_diagram._private.storage.Display import DispTextStyle
+from peek_plugin_diagram._private.storage.Lookups import DispColor
+from peek_plugin_diagram._private.storage.Lookups import DispLayer
+from peek_plugin_diagram._private.storage.Lookups import DispLevel
+from peek_plugin_diagram._private.storage.Lookups import DispLineStyle
+from peek_plugin_diagram._private.storage.Lookups import DispTextStyle
 
 lookupCachePayloadFilt = dict(key="client.lookup.update")
 lookupCachePayloadFilt.update(diagramFilt)
@@ -83,7 +83,6 @@ class LookupCacheController:
         self._textStyleLookups = []
 
     def _processNewTuples(self, lookupTuples):
-
         if not lookupTuples:
             return
 

@@ -13,7 +13,7 @@ import {
     DispLevel,
     DispLineStyle,
     DispTextStyle,
-} from "../../lookups";
+} from "../lookups";
 import { BranchKeyToIdMapTuple } from "../branch/BranchKeyToIdMapTuple";
 import { BranchService } from "@peek/peek_plugin_branch";
 

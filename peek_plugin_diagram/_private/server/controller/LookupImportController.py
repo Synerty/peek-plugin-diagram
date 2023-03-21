@@ -8,13 +8,11 @@ from twisted.internet.defer import (
     DeferredSemaphore,
 )
 
-from peek_plugin_diagram._private.storage.Display import (
-    DispColor,
-    DispLayer,
-    DispLevel,
-    DispLineStyle,
-    DispTextStyle,
-)
+from peek_plugin_diagram._private.storage.Lookups import DispColor
+from peek_plugin_diagram._private.storage.Lookups import DispLineStyle
+from peek_plugin_diagram._private.storage.Lookups import DispTextStyle
+from peek_plugin_diagram._private.storage.Lookups import DispLevel
+from peek_plugin_diagram._private.storage.Lookups import DispLayer
 from peek_plugin_diagram._private.storage.ModelSet import (
     getOrCreateModelSet,
     getOrCreateCoordSet,
@@ -67,7 +65,6 @@ class LookupImportController:
         deleteOthers: bool,
         updateExisting: bool,
     ):
-
         yield self._semaphore.run(
             self._importInThread,
             modelSetKey,
@@ -105,7 +102,6 @@ class LookupImportController:
 
         ormSession = self._dbSessionCreator()
         try:
-
             modelSet = getOrCreateModelSet(ormSession, modelSetKey)
             coordSet = None
 
@@ -207,12 +203,10 @@ class LookupImportController:
     def getLookups(
         self, modelSetKey: str, coordSetKey: Optional[str], tupleType: str
     ):
-
         LookupType = ORM_TUPLE_MAP[tupleType]
 
         ormSession = self._dbSessionCreator()
         try:
-
             modelSet = getOrCreateModelSet(ormSession, modelSetKey)
 
             if coordSetKey:

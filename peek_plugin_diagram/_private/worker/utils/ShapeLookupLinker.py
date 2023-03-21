@@ -5,8 +5,8 @@ from typing import List
 
 from vortex.Tuple import Tuple
 
-from peek_plugin_diagram._private.storage.Display import DispLayer
-from peek_plugin_diagram._private.storage.Display import DispLevel
+from peek_plugin_diagram._private.storage.Lookups import DispLayer
+from peek_plugin_diagram._private.storage.Lookups import DispLevel
 from peek_plugin_diagram.worker.WorkerDiagramLookupApi import (
     WorkerDiagramLookupApi,
 )

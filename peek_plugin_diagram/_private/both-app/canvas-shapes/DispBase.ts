@@ -1,4 +1,7 @@
-import { DispLayer, DispLevel } from "@peek/peek_plugin_diagram/lookups";
+import {
+    DispLayer,
+    DispLevel,
+} from "@peek/peek_plugin_diagram/_private/lookups";
 import {
     PeekCanvasShapePropsContext,
     ShapeProp,

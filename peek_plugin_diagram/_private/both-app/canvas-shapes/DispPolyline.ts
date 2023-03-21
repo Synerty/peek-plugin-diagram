@@ -12,7 +12,7 @@ import {
     ShapePropType,
 } from "../canvas/PeekCanvasShapePropsContext";
 import { ModelCoordSet } from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
-import { DispColor } from "@peek/peek_plugin_diagram/lookups";
+import { DispColor } from "@peek/peek_plugin_diagram/_private/lookups";
 import { PeekCanvasBounds } from "../canvas/PeekCanvasBounds";
 import { BranchTuple } from "@peek/peek_plugin_diagram/_private/branch/BranchTuple";
 import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";

@@ -10,11 +10,9 @@ from typing import List
 import pytz
 from peek_plugin_base.worker import CeleryDbConn
 from peek_plugin_base.worker.CeleryApp import celeryApp
-from peek_plugin_diagram._private.storage.Display import (
-    DispLevel,
-    DispBase,
-    DispLayer,
-)
+from peek_plugin_diagram._private.storage.Display import DispBase
+from peek_plugin_diagram._private.storage.Lookups import DispLevel
+from peek_plugin_diagram._private.storage.Lookups import DispLayer
 from peek_plugin_diagram._private.storage.GridKeyIndex import (
     GridKeyIndexCompiled,
     GridKeyCompilerQueue,
@@ -72,7 +70,6 @@ def compileGrids(self, payloadEncodedArgs: bytes) -> dict[str, str]:
     conn = engine.connect()
     transaction = conn.begin()
     try:
-
         logger.debug(
             "Staring compile of %s queueItems in %s",
             len(queueItems),

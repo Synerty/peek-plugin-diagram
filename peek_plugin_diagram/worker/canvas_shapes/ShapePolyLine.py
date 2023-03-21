@@ -1,6 +1,6 @@
 from typing import Union
 
-from peek_plugin_diagram._private.storage.Display import DispColor
+from peek_plugin_diagram._private.storage.Lookups import DispColor
 from peek_plugin_diagram.worker.canvas_shapes.ShapeBase import Point
 from peek_plugin_diagram.worker.canvas_shapes.ShapeBase import ShapeBase
 

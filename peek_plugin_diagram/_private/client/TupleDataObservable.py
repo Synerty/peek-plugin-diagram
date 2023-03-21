@@ -47,11 +47,11 @@ from peek_plugin_diagram._private.client.tuple_providers.ClientModelSetTupleProv
 from peek_plugin_diagram._private.client.tuple_providers.GridCacheIndexTupleProvider import (
     GridCacheIndexTupleProvider,
 )
-from peek_plugin_diagram._private.storage.Display import DispColor
-from peek_plugin_diagram._private.storage.Display import DispLayer
-from peek_plugin_diagram._private.storage.Display import DispLevel
-from peek_plugin_diagram._private.storage.Display import DispLineStyle
-from peek_plugin_diagram._private.storage.Display import DispTextStyle
+from peek_plugin_diagram._private.storage.Lookups import DispColor
+from peek_plugin_diagram._private.storage.Lookups import DispLayer
+from peek_plugin_diagram._private.storage.Lookups import DispLevel
+from peek_plugin_diagram._private.storage.Lookups import DispLineStyle
+from peek_plugin_diagram._private.storage.Lookups import DispTextStyle
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
 from peek_plugin_diagram._private.tuples.GroupDispsTuple import GroupDispsTuple

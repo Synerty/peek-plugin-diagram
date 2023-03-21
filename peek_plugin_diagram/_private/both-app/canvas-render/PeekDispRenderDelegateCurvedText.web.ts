@@ -13,7 +13,10 @@ import { pointToPixel } from "../DiagramUtil";
 import { PeekCanvasBounds } from "../canvas/PeekCanvasBounds";
 import { DispBaseT, PointI } from "../canvas-shapes/DispBase";
 import { PeekCanvasModel } from "../canvas/PeekCanvasModel.web";
-import { DispColor, DispTextStyle } from "@peek/peek_plugin_diagram/lookups";
+import {
+    DispColor,
+    DispTextStyle,
+} from "@peek/peek_plugin_diagram/_private/lookups";
 import { DispPolygon } from "../canvas-shapes/DispPolygon";
 
 interface SubPathIndexRange {

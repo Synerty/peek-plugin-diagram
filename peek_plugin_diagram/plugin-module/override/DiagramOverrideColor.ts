@@ -3,8 +3,8 @@ import {
     DiagramOverrideTypeE,
 } from "./DiagramOverrideBase";
 import { addTupleType } from "@synerty/vortexjs";
-import { DispColor } from "../lookups";
 import { diagramTuplePrefix } from "../_private/PluginNames";
+import { ShapeColorTuple } from "@peek/peek_plugin_diagram/lookup_tuples";
 
 /** Diagram Delta Color Override Tuple
  *
@@ -17,9 +17,9 @@ export class DiagramOverrideColor extends DiagramOverrideBase {
         diagramTuplePrefix + "DiagramOverrideColor";
 
     private dispKeys_ = [];
-    private lineColor_: DispColor | null = null;
-    private fillColor_: DispColor | null = null;
-    private color_: DispColor | null = null;
+    private lineColor_: ShapeColorTuple | null = null;
+    private fillColor_: ShapeColorTuple | null = null;
+    private color_: ShapeColorTuple | null = null;
 
     constructor(modelSetKey: string, coordSetKey: string) {
         super(
@@ -34,15 +34,15 @@ export class DiagramOverrideColor extends DiagramOverrideBase {
         return this.dispKeys_;
     }
 
-    get lineColor(): DispColor {
+    get lineColor(): ShapeColorTuple {
         return this.lineColor_;
     }
 
-    get fillColor(): DispColor {
+    get fillColor(): ShapeColorTuple {
         return this.fillColor_;
     }
 
-    get color(): DispColor {
+    get color(): ShapeColorTuple {
         return this.color_;
     }
 
@@ -51,17 +51,17 @@ export class DiagramOverrideColor extends DiagramOverrideBase {
     }
 
     // Line Color
-    setLineColor(value: DispColor | null): void {
+    setLineColor(value: ShapeColorTuple | null): void {
         this.lineColor_ = value;
     }
 
     // Fill Color
-    setFillColor(value: DispColor | null): void {
+    setFillColor(value: ShapeColorTuple | null): void {
         this.fillColor_ = value;
     }
 
     // Color
-    setColor(value: DispColor | null): void {
+    setColor(value: ShapeColorTuple | null): void {
         this.color_ = value;
     }
 }

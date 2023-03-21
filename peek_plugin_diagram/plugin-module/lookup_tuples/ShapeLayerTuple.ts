@@ -2,18 +2,18 @@ import { addTupleType, Tuple } from "@synerty/vortexjs";
 import { diagramTuplePrefix } from "@peek/peek_plugin_diagram/_private";
 
 @addTupleType
-export class DispLayer extends Tuple {
-    public static readonly tupleName = diagramTuplePrefix + "DispLayer";
+export class ShapeLayerTuple extends Tuple {
+    public static readonly tupleName = diagramTuplePrefix + "ShapeLayerTuple";
 
-    id: number;
+    key: string;
+    modelSetKey: string;
     name: string;
     order: number;
     selectable: boolean;
     visible: boolean;
-    modelSetId: number;
     showForEdit: boolean;
 
     constructor() {
-        super(DispLayer.tupleName);
+        super(ShapeLayerTuple.tupleName);
     }
 }

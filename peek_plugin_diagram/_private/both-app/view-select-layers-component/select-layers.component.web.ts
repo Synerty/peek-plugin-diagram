@@ -9,7 +9,7 @@ import {
 } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramConfigService";
 import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import { DiagramCoordSetService } from "@peek/peek_plugin_diagram/DiagramCoordSetService";
-import { DispLayer } from "@peek/peek_plugin_diagram/lookups";
+import { DispLayer } from "@peek/peek_plugin_diagram/_private/lookups";
 
 import { PrivateDiagramCoordSetService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import { PeekCanvasConfig } from "../canvas/PeekCanvasConfig.web";
@@ -100,7 +100,7 @@ export class SelectLayersComponent extends NgLifeCycleEvents implements OnInit {
 
         const compStr = (a, b) => (a == b ? 0 : a < b ? -1 : 1);
         items = items.sort((a, b) =>
-                compStr(a.name.toLowerCase(), b.name.toLowerCase())
+            compStr(a.name.toLowerCase(), b.name.toLowerCase())
         );
 
         this.items$.next(items);
