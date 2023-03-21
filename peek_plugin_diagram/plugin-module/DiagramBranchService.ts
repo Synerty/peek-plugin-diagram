@@ -21,6 +21,8 @@ export abstract class DiagramBranchService {
 
     abstract setVisibleBranches(commonBranches: BranchDetailTuple[]): void;
 
+    abstract getVisibleBranches(): BranchDetailTuple[];
+
     abstract getActiveBranchDetails(): Promise<DiagramBranchDetailsI | null>;
 
     abstract startEditing(

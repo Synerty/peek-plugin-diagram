@@ -196,6 +196,10 @@ export class PrivateDiagramBranchService extends NgLifeCycleEvents {
         this.enabledBranches = commonBranches;
     }
 
+    getVisibleBranches(): BranchDetailTuple[] {
+        return this.enabledBranches.slice();
+    }
+
     getActiveBranchDetails(): Promise<DiagramBranchDetailsI | null> {
         if (this.activeBranchContext == null) return Promise.resolve(null);
 
