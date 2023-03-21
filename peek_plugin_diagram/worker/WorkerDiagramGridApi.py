@@ -51,6 +51,8 @@ class WorkerDiagramGridApi:
         levelsOrderedByOrder,
         layersOrderedByOrder,
         shapeSelectionZoomLevel=2.0,
+        enabledLayerKeys: Optional[list[str]] = None,
+        enabledBranchKeys: Optional[list[str]] = None,
     ):
         from peek_plugin_diagram._private.worker.api.WorkerDiagramGridApiImpl import (
             WorkerDiagramGridApiImpl,
@@ -61,6 +63,8 @@ class WorkerDiagramGridApi:
             levelsOrderedByOrder=levelsOrderedByOrder,
             layersOrderedByOrder=layersOrderedByOrder,
             shapeSelectionZoomLevel=shapeSelectionZoomLevel,
+            enabledLayerKeys=enabledLayerKeys,
+            enabledBranchKeys=enabledBranchKeys,
         )
 
     @classmethod

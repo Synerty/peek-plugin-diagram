@@ -6,6 +6,7 @@ from textwrap import dedent
 from typing import Annotated
 from typing import Dict
 from typing import List
+from typing import Optional
 
 from sqlalchemy import and_
 from sqlalchemy import func
@@ -23,6 +24,7 @@ from peek_plugin_diagram._private.storage.GridKeyIndex import (
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSetGridSize
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
+from peek_plugin_diagram._private.storage.branch.BranchIndex import BranchIndex
 from peek_plugin_diagram._private.tuples.grid.GridTuple import GridTuple
 from peek_plugin_diagram._private.worker.utils.ShapeLookupLinker import (
     ShapeLookupLinker,
@@ -228,6 +230,8 @@ class WorkerDiagramGridApiImpl:
         levelsOrderedByOrder,
         layersOrderedByOrder,
         shapeSelectionZoomLevel,
+        enabledLayerKeys: Optional[list[str]] = None,
+        enabledBranchKeys: Optional[list[str]] = None,
     ):
         """an equivalent of PeekCanvasModel._compileDisps()
 
@@ -249,11 +253,51 @@ class WorkerDiagramGridApiImpl:
         #     modelSetKey=modelSetKey
         # )
 
+        dispHashIdsAdded = set()
+        viewingBranchesActive = bool(enabledBranchKeys)
+
+        # These are overrides
+        enabledLayerKeys = set(enabledLayerKeys) if enabledLayerKeys else None
+
+        if not enabledBranchKeys:
+            branchIdsActive = set()
+        else:
+            session = CeleryDbConn.getDbSession()
+            try:
+                branchIdsActive = set(
+                    [
+                        o.id
+                        for o in session.query(BranchIndex.id).filter(
+                            BranchIndex.key.in_(enabledBranchKeys)
+                        )
+                    ]
+                )
+            finally:
+                session.close()
+
+        for gridOrBranch in decodedCompiledGridTuples:
+            for shape in gridOrBranch.shapes:
+                # TODO Restrict for Branch Stage
+                # If the branch is showing, and it replaces a hash,
+                # then add the hash it replaces
+                replacesHashId = ShapeBase.replacesHashId(shape)
+                if (
+                    ShapeBase.branchId(shape) in branchIdsActive
+                    and replacesHashId
+                ):
+                    dispHashIdsAdded.add(replacesHashId)
+
         dispIndexByGridKey = defaultdict(int)
         disps = []
         for level in levelsOrderedByOrder:
             for layer in layersOrderedByOrder:
-                if not layer.visible:
+                # If override layer enableds have been defined, then use them
+                if enabledLayerKeys:
+                    if layer.key not in enabledLayerKeys:
+                        continue
+
+                elif not layer.visible:
+                    # Else Use enabled from the layers provided
                     continue
 
                 for decodedCompiledGridTuple in decodedCompiledGridTuples:
@@ -270,8 +314,11 @@ class WorkerDiagramGridApiImpl:
                     # while nextIndex < len(shapes):
                     for i in range(nextIndex, len(shapes), 1):
                         nextIndex = i
-
                         shape = shapes[i]
+
+                        # Filter out overlay disps if we need to
+                        if viewingBranchesActive and ShapeBase.isOverlay(shape):
+                            continue
 
                         # for idx, shape in enumerate(shapes):
                         # Level first, as per the sortDisps function
@@ -293,14 +340,30 @@ class WorkerDiagramGridApiImpl:
 
                         # If we should filter based on zoom level, then do that.
                         if not (
-                            shapeSelectionZoomLevel is None or
-                            shapeLevel.minZoom
+                            shapeSelectionZoomLevel is None
+                            or shapeLevel.minZoom
                             <= shapeSelectionZoomLevel
                             <= shapeLevel.maxZoom
                         ):
                             continue
 
-                        disps.append(shape)
+                        # If the disp has already been added or is being replaced
+                        # by a branch, then skip this one
+                        if ShapeBase.hashId(shape) in dispHashIdsAdded:
+                            continue
+
+                        # Is the branch showed from the "View Branches" menu
+                        isBranchViewable = (
+                            ShapeBase.branchId(shape) in branchIdsActive
+                        )
+
+                        # If this is not apart of a branch, or ...
+                        if (
+                            ShapeBase.branchId(shape) is None
+                            or isBranchViewable
+                        ):
+                            disps.append(shape)
+                            dispHashIdsAdded.add(ShapeBase.hashId(shape))
 
                     dispIndexByGridKey[gridKey] = nextIndex
 
