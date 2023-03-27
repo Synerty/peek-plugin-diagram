@@ -310,6 +310,11 @@ class DispLineStyle(Tuple, DeclarativeBase):
             return None
         return json.loads(self.dashPattern)
 
+    def setTupleFields(self):
+        self.modelSetKey = self.modelSet.key
+        self.data = {"modelSetKey": self.modelSet.key}
+        self.key = _hasher.encode(self.id)
+
     def toTuple(self):
         self.setTupleFields()
         tuple_ = DispLineStyle()
