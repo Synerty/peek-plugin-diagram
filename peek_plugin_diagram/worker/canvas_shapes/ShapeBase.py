@@ -87,25 +87,25 @@ class ShapeBase:
     # getters
     @staticmethod
     def type(disp) -> str:
-        return disp["_tt"]
+        return disp.get("_tt")
 
     @staticmethod
     def id(disp) -> int:
-        return disp["id"]
+        return disp.get("id")
 
     @staticmethod
     def zOrder(disp) -> int:
         if disp["z"]:
-            return disp["z"]
+            return disp.get("z")
         return 0
 
     @staticmethod
     def hashId(disp) -> str:
-        return disp["hid"]
+        return disp.get("hid")
 
     @staticmethod
     def replacesHashId(disp) -> str:
-        return disp["rid"]
+        return disp.get("rid")
 
     @staticmethod
     def groupId(disp) -> Union[int, None]:
@@ -113,11 +113,11 @@ class ShapeBase:
 
     @staticmethod
     def branchId(disp) -> int:
-        return disp["bi"]
+        return disp.get("bi")
 
     @staticmethod
     def branchStage(disp) -> int:
-        return disp["bs"]
+        return disp.get("bs")
 
     @staticmethod
     def level(disp) -> DispLevel:
@@ -129,11 +129,11 @@ class ShapeBase:
 
     @staticmethod
     def isOverlay(disp) -> bool:
-        return disp["o"]
+        return disp.get("o")
 
     @staticmethod
     def isSelectable(disp) -> bool:
-        return disp["s"]
+        return disp.get("s")
 
     @staticmethod
     def key(disp) -> Union[str, None]:
@@ -142,7 +142,7 @@ class ShapeBase:
     @staticmethod
     def action(disp) -> Union[ShapeActionEnum, None]:
         # ShapeActionEnum
-        return disp["a"]
+        return disp.get("a")
 
     @staticmethod
     def data(disp) -> dict:

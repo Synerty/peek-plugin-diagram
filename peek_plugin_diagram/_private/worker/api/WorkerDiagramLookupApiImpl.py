@@ -22,7 +22,7 @@ class WorkerDiagramLookupApiImpl:
             tuples = []
 
             for row in rows:
-                tuple_ = row.toTuple(hasher.encode)
+                tuple_ = row.toTuple()
                 tuples.append(tuple_)
 
             return tuples
@@ -34,13 +34,11 @@ class WorkerDiagramLookupApiImpl:
     def getLineStyles(cls) -> List[DispLineStyle]:
         ormSession = CeleryDbConn.getDbSession()
         try:
-            hasher = _Hasher()
-
             rows = ormSession.query(DispLineStyle).all()
 
             tuples = []
             for row in rows:
-                tuple_ = row.toTuple(hasher.encode)
+                tuple_ = row.toTuple()
                 tuples.append(tuple_)
 
             return tuples
@@ -52,13 +50,11 @@ class WorkerDiagramLookupApiImpl:
     def getTextStyles(cls) -> List[DispTextStyle]:
         ormSession = CeleryDbConn.getDbSession()
         try:
-            hasher = _Hasher()
-
             rows = ormSession.query(DispTextStyle).all()
 
             tuples = []
             for row in rows:
-                tuple_ = row.toTuple(hasher.encode)
+                tuple_ = row.toTuple()
                 tuples.append(tuple_)
 
             return tuples
@@ -70,13 +66,11 @@ class WorkerDiagramLookupApiImpl:
     def getLayers(cls) -> List[DispLayer]:
         ormSession = CeleryDbConn.getDbSession()
         try:
-            hasher = _Hasher()
-
             rows = ormSession.query(DispLayer).all()
 
             tuples = []
             for row in rows:
-                tuple_ = row.toTuple(hasher.encode)
+                tuple_ = row.toTuple()
                 tuples.append(tuple_)
 
             return tuples
@@ -88,13 +82,11 @@ class WorkerDiagramLookupApiImpl:
     def getLevels(cls) -> List[DispLevel]:
         ormSession = CeleryDbConn.getDbSession()
         try:
-            hasher = _Hasher()
-
             rows = ormSession.query(DispLevel).all()
 
             tuples = []
             for row in rows:
-                tuple_ = row.toTuple(hasher.encode)
+                tuple_ = row.toTuple()
                 tuples.append(tuple_)
 
             return tuples
