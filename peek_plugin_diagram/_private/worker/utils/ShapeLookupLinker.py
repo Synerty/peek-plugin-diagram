@@ -5,13 +5,21 @@ from typing import List
 
 from vortex.Tuple import Tuple
 
-from peek_plugin_diagram._private.storage.Lookups import DispLayer
-from peek_plugin_diagram._private.storage.Lookups import DispLevel
+from peek_plugin_diagram._private.storage.Lookups import _Hasher
+from peek_plugin_diagram.tuples.lookup_tuples.ShapeLayerTuple import (
+    ShapeLayerTuple,
+)
+from peek_plugin_diagram.tuples.lookup_tuples.ShapeLevelTuple import (
+    ShapeLevelTuple,
+)
 from peek_plugin_diagram.worker.WorkerDiagramLookupApi import (
     WorkerDiagramLookupApi,
 )
 
 logger = logging.getLogger(__name__)
+
+
+_hasher = _Hasher()
 
 
 class ShapeLookupLinker:
@@ -39,7 +47,7 @@ class ShapeLookupLinker:
 
     def levelsOrderedByOrder(
         self, coordSetKey: str, linkedOnly: bool = False
-    ) -> List[DispLevel]:
+    ) -> List[ShapeLevelTuple]:
         levels = []
         for level in self._levelsById.values():
             if linkedOnly and level.id not in self._linkedLevelIds:
@@ -57,7 +65,7 @@ class ShapeLookupLinker:
 
     def layersOrderedByOrder(
         self, modelSetKey: str, linkedOnly: bool = False
-    ) -> List[DispLayer]:
+    ) -> List[ShapeLayerTuple]:
         layers = []
         for layer in self._layersById.values():
             if linkedOnly and layer.id not in self._linkedLayerIds:
@@ -90,15 +98,15 @@ class ShapeLookupLinker:
         self._layersById = self._makeLookupMap(layers)
 
     def _makeLookupMap(
-        self, lookups: List[Tuple], sortByFieldName: str = "id"
+        self,
+        lookups: List[Tuple],
     ) -> Dict[str, Tuple]:
         mapped = {}
 
-        for lookup in sorted(
-            lookups, key=lambda t: getattr(t, sortByFieldName)
-        ):
-            key = str(getattr(lookup, sortByFieldName))
-            mapped[key] = lookup
+        for lookup in lookups:
+            key = str(getattr(lookup, "key"))
+            id_ = str(_hasher.decode(key)[0])
+            mapped[id_] = lookup
 
         return mapped
 
@@ -111,14 +119,14 @@ class ShapeLookupLinker:
 
         for shapeIndex, shape in enumerate(shapes, 0):
             try:
-                linkedLevelId, linkedLayerId = self._linkShapeLookups(shape)
+                linkedLevelKey, linkedLayerKey = self._linkShapeLookups(shape)
 
-                if linkedLevelId:
-                    self._linkedLevelIds.add(int(linkedLevelId))
-                    self._shapeIndexSetByLevelId[linkedLevelId].add(shapeIndex)
-                if linkedLayerId:
-                    self._linkedLayerIds.add(int(linkedLayerId))
-                    self._shapeIndexSetByLayerId[linkedLayerId].add(shapeIndex)
+                if linkedLevelKey:
+                    self._linkedLevelIds.add(linkedLevelKey)
+                    self._shapeIndexSetByLevelId[linkedLevelKey].add(shapeIndex)
+                if linkedLayerKey:
+                    self._linkedLayerIds.add(linkedLayerKey)
+                    self._shapeIndexSetByLayerId[linkedLayerKey].add(shapeIndex)
             except KeyError as e:
                 logger.error(shape)
                 logger.exception(e)

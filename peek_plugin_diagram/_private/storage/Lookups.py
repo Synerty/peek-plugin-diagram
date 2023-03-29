@@ -21,6 +21,18 @@ from peek_plugin_diagram._private.storage.DeclarativeBase import DeclarativeBase
 from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 from peek_plugin_diagram._private.storage.ModelSet import ModelSet
 from peek_plugin_diagram.tuples.ColorUtil import invertColor
+from peek_plugin_diagram.tuples.lookup_tuples.ShapeColorTuple import (
+    ShapeColorTuple,
+)
+from peek_plugin_diagram.tuples.lookup_tuples.ShapeLayerTuple import (
+    ShapeLayerTuple,
+)
+from peek_plugin_diagram.tuples.lookup_tuples.ShapeLineStyleTuple import (
+    ShapeLineStyleTuple,
+)
+from peek_plugin_diagram.tuples.lookup_tuples.ShapeTextStyleTuple import (
+    ShapeTextStyleTuple,
+)
 
 
 class _Hasher:
@@ -79,20 +91,18 @@ class DispLayer(Tuple, DeclarativeBase):
         self.data = {"modelSetKey": self.modelSet.key}
         self.key = _hasher.encode(self.id)
 
-    def toTuple(self) -> "DispLayer":
+    def toTuple(self) -> "ShapeLayerTuple":
         self.setTupleFields()
-        tuple_ = DispLayer()
+        tuple_ = ShapeLayerTuple()
 
         tuple_.data = self.data
         tuple_.key = self.key
         tuple_.modelSetKey = self.modelSetKey
 
-        tuple_.id = self.id
         tuple_.name = self.name
         tuple_.order = self.order
         tuple_.selectable = self.selectable
         tuple_.visible = self.visible
-        tuple_.modelSetId = self.modelSetId
         tuple_.importHash = self.importHash
         tuple_.blockApiUpdate = self.blockApiUpdate
         tuple_.showForEdit = self.showForEdit
@@ -152,14 +162,13 @@ class DispLevel(Tuple, DeclarativeBase):
 
     def toTuple(self):
         self.setTupleFields()
-        tuple_ = DispLevel()
+        tuple_ = ShapeLayerTuple()
 
         tuple_.data = self.data
         tuple_.key = self.key
         tuple_.modelSetKey = self.modelSetKey
         tuple_.coordSetKey = self.coordSetKey
 
-        tuple_.id = self.id
         tuple_.name = self.name
         tuple_.order = self.order
         tuple_.minZoom = self.minZoom
@@ -227,20 +236,18 @@ class DispTextStyle(Tuple, DeclarativeBase):
 
     def toTuple(self):
         self.setTupleFields()
-        tuple_ = DispTextStyle()
+        tuple_ = ShapeTextStyleTuple()
 
         tuple_.data = self.data
         tuple_.key = self.key
         tuple_.modelSetKey = self.modelSetKey
 
-        tuple_.id = self.id
         tuple_.name = self.name
         tuple_.fontName = self.fontName
         tuple_.fontSize = self.fontSize
         tuple_.fontStyle = self.fontStyle
         tuple_.scalable = self.scalable
         tuple_.scaleFactor = self.scaleFactor
-        tuple_.modelSetId = self.modelSetId
         tuple_.importHash = self.importHash
         tuple_.spacingBetweenTexts = self.spacingBetweenTexts
         tuple_.borderWidth = self.borderWidth
@@ -317,13 +324,12 @@ class DispLineStyle(Tuple, DeclarativeBase):
 
     def toTuple(self):
         self.setTupleFields()
-        tuple_ = DispLineStyle()
+        tuple_ = ShapeLineStyleTuple()
 
         tuple_.data = self.data
         tuple_.key = self.key
         tuple_.modelSetKey = self.modelSetKey
 
-        tuple_.id = self.id
         tuple_.name = self.name
         tuple_.backgroundFillDashSpace = self.backgroundFillDashSpace
         tuple_.capStyle = self.capStyle
@@ -332,7 +338,6 @@ class DispLineStyle(Tuple, DeclarativeBase):
         tuple_.startArrowSize = self.startArrowSize
         tuple_.endArrowSize = self.endArrowSize
         tuple_.winStyle = self.winStyle
-        tuple_.modelSetId = self.modelSetId
         tuple_.importHash = self.importHash
         tuple_.scalable = self.scalable
         tuple_.showForEdit = self.showForEdit
@@ -397,19 +402,17 @@ class DispColor(Tuple, DeclarativeBase):
 
     def toTuple(self):
         self.setTupleFields()
-        tuple_ = DispColor()
+        tuple_ = ShapeColorTuple()
 
         tuple_.data = self.data
         tuple_.key = self.key
         tuple_.modelSetKey = self.modelSetKey
 
-        tuple_.id = self.id
         tuple_.name = self.name
         tuple_.darkColor = self.darkColor
         tuple_.lightColor = self.lightColor
         tuple_.altColor = self.altColor
         tuple_.swapPeriod = self.swapPeriod
-        tuple_.modelSetId = self.modelSetId
         tuple_.importHash = self.importHash
         tuple_.showForEdit = self.showForEdit
         tuple_.blockApiUpdate = self.blockApiUpdate

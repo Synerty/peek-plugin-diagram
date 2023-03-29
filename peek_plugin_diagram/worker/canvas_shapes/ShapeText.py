@@ -1,7 +1,11 @@
 from typing import Union
 
-from peek_plugin_diagram._private.storage.Lookups import DispColor
-from peek_plugin_diagram._private.storage.Lookups import DispTextStyle
+from peek_plugin_diagram.tuples.lookup_tuples.ShapeColorTuple import (
+    ShapeColorTuple,
+)
+from peek_plugin_diagram.tuples.lookup_tuples.ShapeTextStyleTuple import (
+    ShapeTextStyleTuple,
+)
 from peek_plugin_diagram.worker.canvas_shapes.ShapeBase import ShapeBase
 from peek_plugin_diagram.worker.canvas_shapes.ShapeBase import Point
 
@@ -20,16 +24,16 @@ class TextHorizontalAlign:
 
 class ShapeText(ShapeBase):
     @staticmethod
-    def textStyle(disp) -> DispTextStyle:
-        return disp.get("fsl", DispTextStyle())
+    def textStyle(disp) -> "ShapeTextStyleTuple":
+        return disp.get("fsl", ShapeTextStyleTuple())
 
     @staticmethod
-    def borderColor(disp) -> DispColor:
-        return disp.get("bcl", DispColor())
+    def borderColor(disp) -> "ShapeColorTuple":
+        return disp.get("bcl", ShapeColorTuple())
 
     @staticmethod
-    def color(disp) -> DispColor:
-        return disp.get("cl", DispColor())
+    def color(disp) -> "ShapeColorTuple":
+        return disp.get("cl", ShapeColorTuple())
 
     @staticmethod
     def verticalAlign(disp) -> int:
