@@ -83,7 +83,7 @@ Setting the Zoom Limits
 This admin task will set the maximum and minimum zoom levels for a world view
 in the DMS diagram.
 
-Stop the Peek Services :code:`stop_peek.sh`
+Stop the Peek Services :code:`p_stop.sh`
 
 ----
 
@@ -96,14 +96,14 @@ Stop the Peek Services :code:`stop_peek.sh`
 
 ----
 
-Restart the Peek services. :code:`restart_peek.sh`
+Restart the Peek services. :code:`p_restart.sh`
 
 Enabling Markup Support
 ```````````````````````
 
 This admin task will enable Markup support for a world view.
 
-Stop the Peek Services :code:`stop_peek.sh`
+Stop the Peek Services :code:`p_stop.sh`
 
 ----
 
@@ -119,7 +119,7 @@ Stop the Peek Services :code:`stop_peek.sh`
 
 ----
 
-Restart the Peek Services :code:`restart_peek.sh`
+Restart the Peek Services :code:`p_restart.sh`
 
 Recompiling Coord Sets
 ``````````````````````
