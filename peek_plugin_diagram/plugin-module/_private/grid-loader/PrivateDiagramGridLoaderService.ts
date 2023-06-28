@@ -384,7 +384,11 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
     private async processChunksFromServer(
         payloadEnvelope: PayloadEnvelope
     ): Promise<void> {
-        if (payloadEnvelope.result != null && payloadEnvelope.result != true) {
+        if (
+            (payloadEnvelope.result != null &&
+                payloadEnvelope.result != true) ||
+            payloadEnvelope.data == null
+        ) {
             console.log(`ERROR: ${payloadEnvelope.result}`);
             return;
         }
