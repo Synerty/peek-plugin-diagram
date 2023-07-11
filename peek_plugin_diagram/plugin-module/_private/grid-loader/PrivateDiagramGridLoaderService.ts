@@ -5,7 +5,6 @@ import { GridTuple } from "./GridTuple";
 import { PrivateDiagramGridLoaderServiceA } from "./PrivateDiagramGridLoaderServiceA";
 
 import {
-    extend,
     Payload,
     PayloadEnvelope,
     TupleOfflineStorageNameService,
@@ -27,7 +26,7 @@ import {
 
 // ----------------------------------------------------------------------------
 
-let clientGridWatchUpdateFromDeviceFilt = extend(
+let clientGridWatchUpdateFromDeviceFilt = Object.assign(
     { key: "clientGridWatchUpdateFromDevice" },
     diagramFilt
 );
@@ -358,7 +357,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
         let nextChunk = this.askServerChunks.pop();
 
         let payload = new Payload({ cacheAll: true }, [nextChunk]);
-        extend(payload.filt, clientGridWatchUpdateFromDeviceFilt);
+        Object.assign(payload.filt, clientGridWatchUpdateFromDeviceFilt);
         this.vortexService.sendPayload(payload);
 
         this._status.lastCheckDate = new Date();

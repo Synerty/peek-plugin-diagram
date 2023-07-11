@@ -3,7 +3,6 @@ import { filter, first, takeUntil } from "rxjs/operators";
 import { Injectable } from "@angular/core";
 
 import {
-    extend,
     Payload,
     PayloadEnvelope,
     TupleOfflineStorageNameService,
@@ -39,7 +38,7 @@ export interface BranchIndexResultI {
 
 // ----------------------------------------------------------------------------
 
-let clientBranchIndexWatchUpdateFromDeviceFilt = extend(
+let clientBranchIndexWatchUpdateFromDeviceFilt = Object.assign(
     { key: "clientBranchIndexWatchUpdateFromDevice" },
     diagramFilt
 );
@@ -432,7 +431,10 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
         }
 
         let indexChunk: BranchIndexUpdateDateTuple = this.askServerChunks.pop();
-        let filt = extend({}, clientBranchIndexWatchUpdateFromDeviceFilt);
+        let filt = Object.assign(
+            {},
+            clientBranchIndexWatchUpdateFromDeviceFilt
+        );
         filt[cacheAll] = true;
         let pl = new Payload(filt, [indexChunk]);
         this.vortexService.sendPayload(pl);

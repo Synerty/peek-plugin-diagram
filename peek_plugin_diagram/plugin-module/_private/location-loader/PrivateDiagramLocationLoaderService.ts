@@ -3,7 +3,6 @@ import { filter, first, takeUntil } from "rxjs/operators";
 import { Injectable } from "@angular/core";
 import { LocationIndexTuple } from "./LocationIndexTuple";
 import {
-    extend,
     NgLifeCycleEvents,
     Payload,
     PayloadEnvelope,
@@ -32,7 +31,7 @@ import {
 
 // ----------------------------------------------------------------------------
 
-let clientLocationIndexWatchUpdateFromDeviceFilt = extend(
+let clientLocationIndexWatchUpdateFromDeviceFilt = Object.assign(
     { key: "clientLocationIndexWatchUpdateFromDevice" },
     diagramFilt
 );
@@ -412,7 +411,10 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
         let indexChunk: LocationIndexUpdateDateTuple =
             this.askServerChunks.pop();
 
-        let filt = extend({}, clientLocationIndexWatchUpdateFromDeviceFilt);
+        let filt = Object.assign(
+            {},
+            clientLocationIndexWatchUpdateFromDeviceFilt
+        );
         filt[cacheAll] = true;
         let payload = new Payload(filt, [indexChunk]);
         this.vortexService.sendPayload(payload);
