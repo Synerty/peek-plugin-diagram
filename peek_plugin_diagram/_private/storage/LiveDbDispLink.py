@@ -27,7 +27,7 @@ LIVE_DB_KEY_DATA_TYPE_BY_DISP_ATTR = {
 
 
 @addTupleType
-class LiveDbDispLink(Tuple, DeclarativeBase):
+class LiveDbDispLink(DeclarativeBase, Tuple):
     __tupleTypeShort__ = "LDL"
     __tablename__ = "LiveDbDispLink"
     __tupleType__ = diagramTuplePrefix + __tablename__

@@ -52,7 +52,7 @@ _hasher = _Hasher()
 
 
 @addTupleType
-class DispLayer(Tuple, DeclarativeBase):
+class DispLayer(DeclarativeBase, Tuple):
     __tablename__ = "DispLayer"
     __tupleTypeShort__ = "DLA"
     __tupleType__ = diagramTuplePrefix + __tablename__
@@ -111,7 +111,7 @@ class DispLayer(Tuple, DeclarativeBase):
 
 
 @addTupleType
-class DispLevel(Tuple, DeclarativeBase):
+class DispLevel(DeclarativeBase, Tuple):
     __tablename__ = "DispLevel"
     __tupleTypeShort__ = "DLE"
     __tupleType__ = diagramTuplePrefix + __tablename__
@@ -181,7 +181,7 @@ class DispLevel(Tuple, DeclarativeBase):
 
 
 @addTupleType
-class DispTextStyle(Tuple, DeclarativeBase):
+class DispTextStyle(DeclarativeBase, Tuple):
     __tupleTypeShort__ = "DTS"
     __tablename__ = "DispTextStyle"
     __tupleType__ = diagramTuplePrefix + __tablename__
@@ -258,7 +258,7 @@ class DispTextStyle(Tuple, DeclarativeBase):
 
 
 @addTupleType
-class DispLineStyle(Tuple, DeclarativeBase):
+class DispLineStyle(DeclarativeBase, Tuple):
     __tupleTypeShort__ = "DLS"
     __tablename__ = "DispLineStyle"
     __tupleType__ = diagramTuplePrefix + __tablename__
@@ -347,7 +347,7 @@ class DispLineStyle(Tuple, DeclarativeBase):
 
 
 @addTupleType
-class DispColor(Tuple, DeclarativeBase):
+class DispColor(DeclarativeBase, Tuple):
     __tupleTypeShort__ = "DC"
     __tablename__ = "DispColor"
     __tupleType__ = diagramTuplePrefix + __tablename__
