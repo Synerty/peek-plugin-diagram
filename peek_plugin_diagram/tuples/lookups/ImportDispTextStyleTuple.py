@@ -40,3 +40,5 @@ class ImportDispTextStyleTuple(Tuple):
     blockApiUpdate: bool = TupleField(defaultValue=False)
 
     wrapTextAtChars: int = TupleField(defaultValue=None)
+
+    wrapTextAtCharSplitBetweenWords: bool = TupleField(defaultValue=True)

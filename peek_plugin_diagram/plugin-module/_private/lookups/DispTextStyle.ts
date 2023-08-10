@@ -23,6 +23,7 @@ export class DispTextStyle extends Tuple {
     spacingBetweenTexts: number;
     borderWidth: number;
     wrapTextAtChars: number;
+    wrapTextAtCharSplitBetweenWords: boolean;
 
     constructor() {
         super(DispTextStyle.tupleName);

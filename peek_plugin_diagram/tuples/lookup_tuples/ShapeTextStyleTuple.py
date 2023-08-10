@@ -48,3 +48,5 @@ class ShapeTextStyleTuple(Tuple):
     blockApiUpdate: bool = TupleField()
 
     wrapTextAtChars: int = TupleField()
+
+    wrapTextAtCharSplitBetweenWords: bool = TupleField()
