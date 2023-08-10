@@ -19,6 +19,7 @@ export class ShapeTextStyleTuple extends Tuple {
     borderWidth: number;
     showForEdit: boolean;
     wrapTextAtChars: number;
+    wrapTextAtCharSplitBetweenWords: boolean;
 
     constructor() {
         super(ShapeTextStyleTuple.tupleName);

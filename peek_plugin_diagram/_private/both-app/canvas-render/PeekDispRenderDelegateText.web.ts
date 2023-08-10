@@ -30,7 +30,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
             <DispTextT>disp,
             this.textMeasureCtx,
             zoom,
-            true
+            true,
         );
     }
 
@@ -175,7 +175,8 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
         } else {
             const wrappedLines = this.wrapText(
                 DispText.text(disp),
-                fontStyle.wrapTextAtChars
+                fontStyle.wrapTextAtChars,
+                fontStyle.wrapTextAtCharSplitBetweenWords,
             );
             for (const wrappedLine of wrappedLines) {
                 for (const renderedLine of wrappedLine.split("\n")) {
@@ -232,11 +233,49 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
         }
     }
 
-    private wrapText(text: string, width: number): string[] {
+    private wrapText(
+        text: string,
+        width: number,
+        splitBetweenWords: boolean,
+    ): string[] {
         const substrings: string[] = [];
-        for (let i = 0; i < text.length; i += width) {
-            const substring = text.slice(i, i + width);
-            substrings.push(substring);
+
+        if (!splitBetweenWords) {
+            for (let i = 0; i < text.length; i += width) {
+                const substring = text.slice(i, i + width);
+                substrings.push(substring);
+            }
+        } else {
+            const words = text.split(" ");
+
+            let substring = "";
+            while (words.length > 0) {
+                const word = words.shift();
+
+                if (word.length >= width) {
+                    if (substring.length > 0) {
+                        substrings.push(substring);
+                        substring = "";
+                    }
+                    substrings.push(word);
+                    continue;
+                }
+
+                if (substring.length + word.length <= width) {
+                    substring += word;
+                    continue;
+                }
+
+                if (substring.length + word.length > width) {
+                    substrings.push(substring);
+                    substring = "";
+                    substring += word;
+                }
+            }
+
+            if (substring.length > 0) {
+                substrings.push(substring);
+            }
         }
         return substrings;
     }
