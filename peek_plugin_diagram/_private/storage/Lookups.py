@@ -222,6 +222,8 @@ class DispTextStyle(Tuple, DeclarativeBase):
 
     wrapTextAtChars = Column(Integer, nullable=True)
 
+    wrapTextAtCharSplitBetweenWords = Column(Boolean, nullable=False, default=True)
+
     __table_args__ = (
         Index("idx_DispTextStyle_modelSetId", modelSetId, unique=False),
         Index(
