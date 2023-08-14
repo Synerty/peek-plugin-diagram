@@ -255,6 +255,8 @@ class DispTextStyle(Tuple, DeclarativeBase):
         tuple_.borderWidth = self.borderWidth
         tuple_.blockApiUpdate = self.blockApiUpdate
         tuple_.showForEdit = self.showForEdit
+        tuple_.wrapTextAtChars = self.wrapTextAtChars
+        tuple_.wrapTextAtCharSplitBetweenWords = self.wrapTextAtCharSplitBetweenWords
 
         return tuple_
 
