@@ -56,7 +56,7 @@ class BranchIndexChunkTupleSelector extends TupleSelector {
         super(diagramTuplePrefix + "BranchIndexChunkTuple", { key: chunkKey });
     }
 
-    toOrderedJsonStr(): string {
+    override toOrderedJsonStr(): string {
         return this.chunkKey;
     }
 }
@@ -279,7 +279,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
     private _notifyReady(): void {
         if (this._hasModelSetLoaded && this._hasLoaded)
-            this._hasLoadedSubject.next();
+            this._hasLoadedSubject.next(true);
     }
 
     private _notifyStatus(paused: boolean = false): void {
@@ -469,7 +469,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
             this.index.initialLoadComplete = true;
             await this.saveChunkCacheIndex(true);
             this._hasLoaded = true;
-            this._hasLoadedSubject.next();
+            this._hasLoadedSubject.next(true);
         } else if (payloadEnvelope.filt[cacheAll] == true) {
             this.askServerForNextUpdateChunk();
         }

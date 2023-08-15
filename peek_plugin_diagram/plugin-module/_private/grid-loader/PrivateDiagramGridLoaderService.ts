@@ -55,7 +55,7 @@ class GridKeyTupleSelector extends TupleSelector {
      *
      * This method is used by the Tuple Storage to generate the DB Primary Key
      */
-    toOrderedJsonStr(): string {
+    override toOrderedJsonStr(): string {
         return this.name;
     }
 }

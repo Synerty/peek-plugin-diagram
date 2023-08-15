@@ -117,7 +117,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
     private askServerChunks: LocationIndexUpdateDateTuple[] = [];
 
     private _hasLoaded = false;
-    private _hasLoadedSubject = new Subject<void>();
+    private _hasLoadedSubject = new Subject<boolean>();
 
     private storage: TupleOfflineStorageService;
 
@@ -179,7 +179,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
         return this._hasLoaded;
     }
 
-    isReadyObservable(): Observable<void> {
+    isReadyObservable(): Observable<boolean> {
         return this._hasLoadedSubject;
     }
 
@@ -249,7 +249,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
     }
 
     private _notifyReady(): void {
-        if (this._hasLoaded) this._hasLoadedSubject.next();
+        if (this._hasLoaded) this._hasLoadedSubject.next(true);
     }
 
     private _notifyStatus(paused: boolean = false): void {
@@ -449,7 +449,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
             this.index.initialLoadComplete = true;
             await this.saveChunkCacheIndex(true);
             this._hasLoaded = true;
-            this._hasLoadedSubject.next();
+            this._hasLoadedSubject.next(true);
         } else if (payloadEnvelope.filt[cacheAll] == true) {
             this.askServerForNextUpdateChunk();
         }

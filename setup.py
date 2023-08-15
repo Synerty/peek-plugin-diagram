@@ -67,8 +67,8 @@ package_files = find_package_files()
 requirements = [
     "peek-plugin-base",
     "Numpy",
-    "tinycss2>=1.2.1,<2.0",
-    "colormath>=3.0.0,<4.0",
+    "tinycss2>=1.2.1",
+    "colormath>=3.0.0",
 ]
 
 # Force the dependencies to be the same branch

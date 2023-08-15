@@ -142,7 +142,7 @@ export class DispCurvedText extends DispBase {
         return disp.sbt;
     }
 
-    static create(coordSet: ModelCoordSet): DispCurvedTextT {
+    static override create(coordSet: ModelCoordSet): DispCurvedTextT {
         let newDisp = {
             ...DispBase.create(coordSet, DispBase.TYPE_DT),
             // From Text
@@ -174,7 +174,9 @@ export class DispCurvedText extends DispBase {
         return newDisp;
     }
 
-    static makeShapeContext(context: PeekCanvasShapePropsContext): void {
+    static override makeShapeContext(
+        context: PeekCanvasShapePropsContext
+    ): void {
         DispBase.makeShapeContext(context);
 
         context.addProp(
@@ -217,7 +219,7 @@ export class DispCurvedText extends DispBase {
     // ---------------
     // Represent the disp as a user friendly string
 
-    static makeShapeStr(disp: DispCurvedTextT): string {
+    static override makeShapeStr(disp: DispCurvedTextT): string {
         let center = DispCurvedText.center(disp);
         return (
             DispBase.makeShapeStr(disp) +

@@ -170,7 +170,7 @@ export class DispPolygon extends DispPoly {
         return crossings % 2 == 1;
     }
 
-    static create(coordSet: ModelCoordSet): DispPolygonT {
+    static override create(coordSet: ModelCoordSet): DispPolygonT {
         let disp = <DispPolygonT>DispPoly.create(coordSet, DispBase.TYPE_DPG);
         DispPolygon.setCornerRadius(disp, 0);
         DispPolygon.setFillDirection(
@@ -181,7 +181,9 @@ export class DispPolygon extends DispPoly {
         return disp;
     }
 
-    static makeShapeContext(context: PeekCanvasShapePropsContext): void {
+    static override makeShapeContext(
+        context: PeekCanvasShapePropsContext
+    ): void {
         DispPoly.makeShapeContext(context);
 
         context.addProp(
@@ -259,7 +261,7 @@ export class DispPolygon extends DispPoly {
     // ---------------
     // Represent the disp as a user friendly string
 
-    static makeShapeStr(disp: DispPolygonT): string {
+    static override makeShapeStr(disp: DispPolygonT): string {
         let center = DispPolygon.center(disp);
         return (
             DispBase.makeShapeStr(disp) +

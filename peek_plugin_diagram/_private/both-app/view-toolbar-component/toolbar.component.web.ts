@@ -35,7 +35,7 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
     buttonBitmask: DiagramToolbarBuiltinButtonEnum;
 
     @Output("openPrintPopup")
-    openPrintPopupEmitter = new EventEmitter();
+    openPrintPopupEmitter = new EventEmitter<void>();
 
     dispKey: string;
     coordSet: ModelCoordSet = new ModelCoordSet();
@@ -43,7 +43,7 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
     toolbarIsOpen: boolean = false;
     coordSetsForMenu: ModelCoordSet[] = [];
 
-    tooltipTrigger = "hover";
+    tooltipTrigger: "click" | "focus" | "hover" | null = "hover";
 
     protected toolbarService: PrivateDiagramToolbarService;
     private parentPluginButtons: DiagramToolButtonI[][] = [];
@@ -79,7 +79,7 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
         }
     }
 
-    ngOnInit() {
+    override ngOnInit() {
         if (this.config.coordSet != null) this.coordSet = this.config.coordSet;
 
         this.config.controller.coordSetChange
