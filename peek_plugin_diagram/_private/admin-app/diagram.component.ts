@@ -5,5 +5,5 @@ import { Component, OnInit } from "@angular/core";
     templateUrl: "diagram.component.html",
 })
 export class DiagramComponent implements OnInit {
-    override ngOnInit() {}
+    ngOnInit() {}
 }
