@@ -230,7 +230,7 @@
             (click)="buttonClicked(btn)"
             *ngFor="let btn of otherPluginButtons"
             [class.active]="isButtonActive(btn)"
-            nzTitle="btn.tooltip"
+            [nzTitle]="btn['tooltip']"
             nz-tooltip
             [nzTooltipMouseEnterDelay]="1.0"
         >
