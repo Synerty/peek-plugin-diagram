@@ -61,7 +61,7 @@ export class BranchDetailComponent extends NgLifeCycleEvents implements OnInit {
 
     // Set in EDIT mode from edit-props
     @Input("diagramBranchUpdatedObservable")
-    diagramBranchUpdatedObservable: Observable<void>;
+    diagramBranchUpdatedObservable: Observable<boolean>;
 
     isEditMode: boolean = false;
 
@@ -85,7 +85,7 @@ export class BranchDetailComponent extends NgLifeCycleEvents implements OnInit {
         );
     }
 
-    ngOnInit() {
+    override ngOnInit() {
         if (this.inputGlobalBranch != null) {
             this.globalBranch = this.inputGlobalBranch;
             this.globalBranchKey = this.inputGlobalBranch.key;

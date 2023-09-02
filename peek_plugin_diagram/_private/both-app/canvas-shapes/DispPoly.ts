@@ -82,7 +82,7 @@ export abstract class DispPoly extends DispBase {
 
     // ---------------
     // Support shape creating
-    static create(coordSet: ModelCoordSet, type): DispPolyT {
+    static override create(coordSet: ModelCoordSet, type): DispPolyT {
         let newDisp = {
             ...DispBase.create(coordSet, type),
             g: [], // PointsT[]
@@ -105,7 +105,9 @@ export abstract class DispPoly extends DispBase {
 
     // ---------------
     // Support shape editing
-    static makeShapeContext(context: PeekCanvasShapePropsContext): void {
+    static override makeShapeContext(
+        context: PeekCanvasShapePropsContext
+    ): void {
         DispBase.makeShapeContext(context);
 
         context.addProp(

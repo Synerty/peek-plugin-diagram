@@ -58,7 +58,7 @@ class GridKeyCompilerQueue(Tuple, DeclarativeBase, ACIProcessorQueueTupleABC):
 
 
 @addTupleType
-class GridKeyIndex(Tuple, DeclarativeBase):
+class GridKeyIndex(DeclarativeBase, Tuple):
     __tablename__ = "GridKeyIndex"
     __tupleType__ = diagramTuplePrefix + __tablename__
 

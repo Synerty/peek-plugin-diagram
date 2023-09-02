@@ -35,18 +35,20 @@ export class DispNull extends DispBase {
         ];
     }
 
-    static create(coordSet: ModelCoordSet): DispNullT {
+    static override create(coordSet: ModelCoordSet): DispNullT {
         return <DispNullT>DispBase.create(coordSet, DispBase.TYPE_DN);
     }
 
-    static makeShapeContext(context: PeekCanvasShapePropsContext): void {
+    static override makeShapeContext(
+        context: PeekCanvasShapePropsContext
+    ): void {
         DispBase.makeShapeContext(context);
     }
 
     // ---------------
     // Represent the disp as a user friendly string
 
-    static makeShapeStr(disp: DispNullT): string {
+    static override makeShapeStr(disp: DispNullT): string {
         let center = DispNull.center(disp);
         return (
             DispBase.makeShapeStr(disp) +

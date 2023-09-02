@@ -598,7 +598,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
                     const char = chars[charIndex];
                     const charWidth =
                         char in measureTextLengthMap
-                            ? measureTextLengthMap.char
+                            ? measureTextLengthMap["char"]
                             : ctx.measureText(char).width;
 
                     curvedTextPathDrawingContext = this.locateNextCharacter(

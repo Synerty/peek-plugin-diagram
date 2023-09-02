@@ -43,11 +43,11 @@ export class DispRectangle extends DispPolygon {
         DispBase.setBoundsNull(disp);
     }
 
-    static center(disp: DispPolygonT): PointI {
+    static override center(disp: DispPolygonT): PointI {
         return { x: disp.g[0], y: disp.g[1] };
     }
 
-    static create(coordSet: ModelCoordSet): DispPolygonT {
+    static override create(coordSet: ModelCoordSet): DispPolygonT {
         let disp = <DispPolygonT>DispPolygon.create(coordSet);
         DispPolygon.setIsRectangle(disp, true);
         disp.g = [0, 0, 0, 0, 0, 0, 0, 0];

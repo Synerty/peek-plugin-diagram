@@ -23,7 +23,7 @@ export class PrintComponent extends NgLifeCycleEvents implements OnInit {
         super();
     }
 
-    ngOnInit() {
+    override ngOnInit() {
         console.log("Opening Start Edit popup");
         this.snapshotService
             .snapshotDiagram()

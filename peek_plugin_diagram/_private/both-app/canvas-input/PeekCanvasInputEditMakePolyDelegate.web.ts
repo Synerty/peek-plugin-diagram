@@ -54,7 +54,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         this._lastMousePos = new CanvasInputPos();
     }
 
-    keyUp(event) {
+    override keyUp(event) {
         if (!this._creating) return;
 
         // Cancel creating object
@@ -85,17 +85,17 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     }
 
     // Map mouse events
-    mouseDown(event: MouseEvent, inputPos: CanvasInputPos) {
+    override mouseDown(event: MouseEvent, inputPos: CanvasInputPos) {
         this.inputStart(inputPos);
     }
 
     // ---------------
 
-    mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
+    override mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
         this.inputMove(inputPos);
     }
 
-    mouseUp(event: MouseEvent, inputPos: CanvasInputPos) {
+    override mouseUp(event: MouseEvent, inputPos: CanvasInputPos) {
         if (event.button == 2) {
             this._finaliseCreate();
             return;
@@ -103,7 +103,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         this.inputEnd(inputPos, event.shiftKey);
     }
 
-    mouseDoubleClick(event: MouseEvent, inputPos: CanvasInputPos) {
+    override mouseDoubleClick(event: MouseEvent, inputPos: CanvasInputPos) {
         // The double click will cause two "MouseUp" events
         DispPoly.popPoint(this._creating);
         DispPoly.popPoint(this._creating);
@@ -111,7 +111,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     }
 
     // Map touch events
-    touchStart(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchStart(event: TouchEvent, inputPos: CanvasInputPos) {
         if (event.touches.length == 2) {
             this._finaliseCreate();
             return;
@@ -122,11 +122,11 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
     // ---------------
 
-    touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
         this.inputMove(inputPos);
     }
 
-    touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
         this.inputEnd(inputPos);
     }
 
@@ -136,7 +136,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
     // ---------------
 
-    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {}
+    override draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {}
 
     protected createDisp(inputPos: CanvasInputPos) {
         // Create the Disp

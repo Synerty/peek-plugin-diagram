@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 @addTupleType
-class ModelSet(Tuple, DeclarativeBase):
+class ModelSet(DeclarativeBase, Tuple):
     __tablename__ = "ModelSet"
     __tupleType__ = diagramTuplePrefix + __tablename__
 
@@ -57,7 +57,7 @@ class ModelSet(Tuple, DeclarativeBase):
 
 
 @addTupleType
-class ModelCoordSet(Tuple, DeclarativeBase):
+class ModelCoordSet(DeclarativeBase, Tuple):
     """Coordinate Sets"""
 
     __tablename__ = "ModelCoordSet"
@@ -189,7 +189,7 @@ class ModelCoordSet(Tuple, DeclarativeBase):
 
 
 @addTupleType
-class ModelCoordSetGridSize(Tuple, DeclarativeBase):
+class ModelCoordSetGridSize(DeclarativeBase, Tuple):
     """Coord Set Grid Size Settings
 
     To match a Z_GRID the display item must be min <= ON < max

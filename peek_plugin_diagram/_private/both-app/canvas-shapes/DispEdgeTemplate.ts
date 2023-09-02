@@ -49,7 +49,7 @@ export class DispEdgeTemplate extends DispPoly {
     // ---------------
     // Represent the disp as a user friendly string
 
-    static makeShapeStr(disp: DispEdgeTemplateT): string {
+    static override makeShapeStr(disp: DispEdgeTemplateT): string {
         return DispBase.makeShapeStr(disp) + `\nName : ${disp.n}`;
     }
 }
