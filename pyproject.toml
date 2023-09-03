@@ -17,8 +17,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://bitbucket.org/synerty/peek-plugin-diagram"
-Download = "https://bitbucket.org/synerty/peek-plugin-diagram/get/0.0.0.zip"
+Homepage = "https://github.com/Synerty/peek-plugin-diagram"
+
 
 #https://stackoverflow.com/a/75636144
 
