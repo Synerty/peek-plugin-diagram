@@ -55,7 +55,7 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
         private configService: PrivateDiagramConfigService,
         private coordSetService: PrivateDiagramCoordSetService,
         private positionService: DiagramPositionService,
-        private deviceEnrolmentService: DeviceEnrolmentService
+        private deviceEnrolmentService: DeviceEnrolmentService,
     ) {
         super();
 
@@ -85,7 +85,7 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
         this.config.controller.coordSetChange
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(
-                (cs) => (this.coordSet = cs != null ? cs : new ModelCoordSet())
+                (cs) => (this.coordSet = cs != null ? cs : new ModelCoordSet()),
             );
 
         this.coordSetsForMenu = this.coordSetService
@@ -187,7 +187,7 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
         this.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
         this.branchService.popupEditBranchSelection(
             this.modelSetKey,
-            this.coordSetKey
+            this.coordSetKey,
         );
     }
 
@@ -200,7 +200,7 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
         this.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
         this.configService.popupBranchesSelection(
             this.modelSetKey,
-            this.coordSetKey
+            this.coordSetKey,
         );
     }
 
@@ -216,7 +216,7 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
         this.objectPopupService.hidePopup(DocDbPopupTypeE.tooltipPopup);
         this.configService.popupLayerSelection(
             this.modelSetKey,
-            this.coordSetKey
+            this.coordSetKey,
         );
     }
 

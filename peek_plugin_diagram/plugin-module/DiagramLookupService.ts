@@ -20,7 +20,7 @@ import { PrivateDiagramCoordSetService } from "@peek/peek_plugin_diagram/_privat
 export class DiagramLookupService extends NgLifeCycleEvents {
     constructor(
         private privateService: PrivateDiagramLookupService,
-        private coordSetService: PrivateDiagramCoordSetService
+        private coordSetService: PrivateDiagramCoordSetService,
     ) {
         super();
     }
@@ -39,7 +39,7 @@ export class DiagramLookupService extends NgLifeCycleEvents {
     levels(modelSetKey: string, coordSetKey: string): ShapeLevelTuple[] {
         const coordSet = this.coordSetService.coordSetForKey(
             modelSetKey,
-            coordSetKey
+            coordSetKey,
         );
         return this.privateService
             .levelsOrderedByOrder(coordSet.id)

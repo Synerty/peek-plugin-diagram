@@ -125,7 +125,7 @@ export abstract class DispPoly extends DispBase {
     // ---------------
     // Support shape editing
     static override makeShapeContext(
-        context: PeekCanvasShapePropsContext
+        context: PeekCanvasShapePropsContext,
     ): void {
         DispBase.makeShapeContext(context);
 
@@ -134,8 +134,8 @@ export abstract class DispPoly extends DispBase {
                 ShapePropType.LineStyle,
                 DispPoly.lineStyle,
                 DispPoly.setLineStyle,
-                "Line Style"
-            )
+                "Line Style",
+            ),
         );
 
         context.addProp(
@@ -143,8 +143,8 @@ export abstract class DispPoly extends DispBase {
                 ShapePropType.Color,
                 DispPoly.lineColor,
                 DispPoly.setLineColor,
-                "Line Color"
-            )
+                "Line Color",
+            ),
         );
 
         context.addProp(
@@ -152,8 +152,8 @@ export abstract class DispPoly extends DispBase {
                 ShapePropType.Integer,
                 DispPoly.lineWidth,
                 DispPoly.setLineWidth,
-                "Line Width"
-            )
+                "Line Width",
+            ),
         );
     }
 }

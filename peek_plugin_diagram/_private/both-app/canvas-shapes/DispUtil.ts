@@ -3,7 +3,7 @@ import { PointI } from "./DispBase";
 export function rotatePointAboutCenter(
     center: PointI,
     point: PointI,
-    rotationDegrees: number
+    rotationDegrees: number,
 ): PointI {
     const rotationRadians = (rotationDegrees * Math.PI) / 180;
     const cos = Math.cos(rotationRadians);
@@ -21,7 +21,7 @@ export function rotatePointAboutCenter(
 export function calculateRotationAfterPointMove(
     center: PointI,
     startPoint: PointI,
-    movedPoint: PointI
+    movedPoint: PointI,
 ): number {
     const beforeX = startPoint.x - center.x;
     const beforeY = startPoint.y - center.y;
@@ -37,7 +37,7 @@ export function calculateRotationAfterPointMove(
 export function movePointFurtherFromPoint(
     refPoint: PointI,
     point: PointI,
-    distance: number
+    distance: number,
 ): PointI {
     const adj = point.x - refPoint.x;
     const opp = point.y - refPoint.y;

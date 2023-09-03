@@ -10,7 +10,7 @@ export { DrawModeE } from "./PeekDispRenderDrawModeE.web";
 export abstract class PeekDispRenderDelegateABC {
     protected constructor(
         protected config: PeekCanvasConfig,
-        protected model: PeekCanvasModel
+        protected model: PeekCanvasModel,
     ) {}
 
     abstract updateBounds(disp: DispBaseT, zoom: number): void;
@@ -22,7 +22,7 @@ export abstract class PeekDispRenderDelegateABC {
         ctx,
         zoom: number,
         pan: PointI,
-        drawMode: DrawModeE
+        drawMode: DrawModeE,
     );
 
     abstract drawEditHandles(disp, ctx, zoom: number, pan: PointI);
@@ -33,7 +33,7 @@ export abstract class PeekDispRenderDelegateABC {
 
         const handles: DispHandleI[] = DispFactory.wrapper(disp).handlePoints(
             disp,
-            margin + width
+            margin + width,
         );
 
         const halfWidth = width / 2.0;
@@ -43,7 +43,7 @@ export abstract class PeekDispRenderDelegateABC {
                 handle.center.x - halfWidth,
                 handle.center.y - halfWidth,
                 width,
-                width
+                width,
             );
             handle.handleIndex = index;
 

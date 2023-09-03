@@ -70,7 +70,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
-        editArgs: InputDelegateConstructorEditArgs
+        editArgs: InputDelegateConstructorEditArgs,
     ) {
         super(viewArgs, editArgs, PeekCanvasInputEditSelectDelegate.TOOL_NAME);
 
@@ -79,7 +79,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
     deleteSelectedDisps() {
         const disps = this.viewArgs.model.query.decentAndAddDisps(
-            this.viewArgs.model.selection.selectedDisps()
+            this.viewArgs.model.selection.selectedDisps(),
         );
         this.viewArgs.model.selection.clearSelection();
 
@@ -176,7 +176,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             this.viewArgs.model.viewableDisps(),
             this.viewArgs.config.viewPort.zoom,
             true,
-            true
+            true,
         );
 
         let selectedDisps = this.viewArgs.model.selection.selectedDisps();
@@ -378,7 +378,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this.viewArgs.config.invalidate();
     }
 
-    mouseDoubleClick(event, inputPos: CanvasInputPos) {
+    override mouseDoubleClick(event, inputPos: CanvasInputPos) {
         // If the mouse was down on a action handle, then handle that
         if (
             this.primaryEditActionHandle?.wasClickedOn({
@@ -413,7 +413,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this._zoomPan(inputPos.clientX, inputPos.clientY, delta);
     }
 
-    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
+    override draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
         this.resetPrimaryActionHandle();
 
         switch (this._state) {
@@ -432,7 +432,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
                     y,
                     w,
                     h,
-                    this.viewArgs.config.mouse.selecting.dashLen / zoom
+                    this.viewArgs.config.mouse.selecting.dashLen / zoom,
                 );
                 ctx.stroke();
                 break;
@@ -479,7 +479,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         console.log(center);
 
         let dist = Math.sqrt(
-            (t1x - t2x) * (t1x - t2x) + (t1y - t2y) * (t1y - t2y)
+            (t1x - t2x) * (t1x - t2x) + (t1y - t2y) * (t1y - t2y),
         );
 
         if (this._lastPinchDist == null) {
@@ -597,7 +597,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             this.viewArgs.config.viewPort.zoom,
             this.viewArgs.config.mouse.selecting.margin,
             inputPos,
-            false
+            false,
         );
 
         // Sort by how close the click is from the center of the box.
@@ -619,7 +619,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         let b = PeekCanvasBounds.fromPoints([inputPos1, inputPos2]);
 
         return disps.filter(
-            (d) => d.bounds && d.bounds.withIn(b.x, b.y, b.w, b.h)
+            (d) => d.bounds && d.bounds.withIn(b.x, b.y, b.w, b.h),
         );
     }
 
@@ -644,54 +644,15 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             this.viewArgs.model.selection.removeSelection(hits);
         } else {
             // Remove all previous selection
-            if (this._mouseDownWithShift) {
+            if (this._mouseDownWithShift)
                 this.viewArgs.model.selection.addSelection(hits);
-            } else {
-                this.viewArgs.model.selection.replaceSelection(hits);
-            }
+            else this.viewArgs.model.selection.replaceSelection(hits);
         }
 
-        const selectedDisps = this.viewArgs.model.selection.selectedDisps();
-
-        for (const disp of selectedDisps) {
+        for (const disp of this.viewArgs.model.selection.selectedDisps()) {
             DispFactory.wrapper(disp).resetMoveData(disp);
             // console.log(disp);
         }
-    }
-
-    private callHandlePrimaryAction(disp, inputPos: CanvasInputPos): void {
-        this.editArgs?.editPrimaryActionFactory
-            .handlePrimaryAction(disp, inputPos)
-            .then(() => {});
-    }
-
-    private resetPrimaryActionHandle(): void {
-        const selectedDisps = this.viewArgs.model.selection.selectedDisps();
-
-        this.primaryEditActionHandle = null;
-        if ((selectedDisps?.length || 0) !== 1) {
-            return;
-        }
-
-        const selectedDisp = selectedDisps[0];
-        const Wrapper = DispFactory.wrapper(selectedDisp);
-        const primaryEditHandle = Wrapper.primaryActionHandlePoint(
-            selectedDisp,
-            this.viewArgs.config.editor.primaryEditActionHandleMargin /
-                this.viewArgs.config.viewPort.zoom
-        );
-
-        if (primaryEditHandle == null) {
-            return null;
-        }
-
-        this.primaryEditActionHandle = new PeekCanvasInputEditActionHandle(
-            this.viewArgs,
-            primaryEditHandle,
-            EditActionDisplayTypeE.Pencil,
-            EditActionDisplayPriorityE.Default,
-            selectedDisp
-        );
     }
 
     // ------------------------------------------------------------------------
@@ -747,11 +708,11 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
         assert(
             DispBase.typeOf(h.disp) == DispType.groupPointer,
-            "DispGroupPtr not provided"
+            "DispGroupPtr not provided",
         );
 
         this._selectedDispsToMove = this.viewArgs.model.query.decentAndAddDisps(
-            (<DispGroupPointerT>h.disp).disps
+            (<DispGroupPointerT>h.disp).disps,
         );
     }
 
@@ -765,7 +726,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
         // All the disps with the same key
         let disps: any[] = q.dispsForKeys(
-            q.keyOfDisps(this.viewArgs.model.selection.selectedDisps())
+            q.keyOfDisps(this.viewArgs.model.selection.selectedDisps()),
         );
 
         // all the disps that have matching keys
@@ -825,20 +786,20 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         primarySelections =
             this.editArgs.branchContext.branchTuple.addOrUpdateDisps(
                 primarySelections,
-                true
+                true,
             );
 
         groupSelections =
             this.editArgs.branchContext.branchTuple.addOrUpdateDisps(
                 groupSelections,
-                true
+                true,
             );
 
         for (let dispPolylineEnd of this._selectedPolylineEnds) {
             dispPolylineEnd.disp =
                 this.editArgs.branchContext.branchTuple.addOrUpdateDisp(
                     dispPolylineEnd.disp,
-                    true
+                    true,
                 );
         }
 
@@ -864,13 +825,13 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
                 DispPolyline.deltaMoveStart(
                     dispPolylineEnd.disp,
                     delta.dx,
-                    delta.dy
+                    delta.dy,
                 );
             } else {
                 DispPolyline.deltaMoveEnd(
                     dispPolylineEnd.disp,
                     delta.dx,
-                    delta.dy
+                    delta.dy,
                 );
             }
         }
@@ -888,7 +849,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         DispFactory.wrapper(handle.disp).deltaMoveHandle(
             handle,
             delta.dx,
-            delta.dy
+            delta.dy,
         );
 
         this.editArgs.branchContext.branchTuple.touchUpdateDate(false);

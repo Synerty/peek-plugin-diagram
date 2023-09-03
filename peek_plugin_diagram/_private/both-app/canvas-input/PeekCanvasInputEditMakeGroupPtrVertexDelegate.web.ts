@@ -24,12 +24,12 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate extends PeekCanvasInp
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
-        editArgs: InputDelegateConstructorEditArgs
+        editArgs: InputDelegateConstructorEditArgs,
     ) {
         super(
             viewArgs,
             editArgs,
-            PeekCanvasInputMakeDispGroupPtrVertexDelegate.TOOL_NAME
+            PeekCanvasInputMakeDispGroupPtrVertexDelegate.TOOL_NAME,
         );
 
         this._reset();
@@ -115,7 +115,7 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate extends PeekCanvasInp
         // Add the shape to the branch
         created = this.editArgs.branchContext.branchTuple.addOrUpdateDisp(
             created,
-            true
+            true,
         );
         this.editArgs.branchContext.branchTuple.touchUndo();
 

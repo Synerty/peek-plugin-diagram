@@ -25,14 +25,14 @@ import {
 export function tupleActionPushNameServiceFactory() {
     return new TupleActionPushNameService(
         diagramActionProcessorName,
-        diagramFilt
+        diagramFilt,
     );
 }
 
 export function tupleDataObservableNameServiceFactory() {
     return new TupleDataObservableNameService(
         diagramObservableName,
-        diagramFilt
+        diagramFilt,
     );
 }
 

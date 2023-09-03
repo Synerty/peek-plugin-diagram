@@ -49,7 +49,7 @@ export class SelectLayersComponent extends NgLifeCycleEvents implements OnInit {
         private headerService: HeaderService,
         private lookupService: PrivateDiagramLookupService,
         private configService: PrivateDiagramConfigService,
-        abstractCoordSetService: DiagramCoordSetService
+        abstractCoordSetService: DiagramCoordSetService,
     ) {
         super();
 
@@ -100,7 +100,7 @@ export class SelectLayersComponent extends NgLifeCycleEvents implements OnInit {
 
         const compStr = (a, b) => (a == b ? 0 : a < b ? -1 : 1);
         items = items.sort((a, b) =>
-            compStr(a.name.toLowerCase(), b.name.toLowerCase())
+            compStr(a.name.toLowerCase(), b.name.toLowerCase()),
         );
 
         this.items$.next(items);
@@ -114,12 +114,12 @@ export class SelectLayersComponent extends NgLifeCycleEvents implements OnInit {
     protected openPopup({ coordSetKey, modelSetKey }) {
         let coordSet = this.coordSetService.coordSetForKey(
             modelSetKey,
-            coordSetKey
+            coordSetKey,
         );
         console.log("Opening Layer Select popup");
 
         this.allItems = this.lookupService.layersOrderedByOrder(
-            coordSet.modelSetId
+            coordSet.modelSetId,
         );
         this.refilter();
 

@@ -75,7 +75,7 @@ export class DispNull extends DispBase {
     }
 
     static override makeShapeContext(
-        context: PeekCanvasShapePropsContext
+        context: PeekCanvasShapePropsContext,
     ): void {
         DispBase.makeShapeContext(context);
     }

@@ -52,7 +52,7 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
         abstractCoordSetService: DiagramCoordSetService,
         private globalBranchService: BranchService,
         private balloonMsg: BalloonMsgService,
-        private userService: UserService
+        private userService: UserService,
     ) {
         super();
 
@@ -128,11 +128,11 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
 
         if (this._sortByDate) {
             items = items.sort(
-                (a, b) => b.createdDate.getTime() - a.createdDate.getTime()
+                (a, b) => b.createdDate.getTime() - a.createdDate.getTime(),
             );
         } else {
             items = items.sort((a, b) =>
-                compStr(a.name.toLowerCase(), b.name.toLowerCase())
+                compStr(a.name.toLowerCase(), b.name.toLowerCase()),
             );
         }
         this.items$.next(items);
@@ -175,7 +175,7 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
             let nb = this.newBranch;
             if (nb.name == null || nb.name.length == 0) {
                 this.balloonMsg.showWarning(
-                    "Name must be supplied to create a branch"
+                    "Name must be supplied to create a branch",
                 );
                 return;
             }
@@ -185,7 +185,7 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
             this.globalBranchService
                 .createBranch(nb)
                 .catch((e) =>
-                    this.balloonMsg.showError(`Failed to create branch : ${e}`)
+                    this.balloonMsg.showError(`Failed to create branch : ${e}`),
                 );
 
             branchToEdit = this.newBranch;
@@ -201,7 +201,7 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
         this.branchService.startEditing(
             this.modelSetKey,
             this.coordSetKey,
-            branchToEdit.key
+            branchToEdit.key,
         );
         this.closePopup();
     }

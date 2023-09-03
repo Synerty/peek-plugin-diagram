@@ -64,13 +64,13 @@ export class GridCache {
 
     constructor(
         private lookupService: PrivateDiagramLookupService,
-        private gridLoader: PrivateDiagramGridLoaderServiceA
+        private gridLoader: PrivateDiagramGridLoaderServiceA,
     ) {
         // Services don't have destructors, I'm not sure how to unsubscribe.
         this.gridLoader.observable
             .pipe(takeUntil(this.NgLifeCycleEvents.onDestroyEvent))
             .subscribe((tuples: GridTuple[]) =>
-                this.processGridUpdates(tuples)
+                this.processGridUpdates(tuples),
             );
 
         // If the lookups reload, we need to relink all the disps
@@ -89,7 +89,7 @@ export class GridCache {
         const linkedGrids = [];
         for (const cache of this.cacheQueue) linkedGrids.add(cache.grids);
         return linkedGrids.filter(
-            (g) => unique[g.gridKey] === (unique[g.gridKey] = true)
+            (g) => unique[g.gridKey] === (unique[g.gridKey] = true),
         );
     }
 

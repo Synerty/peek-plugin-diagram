@@ -175,7 +175,7 @@ export class DispCurvedText extends DispBase {
     }
 
     static override makeShapeContext(
-        context: PeekCanvasShapePropsContext
+        context: PeekCanvasShapePropsContext,
     ): void {
         DispBase.makeShapeContext(context);
 
@@ -184,8 +184,8 @@ export class DispCurvedText extends DispBase {
                 ShapePropType.MultilineString,
                 DispCurvedText.text,
                 DispCurvedText.setText,
-                "Text"
-            )
+                "Text",
+            ),
         );
 
         context.addProp(
@@ -193,8 +193,8 @@ export class DispCurvedText extends DispBase {
                 ShapePropType.TextStyle,
                 DispCurvedText.textStyle,
                 DispCurvedText.setTextStyle,
-                "Text Style"
-            )
+                "Text Style",
+            ),
         );
 
         context.addProp(
@@ -202,8 +202,8 @@ export class DispCurvedText extends DispBase {
                 ShapePropType.Color,
                 DispCurvedText.color,
                 DispCurvedText.setColor,
-                "Color"
-            )
+                "Color",
+            ),
         );
 
         context.addProp(
@@ -211,8 +211,8 @@ export class DispCurvedText extends DispBase {
                 ShapePropType.Color,
                 DispCurvedText.borderColor,
                 DispCurvedText.setBorderColor,
-                "Border Color"
-            )
+                "Border Color",
+            ),
         );
     }
 

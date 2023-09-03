@@ -23,7 +23,7 @@ import {
 export function tupleDataObservableNameServiceFactory() {
     return new TupleDataObservableNameService(
         diagramObservableName,
-        diagramFilt
+        diagramFilt,
     );
 }
 
@@ -34,7 +34,7 @@ export function tupleOfflineStorageNameServiceFactory() {
 export function tupleActionPushNameServiceFactory() {
     return new TupleActionPushNameService(
         diagramActionProcessorName,
-        diagramFilt
+        diagramFilt,
     );
 }
 
@@ -51,19 +51,19 @@ export class PrivateDiagramTupleService {
         storageFactory: TupleStorageFactoryService,
         vortexService: VortexService,
         vortexStatusService: VortexStatusService,
-        actionSingleton: TupleActionPushOfflineSingletonService
+        actionSingleton: TupleActionPushOfflineSingletonService,
     ) {
         // Create the offline storage
         this.offlineStorage = new TupleOfflineStorageService(
             storageFactory,
-            tupleOfflineStorageNameServiceFactory()
+            tupleOfflineStorageNameServiceFactory(),
         );
 
         // Online Actions
         this.action = new TupleActionPushService(
             tupleActionPushNameServiceFactory(),
             vortexService,
-            vortexStatusService
+            vortexStatusService,
         );
 
         // Offline Actions
@@ -71,7 +71,7 @@ export class PrivateDiagramTupleService {
             tupleActionPushNameServiceFactory(),
             vortexService,
             vortexStatusService,
-            actionSingleton
+            actionSingleton,
         );
 
         // Offline Tuple Data Observer
@@ -80,13 +80,13 @@ export class PrivateDiagramTupleService {
             vortexService,
             vortexStatusService,
             observerName,
-            this.offlineStorage
+            this.offlineStorage,
         );
 
         // Online Tuple Data Observer
         this.observer = new TupleDataObserverService(
             this.offlineObserver,
-            observerName
+            observerName,
         );
     }
 }

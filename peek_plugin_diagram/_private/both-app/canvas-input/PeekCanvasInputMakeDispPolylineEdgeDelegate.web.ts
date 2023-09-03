@@ -20,12 +20,12 @@ export class PeekCanvasInputMakeDispPolylineEdgeDelegate extends PeekCanvasInput
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
-        editArgs: InputDelegateConstructorEditArgs
+        editArgs: InputDelegateConstructorEditArgs,
     ) {
         super(
             viewArgs,
             editArgs,
-            PeekCanvasInputMakeDispPolylineEdgeDelegate.TOOL_NAME
+            PeekCanvasInputMakeDispPolylineEdgeDelegate.TOOL_NAME,
         );
 
         this._reset();
@@ -39,7 +39,7 @@ export class PeekCanvasInputMakeDispPolylineEdgeDelegate extends PeekCanvasInput
         DispPolyline.setTargetEdgeTemplateName(
             disp,
             coordSet.editDefaultEdgeCoordSetId,
-            coordSet.editDefaultEdgeGroupName
+            coordSet.editDefaultEdgeGroupName,
         );
     }
 }

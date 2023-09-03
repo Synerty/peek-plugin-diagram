@@ -15,12 +15,12 @@ export class PeekCanvasInputEditMakeDispPolygonDelegate extends PeekCanvasInputE
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
-        editArgs: InputDelegateConstructorEditArgs
+        editArgs: InputDelegateConstructorEditArgs,
     ) {
         super(
             viewArgs,
             editArgs,
-            PeekCanvasInputEditMakeDispPolygonDelegate.TOOL_NAME
+            PeekCanvasInputEditMakeDispPolygonDelegate.TOOL_NAME,
         );
 
         this._reset();

@@ -45,7 +45,7 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
         private tupleService: PrivateDiagramTupleService,
         private vortexStatusService: VortexStatusService,
         private globalBranchService: BranchService,
-        deviceEnrolmentService: DeviceEnrolmentService
+        deviceEnrolmentService: DeviceEnrolmentService,
     ) {
         super();
 
@@ -66,7 +66,7 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
             promise = this.tupleService.offlineStorage
                 .deleteOldTuples(date7DaysAgo)
                 .catch((err) =>
-                    console.log(`ERROR: Failed to delete old tuples`)
+                    console.log(`ERROR: Failed to delete old tuples`),
                 );
         } else {
             this.vortexStatusService.isOnline
@@ -77,7 +77,7 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
                     this.tupleService.offlineStorage
                         .deleteOldTuples(date7DaysAgo)
                         .catch((err) =>
-                            console.log(`ERROR: Failed to delete old tuples`)
+                            console.log(`ERROR: Failed to delete old tuples`),
                         );
                 });
             promise = Promise.resolve();
@@ -148,7 +148,7 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
     private loadBranchToIdMap() {
         let tupleSelector = new TupleSelector(
             BranchKeyToIdMapTuple.tupleName,
-            {}
+            {},
         );
 
         this.tupleService.offlineObserver
@@ -182,7 +182,7 @@ export class PrivateDiagramOfflineCacherService extends NgLifeCycleEvents {
                     )
                     .subscribe((tuples: any[]) => {
                         this.tupleService.offlineObserver.flushCache(
-                            tupleSelector
+                            tupleSelector,
                         );
                     });
             }

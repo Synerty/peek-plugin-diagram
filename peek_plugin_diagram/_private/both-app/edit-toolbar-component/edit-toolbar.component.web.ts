@@ -36,7 +36,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
 
     constructor(
         private abstractToolbarService: DiagramToolbarService,
-        private copyPasteService: CopyPasteService
+        private copyPasteService: CopyPasteService,
     ) {
         super();
 
@@ -98,7 +98,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
 
     selectEditSelectTool() {
         this.canvasEditor.setInputEditDelegate(
-            PeekCanvasInputEditSelectDelegate
+            PeekCanvasInputEditSelectDelegate,
         );
     }
 
@@ -181,7 +181,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
 
     selectEditMakeTextTool() {
         this.canvasEditor.setInputEditDelegate(
-            PeekCanvasInputEditMakeTextDelegate
+            PeekCanvasInputEditMakeTextDelegate,
         );
     }
 
@@ -195,7 +195,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
 
     selectEditMakeRectangleTool() {
         this.canvasEditor.setInputEditDelegate(
-            PeekCanvasInputEditMakeRectangleDelegate
+            PeekCanvasInputEditMakeRectangleDelegate,
         );
     }
 
@@ -209,7 +209,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
 
     selectEditMakeLineWithArrowTool() {
         this.canvasEditor.setInputEditDelegate(
-            PeekCanvasInputEditMakeLineWithArrowDelegate
+            PeekCanvasInputEditMakeLineWithArrowDelegate,
         );
     }
 
@@ -222,7 +222,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
 
     selectEditMakeEllipseTool() {
         this.canvasEditor.setInputEditDelegate(
-            PeekCanvasInputEditMakeEllipseDelegate
+            PeekCanvasInputEditMakeEllipseDelegate,
         );
     }
 
@@ -238,7 +238,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
 
     selectEditMakePolygonTool() {
         this.canvasEditor.setInputEditDelegate(
-            PeekCanvasInputEditMakeDispPolygonDelegate
+            PeekCanvasInputEditMakeDispPolygonDelegate,
         );
     }
 
@@ -252,7 +252,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
 
     selectEditMakePolylineTool() {
         this.canvasEditor.setInputEditDelegate(
-            PeekCanvasInputEditMakeDispPolylinDelegate
+            PeekCanvasInputEditMakeDispPolylinDelegate,
         );
     }
 
@@ -266,7 +266,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
 
     selectEditMakeGroupPtrVertexTool() {
         this.canvasEditor.setInputEditDelegate(
-            PeekCanvasInputMakeDispGroupPtrVertexDelegate
+            PeekCanvasInputMakeDispGroupPtrVertexDelegate,
         );
     }
 
@@ -283,7 +283,7 @@ export class EditToolbarComponent extends NgLifeCycleEvents {
 
     selectEditMakePolylineEdgeTool() {
         this.canvasEditor.setInputEditDelegate(
-            PeekCanvasInputMakeDispPolylineEdgeDelegate
+            PeekCanvasInputMakeDispPolylineEdgeDelegate,
         );
     }
 

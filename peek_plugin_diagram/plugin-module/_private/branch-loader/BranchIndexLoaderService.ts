@@ -40,7 +40,7 @@ export interface BranchIndexResultI {
 
 let clientBranchIndexWatchUpdateFromDeviceFilt = Object.assign(
     { key: "clientBranchIndexWatchUpdateFromDevice" },
-    diagramFilt
+    diagramFilt,
 );
 
 const cacheAll = "cacheAll";
@@ -145,7 +145,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
         private vortexStatusService: VortexStatusService,
         storageFactory: TupleStorageFactoryService,
         private tupleService: PrivateDiagramTupleService,
-        private deviceCacheControllerService: DeviceOfflineCacheService
+        private deviceCacheControllerService: DeviceOfflineCacheService,
     ) {
         super();
 
@@ -167,7 +167,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
         this.storage = new TupleOfflineStorageService(
             storageFactory,
-            new TupleOfflineStorageNameService(branchIndexStorageName)
+            new TupleOfflineStorageNameService(branchIndexStorageName),
         );
 
         this.setupVortexSubscriptions();
@@ -226,7 +226,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
     getBranches(
         modelSetKey: string,
         coordSetId: number | null,
-        keys: string[]
+        keys: string[],
     ): Promise<BranchIndexResultI> {
         if (modelSetKey == null || modelSetKey.length == 0) {
             Promise.reject("We've been passed a null/empty modelSetKey");
@@ -257,10 +257,10 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
             return isOnlinePromise
                 .then(() =>
-                    this.tupleService.offlineObserver.pollForTuples(ts, false)
+                    this.tupleService.offlineObserver.pollForTuples(ts, false),
                 )
                 .then((docs: BranchTuple[]) =>
-                    this._populateAndIndexObjectTypes(docs)
+                    this._populateAndIndexObjectTypes(docs),
                 );
         }
 
@@ -290,13 +290,13 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
         this._status.loadingQueueCount = 0;
         for (let chunk of this.askServerChunks) {
             this._status.loadingQueueCount += Object.keys(
-                chunk.updateDateByChunkKey
+                chunk.updateDateByChunkKey,
             ).length;
         }
 
         this._statusSubject.next(this._status);
         this.deviceCacheControllerService.updateLoaderCachingStatus(
-            this._status
+            this._status,
         );
     }
 
@@ -329,7 +329,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
         this.vortexService
             .createEndpointObservable(
                 this,
-                clientBranchIndexWatchUpdateFromDeviceFilt
+                clientBranchIndexWatchUpdateFromDeviceFilt,
             )
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((payloadEnvelope: PayloadEnvelope) => {
@@ -372,7 +372,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
                 for (let chunkKey of keys) {
                     if (
                         !this.index.updateDateByChunkKey.hasOwnProperty(
-                            chunkKey
+                            chunkKey,
                         )
                     ) {
                         this.index.updateDateByChunkKey[chunkKey] = null;
@@ -433,7 +433,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
         let indexChunk: BranchIndexUpdateDateTuple = this.askServerChunks.pop();
         let filt = Object.assign(
             {},
-            clientBranchIndexWatchUpdateFromDeviceFilt
+            clientBranchIndexWatchUpdateFromDeviceFilt,
         );
         filt[cacheAll] = true;
         let pl = new Payload(filt, [indexChunk]);
@@ -448,7 +448,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
      * Process the grids the server has sent us.
      */
     private async processChunksFromServer(
-        payloadEnvelope: PayloadEnvelope
+        payloadEnvelope: PayloadEnvelope,
     ): Promise<void> {
         if (payloadEnvelope.result != null && payloadEnvelope.result != true) {
             console.log(`ERROR: ${payloadEnvelope.result}`);
@@ -481,7 +481,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
      * Stores the index bucket in the local db.
      */
     private async storeChunkTuples(
-        tuplesToSave: BranchIndexEncodedChunkTuple[]
+        tuplesToSave: BranchIndexEncodedChunkTuple[],
     ): Promise<void> {
         // noinspection BadExpressionStatementJS
         const Selector = BranchIndexChunkTupleSelector;
@@ -532,7 +532,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
     private getChunksWhenReady(
         modelSetKey: string,
         coordSetId: number,
-        keys: string[]
+        keys: string[],
     ): Promise<BranchTuple[]> {
         let keysByChunkKey: { [key: string]: string[] } = {};
         let chunkKeys: string[] = [];
@@ -548,7 +548,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
         for (let chunkKey of chunkKeys) {
             let keysForThisChunk = keysByChunkKey[chunkKey];
             promises.push(
-                this.getBranchesForKeys(coordSetId, keysForThisChunk, chunkKey)
+                this.getBranchesForKeys(coordSetId, keysForThisChunk, chunkKey),
             );
         }
 
@@ -571,7 +571,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
     private getBranchesForKeys(
         coordSetId: number,
         keys: string[],
-        chunkKey: string
+        chunkKey: string,
     ): Promise<BranchTuple[]> {
         if (!this.index.updateDateByChunkKey.hasOwnProperty(chunkKey)) {
             console.log(`ObjectIDs: ${keys} doesn't appear in the index`);
@@ -596,7 +596,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
                             if (!chunkData.hasOwnProperty(key)) {
                                 console.log(
                                     `WARNING: BranchIndex ${key} is missing from index,` +
-                                        ` chunkKey ${chunkKey}`
+                                        ` chunkKey ${chunkKey}`,
                                 );
                                 continue;
                             }
@@ -620,7 +620,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
     }
 
     private _populateAndIndexObjectTypes(
-        results: BranchTuple[]
+        results: BranchTuple[],
     ): BranchIndexResultI {
         let objects: { [key: string]: BranchTuple[] } = {};
         for (let result of results) {

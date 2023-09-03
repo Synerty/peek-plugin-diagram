@@ -25,16 +25,16 @@ export class EditSettingComponent extends NgLifeCycleEvents {
 
     constructor(
         private balloonMsg: BalloonMsgService,
-        vortexService: VortexService
+        vortexService: VortexService,
     ) {
         super();
 
         this.loader = vortexService.createTupleLoader(this, () =>
-            Object.assign({}, this.filt, diagramFilt)
+            Object.assign({}, this.filt, diagramFilt),
         );
 
         this.loader.observable.subscribe(
-            (tuples: SettingPropertyTuple[]) => (this.items = tuples)
+            (tuples: SettingPropertyTuple[]) => (this.items = tuples),
         );
     }
 

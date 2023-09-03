@@ -129,7 +129,7 @@ export class ModelCoordSet extends Tuple {
         for (let x = minGridX; x < maxGridX; x++) {
             for (let y = minGridY; y < maxGridY; y++) {
                 gridKeys.push(
-                    this.id.toString() + "|" + gridSize.key + "." + x + "x" + y
+                    this.id.toString() + "|" + gridSize.key + "." + x + "x" + y,
                 );
             }
         }

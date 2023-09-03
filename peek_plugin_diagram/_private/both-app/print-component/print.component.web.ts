@@ -18,7 +18,7 @@ export class PrintComponent extends NgLifeCycleEvents implements OnInit {
 
     constructor(
         private headerService: HeaderService,
-        private snapshotService: DiagramSnapshotService
+        private snapshotService: DiagramSnapshotService,
     ) {
         super();
     }

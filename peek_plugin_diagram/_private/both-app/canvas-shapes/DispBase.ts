@@ -384,7 +384,7 @@ export abstract class DispBase {
 
     static handlePoints(disp, margin: number): DispHandleI[] {
         console.log(
-            `ERROR: Handles not implemented for ${DispBase.typeOf(disp)}`
+            `ERROR: Handles not implemented for ${DispBase.typeOf(disp)}`,
         );
         return [];
     }
@@ -420,8 +420,8 @@ export abstract class DispBase {
                 ShapePropType.Layer,
                 DispBase.layer,
                 DispBase.setLayer,
-                "Layer"
-            )
+                "Layer",
+            ),
         );
 
         context.addProp(
@@ -429,8 +429,8 @@ export abstract class DispBase {
                 ShapePropType.Level,
                 DispBase.level,
                 DispBase.setLevel,
-                "Level"
-            )
+                "Level",
+            ),
         );
 
         context.addProp(
@@ -438,8 +438,8 @@ export abstract class DispBase {
                 ShapePropType.String,
                 DispBase.key,
                 DispBase.setKey,
-                "Key"
-            )
+                "Key",
+            ),
         );
 
         context.addProp(
@@ -447,8 +447,8 @@ export abstract class DispBase {
                 ShapePropType.Boolean,
                 DispBase.isSelectable,
                 DispBase.setSelectable,
-                "Selectable"
-            )
+                "Selectable",
+            ),
         );
     }
 
@@ -461,7 +461,7 @@ export abstract class DispBase {
 
     static cloneDisp(
         disp: DispBaseT,
-        options: { resetUniques?: boolean } = {}
+        options: { resetUniques?: boolean } = {},
     ): DispBaseT {
         let copy = deepCopy(disp, DispBase.DEEP_COPY_FIELDS_TO_IGNORE);
 

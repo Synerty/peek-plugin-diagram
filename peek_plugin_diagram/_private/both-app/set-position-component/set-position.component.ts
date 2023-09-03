@@ -50,7 +50,7 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
         private privatePosService: PrivateDiagramPositionService,
         private coordSetService: PrivateDiagramCoordSetService,
         private branchService: PrivateDiagramBranchService,
-        private locationIndexService: PrivateDiagramLocationLoaderService
+        private locationIndexService: PrivateDiagramLocationLoaderService,
     ) {
         super();
     }
@@ -61,7 +61,7 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
             .positionByCoordSetObservable()
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((data: DiagramPositionByCoordSetI) =>
-                this.positionByCoordSet(data)
+                this.positionByCoordSet(data),
             );
 
         // Watch the position observables
@@ -73,7 +73,7 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
                     pos.modelSetKey,
                     pos.coordSetKey,
                     pos.opts,
-                    pos.dispKeyIndexes
+                    pos.dispKeyIndexes,
                 ) //
                     .catch((e) => this.balloonMsg.showError(e));
             });
@@ -101,7 +101,7 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
                 "ERROR, positionByCoordSet was called for " +
                     `modelSet ${data.modelSetKey} but we're showing` +
                     `modelSet ` +
-                    this.modelSetKey
+                    this.modelSetKey,
             );
             return;
         }
@@ -136,7 +136,7 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
             this.branchService.startEditing(
                 this.modelSetKey,
                 this.config.coordSet.key,
-                pos.opts.editingBranch
+                pos.opts.editingBranch,
             );
         }
 
@@ -151,7 +151,7 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
 
         const coordSet = this.coordSetService.coordSetForKey(
             this.modelSetKey,
-            coordSetKey
+            coordSetKey,
         );
         this.config.updateCoordSet(coordSet);
 
@@ -165,11 +165,11 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
         modelSetKey: string,
         coordSetKey: string | null,
         opts: OptionalPositionArgsI = {},
-        dispKeyIndexes: DispKeyLocationTuple[] | null = null
+        dispKeyIndexes: DispKeyLocationTuple[] | null = null,
     ): Promise<void> {
         if (!this.coordSetService.isReady()) {
             throw new Error(
-                "positionByKey called before coordSetService is ready"
+                "positionByKey called before coordSetService is ready",
             );
         }
 
@@ -180,14 +180,14 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
         if (dispKeyIndexes == null) {
             dispKeyIndexes = await this.locationIndexService.getLocations(
                 modelSetKey,
-                opts.highlightKey
+                opts.highlightKey,
             );
         }
 
         if (dispKeyIndexes.length == 0) {
             this.balloonMsg.showError(
                 `Can not locate display item ${opts.highlightKey}` +
-                    ` in model set ${modelSetKey}`
+                    ` in model set ${modelSetKey}`,
             );
         }
 
@@ -197,13 +197,13 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
         for (let dispKeyIndex of dispKeyIndexes) {
             const coordSet = this.coordSetService.coordSetForKey(
                 modelSetKey,
-                dispKeyIndex.coordSetKey
+                dispKeyIndex.coordSetKey,
             );
 
             if (coordSet == null) {
                 throw new Error(
                     "Could not find coordSet for key=" +
-                        dispKeyIndex.coordSetKey
+                        dispKeyIndex.coordSetKey,
                 );
             }
 
@@ -218,7 +218,7 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
                     `Two very similar positions for ${opts.highlightKey} around ` +
                         `${dispKeyIndex.coordSetKey}` +
                         `${dispKeyIndex.x}` +
-                        `${dispKeyIndex.y}`
+                        `${dispKeyIndex.y}`,
                 );
                 continue;
             }
@@ -226,7 +226,7 @@ export class SetPositionComponent extends NgLifeCycleEvents implements OnInit {
                 `Adding position fingerprint ${opts.highlightKey} around ` +
                     `${dispKeyIndex.coordSetKey}` +
                     `${dispKeyIndex.x}` +
-                    `${dispKeyIndex.y}`
+                    `${dispKeyIndex.y}`,
             );
 
             addedPositionFingerprints[positionFingerPrint] = true;

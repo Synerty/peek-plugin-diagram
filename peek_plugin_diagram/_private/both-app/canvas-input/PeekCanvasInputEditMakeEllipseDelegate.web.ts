@@ -27,12 +27,12 @@ export class PeekCanvasInputEditMakeEllipseDelegate extends PeekCanvasInputDeleg
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
-        editArgs: InputDelegateConstructorEditArgs
+        editArgs: InputDelegateConstructorEditArgs,
     ) {
         super(
             viewArgs,
             editArgs,
-            PeekCanvasInputEditMakeEllipseDelegate.TOOL_NAME
+            PeekCanvasInputEditMakeEllipseDelegate.TOOL_NAME,
         );
 
         this.viewArgs.model.selection.clearSelection();
@@ -148,7 +148,7 @@ export class PeekCanvasInputEditMakeEllipseDelegate extends PeekCanvasInputDeleg
         this._creating =
             this.editArgs.branchContext.branchTuple.addOrUpdateDisp(
                 this._creating,
-                true
+                true,
             );
 
         this.viewArgs.model.recompileModel();

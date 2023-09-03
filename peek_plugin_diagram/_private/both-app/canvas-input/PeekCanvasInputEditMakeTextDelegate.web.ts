@@ -27,12 +27,12 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
-        editArgs: InputDelegateConstructorEditArgs
+        editArgs: InputDelegateConstructorEditArgs,
     ) {
         super(
             viewArgs,
             editArgs,
-            PeekCanvasInputEditMakeTextDelegate.TOOL_NAME
+            PeekCanvasInputEditMakeTextDelegate.TOOL_NAME,
         );
 
         this.viewArgs.model.selection.clearSelection();
@@ -141,7 +141,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         this._creating =
             this.editArgs.branchContext.branchTuple.addOrUpdateDisp(
                 this._creating,
-                true
+                true,
             );
         this.editArgs.branchContext.branchTuple.touchUndo();
 

@@ -21,7 +21,7 @@ export class PeekCanvasModelOverrideColor extends PeekCanvasModelOverrideA {
 
     constructor(
         private config: PeekCanvasConfig,
-        private lookupCache: PrivateDiagramLookupService
+        private lookupCache: PrivateDiagramLookupService,
     ) {
         super();
     }

@@ -151,14 +151,14 @@ export class DispEllipse extends DispBase {
     static override rotateAboutAxis(
         disp,
         center: PointI,
-        rotationDegrees: number
+        rotationDegrees: number,
     ) {
         if (disp.g == null) return;
 
         DispBase.rotateAboutAxis(disp, center, rotationDegrees);
         DispEllipse.setRotation(
             disp,
-            DispEllipse.rotation(disp) + rotationDegrees
+            DispEllipse.rotation(disp) + rotationDegrees,
         );
     }
 
@@ -190,7 +190,7 @@ export class DispEllipse extends DispBase {
     }
 
     static override makeShapeContext(
-        context: PeekCanvasShapePropsContext
+        context: PeekCanvasShapePropsContext,
     ): void {
         DispPoly.makeShapeContext(context);
 
@@ -199,8 +199,8 @@ export class DispEllipse extends DispBase {
                 ShapePropType.Color,
                 DispEllipse.fillColor,
                 DispEllipse.setFillColor,
-                "Fill Color"
-            )
+                "Fill Color",
+            ),
         );
 
         context.addProp(
@@ -208,8 +208,8 @@ export class DispEllipse extends DispBase {
                 ShapePropType.LineStyle,
                 DispEllipse.lineStyle,
                 DispEllipse.setLineStyle,
-                "Line Style"
-            )
+                "Line Style",
+            ),
         );
 
         context.addProp(
@@ -217,8 +217,8 @@ export class DispEllipse extends DispBase {
                 ShapePropType.Color,
                 DispEllipse.lineColor,
                 DispEllipse.setLineColor,
-                "Line Color"
-            )
+                "Line Color",
+            ),
         );
 
         context.addProp(
@@ -226,8 +226,8 @@ export class DispEllipse extends DispBase {
                 ShapePropType.Integer,
                 DispEllipse.lineWidth,
                 DispEllipse.setLineWidth,
-                "Line Width"
-            )
+                "Line Width",
+            ),
         );
 
         context.addProp(
@@ -235,8 +235,8 @@ export class DispEllipse extends DispBase {
                 ShapePropType.Integer,
                 DispEllipse.rotation,
                 DispEllipse.setRotation,
-                "Rotation"
-            )
+                "Rotation",
+            ),
         );
 
         context.addProp(
@@ -244,8 +244,8 @@ export class DispEllipse extends DispBase {
                 ShapePropType.Integer,
                 DispEllipse.startAngle,
                 DispEllipse.setStartAngle,
-                "Start Angle"
-            )
+                "Start Angle",
+            ),
         );
 
         context.addProp(
@@ -253,8 +253,8 @@ export class DispEllipse extends DispBase {
                 ShapePropType.Integer,
                 DispEllipse.endAngle,
                 DispEllipse.setEndAngle,
-                "End Angle"
-            )
+                "End Angle",
+            ),
         );
     }
 

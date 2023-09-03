@@ -51,7 +51,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
-        editArgs: InputDelegateConstructorEditArgs
+        editArgs: InputDelegateConstructorEditArgs,
     ) {
         super(viewArgs, editArgs, PeekCanvasInputSelectDelegate.TOOL_NAME);
 
@@ -182,7 +182,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         };
 
         let dist = Math.sqrt(
-            (t1x - t2x) * (t1x - t2x) + (t1y - t2y) * (t1y - t2y)
+            (t1x - t2x) * (t1x - t2x) + (t1y - t2y) * (t1y - t2y),
         );
 
         if (this._lastPinchDist == null) {
@@ -331,7 +331,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                 ctx,
                 zoom,
                 pan,
-                DrawModeE.ForSuggestion
+                DrawModeE.ForSuggestion,
             );
         }
     }
@@ -351,7 +351,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             this.viewArgs.config.viewPort.zoom,
             this.viewArgs.config.mouse.selecting.margin,
             inputPos,
-            true
+            true,
         );
 
         // Sort by how close the click is from the center of the box.
@@ -398,7 +398,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                 mouse,
                 this.viewArgs.config.controller.modelSetKey,
                 DispBase.key(hit),
-                { triggeredForContext: this.viewArgs.config.coordSet.key }
+                { triggeredForContext: this.viewArgs.config.coordSet.key },
             );
         }
     }
@@ -410,7 +410,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             query.selectableDisps,
             this.viewArgs.config.viewPort.zoom,
             true,
-            false
+            false,
         );
 
         let hits = query.filterForDispsContainingPoint(
@@ -418,7 +418,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             this.viewArgs.config.viewPort.zoom,
             this.viewArgs.config.mouse.selecting.margin,
             inputPos,
-            true
+            true,
         );
 
         hits = query.sortByDistanceFromCenter(hits, inputPos);
@@ -428,7 +428,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     private renderSelectablesUnderMouse(
         inputPos: CanvasInputPos,
-        mouse: MouseEvent
+        mouse: MouseEvent,
     ): void {
         const query = this.viewArgs.model.query;
 
@@ -490,7 +490,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                 DispBase.key(newHit),
                 {
                     triggeredForContext: this.viewArgs.config.coordSet.key,
-                }
+                },
             );
         }, 250);
     }

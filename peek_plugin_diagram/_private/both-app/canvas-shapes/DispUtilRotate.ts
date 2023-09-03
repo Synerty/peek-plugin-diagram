@@ -9,7 +9,7 @@ export function makeRotateHandlePoints(
     disp,
     margin: number,
     center: PointI,
-    rotation: number
+    rotation: number,
 ): DispHandleI[] {
     const bounds = disp.bounds;
     if (bounds == null) {
@@ -44,7 +44,7 @@ export function makeRotateHandlePoints(
             handle.center = rotatePointAboutCenter(
                 cp,
                 handle.center,
-                disp.tempRotation
+                disp.tempRotation,
             );
 
         handle.center = movePointFurtherFromPoint(cp, handle.center, margin);
@@ -66,7 +66,7 @@ export function calculateRotationFromHandleDelta(
     dy: number,
     currentRotation: number,
     tempRotation: number,
-    center: PointI
+    center: PointI,
 ): { newRotation: number; deltaRotation: number; tempRotation: number } {
     if (
         handle.handleType != DispHandleTypeE.freeRotate &&
@@ -74,7 +74,7 @@ export function calculateRotationFromHandleDelta(
     ) {
         console.log(
             "ERROR: DispGroup only has rotate handles, " +
-                `${handle.handleIndex} passed`
+                `${handle.handleIndex} passed`,
         );
         return null;
     }
@@ -96,7 +96,7 @@ export function calculateRotationFromHandleDelta(
     let rotationDegreesDelta = calculateRotationAfterPointMove(
         center,
         handle.lastDeltaPoint,
-        nextPoint
+        nextPoint,
     );
 
     handle.lastDeltaPoint = nextPoint;

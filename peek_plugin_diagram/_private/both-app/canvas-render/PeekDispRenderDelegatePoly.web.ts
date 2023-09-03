@@ -130,7 +130,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
                 pointY,
                 dashPattern,
                 zoom,
-                i / 2
+                i / 2,
             );
 
             lastPointX = pointX;
@@ -147,7 +147,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
                     firstPointY,
                     dashPattern,
                     zoom,
-                    geom.length
+                    geom.length,
                 );
             }
             ctx.closePath();
@@ -203,7 +203,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
                 geom[3],
                 geom[0],
                 geom[1],
-                DispPolyline.startEndType(disp)
+                DispPolyline.startEndType(disp),
             );
 
             let l = geom.length - 2;
@@ -215,7 +215,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
                 geom[l - 1],
                 geom[l],
                 geom[l + 1],
-                DispPolyline.endEndType(disp)
+                DispPolyline.endEndType(disp),
             );
         }
     }
@@ -252,7 +252,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         y2: number,
         dashPattern: null | number[],
         zoom: number,
-        segmentNum: number
+        segmentNum: number,
     ) {
         if ((dashPattern?.length || 0) === 0) {
             ctx.lineTo(x2, y2);
@@ -283,7 +283,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         bounds,
         fillColor,
         fillDirection,
-        fillPercentage
+        fillPercentage,
     ) {
         let FILL_TOP_TO_BOTTOM = 0;
         let FILL_BOTTOM_TO_TOP = 1;
@@ -313,7 +313,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         ctx,
         zoom: number,
         pan: PointI,
-        drawMode: DrawModeE
+        drawMode: DrawModeE,
     ) {
         let geom = DispPolygon.geom(disp);
 
@@ -343,7 +343,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         ctx,
         zoom: number,
         pan: PointI,
-        drawMode: DrawModeE
+        drawMode: DrawModeE,
     ) {
         let geom = DispPolygon.geom(disp);
 
@@ -396,7 +396,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             y1 - py,
             [selectionConfig.dashLen],
             zoom,
-            0
+            0,
         );
 
         // this._drawLine(ctx, x2 + px, y2 + py,
@@ -411,7 +411,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             y2 + py,
             [selectionConfig.dashLen],
             zoom,
-            0
+            0,
         );
 
         ctx.strokeStyle = selectionConfig.color;
@@ -427,7 +427,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         fromY: number,
         toX: number,
         toY: number,
-        endType: DispPolylineEndTypeE
+        endType: DispPolylineEndTypeE,
     ): void {
         if (
             endType == DispPolylineEndTypeE.None ||

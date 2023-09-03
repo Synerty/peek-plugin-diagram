@@ -53,7 +53,7 @@ export class PrivateDiagramCoordSetService
      * @param modelSetKey
      */
     diagramCoordSetTuples(
-        modelSetKey: string
+        modelSetKey: string,
     ): Observable<DiagramCoordSetTuple[]> {
         // Create the subject if we need to
         if (this._coordSetSubjectByModelSetKey[modelSetKey] == null) {
@@ -74,7 +74,7 @@ export class PrivateDiagramCoordSetService
 
     coordSetForKey(
         modelSetKey: string,
-        coordSetKey: string
+        coordSetKey: string,
     ): ModelCoordSet | null {
         let coordSetsByCoordSetKey =
             this._coordSetByKeyByModelSetKey[modelSetKey];
@@ -163,7 +163,7 @@ export class PrivateDiagramCoordSetService
         for (let key of Object.keys(coordSetsByModelSetKey)) {
             if (this._coordSetSubjectByModelSetKey[key] != null)
                 this._coordSetSubjectByModelSetKey[key].next(
-                    coordSetsByModelSetKey[key]
+                    coordSetsByModelSetKey[key],
                 );
         }
     }

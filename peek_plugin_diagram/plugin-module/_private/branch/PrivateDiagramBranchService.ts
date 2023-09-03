@@ -58,7 +58,7 @@ export class PrivateDiagramBranchService extends NgLifeCycleEvents {
         coordSetService: DiagramCoordSetService,
         private branchLocalLoader: LocalBranchStorageService,
         private branchIndexLoader: BranchIndexLoaderServiceA,
-        private tupleService: PrivateDiagramTupleService
+        private tupleService: PrivateDiagramTupleService,
     ) {
         super();
 
@@ -66,7 +66,7 @@ export class PrivateDiagramBranchService extends NgLifeCycleEvents {
 
         let tupleSelector = new TupleSelector(
             BranchKeyToIdMapTuple.tupleName,
-            {}
+            {},
         );
 
         this.tupleService.offlineObserver
@@ -111,26 +111,26 @@ export class PrivateDiagramBranchService extends NgLifeCycleEvents {
     getBranch(
         modelSetKey: string,
         coordSetKey: string,
-        branchKey: string
+        branchKey: string,
     ): Promise<PrivateDiagramBranchContext | null> {
         return this._loadBranchContext(
             modelSetKey,
             coordSetKey,
             branchKey,
-            false
+            false,
         );
     }
 
     getOrCreateBranch(
         modelSetKey: string,
         coordSetKey: string,
-        branchKey: string
+        branchKey: string,
     ): Promise<PrivateDiagramBranchContext> {
         return this._loadBranchContext(
             modelSetKey,
             coordSetKey,
             branchKey,
-            true
+            true,
         );
     }
 
@@ -148,7 +148,7 @@ export class PrivateDiagramBranchService extends NgLifeCycleEvents {
     startEditing(
         modelSetKey: string,
         coordSetKey: string,
-        branchKey: string
+        branchKey: string,
     ): Promise<void> {
         // If we're already editing this branch then do nothing
         if (
@@ -163,7 +163,7 @@ export class PrivateDiagramBranchService extends NgLifeCycleEvents {
         let prom: any = this.getOrCreateBranch(
             modelSetKey,
             coordSetKey,
-            branchKey
+            branchKey,
         )
             .catch((e) => this._startEditingWithContextObservable.error(e))
             .then((context: any) => {
@@ -220,14 +220,14 @@ export class PrivateDiagramBranchService extends NgLifeCycleEvents {
     private _loadBranch(
         modelSetKey: string,
         coordSetKey: string,
-        branchKey: string
+        branchKey: string,
     ): Promise<BranchTuple | null> {
         if (!this.coordSetService.isReady())
             throw new Error("CoordSet service is not initialised yet");
 
         let coordSet: ModelCoordSet = this.coordSetService.coordSetForKey(
             modelSetKey,
-            coordSetKey
+            coordSetKey,
         );
 
         let indexBranch: BranchTuple | null = null;
@@ -243,7 +243,7 @@ export class PrivateDiagramBranchService extends NgLifeCycleEvents {
                     // This will be null if it didn't find one.
                     if (results[branchKey] != null)
                         indexBranch = results[branchKey][0];
-                })
+                }),
         );
 
         // Load
@@ -252,7 +252,7 @@ export class PrivateDiagramBranchService extends NgLifeCycleEvents {
                 .loadBranch(modelSetKey, coordSet.id, branchKey)
                 .then((branch: BranchTuple | null) => {
                     localBranch = branch;
-                })
+                }),
         );
 
         let prom: any = Promise.all(promises).then(() => {
@@ -260,7 +260,7 @@ export class PrivateDiagramBranchService extends NgLifeCycleEvents {
             if (localBranch != null && indexBranch != null) {
                 if (
                     moment(localBranch.updatedDate).isAfter(
-                        indexBranch.updatedDate
+                        indexBranch.updatedDate,
                     )
                 )
                     branch = localBranch;
@@ -283,20 +283,20 @@ export class PrivateDiagramBranchService extends NgLifeCycleEvents {
         modelSetKey: string,
         coordSetKey: string,
         branchKey: string,
-        createIfMissing: boolean
+        createIfMissing: boolean,
     ): Promise<PrivateDiagramBranchContext | null> {
         if (!this.coordSetService.isReady())
             throw new Error("CoordSet service is not initialised yet");
 
         let coordSet: ModelCoordSet = this.coordSetService.coordSetForKey(
             modelSetKey,
-            coordSetKey
+            coordSetKey,
         );
 
         let prom: any = this._loadBranch(
             modelSetKey,
             coordSetKey,
-            branchKey
+            branchKey,
         ).then((branch: BranchTuple | null) => {
             if (branch == null) {
                 if (!createIfMissing) return null;
@@ -315,7 +315,7 @@ export class PrivateDiagramBranchService extends NgLifeCycleEvents {
                 coordSetKey,
                 this.tupleService,
                 this.branchLocalLoader,
-                this.userService.userDetails
+                this.userService.userDetails,
             );
         });
         return prom;

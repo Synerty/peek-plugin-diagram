@@ -65,7 +65,7 @@ export class PrivateDiagramToolbarService extends DiagramToolbarService {
         modelSetKey: string | null,
         coordSetKey: string | null,
         toolButton: DiagramToolButtonI,
-        toolbarType: ToolbarTypeE = ToolbarTypeE.ViewToolbar
+        toolbarType: ToolbarTypeE = ToolbarTypeE.ViewToolbar,
     ) {
         if (toolbarType === ToolbarTypeE.ViewToolbar) {
             this.toolButtons.push(toolButton);
@@ -78,7 +78,7 @@ export class PrivateDiagramToolbarService extends DiagramToolbarService {
 
     removeToolButton(
         buttonKey: string,
-        toolbarType: ToolbarTypeE = ToolbarTypeE.ViewToolbar
+        toolbarType: ToolbarTypeE = ToolbarTypeE.ViewToolbar,
     ) {
         function condition(item: DiagramToolButtonI): boolean {
             return item.key != buttonKey;

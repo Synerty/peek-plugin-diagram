@@ -15,7 +15,7 @@ export class DiagramComponent extends DiagramComponentBase {
     constructor(
         headerService: HeaderService,
         positionService: DiagramPositionService,
-        toolbarService: DiagramToolbarService
+        toolbarService: DiagramToolbarService,
     ) {
         super(headerService, positionService, toolbarService);
     }

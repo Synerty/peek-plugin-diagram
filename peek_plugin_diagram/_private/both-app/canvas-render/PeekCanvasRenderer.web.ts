@@ -37,7 +37,7 @@ export class PeekCanvasRenderer {
         private model: PeekCanvasModel,
         private dispDelegate: PeekDispRenderFactory,
         private lookupService: PrivateDiagramLookupService,
-        private lifecycleEventEmitter: NgLifeCycleEvents
+        private lifecycleEventEmitter: NgLifeCycleEvents,
     ) {}
 
     setCanvas(canvas) {
@@ -95,7 +95,7 @@ export class PeekCanvasRenderer {
             this._pan.x - size.w / 2,
             this._pan.y - size.h / 2,
             size.w,
-            size.h
+            size.h,
         );
     }
 
@@ -136,8 +136,6 @@ export class PeekCanvasRenderer {
         this.isValid = true;
 
         let ctx = this.canvas.getContext("2d");
-        this.lookupService.updateCanvasPatterns(ctx);
-        ctx.globalAlpha = 1.0;
 
         let disps = this.model.viewableDisps();
         let selectedDisps = this.model.selection.selectedDisps();
@@ -165,23 +163,11 @@ export class PeekCanvasRenderer {
         // draw all shapes, counting backwards for correct rendering
         // for (let i = dispObjs.length - 1; i != -1; i--) {
 
-        let lastLayerId = null;
-
         // draw all shapes, counting forwards for correct order or rendering
         for (let i = 0; i < disps.length; i++) {
             let disp = disps[i];
-
-            // If the layer changes, apply the globalAlpha
-            const layer = DispBase.layer(disp);
-            if (layer.id !== lastLayerId) {
-                lastLayerId = layer.id;
-                ctx.globalAlpha = layer.opacity;
-            }
-
             this.dispDelegate.draw(disp, ctx, this._zoom, this._pan, drawMode);
         }
-        // Reset Global Alpha
-        ctx.globalAlpha = 1.0;
 
         // draw selection
         // right now this is just a stroke along the edge of the selected Shape
@@ -192,7 +178,7 @@ export class PeekCanvasRenderer {
                 ctx,
                 this._zoom,
                 this._pan,
-                drawMode
+                drawMode,
             );
         }
 
@@ -201,7 +187,7 @@ export class PeekCanvasRenderer {
                 selectedDisps[0],
                 ctx,
                 this._zoom,
-                this._pan
+                this._pan,
             );
         }
 

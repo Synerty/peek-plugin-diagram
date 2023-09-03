@@ -176,7 +176,7 @@ export class DispText extends DispBase {
     }
 
     static override makeShapeContext(
-        context: PeekCanvasShapePropsContext
+        context: PeekCanvasShapePropsContext,
     ): void {
         DispBase.makeShapeContext(context);
 
@@ -185,8 +185,8 @@ export class DispText extends DispBase {
                 ShapePropType.MultilineString,
                 DispText.text,
                 DispText.setText,
-                "Text"
-            )
+                "Text",
+            ),
         );
 
         context.addProp(
@@ -194,8 +194,8 @@ export class DispText extends DispBase {
                 ShapePropType.TextStyle,
                 DispText.textStyle,
                 DispText.setTextStyle,
-                "Text Style"
-            )
+                "Text Style",
+            ),
         );
 
         context.addProp(
@@ -203,8 +203,8 @@ export class DispText extends DispBase {
                 ShapePropType.Color,
                 DispText.color,
                 DispText.setColor,
-                "Color"
-            )
+                "Color",
+            ),
         );
 
         context.addProp(
@@ -212,8 +212,8 @@ export class DispText extends DispBase {
                 ShapePropType.Color,
                 DispText.borderColor,
                 DispText.setBorderColor,
-                "Border Color"
-            )
+                "Border Color",
+            ),
         );
 
         const textVerticleAlignOptions = [

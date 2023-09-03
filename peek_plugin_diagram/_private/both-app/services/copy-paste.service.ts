@@ -66,7 +66,7 @@ export class CopyPasteService extends NgLifeCycleEvents {
                 clonedShape.childShapes = [];
                 for (const childDisp of DispGroupPointer.disps(shape)) {
                     clonedShape.childShapes.push(
-                        DispBase.cloneDisp(childDisp, { resetUniques: true })
+                        DispBase.cloneDisp(childDisp, { resetUniques: true }),
                     );
                 }
             }

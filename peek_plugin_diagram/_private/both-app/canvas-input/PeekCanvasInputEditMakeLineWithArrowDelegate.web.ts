@@ -15,12 +15,12 @@ export class PeekCanvasInputEditMakeLineWithArrowDelegate extends PeekCanvasInpu
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
-        editArgs: InputDelegateConstructorEditArgs
+        editArgs: InputDelegateConstructorEditArgs,
     ) {
         super(
             viewArgs,
             editArgs,
-            PeekCanvasInputEditMakeLineWithArrowDelegate.TOOL_NAME
+            PeekCanvasInputEditMakeLineWithArrowDelegate.TOOL_NAME,
         );
 
         this._reset();

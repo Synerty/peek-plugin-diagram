@@ -43,7 +43,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
         editArgs: InputDelegateConstructorEditArgs,
-        tool: EditorToolType
+        tool: EditorToolType,
     ) {
         super(viewArgs, editArgs, tool);
 
@@ -98,7 +98,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
     // ---------------
 
-    mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
+    override mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
         this.inputMove(inputPos, event.shiftKey);
     }
 
@@ -129,11 +129,11 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
     // ---------------
 
-    touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
         this.inputMove(inputPos, event.shiftKey);
     }
 
-    touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
         this.inputEnd(inputPos, false, true);
     }
 
@@ -143,7 +143,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
     // ---------------
 
-    draw(
+    override draw(
         ctx: CanvasRenderingContext2D,
         zoom: number,
         pan: PointI,
@@ -166,7 +166,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         if (this.NAME == EditorToolType.EDIT_MAKE_LINE_WITH_ARROW)
             DispPolyline.setEndEndType(
                 this._creating,
-                DispPolylineEndTypeE.Arrow
+                DispPolylineEndTypeE.Arrow,
             );
 
         DispPoly.addPoint(this._creating, this._startMousePos);
@@ -181,7 +181,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         this._creating =
             this.editArgs.branchContext.branchTuple.addOrUpdateDisp(
                 this._creating,
-                true
+                true,
             );
 
         // TODO, Snap the coordinates if required

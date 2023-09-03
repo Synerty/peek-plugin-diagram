@@ -60,7 +60,7 @@ export class DispPolyline extends DispPoly {
     static setTargetEdgeTemplateName(
         disp: DispPolylineT,
         coordSetId: number,
-        name: string
+        name: string,
     ): void {
         disp.tn = `${coordSetId}|${name}`;
     }
@@ -191,7 +191,7 @@ export class DispPolyline extends DispPoly {
     static contains(
         dispPoly: DispPolylineT,
         point: PointI,
-        margin: number
+        margin: number,
     ): boolean {
         const x = point.x;
         const y = point.y;
@@ -247,7 +247,7 @@ export class DispPolyline extends DispPoly {
     // ---------------
     // Support shape editing
     static override makeShapeContext(
-        context: PeekCanvasShapePropsContext
+        context: PeekCanvasShapePropsContext,
     ): void {
         DispPoly.makeShapeContext(context);
 
@@ -278,8 +278,8 @@ export class DispPolyline extends DispPoly {
                 },
                 (disp, valObj) => DispPolyline.setStartEndType(disp, valObj.id),
                 "Line Start Style",
-                { options: lineEndOptions }
-            )
+                { options: lineEndOptions },
+            ),
         );
 
         context.addProp(
@@ -291,8 +291,8 @@ export class DispPolyline extends DispPoly {
                 },
                 (disp, valObj) => DispPolyline.setEndEndType(disp, valObj.id),
                 "Line End Style",
-                { options: lineEndOptions }
-            )
+                { options: lineEndOptions },
+            ),
         );
     }
 
@@ -312,12 +312,12 @@ export class DispPolyline extends DispPoly {
         edgeTemplate: DispEdgeTemplateT,
         edgeTemplateCoordSetId: number,
         lookupService: PrivateDiagramLookupService,
-        branchTuple: BranchTuple
+        branchTuple: BranchTuple,
     ): void {
         DispPolyline.setTargetEdgeTemplateName(
             polyline,
             edgeTemplateCoordSetId,
-            DispEdgeTemplate.templateName(edgeTemplate)
+            DispEdgeTemplate.templateName(edgeTemplate),
         );
 
         DispPolyline.setLayer(polyline, DispEdgeTemplate.layer(edgeTemplate));
@@ -325,24 +325,24 @@ export class DispPolyline extends DispPoly {
 
         DispPolyline.setLineWidth(
             polyline,
-            DispEdgeTemplate.lineWidth(edgeTemplate)
+            DispEdgeTemplate.lineWidth(edgeTemplate),
         );
         DispPolyline.setLineColor(
             polyline,
-            DispEdgeTemplate.lineColor(edgeTemplate)
+            DispEdgeTemplate.lineColor(edgeTemplate),
         );
         DispPolyline.setLineStyle(
             polyline,
-            DispEdgeTemplate.lineStyle(edgeTemplate)
+            DispEdgeTemplate.lineStyle(edgeTemplate),
         );
 
         DispPolyline.setEndEndType(
             polyline,
-            DispEdgeTemplate.endEndType(edgeTemplate)
+            DispEdgeTemplate.endEndType(edgeTemplate),
         );
         DispPolyline.setStartEndType(
             polyline,
-            DispEdgeTemplate.startEndType(edgeTemplate)
+            DispEdgeTemplate.startEndType(edgeTemplate),
         );
     }
 

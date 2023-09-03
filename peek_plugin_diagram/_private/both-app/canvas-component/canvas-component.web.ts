@@ -97,7 +97,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
         private copyPasteService: CopyPasteService,
         private contextMenuService: ContextMenuService,
         private toolbarService: DiagramToolbarService,
-        private canvasService: CanvasService
+        private canvasService: CanvasService,
     ) {
         super();
 
@@ -117,7 +117,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
         // if invalid enum value is contained in the bitmask
         let visible = false;
         for (const buttonValue of Object.values(
-            DiagramToolbarBuiltinButtonEnum
+            DiagramToolbarBuiltinButtonEnum,
         )) {
             if (buttonValue == DiagramToolbarBuiltinButtonEnum.BUTTON_NULL) {
                 continue;
@@ -166,7 +166,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
             let frameSize = window.innerHeight.toString();
 
             let titleBarHeight = document.getElementsByClassName(
-                "peek-header-component"
+                "peek-header-component",
             )?.[0]?.clientHeight;
 
             frameSize += `;${titleBarHeight}`;
@@ -197,7 +197,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
                 offset.left,
                 offset.top,
                 window.innerWidth,
-                window.innerHeight
+                window.innerHeight,
             );
             const thisCanvasSize = bounds.toString();
 
@@ -231,7 +231,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
         });
 
         this.onDestroyEvent.subscribe(() =>
-            this.snapshotService.setImageCaptureCallback(null)
+            this.snapshotService.setImageCaptureCallback(null),
         );
     }
 
@@ -262,7 +262,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
 
             this.privatePosService.positionUpdated(
                 positionUpdatedData,
-                coordSetViewData
+                coordSetViewData,
             );
         };
 
@@ -321,7 +321,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
             this.lookupService,
             this.branchService,
             this.overrideService,
-            this
+            this,
         );
 
         // The display renderer delegates
@@ -331,7 +331,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
             this.modelSetKey,
             this.coordSetCache,
             this.lookupService,
-            this.privatePosService
+            this.privatePosService,
         );
 
         // Create the edit primary action factory
@@ -347,7 +347,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
             this.objectPopupService,
             this.copyPasteService,
             this.contextMenuService,
-            actioner
+            actioner,
         );
 
         // The canvas renderer
@@ -356,7 +356,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
             this.model,
             this.renderFactory,
             this.lookupService,
-            this
+            this,
         );
 
         // The canvas renderer
@@ -370,7 +370,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
             this.privatePosService,
             this.branchService,
             this,
-            this.primaryActionHandlerFactory
+            this.primaryActionHandlerFactory,
         );
 
         this.primaryActionHandlerFactory.setCanvasEditor(this.editor);
@@ -379,7 +379,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
         this.renderer.drawEvent
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(({ ctx, zoom, pan, drawMode }) =>
-                this.input.draw(ctx, zoom, pan, drawMode)
+                this.input.draw(ctx, zoom, pan, drawMode),
             );
 
         // Hook up the item selection service

@@ -139,7 +139,7 @@ export class BranchTuple extends Tuple {
     get createdDate(): Date {
         return serUril.fromStr(
             this.packedJson__[BranchTuple.__CREATED_DATE],
-            SerialiseUtil.T_DATETIME
+            SerialiseUtil.T_DATETIME,
         );
     }
 
@@ -182,7 +182,7 @@ export class BranchTuple extends Tuple {
                 if (DispBase.id(disp) == null) DispBase.setId(disp, newId);
                 if (DispBase.hashId(disp) == null)
                     DispBase.setHashId(disp, newId);
-            }
+            },
         );
     }
 
@@ -246,7 +246,7 @@ export class BranchTuple extends Tuple {
                     this._dispsById[DispBase.id(disp)] != null ||
                     this._replacementIds[DispBase.id(disp)] != null
                 );
-            }
+            },
         );
     }
 
@@ -270,131 +270,12 @@ export class BranchTuple extends Tuple {
                 }
                 this.sortDisps();
                 this.touchUpdateDate(true);
-            }
+            },
         );
     }
 
     removeDisps(disps: any[]): void {
-        const dispBaseImportPromise = import(
-            "@_peek/peek_plugin_diagram/canvas-shapes/DispBase"
-        );
-        const dispNullImportPromise = import(
-            "@_peek/peek_plugin_diagram/canvas-shapes/DispNull"
-        );
-
-        Promise.all([dispBaseImportPromise, dispNullImportPromise]).then(
-            (modules) => {
-                const DispBase = modules[0].DispBase;
-                const DispNull = modules[1].DispNull;
-
-                let dispIdsToRemove = {};
-                for (let disp of disps) {
-                    dispIdsToRemove[DispBase.id(disp)] = disp;
-                }
-
-                let array = this._array(BranchTuple.__DISPS_NUM);
-                let branchDispsToBeConvertedToNullDisps = [];
-
-                // Filter out disps in this branch that we're deleting
-                // If the disp we're deleting replacing anoter disp (not in this branch)
-                //      make a note of that.
-                this.packedJson__[BranchTuple.__DISPS_NUM] = array.filter(
-                    (disp) => {
-                        let id = DispBase.id(disp);
-                        if (dispIdsToRemove[id] != null) {
-                            if (DispBase.replacesHashId(disp) != null)
-                                branchDispsToBeConvertedToNullDisps.push(disp);
-                            delete dispIdsToRemove[id];
-                            return false;
-                        }
-                        return true;
-                    }
-                );
-
-                // Update the dispId dict to remove the disps we just filtered out
-                this.assignIdsToDisps();
-
-                // For all the Disps that are not part of this branch, we need to add a DispNull
-                // to make it's deletion
-
-                let nullDispsToCreate = [];
-
-                function createNullDisp(dispToDelete, replacesHashId) {
-                    if (dispToDelete.bounds == null)
-                        throw new Error("Can not delete a disp with no bounds");
-
-                    let nullDisp = {
-                        // Type
-                        _tt: DispBase.TYPE_DN,
-
-                        // Level
-                        le: dispToDelete.le,
-                        lel: dispToDelete.lel,
-
-                        // Layer
-                        la: dispToDelete.la,
-                        lal: dispToDelete.lal,
-                    };
-
-                    // @ts-ignore
-                    DispNull.setGeomFromBounds(nullDisp, dispToDelete.bounds);
-                    // @ts-ignore
-                    DispBase.setReplacesHashId(nullDisp, replacesHashId);
-                    nullDispsToCreate.push(nullDisp);
-                }
-
-                // For all the Disps that are not part of this branch, we need to add a DispNull
-                // to make it's deletion
-                // Create NULL disps for disps being deleted that are not part of this branch
-                for (let dispId of Object.keys(dispIdsToRemove)) {
-                    let disp = dispIdsToRemove[dispId];
-                    createNullDisp(disp, DispBase.hashId(disp));
-                }
-
-                // For all disps that are part of this branch, but replace other disps,
-                // Create NULL disps for disps in this branch that replace other disps
-                for (let disp of branchDispsToBeConvertedToNullDisps) {
-                    createNullDisp(disp, DispBase.replacesHashId(disp));
-                }
-
-                if (nullDispsToCreate.length != 0)
-                    this.addNewDisps(nullDispsToCreate);
-                else this.touchUpdateDate(false);
-            }
-            return true;
-        });
-
-        // Update the dispId dict to remove the disps we just filtered out
-        this.assignIdsToDisps();
-
-        // For all the Disps that are not part of this branch, we need to add a DispNull
-        // to make its deletion
-
-        let nullDispsToCreate = [];
-
-        // For all the Disps that are not part of this branch, we need to add a DispNull
-        // to make it's deletion
-        // Create NULL disps for disps being deleted that are not part of this branch
-        for (let dispId of Object.keys(dispIdsToRemove)) {
-            let disp = dispIdsToRemove[dispId];
-            nullDispsToCreate.push(
-                DispNull.createFromShape(disp, DispBase.hashId(disp))
-            );
-        }
-
-        // For all disps that are part of this branch, but replace other disps,
-        // Create NULL disps for disps in this branch that replace other disps
-        for (let disp of branchDispsToBeConvertedToNullDisps) {
-            nullDispsToCreate.push(
-                DispNull.createFromShape(disp, DispBase.replacesHashId(disp))
-            );
-        }
-
-        if (nullDispsToCreate.length != 0) {
-            this.addNewDisps(nullDispsToCreate);
-        } else {
-            this.touchUpdateDate(false);
-        }
+      throw new Error("jarrod fix")
     }
 
     addAnchorDispKey(key: string): void {
@@ -458,7 +339,7 @@ export class BranchTuple extends Tuple {
     override toJsonField(
         value: any,
         jsonDict: {} | null = null,
-        name: string | null = null
+        name: string | null = null,
     ): any {
         // @ts-ignore
         const DispBase =
@@ -470,7 +351,7 @@ export class BranchTuple extends Tuple {
 
         const convertedValue = deepCopy(
             value,
-            DispBase.DEEP_COPY_FIELDS_TO_IGNORE
+            DispBase.DEEP_COPY_FIELDS_TO_IGNORE,
         );
 
         let disps = convertedValue[BranchTuple.__DISPS_NUM];
@@ -490,7 +371,7 @@ export class BranchTuple extends Tuple {
     }
 
     setContextUpdateCallback(
-        contextUpdateCallback: ((modelUpdateRequired: boolean) => void) | null
+        contextUpdateCallback: ((modelUpdateRequired: boolean) => void) | null,
     ) {
         this._contextUpdateCallback = contextUpdateCallback;
     }
@@ -650,7 +531,7 @@ export class BranchTuple extends Tuple {
 
         const disps = deepCopy(
             this._array(BranchTuple.__DISPS_NUM),
-            DispBase.DEEP_COPY_FIELDS_TO_IGNORE
+            DispBase.DEEP_COPY_FIELDS_TO_IGNORE,
         );
         this.cleanClonedDisps(disps);
 

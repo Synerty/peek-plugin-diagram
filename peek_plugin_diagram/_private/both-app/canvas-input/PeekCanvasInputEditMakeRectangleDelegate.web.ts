@@ -28,12 +28,12 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
-        editArgs: InputDelegateConstructorEditArgs
+        editArgs: InputDelegateConstructorEditArgs,
     ) {
         super(
             viewArgs,
             editArgs,
-            PeekCanvasInputEditMakeRectangleDelegate.TOOL_NAME
+            PeekCanvasInputEditMakeRectangleDelegate.TOOL_NAME,
         );
 
         this.viewArgs.model.selection.clearSelection();
@@ -149,7 +149,7 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
         this._creating =
             this.editArgs.branchContext.branchTuple.addOrUpdateDisp(
                 this._creating,
-                true
+                true,
             );
 
         this.viewArgs.model.recompileModel();
