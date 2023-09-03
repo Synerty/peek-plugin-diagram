@@ -24,7 +24,9 @@ class MyTestCase(unittest.TestCase):
 
     def test_keys(self):
         def make(min, max):
-            gridKeys = makeGridKeys(self.geom, DispLevel(minZoom=min, maxZoom=max))
+            gridKeys = makeGridKeys(
+                self.geom, DispLevel(minZoom=min, maxZoom=max)
+            )
             return sorted(gridKeys)
 
         # Test Level 0 only
@@ -55,10 +57,14 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(make(min=0.1, max=0.5001), ["1.0x0", "2.0x0", "3.0x0"])
 
         # TEST Z 0, 1, 2
-        self.assertEqual(make(min=0.0, max=9999), ["0.0x0", "1.0x0", "2.0x0", "3.0x0"])
+        self.assertEqual(
+            make(min=0.0, max=9999), ["0.0x0", "1.0x0", "2.0x0", "3.0x0"]
+        )
 
         # TEST Z 0, 1, 2
-        self.assertEqual(make(min=0.0, max=0.7), ["0.0x0", "1.0x0", "2.0x0", "3.0x0"])
+        self.assertEqual(
+            make(min=0.0, max=0.7), ["0.0x0", "1.0x0", "2.0x0", "3.0x0"]
+        )
 
         # TEST Z 1, 2
         self.assertEqual(make(min=0.25, max=0.7), ["2.0x0", "3.0x0"])

@@ -45,13 +45,17 @@ def upgrade():
 
     op.add_column(
         "ModelCoordSet",
-        sa.Column("smallestTextSize", sa.Float(), nullable=True, server_default="6.0"),
+        sa.Column(
+            "smallestTextSize", sa.Float(), nullable=True, server_default="6.0"
+        ),
         schema="pl_diagram",
     )
 
     op.add_column(
         "ModelCoordSet",
-        sa.Column("smallestShapeSize", sa.Float(), nullable=True, server_default="2.0"),
+        sa.Column(
+            "smallestShapeSize", sa.Float(), nullable=True, server_default="2.0"
+        ),
         schema="pl_diagram",
     )
 

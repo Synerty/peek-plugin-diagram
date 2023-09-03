@@ -22,7 +22,9 @@ import geoalchemy2
 def upgrade():
     op.add_column(
         "ModelCoordSet",
-        sa.Column("positionOnZoom", sa.Float(), server_default="2.0", nullable=True),
+        sa.Column(
+            "positionOnZoom", sa.Float(), server_default="2.0", nullable=True
+        ),
         schema="pl_diagram",
     )
 

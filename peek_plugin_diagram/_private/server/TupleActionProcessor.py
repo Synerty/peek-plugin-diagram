@@ -28,7 +28,9 @@ def makeTupleActionProcessorHandler(
         defaultDelegate=statusController,
     )
 
-    processor.setDelegate(BranchUpdateTupleAction.tupleName(), branchUpdateController)
+    processor.setDelegate(
+        BranchUpdateTupleAction.tupleName(), branchUpdateController
+    )
 
     processor.setDelegate(
         BranchLiveEditTupleAction.tupleName(), branchLiveEditController

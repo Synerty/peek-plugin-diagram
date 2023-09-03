@@ -7,7 +7,9 @@ from sqlalchemy.sql.schema import Index, Sequence
 from vortex.Tuple import Tuple, addTupleType
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
-from peek_plugin_livedb.tuples.LiveDbDisplayValueTuple import LiveDbDisplayValueTuple
+from peek_plugin_livedb.tuples.LiveDbDisplayValueTuple import (
+    LiveDbDisplayValueTuple,
+)
 from .DeclarativeBase import DeclarativeBase
 from .Display import DispBase
 from .ModelSet import ModelCoordSet
@@ -35,12 +37,16 @@ class LiveDbDispLink(DeclarativeBase, Tuple):
     id = Column(BigInteger, primary_key=True, autoincrement=True)
 
     coordSetId = Column(
-        Integer, ForeignKey("ModelCoordSet.id", ondelete="CASCADE"), nullable=False
+        Integer,
+        ForeignKey("ModelCoordSet.id", ondelete="CASCADE"),
+        nullable=False,
     )
     coordSet = relationship(ModelCoordSet)
 
     dispId = Column(
-        BigInteger, ForeignKey("DispBase.id", ondelete="CASCADE"), nullable=False
+        BigInteger,
+        ForeignKey("DispBase.id", ondelete="CASCADE"),
+        nullable=False,
     )
     disp = relationship(DispBase, backref="liveDbLinks")
 
@@ -81,7 +87,6 @@ class LiveDbDispLink(DeclarativeBase, Tuple):
     # noinspection PyMissingConstructor
     @orm.reconstructor
     def __init__(self, **kwargs):
-
         for name in self.__fieldNames__:
             if name in kwargs:
                 setattr(self, name, kwargs.pop(name))

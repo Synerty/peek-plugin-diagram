@@ -42,7 +42,9 @@ def nextval(seqName):
 
 def upgrade():
     op.execute(
-        CreateSequence(Sequence("DispBase_id_seq", minvalue=0, schema="pl_diagram"))
+        CreateSequence(
+            Sequence("DispBase_id_seq", minvalue=0, schema="pl_diagram")
+        )
     )
     op.execute(
         CreateSequence(
@@ -67,7 +69,11 @@ def upgrade():
         schema="pl_diagram",
     )
     op.create_index(
-        "idx_ModelSet_name", "ModelSet", ["name"], unique=True, schema="pl_diagram"
+        "idx_ModelSet_name",
+        "ModelSet",
+        ["name"],
+        unique=True,
+        schema="pl_diagram",
     )
     op.create_table(
         "Setting",
@@ -81,7 +87,10 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(length=50), nullable=False),
         sa.Column(
-            "color", sa.String(length=20), server_default="orange", nullable=True
+            "color",
+            sa.String(length=20),
+            server_default="orange",
+            nullable=True,
         ),
         sa.Column("altColor", sa.String(length=20), nullable=True),
         sa.Column("swapPeriod", sa.Float(), nullable=True),
@@ -112,8 +121,12 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(length=50), nullable=False),
         sa.Column("order", sa.Integer(), server_default="0", nullable=False),
-        sa.Column("selectable", sa.Boolean(), server_default="false", nullable=False),
-        sa.Column("visible", sa.Boolean(), server_default="true", nullable=False),
+        sa.Column(
+            "selectable", sa.Boolean(), server_default="false", nullable=False
+        ),
+        sa.Column(
+            "visible", sa.Boolean(), server_default="true", nullable=False
+        ),
         sa.Column("modelSetId", sa.Integer(), nullable=False),
         sa.Column("importHash", sa.String(length=100), nullable=True),
         sa.ForeignKeyConstraint(
@@ -172,12 +185,19 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(length=50), nullable=False),
         sa.Column(
-            "fontName", sa.String(length=30), server_default="GillSans", nullable=False
+            "fontName",
+            sa.String(length=30),
+            server_default="GillSans",
+            nullable=False,
         ),
         sa.Column("fontSize", sa.Integer(), server_default="9", nullable=False),
         sa.Column("fontStyle", sa.String(length=30), nullable=True),
-        sa.Column("scalable", sa.Boolean(), server_default="true", nullable=False),
-        sa.Column("scaleFactor", sa.Integer(), server_default="1", nullable=False),
+        sa.Column(
+            "scalable", sa.Boolean(), server_default="true", nullable=False
+        ),
+        sa.Column(
+            "scaleFactor", sa.Integer(), server_default="1", nullable=False
+        ),
         sa.Column("modelSetId", sa.Integer(), nullable=False),
         sa.Column("importHash", sa.String(length=100), nullable=True),
         sa.ForeignKeyConstraint(
@@ -223,10 +243,18 @@ def upgrade():
         "ModelCoordSet",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(length=50), nullable=False),
-        sa.Column("initialPanX", sa.Float(), server_default="0", nullable=False),
-        sa.Column("initialPanY", sa.Float(), server_default="0", nullable=False),
-        sa.Column("initialZoom", sa.Float(), server_default="0", nullable=False),
-        sa.Column("enabled", sa.Boolean(), server_default="false", nullable=False),
+        sa.Column(
+            "initialPanX", sa.Float(), server_default="0", nullable=False
+        ),
+        sa.Column(
+            "initialPanY", sa.Float(), server_default="0", nullable=False
+        ),
+        sa.Column(
+            "initialZoom", sa.Float(), server_default="0", nullable=False
+        ),
+        sa.Column(
+            "enabled", sa.Boolean(), server_default="false", nullable=False
+        ),
         sa.Column("comment", sa.String(), nullable=True),
         sa.Column("importId1", sa.Integer(), nullable=True),
         sa.Column("importId2", sa.String(length=100), nullable=True),
@@ -411,7 +439,11 @@ def upgrade():
         schema="pl_diagram",
     )
     op.create_index(
-        "idxNodeTypeId", "ModelNode", ["typeId"], unique=False, schema="pl_diagram"
+        "idxNodeTypeId",
+        "ModelNode",
+        ["typeId"],
+        unique=False,
+        schema="pl_diagram",
     )
     op.create_table(
         "DispBase",
@@ -459,10 +491,18 @@ def upgrade():
         schema="pl_diagram",
     )
     op.create_index(
-        "idx_Disp_layerId", "DispBase", ["layerId"], unique=False, schema="pl_diagram"
+        "idx_Disp_layerId",
+        "DispBase",
+        ["layerId"],
+        unique=False,
+        schema="pl_diagram",
     )
     op.create_index(
-        "idx_Disp_levelId", "DispBase", ["levelId"], unique=False, schema="pl_diagram"
+        "idx_Disp_levelId",
+        "DispBase",
+        ["levelId"],
+        unique=False,
+        schema="pl_diagram",
     )
     op.create_table(
         "ModelConn",
@@ -498,7 +538,11 @@ def upgrade():
         schema="pl_diagram",
     )
     op.create_index(
-        "idxConnModelDstId", "ModelConn", ["dstId"], unique=False, schema="pl_diagram"
+        "idxConnModelDstId",
+        "ModelConn",
+        ["dstId"],
+        unique=False,
+        schema="pl_diagram",
     )
     op.create_index(
         "idxConnModelSetId",
@@ -508,10 +552,18 @@ def upgrade():
         schema="pl_diagram",
     )
     op.create_index(
-        "idxConnModelSrcId", "ModelConn", ["srcId"], unique=False, schema="pl_diagram"
+        "idxConnModelSrcId",
+        "ModelConn",
+        ["srcId"],
+        unique=False,
+        schema="pl_diagram",
     )
     op.create_index(
-        "idxConnModelTypeId", "ModelConn", ["typeId"], unique=False, schema="pl_diagram"
+        "idxConnModelTypeId",
+        "ModelConn",
+        ["typeId"],
+        unique=False,
+        schema="pl_diagram",
     )
     op.create_index(
         "idxConnSrcDst",
@@ -528,15 +580,21 @@ def upgrade():
         sa.Column("rotation", sa.Float(), server_default="0", nullable=False),
         sa.Column("startAngle", sa.Float(), server_default="0", nullable=False),
         sa.Column("endAngle", sa.Float(), server_default="360", nullable=False),
-        sa.Column("lineWidth", sa.Integer(), server_default="2", nullable=False),
+        sa.Column(
+            "lineWidth", sa.Integer(), server_default="2", nullable=False
+        ),
         sa.Column("geomJson", sa.String(length=2000), nullable=False),
         sa.Column("fillColorId", sa.Integer(), nullable=True),
         sa.Column("lineColorId", sa.Integer(), nullable=True),
         sa.Column("lineStyleId", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(["fillColorId"], ["pl_diagram.DispColor.id"]),
-        sa.ForeignKeyConstraint(["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"
+        ),
         sa.ForeignKeyConstraint(["lineColorId"], ["pl_diagram.DispColor.id"]),
-        sa.ForeignKeyConstraint(["lineStyleId"], ["pl_diagram.DispLineStyle.id"]),
+        sa.ForeignKeyConstraint(
+            ["lineStyleId"], ["pl_diagram.DispLineStyle.id"]
+        ),
         sa.PrimaryKeyConstraint("id"),
         schema="pl_diagram",
     )
@@ -565,7 +623,9 @@ def upgrade():
         "DispGroup",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(length=50), nullable=False),
-        sa.ForeignKeyConstraint(["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("name"),
         schema="pl_diagram",
@@ -573,8 +633,12 @@ def upgrade():
     op.create_table(
         "DispPolygon",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("cornerRadius", sa.Float(), server_default="0", nullable=False),
-        sa.Column("lineWidth", sa.Integer(), server_default="2", nullable=False),
+        sa.Column(
+            "cornerRadius", sa.Float(), server_default="0", nullable=False
+        ),
+        sa.Column(
+            "lineWidth", sa.Integer(), server_default="2", nullable=False
+        ),
         sa.Column("geomJson", sa.String(length=200000), nullable=False),
         sa.Column("fillColorId", sa.Integer(), nullable=True),
         sa.Column("fillDirection", sa.Integer(), nullable=True),
@@ -582,9 +646,13 @@ def upgrade():
         sa.Column("lineColorId", sa.Integer(), nullable=True),
         sa.Column("lineStyleId", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(["fillColorId"], ["pl_diagram.DispColor.id"]),
-        sa.ForeignKeyConstraint(["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"
+        ),
         sa.ForeignKeyConstraint(["lineColorId"], ["pl_diagram.DispColor.id"]),
-        sa.ForeignKeyConstraint(["lineStyleId"], ["pl_diagram.DispLineStyle.id"]),
+        sa.ForeignKeyConstraint(
+            ["lineStyleId"], ["pl_diagram.DispLineStyle.id"]
+        ),
         sa.PrimaryKeyConstraint("id"),
         schema="pl_diagram",
     )
@@ -612,13 +680,19 @@ def upgrade():
     op.create_table(
         "DispPolyline",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("lineWidth", sa.Integer(), server_default="2", nullable=False),
+        sa.Column(
+            "lineWidth", sa.Integer(), server_default="2", nullable=False
+        ),
         sa.Column("geomJson", sa.String(length=200000), nullable=False),
         sa.Column("lineColorId", sa.Integer(), nullable=True),
         sa.Column("lineStyleId", sa.Integer(), nullable=True),
-        sa.ForeignKeyConstraint(["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"
+        ),
         sa.ForeignKeyConstraint(["lineColorId"], ["pl_diagram.DispColor.id"]),
-        sa.ForeignKeyConstraint(["lineStyleId"], ["pl_diagram.DispLineStyle.id"]),
+        sa.ForeignKeyConstraint(
+            ["lineStyleId"], ["pl_diagram.DispLineStyle.id"]
+        ),
         sa.PrimaryKeyConstraint("id"),
         schema="pl_diagram",
     )
@@ -639,8 +713,12 @@ def upgrade():
     op.create_table(
         "DispText",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("verticalAlign", sa.Integer(), server_default="-1", nullable=False),
-        sa.Column("horizontalAlign", sa.Integer(), server_default="0", nullable=False),
+        sa.Column(
+            "verticalAlign", sa.Integer(), server_default="-1", nullable=False
+        ),
+        sa.Column(
+            "horizontalAlign", sa.Integer(), server_default="0", nullable=False
+        ),
         sa.Column("rotation", sa.Float(), server_default="0", nullable=False),
         sa.Column(
             "text",
@@ -653,8 +731,12 @@ def upgrade():
         sa.Column("colorId", sa.Integer(), nullable=True),
         sa.Column("textStyleId", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(["colorId"], ["pl_diagram.DispColor.id"]),
-        sa.ForeignKeyConstraint(["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["textStyleId"], ["pl_diagram.DispTextStyle.id"]),
+        sa.ForeignKeyConstraint(
+            ["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["textStyleId"], ["pl_diagram.DispTextStyle.id"]
+        ),
         sa.PrimaryKeyConstraint("id"),
         schema="pl_diagram",
     )
@@ -677,7 +759,9 @@ def upgrade():
         sa.Column("gridKey", sa.String(length=30), nullable=False),
         sa.Column("dispId", sa.Integer(), nullable=False),
         sa.Column("coordSetId", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(["coordSetId"], ["pl_diagram.ModelCoordSet.id"]),
+        sa.ForeignKeyConstraint(
+            ["coordSetId"], ["pl_diagram.ModelCoordSet.id"]
+        ),
         sa.ForeignKeyConstraint(
             ["dispId"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"
         ),
@@ -721,7 +805,9 @@ def upgrade():
         sa.Column("importGroupHash", sa.String(length=100), nullable=True),
         sa.Column("importDispHash", sa.String(length=100), nullable=True),
         sa.Column("propsJson", sa.String(length=500), nullable=True),
-        sa.ForeignKeyConstraint(["coordSetId"], ["pl_diagram.ModelCoordSet.id"]),
+        sa.ForeignKeyConstraint(
+            ["coordSetId"], ["pl_diagram.ModelCoordSet.id"]
+        ),
         sa.ForeignKeyConstraint(
             ["dispId"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"
         ),
@@ -802,12 +888,18 @@ def upgrade():
         "DispGroupPointer",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("rotation", sa.Integer(), server_default="0", nullable=False),
-        sa.Column("verticalScale", sa.Float(), server_default="1.0", nullable=False),
-        sa.Column("horizontalScale", sa.Float(), server_default="1.0", nullable=False),
+        sa.Column(
+            "verticalScale", sa.Float(), server_default="1.0", nullable=False
+        ),
+        sa.Column(
+            "horizontalScale", sa.Float(), server_default="1.0", nullable=False
+        ),
         sa.Column("geomJson", sa.String(length=2000), nullable=False),
         sa.Column("groupId", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(["groupId"], ["pl_diagram.DispGroup.id"]),
-        sa.ForeignKeyConstraint(["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
         schema="pl_diagram",
     )

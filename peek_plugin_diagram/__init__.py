@@ -1,9 +1,17 @@
 from typing import Type
 
-from peek_plugin_base.agent.PluginAgentEntryHookABC import PluginAgentEntryHookABC
-from peek_plugin_base.client.PluginClientEntryHookABC import PluginClientEntryHookABC
-from peek_plugin_base.server.PluginLogicEntryHookABC import PluginLogicEntryHookABC
-from peek_plugin_base.worker.PluginWorkerEntryHookABC import PluginWorkerEntryHookABC
+from peek_plugin_base.agent.PluginAgentEntryHookABC import (
+    PluginAgentEntryHookABC,
+)
+from peek_plugin_base.client.PluginClientEntryHookABC import (
+    PluginClientEntryHookABC,
+)
+from peek_plugin_base.server.PluginLogicEntryHookABC import (
+    PluginLogicEntryHookABC,
+)
+from peek_plugin_base.worker.PluginWorkerEntryHookABC import (
+    PluginWorkerEntryHookABC,
+)
 
 __version__ = "0.0.0"
 

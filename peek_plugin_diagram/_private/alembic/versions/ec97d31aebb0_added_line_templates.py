@@ -25,12 +25,16 @@ def upgrade():
         "DispEdgeTemplate",
         sa.Column("id", sa.Integer(), autoincrement=False, nullable=False),
         sa.Column("name", sa.String(), nullable=False),
-        sa.Column("lineWidth", sa.Integer(), server_default="2", nullable=False),
+        sa.Column(
+            "lineWidth", sa.Integer(), server_default="2", nullable=False
+        ),
         sa.Column("lineColorId", sa.Integer(), nullable=True),
         sa.Column("lineStyleId", sa.Integer(), nullable=True),
         sa.Column("startEndType", sa.Integer(), nullable=True),
         sa.Column("endEndType", sa.Integer(), nullable=True),
-        sa.ForeignKeyConstraint(["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"
+        ),
         sa.ForeignKeyConstraint(
             ["lineColorId"],
             ["pl_diagram.DispColor.id"],

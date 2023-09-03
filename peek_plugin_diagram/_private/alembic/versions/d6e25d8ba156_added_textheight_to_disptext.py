@@ -28,7 +28,9 @@ def upgrade():
 
     op.add_column(
         "DispText",
-        sa.Column("textHStretch", sa.Float(), nullable=True, server_default="1.0"),
+        sa.Column(
+            "textHStretch", sa.Float(), nullable=True, server_default="1.0"
+        ),
         schema="pl_diagram",
     )
 

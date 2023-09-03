@@ -6,11 +6,15 @@ from typing import Optional, List
 from peek_plugin_diagram._private.tuples.location_index.DispKeyLocationTuple import (
     DispKeyLocationTuple,
 )
-from peek_plugin_diagram._private.worker.tasks._CalcGridForDisp import _calcBounds
+from peek_plugin_diagram._private.worker.tasks._CalcGridForDisp import (
+    _calcBounds,
+)
 
 logger = logging.getLogger(__name__)
 
-CoordSetIdGridKeyTuple = namedtuple("CoordSetIdGridKeyTuple", ["coordSetId", "gridKey"])
+CoordSetIdGridKeyTuple = namedtuple(
+    "CoordSetIdGridKeyTuple", ["coordSetId", "gridKey"]
+)
 DispData = namedtuple("DispData", ["json", "levelOrder", "layerOrder"])
 
 

@@ -1,7 +1,11 @@
 import logging
 
-from peek_plugin_diagram._private.server.api.DiagramImportApi import DiagramImportApi
-from peek_plugin_diagram._private.server.api.DiagramViewerApi import DiagramViewerApi
+from peek_plugin_diagram._private.server.api.DiagramImportApi import (
+    DiagramImportApi,
+)
+from peek_plugin_diagram._private.server.api.DiagramViewerApi import (
+    DiagramViewerApi,
+)
 from peek_plugin_diagram._private.server.controller.BranchUpdateController import (
     BranchUpdateController,
 )

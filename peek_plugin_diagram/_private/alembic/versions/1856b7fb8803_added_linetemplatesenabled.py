@@ -22,7 +22,10 @@ def upgrade():
     op.add_column(
         "ModelCoordSet",
         sa.Column(
-            "edgeTemplatesEnabled", sa.Boolean(), nullable=True, server_default="false"
+            "edgeTemplatesEnabled",
+            sa.Boolean(),
+            nullable=True,
+            server_default="false",
         ),
         schema="pl_diagram",
     )

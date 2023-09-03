@@ -31,7 +31,9 @@ class BranchIndex(DeclarativeBase, Tuple):
 
     #:  The model set for this branchIndex
     coordSetId = Column(
-        Integer, ForeignKey("ModelCoordSet.id", ondelete="CASCADE"), nullable=False
+        Integer,
+        ForeignKey("ModelCoordSet.id", ondelete="CASCADE"),
+        nullable=False,
     )
     coordSet = relationship(ModelCoordSet)
 
@@ -54,8 +56,13 @@ class BranchIndex(DeclarativeBase, Tuple):
     __table_args__ = (
         Index("idx_BranchIndex_key", coordSetId, key, unique=True),
         Index("idx_BranchIndex_chunkKey", chunkKey, unique=False),
-        Index("idx_BranchIndex_importHash", coordSetId, importHash, unique=True),
         Index(
-            "idx_BranchIndex_importGroupHash", coordSetId, importGroupHash, unique=False
+            "idx_BranchIndex_importHash", coordSetId, importHash, unique=True
+        ),
+        Index(
+            "idx_BranchIndex_importGroupHash",
+            coordSetId,
+            importGroupHash,
+            unique=False,
         ),
     )

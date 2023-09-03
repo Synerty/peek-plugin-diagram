@@ -6,7 +6,10 @@ from sqlalchemy import select
 from typing import List, Dict
 
 from peek_plugin_base.worker import CeleryDbConn
-from peek_plugin_diagram._private.storage.ModelSet import ModelSet, ModelCoordSet
+from peek_plugin_diagram._private.storage.ModelSet import (
+    ModelSet,
+    ModelCoordSet,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +60,9 @@ def _loadModelSets() -> Dict[str, int]:
     conn = engine.connect()
     try:
         results = list(
-            conn.execute(select(columns=[_modelSetTable.c.id, _modelSetTable.c.key]))
+            conn.execute(
+                select(columns=[_modelSetTable.c.id, _modelSetTable.c.key])
+            )
         )
         modelSetIdByKey = {o.key: o.id for o in results}
         del results

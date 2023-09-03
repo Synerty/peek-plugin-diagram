@@ -22,7 +22,10 @@ def upgrade():
     op.add_column(
         "DispGroupPointer",
         sa.Column(
-            "targetDispGroupName", sa.String(), server_default="0", nullable=True
+            "targetDispGroupName",
+            sa.String(),
+            server_default="0",
+            nullable=True,
         ),
         schema="pl_diagram",
     )
@@ -107,9 +110,17 @@ def downgrade():
         table_name="ModelCoordSet",
         schema="pl_diagram",
     )
-    op.drop_column("ModelCoordSet", "editDefaultVertexGroupName", schema="pl_diagram")
-    op.drop_column("ModelCoordSet", "editDefaultVertexCoordSetId", schema="pl_diagram")
-    op.drop_column("ModelCoordSet", "editDefaultEdgeGroupName", schema="pl_diagram")
-    op.drop_column("ModelCoordSet", "editDefaultEdgeCoordSetId", schema="pl_diagram")
+    op.drop_column(
+        "ModelCoordSet", "editDefaultVertexGroupName", schema="pl_diagram"
+    )
+    op.drop_column(
+        "ModelCoordSet", "editDefaultVertexCoordSetId", schema="pl_diagram"
+    )
+    op.drop_column(
+        "ModelCoordSet", "editDefaultEdgeGroupName", schema="pl_diagram"
+    )
+    op.drop_column(
+        "ModelCoordSet", "editDefaultEdgeCoordSetId", schema="pl_diagram"
+    )
     op.drop_column("DispGroupPointer", "name", schema="pl_diagram")
     # ### end Alembic commands ###

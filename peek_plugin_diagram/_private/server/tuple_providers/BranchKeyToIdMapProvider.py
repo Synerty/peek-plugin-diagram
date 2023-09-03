@@ -24,7 +24,6 @@ class BranchKeyToIdMapTupleProvider(TuplesProviderABC):
     def makeVortexMsg(
         self, filt: dict, tupleSelector: TupleSelector
     ) -> Union[Deferred, bytes]:
-
         session = self._ormSessionCreator()
         try:
             tuples = session.query(
