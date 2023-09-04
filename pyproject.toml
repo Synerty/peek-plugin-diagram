@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "peek-plugin-diagram"
 version = "0.0.0"
 authors = [{name = "Synerty", email = "contact@synerty.com"}]
-description = "Peek Plugin Diagram - My first enhancement."
+description = "Peek Plugin Diagram - generic diagram for mobile and desktop browser"
 keywords = ["Peek", "Python", "Platform", "synerty"]
 classifiers = []
 dependencies = [
