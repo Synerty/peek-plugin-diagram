@@ -4,7 +4,7 @@ import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PeekCanvasEditor } from "../canvas/PeekCanvasEditor.web";
 import { DiagramCoordSetService } from "@peek/peek_plugin_diagram/DiagramCoordSetService";
 import { BranchDetailTuple, BranchService } from "@peek/peek_plugin_branch";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 
 import { PrivateDiagramCoordSetService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
 import {
@@ -45,6 +45,8 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
     items$ = new BehaviorSubject<BranchDetailTuple[]>([]);
     private allItems: BranchDetailTuple[] = [];
 
+    private unsubSubject = new Subject<void>();
+
     constructor(
         private branchService: PrivateDiagramBranchService,
         abstractCoordSetService: DiagramCoordSetService,
@@ -69,6 +71,7 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
         this.popupShown = false;
 
         // Discard the integration additions
+        this.unsubSubject.next();
         this.allItems = [];
         this.refilter();
     }
@@ -105,8 +108,6 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
     }
 
     private refilter(): void {
-        console.log(this.userService.userDetails);
-        console.log(this.allItems[0]);
         const filtByStr = (i) => {
             return (
                 this._filterText.length === 0 ||
@@ -206,6 +207,7 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
     }
 
     protected openPopup({ coordSetKey, modelSetKey }) {
+        this.unsubSubject.next();
         const userDetail = this.userService.userDetails;
 
         this.newBranch = new BranchDetailTuple();
@@ -218,12 +220,12 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
         console.log("Opening Start Edit popup");
 
         this.globalBranchService
-            .branches(this.modelSetKey)
-            .then((tuples: BranchDetailTuple[]) => {
+            .branches$(this.modelSetKey)
+            .pipe(takeUntil(this.unsubSubject))
+            .subscribe((tuples: BranchDetailTuple[]) => {
                 this.allItems = tuples;
                 this.refilter();
-            })
-            .catch((e) => `Failed to load branches ${e}`);
+            });
 
         this.popupShown = true;
     }
