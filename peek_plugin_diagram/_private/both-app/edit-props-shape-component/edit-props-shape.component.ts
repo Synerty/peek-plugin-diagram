@@ -31,7 +31,7 @@ export class EditPropsShapeComponent
         super();
     }
 
-    ngOnInit() {
+    override ngOnInit() {
         this.context = this.canvasEditor.props.shapePanelContext;
         this.canvasEditor.props.shapePanelContextObservable
             .pipe(takeUntil(this.onDestroyEvent))

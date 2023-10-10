@@ -65,7 +65,7 @@ export class StartEditComponent extends NgLifeCycleEvents implements OnInit {
             .subscribe((v: PopupEditBranchSelectionArgs) => this.openPopup(v));
     }
 
-    ngOnInit() {}
+    override ngOnInit() {}
 
     closePopup(): void {
         this.popupShown = false;

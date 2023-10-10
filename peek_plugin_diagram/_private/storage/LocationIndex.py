@@ -58,7 +58,7 @@ class LocationIndexCompilerQueue(
 
 
 @addTupleType
-class LocationIndex(Tuple, DeclarativeBase):
+class LocationIndex(DeclarativeBase, Tuple):
     __tablename__ = "LocationIndex"
     __tupleType__ = diagramTuplePrefix + __tablename__
 

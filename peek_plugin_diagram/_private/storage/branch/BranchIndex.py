@@ -9,7 +9,7 @@ from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 
 
 @addTupleType
-class BranchIndex(Tuple, DeclarativeBase):
+class BranchIndex(DeclarativeBase, Tuple):
     """Branch Index
 
     The BranchIndex is implemented to allow editing of individual branches via the UI,

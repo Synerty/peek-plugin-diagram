@@ -45,7 +45,7 @@ export class CanvasContextMenuComponent
             );
     }
 
-    ngOnInit() {}
+    override ngOnInit() {}
 
     handleContextMenuOpen(event: ContextMenuPopupI) {
         this.menuService.create(event, this.menu);

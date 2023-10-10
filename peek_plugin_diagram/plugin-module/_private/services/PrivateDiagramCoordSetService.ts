@@ -113,26 +113,27 @@ export class PrivateDiagramCoordSetService
                     // Coord Set by Coord Set Key, by Model Set Key
                     let coordSetByCoordSetKey =
                         this._coordSetByKeyByModelSetKey[
-                            item.data.modelSetKey
+                            item.data["modelSetkey"]
                         ] == null
                             ? (this._coordSetByKeyByModelSetKey[
-                                  item.data.modelSetKey
+                                  item.data["modelSetkey"]
                               ] = {})
                             : this._coordSetByKeyByModelSetKey[
-                                  item.data.modelSetKey
+                                  item.data["modelSetkey"]
                               ];
 
                     coordSetByCoordSetKey[item.key] = item;
 
                     // Coord Set array by Model Set Key
                     let coordSets =
-                        this._coordSetsByModelSetKey[item.data.modelSetKey] ==
-                        null
+                        this._coordSetsByModelSetKey[
+                            item.data["modelSetkey"]
+                        ] == null
                             ? (this._coordSetsByModelSetKey[
-                                  item.data.modelSetKey
+                                  item.data["modelSetkey"]
                               ] = [])
                             : this._coordSetsByModelSetKey[
-                                  item.data.modelSetKey
+                                  item.data["modelSetkey"]
                               ];
 
                     coordSets.push(item);
@@ -146,15 +147,15 @@ export class PrivateDiagramCoordSetService
     private notifyForDiagramCoordSetTuples(tuples: ModelCoordSet[]): void {
         let coordSetsByModelSetKey = {};
         for (let tuple of tuples) {
-            if (coordSetsByModelSetKey[tuple.data.modelSetKey] == null)
-                coordSetsByModelSetKey[tuple.data.modelSetKey] = [];
+            if (coordSetsByModelSetKey[tuple.data["modelSetkey"]] == null)
+                coordSetsByModelSetKey[tuple.data["modelSetkey"]] = [];
 
             let item = new DiagramCoordSetTuple();
             item.name = tuple.name;
             item.key = tuple.key;
             item.enabled = tuple.enabled;
             item.isLanding = tuple.isLanding;
-            coordSetsByModelSetKey[tuple.data.modelSetKey].push(item);
+            coordSetsByModelSetKey[tuple.data["modelSetkey"]].push(item);
         }
 
         this._lastDiagramCoordSetTuplesByModelSetKey = coordSetsByModelSetKey;

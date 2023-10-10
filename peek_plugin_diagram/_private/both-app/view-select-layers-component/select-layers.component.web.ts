@@ -63,7 +63,7 @@ export class SelectLayersComponent extends NgLifeCycleEvents implements OnInit {
             .subscribe((v: PopupLayerSelectionArgsI) => this.openPopup(v));
     }
 
-    ngOnInit() {}
+    override ngOnInit() {}
 
     closePopup(): void {
         this.popupShown = false;

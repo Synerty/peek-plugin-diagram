@@ -148,7 +148,11 @@ export class DispEllipse extends DispBase {
         DispBase.setBoundsNull(disp);
     }
 
-    static rotateAboutAxis(disp, center: PointI, rotationDegrees: number) {
+    static override rotateAboutAxis(
+        disp,
+        center: PointI,
+        rotationDegrees: number
+    ) {
         if (disp.g == null) return;
 
         DispBase.rotateAboutAxis(disp, center, rotationDegrees);
@@ -161,7 +165,7 @@ export class DispEllipse extends DispBase {
     // ---------------
     // Create Method
 
-    static create(coordSet: ModelCoordSet): DispEllipseT {
+    static override create(coordSet: ModelCoordSet): DispEllipseT {
         let newDisp = {
             ...DispBase.create(coordSet, DispBase.TYPE_DE),
             g: [], // PointsT[]
@@ -185,7 +189,9 @@ export class DispEllipse extends DispBase {
         return newDisp;
     }
 
-    static makeShapeContext(context: PeekCanvasShapePropsContext): void {
+    static override makeShapeContext(
+        context: PeekCanvasShapePropsContext
+    ): void {
         DispPoly.makeShapeContext(context);
 
         context.addProp(
@@ -255,7 +261,7 @@ export class DispEllipse extends DispBase {
     // ---------------
     // Represent the disp as a user friendly string
 
-    static makeShapeStr(disp: DispEllipseT): string {
+    static override makeShapeStr(disp: DispEllipseT): string {
         let center = DispEllipse.center(disp);
         return (
             DispBase.makeShapeStr(disp) +
