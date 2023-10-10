@@ -32,15 +32,24 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     draw(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
         let isPolygon = DispBase.typeOf(disp) == DispType.polygon;
 
-        let fillColor = isPolygon ? DispPolygon.fillColor(disp) : null;
-        let lineColor = DispPoly.lineColor(disp);
+        const fillColor = isPolygon
+            ? DispPolygon.fillColor(disp)?.getColor(this.config.isLightMode)
+            : null;
+        let lineColor = DispPoly.lineColor(disp)?.getColor(
+            this.config.isLightMode
+        );
         let lineStyle = DispPoly.lineStyle(disp);
         let lineWidth = DispPoly.lineWidth(disp);
 
-        if (!isPolygon && this.config.renderer.useEdgeColors) {
-            const edgeColor = DispPolyline.edgeColor(<DispPolylineT>disp);
+        // Null colors are also not drawn
+        lineColor = lineStyle && lineColor ? lineColor : null;
 
-            if (edgeColor?.getColor(this.config.isLightMode) != null) {
+        if (!isPolygon && this.config.renderer.useEdgeColors) {
+            const edgeColor = DispPolyline.edgeColor(
+                <DispPolylineT>disp
+            ).getColor(this.config.isLightMode);
+
+            if (edgeColor != null) {
                 /* We expect both backgroundColour and edgeColour to be in the
                  format #AARRGGBB or #RRGGBB, take the last 6 letters and
                  compare them.
@@ -48,8 +57,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
                 let bgColorStr = this.config.renderer.backgroundColor || "";
                 bgColorStr = bgColorStr.substr(bgColorStr.length - 6);
 
-                let edgeColorStr =
-                    edgeColor?.getColor(this.config.isLightMode) || "";
+                let edgeColorStr = edgeColor || "";
                 edgeColorStr = edgeColorStr.substr(edgeColorStr.length - 6);
 
                 if (bgColorStr !== edgeColorStr) {
@@ -61,18 +69,6 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         let dashPattern = null;
         if (lineStyle != null && lineStyle.dashPatternParsed != null)
             dashPattern = lineStyle.dashPatternParsed;
-
-        // Null colors are also not drawn
-        fillColor =
-            fillColor && fillColor.getColor(this.config.isLightMode)
-                ? fillColor
-                : null;
-        lineColor =
-            lineStyle &&
-            lineColor &&
-            lineColor.getColor(this.config.isLightMode)
-                ? lineColor
-                : null;
 
         let geom = DispPolygon.geom(disp);
 
@@ -146,7 +142,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         }
 
         if (lineColor) {
-            ctx.strokeStyle = lineColor.getColor(this.config.isLightMode);
+            ctx.strokeStyle = lineColor;
             ctx.lineWidth = lineStyle.scalable ? lineWidth : lineWidth / zoom;
             ctx.lineJoin = lineStyle.joinStyle;
             ctx.lineCap = lineStyle.capStyle;
@@ -163,7 +159,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
                     fillPercentage
                 );
             } else {
-                ctx.fillStyle = fillColor.getColor(this.config.isLightMode);
+                ctx.fillStyle = fillColor;
                 ctx.fill();
             }
         }
@@ -223,7 +219,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         zoom: number,
         segmentNum: number
     ) {
-        if (dashPattern == null) {
+        if ((dashPattern?.length || 0) === 0) {
             ctx.lineTo(x2, y2);
             return;
         }
@@ -273,7 +269,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             bounds.w *= fillPercentage / 100.0;
         }
 
-        ctx.fillStyle = fillColor.color;
+        ctx.fillStyle = fillColor;
         ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
     }
 
