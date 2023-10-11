@@ -8,7 +8,6 @@ import { DiagramCoordSetService } from "@peek/peek_plugin_diagram/DiagramCoordSe
 import { ModelCoordSet } from "@peek/peek_plugin_diagram/_private/tuples/ModelCoordSet";
 import { GroupDispsTuple } from "@peek/peek_plugin_diagram/_private/tuples/GroupDispsTuple";
 import { PrivateDiagramTupleService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramTupleService";
-import { PrivateDiagramGridLoaderServiceA } from "@peek/peek_plugin_diagram/_private/grid-loader/PrivateDiagramGridLoaderServiceA";
 import { GridTuple } from "@peek/peek_plugin_diagram/_private/grid-loader/GridTuple";
 import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 import { LinkedGrid } from "../cache/LinkedGrid.web";
@@ -44,7 +43,6 @@ export class EditPropsEdgeTemplateComponent
     constructor(
         private tupleService: PrivateDiagramTupleService,
         abstractCoordSetCache: DiagramCoordSetService,
-        private gridLoader: PrivateDiagramGridLoaderServiceA,
         private lookupService: PrivateDiagramLookupService
     ) {
         super();

@@ -47,8 +47,6 @@ export class SelectBranchesComponent extends NgLifeCycleEvents {
 
     constructor(
         private objectPopupService: DocDbPopupService,
-        private headerService: HeaderService,
-        private lookupService: PrivateDiagramLookupService,
         private configService: PrivateDiagramConfigService,
         private branchService: PrivateDiagramBranchService,
         abstractCoordSetService: DiagramCoordSetService,
