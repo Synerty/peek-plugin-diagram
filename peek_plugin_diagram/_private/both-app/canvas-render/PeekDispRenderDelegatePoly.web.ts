@@ -30,24 +30,21 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
     }
 
     draw(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
-        let isPolygon = DispBase.typeOf(disp) == DispType.polygon;
+        const isPolygon = DispBase.typeOf(disp) == DispType.polygon;
+        const lineStyle = DispPoly.lineStyle(disp);
+        const lineWidth = DispPoly.lineWidth(disp);
 
         const fillColor = isPolygon
             ? DispPolygon.fillColor(disp)?.getColor(this.config.isLightMode)
             : null;
-        let lineColor = DispPoly.lineColor(disp)?.getColor(
-            this.config.isLightMode
-        );
-        let lineStyle = DispPoly.lineStyle(disp);
-        let lineWidth = DispPoly.lineWidth(disp);
-
-        // Null colors are also not drawn
-        lineColor = lineStyle && lineColor ? lineColor : null;
+        let lineColor = lineStyle
+            ? DispPoly.lineColor(disp)?.getColor(this.config.isLightMode)
+            : null;
 
         if (!isPolygon && this.config.renderer.useEdgeColors) {
             const edgeColor = DispPolyline.edgeColor(
                 <DispPolylineT>disp
-            ).getColor(this.config.isLightMode);
+            )?.getColor(this.config.isLightMode);
 
             if (edgeColor != null) {
                 /* We expect both backgroundColour and edgeColour to be in the
@@ -405,7 +402,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             let size = lineWidth * 3;
             ctx.beginPath();
             ctx.arc(toX, toY, size, 0, 2 * Math.PI);
-            ctx.fillStyle = lineColor.color;
+            ctx.fillStyle = lineColor;
             ctx.fill();
             return;
         }
@@ -427,7 +424,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             ctx.lineTo(-halfWidth, length);
             ctx.closePath();
 
-            ctx.fillStyle = lineColor.color;
+            ctx.fillStyle = lineColor;
             ctx.fill();
 
             ctx.restore();

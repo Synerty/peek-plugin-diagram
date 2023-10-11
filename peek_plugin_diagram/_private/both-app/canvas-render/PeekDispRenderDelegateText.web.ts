@@ -30,7 +30,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
             <DispTextT>disp,
             this.textMeasureCtx,
             zoom,
-            true,
+            true
         );
     }
 
@@ -92,19 +92,15 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
         // Give meaning to our short names
         let rotationRadian = (DispText.rotation(disp) / 180.0) * Math.PI;
 
-        let fontStyle = DispText.textStyle(disp);
-        let fillColor = DispText.color(disp);
-        let borderColor = DispText.borderColor(disp);
+        const fontStyle = DispText.textStyle(disp);
 
         // Null colors are also not drawn
-        fillColor =
-            fillColor && fillColor.getColor(this.config.isLightMode)
-                ? fillColor
-                : null;
-        borderColor =
-            borderColor && borderColor.getColor(this.config.isLightMode)
-                ? borderColor
-                : null;
+        const fillColor = DispText.color(disp)?.getColor(
+            this.config.isLightMode
+        );
+        const borderColor = DispText.borderColor(disp)?.getColor(
+            this.config.isLightMode
+        );
 
         // TODO, Draw a box around the text, based on line style
 
@@ -176,7 +172,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
             const wrappedLines = this.wrapText(
                 DispText.text(disp),
                 fontStyle.wrapTextAtChars,
-                fontStyle.wrapTextAtCharSplitBetweenWords,
+                fontStyle.wrapTextAtCharSplitBetweenWords
             );
             for (const wrappedLine of wrappedLines) {
                 for (const renderedLine of wrappedLine.split("\n")) {
@@ -196,7 +192,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
             }
 
             if (fillColor) {
-                ctx.fillStyle = fillColor.getColor(this.config.isLightMode);
+                ctx.fillStyle = fillColor;
                 ctx.fillText(line, 0, yOffset);
             }
 
@@ -236,7 +232,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
     private wrapText(
         text: string,
         width: number,
-        splitBetweenWords: boolean,
+        splitBetweenWords: boolean
     ): string[] {
         const substrings: string[] = [];
 
