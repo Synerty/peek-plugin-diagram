@@ -22,7 +22,7 @@ export class EditPropsComponent extends NgLifeCycleEvents implements OnInit {
         super();
     }
 
-    ngOnInit() {
+    override ngOnInit() {
         this.canvasEditor.props.contextPanelObservable
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((val: EditorContextType) => {

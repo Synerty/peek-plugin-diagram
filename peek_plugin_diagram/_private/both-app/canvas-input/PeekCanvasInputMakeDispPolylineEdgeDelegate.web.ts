@@ -31,7 +31,7 @@ export class PeekCanvasInputMakeDispPolylineEdgeDelegate extends PeekCanvasInput
         this._reset();
     }
 
-    protected createDisp(inputPos: CanvasInputPos) {
+    protected override createDisp(inputPos: CanvasInputPos) {
         super.createDisp(inputPos);
 
         const coordSet = <ModelCoordSet>this.viewArgs.config.coordSet;

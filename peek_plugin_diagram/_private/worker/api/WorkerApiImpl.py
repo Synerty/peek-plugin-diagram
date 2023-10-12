@@ -72,7 +72,7 @@ class WorkerApiImpl:
         )
 
         stmt = (
-            select([linkTable.c.dispId])
+            select(linkTable.c.dispId)
             .select_from(
                 linkTable.join(
                     coordSetTable, linkTable.c.coordSetId == coordSetTable.c.id

@@ -179,12 +179,12 @@ export class DispPolyline extends DispPoly {
         return { x: disp.g[0], y: disp.g[1] };
     }
 
-    static lastPoint(disp): PointI {
+    static override lastPoint(disp): PointI {
         let l = disp.g.length;
         return { x: disp.g[l - 2], y: disp.g[l - 1] };
     }
 
-    static create(coordSet: ModelCoordSet): DispPolylineT {
+    static override create(coordSet: ModelCoordSet): DispPolylineT {
         return <DispPolylineT>DispPoly.create(coordSet, DispBase.TYPE_DPL);
     }
 
@@ -246,7 +246,9 @@ export class DispPolyline extends DispPoly {
 
     // ---------------
     // Support shape editing
-    static makeShapeContext(context: PeekCanvasShapePropsContext): void {
+    static override makeShapeContext(
+        context: PeekCanvasShapePropsContext
+    ): void {
         DispPoly.makeShapeContext(context);
 
         let lineEndOptions = [
@@ -347,7 +349,7 @@ export class DispPolyline extends DispPoly {
     // ---------------
     // Represent the disp as a user friendly string
 
-    static makeShapeStr(disp: DispPolylineT): string {
+    static override makeShapeStr(disp: DispPolylineT): string {
         let center = DispPolyline.center(disp);
         return (
             DispBase.makeShapeStr(disp) +
@@ -370,7 +372,7 @@ export class DispPolyline extends DispPoly {
         return handleIndex == DispPolyline.geom(disp).length / 2 - 1;
     }
 
-    static handlePoints(disp, margin: number): DispHandleI[] {
+    static override handlePoints(disp, margin: number): DispHandleI[] {
         let result = [];
 
         let points = DispPolyline.geom(disp);

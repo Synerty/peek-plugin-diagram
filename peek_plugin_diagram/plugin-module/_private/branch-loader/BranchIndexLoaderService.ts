@@ -3,7 +3,6 @@ import { filter, first, takeUntil } from "rxjs/operators";
 import { Injectable } from "@angular/core";
 
 import {
-    extend,
     Payload,
     PayloadEnvelope,
     TupleOfflineStorageNameService,
@@ -39,7 +38,7 @@ export interface BranchIndexResultI {
 
 // ----------------------------------------------------------------------------
 
-let clientBranchIndexWatchUpdateFromDeviceFilt = extend(
+let clientBranchIndexWatchUpdateFromDeviceFilt = Object.assign(
     { key: "clientBranchIndexWatchUpdateFromDevice" },
     diagramFilt
 );
@@ -57,7 +56,7 @@ class BranchIndexChunkTupleSelector extends TupleSelector {
         super(diagramTuplePrefix + "BranchIndexChunkTuple", { key: chunkKey });
     }
 
-    toOrderedJsonStr(): string {
+    override toOrderedJsonStr(): string {
         return this.chunkKey;
     }
 }
@@ -280,7 +279,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
 
     private _notifyReady(): void {
         if (this._hasModelSetLoaded && this._hasLoaded)
-            this._hasLoadedSubject.next();
+            this._hasLoadedSubject.next(true);
     }
 
     private _notifyStatus(paused: boolean = false): void {
@@ -432,7 +431,10 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
         }
 
         let indexChunk: BranchIndexUpdateDateTuple = this.askServerChunks.pop();
-        let filt = extend({}, clientBranchIndexWatchUpdateFromDeviceFilt);
+        let filt = Object.assign(
+            {},
+            clientBranchIndexWatchUpdateFromDeviceFilt
+        );
         filt[cacheAll] = true;
         let pl = new Payload(filt, [indexChunk]);
         this.vortexService.sendPayload(pl);
@@ -467,7 +469,7 @@ export class BranchIndexLoaderService extends BranchIndexLoaderServiceA {
             this.index.initialLoadComplete = true;
             await this.saveChunkCacheIndex(true);
             this._hasLoaded = true;
-            this._hasLoadedSubject.next();
+            this._hasLoadedSubject.next(true);
         } else if (payloadEnvelope.filt[cacheAll] == true) {
             this.askServerForNextUpdateChunk();
         }

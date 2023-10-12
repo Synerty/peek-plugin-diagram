@@ -52,7 +52,7 @@ export class EditPropsEdgeTemplateComponent
         );
     }
 
-    ngOnInit() {
+    override ngOnInit() {
         this.templateCoordSets = [];
 
         let coordSets = this.coordSetCache.coordSets(

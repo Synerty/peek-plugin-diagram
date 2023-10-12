@@ -43,7 +43,7 @@ class LookupHashConverter:
 
     def _loadLookupByModelSet(self, table) -> Dict[str, int]:
         resultSet = self._ormSession.execute(
-            select([table.c.importHash, table.c.id]).where(
+            select(table.c.importHash, table.c.id).where(
                 table.c.modelSetId == self._modelSetId
             )
         )
@@ -52,7 +52,7 @@ class LookupHashConverter:
 
     def _loadLookupByCoordSet(self, table) -> Dict[str, int]:
         resultSet = self._ormSession.execute(
-            select([table.c.importHash, table.c.id]).where(
+            select(table.c.importHash, table.c.id).where(
                 table.c.coordSetId == self._coordSetId
             )
         )
