@@ -89,6 +89,6 @@ class DiagramImportApi(DiagramImportApiABC):
     def removeDispsByImportGroupHash(
         self, modelSetKey: str, coordSetKey: str, importGroupHash: str
     ) -> Deferred:
-        yield self._dispImportController.removeDispsByImportGroupHash(
+        return self._dispImportController.removeDispsByImportGroupHash(
             modelSetKey, coordSetKey, importGroupHash
         )

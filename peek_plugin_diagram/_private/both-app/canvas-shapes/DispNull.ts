@@ -39,6 +39,36 @@ export class DispNull extends DispBase {
         return <DispNullT>DispBase.create(coordSet, DispBase.TYPE_DN);
     }
 
+    static override createFromShape(disp: DispBaseT, replacesHashId: string): DispNullT {
+        if (disp.bounds == null)
+            throw new Error("Can not delete a disp with no bounds");
+
+        const nullDisp = <DispNullT>{
+            // Type
+            _tt: DispBase.TYPE_DN,
+
+            // Level
+            le: disp.le,
+            lel: disp.lel,
+
+            // Layer
+            la: disp.la,
+            lal: disp.lal,
+        };
+        DispBase.setReplacesHashId(nullDisp, replacesHashId);
+
+        // This works if there is a bounds
+        if (disp.bounds.area()) {
+            DispNull.setGeomFromBounds(nullDisp, disp.bounds);
+        } else {
+            alert("Failed to make change");
+            // Improvement, have a fallback that calculates bounds roughly
+            // at least bigger than the shape being replaced.
+        }
+
+        return nullDisp;
+    }
+
     static override makeShapeContext(
         context: PeekCanvasShapePropsContext
     ): void {

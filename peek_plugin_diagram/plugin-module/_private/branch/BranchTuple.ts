@@ -361,7 +361,40 @@ export class BranchTuple extends Tuple {
                     this.addNewDisps(nullDispsToCreate);
                 else this.touchUpdateDate(false);
             }
-        );
+            return true;
+        });
+
+        // Update the dispId dict to remove the disps we just filtered out
+        this.assignIdsToDisps();
+
+        // For all the Disps that are not part of this branch, we need to add a DispNull
+        // to make its deletion
+
+        let nullDispsToCreate = [];
+
+        // For all the Disps that are not part of this branch, we need to add a DispNull
+        // to make it's deletion
+        // Create NULL disps for disps being deleted that are not part of this branch
+        for (let dispId of Object.keys(dispIdsToRemove)) {
+            let disp = dispIdsToRemove[dispId];
+            nullDispsToCreate.push(
+                DispNull.createFromShape(disp, DispBase.hashId(disp))
+            );
+        }
+
+        // For all disps that are part of this branch, but replace other disps,
+        // Create NULL disps for disps in this branch that replace other disps
+        for (let disp of branchDispsToBeConvertedToNullDisps) {
+            nullDispsToCreate.push(
+                DispNull.createFromShape(disp, DispBase.replacesHashId(disp))
+            );
+        }
+
+        if (nullDispsToCreate.length != 0) {
+            this.addNewDisps(nullDispsToCreate);
+        } else {
+            this.touchUpdateDate(false);
+        }
     }
 
     addAnchorDispKey(key: string): void {
