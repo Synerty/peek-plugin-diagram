@@ -310,48 +310,33 @@ export class BranchTuple extends Tuple {
         this.assignIdsToDisps();
 
         // For all the Disps that are not part of this branch, we need to add a DispNull
-        // to make it's deletion
+        // to make its deletion
 
         let nullDispsToCreate = [];
-
-        function createNullDisp(dispToDelete, replacesHashId) {
-            if (dispToDelete.bounds == null)
-                throw new Error("Can not delete a disp with no bounds");
-
-            let nullDisp = {
-                // Type
-                _tt: DispBase.TYPE_DN,
-
-                // Level
-                le: dispToDelete.le,
-                lel: dispToDelete.lel,
-
-                // Layer
-                la: dispToDelete.la,
-                lal: dispToDelete.lal,
-            };
-
-            DispNull.setGeomFromBounds(nullDisp, dispToDelete.bounds);
-            DispBase.setReplacesHashId(nullDisp, replacesHashId);
-            nullDispsToCreate.push(nullDisp);
-        }
 
         // For all the Disps that are not part of this branch, we need to add a DispNull
         // to make it's deletion
         // Create NULL disps for disps being deleted that are not part of this branch
         for (let dispId of Object.keys(dispIdsToRemove)) {
             let disp = dispIdsToRemove[dispId];
-            createNullDisp(disp, DispBase.hashId(disp));
+            nullDispsToCreate.push(
+                DispNull.createFromShape(disp, DispBase.hashId(disp))
+            );
         }
 
         // For all disps that are part of this branch, but replace other disps,
         // Create NULL disps for disps in this branch that replace other disps
         for (let disp of branchDispsToBeConvertedToNullDisps) {
-            createNullDisp(disp, DispBase.replacesHashId(disp));
+            nullDispsToCreate.push(
+                DispNull.createFromShape(disp, DispBase.replacesHashId(disp))
+            );
         }
 
-        if (nullDispsToCreate.length != 0) this.addNewDisps(nullDispsToCreate);
-        else this.touchUpdateDate(false);
+        if (nullDispsToCreate.length != 0) {
+            this.addNewDisps(nullDispsToCreate);
+        } else {
+            this.touchUpdateDate(false);
+        }
     }
 
     addAnchorDispKey(key: string): void {
