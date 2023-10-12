@@ -32,6 +32,7 @@ export class ModelCoordSet extends Tuple {
     backgroundLightColor: string;
 
     enabled: boolean;
+    lightModeEnabled: boolean;
 
     comment: string;
 

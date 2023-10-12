@@ -149,7 +149,7 @@ export class ToolbarComponent extends NgLifeCycleEvents implements OnInit {
         return (
             (this.buttonBitmask &
                 DiagramToolbarBuiltinButtonEnum.BUTTON_COLOR_MODES) >
-            0
+                0 && this.coordSet.lightModeEnabled
         );
     }
 

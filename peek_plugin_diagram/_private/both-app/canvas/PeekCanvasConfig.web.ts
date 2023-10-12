@@ -13,7 +13,7 @@ import { DrawModeE } from "../canvas-render/PeekDispRenderDrawModeE.web";
  */
 export class PeekCanvasConfig {
     private static canvasIdCounter = 0;
-    private static backgroundUnset = "#ff0000";
+    private static backgroundUnset = "#000000";
 
     canvasId: number;
 
