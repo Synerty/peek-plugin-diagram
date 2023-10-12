@@ -7,6 +7,7 @@ import { NgLifeCycleEvents } from "@synerty/vortexjs";
 import { PanI } from "../canvas/PeekInterfaces.web";
 import { PeekCanvasBounds } from "../canvas/PeekCanvasBounds";
 import { DrawModeE } from "./PeekDispRenderDelegateABC.web";
+import { DispBase } from "../canvas-shapes/DispBase";
 
 export class PeekCanvasPan implements PanI {
     x: number = 0.0;
@@ -133,6 +134,7 @@ export class PeekCanvasRenderer {
         this.isValid = true;
 
         let ctx = this.canvas.getContext("2d");
+        ctx.globalAlpha = 1.0;
 
         let disps = this.model.viewableDisps();
         let selectedDisps = this.model.selection.selectedDisps();
@@ -160,11 +162,23 @@ export class PeekCanvasRenderer {
         // draw all shapes, counting backwards for correct rendering
         // for (let i = dispObjs.length - 1; i != -1; i--) {
 
+        let lastLayerId = null;
+
         // draw all shapes, counting forwards for correct order or rendering
         for (let i = 0; i < disps.length; i++) {
             let disp = disps[i];
+
+            // If the layer changes, apply the globalAlpha
+            const layer = DispBase.layer(disp);
+            if (layer.id !== lastLayerId) {
+                lastLayerId = layer.id;
+                ctx.globalAlpha = layer.opacity;
+            }
+
             this.dispDelegate.draw(disp, ctx, this._zoom, this._pan, drawMode);
         }
+        // Reset Global Alpha
+        ctx.globalAlpha = 1.0;
 
         // draw selection
         // right now this is just a stroke along the edge of the selected Shape

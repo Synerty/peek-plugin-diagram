@@ -79,7 +79,14 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         let firstPointY = geom[1]; // get details of point
 
         // Fill the background first, if required
-        if (lineColor && lineStyle.backgroundFillDashSpace && dashPattern) {
+        // It's required if the line has dashes.
+        // It's required if the line has an alpha channel
+        if (
+            (lineColor && lineStyle.backgroundFillDashSpace && dashPattern) ||
+            ctx.globalAlpha != 1.0
+        ) {
+            const oldAlpha = ctx.globalAlpha;
+            ctx.globalAlpha = 1.0;
             ctx.beginPath();
             ctx.moveTo(firstPointX, firstPointY);
 
@@ -94,6 +101,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             ctx.lineJoin = lineStyle.joinStyle;
             ctx.lineCap = lineStyle.capStyle;
             ctx.stroke();
+            ctx.globalAlpha = oldAlpha;
         }
 
         ctx.beginPath();

@@ -13,9 +13,13 @@ class ImportDispLayerTuple(Tuple):
 
     order: int = TupleField()
 
+    selectable: bool = TupleField()
+
     visible: bool = TupleField()
 
-    selectable: bool = TupleField()
+    #: Opacity, Should shapes on this layer be rendered partially see though?
+    # Range is 0.00 to 1.00
+    opacity: float = TupleField()
 
     importHash: str = TupleField()
 

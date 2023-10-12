@@ -135,13 +135,16 @@ export class PeekCanvasConfig {
 
     set isLightMode(value: boolean) {
         this.renderer.isLightMode = value;
-        this.renderer.isLightMode
-            ? (this.renderer.backgroundColor =
-                  this.coordSet?.backgroundLightColor ||
-                  PeekCanvasConfig.backgroundUnset)
-            : (this.renderer.backgroundColor =
-                  this.coordSet?.backgroundDarkColor ||
-                  PeekCanvasConfig.backgroundUnset);
+        this.renderer.backgroundColor =
+            (this.renderer.isLightMode
+                ? this.coordSet?.backgroundLightColor
+                : this.coordSet?.backgroundDarkColor) ||
+            PeekCanvasConfig.backgroundUnset;
+        console.log(
+            `Setting background to ${
+                this.renderer.isLightMode ? "light" : "dark"
+            } mode`
+        );
         this.invalidate();
     }
 

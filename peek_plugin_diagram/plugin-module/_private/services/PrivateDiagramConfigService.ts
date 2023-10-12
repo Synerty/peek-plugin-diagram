@@ -92,7 +92,7 @@ export class PrivateDiagramConfigService
     }
 
     // ---------------
-    // Use Polyline Edge Colors
+    // Set Layer Visible
     /** This is a published polyline */
     setLayerVisible(
         modelSetKey: string,

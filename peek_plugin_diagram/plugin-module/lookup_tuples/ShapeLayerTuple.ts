@@ -11,6 +11,7 @@ export class ShapeLayerTuple extends Tuple {
     order: number;
     selectable: boolean;
     visible: boolean;
+    opacity: number;
     showForEdit: boolean;
 
     constructor() {
