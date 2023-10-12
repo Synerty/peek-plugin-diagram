@@ -19,6 +19,7 @@ class ShapeLayerTuple(Tuple):
     order: int = TupleField()
     selectable: bool = TupleField()
     visible: bool = TupleField()
+    opacity: float = TupleField()
 
     modelSetKey: str = TupleField()
 

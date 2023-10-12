@@ -17,6 +17,7 @@ export class DispLayer extends Tuple {
     order: number;
     selectable: boolean;
     visible: boolean;
+    opacity: number;
     modelSetId: number;
 
     constructor() {
@@ -34,6 +35,7 @@ export class DispLayer extends Tuple {
         tuple_.order = this.order;
         tuple_.selectable = this.selectable;
         tuple_.visible = this.visible;
+        tuple_.opacity = this.opacity;
 
         return tuple_;
     }

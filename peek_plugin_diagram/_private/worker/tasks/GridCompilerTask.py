@@ -25,7 +25,7 @@ from vortex.Payload import Payload
 logger = logging.getLogger(__name__)
 
 DispData = namedtuple(
-    "DispData", ["json", "id", "zOrder", "levelOrder", "layerOrder"]
+    "DispData", ["json", "id", "zOrder", "type", "levelOrder", "layerOrder"]
 )
 
 """ Grid Compiler
@@ -172,7 +172,10 @@ def _dispBaseSortCmp(dispData1, dispData2):
     if layerDiff != 0:
         return layerDiff
 
-    return dispData1.zOrder - dispData2.zOrder
+    if dispData1.zOrder != dispData2.zOrder:
+        return dispData1.zOrder - dispData2.zOrder
+
+    return dispData1.type - dispData2.type
 
 
 def _qryDispData(session, gridKeys):
@@ -182,6 +185,7 @@ def _qryDispData(session, gridKeys):
             DispBase.dispJson,
             DispBase.id,
             DispBase.zOrder,
+            DispBase.type,
             DispLevel.order,
             DispLayer.order,
         )

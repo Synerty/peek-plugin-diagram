@@ -69,6 +69,7 @@ class DispLayer(DeclarativeBase, Tuple):
     order = Column(Integer, nullable=False, server_default="0")
     selectable = Column(Boolean, nullable=False, server_default="false")
     visible = Column(Boolean, nullable=False, server_default="true")
+    opacity = Column(Float, nullable=False, server_default="1")
 
     modelSetId = Column(
         Integer, ForeignKey("ModelSet.id", ondelete="CASCADE"), nullable=False
@@ -103,6 +104,7 @@ class DispLayer(DeclarativeBase, Tuple):
         tuple_.order = self.order
         tuple_.selectable = self.selectable
         tuple_.visible = self.visible
+        tuple_.opacity = self.opacity
         tuple_.importHash = self.importHash
         tuple_.blockApiUpdate = self.blockApiUpdate
         tuple_.showForEdit = self.showForEdit
@@ -222,7 +224,9 @@ class DispTextStyle(DeclarativeBase, Tuple):
 
     wrapTextAtChars = Column(Integer, nullable=True)
 
-    wrapTextAtCharSplitBetweenWords = Column(Boolean, nullable=False, default=True)
+    wrapTextAtCharSplitBetweenWords = Column(
+        Boolean, nullable=False, default=True
+    )
 
     __table_args__ = (
         Index("idx_DispTextStyle_modelSetId", modelSetId, unique=False),
@@ -256,7 +260,9 @@ class DispTextStyle(DeclarativeBase, Tuple):
         tuple_.blockApiUpdate = self.blockApiUpdate
         tuple_.showForEdit = self.showForEdit
         tuple_.wrapTextAtChars = self.wrapTextAtChars
-        tuple_.wrapTextAtCharSplitBetweenWords = self.wrapTextAtCharSplitBetweenWords
+        tuple_.wrapTextAtCharSplitBetweenWords = (
+            self.wrapTextAtCharSplitBetweenWords
+        )
 
         return tuple_
 
