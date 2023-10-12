@@ -40,7 +40,6 @@ export class EditPropsGroupPtrComponent
     constructor(
         private tupleService: PrivateDiagramTupleService,
         abstractCoordSetCache: DiagramCoordSetService,
-        private gridLoader: PrivateDiagramGridLoaderServiceA,
         private lookupService: PrivateDiagramLookupService
     ) {
         super();

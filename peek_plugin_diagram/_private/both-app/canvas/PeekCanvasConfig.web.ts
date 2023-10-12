@@ -13,8 +13,7 @@ import { DrawModeE } from "../canvas-render/PeekDispRenderDrawModeE.web";
  */
 export class PeekCanvasConfig {
     private static canvasIdCounter = 0;
-    private static whiteBackground = "#ffffff";
-    private static blackBackground = "#000000";
+    private static backgroundUnset = "#ff0000";
 
     canvasId: number;
 
@@ -28,7 +27,8 @@ export class PeekCanvasConfig {
     renderer = {
         invalidate: new Subject<void>(), // Set this to true to cause the renderer to redraw
         drawInterval: 60,
-        backgroundColor: PeekCanvasConfig.blackBackground,
+        backgroundColor: PeekCanvasConfig.backgroundUnset,
+        isLightMode: false,
         useEdgeColors: false,
         selection: {
             color: "white",
@@ -130,17 +130,18 @@ export class PeekCanvasConfig {
     }
 
     get isLightMode(): boolean {
-        return this.renderer.backgroundColor ===
-            PeekCanvasConfig.whiteBackground
-            ? true
-            : false;
+        return this.renderer.isLightMode;
     }
 
     set isLightMode(value: boolean) {
-        value === true
-            ? (this.renderer.backgroundColor = PeekCanvasConfig.whiteBackground)
+        this.renderer.isLightMode = value;
+        this.renderer.isLightMode
+            ? (this.renderer.backgroundColor =
+                  this.coordSet?.backgroundLightColor ||
+                  PeekCanvasConfig.backgroundUnset)
             : (this.renderer.backgroundColor =
-                  PeekCanvasConfig.blackBackground);
+                  this.coordSet?.backgroundDarkColor ||
+                  PeekCanvasConfig.backgroundUnset);
         this.invalidate();
     }
 
@@ -193,19 +194,17 @@ export class PeekCanvasConfig {
         this.controller.coordSet = newCoordSet;
         this.controller.coordSetChange.next(newCoordSet);
 
+        // Update background color
+        this.isLightMode = this.isLightMode;
+
         this.viewPort.minZoom = newCoordSet.minZoom;
         this.viewPort.maxZoom = newCoordSet.maxZoom;
 
-        if (newCoordSet == null) {
-            this.updateViewPortPan({ x: 0, y: 0 });
-            this.updateViewPortZoom(1.0);
-        } else {
-            this.updateViewPortPan({
-                x: newCoordSet.initialPanX,
-                y: newCoordSet.initialPanY,
-            });
-            this.updateViewPortZoom(newCoordSet.initialZoom);
-        }
+        this.updateViewPortPan({
+            x: newCoordSet.initialPanX,
+            y: newCoordSet.initialPanY,
+        });
+        this.updateViewPortZoom(newCoordSet.initialZoom);
     }
 
     updateEditedBranch(branchKey: string | null): void {

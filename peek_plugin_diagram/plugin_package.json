@@ -163,6 +163,11 @@
                 "file": "_private/services/PrivateDiagramPositionService",
                 "class": "PrivateDiagramPositionService",
                 "persistent": true
+            },
+            {
+                "file": "_private/services/PrivateDiagramOfflineCacherService",
+                "class": "PrivateDiagramOfflineCacherService",
+                "persistent": true
             }
         ]
     },

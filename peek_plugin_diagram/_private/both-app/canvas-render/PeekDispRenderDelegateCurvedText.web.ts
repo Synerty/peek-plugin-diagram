@@ -122,19 +122,15 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
         zoom: number,
         updateBounds: boolean
     ) {
-        let textStyle = DispCurvedText.textStyle(disp);
-        let fillColor = DispCurvedText.color(disp);
-        let borderColor = DispCurvedText.borderColor(disp);
+        const textStyle = DispCurvedText.textStyle(disp);
 
         // Null colors are also not drawn
-        fillColor =
-            fillColor && fillColor.getColor(this.config.isLightMode)
-                ? fillColor
-                : null;
-        borderColor =
-            borderColor && borderColor.getColor(this.config.isLightMode)
-                ? borderColor
-                : null;
+        const fillColor = DispCurvedText.color(disp)?.getColor(
+            this.config.isLightMode
+        );
+        const borderColor = DispCurvedText.borderColor(disp)?.getColor(
+            this.config.isLightMode
+        );
 
         // TODO, Draw a box around the text, based on line style
 
@@ -494,8 +490,8 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
         updateBounds: boolean,
         disp: DispCurvedTextT,
         lineHeight: number,
-        fillColor: DispColor,
-        borderColor: DispColor
+        fillColor: string | null,
+        borderColor: string | null
     ): number {
         // set up text styling
         ctx.textAlign = textAlign;
@@ -616,9 +612,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
                     ctx.rotate(curvedTextPathDrawingContext.nextPoint.angle);
 
                     if (fillColor) {
-                        ctx.fillStyle = fillColor.getColor(
-                            this.config.isLightMode
-                        );
+                        ctx.fillStyle = fillColor;
                         ctx.fillText(char, 0, 0);
                     }
 

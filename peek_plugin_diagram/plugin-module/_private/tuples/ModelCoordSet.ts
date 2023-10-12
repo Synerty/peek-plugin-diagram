@@ -28,6 +28,9 @@ export class ModelCoordSet extends Tuple {
     // The pre-configured zoom level for this coord set to use when positioning.
     positionOnZoom: number;
 
+    backgroundDarkColor: string;
+    backgroundLightColor: string;
+
     enabled: boolean;
 
     comment: string;

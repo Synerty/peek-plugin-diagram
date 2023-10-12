@@ -34,19 +34,15 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
     }
 
     draw(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
-        let fillColor = DispEllipse.fillColor(disp);
-        let lineColor = DispEllipse.lineColor(disp);
-        let lineStyle = DispEllipse.lineStyle(disp);
+        const lineStyle = DispEllipse.lineStyle(disp);
 
         // Null colors are also not drawn
-        fillColor =
-            fillColor && fillColor.getColor(this.config.isLightMode)
-                ? fillColor
-                : null;
-        lineColor =
-            lineColor && lineColor.getColor(this.config.isLightMode)
-                ? lineColor
-                : null;
+        const fillColor = DispEllipse.fillColor(disp)?.getColor(
+            this.config.isLightMode
+        );
+        const lineColor = lineStyle
+            ? DispEllipse.lineColor(disp)?.getColor(this.config.isLightMode)
+            : null;
 
         let xRadius = DispEllipse.xRadius(disp);
         let yRadius = DispEllipse.yRadius(disp);
@@ -75,12 +71,12 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
 
         if (fillColor) {
             ctx.lineTo(0, 0); // Make it fill to the center, not just the ends of the arc
-            ctx.fillStyle = fillColor.getColor(this.config.isLightMode);
+            ctx.fillStyle = fillColor;
             ctx.fill();
         }
 
         if (lineColor) {
-            ctx.strokeStyle = lineColor.getColor(this.config.isLightMode);
+            ctx.strokeStyle = lineColor;
             ctx.lineWidth = lineStyle.scalable ? lineWidth : lineWidth / zoom;
             ctx.stroke();
         }
