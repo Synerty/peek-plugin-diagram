@@ -291,15 +291,9 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
 
     private _validateColors() {
         function validTextColor(stringToTest) {
-            //Alter the following conditions according to your need.
-            if (stringToTest === "") {
-                return false;
-            }
-            if (stringToTest === "inherit") {
-                return false;
-            }
-            if (stringToTest === "transparent") {
-                return false;
+            // Nulls are allowed
+            if ((stringToTest?.length || 0) === 0) {
+                return true;
             }
 
             let image = document.createElement("img");
@@ -315,12 +309,24 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
 
         let colors = dictValuesFromObject(this._colorById);
         for (let i = 0; i < colors.length; i++) {
-            let color = colors[i];
-            if (!validTextColor(color.color)) {
+            let color: DispColor = colors[i];
+
+            if ((color.darkColor?.length || 0) === 0) {
+                color.darkColor = null;
+            } else if (!validTextColor(color.darkColor)) {
                 console.log(
-                    "Color " + color.color + " is not a valid CSS color"
+                    `Color ID ${color.id} Dark Colour ${color.darkColor} is not a valid CSS color`
                 );
-                color.color = "green";
+                color.darkColor = "red";
+            }
+
+            if ((color.lightColor?.length || 0) === 0) {
+                color.lightColor = null;
+            } else if (!validTextColor(color.lightColor)) {
+                console.log(
+                    `Color ID ${color.id} Light Colour ${color.lightColor} is not a valid CSS color`
+                );
+                color.lightColor = "red";
             }
         }
 
