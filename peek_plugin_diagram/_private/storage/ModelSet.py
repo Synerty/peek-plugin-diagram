@@ -74,6 +74,13 @@ class ModelCoordSet(Tuple, DeclarativeBase):
     initialZoom = Column(Float, nullable=False, server_default="2.0")
     positionOnZoom = Column(Float, nullable=False, server_default="2.0")
 
+    backgroundDarkColor = Column(
+        String, nullable=False, server_default="#ffffff"
+    )
+    backgroundLightColor = Column(
+        String, nullable=False, server_default="#ffffff"
+    )
+
     enabled = Column(Boolean, nullable=False, server_default="false")
 
     modelSetId = Column(
