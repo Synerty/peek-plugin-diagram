@@ -82,6 +82,7 @@ class ModelCoordSet(DeclarativeBase, Tuple):
     )
 
     enabled = Column(Boolean, nullable=False, server_default="false")
+    lightModeEnabled = Column(Boolean, nullable=False, server_default="true")
 
     modelSetId = Column(
         Integer, ForeignKey("ModelSet.id", ondelete="CASCADE"), nullable=False
