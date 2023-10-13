@@ -14,12 +14,21 @@ export class DispColor extends Tuple {
     name: string;
     showForEdit: boolean;
 
-    altColor: string;
-    swapPeriod: number;
+    altColor: string | null;
+    swapPeriod: number | null;
     modelSetId: number;
 
     darkColor: string;
     lightColor: string;
+
+    darkFillBase64Image: string | null;
+    lightFillBase64Image: string | null;
+
+    _darkFillImage: HTMLImageElement | null;
+    _lightFillImage: HTMLImageElement | null;
+
+    _darkFillCanvasPattern: CanvasPattern | null;
+    _lightFillCanvasPattern: CanvasPattern | null;
 
     constructor() {
         super(DispColor.tupleName);
@@ -27,6 +36,12 @@ export class DispColor extends Tuple {
 
     getColor(isLightMode: boolean): string {
         return isLightMode ? this.lightColor : this.darkColor;
+    }
+
+    getFillPattern(isLightMode: boolean): CanvasPattern {
+        return isLightMode
+            ? this._lightFillCanvasPattern
+            : this._darkFillCanvasPattern;
     }
 
     toTuple(): ShapeColorTuple {

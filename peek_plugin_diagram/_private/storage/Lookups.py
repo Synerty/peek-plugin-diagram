@@ -1,4 +1,5 @@
 import json
+import logging
 import typing
 from typing import Callable
 
@@ -33,6 +34,8 @@ from peek_plugin_diagram.tuples.lookup_tuples.ShapeLineStyleTuple import (
 from peek_plugin_diagram.tuples.lookup_tuples.ShapeTextStyleTuple import (
     ShapeTextStyleTuple,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class _Hasher:
@@ -373,6 +376,8 @@ class DispColor(DeclarativeBase, Tuple):
     name = Column(String(50), doc=JSON_EXCLUDE, nullable=False)
     darkColor = Column(String(20), server_default="orange")
     lightColor = Column(String(20), server_default="orange")
+    darkFillBase64Image = Column(String)
+    lightFillBase64Image = Column(String)
     altColor = Column(String(20))
     swapPeriod = Column(Float)
 
@@ -402,10 +407,12 @@ class DispColor(DeclarativeBase, Tuple):
 
     @property
     def color(self):
+        logger.warning("Accessing depreciated color property")
         return self.darkColor
 
     @color.setter
     def color(self, value: str):
+        logger.warning("Setting depreciated color property")
         self.darkColor = value
         if value:
             self.lightColor = invertColor(value, "#fff")
@@ -421,6 +428,8 @@ class DispColor(DeclarativeBase, Tuple):
         tuple_.name = self.name
         tuple_.darkColor = self.darkColor
         tuple_.lightColor = self.lightColor
+        tuple_.darkFillBase64Image = self.darkFillBase64Image
+        tuple_.lightFillBase64Image = self.lightFillBase64Image
         tuple_.altColor = self.altColor
         tuple_.swapPeriod = self.swapPeriod
         tuple_.importHash = self.importHash

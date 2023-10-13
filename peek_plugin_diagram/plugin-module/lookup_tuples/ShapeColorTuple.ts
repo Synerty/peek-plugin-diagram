@@ -8,8 +8,8 @@ export class ShapeColorTuple extends Tuple {
     key: string;
     modelSetKey: string;
     name: string;
-    altColor: string;
-    swapPeriod: number;
+    altColor: string | null;
+    swapPeriod: number | null;
     showForEdit: boolean;
 
     darkColor: string;

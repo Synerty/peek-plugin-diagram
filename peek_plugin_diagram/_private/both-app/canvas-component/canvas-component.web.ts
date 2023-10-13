@@ -346,6 +346,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
             this.config,
             this.model,
             this.renderFactory,
+            this.lookupService,
             this
         );
 

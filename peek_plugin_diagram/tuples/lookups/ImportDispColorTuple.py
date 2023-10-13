@@ -1,6 +1,9 @@
+from typing import Optional
+
 from vortex.Tuple import Tuple, addTupleType, TupleField
 
 from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
+from peek_plugin_diagram.tuples.ColorUtil import invertColor
 
 
 @addTupleType
@@ -17,13 +20,17 @@ class ImportDispColorTuple(Tuple):
     name: str = TupleField()
 
     #:  The color
-    color: str = TupleField()
+    darkColor: str = TupleField()
+    lightColor: str = TupleField()
+
+    darkFillBase64Image: Optional[str] = TupleField()
+    lightFillBase64Image: Optional[str] = TupleField()
 
     #:  The alt color
-    altColor: str = TupleField()
+    altColor: Optional[str] = TupleField()
 
     #:  The swap period if this is a flashing colour
-    swapPeriod: float = TupleField()
+    swapPeriod: Optional[float] = TupleField()
 
     #:  The name of the model set for this colour
     modelSetKey: str = TupleField()
@@ -34,3 +41,13 @@ class ImportDispColorTuple(Tuple):
     showForEdit: bool = TupleField(defaultValue=False)
 
     blockApiUpdate: bool = TupleField(defaultValue=False)
+
+    @property
+    def color(self):
+        return self.darkColor
+
+    @color.setter
+    def color(self, value: str):
+        self.darkColor = value
+        if value:
+            self.lightColor = invertColor(value, "#fff")
