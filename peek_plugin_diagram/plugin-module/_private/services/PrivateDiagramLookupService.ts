@@ -12,10 +12,6 @@ import {
 import { PrivateDiagramTupleService } from "./PrivateDiagramTupleService";
 import { ModelSet } from "../tuples";
 import { PrivateDiagramCoordSetService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramCoordSetService";
-import {
-    ShapeLayerTuple,
-    ShapeLevelTuple,
-} from "@peek/peek_plugin_diagram/lookup_tuples";
 
 let dictValuesFromObject = (dict) => Object.keys(dict).map((key) => dict[key]);
 
@@ -119,6 +115,7 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
 
         sub("_colorById", DispColor.tupleName, () => {
             this._validateColors();
+            this.loadColorImageFromBase64();
             this.createColorByNameByModelSetKey();
         });
 
@@ -150,6 +147,29 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
 
     isReadyObservable(): Observable<boolean> {
         return this._isReadySubject;
+    }
+
+    updateCanvasPatterns(ctx: CanvasRenderingContext2D): void {
+        const colors: DispColor[] = dictValuesFromObject(this._colorById);
+
+        for (const color of colors) {
+            color._darkFillCanvasPattern = null;
+            color._lightFillCanvasPattern = null;
+
+            if (color._darkFillImage) {
+                color._darkFillCanvasPattern = ctx.createPattern(
+                    color._darkFillImage,
+                    "repeat"
+                );
+            }
+
+            if (color._lightFillImage) {
+                color._lightFillCanvasPattern = ctx.createPattern(
+                    color._lightFillImage,
+                    "repeat"
+                );
+            }
+        }
     }
 
     /** Disps Need Relinking Observable
@@ -338,6 +358,25 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
             ordered,
             "modelSetId"
         );
+    }
+
+    private loadColorImageFromBase64() {
+        const colors: DispColor[] = dictValuesFromObject(this._colorById);
+
+        for (const color of colors) {
+            color._darkFillImage = null;
+            color._lightFillImage = null;
+
+            if (color.darkFillBase64Image) {
+                color._darkFillImage = new Image();
+                color._darkFillImage.src = color.darkFillBase64Image;
+            }
+
+            if (color.lightFillBase64Image) {
+                color._lightFillImage = new Image();
+                color._lightFillImage.src = color.lightFillBase64Image;
+            }
+        }
     }
 
     /** Convert Line Style Dash Pattern

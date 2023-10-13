@@ -8,6 +8,7 @@ import { PanI } from "../canvas/PeekInterfaces.web";
 import { PeekCanvasBounds } from "../canvas/PeekCanvasBounds";
 import { DrawModeE } from "./PeekDispRenderDelegateABC.web";
 import { DispBase } from "../canvas-shapes/DispBase";
+import { PrivateDiagramLookupService } from "@peek/peek_plugin_diagram/_private/services/PrivateDiagramLookupService";
 
 export class PeekCanvasPan implements PanI {
     x: number = 0.0;
@@ -35,6 +36,7 @@ export class PeekCanvasRenderer {
         private config: PeekCanvasConfig,
         private model: PeekCanvasModel,
         private dispDelegate: PeekDispRenderFactory,
+        private lookupService: PrivateDiagramLookupService,
         private lifecycleEventEmitter: NgLifeCycleEvents
     ) {}
 
@@ -134,6 +136,7 @@ export class PeekCanvasRenderer {
         this.isValid = true;
 
         let ctx = this.canvas.getContext("2d");
+        this.lookupService.updateCanvasPatterns(ctx);
         ctx.globalAlpha = 1.0;
 
         let disps = this.model.viewableDisps();

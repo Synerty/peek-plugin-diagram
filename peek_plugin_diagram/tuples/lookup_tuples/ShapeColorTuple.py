@@ -17,8 +17,12 @@ class ShapeColorTuple(Tuple):
     key = TupleField()
 
     name: str = TupleField()
+
     darkColor: str = TupleField()
     lightColor: str = TupleField()
+    darkFillBase64Image: str = TupleField()
+    lightFillBase64Image: str = TupleField()
+
     altColor: str = TupleField()
     swapPeriod: float = TupleField()
 

@@ -37,6 +37,13 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         const fillColor = isPolygon
             ? DispPolygon.fillColor(disp)?.getColor(this.config.isLightMode)
             : null;
+
+        const fillColorPattern = isPolygon
+            ? DispPolygon.fillColor(disp)?.getFillPattern(
+                  this.config.isLightMode
+              )
+            : null;
+
         let lineColor = lineStyle
             ? DispPoly.lineColor(disp)?.getColor(this.config.isLightMode)
             : null;
@@ -70,7 +77,7 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
         let geom = DispPolygon.geom(disp);
 
         // If there are no colours defined then this is a selectable only shape
-        if (!fillColor && !lineColor) return;
+        if (!fillColor && !fillColorPattern && !lineColor) return;
 
         let fillDirection = DispPolygon.fillDirection(disp);
         let fillPercentage = DispPolygon.fillPercent(disp);
@@ -154,18 +161,35 @@ export class PeekDispRenderDelegatePoly extends PeekDispRenderDelegateABC {
             ctx.stroke();
         }
 
-        if (fillColor) {
+        if (fillColor || fillColorPattern) {
             if (isPolygon && fillDirection != null && fillPercentage != null) {
-                this._drawSquarePercentFill(
-                    ctx,
-                    PeekCanvasBounds.fromGeom(geom),
-                    lineColor,
-                    fillDirection,
-                    fillPercentage
-                );
+                if (fillColor) {
+                    this._drawSquarePercentFill(
+                        ctx,
+                        PeekCanvasBounds.fromGeom(geom),
+                        fillColor,
+                        fillDirection,
+                        fillPercentage
+                    );
+                }
+                if (fillColorPattern) {
+                    this._drawSquarePercentFill(
+                        ctx,
+                        PeekCanvasBounds.fromGeom(geom),
+                        fillColorPattern,
+                        fillDirection,
+                        fillPercentage
+                    );
+                }
             } else {
-                ctx.fillStyle = fillColor;
-                ctx.fill();
+                if (fillColor) {
+                    ctx.fillStyle = fillColor;
+                    ctx.fill();
+                }
+                if (fillColorPattern) {
+                    ctx.fillStyle = fillColorPattern;
+                    ctx.fill();
+                }
             }
         }
 

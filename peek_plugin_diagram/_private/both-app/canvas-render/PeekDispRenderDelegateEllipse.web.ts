@@ -40,6 +40,11 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
         const fillColor = DispEllipse.fillColor(disp)?.getColor(
             this.config.isLightMode
         );
+
+        // Null colors are also not drawn
+        const fillColorPattern = DispEllipse.fillColor(disp)?.getFillPattern(
+            this.config.isLightMode
+        );
         const lineColor = lineStyle
             ? DispEllipse.lineColor(disp)?.getColor(this.config.isLightMode)
             : null;
@@ -69,10 +74,16 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
         ctx.arc(0, 0, xRadius, startRadian, endRadian, true);
         //ctx.closePath();
 
-        if (fillColor) {
+        if (fillColor || fillColorPattern) {
             ctx.lineTo(0, 0); // Make it fill to the center, not just the ends of the arc
-            ctx.fillStyle = fillColor;
-            ctx.fill();
+            if (fillColor) {
+                ctx.fillStyle = fillColor;
+                ctx.fill();
+            }
+            if (fillColorPattern) {
+                ctx.fillStyle = fillColorPattern;
+                ctx.fill();
+            }
         }
 
         if (lineColor) {
