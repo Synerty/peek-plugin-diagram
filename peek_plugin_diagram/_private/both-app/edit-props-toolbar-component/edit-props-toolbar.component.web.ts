@@ -22,7 +22,7 @@ export class EditPropsToolbarComponent
         super();
     }
 
-    ngOnInit() {
+    override ngOnInit() {
         this.canvasEditor.props.contextPanelObservable
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((val: EditorContextType) => {

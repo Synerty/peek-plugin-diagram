@@ -17,7 +17,7 @@ export class GridUpdateDateTuple extends Tuple {
     // initialLoadComplete: boolean = false;
     updateDateByChunkKey: { [gridKey: string]: string } = {};
     // Improve performance of the JSON serialisation
-    protected _rawJonableFields = [
+    protected override _rawJonableFields = [
         "initialLoadComplete",
         "updateDateByChunkKey",
     ];

@@ -51,7 +51,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
     // ============================================================================
     // Editor Ui Mouse
 
-    keyPress(event) {
+    override keyPress(event) {
         if (!this._creating) return;
 
         let enteredText = DispText.text(this._creating);
@@ -80,7 +80,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         }
     }
 
-    keyUp(event) {
+    override keyUp(event) {
         if (!this._creating) return;
 
         if (
@@ -93,7 +93,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         }
     }
 
-    mouseDown(event, mouse) {
+    override mouseDown(event, mouse) {
         this._startMousePos = mouse;
     }
 
@@ -112,11 +112,11 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         this._finaliseCreate();
     }
 
-    touchStart(event: TouchEvent, mouse: CanvasInputPos) {
+    override touchStart(event: TouchEvent, mouse: CanvasInputPos) {
         this.mouseDown(event, mouse);
     }
 
-    touchEnd(event: TouchEvent, mouse: CanvasInputPos) {
+    override touchEnd(event: TouchEvent, mouse: CanvasInputPos) {
         this.mouseUp(event, mouse);
     }
 
@@ -124,7 +124,7 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         this._finaliseCreate();
     }
 
-    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {}
+    override draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {}
 
     _finaliseCreate() {
         this._reset();

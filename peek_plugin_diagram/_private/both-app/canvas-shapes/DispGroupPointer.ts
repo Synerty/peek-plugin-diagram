@@ -48,7 +48,7 @@ export interface DispGroupPointerT extends DispBaseT {
 }
 
 export class DispGroupPointer extends DispBase {
-    static resetMoveData(disp): void {
+    static override resetMoveData(disp): void {
         disp.tempRotation = null;
         DispBase.resetMoveData(disp);
     }
@@ -115,7 +115,11 @@ export class DispGroupPointer extends DispBase {
     // ---------------
     // Delta move helpers
 
-    static deltaMoveHandle(handle: DispHandleI, dx: number, dy: number): void {
+    static override deltaMoveHandle(
+        handle: DispHandleI,
+        dx: number,
+        dy: number
+    ): void {
         const disp = <DispGroupPointerT>handle.disp;
         const center = DispGroupPointer.center(disp);
 
@@ -141,14 +145,18 @@ export class DispGroupPointer extends DispBase {
         DispBase.setBoundsNull(disp);
     }
 
-    static rotateAboutAxis(disp, center: PointI, rotationDegrees: number) {
+    static override rotateAboutAxis(
+        disp,
+        center: PointI,
+        rotationDegrees: number
+    ) {
         console.log("NOT IMPLEMENTED: Rotating child DispGroupPtrs");
     }
 
     // ---------------
     // Create Method
 
-    static create(coordSet: ModelCoordSet): DispGroupPointerT {
+    static override create(coordSet: ModelCoordSet): DispGroupPointerT {
         let newDisp = {
             ...DispBase.create(coordSet, DispBase.TYPE_DGP),
             // From Text
@@ -163,7 +171,9 @@ export class DispGroupPointer extends DispBase {
         return newDisp;
     }
 
-    static makeShapeContext(context: PeekCanvasShapePropsContext): void {
+    static override makeShapeContext(
+        context: PeekCanvasShapePropsContext
+    ): void {
         DispBase.makeShapeContext(context);
 
         const disp = <DispGroupPointerT>context.disp;
@@ -188,7 +198,7 @@ export class DispGroupPointer extends DispBase {
     // ---------------
     // Represent the disp as a user friendly string
 
-    static makeShapeStr(disp: DispGroupPointerT): string {
+    static override makeShapeStr(disp: DispGroupPointerT): string {
         let center = DispGroupPointer.center(disp);
         let str = DispBase.makeShapeStr(disp);
         if (DispGroupPointer.targetGroupName(disp))

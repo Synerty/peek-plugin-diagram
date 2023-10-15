@@ -35,11 +35,11 @@ export class DispNull extends DispBase {
         ];
     }
 
-    static create(coordSet: ModelCoordSet): DispNullT {
+    static override create(coordSet: ModelCoordSet): DispNullT {
         return <DispNullT>DispBase.create(coordSet, DispBase.TYPE_DN);
     }
 
-    static createFromShape(disp: DispBaseT, replacesHashId: string): DispNullT {
+    static override createFromShape(disp: DispBaseT, replacesHashId: string): DispNullT {
         if (disp.bounds == null)
             throw new Error("Can not delete a disp with no bounds");
 
@@ -74,14 +74,16 @@ export class DispNull extends DispBase {
         return nullDisp;
     }
 
-    static makeShapeContext(context: PeekCanvasShapePropsContext): void {
+    static override makeShapeContext(
+        context: PeekCanvasShapePropsContext
+    ): void {
         DispBase.makeShapeContext(context);
     }
 
     // ---------------
     // Represent the disp as a user friendly string
 
-    static makeShapeStr(disp: DispNullT): string {
+    static override makeShapeStr(disp: DispNullT): string {
         let center = DispNull.center(disp);
         return (
             DispBase.makeShapeStr(disp) +

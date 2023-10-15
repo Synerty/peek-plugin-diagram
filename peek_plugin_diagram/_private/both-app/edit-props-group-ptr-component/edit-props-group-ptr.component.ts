@@ -48,7 +48,7 @@ export class EditPropsGroupPtrComponent
         );
     }
 
-    ngOnInit() {
+    override ngOnInit() {
         this.templateCoordSets = [];
 
         let coordSets = this.coordSetCache.coordSets(

@@ -147,7 +147,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
         return this.config.controller.coordSet?.key;
     }
 
-    ngOnInit() {
+    override ngOnInit() {
         this.initCanvas();
 
         this.canvas = this.canvasView.nativeElement;

@@ -50,7 +50,7 @@ export class PeekCanvasModelOverrideHighlight extends PeekCanvasModelOverrideA {
     }
 
     // ------------------------------------------------------------------------
-    compile(disps: any[]): void {
+    override compile(disps: any[]): void {
         this.compiledDisps = [];
         for (const disp of disps) {
             const dispKey = DispBase.key(disp);
@@ -70,7 +70,7 @@ export class PeekCanvasModelOverrideHighlight extends PeekCanvasModelOverrideA {
 
     // ------------------------------------------------------------------------
 
-    draw(ctx, zoom: number): void {
+    override draw(ctx, zoom: number): void {
         for (const pair of this.compiledDisps) {
             this.applyOverride(pair.disp, pair.override, ctx, zoom);
         }

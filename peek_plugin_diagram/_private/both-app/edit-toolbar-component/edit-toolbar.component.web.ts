@@ -26,7 +26,7 @@ import { CopyPasteService } from "../services/copy-paste.service";
 })
 export class EditToolbarComponent extends NgLifeCycleEvents {
     @Output("openPrintPopup")
-    openPrintPopupEmitter = new EventEmitter();
+    openPrintPopupEmitter = new EventEmitter<void>();
 
     @Input("canvasEditor")
     canvasEditor: PeekCanvasEditor;

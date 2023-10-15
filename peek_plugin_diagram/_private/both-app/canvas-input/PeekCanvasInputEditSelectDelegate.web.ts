@@ -91,7 +91,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     // ------------------------------------------------------------------------
     // Public delete method, used by the toolbar as well.
 
-    keyUp(event) {
+    override keyUp(event) {
         // let charCode = (typeof event.which == "number") ? event.which :
         // event.keyCode;
         // alert(charCode + "| pressed");
@@ -137,7 +137,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     // ------------------------------------------------------------------------
     // Input handlers
 
-    touchStart(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchStart(event: TouchEvent, inputPos: CanvasInputPos) {
         if (event.targetTouches.length == 2) {
             this._state = this.STATE_CANVAS_ZOOMING;
             this._lastPinchDist = null;
@@ -152,7 +152,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     // mouse) {
     // };
 
-    mouseDown(event, inputPos: CanvasInputPos) {
+    override mouseDown(event, inputPos: CanvasInputPos) {
         this._mouseDownWithShift = event.shiftKey;
         this._mouseDownWithCtrl = event.ctrlKey;
         this._mouseDownMiddleButton = event.button == 1;
@@ -244,7 +244,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         }
     }
 
-    touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
         if (this._state == this.STATE_CANVAS_ZOOMING) {
             this._touchZoom(event, inputPos);
         } else {
@@ -254,7 +254,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         event.preventDefault();
     }
 
-    mouseMove(event, inputPos: CanvasInputPos) {
+    override mouseMove(event, inputPos: CanvasInputPos) {
         if (this._state == this.STATE_NONE) return;
 
         this._passedDragThreshold =
@@ -333,11 +333,11 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this.viewArgs.config.invalidate();
     }
 
-    touchEnd(event: TouchEvent, mouse) {
+    override touchEnd(event: TouchEvent, mouse) {
         this.mouseUp(event, mouse);
     }
 
-    mouseUp(event, inputPos: CanvasInputPos) {
+    override mouseUp(event, inputPos: CanvasInputPos) {
         // Store the change
         switch (this._state) {
             case this.STATE_SELECTING:
@@ -402,7 +402,7 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         }
     }
 
-    mouseWheel(event, inputPos: CanvasInputPos) {
+    override mouseWheel(event, inputPos: CanvasInputPos) {
         let delta = event.deltaY || event.wheelDelta;
 
         // Overcome windows zoom multipliers
