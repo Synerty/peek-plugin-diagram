@@ -1,0 +1,10 @@
+<nz-modal
+    [nzStyle]="modalStyle"
+    [(nzVisible)]="showModal"
+    [nzTitle]="null"
+    [nzFooter]="null"
+    [nzCloseIcon]="null"
+    (nzOnCancel)="close()"
+>
+    <textarea rows="4" nz-input [(ngModel)]="text"></textarea>
+</nz-modal>

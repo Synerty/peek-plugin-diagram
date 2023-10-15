@@ -127,6 +127,8 @@ export class PeekCanvasInput {
             y: my,
             clientX: clientX,
             clientY: clientY,
+            mouseX: e.x,
+            mouseY: e.y,
             time: new Date(),
         };
     }

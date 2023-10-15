@@ -31,6 +31,8 @@ import { DiagramToolbarService } from "@peek/peek_plugin_diagram/DiagramToolbarS
 import { PrivateDiagramToolbarService } from "@peek/peek_plugin_diagram/_private/services";
 import { DiagramToolbarBuiltinButtonEnum } from "@peek/peek_plugin_diagram/DiagramToolbarService";
 import { CanvasService } from "../services/canvas.service";
+import { EditPrimaryActionHandlerFactory } from "../edit-priamry-action-handlers/EditPrimaryActionHandlerFactory";
+import { EditPrimaryActionComponent } from "../edit-primary-action-components/edit-primary-action-component/edit-primary-action.component";
 
 /** Canvas Component
  *
@@ -46,6 +48,8 @@ export class CanvasComponent extends NgLifeCycleEvents {
     @ViewChild("edittoolbar", { static: true }) editToolbarView;
     @ViewChild("canvas", { static: true }) canvasView;
     @ViewChild("editprops", { static: true }) editPropsView;
+    @ViewChild("editPrimaryActionComponent", { static: true })
+    editPrimaryActionComponent: EditPrimaryActionComponent;
 
     @Input("modelSetKey")
     modelSetKey: string;
@@ -72,6 +76,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
     private lastFrameSize: string = "";
     private renderer: PeekCanvasRenderer;
     private renderFactory: PeekDispRenderFactory;
+    private primaryActionHandlerFactory: EditPrimaryActionHandlerFactory;
 
     readonly isReadyCallable = () => this.isReady();
 
@@ -322,12 +327,16 @@ export class CanvasComponent extends NgLifeCycleEvents {
         // The display renderer delegates
         this.renderFactory = new PeekDispRenderFactory(this.config, this.model);
 
-        const actioner = new PeekCanvasActioner(
+        const actioner: PeekCanvasActioner = new PeekCanvasActioner(
             this.modelSetKey,
             this.coordSetCache,
             this.lookupService,
             this.privatePosService
         );
+
+        // Create the edit primary action factory
+        this.primaryActionHandlerFactory =
+            this.editPrimaryActionComponent.createFactory();
 
         // The user interaction handler.
         this.input = new PeekCanvasInput(
@@ -360,8 +369,11 @@ export class CanvasComponent extends NgLifeCycleEvents {
             this.lookupService,
             this.privatePosService,
             this.branchService,
-            this
+            this,
+            this.primaryActionHandlerFactory
         );
+
+        this.primaryActionHandlerFactory.setCanvasEditor(this.editor);
 
         // Add the mouse class to the renderers draw list
         this.renderer.drawEvent
@@ -376,7 +388,7 @@ export class CanvasComponent extends NgLifeCycleEvents {
         // Hook up the config service
         this.connectConfigService();
 
-        // Hook up the position serivce
+        // Hook up the position service
         // SEE SetPositionComponent
 
         // Hook up the outward notification of position updates

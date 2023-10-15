@@ -12,6 +12,7 @@ import { DocDbPopupService } from "@peek/peek_core_docdb";
 import { PeekCanvasActioner } from "../canvas/PeekCanvasActioner";
 import { CopyPasteService } from "../services/copy-paste.service";
 import { ContextMenuService } from "../services/context-menu.service";
+import { EditPrimaryActionHandlerFactory } from "../edit-priamry-action-handlers/EditPrimaryActionHandlerFactory";
 
 export function disableContextMenu(event) {
     event.preventDefault();
@@ -23,6 +24,8 @@ export class CanvasInputPos {
     y: number = 0;
     clientX: number = 0;
     clientY: number = 0;
+    mouseX: number = 0;
+    mouseY: number = 0;
     time: Date = new Date();
 }
 
@@ -51,4 +54,5 @@ export interface InputDelegateConstructorEditArgs {
     branchContext: PrivateDiagramBranchContext;
     editToolbarProps: PeekCanvasEditorProps;
     lookupService: PrivateDiagramLookupService;
+    editPrimaryActionFactory: EditPrimaryActionHandlerFactory;
 }

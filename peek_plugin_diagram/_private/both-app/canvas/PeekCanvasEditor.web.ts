@@ -16,6 +16,7 @@ import { EditorToolType } from "./PeekCanvasEditorToolType.web";
 import { DispLevel } from "@peek/peek_plugin_diagram/_private/lookups";
 import { PeekCanvasEditorProps } from "./PeekCanvasEditorProps";
 import { GridObservable } from "../cache/GridObservable.web";
+import { EditPrimaryActionHandlerFactory } from "../edit-priamry-action-handlers/EditPrimaryActionHandlerFactory";
 
 /**
  * Peek Canvas Editor
@@ -37,7 +38,8 @@ export class PeekCanvasEditor {
         public lookupService: PrivateDiagramLookupService,
         private positionService: PrivateDiagramPositionService,
         private branchService: PrivateDiagramBranchService,
-        private lifecycleEventEmitter: NgLifeCycleEvents
+        private lifecycleEventEmitter: NgLifeCycleEvents,
+        private editPrimaryActionFactory: EditPrimaryActionHandlerFactory
     ) {
         this.branchService
             .startEditingWithContextObservable()
@@ -228,6 +230,11 @@ export class PeekCanvasEditor {
             branchContext: this.branchContext,
             editToolbarProps: this.props,
             lookupService: this.lookupService,
+            editPrimaryActionFactory: this.editPrimaryActionFactory,
         });
+    }
+
+    invalidate(): void {
+        this.canvasConfig.invalidate();
     }
 }

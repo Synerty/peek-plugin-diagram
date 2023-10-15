@@ -288,4 +288,44 @@ export class DispText extends DispBase {
             `\nAt : ${parseInt(<any>center.x)}x${parseInt(<any>center.y)}`
         );
     }
+
+    // ---------------
+    // Primary Edit Action Handle Point
+
+    static primaryActionHandlePoint(
+        disp: DispTextT,
+        margin: number
+    ): PointI | null {
+        if (disp.bounds == null) {
+            return null;
+        }
+
+        const center = DispText.center(disp);
+
+        let offset = 0;
+        const align = DispText.horizontalAlign(disp);
+        switch (align) {
+            case TextHorizontalAlign.left:
+                offset = disp.bounds.width;
+                break;
+
+            case TextHorizontalAlign.center:
+                offset = disp.bounds.width / 2;
+                break;
+
+            case TextHorizontalAlign.right:
+                offset = 0;
+                break;
+            default:
+                throw new Error(
+                    `DispText.primaryActionHandlePoint unhandled` +
+                        ` allign ${align}`
+                );
+        }
+
+        return {
+            x: center.x + disp.bounds.width - offset + margin,
+            y: center.y,
+        };
+    }
 }

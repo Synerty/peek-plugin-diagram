@@ -7,6 +7,13 @@ export class PeekCanvasBounds {
     w: number;
     h: number;
 
+    get width(): number {
+        return this.w;
+    }
+    get height(): number {
+        return this.h;
+    }
+
     constructor(
         x: number | PeekCanvasBounds = 0.0,
         y: number = 0.0,
