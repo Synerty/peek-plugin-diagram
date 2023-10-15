@@ -97,11 +97,16 @@ export class PeekCanvasModelQuery {
     filterForVisibleDisps(
         disps,
         zoom,
-        includeShapesWithNoColor = false
+        includeShapesWithNoColor = false,
+        includeShapesWithNoKey: boolean = true
     ): any[] {
         function check(disp): boolean {
             if (!includeShapesWithNoColor && !DispBase.hasColor(disp))
                 return false;
+
+            if (!includeShapesWithNoKey && !DispBase.key(disp)) {
+                return false;
+            }
 
             if (!DispBase.layer(disp).visible) return false;
 

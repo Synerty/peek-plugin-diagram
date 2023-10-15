@@ -342,7 +342,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         let disps = q.filterForVisibleDisps(
             q.selectableDisps,
             this.viewArgs.config.viewPort.zoom,
-            true
+            true,
+            false
         );
 
         let hits = q.filterForDispsContainingPoint(
@@ -408,7 +409,8 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         let disps = query.filterForVisibleDisps(
             query.selectableDisps,
             this.viewArgs.config.viewPort.zoom,
-            true
+            true,
+            false
         );
 
         let hits = query.filterForDispsContainingPoint(
