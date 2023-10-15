@@ -68,7 +68,9 @@ export class PeekDispRenderFactory {
         if (isVisible) delegate.draw(disp, ctx, zoom, pan, drawMode);
 
         // Update the bounds of all shapes
-        this.updateBounds(disp, delegate, zoom);
+        // When we're in edit mode, it's crucial that the bounds be set
+        // OR shape replacing won't work reliably.
+        this.updateBounds(disp, delegate, zoom, drawMode == DrawModeE.ForEdit);
 
         // Show invisible objects
         if (drawMode == DrawModeE.ForEdit)
@@ -97,8 +99,8 @@ export class PeekDispRenderFactory {
         return this._delegatesByType[disp._tt].handles(disp);
     }
 
-    private updateBounds(disp, delegate, zoom): void {
-        if (disp.bounds != null) return;
+    private updateBounds(disp, delegate, zoom, force: boolean = false): void {
+        if (disp.bounds != null && !force) return;
 
         delegate.updateBounds(disp, zoom);
 

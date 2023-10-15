@@ -58,12 +58,17 @@ export class DispNull extends DispBase {
         DispBase.setReplacesHashId(nullDisp, replacesHashId);
 
         // This works if there is a bounds
-        if (disp.bounds.area()) {
+        if (disp.bounds.width || disp.bounds.height) {
             DispNull.setGeomFromBounds(nullDisp, disp.bounds);
         } else {
-            alert("Failed to make change");
-            // Improvement, have a fallback that calculates bounds roughly
-            // at least bigger than the shape being replaced.
+            // Make sure updateBounds is called for each shape before replacing them"
+            // Otherwise they will be filtered out of the grids by the
+            // DispCompiler
+            console.log(
+                "ERROR: Failed to create DispNull geom," +
+                    " DEVELOPER: Make sure updateBounds is called for each shape before" +
+                    " replacing them"
+            );
         }
 
         return nullDisp;
