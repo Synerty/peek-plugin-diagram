@@ -197,6 +197,20 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             }
         }
 
+        // Have they clicked on the primary edit function handle?
+        if (
+            this.primaryEditActionHandle?.wasClickedOn({
+                x: inputPos.x,
+                y: inputPos.y,
+            })
+        ) {
+            this.callHandlePrimaryAction(
+                this.primaryEditActionHandle.shape,
+                inputPos
+            );
+            return;
+        }
+
         for (let i = selectedDisps.length - 1; i >= 0; i--) {
             let d = selectedDisps[i];
             if (d.bounds && d.bounds.contains(inputPos.x, inputPos.y, margin)) {
@@ -328,20 +342,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         switch (this._state) {
             case this.STATE_SELECTING:
             case this.STATE_DRAG_SELECTING: {
-                // Have they clicked on the primary edit function handle?
-                if (
-                    this.primaryEditActionHandle?.wasClickedOn({
-                        x: inputPos.x,
-                        y: inputPos.y,
-                    })
-                ) {
-                    this.callHandlePrimaryAction(
-                        this.primaryEditActionHandle.shape,
-                        inputPos
-                    );
-                    break;
-                }
-
                 // Handle selection change
                 let hits = [];
                 if (this._state == this.STATE_SELECTING) {
@@ -414,6 +414,8 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     }
 
     draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
+        this.resetPrimaryActionHandle();
+
         switch (this._state) {
             case this.STATE_DRAG_SELECTING: {
                 let zoom = this.viewArgs.config.viewPort.zoom;
@@ -538,7 +540,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
         this.viewArgs.config.updateViewPortPan(newPan);
         this.viewArgs.config.updateViewPortZoom(zoom);
-        this.primaryEditActionHandle = null;
     }
 
     // ------------------------------------------------------------------------
@@ -576,7 +577,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
     }
 
     private finishStateMovingDisp() {
-        this.resetPrimaryActionHandle();
         this.editArgs.branchContext.branchTuple.touchUndo();
     }
 
@@ -657,16 +657,12 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             DispFactory.wrapper(disp).resetMoveData(disp);
             // console.log(disp);
         }
-
-        this.resetPrimaryActionHandle();
     }
 
     private callHandlePrimaryAction(disp, inputPos: CanvasInputPos): void {
         this.editArgs?.editPrimaryActionFactory
             .handlePrimaryAction(disp, inputPos)
-            .then(() => {
-                this.resetPrimaryActionHandle();
-            });
+            .then(() => {});
     }
 
     private resetPrimaryActionHandle(): void {
@@ -696,7 +692,6 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             EditActionDisplayPriorityE.Default,
             selectedDisp
         );
-        this.viewArgs.config.invalidate();
     }
 
     // ------------------------------------------------------------------------

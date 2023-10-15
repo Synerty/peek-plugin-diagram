@@ -257,7 +257,7 @@ export class DispText extends DispBase {
                 value: TextHorizontalAlign.center,
             },
             {
-                name: "Bottom",
+                name: "Right",
                 object: { id: TextHorizontalAlign.right },
                 value: TextHorizontalAlign.right,
             },
