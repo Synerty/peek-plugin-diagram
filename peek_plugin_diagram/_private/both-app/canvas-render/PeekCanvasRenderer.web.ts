@@ -196,13 +196,14 @@ export class PeekCanvasRenderer {
             );
         }
 
-        if (selectedDisps.length == 1 && drawMode == DrawModeE.ForEdit)
+        if (selectedDisps.length == 1 && drawMode == DrawModeE.ForEdit) {
             this.dispDelegate.drawEditHandles(
                 selectedDisps[0],
                 ctx,
                 this._zoom,
                 this._pan
             );
+        }
 
         // ** Add stuff you want drawn on top all the time here **
         // Tell the canvas mouse handler to draw what ever its got going on.

@@ -275,7 +275,11 @@ export class DispGroupPointer extends DispBase {
         branchTuple.addNewDisps(newDisps);
     }
 
-    static override handlePoints(disp, margin: number): DispHandleI[] {
+    static primaryActionHandlePoint(disp, margin: number): PointI | null {
+        return null;
+    }
+
+    static handlePoints(disp, margin: number): DispHandleI[] {
         return makeRotateHandlePoints(
             disp,
             margin,

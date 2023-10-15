@@ -4,7 +4,6 @@ import { FormsModule } from "@angular/forms";
 import { HttpClientModule } from "@angular/common/http";
 import { DiagramComponent } from "./diagram.component.web";
 import "./canvas/PeekCanvasExtensions.web";
-// import {DisplayCanvasSplashScreen} from "./loading-splash/loading-splash.service";
 import { GridCache } from "./cache/GridCache.web";
 import { GridObservable } from "./cache/GridObservable.web";
 import { CanvasComponent } from "./canvas-component/canvas-component.web";
@@ -40,6 +39,8 @@ import { CopyPasteService } from "./services/copy-paste.service";
 import { ContextMenuService } from "./services/context-menu.service";
 import { SetPositionComponent } from "./set-position-component/set-position.component";
 import { CanvasService } from "./services/canvas.service";
+import { EditPrimaryActionComponent } from "./edit-primary-action-components/edit-primary-action-component/edit-primary-action.component";
+import { EditTextPrimaryActionComponent } from "./edit-primary-action-components/edit-text-primary-action-component/edit-text-primary-action.component";
 
 // Define the root module for this plugin.
 // This module is loaded by the lazy loader, what ever this defines is what is started.
@@ -90,6 +91,8 @@ import { CanvasService } from "./services/canvas.service";
         SetPositionComponent,
         EditPropsEdgeTemplateComponent,
         CanvasContextMenuComponent,
+        EditPrimaryActionComponent,
+        EditTextPrimaryActionComponent,
     ],
 })
 export class PeekPluginDiagramModule {}

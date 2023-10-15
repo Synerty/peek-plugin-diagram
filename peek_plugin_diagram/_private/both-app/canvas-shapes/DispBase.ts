@@ -219,6 +219,10 @@ export abstract class DispBase {
         return disp.z || 0; // defaults to 0
     }
 
+    static geom(disp: DispBaseT): number[] {
+        return disp.g || []; // defaults to 0
+    }
+
     static setZOrder(disp: DispBaseT, value: number): void {
         disp.z = value;
     }
@@ -361,6 +365,18 @@ export abstract class DispBase {
         }
 
         DispBase.setBoundsNull(disp);
+    }
+
+    // ---------------
+    // Primary Edit Action Handle Point
+
+    static primaryActionHandlePoint(disp, margin: number): PointI | null {
+        console.log(
+            `ERROR: primaryActionHandlePoint not implemented for ${DispBase.typeOf(
+                disp
+            )}`
+        );
+        return null;
     }
 
     // ---------------

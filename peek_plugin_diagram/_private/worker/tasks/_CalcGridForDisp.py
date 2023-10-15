@@ -27,8 +27,8 @@ def makeGridKeysForDisp(
 ) -> List[str]:
     points = geomJson
 
-    if geomJson is None:
-        logger.critical("geomJson is None : %s ", disp)
+    if not geomJson:
+        logger.critical("geomJson is None or [] : %s ", disp)
         return []
 
     # If it's a text shape with no text, ignore it

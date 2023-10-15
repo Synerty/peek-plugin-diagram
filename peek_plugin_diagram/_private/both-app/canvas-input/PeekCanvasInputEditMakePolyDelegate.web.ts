@@ -5,15 +5,19 @@ import {
 } from "./PeekCanvasInputDelegate.web";
 import { EditorToolType } from "../canvas/PeekCanvasEditorToolType.web";
 import { DispPoly } from "../canvas-shapes/DispPoly";
-import { DispBaseT, DispHandleTypeE, PointI } from "../canvas-shapes/DispBase";
+import { DispBaseT, PointI } from "../canvas-shapes/DispBase";
 import { DispPolygon } from "../canvas-shapes/DispPolygon";
 import {
     DispPolyline,
     DispPolylineEndTypeE,
 } from "../canvas-shapes/DispPolyline";
 import { DrawModeE } from "../canvas-render/PeekDispRenderDelegateABC.web";
-import { PeekCanvasBounds } from "../canvas/PeekCanvasBounds";
 import { InputDelegateConstructorEditArgs } from "./PeekCanvasInputDelegateUtil.web";
+import {
+    EditActionDisplayPriorityE,
+    EditActionDisplayTypeE,
+    PeekCanvasInputEditActionHandle,
+} from "./PeekCanvasInputEditActionHandle";
 
 /**
  * This input delegate handles :
@@ -32,6 +36,9 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     protected _endNodeDisp = null;
 
     protected _nodes = []; //canvasInput._scope.pageData.modelRenderables;
+
+    protected endCreateActionHandle: PeekCanvasInputEditActionHandle | null =
+        null;
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
@@ -91,8 +98,8 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
     // ---------------
 
-    override mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
-        this.inputMove(inputPos);
+    mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
+        this.inputMove(inputPos, event.shiftKey);
     }
 
     override mouseUp(event: MouseEvent, inputPos: CanvasInputPos) {
@@ -100,7 +107,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
             this._finaliseCreate();
             return;
         }
-        this.inputEnd(inputPos, event.shiftKey);
+        this.inputEnd(inputPos, event.shiftKey, false);
     }
 
     override mouseDoubleClick(event: MouseEvent, inputPos: CanvasInputPos) {
@@ -122,12 +129,12 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
     // ---------------
 
-    override touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
-        this.inputMove(inputPos);
+    touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
+        this.inputMove(inputPos, event.shiftKey);
     }
 
-    override touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
-        this.inputEnd(inputPos);
+    touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
+        this.inputEnd(inputPos, false, true);
     }
 
     delegateWillBeTornDown() {
@@ -136,9 +143,20 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
     // ---------------
 
-    override draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {}
+    draw(
+        ctx: CanvasRenderingContext2D,
+        zoom: number,
+        pan: PointI,
+        drawMode: DrawModeE
+    ) {
+        if (this.endCreateActionHandle) {
+            this.endCreateActionHandle.draw(ctx);
+        }
+    }
 
     protected createDisp(inputPos: CanvasInputPos) {
+        this.endCreateActionHandle = null;
+
         // Create the Disp
         if (this.NAME == EditorToolType.EDIT_MAKE_POLYGON)
             this._creating = DispPolygon.create(this.viewArgs.config.coordSet);
@@ -180,6 +198,29 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         this._addBranchAnchor(inputPos.x, inputPos.y);
     }
 
+    private endLineCreateTickCenter(fromTouch: boolean): PointI | null {
+        if (!this._creating) {
+            return;
+        }
+
+        if (fromTouch) {
+            if (DispPoly.pointCount(this._creating) < 2) {
+                return;
+            }
+
+            return DispPoly.lastPoint(this._creating);
+        } else {
+            if (DispPoly.pointCount(this._creating) < 3) {
+                return;
+            }
+
+            return DispPoly.point(
+                this._creating,
+                DispPoly.pointCount(this._creating) - 2
+            );
+        }
+    }
+
     private _nodeDispClickedOn(point: PointI): DispBaseT | null {
         for (let i = this._nodes.length - 1; 0 <= i; i--) {
             let disp = this._nodes[i];
@@ -216,26 +257,20 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         }
     }
 
-    private inputMove(inputPos: CanvasInputPos) {
+    private inputMove(inputPos: CanvasInputPos, shiftKey: boolean = false) {
         if (this._startMousePos == null) return;
 
-        const handleBounds = new PeekCanvasBounds(inputPos.x, inputPos.y, 0, 0);
-        const delta = this._setLastMousePos(inputPos);
-        DispPoly.deltaMoveHandle(
-            {
-                disp: this._creating,
-                center: handleBounds.center(),
-                box: handleBounds,
-                handleType: DispHandleTypeE.movePoint,
-                handleIndex: DispPoly.pointCount(this._creating) - 1,
-            },
-            delta.dx,
-            delta.dy
-        );
+        const newPoint = this._coord(inputPos, shiftKey);
+        DispPoly.updateLastPoint(this._creating, newPoint.x, newPoint.y);
+
         this.viewArgs.config.invalidate();
     }
 
-    private inputEnd(inputPos: CanvasInputPos, shiftKey: boolean = false) {
+    private inputEnd(
+        inputPos: CanvasInputPos,
+        shiftKey: boolean,
+        fromTouch: boolean
+    ) {
         if (!this._startMousePos) return;
 
         if (!this._hasPassedDragThreshold(this._startMousePos, inputPos))
@@ -247,14 +282,33 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         ) {
             this._finaliseCreate();
         } else {
-            let point = this._coord(this._lastMousePos, shiftKey);
-            DispPoly.addPoint(this._creating, point);
+            const point = this._coord(this._lastMousePos, shiftKey);
+            if (this.endCreateActionHandle?.wasClickedOn(point)) {
+                if (!fromTouch) {
+                    DispPoly.popPoint(this._creating);
+                }
+                this._finaliseCreate();
+            } else {
+                DispPoly.addPoint(this._creating, point);
+
+                // Initialise the end edit action handle.
+                this.endCreateActionHandle =
+                    new PeekCanvasInputEditActionHandle(
+                        this.viewArgs,
+                        this.endLineCreateTickCenter(fromTouch),
+                        EditActionDisplayTypeE.Tick,
+                        EditActionDisplayPriorityE.Success,
+                        this._creating
+                    );
+            }
         }
 
         this.viewArgs.config.invalidate();
     }
 
     private _finaliseCreate() {
+        this.endCreateActionHandle = null;
+
         if (this._creating == null) return;
 
         let poly = this._creating;
@@ -286,9 +340,12 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
         // When the shift key is pressed, we will align to x or y axis
         if (this._creating != null && shiftKey) {
-            let lastPoint = DispPoly.lastPoint(this._creating);
-            let dx = Math.abs(point.x - lastPoint.x);
-            let dy = Math.abs(point.y - lastPoint.y);
+            const lastPoint = DispPoly.point(
+                this._creating,
+                DispPoly.pointCount(this._creating) - 2
+            );
+            const dx = Math.abs(point.x - lastPoint.x);
+            const dy = Math.abs(point.y - lastPoint.y);
 
             if (dx > dy) point.y = lastPoint.y;
             else point.x = lastPoint.x;

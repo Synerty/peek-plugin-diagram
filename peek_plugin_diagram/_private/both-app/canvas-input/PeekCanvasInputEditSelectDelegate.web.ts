@@ -19,6 +19,11 @@ import { DispFactory } from "../canvas-shapes/DispFactory";
 import { DrawModeE } from "../canvas-render/PeekDispRenderDelegateABC.web";
 import { DispGroupPointerT } from "../canvas-shapes/DispGroupPointer";
 import { InputDelegateConstructorEditArgs } from "./PeekCanvasInputDelegateUtil.web";
+import {
+    EditActionDisplayPriorityE,
+    EditActionDisplayTypeE,
+    PeekCanvasInputEditActionHandle,
+} from "./PeekCanvasInputEditActionHandle";
 
 /**
  * This input delegate handles :
@@ -58,6 +63,10 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
     // See mousedown and mousemove events for explanation
     private _startMousePos: CanvasInputPos | null = null;
+
+    // The primary edit action handler
+    private primaryEditActionHandle: PeekCanvasInputEditActionHandle | null =
+        null;
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
@@ -165,7 +174,9 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
 
         let visibleDisps = q.filterForVisibleDisps(
             this.viewArgs.model.viewableDisps(),
-            this.viewArgs.config.viewPort.zoom
+            this.viewArgs.config.viewPort.zoom,
+            true,
+            true
         );
 
         let selectedDisps = this.viewArgs.model.selection.selectedDisps();
@@ -184,6 +195,20 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
                     break;
                 }
             }
+        }
+
+        // Have they clicked on the primary edit function handle?
+        if (
+            this.primaryEditActionHandle?.wasClickedOn({
+                x: inputPos.x,
+                y: inputPos.y,
+            })
+        ) {
+            this.callHandlePrimaryAction(
+                this.primaryEditActionHandle.shape,
+                inputPos
+            );
+            return;
         }
 
         for (let i = selectedDisps.length - 1; i >= 0; i--) {
@@ -316,39 +341,65 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         // Store the change
         switch (this._state) {
             case this.STATE_SELECTING:
-            case this.STATE_DRAG_SELECTING:
+            case this.STATE_DRAG_SELECTING: {
+                // Handle selection change
                 let hits = [];
-                if (this._state == this.STATE_SELECTING)
+                if (this._state == this.STATE_SELECTING) {
                     hits = this._selectByPoint(this._startMousePos);
-                else if (this._state == this.STATE_DRAG_SELECTING)
+                } else if (this._state == this.STATE_DRAG_SELECTING) {
                     hits = this._selectByBox(this._startMousePos, inputPos);
-                else assert(false, "Invalid state");
+                } else {
+                    assert(false, "Invalid state");
+                }
 
                 this._changeSelection(hits);
                 break;
+            }
 
-            case this.STATE_MOVING_DISP:
+            case this.STATE_MOVING_DISP: {
                 this.finishStateMovingDisp();
                 break;
+            }
 
-            case this.STATE_MOVING_HANDLE:
+            case this.STATE_MOVING_HANDLE: {
                 this.finishStateMovingHandle();
                 break;
+            }
 
-            case this.STATE_CANVAS_RIGHT_MOUSE_DOWN:
+            case this.STATE_CANVAS_RIGHT_MOUSE_DOWN: {
                 if (this._mouseDownRightButton) {
                     this.viewArgs.contextMenuService.doOpenMenu(event);
                 }
                 break;
+            }
         }
 
         this._reset();
         this.viewArgs.config.invalidate();
     }
 
-    override mouseDoubleClick(event, inputPos: CanvasInputPos) {
-        // let hits = this._selectByTypeAndBounds(inputPos);
-        // this.viewArgs.model.selection.addSelection(hits);
+    mouseDoubleClick(event, inputPos: CanvasInputPos) {
+        // If the mouse was down on a action handle, then handle that
+        if (
+            this.primaryEditActionHandle?.wasClickedOn({
+                x: inputPos.x,
+                y: inputPos.y,
+            })
+        ) {
+            this.callHandlePrimaryAction(
+                this.primaryEditActionHandle.shape,
+                inputPos
+            );
+            return;
+        }
+
+        const hits = this._selectByPoint(inputPos);
+        if (hits.length === 1) {
+            this._changeSelection(hits);
+            this._state == this.STATE_NONE;
+
+            this.callHandlePrimaryAction(hits[0], inputPos);
+        }
     }
 
     override mouseWheel(event, inputPos: CanvasInputPos) {
@@ -362,9 +413,11 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
         this._zoomPan(inputPos.clientX, inputPos.clientY, delta);
     }
 
-    override draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
+    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
+        this.resetPrimaryActionHandle();
+
         switch (this._state) {
-            case this.STATE_DRAG_SELECTING:
+            case this.STATE_DRAG_SELECTING: {
                 let zoom = this.viewArgs.config.viewPort.zoom;
                 let x = this._startMousePos.x;
                 let y = this._startMousePos.y;
@@ -383,9 +436,13 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
                 );
                 ctx.stroke();
                 break;
+            }
 
-            case this.STATE_NONE:
+            case this.STATE_NONE: {
+                // Draw the primary edit action if it exists
+                this.primaryEditActionHandle?.draw(ctx);
                 break;
+            }
         }
     }
 
@@ -587,15 +644,54 @@ export class PeekCanvasInputEditSelectDelegate extends PeekCanvasInputDelegate {
             this.viewArgs.model.selection.removeSelection(hits);
         } else {
             // Remove all previous selection
-            if (this._mouseDownWithShift)
+            if (this._mouseDownWithShift) {
                 this.viewArgs.model.selection.addSelection(hits);
-            else this.viewArgs.model.selection.replaceSelection(hits);
+            } else {
+                this.viewArgs.model.selection.replaceSelection(hits);
+            }
         }
 
-        for (const disp of this.viewArgs.model.selection.selectedDisps()) {
+        const selectedDisps = this.viewArgs.model.selection.selectedDisps();
+
+        for (const disp of selectedDisps) {
             DispFactory.wrapper(disp).resetMoveData(disp);
             // console.log(disp);
         }
+    }
+
+    private callHandlePrimaryAction(disp, inputPos: CanvasInputPos): void {
+        this.editArgs?.editPrimaryActionFactory
+            .handlePrimaryAction(disp, inputPos)
+            .then(() => {});
+    }
+
+    private resetPrimaryActionHandle(): void {
+        const selectedDisps = this.viewArgs.model.selection.selectedDisps();
+
+        this.primaryEditActionHandle = null;
+        if ((selectedDisps?.length || 0) !== 1) {
+            return;
+        }
+
+        const selectedDisp = selectedDisps[0];
+        const Wrapper = DispFactory.wrapper(selectedDisp);
+        const primaryEditHandle = Wrapper.primaryActionHandlePoint(
+            selectedDisp,
+            this.viewArgs.config.editor.primaryEditActionHandleMargin /
+                this.viewArgs.config.viewPort.zoom
+        );
+
+        if (primaryEditHandle == null) {
+            return null;
+        }
+
+        this.primaryEditActionHandle = new PeekCanvasInputEditActionHandle(
+            this.viewArgs,
+            primaryEditHandle,
+            EditActionDisplayTypeE.Pencil,
+            EditActionDisplayPriorityE.Default,
+            selectedDisp
+        );
     }
 
     // ------------------------------------------------------------------------

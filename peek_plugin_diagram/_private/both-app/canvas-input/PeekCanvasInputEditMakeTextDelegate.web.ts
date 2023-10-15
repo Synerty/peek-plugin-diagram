@@ -97,13 +97,18 @@ export class PeekCanvasInputEditMakeTextDelegate extends PeekCanvasInputDelegate
         this._startMousePos = mouse;
     }
 
-    override mouseUp(event, mouse) {
+    mouseUp(event, mouse: CanvasInputPos) {
         if (this._hasPassedDragThreshold(this._startMousePos, mouse)) {
             this._reset();
             return;
         }
 
         this.createDisp(mouse.x, mouse.y);
+        // Show the edit text box
+        this.editArgs.editPrimaryActionFactory.handlePrimaryAction(
+            this._creating,
+            mouse
+        );
         this._finaliseCreate();
     }
 
