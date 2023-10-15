@@ -93,11 +93,19 @@ export class DispText extends DispBase {
         return TextVerticalAlign.center;
     }
 
+    static setVerticalAlign(disp: DispTextT, value: number): void {
+        disp.va = value;
+    }
+
     static horizontalAlign(disp: DispTextT): TextHorizontalAlign {
         let val = disp.ha;
         if (val == TextHorizontalAlign.left) return TextHorizontalAlign.left;
         if (val == TextHorizontalAlign.right) return TextHorizontalAlign.right;
         return TextHorizontalAlign.center;
+    }
+
+    static setHorizontalAlign(disp: DispTextT, value: number): void {
+        disp.ha = value;
     }
 
     static rotation(disp: DispTextT): number {
@@ -203,6 +211,68 @@ export class DispText extends DispBase {
                 DispText.borderColor,
                 DispText.setBorderColor,
                 "Border Color"
+            )
+        );
+
+        const textVerticleAlignOptions = [
+            {
+                name: "Top",
+                object: { id: TextVerticalAlign.top },
+                value: TextVerticalAlign.top,
+            },
+            {
+                name: "Center",
+                object: { id: TextVerticalAlign.center },
+                value: TextVerticalAlign.center,
+            },
+            {
+                name: "Bottom",
+                object: { id: TextVerticalAlign.bottom },
+                value: TextVerticalAlign.bottom,
+            },
+        ];
+
+        context.addProp(
+            new ShapeProp(
+                ShapePropType.Option,
+                (disp) => {
+                    // The UI expects an object with an ID
+                    return { id: DispText.verticalAlign(disp) };
+                },
+                (disp, valObj) => DispText.setVerticalAlign(disp, valObj.id),
+                "Vertical Align",
+                { options: textVerticleAlignOptions }
+            )
+        );
+
+        const textHorizontalAlignOptions = [
+            {
+                name: "Left",
+                object: { id: TextHorizontalAlign.left },
+                value: TextHorizontalAlign.left,
+            },
+            {
+                name: "Center",
+                object: { id: TextHorizontalAlign.center },
+                value: TextHorizontalAlign.center,
+            },
+            {
+                name: "Bottom",
+                object: { id: TextHorizontalAlign.right },
+                value: TextHorizontalAlign.right,
+            },
+        ];
+
+        context.addProp(
+            new ShapeProp(
+                ShapePropType.Option,
+                (disp) => {
+                    // The UI expects an object with an ID
+                    return { id: DispText.horizontalAlign(disp) };
+                },
+                (disp, valObj) => DispText.setHorizontalAlign(disp, valObj.id),
+                "Horizontal Align",
+                { options: textHorizontalAlignOptions }
             )
         );
     }

@@ -4,7 +4,6 @@ import { FormsModule } from "@angular/forms";
 import { HttpClientModule } from "@angular/common/http";
 import { DiagramComponent } from "./diagram.component.web";
 import "./canvas/PeekCanvasExtensions.web";
-// import {DisplayCanvasSplashScreen} from "./loading-splash/loading-splash.service";
 import { GridCache } from "./cache/GridCache.web";
 import { GridObservable } from "./cache/GridObservable.web";
 import { CanvasComponent } from "./canvas-component/canvas-component.web";
