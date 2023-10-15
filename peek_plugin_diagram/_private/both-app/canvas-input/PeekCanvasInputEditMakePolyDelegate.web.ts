@@ -92,7 +92,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     // ---------------
 
     mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
-        this.inputMove(inputPos);
+        this.inputMove(inputPos, event.shiftKey);
     }
 
     mouseUp(event: MouseEvent, inputPos: CanvasInputPos) {
@@ -123,7 +123,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     // ---------------
 
     touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
-        this.inputMove(inputPos);
+        this.inputMove(inputPos, event.shiftKey);
     }
 
     touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
@@ -216,22 +216,12 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         }
     }
 
-    private inputMove(inputPos: CanvasInputPos) {
+    private inputMove(inputPos: CanvasInputPos, shiftKey: boolean = false) {
         if (this._startMousePos == null) return;
 
-        const handleBounds = new PeekCanvasBounds(inputPos.x, inputPos.y, 0, 0);
-        const delta = this._setLastMousePos(inputPos);
-        DispPoly.deltaMoveHandle(
-            {
-                disp: this._creating,
-                center: handleBounds.center(),
-                box: handleBounds,
-                handleType: DispHandleTypeE.movePoint,
-                handleIndex: DispPoly.pointCount(this._creating) - 1,
-            },
-            delta.dx,
-            delta.dy
-        );
+        const newPoint = this._coord(inputPos, shiftKey);
+        DispPoly.updateLastPoint(this._creating, newPoint.x, newPoint.y);
+
         this.viewArgs.config.invalidate();
     }
 
@@ -286,9 +276,12 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
         // When the shift key is pressed, we will align to x or y axis
         if (this._creating != null && shiftKey) {
-            let lastPoint = DispPoly.lastPoint(this._creating);
-            let dx = Math.abs(point.x - lastPoint.x);
-            let dy = Math.abs(point.y - lastPoint.y);
+            const lastPoint = DispPoly.point(
+                this._creating,
+                DispPoly.pointCount(this._creating) - 2
+            );
+            const dx = Math.abs(point.x - lastPoint.x);
+            const dy = Math.abs(point.y - lastPoint.y);
 
             if (dx > dy) point.y = lastPoint.y;
             else point.x = lastPoint.x;
