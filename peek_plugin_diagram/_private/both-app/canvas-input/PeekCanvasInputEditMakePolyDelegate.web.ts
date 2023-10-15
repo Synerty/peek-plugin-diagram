@@ -107,7 +107,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
             this._finaliseCreate();
             return;
         }
-        this.inputEnd(inputPos, event.shiftKey);
+        this.inputEnd(inputPos, event.shiftKey, false);
     }
 
     mouseDoubleClick(event: MouseEvent, inputPos: CanvasInputPos) {
@@ -134,7 +134,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     }
 
     touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
-        this.inputEnd(inputPos);
+        this.inputEnd(inputPos, false, true);
     }
 
     delegateWillBeTornDown() {
@@ -198,15 +198,27 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         this._addBranchAnchor(inputPos.x, inputPos.y);
     }
 
-    private get endLineCreateTickCenter(): PointI | null {
-        if (!this._creating || DispPoly.pointCount(this._creating) < 3) {
+    private endLineCreateTickCenter(fromTouch: boolean): PointI | null {
+        if (!this._creating) {
             return;
         }
 
-        return DispPoly.point(
-            this._creating,
-            DispPoly.pointCount(this._creating) - 2
-        );
+        if (fromTouch) {
+            if (DispPoly.pointCount(this._creating) < 2) {
+                return;
+            }
+
+            return DispPoly.lastPoint(this._creating);
+        } else {
+            if (DispPoly.pointCount(this._creating) < 3) {
+                return;
+            }
+
+            return DispPoly.point(
+                this._creating,
+                DispPoly.pointCount(this._creating) - 2
+            );
+        }
     }
 
     private _nodeDispClickedOn(point: PointI): DispBaseT | null {
@@ -254,7 +266,11 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         this.viewArgs.config.invalidate();
     }
 
-    private inputEnd(inputPos: CanvasInputPos, shiftKey: boolean = false) {
+    private inputEnd(
+        inputPos: CanvasInputPos,
+        shiftKey: boolean,
+        fromTouch: boolean
+    ) {
         if (!this._startMousePos) return;
 
         if (!this._hasPassedDragThreshold(this._startMousePos, inputPos))
@@ -268,7 +284,9 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         } else {
             const point = this._coord(this._lastMousePos, shiftKey);
             if (this.endCreateActionHandle?.wasClickedOn(point)) {
-                DispPoly.popPoint(this._creating);
+                if (!fromTouch) {
+                    DispPoly.popPoint(this._creating);
+                }
                 this._finaliseCreate();
             } else {
                 DispPoly.addPoint(this._creating, point);
@@ -277,7 +295,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
                 this.endCreateActionHandle =
                     new PeekCanvasInputEditActionHandle(
                         this.viewArgs,
-                        this.endLineCreateTickCenter,
+                        this.endLineCreateTickCenter(fromTouch),
                         EditActionDisplayTypeE.Tick,
                         EditActionDisplayPriorityE.Success,
                         this._creating
