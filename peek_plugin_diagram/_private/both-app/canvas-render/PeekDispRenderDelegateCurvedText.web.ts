@@ -106,7 +106,13 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
         for (const handle of handles) {
             const b = handle.box;
             ctx.beginPath();
-            ctx.arc(b.x + b.w / 2, b.y + b.h / 2, b.h / 2, 0, 2 * Math.PI);
+            ctx.arc(
+                b.x + b.w / 2,
+                b.y + b.h / 2,
+                b.h / 2 / zoom,
+                0,
+                2 * Math.PI
+            );
             ctx.fill();
         }
     }

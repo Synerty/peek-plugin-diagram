@@ -63,13 +63,13 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
                     ctx.arc(
                         b.x + b.w / 2,
                         b.y + b.h / 2,
-                        b.h / 2,
+                        b.h / 2 / zoom,
                         0,
                         2 * Math.PI
                     );
                     break;
                 case DispHandleTypeE.snapRotate:
-                    ctx.rect(b.x, b.y, b.w, b.h);
+                    ctx.rect(b.x, b.y, b.w / zoom, b.h / zoom);
                     break;
                 default:
                     // pass
