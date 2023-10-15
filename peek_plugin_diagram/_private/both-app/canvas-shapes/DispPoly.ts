@@ -74,6 +74,14 @@ export abstract class DispPoly extends DispBase {
         DispBase.setBoundsNull(disp);
     }
 
+    static point(disp: DispPolyT, index: number): PointI | null {
+        const len = disp.g.length;
+        if (!(0 <= index && index <= len / 2 - 1)) {
+            return null;
+        }
+        return { x: disp.g[index * 2], y: disp.g[index * 2 + 1] };
+    }
+
     static lastPoint(disp): PointI | null {
         const len = disp.g.length;
         if (len == 0) return null;

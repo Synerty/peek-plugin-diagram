@@ -370,6 +370,13 @@ export class DispPolyline extends DispPoly {
         return handleIndex == DispPolyline.geom(disp).length / 2 - 1;
     }
 
+    // ---------------
+    // Primary Edit Action Handle Point
+
+    static primaryActionHandlePoint(disp, margin: number): PointI | null {
+        return null;
+    }
+
     static handlePoints(disp, margin: number): DispHandleI[] {
         let result = [];
 

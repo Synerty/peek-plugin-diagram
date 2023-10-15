@@ -5,15 +5,19 @@ import {
 } from "./PeekCanvasInputDelegate.web";
 import { EditorToolType } from "../canvas/PeekCanvasEditorToolType.web";
 import { DispPoly } from "../canvas-shapes/DispPoly";
-import { DispBaseT, DispHandleTypeE, PointI } from "../canvas-shapes/DispBase";
+import { DispBaseT, PointI } from "../canvas-shapes/DispBase";
 import { DispPolygon } from "../canvas-shapes/DispPolygon";
 import {
     DispPolyline,
     DispPolylineEndTypeE,
 } from "../canvas-shapes/DispPolyline";
 import { DrawModeE } from "../canvas-render/PeekDispRenderDelegateABC.web";
-import { PeekCanvasBounds } from "../canvas/PeekCanvasBounds";
 import { InputDelegateConstructorEditArgs } from "./PeekCanvasInputDelegateUtil.web";
+import {
+    EditActionDisplayPriorityE,
+    EditActionDisplayTypeE,
+    PeekCanvasInputEditActionHandle,
+} from "./PeekCanvasInputEditActionHandle";
 
 /**
  * This input delegate handles :
@@ -32,6 +36,9 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     protected _endNodeDisp = null;
 
     protected _nodes = []; //canvasInput._scope.pageData.modelRenderables;
+
+    protected endCreateActionHandle: PeekCanvasInputEditActionHandle | null =
+        null;
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
@@ -136,9 +143,20 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
     // ---------------
 
-    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {}
+    draw(
+        ctx: CanvasRenderingContext2D,
+        zoom: number,
+        pan: PointI,
+        drawMode: DrawModeE
+    ) {
+        if (this.endCreateActionHandle) {
+            this.endCreateActionHandle.draw(ctx);
+        }
+    }
 
     protected createDisp(inputPos: CanvasInputPos) {
+        this.endCreateActionHandle = null;
+
         // Create the Disp
         if (this.NAME == EditorToolType.EDIT_MAKE_POLYGON)
             this._creating = DispPolygon.create(this.viewArgs.config.coordSet);
@@ -178,6 +196,17 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         this.viewArgs.model.selection.replaceSelection(this._creating);
 
         this._addBranchAnchor(inputPos.x, inputPos.y);
+    }
+
+    private get endLineCreateTickCenter(): PointI | null {
+        if (!this._creating || DispPoly.pointCount(this._creating) < 3) {
+            return;
+        }
+
+        return DispPoly.point(
+            this._creating,
+            DispPoly.pointCount(this._creating) - 2
+        );
     }
 
     private _nodeDispClickedOn(point: PointI): DispBaseT | null {
@@ -237,14 +266,31 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         ) {
             this._finaliseCreate();
         } else {
-            let point = this._coord(this._lastMousePos, shiftKey);
-            DispPoly.addPoint(this._creating, point);
+            const point = this._coord(this._lastMousePos, shiftKey);
+            if (this.endCreateActionHandle?.wasClickedOn(point)) {
+                DispPoly.popPoint(this._creating);
+                this._finaliseCreate();
+            } else {
+                DispPoly.addPoint(this._creating, point);
+
+                // Initialise the end edit action handle.
+                this.endCreateActionHandle =
+                    new PeekCanvasInputEditActionHandle(
+                        this.viewArgs,
+                        this.endLineCreateTickCenter,
+                        EditActionDisplayTypeE.Tick,
+                        EditActionDisplayPriorityE.Success,
+                        this._creating
+                    );
+            }
         }
 
         this.viewArgs.config.invalidate();
     }
 
     private _finaliseCreate() {
+        this.endCreateActionHandle = null;
+
         if (this._creating == null) return;
 
         let poly = this._creating;
