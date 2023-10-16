@@ -443,9 +443,7 @@ def _bulkLoadDispsTask(importGroupHash: str, disps: List):
 
     try:
         stmt = (
-            select(
-                [gridKeyIndexTable.c.coordSetId, gridKeyIndexTable.c.gridKey]
-            )
+            select(gridKeyIndexTable.c.coordSetId, gridKeyIndexTable.c.gridKey)
             .where(dispTable.c.importGroupHash == importGroupHash)
             .select_from(
                 join(
