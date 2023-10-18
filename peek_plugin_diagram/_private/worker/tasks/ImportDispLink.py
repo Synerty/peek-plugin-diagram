@@ -16,7 +16,9 @@ from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 from peek_plugin_diagram.tuples.model.ImportLiveDbDispLinkTuple import (
     ImportLiveDbDispLinkTuple,
 )
-from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import ImportLiveDbItemTuple
+from peek_plugin_livedb.tuples.ImportLiveDbItemTuple import (
+    ImportLiveDbItemTuple,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -38,13 +40,14 @@ def importDispLinks(
     :return:
     """
     dispLinkTable = LiveDbDispLink.__table__
-    dispLinkIdIterator = prefetchDeclarativeIds(LiveDbDispLink, len(importDispLinks))
+    dispLinkIdIterator = prefetchDeclarativeIds(
+        LiveDbDispLink, len(importDispLinks)
+    )
 
     startTime = datetime.now(pytz.utc)
 
     ormSession = CeleryDbConn.getDbSession()
     try:
-
         ormSession.execute(
             dispLinkTable.delete().where(
                 dispLinkTable.c.importGroupHash == importGroupHash
@@ -62,7 +65,9 @@ def importDispLinks(
             dispLink = _convertImportDispLinkTuple(coordSet, importDispLink)
             dispLink.id = next(dispLinkIdIterator)
 
-            liveDbItem = _makeImportLiveDbItem(importDispLink, liveDbItemsToImportByKey)
+            liveDbItem = _makeImportLiveDbItem(
+                importDispLink, liveDbItemsToImportByKey
+            )
 
             dispLink.liveDbKey = liveDbItem.key
             dispLinkInserts.append(dispLink.tupleToSqlaBulkInsertDict())

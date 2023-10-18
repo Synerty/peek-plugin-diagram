@@ -20,11 +20,12 @@ class ServerModelSetTupleProvider(TuplesProviderABC):
     def makeVortexMsg(
         self, filt: dict, tupleSelector: TupleSelector
     ) -> Union[Deferred, bytes]:
-
         session = self._ormSessionCreator()
         try:
             tuples = session.query(ModelSet).all()
-            return Payload(filt, tuples=tuples).makePayloadEnvelope().toVortexMsg()
+            return (
+                Payload(filt, tuples=tuples).makePayloadEnvelope().toVortexMsg()
+            )
 
         finally:
             session.close()

@@ -20,18 +20,18 @@ export class PeekCanvasInputMakeDispPolylineEdgeDelegate extends PeekCanvasInput
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
-        editArgs: InputDelegateConstructorEditArgs
+        editArgs: InputDelegateConstructorEditArgs,
     ) {
         super(
             viewArgs,
             editArgs,
-            PeekCanvasInputMakeDispPolylineEdgeDelegate.TOOL_NAME
+            PeekCanvasInputMakeDispPolylineEdgeDelegate.TOOL_NAME,
         );
 
         this._reset();
     }
 
-    protected createDisp(inputPos: CanvasInputPos) {
+    protected override createDisp(inputPos: CanvasInputPos) {
         super.createDisp(inputPos);
 
         const coordSet = <ModelCoordSet>this.viewArgs.config.coordSet;
@@ -39,7 +39,7 @@ export class PeekCanvasInputMakeDispPolylineEdgeDelegate extends PeekCanvasInput
         DispPolyline.setTargetEdgeTemplateName(
             disp,
             coordSet.editDefaultEdgeCoordSetId,
-            coordSet.editDefaultEdgeGroupName
+            coordSet.editDefaultEdgeGroupName,
         );
     }
 }

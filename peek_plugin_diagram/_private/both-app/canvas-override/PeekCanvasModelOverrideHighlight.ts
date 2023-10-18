@@ -30,7 +30,7 @@ export class PeekCanvasModelOverrideHighlight extends PeekCanvasModelOverrideA {
 
     constructor(
         private config: PeekCanvasConfig,
-        private lookupCache: PrivateDiagramLookupService
+        private lookupCache: PrivateDiagramLookupService,
     ) {
         super();
     }
@@ -50,7 +50,7 @@ export class PeekCanvasModelOverrideHighlight extends PeekCanvasModelOverrideA {
     }
 
     // ------------------------------------------------------------------------
-    compile(disps: any[]): void {
+    override compile(disps: any[]): void {
         this.compiledDisps = [];
         for (const disp of disps) {
             const dispKey = DispBase.key(disp);
@@ -70,7 +70,7 @@ export class PeekCanvasModelOverrideHighlight extends PeekCanvasModelOverrideA {
 
     // ------------------------------------------------------------------------
 
-    draw(ctx, zoom: number): void {
+    override draw(ctx, zoom: number): void {
         for (const pair of this.compiledDisps) {
             this.applyOverride(pair.disp, pair.override, ctx, zoom);
         }
@@ -89,7 +89,7 @@ export class PeekCanvasModelOverrideHighlight extends PeekCanvasModelOverrideA {
         disp: DispBaseT,
         override: DiagramOverrideHighlight,
         ctx,
-        zoom: number
+        zoom: number,
     ) {
         const Wrapper = DispFactory.wrapper(disp);
         // If this wrapper has no geom method, then ignore it.
@@ -100,7 +100,7 @@ export class PeekCanvasModelOverrideHighlight extends PeekCanvasModelOverrideA {
         const bounds = PeekCanvasBounds.fromGeom(geom);
 
         const selectionConfig = this.config.getSelectionDrawDetailsForDrawMode(
-            DrawModeE.ForView
+            DrawModeE.ForView,
         );
 
         // Move the selection line a bit away from the object

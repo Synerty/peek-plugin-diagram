@@ -1,19 +1,16 @@
-@import "~@synerty/peek-plugin-base-js/src/styles/_mixins";
-@import "~@synerty/peek-plugin-base-js/src/styles/_variables";
-
+@import "@synerty/peek-plugin-base-js/src/styles/_mixins";
+@import "@synerty/peek-plugin-base-js/src/styles/_variables";
 
 $height: calc(100vh - 450px);
 
-
 .selected {
-    background-color:  #26abe2;;
+    background-color: #26abe2;
 }
 
 .edit-create-branch-dialog {
     padding: $general_padding_1;
     top: $title_bar_height;
 }
-
 
 .filter-div {
     display: flex;

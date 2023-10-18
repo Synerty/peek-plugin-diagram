@@ -12,7 +12,7 @@ export class PeekCanvasGroupPtrPropsContext {
         private model: PeekCanvasModel,
         private dispGroupPtr: DispGroupPointerT,
         private lookupService: PrivateDiagramLookupService,
-        private branchTuple: BranchTuple
+        private branchTuple: BranchTuple,
     ) {}
 
     get targetDispGroupCoordSetId(): number | null {
@@ -29,7 +29,7 @@ export class PeekCanvasGroupPtrPropsContext {
             dispGroup,
             coordSetId,
             this.lookupService,
-            this.branchTuple
+            this.branchTuple,
         );
 
         this.model.recompileModel();

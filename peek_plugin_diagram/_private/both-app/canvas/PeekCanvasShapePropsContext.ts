@@ -45,7 +45,7 @@ export class ShapeProp {
             options?: ShapePropOption[];
             allowNullOption?: boolean;
             alternateDisp?: DispBaseT;
-        } = {}
+        } = {},
     ) {
         this.comment = opts.comment || "";
         this.options = opts.options || [];
@@ -55,13 +55,16 @@ export class ShapeProp {
 
     private _options: ShapePropOption[] | null = null;
 
-    filteredOptions(includeValue:any): ShapePropOption[] {
-        return this._options
-            .filter(opt => opt.object["showForEdit"] !== false || opt.value === includeValue);
+    filteredOptions(includeValue: any): ShapePropOption[] {
+        return this._options.filter(
+            (opt) =>
+                opt.object["showForEdit"] !== false ||
+                opt.value === includeValue,
+        );
     }
 
     get options(): ShapePropOption[] {
-        return this._options.filter(opt => opt["showForEdit"] !== false);
+        return this._options.filter((opt) => opt["showForEdit"] !== false);
     }
 
     set options(options: ShapePropOption[]) {
@@ -87,41 +90,41 @@ export class PeekCanvasShapePropsContext {
         public disp: DispBaseT = <any>{},
         private lookupService: PrivateDiagramLookupService | null = null,
         private modelSetId: number | null = null,
-        private coordSetId: number | null = null
+        private coordSetId: number | null = null,
     ) {}
 
     get levelOptions(): ShapePropOption[] {
         return this.makeOptions(
             this.coordSetId,
-            this.lookupService.levelsOrderedByOrder(this.coordSetId)
+            this.lookupService.levelsOrderedByOrder(this.coordSetId),
         );
     }
 
     get layerOptions(): ShapePropOption[] {
         return this.makeOptions(
             this.modelSetId,
-            this.lookupService.layersOrderedByOrder(this.modelSetId)
+            this.lookupService.layersOrderedByOrder(this.modelSetId),
         );
     }
 
     get colorOptions(): ShapePropOption[] {
         return this.makeOptions(
             this.modelSetId,
-            this.lookupService.colorsOrderedByName(this.modelSetId)
+            this.lookupService.colorsOrderedByName(this.modelSetId),
         );
     }
 
     get textStyleOptions(): ShapePropOption[] {
         return this.makeOptions(
             this.modelSetId,
-            this.lookupService.textStylesOrderedByName(this.modelSetId)
+            this.lookupService.textStylesOrderedByName(this.modelSetId),
         );
     }
 
     get lineStyleOptions(): ShapePropOption[] {
         return this.makeOptions(
             this.modelSetId,
-            this.lookupService.lineStylesOrderedByName(this.modelSetId)
+            this.lookupService.lineStylesOrderedByName(this.modelSetId),
         );
     }
 

@@ -24,7 +24,7 @@ export class DiagramOverrideHighlight extends DiagramOverrideBase {
             modelSetKey,
             coordSetKey,
             DiagramOverrideTypeE.Highlight,
-            DiagramOverrideHighlight.tupleName
+            DiagramOverrideHighlight.tupleName,
         );
     }
 

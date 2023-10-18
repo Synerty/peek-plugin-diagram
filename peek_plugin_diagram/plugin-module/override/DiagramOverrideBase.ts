@@ -25,7 +25,7 @@ export abstract class DiagramOverrideBase extends Tuple {
         public readonly modelSetKey: string,
         public readonly coordSetKey: string,
         public readonly overrideType: DiagramOverrideTypeE,
-        tupleType: string
+        tupleType: string,
     ) {
         super(tupleType);
         this.key = `${new Date().getTime()}=${DiagramOverrideBase.overrideNum++}`;

@@ -1,8 +1,13 @@
 import logging
 
-from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
+from peek_plugin_diagram._private.storage.ModelSet import (
+    ModelCoordSet,
+    ModelSet,
+)
 from peek_plugin_diagram.server.DiagramViewerApiABC import DiagramViewerApiABC
-from peek_plugin_diagram.tuples.model.DiagramCoordSetTuple import DiagramCoordSetTuple
+from peek_plugin_diagram.tuples.model.DiagramCoordSetTuple import (
+    DiagramCoordSetTuple,
+)
 from vortex.DeferUtil import deferToThreadWrapWithLogger
 
 logger = logging.getLogger(__name__)
@@ -28,7 +33,9 @@ class DiagramViewerApi(DiagramViewerApiABC):
 
             coordSetTuples = []
             for obj in all:
-                coordSetTuples.append(DiagramCoordSetTuple(key=obj.key, name=obj.name))
+                coordSetTuples.append(
+                    DiagramCoordSetTuple(key=obj.key, name=obj.name)
+                )
 
             return coordSetTuples
 

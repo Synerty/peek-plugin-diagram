@@ -43,8 +43,12 @@ def downgrade():
             autoincrement=True,
             nullable=False,
         ),
-        sa.Column("branchIndexId", sa.INTEGER(), autoincrement=False, nullable=False),
-        sa.Column("coordSetId", sa.INTEGER(), autoincrement=False, nullable=False),
+        sa.Column(
+            "branchIndexId", sa.INTEGER(), autoincrement=False, nullable=False
+        ),
+        sa.Column(
+            "coordSetId", sa.INTEGER(), autoincrement=False, nullable=False
+        ),
         sa.Column("gridKey", sa.VARCHAR(), autoincrement=False, nullable=False),
         sa.ForeignKeyConstraint(
             ["branchIndexId"],
@@ -58,7 +62,9 @@ def downgrade():
             name="BranchGridIndex_coordSetId_fkey",
             ondelete="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("id", "coordSetId", name="BranchGridIndex_pkey"),
+        sa.PrimaryKeyConstraint(
+            "id", "coordSetId", name="BranchGridIndex_pkey"
+        ),
         schema="pl_diagram",
     )
     op.create_index(

@@ -31,7 +31,10 @@ from peek_plugin_diagram._private.storage.Lookups import DispLineStyle
 from peek_plugin_diagram._private.storage.Lookups import DispTextStyle
 from peek_plugin_diagram._private.storage.Lookups import DispLevel
 from peek_plugin_diagram._private.storage.Lookups import DispLayer
-from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
+from peek_plugin_diagram._private.storage.ModelSet import (
+    ModelCoordSet,
+    ModelSet,
+)
 from peek_plugin_diagram._private.tuples.DiagramImporterStatusTuple import (
     DiagramImporterStatusTuple,
 )
@@ -76,7 +79,8 @@ def makeTupleDataObservableHandler(
 
     # Register TupleProviders here
     tupleObservable.addTupleProvider(
-        ModelCoordSet.tupleName(), ServerCoordSetTupleProvider(ormSessionCreator)
+        ModelCoordSet.tupleName(),
+        ServerCoordSetTupleProvider(ormSessionCreator),
     )
 
     # Register TupleProviders here
@@ -90,8 +94,12 @@ def makeTupleDataObservableHandler(
     tupleObservable.addTupleProvider(DispLevel.tupleName(), lookupTupleProvider)
     tupleObservable.addTupleProvider(DispLayer.tupleName(), lookupTupleProvider)
     tupleObservable.addTupleProvider(DispColor.tupleName(), lookupTupleProvider)
-    tupleObservable.addTupleProvider(DispLineStyle.tupleName(), lookupTupleProvider)
-    tupleObservable.addTupleProvider(DispTextStyle.tupleName(), lookupTupleProvider)
+    tupleObservable.addTupleProvider(
+        DispLineStyle.tupleName(), lookupTupleProvider
+    )
+    tupleObservable.addTupleProvider(
+        DispTextStyle.tupleName(), lookupTupleProvider
+    )
 
     tupleObservable.addTupleProvider(
         BranchLiveEditTuple.tupleName(),

@@ -25,7 +25,9 @@ def upgrade():
         "DispNull",
         sa.Column("id", sa.Integer(), autoincrement=False, nullable=False),
         sa.Column("geomJson", sa.String(), nullable=False),
-        sa.ForeignKeyConstraint(["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["id"], ["pl_diagram.DispBase.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
         schema="pl_diagram",
     )

@@ -99,7 +99,7 @@ export class PeekCanvasEditorProps {
         this.setContextPanel(
             this._contextPanelState == EditorContextType.BRANCH_PROPERTIES
                 ? EditorContextType.NONE
-                : EditorContextType.BRANCH_PROPERTIES
+                : EditorContextType.BRANCH_PROPERTIES,
         );
     }
 
@@ -107,7 +107,7 @@ export class PeekCanvasEditorProps {
         this.setContextPanel(
             this._contextPanelState == EditorContextType.SHAPE_PROPERTIES
                 ? EditorContextType.NONE
-                : EditorContextType.SHAPE_PROPERTIES
+                : EditorContextType.SHAPE_PROPERTIES,
         );
     }
 
@@ -115,7 +115,7 @@ export class PeekCanvasEditorProps {
         this.setContextPanel(
             this._contextPanelState == EditorContextType.DYNAMIC_PROPERTIES
                 ? EditorContextType.NONE
-                : EditorContextType.DYNAMIC_PROPERTIES
+                : EditorContextType.DYNAMIC_PROPERTIES,
         );
     }
 
@@ -123,7 +123,7 @@ export class PeekCanvasEditorProps {
         this.setContextPanel(
             this._contextPanelState == EditorContextType.GROUP_PTR_PROPERTIES
                 ? EditorContextType.NONE
-                : EditorContextType.GROUP_PTR_PROPERTIES
+                : EditorContextType.GROUP_PTR_PROPERTIES,
         );
     }
 
@@ -132,7 +132,7 @@ export class PeekCanvasEditorProps {
             this._contextPanelState ==
                 EditorContextType.EDGE_TEMPLATE_PROPERTIES
                 ? EditorContextType.NONE
-                : EditorContextType.EDGE_TEMPLATE_PROPERTIES
+                : EditorContextType.EDGE_TEMPLATE_PROPERTIES,
         );
     }
 
@@ -153,7 +153,7 @@ export class PeekCanvasEditorProps {
             disp,
             this.lookupService,
             this.modelSetId,
-            this.coordSetId
+            this.coordSetId,
         );
 
         DispFactory.wrapper(disp).makeShapeContext(shapePropsContext);
@@ -195,7 +195,7 @@ export class PeekCanvasEditorProps {
                 model,
                 dispGroupPtr,
                 this.lookupService,
-                branchTuple
+                branchTuple,
             );
 
             this.setGroupPtrPanelContextObservable(groupPtrPropsContext);
@@ -213,11 +213,11 @@ export class PeekCanvasEditorProps {
                         model,
                         polyline,
                         this.lookupService,
-                        branchTuple
+                        branchTuple,
                     );
 
                 this.setEdgeTemplatePanelContextObservable(
-                    edgeTemplatePropsContext
+                    edgeTemplatePropsContext,
                 );
             }
         }
@@ -229,7 +229,7 @@ export class PeekCanvasEditorProps {
     }
 
     private setShapePanelContextObservable(
-        val: PeekCanvasShapePropsContext | null
+        val: PeekCanvasShapePropsContext | null,
     ): void {
         this.shapePanelContext = val;
         this._shapePanelContextSubject.next(val);
@@ -239,7 +239,7 @@ export class PeekCanvasEditorProps {
     // Methods called by Context
 
     private setGroupPtrPanelContextObservable(
-        val: PeekCanvasGroupPtrPropsContext | null
+        val: PeekCanvasGroupPtrPropsContext | null,
     ): void {
         if (
             val == null &&
@@ -255,7 +255,7 @@ export class PeekCanvasEditorProps {
     // The shape selection has been updated
 
     private setEdgeTemplatePanelContextObservable(
-        val: PeekCanvasEdgeTemplatePropsContext | null
+        val: PeekCanvasEdgeTemplatePropsContext | null,
     ): void {
         if (
             val == null &&

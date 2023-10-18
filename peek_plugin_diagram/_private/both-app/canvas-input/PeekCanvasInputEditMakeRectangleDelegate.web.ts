@@ -28,12 +28,12 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
-        editArgs: InputDelegateConstructorEditArgs
+        editArgs: InputDelegateConstructorEditArgs,
     ) {
         super(
             viewArgs,
             editArgs,
-            PeekCanvasInputEditMakeRectangleDelegate.TOOL_NAME
+            PeekCanvasInputEditMakeRectangleDelegate.TOOL_NAME,
         );
 
         this.viewArgs.model.selection.clearSelection();
@@ -53,29 +53,29 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
 
     // ---------------
     // Map mouse events
-    mouseDown(event: MouseEvent, inputPos: CanvasInputPos) {
+    override mouseDown(event: MouseEvent, inputPos: CanvasInputPos) {
         this.inputStart(inputPos);
     }
 
-    mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
+    override mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
         this.inputMove(inputPos);
     }
 
-    mouseUp(event: MouseEvent, inputPos: CanvasInputPos) {
+    override mouseUp(event: MouseEvent, inputPos: CanvasInputPos) {
         this.inputEnd(inputPos);
     }
 
     // ---------------
     // Map touch events
-    touchStart(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchStart(event: TouchEvent, inputPos: CanvasInputPos) {
         this.inputStart(inputPos);
     }
 
-    touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
         this.inputMove(inputPos);
     }
 
-    touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
         this.inputEnd(inputPos);
     }
 
@@ -85,7 +85,7 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
         this._finaliseCreate();
     }
 
-    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {}
+    override draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {}
 
     // ---------------
     // Start logic
@@ -149,7 +149,7 @@ export class PeekCanvasInputEditMakeRectangleDelegate extends PeekCanvasInputDel
         this._creating =
             this.editArgs.branchContext.branchTuple.addOrUpdateDisp(
                 this._creating,
-                true
+                true,
             );
 
         this.viewArgs.model.recompileModel();

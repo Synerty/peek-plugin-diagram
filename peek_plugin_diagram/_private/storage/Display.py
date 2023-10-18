@@ -44,7 +44,7 @@ DISP_SHORT_ATTR_NAME_MAP = {
 }
 
 
-class DispBase(Tuple, DeclarativeBase):
+class DispBase(DeclarativeBase, Tuple):
     __tablename__ = "DispBase"
 
     # Types

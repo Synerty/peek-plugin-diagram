@@ -2,7 +2,10 @@ import logging
 
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
-from vortex.sqla_orm.OrmCrudHandler import OrmCrudHandler, OrmCrudHandlerExtension
+from vortex.sqla_orm.OrmCrudHandler import (
+    OrmCrudHandler,
+    OrmCrudHandlerExtension,
+)
 
 from peek_plugin_diagram._private.PluginNames import diagramFilt
 
@@ -43,7 +46,9 @@ class __ExtUpdateObservable(OrmCrudHandlerExtension):
 
 # This method creates an instance of the handler class.
 def makeStringIntTableHandler(tupleObservable, dbSessionCreator):
-    handler = __CrudHandler(dbSessionCreator, StringIntTuple, filtKey, retreiveAll=True)
+    handler = __CrudHandler(
+        dbSessionCreator, StringIntTuple, filtKey, retreiveAll=True
+    )
 
     logger.debug("Started")
     handler.addExtension(StringIntTuple, __ExtUpdateObservable(tupleObservable))

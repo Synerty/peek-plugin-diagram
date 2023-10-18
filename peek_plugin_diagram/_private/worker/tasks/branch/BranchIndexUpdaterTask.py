@@ -13,14 +13,19 @@ from peek_plugin_diagram._private.storage.GridKeyIndex import (
     GridKeyIndex,
     GridKeyCompilerQueue,
 )
-from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet, ModelSet
+from peek_plugin_diagram._private.storage.ModelSet import (
+    ModelCoordSet,
+    ModelSet,
+)
 from peek_plugin_diagram._private.storage.branch.BranchIndex import BranchIndex
 from peek_plugin_diagram._private.storage.branch.BranchIndexCompilerQueue import (
     BranchIndexCompilerQueue,
 )
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
 from peek_plugin_base.worker.CeleryApp import celeryApp
-from peek_plugin_diagram._private.worker.tasks.ImportDispTask import _bulkInsertDisps
+from peek_plugin_diagram._private.worker.tasks.ImportDispTask import (
+    _bulkInsertDisps,
+)
 from peek_plugin_diagram._private.worker.tasks.branch.BranchDispUpdater import (
     _deleteBranchDisps,
     _convertBranchDisps,
@@ -69,7 +74,9 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
     dbSession = CeleryDbConn.getDbSession()
     try:
         # Get the latest lookups
-        modelSet = dbSession.query(ModelSet).filter(ModelSet.id == modelSetId).one()
+        modelSet = (
+            dbSession.query(ModelSet).filter(ModelSet.id == modelSetId).one()
+        )
         coordSetById = {i.id: i for i in dbSession.query(ModelCoordSet).all()}
         dbSession.expunge_all()
 
@@ -135,7 +142,10 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
         gridsToRecompile = dbSession.execute(
             select(
                 distinct=True,
-                columns=[gridKeyIndexTable.c.gridKey, gridKeyIndexTable.c.coordSetId],
+                columns=[
+                    gridKeyIndexTable.c.gridKey,
+                    gridKeyIndexTable.c.coordSetId,
+                ],
                 whereclause=dispBaseTable.c.branchId.in_(allBranchIds),
             ).select_from(gridKeyIndexTable.join(dispBaseTable))
         ).fetchall()
@@ -147,7 +157,9 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
         # Recompile the BranchGridIndexes
         for coordSetId, branches in branchesByCoordSetId.items():
             coordSet = coordSetById[coordSetId]
-            assert coordSet.modelSetId == modelSetId, "Branches not all from one model"
+            assert (
+                coordSet.modelSetId == modelSetId
+            ), "Branches not all from one model"
 
             newDisps, dispIdsToCompile = _convertBranchDisps(branches)
             allNewDisps.extend(newDisps)
@@ -217,7 +229,9 @@ def updateBranches(self, modelSetId: int, branchEncodedPayload: bytes) -> None:
 
 @DeferrableTask
 @celeryApp.task(bind=True)
-def removeBranches(self, modelSetKey: str, coordSetKey: str, keys: List[str]) -> None:
+def removeBranches(
+    self, modelSetKey: str, coordSetKey: str, keys: List[str]
+) -> None:
     """Remove Branches
 
     This worker task removes branches from the indexes.
@@ -266,12 +280,17 @@ def removeBranches(self, modelSetKey: str, coordSetKey: str, keys: List[str]) ->
         _deleteBranchDisps(conn, branchIndexIds)
 
         # 1) Delete existing branches
-        conn.execute(branchIndexTable.delete(branchIndexTable.c.id.in_(branchIndexIds)))
+        conn.execute(
+            branchIndexTable.delete(branchIndexTable.c.id.in_(branchIndexIds))
+        )
 
         # 3) Queue chunks for recompile
         conn.execute(
             queueTable.insert(),
-            [dict(modelSetId=coordSet.modelSetId, chunkKey=c) for c in chunkKeys],
+            [
+                dict(modelSetId=coordSet.modelSetId, chunkKey=c)
+                for c in chunkKeys
+            ],
         )
 
         transaction.commit()
@@ -313,7 +332,9 @@ def _insertOrUpdateBranches(
     chunkKeysForQueue: Set[Tuple[int, str]] = set()
 
     # Get the IDs that we need
-    newIdGen = CeleryDbConn.prefetchDeclarativeIds(BranchIndex, len(newBranches))
+    newIdGen = CeleryDbConn.prefetchDeclarativeIds(
+        BranchIndex, len(newBranches)
+    )
 
     # Create state arrays
     inserts = []
@@ -351,7 +372,9 @@ def _insertOrUpdateBranches(
                 select(
                     distinct=True,
                     columns=[branchIndexTable.c.id],
-                    whereclause=branchIndexTable.c.importGroupHash.in_(importHashSet),
+                    whereclause=branchIndexTable.c.importGroupHash.in_(
+                        importHashSet
+                    ),
                 )
             )
         ]

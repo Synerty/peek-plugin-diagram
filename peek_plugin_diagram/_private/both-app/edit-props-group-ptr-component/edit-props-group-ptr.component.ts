@@ -40,7 +40,7 @@ export class EditPropsGroupPtrComponent
     constructor(
         private tupleService: PrivateDiagramTupleService,
         abstractCoordSetCache: DiagramCoordSetService,
-        private lookupService: PrivateDiagramLookupService
+        private lookupService: PrivateDiagramLookupService,
     ) {
         super();
         this.coordSetCache = <PrivateDiagramCoordSetService>(
@@ -48,11 +48,11 @@ export class EditPropsGroupPtrComponent
         );
     }
 
-    ngOnInit() {
+    override ngOnInit() {
         this.templateCoordSets = [];
 
         let coordSets = this.coordSetCache.coordSets(
-            this.canvasEditor.branchContext.modelSetKey
+            this.canvasEditor.branchContext.modelSetKey,
         );
 
         for (let coordSet of coordSets) {
@@ -68,7 +68,7 @@ export class EditPropsGroupPtrComponent
         }
 
         this.templateCoordSets = this.templateCoordSets.sort((a, b) =>
-            a.name.localeCompare(b.name)
+            a.name.localeCompare(b.name),
         );
 
         this.context = this.canvasEditor.props.groupPtrPanelContext;
@@ -120,18 +120,18 @@ export class EditPropsGroupPtrComponent
                         let gridTuple: GridTuple = payload.tuples[0];
                         let linkedGrid = new LinkedGrid(
                             gridTuple,
-                            this.lookupService
+                            this.lookupService,
                         );
                         this.dispGroups = linkedGrid.disps.sort((a, b) =>
                             DispGroup.groupName(a).localeCompare(
-                                DispGroup.groupName(b)
-                            )
+                                DispGroup.groupName(b),
+                            ),
                         );
                         this.initSelectedDispGroup();
                     })
                     .catch((err) => {
                         console.log(
-                            `GridLoader.emitEncodedGridTuples decode error: ${err}`
+                            `GridLoader.emitEncodedGridTuples decode error: ${err}`,
                         );
                     });
             });
@@ -145,7 +145,7 @@ export class EditPropsGroupPtrComponent
         this.selectedDispGroup = disp;
         this.context.setDispGroup(
             this.selectedDispGroup,
-            this.selectedCoordSetId
+            this.selectedCoordSetId,
         );
     }
 

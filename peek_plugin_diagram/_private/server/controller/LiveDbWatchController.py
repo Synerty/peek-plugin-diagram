@@ -44,7 +44,9 @@ class LiveDbWatchController:
         pass
 
     @inlineCallbacks
-    def updateClientWatchedGrids(self, clientId: str, gridKeys: List[str]) -> Deferred:
+    def updateClientWatchedGrids(
+        self, clientId: str, gridKeys: List[str]
+    ) -> Deferred:
         """Update Client Watched Grids
 
         Tell the server that these grids are currently being watched by users.
@@ -65,13 +67,14 @@ class LiveDbWatchController:
 
     @deferToThreadWrapWithLogger(logger)
     def getLiveDbKeys(self, gridKeys) -> List[str]:
-
         session = self._dbSessionCreator()
         try:
             return [
                 t[0]
                 for t in session.query(LiveDbDispLink.liveDbKey)
-                .join(GridKeyIndex, GridKeyIndex.dispId == LiveDbDispLink.dispId)
+                .join(
+                    GridKeyIndex, GridKeyIndex.dispId == LiveDbDispLink.dispId
+                )
                 .filter(
                     makeOrmValuesSubqueryCondition(
                         session, GridKeyIndex.gridKey, gridKeys

@@ -35,17 +35,17 @@ export class CanvasContextMenuComponent
     constructor(
         private menuService: NzContextMenuService,
         private diagramContextService: ContextMenuService,
-        private copyPasteService: CopyPasteService
+        private copyPasteService: CopyPasteService,
     ) {
         super();
         diagramContextService.openObservable
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((event: ContextMenuPopupI) =>
-                this.handleContextMenuOpen(event)
+                this.handleContextMenuOpen(event),
             );
     }
 
-    ngOnInit() {}
+    override ngOnInit() {}
 
     handleContextMenuOpen(event: ContextMenuPopupI) {
         this.menuService.create(event, this.menu);

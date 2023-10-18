@@ -64,6 +64,8 @@ def downgrade():
         table_name="DispPolyline",
         schema="pl_diagram",
     )
-    op.drop_column("DispPolyline", "targetEdgeTemplateName", schema="pl_diagram")
+    op.drop_column(
+        "DispPolyline", "targetEdgeTemplateName", schema="pl_diagram"
+    )
     op.drop_column("DispPolyline", "targetEdgeTemplateId", schema="pl_diagram")
     # ### end Alembic commands ###

@@ -55,7 +55,7 @@ class LiveDbDisplayValueConverter:
         ormSession, modelSetId: int, table
     ) -> Dict[str, int]:
         resultSet = ormSession.execute(
-            select([table.c.importHash, table.c.id]).where(
+            select(table.c.importHash, table.c.id).where(
                 table.c.modelSetId == modelSetId
             )
         )

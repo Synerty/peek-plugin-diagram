@@ -60,7 +60,7 @@ export class DispPolyline extends DispPoly {
     static setTargetEdgeTemplateName(
         disp: DispPolylineT,
         coordSetId: number,
-        name: string
+        name: string,
     ): void {
         disp.tn = `${coordSetId}|${name}`;
     }
@@ -179,19 +179,19 @@ export class DispPolyline extends DispPoly {
         return { x: disp.g[0], y: disp.g[1] };
     }
 
-    static lastPoint(disp): PointI {
+    static override lastPoint(disp): PointI {
         let l = disp.g.length;
         return { x: disp.g[l - 2], y: disp.g[l - 1] };
     }
 
-    static create(coordSet: ModelCoordSet): DispPolylineT {
+    static override create(coordSet: ModelCoordSet): DispPolylineT {
         return <DispPolylineT>DispPoly.create(coordSet, DispBase.TYPE_DPL);
     }
 
     static contains(
         dispPoly: DispPolylineT,
         point: PointI,
-        margin: number
+        margin: number,
     ): boolean {
         const x = point.x;
         const y = point.y;
@@ -246,7 +246,9 @@ export class DispPolyline extends DispPoly {
 
     // ---------------
     // Support shape editing
-    static makeShapeContext(context: PeekCanvasShapePropsContext): void {
+    static override makeShapeContext(
+        context: PeekCanvasShapePropsContext,
+    ): void {
         DispPoly.makeShapeContext(context);
 
         let lineEndOptions = [
@@ -276,8 +278,8 @@ export class DispPolyline extends DispPoly {
                 },
                 (disp, valObj) => DispPolyline.setStartEndType(disp, valObj.id),
                 "Line Start Style",
-                { options: lineEndOptions }
-            )
+                { options: lineEndOptions },
+            ),
         );
 
         context.addProp(
@@ -289,8 +291,8 @@ export class DispPolyline extends DispPoly {
                 },
                 (disp, valObj) => DispPolyline.setEndEndType(disp, valObj.id),
                 "Line End Style",
-                { options: lineEndOptions }
-            )
+                { options: lineEndOptions },
+            ),
         );
     }
 
@@ -310,12 +312,12 @@ export class DispPolyline extends DispPoly {
         edgeTemplate: DispEdgeTemplateT,
         edgeTemplateCoordSetId: number,
         lookupService: PrivateDiagramLookupService,
-        branchTuple: BranchTuple
+        branchTuple: BranchTuple,
     ): void {
         DispPolyline.setTargetEdgeTemplateName(
             polyline,
             edgeTemplateCoordSetId,
-            DispEdgeTemplate.templateName(edgeTemplate)
+            DispEdgeTemplate.templateName(edgeTemplate),
         );
 
         DispPolyline.setLayer(polyline, DispEdgeTemplate.layer(edgeTemplate));
@@ -323,31 +325,31 @@ export class DispPolyline extends DispPoly {
 
         DispPolyline.setLineWidth(
             polyline,
-            DispEdgeTemplate.lineWidth(edgeTemplate)
+            DispEdgeTemplate.lineWidth(edgeTemplate),
         );
         DispPolyline.setLineColor(
             polyline,
-            DispEdgeTemplate.lineColor(edgeTemplate)
+            DispEdgeTemplate.lineColor(edgeTemplate),
         );
         DispPolyline.setLineStyle(
             polyline,
-            DispEdgeTemplate.lineStyle(edgeTemplate)
+            DispEdgeTemplate.lineStyle(edgeTemplate),
         );
 
         DispPolyline.setEndEndType(
             polyline,
-            DispEdgeTemplate.endEndType(edgeTemplate)
+            DispEdgeTemplate.endEndType(edgeTemplate),
         );
         DispPolyline.setStartEndType(
             polyline,
-            DispEdgeTemplate.startEndType(edgeTemplate)
+            DispEdgeTemplate.startEndType(edgeTemplate),
         );
     }
 
     // ---------------
     // Represent the disp as a user friendly string
 
-    static makeShapeStr(disp: DispPolylineT): string {
+    static override makeShapeStr(disp: DispPolylineT): string {
         let center = DispPolyline.center(disp);
         return (
             DispBase.makeShapeStr(disp) +

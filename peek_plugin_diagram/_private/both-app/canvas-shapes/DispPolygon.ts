@@ -99,7 +99,7 @@ export class DispPolygon extends DispPoly {
     static contains(
         disp: DispPolygonT,
         point: PointI,
-        margin: number
+        margin: number,
     ): boolean {
         const x = point.x;
         const y = point.y;
@@ -113,7 +113,7 @@ export class DispPolygon extends DispPoly {
             axIn: number,
             ayIn: number,
             bxIn: number,
-            byIn: number
+            byIn: number,
         ) {
             let swap = ayIn > byIn;
             let ax = swap ? bxIn : axIn;
@@ -170,18 +170,20 @@ export class DispPolygon extends DispPoly {
         return crossings % 2 == 1;
     }
 
-    static create(coordSet: ModelCoordSet): DispPolygonT {
+    static override create(coordSet: ModelCoordSet): DispPolygonT {
         let disp = <DispPolygonT>DispPoly.create(coordSet, DispBase.TYPE_DPG);
         DispPolygon.setCornerRadius(disp, 0);
         DispPolygon.setFillDirection(
             disp,
-            PolygonFillDirection.fillTopToBottom
+            PolygonFillDirection.fillTopToBottom,
         );
         DispPolygon.setFillPercent(disp, 100);
         return disp;
     }
 
-    static makeShapeContext(context: PeekCanvasShapePropsContext): void {
+    static override makeShapeContext(
+        context: PeekCanvasShapePropsContext,
+    ): void {
         DispPoly.makeShapeContext(context);
 
         context.addProp(
@@ -189,8 +191,8 @@ export class DispPolygon extends DispPoly {
                 ShapePropType.Color,
                 DispPolygon.fillColor,
                 DispPolygon.setFillColor,
-                "Fill Color"
-            )
+                "Fill Color",
+            ),
         );
 
         context.addProp(
@@ -233,8 +235,8 @@ export class DispPolygon extends DispPoly {
                             value: PolygonFillDirection.fillTopToBottom,
                         },
                     ],
-                }
-            )
+                },
+            ),
         );
 
         context.addProp(
@@ -242,8 +244,8 @@ export class DispPolygon extends DispPoly {
                 ShapePropType.Integer,
                 DispPolygon.fillPercent,
                 DispPolygon.setFillPercent,
-                "Fill Percent"
-            )
+                "Fill Percent",
+            ),
         );
 
         context.addProp(
@@ -251,15 +253,15 @@ export class DispPolygon extends DispPoly {
                 ShapePropType.Integer,
                 DispPolygon.cornerRadius,
                 DispPolygon.setCornerRadius,
-                "Corner Radius"
-            )
+                "Corner Radius",
+            ),
         );
     }
 
     // ---------------
     // Represent the disp as a user friendly string
 
-    static makeShapeStr(disp: DispPolygonT): string {
+    static override makeShapeStr(disp: DispPolygonT): string {
         let center = DispPolygon.center(disp);
         return (
             DispBase.makeShapeStr(disp) +

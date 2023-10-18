@@ -21,7 +21,7 @@ export function dateStr(): string {
  */
 export function dictKeysFromObject(
     obj: {},
-    includeUnderscore = false
+    includeUnderscore = false,
 ): string[] {
     let keys = [];
     for (let k in obj) {

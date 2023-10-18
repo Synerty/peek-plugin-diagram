@@ -55,7 +55,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
             <DispCurvedTextT>disp,
             this.textMeasureCtx,
             zoom,
-            true
+            true,
         );
     }
 
@@ -69,7 +69,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
         ctx,
         zoom: number,
         pan: PointI,
-        drawMode: DrawModeE
+        drawMode: DrawModeE,
     ) {
         this.drawAndCalcBounds(disp, ctx, zoom, false);
     }
@@ -111,7 +111,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
                 b.y + b.h / 2,
                 b.h / 2 / zoom,
                 0,
-                2 * Math.PI
+                2 * Math.PI,
             );
             ctx.fill();
         }
@@ -126,7 +126,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
         disp: DispCurvedTextT,
         ctx,
         zoom: number,
-        updateBounds: boolean
+        updateBounds: boolean,
     ) {
         const textStyle = DispCurvedText.textStyle(disp);
 
@@ -191,7 +191,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
             disp,
             lineHeight,
             fillColor,
-            borderColor
+            borderColor,
         );
 
         // restore to original state
@@ -218,7 +218,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
         x1: number,
         y1: number,
         x2: number,
-        y2: number
+        y2: number,
     ): number {
         const dx = x2 - x1;
         const dy = y2 - y1;
@@ -242,7 +242,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
         // check if the path is valid
         if (path.length % 2 != 0) {
             throw new Error(
-                "path should be an 1-dimension array of coordinates of x and y."
+                "path should be an 1-dimension array of coordinates of x and y.",
             );
         }
 
@@ -265,7 +265,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
                 previousX,
                 previousY,
                 thisX,
-                thisY
+                thisY,
             );
 
             segmentLengths.push(segmentDistance);
@@ -274,7 +274,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
             // add angle of two segments that forms
             const angle = this.calculateRotationAngle(
                 thisY - previousY,
-                thisX - previousX
+                thisX - previousX,
             );
             angles.push(angle);
 
@@ -308,7 +308,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
             const absoluteAngle = Math.abs(angle);
             reverseDirectionOfXAxisFlags.push(
                 // check if it's in quadrant II
-                absoluteAngle > Math.PI / 2 && absoluteAngle <= Math.PI
+                absoluteAngle > Math.PI / 2 && absoluteAngle <= Math.PI,
             );
         }
 
@@ -381,12 +381,12 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
                           //  as [leftIndex, rightIndex)
                           path.slice(
                               inclusiveStartPointXIndex,
-                              exclusiveEndPointXIndex
-                          )
+                              exclusiveEndPointXIndex,
+                          ),
                       )
                     : path.slice(
                           inclusiveStartPointXIndex,
-                          exclusiveEndPointXIndex
+                          exclusiveEndPointXIndex,
                       );
                 subPaths.push(subPath);
             }
@@ -405,7 +405,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
     private locateNextCharacter(
         distanceFromStart: number,
         path: number[],
-        curvedTextPathDrawingContext: CurvedTextPathDrawingContext
+        curvedTextPathDrawingContext: CurvedTextPathDrawingContext,
     ): CurvedTextPathDrawingContext {
         {
             // get states from context
@@ -426,7 +426,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
                         path[_pathIndex - 2],
                         path[_pathIndex - 1],
                         path[_pathIndex],
-                        path[_pathIndex + 1]
+                        path[_pathIndex + 1],
                     );
                     if (
                         _distanceConsumed + _distanceOfSegment >
@@ -497,7 +497,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
         disp: DispCurvedTextT,
         lineHeight: number,
         fillColor: string | null,
-        borderColor: string | null
+        borderColor: string | null,
     ): number {
         // set up text styling
         ctx.textAlign = textAlign;
@@ -571,7 +571,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
             ) {
                 repeatCount = Math.floor(
                     (processedSubPath.pathLength + spacingInBetween) /
-                        (marginTotalWidth + textWidth + spacingInBetween)
+                        (marginTotalWidth + textWidth + spacingInBetween),
                 );
                 spareDistance =
                     processedSubPath.pathLength -
@@ -600,20 +600,20 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
                     const char = chars[charIndex];
                     const charWidth =
                         char in measureTextLengthMap
-                            ? measureTextLengthMap.char
+                            ? measureTextLengthMap["char"]
                             : ctx.measureText(char).width;
 
                     curvedTextPathDrawingContext = this.locateNextCharacter(
                         distanceFromStartPoint + charWidth / 2,
                         subPath,
-                        curvedTextPathDrawingContext
+                        curvedTextPathDrawingContext,
                     );
                     ctx.save();
 
                     ctx.textAlign = "center";
                     ctx.translate(
                         curvedTextPathDrawingContext.nextPoint.location.x,
-                        curvedTextPathDrawingContext.nextPoint.location.y
+                        curvedTextPathDrawingContext.nextPoint.location.y,
                     );
                     ctx.rotate(curvedTextPathDrawingContext.nextPoint.angle);
 

@@ -52,7 +52,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
     constructor(
         private coordSetService: PrivateDiagramCoordSetService,
         private locationIndexService: PrivateDiagramLocationLoaderService,
-        private balloonMsg: BalloonMsgService
+        private balloonMsg: BalloonMsgService,
     ) {
         super();
     }
@@ -66,7 +66,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
         x: number,
         y: number,
         zoom: number,
-        opts: OptionalPositionArgsI = {}
+        opts: OptionalPositionArgsI = {},
     ): void {
         this.positionSubject.next({
             coordSetKey: coordSetKey,
@@ -80,7 +80,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
     async positionByKeys(
         keys: string[],
         modelSetKey: string,
-        coordSetKey: string
+        coordSetKey: string,
     ): Promise<void> {
         const locations: any[] = [];
 
@@ -112,7 +112,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
             parseFloat(x.toString()),
             parseFloat(y.toString()),
             parseFloat("0.85"),
-            {}
+            {},
         );
 
         this.selectKeysSubject.next(keys);
@@ -121,11 +121,11 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
     async positionByKey(
         modelSetKey: string,
         coordSetKey: string | null,
-        opts: OptionalPositionArgsI = {}
+        opts: OptionalPositionArgsI = {},
     ): Promise<void> {
         if (!this.coordSetService.isReady()) {
             throw new Error(
-                "positionByKey called before coordSetService is ready"
+                "positionByKey called before coordSetService is ready",
             );
         }
 
@@ -135,13 +135,13 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
         let dispKeyIndexes: DispKeyLocationTuple[] =
             await this.locationIndexService.getLocations(
                 modelSetKey,
-                opts.highlightKey
+                opts.highlightKey,
             );
 
         if (dispKeyIndexes.length == 0) {
             this.balloonMsg.showError(
                 `Can not locate display item ${opts.highlightKey}` +
-                    ` in model set ${modelSetKey}`
+                    ` in model set ${modelSetKey}`,
             );
         }
 
@@ -152,7 +152,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
             if (!dispKeyIndexes.length) {
                 this.balloonMsg.showError(
                     `Can not locate display item ${opts.highlightKey}` +
-                        ` in model set ${modelSetKey}, in coord set ${coordSetKey}`
+                        ` in model set ${modelSetKey}, in coord set ${coordSetKey}`,
                 );
             }
         }
@@ -162,13 +162,13 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
 
             const coordSet = this.coordSetService.coordSetForKey(
                 modelSetKey,
-                dispKeyIndex.coordSetKey
+                dispKeyIndex.coordSetKey,
             );
 
             if (coordSet == null) {
                 throw new Error(
                     "Could not find coordSet for key=" +
-                        dispKeyIndex.coordSetKey
+                        dispKeyIndex.coordSetKey,
                 );
             }
 
@@ -194,7 +194,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
 
     async canPositionByKey(
         modelSetKey: string,
-        dispKey: string
+        dispKey: string,
     ): Promise<boolean> {
         const val: DispKeyLocationTuple[] =
             await this.locationIndexService.getLocations(modelSetKey, dispKey);
@@ -203,7 +203,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
 
     async locationsForKey(
         modelSetKey: string,
-        dispKey: string
+        dispKey: string,
     ): Promise<DispKeyLocation[]> {
         const tuples: DispKeyLocationTuple[] =
             await this.locationIndexService.getLocations(modelSetKey, dispKey);
@@ -239,7 +239,7 @@ export class PrivateDiagramPositionService extends DiagramPositionService {
 
     positionUpdated(
         pos: PositionUpdatedI,
-        coordSetViewData: CoordSetViewWindowI
+        coordSetViewData: CoordSetViewWindowI,
     ): void {
         this.positionUpdatedSubject.next(pos);
         this.coordSetViewSubject.next(coordSetViewData);

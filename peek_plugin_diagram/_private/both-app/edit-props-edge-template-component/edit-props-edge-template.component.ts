@@ -43,7 +43,7 @@ export class EditPropsEdgeTemplateComponent
     constructor(
         private tupleService: PrivateDiagramTupleService,
         abstractCoordSetCache: DiagramCoordSetService,
-        private lookupService: PrivateDiagramLookupService
+        private lookupService: PrivateDiagramLookupService,
     ) {
         super();
 
@@ -52,11 +52,11 @@ export class EditPropsEdgeTemplateComponent
         );
     }
 
-    ngOnInit() {
+    override ngOnInit() {
         this.templateCoordSets = [];
 
         let coordSets = this.coordSetCache.coordSets(
-            this.canvasEditor.branchContext.modelSetKey
+            this.canvasEditor.branchContext.modelSetKey,
         );
 
         for (let coordSet of coordSets) {
@@ -72,7 +72,7 @@ export class EditPropsEdgeTemplateComponent
         }
 
         this.templateCoordSets = this.templateCoordSets.sort((a, b) =>
-            a.name.localeCompare(b.name)
+            a.name.localeCompare(b.name),
         );
 
         this.context = this.canvasEditor.props.edgeTemplatePanelContext;
@@ -124,18 +124,18 @@ export class EditPropsEdgeTemplateComponent
                         let gridTuple: GridTuple = payload.tuples[0];
                         let linkedGrid = new LinkedGrid(
                             gridTuple,
-                            this.lookupService
+                            this.lookupService,
                         );
                         this.edgeTemplates = linkedGrid.disps.sort((a, b) =>
                             DispGroup.groupName(a).localeCompare(
-                                DispGroup.groupName(b)
-                            )
+                                DispGroup.groupName(b),
+                            ),
                         );
                         this.initSelectedEdgeTemplate();
                     })
                     .catch((err) => {
                         console.log(
-                            `GridLoader.emitEncodedGridTuples decode error: ${err}`
+                            `GridLoader.emitEncodedGridTuples decode error: ${err}`,
                         );
                     });
             });
@@ -149,7 +149,7 @@ export class EditPropsEdgeTemplateComponent
         this.selectedEdgeTemplate = disp;
         this.context.setEdgeTemplate(
             this.selectedEdgeTemplate,
-            this.selectedCoordSetId
+            this.selectedCoordSetId,
         );
     }
 

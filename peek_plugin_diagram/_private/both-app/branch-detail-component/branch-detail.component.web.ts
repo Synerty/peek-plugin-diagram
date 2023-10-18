@@ -61,7 +61,7 @@ export class BranchDetailComponent extends NgLifeCycleEvents implements OnInit {
 
     // Set in EDIT mode from edit-props
     @Input("diagramBranchUpdatedObservable")
-    diagramBranchUpdatedObservable: Observable<void>;
+    diagramBranchUpdatedObservable: Observable<boolean>;
 
     isEditMode: boolean = false;
 
@@ -76,7 +76,7 @@ export class BranchDetailComponent extends NgLifeCycleEvents implements OnInit {
         private docDbService: DocDbService,
         diagramPosService: DiagramPositionService,
         private branchService: PrivateDiagramBranchService,
-        private globalBranchService: BranchService
+        private globalBranchService: BranchService,
     ) {
         super();
 
@@ -85,7 +85,7 @@ export class BranchDetailComponent extends NgLifeCycleEvents implements OnInit {
         );
     }
 
-    ngOnInit() {
+    override ngOnInit() {
         if (this.inputGlobalBranch != null) {
             this.globalBranch = this.inputGlobalBranch;
             this.globalBranchKey = this.inputGlobalBranch.key;
@@ -123,7 +123,7 @@ export class BranchDetailComponent extends NgLifeCycleEvents implements OnInit {
         this.diagramPosService.positionByKey(
             this.modelSetKey,
             this.coordSetKey,
-            { highlightKey: props[0].value }
+            { highlightKey: props[0].value },
         );
     }
 
@@ -136,7 +136,7 @@ export class BranchDetailComponent extends NgLifeCycleEvents implements OnInit {
             center.x,
             center.y,
             5.0,
-            Wrapper.key(disp) || {}
+            Wrapper.key(disp) || {},
         );
     }
 
@@ -148,7 +148,7 @@ export class BranchDetailComponent extends NgLifeCycleEvents implements OnInit {
             diagramPluginName,
             $event,
             this.modelSetKey,
-            result.key
+            result.key,
         );
     }
 
@@ -160,7 +160,7 @@ export class BranchDetailComponent extends NgLifeCycleEvents implements OnInit {
             .then((globalBranch: BranchDetailTuple | null) => {
                 if (globalBranch == null) {
                     console.log(
-                        `ERROR: Could not load global branch for ${this.globalBranchKey}`
+                        `ERROR: Could not load global branch for ${this.globalBranchKey}`,
                     );
                     return;
                 }
@@ -183,7 +183,7 @@ export class BranchDetailComponent extends NgLifeCycleEvents implements OnInit {
 
     private loadDiagramBranchDisps() {
         const branchDisps = this.diagramBranch.disps.filter(
-            (d) => DispBase.groupId(d) == null
+            (d) => DispBase.groupId(d) == null,
         );
         this.disps = [];
 
@@ -215,7 +215,7 @@ export class BranchDetailComponent extends NgLifeCycleEvents implements OnInit {
 
                     const props = this.docDbService.getNiceOrderedProperties(
                         doc,
-                        (prop: DocDbPropertyTuple) => prop.showOnTooltip
+                        (prop: DocDbPropertyTuple) => prop.showOnTooltip,
                     );
 
                     this.anchorDocs.push({

@@ -40,7 +40,7 @@ export class PrivateDiagramConfigService
 
     constructor(
         private lookupService: PrivateDiagramLookupService,
-        private diagramToolbarService: DiagramToolbarService
+        private diagramToolbarService: DiagramToolbarService,
     ) {
         super();
     }
@@ -97,13 +97,13 @@ export class PrivateDiagramConfigService
     setLayerVisible(
         modelSetKey: string,
         layerName: string,
-        visible: boolean
+        visible: boolean,
     ): void {
         const layer = this.lookupService.layerForName(modelSetKey, layerName);
         if (layer == null) {
             throw new Error(
                 "No layer exists for modelSetKey " +
-                    `'${modelSetKey}' and name ${layerName}`
+                    `'${modelSetKey}' and name ${layerName}`,
             );
         }
         layer.visible = visible;

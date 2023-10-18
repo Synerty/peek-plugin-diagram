@@ -46,7 +46,7 @@ __CanvasRenderingContext2DPrototype.dashedLine = function (
     y1,
     x2,
     y2,
-    dashLen
+    dashLen,
 ) {
     this.moveTo(x1, y1);
 
@@ -70,7 +70,7 @@ __CanvasRenderingContext2DPrototype.dashedRect = function (
     y,
     w,
     h,
-    dashLen
+    dashLen,
 ) {
     if (dashLen == 0) {
         this.beginPath();

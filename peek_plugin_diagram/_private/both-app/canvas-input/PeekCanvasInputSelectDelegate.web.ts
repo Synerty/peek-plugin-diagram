@@ -3,7 +3,7 @@ import {
     InputDelegateConstructorViewArgs,
     PeekCanvasInputDelegate,
 } from "./PeekCanvasInputDelegate.web";
-import * as assert from "assert";
+import { assert } from "../DiagramUtil";
 import { EditorToolType } from "../canvas/PeekCanvasEditorToolType.web";
 import { DispBase, DispBaseT, PointI } from "../canvas-shapes/DispBase";
 import { DrawModeE } from "../canvas-render/PeekDispRenderDelegateABC.web";
@@ -51,7 +51,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
-        editArgs: InputDelegateConstructorEditArgs
+        editArgs: InputDelegateConstructorEditArgs,
     ) {
         super(viewArgs, editArgs, PeekCanvasInputSelectDelegate.TOOL_NAME);
 
@@ -79,7 +79,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this._lastMousePos = null;
     }
 
-    keyUp(event) {
+    override keyUp(event) {
         let phUpDownZoomFactor = this.viewArgs.config.mouse.phUpDownZoomFactor;
 
         // Page Up
@@ -102,7 +102,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
     // mouse) {
     // }
 
-    touchStart(event: TouchEvent, mouse) {
+    override touchStart(event: TouchEvent, mouse) {
         this.clearPopupTimeout();
         if (event.targetTouches.length == 2) {
             this._state = this.STATE_CANVAS_ZOOMING;
@@ -112,7 +112,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         }
     }
 
-    mouseDown(event, mouse: CanvasInputPos) {
+    override mouseDown(event, mouse: CanvasInputPos) {
         this.clearPopupTimeout();
         this.suggestedDispToSelect = null;
         this._mouseDownWithShift = event.shiftKey;
@@ -160,7 +160,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         }
     }
 
-    touchMove(event: TouchEvent, mouse: CanvasInputPos) {
+    override touchMove(event: TouchEvent, mouse: CanvasInputPos) {
         if (this._state == this.STATE_CANVAS_ZOOMING) {
             this._touchZoom(event, mouse);
         } else {
@@ -182,7 +182,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         };
 
         let dist = Math.sqrt(
-            (t1x - t2x) * (t1x - t2x) + (t1y - t2y) * (t1y - t2y)
+            (t1x - t2x) * (t1x - t2x) + (t1y - t2y) * (t1y - t2y),
         );
 
         if (this._lastPinchDist == null) {
@@ -248,7 +248,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this.viewArgs.config.updateViewPortZoom(zoom);
     }
 
-    mouseMove(event, inputPos: CanvasInputPos) {
+    override mouseMove(event, inputPos: CanvasInputPos) {
         if (this._state == this.STATE_NONE) {
             this.renderSelectablesUnderMouse(inputPos, event);
             return;
@@ -285,11 +285,11 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this.viewArgs.config.invalidate();
     }
 
-    touchEnd(event: TouchEvent, mouse) {
+    override touchEnd(event: TouchEvent, mouse) {
         this.mouseUp(event, mouse);
     }
 
-    mouseUp(event, mouse) {
+    override mouseUp(event, mouse) {
         // Store the change
         switch (this._state) {
             case this.STATE_SELECTING: {
@@ -308,9 +308,9 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this.viewArgs.config.invalidate();
     }
 
-    mouseDoubleClick(event, mouse) {}
+    override mouseDoubleClick(event, mouse) {}
 
-    mouseWheel(event, mouse) {
+    override mouseWheel(event, mouse) {
         let delta = event.deltaY || event.wheelDelta;
 
         // Overcome windows zoom multipliers
@@ -324,14 +324,14 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
         this._zoomPan(mouse.clientX, mouse.clientY, delta);
     }
 
-    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
+    override draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
         if (this.suggestedDispToSelect != null) {
             this.viewArgs.renderFactory.drawSelected(
                 this.suggestedDispToSelect,
                 ctx,
                 zoom,
                 pan,
-                DrawModeE.ForSuggestion
+                DrawModeE.ForSuggestion,
             );
         }
     }
@@ -351,7 +351,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             this.viewArgs.config.viewPort.zoom,
             this.viewArgs.config.mouse.selecting.margin,
             inputPos,
-            true
+            true,
         );
 
         // Sort by how close the click is from the center of the box.
@@ -398,7 +398,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                 mouse,
                 this.viewArgs.config.controller.modelSetKey,
                 DispBase.key(hit),
-                { triggeredForContext: this.viewArgs.config.coordSet.key }
+                { triggeredForContext: this.viewArgs.config.coordSet.key },
             );
         }
     }
@@ -410,7 +410,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             query.selectableDisps,
             this.viewArgs.config.viewPort.zoom,
             true,
-            false
+            false,
         );
 
         let hits = query.filterForDispsContainingPoint(
@@ -418,7 +418,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
             this.viewArgs.config.viewPort.zoom,
             this.viewArgs.config.mouse.selecting.margin,
             inputPos,
-            true
+            true,
         );
 
         hits = query.sortByDistanceFromCenter(hits, inputPos);
@@ -428,7 +428,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
 
     private renderSelectablesUnderMouse(
         inputPos: CanvasInputPos,
-        mouse: MouseEvent
+        mouse: MouseEvent,
     ): void {
         const query = this.viewArgs.model.query;
 
@@ -490,7 +490,7 @@ export class PeekCanvasInputSelectDelegate extends PeekCanvasInputDelegate {
                 DispBase.key(newHit),
                 {
                     triggeredForContext: this.viewArgs.config.coordSet.key,
-                }
+                },
             );
         }, 250);
     }

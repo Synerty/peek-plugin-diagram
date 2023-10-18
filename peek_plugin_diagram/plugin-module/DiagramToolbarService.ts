@@ -69,7 +69,7 @@ export abstract class DiagramToolbarService {
         modelSetKey: string | null,
         coordSetKey: string | null,
         toolButton: DiagramToolButtonI,
-        toolbarType?: ToolbarTypeE
+        toolbarType?: ToolbarTypeE,
     );
 
     /** Remove Tool Button

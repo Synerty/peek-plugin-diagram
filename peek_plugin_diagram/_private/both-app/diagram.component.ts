@@ -25,7 +25,7 @@ export class DiagramComponentBase extends NgLifeCycleEvents {
     constructor(
         protected headerService: HeaderService,
         positionService: DiagramPositionService,
-        toolbarService: DiagramToolbarService
+        toolbarService: DiagramToolbarService,
     ) {
         super();
 

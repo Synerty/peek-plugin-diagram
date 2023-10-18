@@ -17,7 +17,7 @@ export class StatusComponent extends NgLifeCycleEvents {
 
     constructor(
         private balloonMsg: BalloonMsgService,
-        private tupleObserver: TupleDataObserverService
+        private tupleObserver: TupleDataObserverService,
     ) {
         super();
 
@@ -27,7 +27,7 @@ export class StatusComponent extends NgLifeCycleEvents {
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(
                 (tuples: DiagramImporterStatusTuple[]) =>
-                    (this.item = tuples[0])
+                    (this.item = tuples[0]),
             );
     }
 }

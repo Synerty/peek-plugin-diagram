@@ -55,7 +55,7 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
 
     constructor(
         private tupleService: PrivateDiagramTupleService,
-        private coordSetService: PrivateDiagramCoordSetService
+        private coordSetService: PrivateDiagramCoordSetService,
     ) {
         super();
 
@@ -78,7 +78,7 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
             lookupAttr,
             tupleName,
             callback = null,
-            indexAttrName = "id"
+            indexAttrName = "id",
         ) => {
             let ts = new TupleSelector(tupleName, {});
             this.subscriptions.push(
@@ -100,17 +100,17 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
 
                         this._isReadySubject.next(this.isReady());
                         this.dispsNeedRelinking = true;
-                    })
+                    }),
             );
         };
 
         // Load the lookup after the model set loads
         sub("_levelsById", DispLevel.tupleName, () =>
-            this.createLevelsOrderedByOrder()
+            this.createLevelsOrderedByOrder(),
         );
 
         sub("_layersById", DispLayer.tupleName, () =>
-            this.createLayersOrderedByOrder()
+            this.createLayersOrderedByOrder(),
         );
 
         sub("_colorById", DispColor.tupleName, () => {
@@ -120,11 +120,11 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
         });
 
         sub("_textStyleById", DispTextStyle.tupleName, () =>
-            this.createTextStyleOrderedByName()
+            this.createTextStyleOrderedByName(),
         );
 
         sub("_lineStyleById", DispLineStyle.tupleName, () =>
-            this._convertLineStyleDashPattern()
+            this._convertLineStyleDashPattern(),
         );
 
         setInterval(() => {
@@ -209,7 +209,7 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
 
     colorForName(
         modelSetKeyOrId: string | number,
-        name: string
+        name: string,
     ): DispColor | null {
         const modelSetId = this.getModelSetId(modelSetKeyOrId);
         const result = this._colorsByModelSetIdByName[modelSetId];
@@ -335,7 +335,7 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
                 color.darkColor = null;
             } else if (!validTextColor(color.darkColor)) {
                 console.log(
-                    `Color ID ${color.id} Dark Colour ${color.darkColor} is not a valid CSS color`
+                    `Color ID ${color.id} Dark Colour ${color.darkColor} is not a valid CSS color`,
                 );
                 color.darkColor = "red";
             }
@@ -351,12 +351,12 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
         }
 
         let ordered = dictValuesFromObject(this._colorById).sort((o1, o2) =>
-            o1.name.localeCompare(o2.name)
+            o1.name.localeCompare(o2.name),
         );
 
         this._colorsByModelSetIdOrderedByName = this.groupByCommonId(
             ordered,
-            "modelSetId"
+            "modelSetId",
         );
     }
 
@@ -385,24 +385,24 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
      */
     private _convertLineStyleDashPattern() {
         let lineStyles: DispLineStyle[] = dictValuesFromObject(
-            this._lineStyleById
+            this._lineStyleById,
         );
 
         for (let lineStyle of lineStyles) {
             if (lineStyle.dashPattern == null) continue;
 
             lineStyle.dashPatternParsed = JSON.parse(
-                "" + lineStyle.dashPattern
+                "" + lineStyle.dashPattern,
             );
         }
 
         let ordered = lineStyles.sort((o1, o2) =>
-            o1.name.localeCompare(o2.name)
+            o1.name.localeCompare(o2.name),
         );
 
         this._lineStyleByModelSetIdOrderedByName = this.groupByCommonId(
             ordered,
-            "modelSetId"
+            "modelSetId",
         );
     }
 
@@ -423,40 +423,40 @@ export class PrivateDiagramLookupService extends NgLifeCycleEvents {
 
     private createLayersOrderedByOrder() {
         let ordered = dictValuesFromObject(this._layersById).sort(
-            (o1, o2) => o1.order - o2.order
+            (o1, o2) => o1.order - o2.order,
         );
 
         this._layersByModelSetIdOrderedByOrder = this.groupByCommonId(
             ordered,
-            "modelSetId"
+            "modelSetId",
         );
     }
 
     private createLevelsOrderedByOrder() {
         let ordered = dictValuesFromObject(this._levelsById).sort(
-            (o1, o2) => o1.order - o2.order
+            (o1, o2) => o1.order - o2.order,
         );
 
         this._levelsByCoordSetIdOrderedByOrder = this.groupByCommonId(
             ordered,
-            "coordSetId"
+            "coordSetId",
         );
     }
 
     private createTextStyleOrderedByName() {
         let ordered = dictValuesFromObject(this._textStyleById).sort((o1, o2) =>
-            o1.name.localeCompare(o2.name)
+            o1.name.localeCompare(o2.name),
         );
 
         this._textStyleByModelSetIdOrderedByName = this.groupByCommonId(
             ordered,
-            "modelSetId"
+            "modelSetId",
         );
     }
 
     private groupByCommonId(
         orderedItems: any[],
-        groupAttrName: string
+        groupAttrName: string,
     ): { [id: number]: any[] } {
         let dict = {};
 

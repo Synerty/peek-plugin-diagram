@@ -70,7 +70,9 @@ def _createHashId(dispDict: Dict) -> str:
 
 import string
 
-ALPHABET = string.ascii_uppercase + string.ascii_lowercase + string.digits + "-_"
+ALPHABET = (
+    string.ascii_uppercase + string.ascii_lowercase + string.digits + "-_"
+)
 ALPHABET_REVERSE = dict((c, i) for (i, c) in enumerate(ALPHABET))
 BASE = len(ALPHABET)
 SIGN_CHARACTER = "$"

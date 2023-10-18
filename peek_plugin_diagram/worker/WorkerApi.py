@@ -1,6 +1,8 @@
 from typing import List
 
-from peek_plugin_livedb.tuples.LiveDbDisplayValueTuple import LiveDbDisplayValueTuple
+from peek_plugin_livedb.tuples.LiveDbDisplayValueTuple import (
+    LiveDbDisplayValueTuple,
+)
 
 
 class WorkerApi:
@@ -30,7 +32,9 @@ class WorkerApi:
 
         :returns: The input list with populated display values.
         """
-        from peek_plugin_diagram._private.worker.api.WorkerApiImpl import WorkerApiImpl
+        from peek_plugin_diagram._private.worker.api.WorkerApiImpl import (
+            WorkerApiImpl,
+        )
 
         WorkerApiImpl.updateLiveDbDisplayValues(
             ormSession, modelSetKey, liveDbRawValues
@@ -54,7 +58,9 @@ class WorkerApi:
 
         :returns: None
         """
-        from peek_plugin_diagram._private.worker.api.WorkerApiImpl import WorkerApiImpl
+        from peek_plugin_diagram._private.worker.api.WorkerApiImpl import (
+            WorkerApiImpl,
+        )
 
         return WorkerApiImpl.liveDbDisplayValueUpdateNotify(
             ormSession, modelSetKey, updatedKeys

@@ -31,16 +31,24 @@ class _Notifier(ACIProcessorStatusNotifierABC):
         self._adminStatusController = adminStatusController
 
     def setProcessorStatus(self, state: bool, queueSize: int):
-        self._adminStatusController.status.locationIndexCompilerQueueStatus = state
-        self._adminStatusController.status.locationIndexCompilerQueueSize = queueSize
+        self._adminStatusController.status.locationIndexCompilerQueueStatus = (
+            state
+        )
+        self._adminStatusController.status.locationIndexCompilerQueueSize = (
+            queueSize
+        )
         self._adminStatusController.notify()
 
     def addToProcessorTotal(self, delta: int):
-        self._adminStatusController.status.locationIndexCompilerProcessedTotal += delta
+        self._adminStatusController.status.locationIndexCompilerProcessedTotal += (
+            delta
+        )
         self._adminStatusController.notify()
 
     def setProcessorError(self, error: str):
-        self._adminStatusController.status.locationIndexCompilerLastError = error
+        self._adminStatusController.status.locationIndexCompilerLastError = (
+            error
+        )
         self._adminStatusController.notify()
 
 

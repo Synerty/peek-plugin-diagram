@@ -20,18 +20,18 @@ export class PeekDispRenderFactory {
 
     constructor(
         private config: PeekCanvasConfig,
-        private model: PeekCanvasModel
+        private model: PeekCanvasModel,
     ) {
         let polyDelegate = new PeekDispRenderDelegatePoly(config, model);
         let textDelegate = new PeekDispRenderDelegateText(config, model);
         let curvedTextDelegate = new PeekDispRenderDelegateCurvedText(
             config,
-            model
+            model,
         );
         let ellipseDelegate = new PeekDispRenderDelegateEllipse(config, model);
         let groupPtrDelegate = new PeekDispRenderDelegateGroupPtr(
             config,
-            model
+            model,
         );
         let nullDelegate = new PeekDispRenderDelegateNull(config, model);
 
@@ -83,7 +83,7 @@ export class PeekDispRenderFactory {
             ctx,
             zoom,
             pan,
-            drawMode
+            drawMode,
         );
     }
 

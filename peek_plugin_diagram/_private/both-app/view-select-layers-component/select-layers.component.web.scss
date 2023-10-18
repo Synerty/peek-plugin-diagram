@@ -1,5 +1,5 @@
-@import "~@synerty/peek-plugin-base-js/src/styles/_mixins";
-@import "~@synerty/peek-plugin-base-js/src/styles/_variables";
+@import "@synerty/peek-plugin-base-js/src/styles/_mixins";
+@import "@synerty/peek-plugin-base-js/src/styles/_variables";
 
 $height: calc(100vh - 300px);
 
@@ -22,7 +22,6 @@ $height: calc(100vh - 300px);
     height: $height;
     overflow-y: scroll;
 }
-
 
 /*
 .modal-backdrop {

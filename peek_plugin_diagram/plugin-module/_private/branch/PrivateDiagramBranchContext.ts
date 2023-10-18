@@ -33,7 +33,7 @@ export class PrivateDiagramBranchContext {
         private _coordSetKey: string,
         private tupleService: PrivateDiagramTupleService,
         private branchLocalLoader: LocalBranchStorageService,
-        private userDetails: UserListItemTuple
+        private userDetails: UserListItemTuple,
     ) {}
 
     get branchTuple(): BranchTuple {
@@ -99,7 +99,7 @@ export class PrivateDiagramBranchContext {
                     update.updatedByUser != this.userKey()
                 ) {
                     this.balloonMsg.showWarning(
-                        "Another user has saved this diagram edit."
+                        "Another user has saved this diagram edit.",
                     );
                 }
 
@@ -108,8 +108,8 @@ export class PrivateDiagramBranchContext {
                         .saveBranch(this)
                         .catch((e) =>
                             console.log(
-                                `Failed to locally save update from server: ${e}`
-                            )
+                                `Failed to locally save update from server: ${e}`,
+                            ),
                         );
                 }
 
@@ -164,7 +164,7 @@ export class PrivateDiagramBranchContext {
 
         if (promise != null) {
             promise.catch((e) =>
-                console.log(`Failed to send live update for branch: ${e}`)
+                console.log(`Failed to send live update for branch: ${e}`),
             );
         }
     }

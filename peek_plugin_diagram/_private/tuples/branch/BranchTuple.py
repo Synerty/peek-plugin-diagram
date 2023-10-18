@@ -9,7 +9,9 @@ from peek_plugin_diagram._private.PluginNames import diagramTuplePrefix
 from peek_plugin_diagram._private.worker.tasks.LookupHashConverter import (
     LookupHashConverter,
 )
-from peek_plugin_diagram.tuples.branches.ImportBranchTuple import ImportBranchTuple
+from peek_plugin_diagram.tuples.branches.ImportBranchTuple import (
+    ImportBranchTuple,
+)
 
 
 @addTupleType

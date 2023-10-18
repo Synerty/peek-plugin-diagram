@@ -69,7 +69,6 @@ def compileLocationIndex(self, payloadEncodedArgs: bytes) -> dict[str, str]:
     conn = engine.connect()
     transaction = conn.begin()
     try:
-
         logger.debug(
             "Staring compile of %s queueItems in %s",
             len(queueItems),
@@ -198,7 +197,6 @@ def _buildIndex(session, indexBuckets) -> Dict[str, str]:
 
     # Sort each bucket by the key
     for indexBucket, locationByKey in locationByKeyByBucket.items():
-
         # Create a list of of key, [locationJson, locationJson, locationJson]
         sortedKeyLocations = list(
             sorted(locationByKey.items(), key=lambda i: i[0])

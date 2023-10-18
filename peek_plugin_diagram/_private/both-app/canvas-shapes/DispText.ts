@@ -146,7 +146,7 @@ export class DispText extends DispBase {
         DispBase.setBoundsNull(disp);
     }
 
-    static create(coordSet: ModelCoordSet): DispTextT {
+    static override create(coordSet: ModelCoordSet): DispTextT {
         let newDisp = {
             ...DispBase.create(coordSet, DispBase.TYPE_DT),
             // From Text
@@ -175,7 +175,9 @@ export class DispText extends DispBase {
         return newDisp;
     }
 
-    static makeShapeContext(context: PeekCanvasShapePropsContext): void {
+    static override makeShapeContext(
+        context: PeekCanvasShapePropsContext,
+    ): void {
         DispBase.makeShapeContext(context);
 
         context.addProp(
@@ -183,8 +185,8 @@ export class DispText extends DispBase {
                 ShapePropType.MultilineString,
                 DispText.text,
                 DispText.setText,
-                "Text"
-            )
+                "Text",
+            ),
         );
 
         context.addProp(
@@ -192,8 +194,8 @@ export class DispText extends DispBase {
                 ShapePropType.TextStyle,
                 DispText.textStyle,
                 DispText.setTextStyle,
-                "Text Style"
-            )
+                "Text Style",
+            ),
         );
 
         context.addProp(
@@ -201,8 +203,8 @@ export class DispText extends DispBase {
                 ShapePropType.Color,
                 DispText.color,
                 DispText.setColor,
-                "Color"
-            )
+                "Color",
+            ),
         );
 
         context.addProp(
@@ -210,8 +212,8 @@ export class DispText extends DispBase {
                 ShapePropType.Color,
                 DispText.borderColor,
                 DispText.setBorderColor,
-                "Border Color"
-            )
+                "Border Color",
+            ),
         );
 
         const textVerticleAlignOptions = [
@@ -280,7 +282,7 @@ export class DispText extends DispBase {
     // ---------------
     // Represent the disp as a user friendly string
 
-    static makeShapeStr(disp: DispTextT): string {
+    static override makeShapeStr(disp: DispTextT): string {
         let center = DispText.center(disp);
         return (
             DispBase.makeShapeStr(disp) +

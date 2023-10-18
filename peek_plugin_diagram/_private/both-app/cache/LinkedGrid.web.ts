@@ -16,7 +16,7 @@ export class LinkedGrid {
 
     constructor(
         serverCompiledGridOrGridKey: string | GridTuple,
-        lookupService: PrivateDiagramLookupService | null = null
+        lookupService: PrivateDiagramLookupService | null = null,
     ) {
         // initialise for empty grid keys
         if (typeof serverCompiledGridOrGridKey === "string") {

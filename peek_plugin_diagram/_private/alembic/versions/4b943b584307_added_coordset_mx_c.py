@@ -65,10 +65,18 @@ def upgrade():
         schema="pl_diagram",
     )
     op.alter_column(
-        "ModelCoordSet", "offsetX", type_=sa.Float, nullable=False, schema="pl_diagram"
+        "ModelCoordSet",
+        "offsetX",
+        type_=sa.Float,
+        nullable=False,
+        schema="pl_diagram",
     )
     op.alter_column(
-        "ModelCoordSet", "offsetY", type_=sa.Float, nullable=False, schema="pl_diagram"
+        "ModelCoordSet",
+        "offsetY",
+        type_=sa.Float,
+        nullable=False,
+        schema="pl_diagram",
     )
 
     # ### end Alembic commands ###

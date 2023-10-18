@@ -3,7 +3,6 @@ import { filter, first, takeUntil } from "rxjs/operators";
 import { Injectable } from "@angular/core";
 import { LocationIndexTuple } from "./LocationIndexTuple";
 import {
-    extend,
     NgLifeCycleEvents,
     Payload,
     PayloadEnvelope,
@@ -32,9 +31,9 @@ import {
 
 // ----------------------------------------------------------------------------
 
-let clientLocationIndexWatchUpdateFromDeviceFilt = extend(
+let clientLocationIndexWatchUpdateFromDeviceFilt = Object.assign(
     { key: "clientLocationIndexWatchUpdateFromDevice" },
-    diagramFilt
+    diagramFilt,
 );
 
 const cacheAll = "cacheAll";
@@ -118,7 +117,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
     private askServerChunks: LocationIndexUpdateDateTuple[] = [];
 
     private _hasLoaded = false;
-    private _hasLoadedSubject = new Subject<void>();
+    private _hasLoadedSubject = new Subject<boolean>();
 
     private storage: TupleOfflineStorageService;
 
@@ -133,7 +132,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
         storageFactory: TupleStorageFactoryService,
         abstractCoordSetService: DiagramCoordSetService,
         private tupleService: PrivateDiagramTupleService,
-        private deviceCacheControllerService: DeviceOfflineCacheService
+        private deviceCacheControllerService: DeviceOfflineCacheService,
     ) {
         super();
 
@@ -146,7 +145,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
 
         this.storage = new TupleOfflineStorageService(
             storageFactory,
-            new TupleOfflineStorageNameService(locationIndexCacheStorageName)
+            new TupleOfflineStorageNameService(locationIndexCacheStorageName),
         );
 
         this.setupVortexSubscriptions();
@@ -180,7 +179,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
         return this._hasLoaded;
     }
 
-    isReadyObservable(): Observable<void> {
+    isReadyObservable(): Observable<boolean> {
         return this._hasLoadedSubject;
     }
 
@@ -199,7 +198,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
      */
     getLocations(
         modelSetKey: string,
-        dispKey: string
+        dispKey: string,
     ): Promise<DispKeyLocationTuple[]> {
         if (
             dispKey == null ||
@@ -227,14 +226,14 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
                       .toPromise();
 
             return isOnlinePromise.then(() =>
-                this.tupleService.offlineObserver.pollForTuples(ts, false)
+                this.tupleService.offlineObserver.pollForTuples(ts, false),
             );
         }
 
         if (!this.deviceCacheControllerService.offlineModeEnabled) {
             console.log(
                 "WARNING Offline support for Diagram is disabled," +
-                    " returning zero results"
+                    " returning zero results",
             );
             return Promise.resolve([]);
         }
@@ -250,7 +249,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
     }
 
     private _notifyReady(): void {
-        if (this._hasLoaded) this._hasLoadedSubject.next();
+        if (this._hasLoaded) this._hasLoadedSubject.next(true);
     }
 
     private _notifyStatus(paused: boolean = false): void {
@@ -261,13 +260,13 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
         this._status.loadingQueueCount = 0;
         for (let chunk of this.askServerChunks) {
             this._status.loadingQueueCount += Object.keys(
-                chunk.updateDateByChunkKey
+                chunk.updateDateByChunkKey,
             ).length;
         }
 
         this._statusSubject.next(this._status);
         this.deviceCacheControllerService.updateLoaderCachingStatus(
-            this._status
+            this._status,
         );
     }
 
@@ -300,7 +299,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
         this.vortexService
             .createEndpointObservable(
                 this,
-                clientLocationIndexWatchUpdateFromDeviceFilt
+                clientLocationIndexWatchUpdateFromDeviceFilt,
             )
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((payloadEnvelope: PayloadEnvelope) => {
@@ -343,7 +342,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
                 for (let chunkKey of keys) {
                     if (
                         !this.index.updateDateByChunkKey.hasOwnProperty(
-                            chunkKey
+                            chunkKey,
                         )
                     ) {
                         this.index.updateDateByChunkKey[chunkKey] = null;
@@ -412,7 +411,10 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
         let indexChunk: LocationIndexUpdateDateTuple =
             this.askServerChunks.pop();
 
-        let filt = extend({}, clientLocationIndexWatchUpdateFromDeviceFilt);
+        let filt = Object.assign(
+            {},
+            clientLocationIndexWatchUpdateFromDeviceFilt,
+        );
         filt[cacheAll] = true;
         let payload = new Payload(filt, [indexChunk]);
         this.vortexService.sendPayload(payload);
@@ -426,7 +428,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
      * Process the grids the server has sent us.
      */
     private async processChunksFromServer(
-        payloadEnvelope: PayloadEnvelope
+        payloadEnvelope: PayloadEnvelope,
     ): Promise<void> {
         if (payloadEnvelope.result != null && payloadEnvelope.result != true) {
             console.log(`ERROR: ${payloadEnvelope.result}`);
@@ -447,7 +449,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
             this.index.initialLoadComplete = true;
             await this.saveChunkCacheIndex(true);
             this._hasLoaded = true;
-            this._hasLoadedSubject.next();
+            this._hasLoadedSubject.next(true);
         } else if (payloadEnvelope.filt[cacheAll] == true) {
             this.askServerForNextUpdateChunk();
         }
@@ -459,7 +461,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
      * Stores the index bucket in the local db.
      */
     private async storeChunkTuples(
-        tuplesToSave: EncodedLocationIndexTuple[]
+        tuplesToSave: EncodedLocationIndexTuple[],
     ): Promise<void> {
         // noinspection BadExpressionStatementJS
         const Selector = LocationIndexTupleSelector;
@@ -509,7 +511,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
      */
     private getLocationsFromLocal(
         modelSetKey: string,
-        dispKey: string
+        dispKey: string,
     ): Promise<DispKeyLocationTuple[]> {
         let indexBucket = dispKeyHashBucket(modelSetKey, dispKey);
 
@@ -548,7 +550,7 @@ export class PrivateDiagramLocationLoaderService extends NgLifeCycleEvents {
                         DispKeyLocationTuple.fromLocationJson(rawData);
 
                     let coordSet = this.coordSetService.coordSetForId(
-                        dispLocation.coordSetId
+                        dispLocation.coordSetId,
                     );
 
                     if (coordSet == null) continue;

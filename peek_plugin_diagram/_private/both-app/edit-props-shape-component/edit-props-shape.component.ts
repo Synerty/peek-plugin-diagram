@@ -31,7 +31,7 @@ export class EditPropsShapeComponent
         super();
     }
 
-    ngOnInit() {
+    override ngOnInit() {
         this.context = this.canvasEditor.props.shapePanelContext;
         this.canvasEditor.props.shapePanelContextObservable
             .pipe(takeUntil(this.onDestroyEvent))
@@ -54,18 +54,18 @@ export class EditPropsShapeComponent
         this.context.disp =
             this.canvasEditor.branchContext.branchTuple.addOrUpdateDisp(
                 this.context.disp,
-                true
+                true,
             );
 
         // Replace the related or child shapes
         this.canvasEditor.branchContext.branchTuple.addOrUpdateDisps(
             allDisps,
-            true
+            true,
         );
 
         // Replace the selection and recompile the model
         this.canvasEditor.canvasModel.selection.replaceSelection(
-            this.context.disp
+            this.context.disp,
         );
         this.canvasEditor.canvasModel.recompileModel();
 
@@ -75,7 +75,7 @@ export class EditPropsShapeComponent
 
     isEditingEnabled(): boolean {
         return this.canvasEditor.branchContext.branchTuple.isDispInBranch(
-            this.context.disp
+            this.context.disp,
         );
     }
 
@@ -99,7 +99,7 @@ export class EditPropsShapeComponent
         }
         if (obj.id == null)
             throw new Error(
-                `Prop ${prop.name} getter result doesn't have an ID`
+                `Prop ${prop.name} getter result doesn't have an ID`,
             );
         return obj.id.toString();
     }
@@ -145,7 +145,7 @@ export class EditPropsShapeComponent
         if (prop.__lastShowValue != null) return prop.__lastShowValue;
 
         let layer: DispLayer = prop.getter(
-            prop.alternateDisp || this.context.disp
+            prop.alternateDisp || this.context.disp,
         );
         prop.__lastShowValue = !layer.visible;
         return prop.__lastShowValue;
@@ -158,7 +158,7 @@ export class EditPropsShapeComponent
         if (prop.__lastShowValue != null) return prop.__lastShowValue;
 
         let level: DispLevel = prop.getter(
-            prop.alternateDisp || this.context.disp
+            prop.alternateDisp || this.context.disp,
         );
         prop.__lastShowValue = !this.canvasEditor.isLevelVisible(level);
         return prop.__lastShowValue;
