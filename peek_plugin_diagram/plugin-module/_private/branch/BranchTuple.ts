@@ -78,6 +78,48 @@ export class BranchTuple extends Tuple {
             this.packedJson__.push(null);
     }
 
+    initialiseIndexes(): void {
+        let DispBase =
+            require("@_peek/peek_plugin_diagram/canvas-shapes/DispBase")[
+                "DispBase"
+            ];
+
+        this._dispsById = {};
+        this._replacementIds = {};
+
+        for (const disp of this.disps) {
+            const dispId = DispBase.id(disp);
+
+            if (dispId == null) {
+                console.log("ERROR: Disp has no ID");
+                console.log(disp);
+                continue;
+            }
+            if (this._dispsById[dispId]) {
+                console.log("ERROR: Disp is already loaded");
+                console.log(disp);
+                continue;
+            }
+            this._dispsById[dispId] = disp;
+        }
+
+        for (const disp of this.disps) {
+            // NOTE ID'S ARE USED AS TEMPORARY HASH ID's
+            // This will hold a temporary ID, unless this branch has been
+            // compiled by the server since its last save.
+            // Since we don't know what the hash ids will be.
+            const replacesHashId = DispBase.replacesHashId(disp);
+            if (!replacesHashId) {
+                continue;
+            }
+
+            const temporaryIdDisp = this._dispsById[replacesHashId];
+            if (temporaryIdDisp) {
+                this._replacementIds[replacesHashId] = DispBase.id(disp);
+            }
+        }
+    }
+
     get needsSave(): boolean {
         return this.packedJson__[BranchTuple.__NEEDS_SAVE_NUM];
     }
@@ -559,6 +601,7 @@ export class BranchTuple extends Tuple {
         this._replacementIds = data.replacementIds;
         this._lastStage = data.lastStage;
         this.assignIdsToDisps();
+        this.initialiseIndexes();
     }
 
     private cleanClonedDisps(disps: any[]): void {
