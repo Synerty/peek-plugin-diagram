@@ -33,7 +33,7 @@ export abstract class PeekDispRenderDelegateABC {
 
         const handles: DispHandleI[] = DispFactory.wrapper(disp).handlePoints(
             disp,
-            margin + width
+            margin
         );
 
         const halfWidth = width / 2.0;
