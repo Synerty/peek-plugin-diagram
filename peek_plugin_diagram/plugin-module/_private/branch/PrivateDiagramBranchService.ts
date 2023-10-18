@@ -274,6 +274,7 @@ export class PrivateDiagramBranchService extends NgLifeCycleEvents {
             }
 
             branch.linkDisps(this.lookupService);
+            branch.initialiseIndexes();
             return branch;
         });
         return prom;
