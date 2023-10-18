@@ -68,7 +68,7 @@ class DispLayer(Tuple, DeclarativeBase):
     modelSetKey = TupleField()
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(50), nullable=False)
+    name = Column(String, nullable=False)
     order = Column(Integer, nullable=False, server_default="0")
     selectable = Column(Boolean, nullable=False, server_default="false")
     visible = Column(Boolean, nullable=False, server_default="true")
@@ -130,7 +130,7 @@ class DispLevel(Tuple, DeclarativeBase):
     coordSetKey = TupleField()
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(50), nullable=False)
+    name = Column(String, nullable=False)
     order = Column(Integer, nullable=False, server_default="0")
     minZoom = Column(Float)
     maxZoom = Column(Float)
@@ -199,10 +199,10 @@ class DispTextStyle(Tuple, DeclarativeBase):
     modelSetKey = TupleField()
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(50), nullable=False)
-    fontName = Column(String(30), nullable=False, server_default="GillSans")
+    name = Column(String, nullable=False)
+    fontName = Column(String, nullable=False, server_default="GillSans")
     fontSize = Column(Integer, nullable=False, server_default="9")
-    fontStyle = Column(String(30))
+    fontStyle = Column(String)
     scalable = Column(Boolean, nullable=False, server_default="true")
     scaleFactor = Column(Integer, nullable=False, server_default="1")
     spacingBetweenTexts = Column(
@@ -284,13 +284,13 @@ class DispLineStyle(Tuple, DeclarativeBase):
     modelSetKey = TupleField()
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(50), nullable=False)
+    name = Column(String, nullable=False)
     backgroundFillDashSpace = Column(
         Boolean, nullable=False, server_default="false"
     )
     capStyle = Column(String(15), nullable=False)
     joinStyle = Column(String(15), nullable=False)
-    dashPattern = Column(String(50))
+    dashPattern = Column(String)
     startArrowSize = Column(Integer)
     endArrowSize = Column(Integer)
     winStyle = Column(Integer, nullable=False)
@@ -373,7 +373,7 @@ class DispColor(Tuple, DeclarativeBase):
     modelSetKey = TupleField()
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(50), doc=JSON_EXCLUDE, nullable=False)
+    name = Column(String, doc=JSON_EXCLUDE, nullable=False)
     darkColor = Column(String(20), server_default="orange")
     lightColor = Column(String(20), server_default="orange")
     darkFillBase64Image = Column(String)
