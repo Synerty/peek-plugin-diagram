@@ -115,7 +115,7 @@ export class PeekCanvasConfig {
         showAllLevels: false,
         active: false,
         resizeHandleMargin: 5.0,
-        resizeHandleWidth: 20.0,
+        resizeHandleWidth: 30.0,
         selectionHighlightColor: "orange",
         primaryEditActionCompleteColor: "#52C41B",
         primaryEditActionDefaultColor: "#a79e9e",
