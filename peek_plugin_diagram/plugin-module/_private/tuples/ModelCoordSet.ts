@@ -14,6 +14,11 @@ export function makeDispGroupGridKey(coordSetId: number): string {
     return `${coordSetId}|dispgroup`;
 }
 
+interface _XY {
+    x: number;
+    y: number;
+}
+
 @addTupleType
 export class ModelCoordSet extends Tuple {
     public static readonly tupleName = diagramTuplePrefix + "ModelCoordSet";
@@ -104,36 +109,66 @@ export class ModelCoordSet extends Tuple {
         throw new Error(`Unable to determine grid size for zoom ${zoom}`);
     }
 
+    centerGridKeyForArea(area: PeekCanvasBounds, zoom: number): string {
+        const gridSize = this.gridSizeForZoom(zoom);
+        const centerGridXY = this.areaCenterGrid(area, gridSize);
+
+        return this.getGrid(gridSize, centerGridXY.x, centerGridXY.y);
+    }
+
     /** Grid Keys For Area
      *
      * This method returns the grids required for a certain area of a certain zoom level.
      *
      */
     gridKeysForArea(area: PeekCanvasBounds, zoom: number): string[] {
-        function trunc(num: any) {
-            return parseInt(num);
-        }
+        const gridSize = this.gridSizeForZoom(zoom);
 
-        let gridSize = this.gridSizeForZoom(zoom);
+        const center = this.areaCenterGrid(area, gridSize);
 
         // Round the X min/max
-        let minGridX = trunc(area.x / gridSize.xGrid);
-        let maxGridX = trunc((area.x + area.w) / gridSize.xGrid) + 1;
+        const minGridX = this.trunc(area.x / gridSize.xGrid);
+        const maxGridX = this.trunc((area.x + area.w) / gridSize.xGrid) + 1;
 
         // Round the Y min/max
-        let minGridY = trunc(area.y / gridSize.yGrid);
-        let maxGridY = trunc((area.y + area.h) / gridSize.yGrid) + 1;
+        const minGridY = this.trunc(area.y / gridSize.yGrid);
+        const maxGridY = this.trunc((area.y + area.h) / gridSize.yGrid) + 1;
 
         // Iterate through and create the grids.
-        let gridKeys = [];
+        const gridKeysWithDistance = [];
         for (let x = minGridX; x < maxGridX; x++) {
             for (let y = minGridY; y < maxGridY; y++) {
-                gridKeys.push(
-                    this.id.toString() + "|" + gridSize.key + "." + x + "x" + y
-                );
+                gridKeysWithDistance.push({
+                    distance: Math.hypot(center.x - x, center.y - y),
+                    grid: this.getGrid(gridSize, x, y),
+                });
             }
         }
 
-        return gridKeys;
+        gridKeysWithDistance.sort((a, b) => a.distance - b.distance);
+
+        return gridKeysWithDistance.map((item) => item.grid);
+    }
+
+    private trunc(num: any) {
+        return parseInt(num);
+    }
+
+    private areaCenterGrid(
+        area: PeekCanvasBounds,
+        gridSize: ModelCoordSetGridSize
+    ): _XY {
+        return {
+            x: this.trunc(
+                (area.x + area.w / 2 - gridSize.xGrid / 2) / gridSize.xGrid
+            ),
+            y: this.trunc(
+                (area.y + area.h / 2 - gridSize.yGrid / 2) / gridSize.yGrid
+            ),
+        };
+    }
+
+    private getGrid(gridSize: ModelCoordSetGridSize, x: number, y: number) {
+        return this.id.toString() + "|" + gridSize.key + "." + x + "x" + y;
     }
 }
