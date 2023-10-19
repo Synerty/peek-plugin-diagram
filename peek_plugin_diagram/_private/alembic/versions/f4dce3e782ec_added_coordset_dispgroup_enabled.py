@@ -45,4 +45,6 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_column("ModelCoordSet", "dispGroupTemplatesEnabled", schema="pl_diagram")
+    op.drop_column(
+        "ModelCoordSet", "dispGroupTemplatesEnabled", schema="pl_diagram"
+    )

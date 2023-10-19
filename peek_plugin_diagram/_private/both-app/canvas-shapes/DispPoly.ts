@@ -101,7 +101,7 @@ export abstract class DispPoly extends DispBase {
 
     // ---------------
     // Support shape creating
-    static create(coordSet: ModelCoordSet, type): DispPolyT {
+    static override create(coordSet: ModelCoordSet, type): DispPolyT {
         let newDisp = {
             ...DispBase.create(coordSet, type),
             g: [], // PointsT[]
@@ -124,7 +124,9 @@ export abstract class DispPoly extends DispBase {
 
     // ---------------
     // Support shape editing
-    static makeShapeContext(context: PeekCanvasShapePropsContext): void {
+    static override makeShapeContext(
+        context: PeekCanvasShapePropsContext,
+    ): void {
         DispBase.makeShapeContext(context);
 
         context.addProp(
@@ -132,8 +134,8 @@ export abstract class DispPoly extends DispBase {
                 ShapePropType.LineStyle,
                 DispPoly.lineStyle,
                 DispPoly.setLineStyle,
-                "Line Style"
-            )
+                "Line Style",
+            ),
         );
 
         context.addProp(
@@ -141,8 +143,8 @@ export abstract class DispPoly extends DispBase {
                 ShapePropType.Color,
                 DispPoly.lineColor,
                 DispPoly.setLineColor,
-                "Line Color"
-            )
+                "Line Color",
+            ),
         );
 
         context.addProp(
@@ -150,8 +152,8 @@ export abstract class DispPoly extends DispBase {
                 ShapePropType.Integer,
                 DispPoly.lineWidth,
                 DispPoly.setLineWidth,
-                "Line Width"
-            )
+                "Line Width",
+            ),
         );
     }
 }

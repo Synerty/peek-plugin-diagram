@@ -21,7 +21,7 @@ export class PeekCanvasActioner {
         private modelSetKey: string,
         private coordSetCache: PrivateDiagramCoordSetService,
         private lookupService: PrivateDiagramLookupService,
-        private positionService: PrivateDiagramPositionService
+        private positionService: PrivateDiagramPositionService,
     ) {}
 
     hasAction(disp: DispBaseT): boolean {
@@ -46,19 +46,19 @@ export class PeekCanvasActioner {
                     data["actionPos"];
                 if (posData == null) {
                     console.log(
-                        "actionPos data is missing for position on action"
+                        "actionPos data is missing for position on action",
                     );
                     break;
                 }
 
                 const coordSet = this.coordSetCache.coordSetForKey(
                     this.modelSetKey,
-                    posData.k
+                    posData.k,
                 );
 
                 if (coordSet == null) {
                     console.log(
-                        `Can not find coordSet with key=|${posData.k}|`
+                        `Can not find coordSet with key=|${posData.k}|`,
                     );
                 }
 
@@ -66,7 +66,7 @@ export class PeekCanvasActioner {
                     coordSet.key,
                     posData.x,
                     posData.y,
-                    posData.z
+                    posData.z,
                 );
                 break;
             }

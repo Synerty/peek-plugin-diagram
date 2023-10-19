@@ -232,7 +232,10 @@ def _getSetting(ormSession, name, propertyDict, key=None, value=None):
         return setting
 
     # Make sure the propery is defined for this setting
-    assert str(key) in propertyDict, "Key %s is not defined in setting %s" % (key, name)
+    assert str(key) in propertyDict, "Key %s is not defined in setting %s" % (
+        key,
+        name,
+    )
 
     if value is None:
         return setting[key]
@@ -252,7 +255,9 @@ globalProperties = {}
 
 
 def globalSetting(ormSession, key=None, value=None):
-    return _getSetting(ormSession, "Global", globalProperties, key=key, value=value)
+    return _getSetting(
+        ormSession, "Global", globalProperties, key=key, value=value
+    )
 
 
 DISP_COMPILER_ENABLED = PropertyKey(

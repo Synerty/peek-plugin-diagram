@@ -15,7 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 @addTupleType
-class BranchIndexCompilerQueue(Tuple, DeclarativeBase, ACIProcessorQueueTupleABC):
+class BranchIndexCompilerQueue(
+    Tuple, DeclarativeBase, ACIProcessorQueueTupleABC
+):
     __tablename__ = "BranchIndexCompilerQueue"
     __tupleType__ = diagramTuplePrefix + "BranchIndexCompilerQueueTable"
 
@@ -32,7 +34,10 @@ class BranchIndexCompilerQueue(Tuple, DeclarativeBase, ACIProcessorQueueTupleABC
 
     __table_args__ = (
         Index(
-            "idx_BICompQueue_modelSetId_chunkKey", modelSetId, chunkKey, unique=False
+            "idx_BICompQueue_modelSetId_chunkKey",
+            modelSetId,
+            chunkKey,
+            unique=False,
         ),
     )
 

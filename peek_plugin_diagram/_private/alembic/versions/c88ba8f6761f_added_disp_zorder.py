@@ -26,7 +26,11 @@ def upgrade():
     )
     op.execute(""" UPDATE "pl_diagram"."DispBase" SET "zOrder" = 0 """)
     op.alter_column(
-        "DispBase", "zOrder", type_=sa.Integer, nullable=False, schema="pl_diagram"
+        "DispBase",
+        "zOrder",
+        type_=sa.Integer,
+        nullable=False,
+        schema="pl_diagram",
     )
 
 

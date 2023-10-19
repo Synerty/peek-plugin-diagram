@@ -232,7 +232,6 @@ def _importDisps(coordSet: ModelCoordSet, importDisps: List):
 
     ormSession = CeleryDbConn.getDbSession()
     try:
-
         lookupConverter = LookupHashConverter(
             ormSession, modelSetId=coordSet.modelSetId, coordSetId=coordSet.id
         )
@@ -398,7 +397,6 @@ def _convertImportTuple(importDisp):
             continue
 
         if importFieldName == "geom":
-
             # Groups are stored in whichever grid where the where ever the center point
             # is located, OR, in the special dispgroup grid.
             if isinstance(disp, DispGroup) and not importDisp.geom:
@@ -444,11 +442,8 @@ def _bulkLoadDispsTask(importGroupHash: str, disps: List):
     transaction = conn.begin()
 
     try:
-
         stmt = (
-            select(
-                [gridKeyIndexTable.c.coordSetId, gridKeyIndexTable.c.gridKey]
-            )
+            select(gridKeyIndexTable.c.coordSetId, gridKeyIndexTable.c.gridKey)
             .where(dispTable.c.importGroupHash == importGroupHash)
             .select_from(
                 join(
@@ -573,7 +568,6 @@ def _updateCoordSetPosition(coordSet: ModelCoordSet, disps: List):
     ormSession = CeleryDbConn.getDbSession()
 
     try:
-
         # Initialise the ModelCoordSet initial position if it's not set
         for disp in disps:
             if not hasattr(disp, "geomJson"):

@@ -21,7 +21,6 @@ class ServerCoordSetTupleProvider(TuplesProviderABC):
     def makeVortexMsg(
         self, filt: dict, tupleSelector: TupleSelector
     ) -> Union[Deferred, bytes]:
-
         session = self._ormSessionCreator()
         try:
             all = (

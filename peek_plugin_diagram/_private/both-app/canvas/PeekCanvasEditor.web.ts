@@ -39,7 +39,7 @@ export class PeekCanvasEditor {
         private positionService: PrivateDiagramPositionService,
         private branchService: PrivateDiagramBranchService,
         private lifecycleEventEmitter: NgLifeCycleEvents,
-        private editPrimaryActionFactory: EditPrimaryActionHandlerFactory
+        private editPrimaryActionFactory: EditPrimaryActionHandlerFactory,
     ) {
         this.branchService
             .startEditingWithContextObservable()
@@ -70,7 +70,7 @@ export class PeekCanvasEditor {
                         lastPos.coordSetKey,
                         lastPos.x,
                         lastPos.y,
-                        lastPos.zoom
+                        lastPos.zoom,
                     );
                 }
 
@@ -78,7 +78,7 @@ export class PeekCanvasEditor {
                 this.canvasModel.selection.clearSelection();
                 this.canvasConfig.editor.active = true;
                 this.canvasConfig.updateEditedBranch(
-                    branchContext.branchTuple.key
+                    branchContext.branchTuple.key,
                 );
                 this.canvasConfig.setModelNeedsCompiling();
             });
@@ -108,7 +108,7 @@ export class PeekCanvasEditor {
                 if (!this.canvasConfig.editor.active) return;
                 this._props.setSelectedShapes(
                     this.canvasModel,
-                    this._currentBranch.branchTuple
+                    this._currentBranch.branchTuple,
                 );
             });
     }
@@ -202,7 +202,7 @@ export class PeekCanvasEditor {
             .save()
             .then(() => this.balloonMsg.showSuccess("Branch Save Successful"))
             .catch((e) =>
-                this.balloonMsg.showError("Failed to save branch\n" + e)
+                this.balloonMsg.showError("Failed to save branch\n" + e),
             );
     }
 

@@ -87,7 +87,7 @@ export class PeekDispRenderDelegateText extends PeekDispRenderDelegateABC {
         disp: DispTextT,
         ctx,
         zoom: number,
-        updateBounds: boolean
+        updateBounds: boolean,
     ) {
         // Give meaning to our short names
         let rotationRadian = (DispText.rotation(disp) / 180.0) * Math.PI;

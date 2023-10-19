@@ -63,7 +63,7 @@ export class GridCache extends NgLifeCycleEvents {
     // TODO, There appears to be no way to tear down a service
     constructor(
         private lookupService: PrivateDiagramLookupService,
-        private gridLoader: PrivateDiagramGridLoaderServiceA
+        private gridLoader: PrivateDiagramGridLoaderServiceA,
     ) {
         super();
 
@@ -71,7 +71,7 @@ export class GridCache extends NgLifeCycleEvents {
         this.gridLoader.observable
             .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((tuples: GridTuple[]) =>
-                this.processGridUpdates(tuples)
+                this.processGridUpdates(tuples),
             );
 
         // If the lookups reload, we need to relink all the disps
@@ -90,7 +90,7 @@ export class GridCache extends NgLifeCycleEvents {
         const linkedGrids = [];
         for (const cache of this.cacheQueue) linkedGrids.add(cache.grids);
         return linkedGrids.filter(
-            (g) => unique[g.gridKey] === (unique[g.gridKey] = true)
+            (g) => unique[g.gridKey] === (unique[g.gridKey] = true),
         );
     }
 

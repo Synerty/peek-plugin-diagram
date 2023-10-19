@@ -20,7 +20,11 @@ from alembic import op
 
 def upgrade():
     op.alter_column(
-        "DispBase", "importHash", type_=sa.String(), nullable=True, schema="pl_diagram"
+        "DispBase",
+        "importHash",
+        type_=sa.String(),
+        nullable=True,
+        schema="pl_diagram",
     )
     op.alter_column(
         "DispBase",

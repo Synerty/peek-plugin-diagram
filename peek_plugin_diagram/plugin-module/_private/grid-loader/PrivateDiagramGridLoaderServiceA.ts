@@ -22,6 +22,6 @@ export abstract class PrivateDiagramGridLoaderServiceA extends NgLifeCycleEvents
 
     abstract loadGrids(
         currentGridUpdateTimes: { [gridKey: string]: string },
-        gridKeys: string[]
+        gridKeys: string[],
     ): void;
 }

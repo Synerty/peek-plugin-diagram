@@ -51,7 +51,7 @@ export class BranchTuple extends Tuple {
     private static readonly __LAST_INDEX_NUM = 10;
     // The list of deltas for this branch
     packedJson__: any[] = [];
-    protected _rawJonableFields = ["packedJson__"];
+    protected override _rawJonableFields = ["packedJson__"];
 
     // This structure stores IDs that need to be updated, from disps that have been
     // cloned from disps their replacing (their ID is re-assigned)
@@ -181,7 +181,7 @@ export class BranchTuple extends Tuple {
     get createdDate(): Date {
         return serUril.fromStr(
             this.packedJson__[BranchTuple.__CREATED_DATE],
-            SerialiseUtil.T_DATETIME
+            SerialiseUtil.T_DATETIME,
         );
     }
 
@@ -216,15 +216,16 @@ export class BranchTuple extends Tuple {
     }
 
     private static _setNewDispId(disp, index): void {
-        let DispBase =
-            require("@_peek/peek_plugin_diagram/canvas-shapes/DispBase")[
-                "DispBase"
-            ];
-        let newId = this._makeUniqueId(index);
+        import("@_peek/peek_plugin_diagram/canvas-shapes/DispBase").then(
+            (module) => {
+                const DispBase = module.DispBase;
 
-        if (DispBase.id(disp) == null) DispBase.setId(disp, newId);
-
-        if (DispBase.hashId(disp) == null) DispBase.setHashId(disp, newId);
+                let newId = this._makeUniqueId(index);
+                if (DispBase.id(disp) == null) DispBase.setId(disp, newId);
+                if (DispBase.hashId(disp) == null)
+                    DispBase.setHashId(disp, newId);
+            },
+        );
     }
 
     branchHasBeenSaved(): void {
@@ -278,15 +279,16 @@ export class BranchTuple extends Tuple {
         return result.disp;
     }
 
+    // @ts-ignore
     isDispInBranch(disp: any): boolean {
-        // @ts-ignore
-        let DispBase =
-            require("@_peek/peek_plugin_diagram/canvas-shapes/DispBase")[
-                "DispBase"
-            ];
-        return (
-            this._dispsById[DispBase.id(disp)] != null ||
-            this._replacementIds[DispBase.id(disp)] != null
+        import("@_peek/peek_plugin_diagram/canvas-shapes/DispBase").then(
+            (module) => {
+                const DispBase = module.DispBase;
+                return (
+                    this._dispsById[DispBase.id(disp)] != null ||
+                    this._replacementIds[DispBase.id(disp)] != null
+                );
+            },
         );
     }
 
@@ -297,88 +299,25 @@ export class BranchTuple extends Tuple {
      * @param disps
      */
     addNewDisps(disps: any[]): void {
-        // @ts-ignore
-        let DispBase =
-            require("@_peek/peek_plugin_diagram/canvas-shapes/DispBase")[
-                "DispBase"
-            ];
-        let array = this._array(BranchTuple.__DISPS_NUM);
+        import("@_peek/peek_plugin_diagram/canvas-shapes/DispBase").then(
+            (module) => {
+                const DispBase = module.DispBase;
+                let array = this._array(BranchTuple.__DISPS_NUM);
 
-        for (let disp of disps) {
-            BranchTuple._setNewDispId(disp, array.length);
-            DispBase.setBranchStage(disp, this._lastStage);
-            this._dispsById[DispBase.id(disp)] = disp;
-            array.push(disp);
-        }
-        this.sortDisps();
-        this.touchUpdateDate(true);
+                for (let disp of disps) {
+                    BranchTuple._setNewDispId(disp, array.length);
+                    DispBase.setBranchStage(disp, this._lastStage);
+                    this._dispsById[DispBase.id(disp)] = disp;
+                    array.push(disp);
+                }
+                this.sortDisps();
+                this.touchUpdateDate(true);
+            },
+        );
     }
 
     removeDisps(disps: any[]): void {
-        // @ts-ignore
-        let DispBase =
-            require("@_peek/peek_plugin_diagram/canvas-shapes/DispBase")[
-                "DispBase"
-            ];
-        // @ts-ignore
-        let DispNull =
-            require("@_peek/peek_plugin_diagram/canvas-shapes/DispNull")[
-                "DispNull"
-            ];
-
-        let dispIdsToRemove = {};
-        for (let disp of disps) {
-            dispIdsToRemove[DispBase.id(disp)] = disp;
-        }
-
-        let array = this._array(BranchTuple.__DISPS_NUM);
-        let branchDispsToBeConvertedToNullDisps = [];
-
-        // Filter out disps in this branch that we're deleting
-        // If the disp we're deleting replacing anoter disp (not in this branch)
-        //      make a note of that.
-        this.packedJson__[BranchTuple.__DISPS_NUM] = array.filter((disp) => {
-            let id = DispBase.id(disp);
-            if (dispIdsToRemove[id] != null) {
-                if (DispBase.replacesHashId(disp) != null)
-                    branchDispsToBeConvertedToNullDisps.push(disp);
-                delete dispIdsToRemove[id];
-                return false;
-            }
-            return true;
-        });
-
-        // Update the dispId dict to remove the disps we just filtered out
-        this.assignIdsToDisps();
-
-        // For all the Disps that are not part of this branch, we need to add a DispNull
-        // to make its deletion
-
-        let nullDispsToCreate = [];
-
-        // For all the Disps that are not part of this branch, we need to add a DispNull
-        // to make it's deletion
-        // Create NULL disps for disps being deleted that are not part of this branch
-        for (let dispId of Object.keys(dispIdsToRemove)) {
-            let disp = dispIdsToRemove[dispId];
-            nullDispsToCreate.push(
-                DispNull.createFromShape(disp, DispBase.hashId(disp))
-            );
-        }
-
-        // For all disps that are part of this branch, but replace other disps,
-        // Create NULL disps for disps in this branch that replace other disps
-        for (let disp of branchDispsToBeConvertedToNullDisps) {
-            nullDispsToCreate.push(
-                DispNull.createFromShape(disp, DispBase.replacesHashId(disp))
-            );
-        }
-
-        if (nullDispsToCreate.length != 0) {
-            this.addNewDisps(nullDispsToCreate);
-        } else {
-            this.touchUpdateDate(false);
-        }
+      throw new Error("jarrod fix")
     }
 
     addAnchorDispKey(key: string): void {
@@ -439,10 +378,10 @@ export class BranchTuple extends Tuple {
         this.touchUpdateDate(true);
     }
 
-    toJsonField(
+    override toJsonField(
         value: any,
         jsonDict: {} | null = null,
-        name: string | null = null
+        name: string | null = null,
     ): any {
         // @ts-ignore
         const DispBase =
@@ -454,7 +393,7 @@ export class BranchTuple extends Tuple {
 
         const convertedValue = deepCopy(
             value,
-            DispBase.DEEP_COPY_FIELDS_TO_IGNORE
+            DispBase.DEEP_COPY_FIELDS_TO_IGNORE,
         );
 
         let disps = convertedValue[BranchTuple.__DISPS_NUM];
@@ -474,7 +413,7 @@ export class BranchTuple extends Tuple {
     }
 
     setContextUpdateCallback(
-        contextUpdateCallback: ((modelUpdateRequired: boolean) => void) | null
+        contextUpdateCallback: ((modelUpdateRequired: boolean) => void) | null,
     ) {
         this._contextUpdateCallback = contextUpdateCallback;
     }
@@ -605,14 +544,13 @@ export class BranchTuple extends Tuple {
     }
 
     private sortDisps(): void {
-        // @ts-ignore
-        const sortDisps =
-            require("@_peek/peek_plugin_diagram/canvas/PeekCanvasModelUtil.web")[
-                "sortDisps"
-            ];
-
-        let array = this._array(BranchTuple.__DISPS_NUM);
-        this.packedJson__[BranchTuple.__DISPS_NUM] = sortDisps(array);
+        const module = import(
+            "@_peek/peek_plugin_diagram/canvas/PeekCanvasModelUtil.web"
+        ).then((module) => {
+            const sortDisps = module.sortDisps;
+            let array = this._array(BranchTuple.__DISPS_NUM);
+            this.packedJson__[BranchTuple.__DISPS_NUM] = sortDisps(array);
+        });
     }
 
     private setUpdatedDate(value: Date | null): void {
@@ -635,7 +573,7 @@ export class BranchTuple extends Tuple {
 
         const disps = deepCopy(
             this._array(BranchTuple.__DISPS_NUM),
-            DispBase.DEEP_COPY_FIELDS_TO_IGNORE
+            DispBase.DEEP_COPY_FIELDS_TO_IGNORE,
         );
         this.cleanClonedDisps(disps);
 

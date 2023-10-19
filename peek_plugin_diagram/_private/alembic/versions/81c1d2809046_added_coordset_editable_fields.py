@@ -31,7 +31,9 @@ def upgrade():
 
     op.add_column(
         "ModelCoordSet",
-        sa.Column("editEnabled", sa.Boolean(), server_default="false", nullable=True),
+        sa.Column(
+            "editEnabled", sa.Boolean(), server_default="false", nullable=True
+        ),
         schema="pl_diagram",
     )
 
@@ -48,12 +50,17 @@ def upgrade():
     op.add_column(
         "ModelCoordSet",
         sa.Column(
-            "branchesEnabled", sa.Boolean(), server_default="false", nullable=True
+            "branchesEnabled",
+            sa.Boolean(),
+            server_default="false",
+            nullable=True,
         ),
         schema="pl_diagram",
     )
 
-    op.execute('UPDATE "pl_diagram"."ModelCoordSet" SET "branchesEnabled" = false')
+    op.execute(
+        'UPDATE "pl_diagram"."ModelCoordSet" SET "branchesEnabled" = false'
+    )
 
     op.alter_column(
         "ModelCoordSet",
@@ -245,8 +252,12 @@ def downgrade():
     )
     op.drop_column("ModelCoordSet", "branchesEnabled", schema="pl_diagram")
     op.drop_column("ModelCoordSet", "editEnabled", schema="pl_diagram")
-    op.drop_column("ModelCoordSet", "editDefaultTextStyleId", schema="pl_diagram")
-    op.drop_column("ModelCoordSet", "editDefaultLineStyleId", schema="pl_diagram")
+    op.drop_column(
+        "ModelCoordSet", "editDefaultTextStyleId", schema="pl_diagram"
+    )
+    op.drop_column(
+        "ModelCoordSet", "editDefaultLineStyleId", schema="pl_diagram"
+    )
     op.drop_column("ModelCoordSet", "editDefaultLevelId", schema="pl_diagram")
     op.drop_column("ModelCoordSet", "editDefaultLayerId", schema="pl_diagram")
     op.drop_column("ModelCoordSet", "editDefaultColorId", schema="pl_diagram")

@@ -12,7 +12,9 @@ from peek_plugin_diagram._private.storage.GridKeyIndex import (
     GridKeyIndex,
 )
 from peek_plugin_diagram._private.tuples.branch.BranchTuple import BranchTuple
-from peek_plugin_diagram._private.worker.tasks.DispCompilerTask import _packDispJson
+from peek_plugin_diagram._private.worker.tasks.DispCompilerTask import (
+    _packDispJson,
+)
 from sqlalchemy import select
 from vortex.Tuple import Tuple
 
@@ -43,7 +45,10 @@ def _deleteBranchDisps(conn, branchIds: List[int]) -> None:
     results = conn.execute(
         select(
             distinct=True,
-            columns=[gridKeyIndexTable.c.gridKey, gridKeyIndexTable.c.coordSetId],
+            columns=[
+                gridKeyIndexTable.c.gridKey,
+                gridKeyIndexTable.c.coordSetId,
+            ],
             whereclause=dispBaseTable.c.branchId.in_(branchIds),
         ).select_from(gridKeyIndexTable.join(dispBaseTable))
     ).fetchall()
@@ -62,7 +67,9 @@ def _deleteBranchDisps(conn, branchIds: List[int]) -> None:
     conn.execute(dispBaseTable.delete(dispBaseTable.c.branchId.in_(branchIds)))
 
 
-def _convertBranchDisps(newBranches: List[BranchTuple]) -> typing.Tuple[List, List]:
+def _convertBranchDisps(
+    newBranches: List[BranchTuple],
+) -> typing.Tuple[List, List]:
     """Insert Disps for Branch
 
     1) Insert new Disps
@@ -76,7 +83,6 @@ def _convertBranchDisps(newBranches: List[BranchTuple]) -> typing.Tuple[List, Li
 
     # Convert the branch disps into database disps
     for newBranch in newBranches:
-
         branchDisps = _convertJsonDispsToTuples(newBranch)
 
         if not branchDisps:
@@ -86,7 +92,9 @@ def _convertBranchDisps(newBranches: List[BranchTuple]) -> typing.Tuple[List, Li
         oldDispIdMap = {}
 
         # Set the IDs of the new Disps
-        newIdGen = CeleryDbConn.prefetchDeclarativeIds(DispBase, len(branchDisps))
+        newIdGen = CeleryDbConn.prefetchDeclarativeIds(
+            DispBase, len(branchDisps)
+        )
         for disp in branchDisps:
             oldDispId = disp.id
             disp.id = next(newIdGen)

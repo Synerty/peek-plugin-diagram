@@ -26,7 +26,7 @@ export class DiagramOverrideColor extends DiagramOverrideBase {
             modelSetKey,
             coordSetKey,
             DiagramOverrideTypeE.Color,
-            DiagramOverrideColor.tupleName
+            DiagramOverrideColor.tupleName,
         );
     }
 

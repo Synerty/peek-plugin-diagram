@@ -21,7 +21,11 @@ import geoalchemy2
 
 def upgrade():
     op.alter_column(
-        "DispText", "text", type_=sa.String(), nullable=True, schema="pl_diagram"
+        "DispText",
+        "text",
+        type_=sa.String(),
+        nullable=True,
+        schema="pl_diagram",
     )
 
 

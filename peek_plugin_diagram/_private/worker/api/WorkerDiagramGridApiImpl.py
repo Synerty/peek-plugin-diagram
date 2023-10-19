@@ -402,7 +402,7 @@ class WorkerDiagramGridApiImpl:
             for i in range(0, len(shapeKeys), CHUNK_SIZE):
                 chunkedShapeKeys = shapeKeys[i : i + CHUNK_SIZE]
                 sql = (
-                    select([gridKeyIndexTable.c.gridKey])
+                    select(gridKeyIndexTable.c.gridKey)
                     .select_from(
                         gridKeyIndexTable.join(
                             dispBaseTable,

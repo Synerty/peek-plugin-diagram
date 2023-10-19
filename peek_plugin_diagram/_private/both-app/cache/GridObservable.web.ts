@@ -22,7 +22,7 @@ export class GridObservable {
     constructor(private gridCache: GridCache) {
         // This is a global service, there is no point at which this will unsubscribe
         this.gridCache.observable.subscribe((grid: LinkedGrid) =>
-            this.processGridUpdates(grid)
+            this.processGridUpdates(grid),
         );
     }
 
@@ -50,7 +50,7 @@ export class GridObservable {
         // Each canvas should only request the subject once
         assert(
             !this.subjectByCanvasId.hasOwnProperty(canvasId),
-            `Canvas ${canvasId} has already requested a subhect`
+            `Canvas ${canvasId} has already requested a subhect`,
         );
 
         this.subjectByCanvasId[canvasId] = new Subject<LinkedGrid>();
@@ -60,7 +60,7 @@ export class GridObservable {
     updateDiagramWatchedGrids(
         canvasId: number,
         gridKeys: string[],
-        forceCacheFlush = false
+        forceCacheFlush = false,
     ): void {
         if (forceCacheFlush) {
             this.gridCache.flushCache();

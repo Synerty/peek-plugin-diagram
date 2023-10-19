@@ -71,7 +71,7 @@ export class PeekCanvasModel {
         private lookupCache: PrivateDiagramLookupService,
         private branchService: PrivateDiagramBranchService,
         private overrideService: PrivateDiagramOverrideService,
-        private lifecycleEventEmitter: NgLifeCycleEvents
+        private lifecycleEventEmitter: NgLifeCycleEvents,
     ) {
         this._query = new PeekCanvasModelQuery(this);
         this._selection = new PeekCanvasModelSelection(this, this.config);
@@ -95,7 +95,7 @@ export class PeekCanvasModel {
             .subscribe((grid: LinkedGrid) => this._receiveGrid([grid]));
 
         this.lifecycleEventEmitter.onDestroyEvent.subscribe(() =>
-            this.gridObservable.unsubscribeCanvas(this.config.canvasId)
+            this.gridObservable.unsubscribeCanvas(this.config.canvasId),
         );
 
         // Hook up the trigger to recompile the model
@@ -144,7 +144,7 @@ export class PeekCanvasModel {
                     this.gridObservable.updateDiagramWatchedGrids(
                         this.config.canvasId,
                         Object.keys(this._viewingGridKeysDict),
-                        true
+                        true,
                     );
                 }
             });
@@ -207,13 +207,13 @@ export class PeekCanvasModel {
         let startTime = now();
 
         const levelsOrderedByOrder = this.lookupCache.levelsOrderedByOrder(
-            this._coordSetId
+            this._coordSetId,
         );
         const layersOrderedByOrder = this.lookupCache.layersOrderedByOrder(
-            this._modelSetId
+            this._modelSetId,
         );
         const viewingBranchIds = this.branchService.getVisibleBranchIds(
-            this._coordSetId
+            this._coordSetId,
         );
 
         let dispIndexByGridKey = {};
@@ -355,7 +355,7 @@ export class PeekCanvasModel {
         console.log(
             `${dateStr()} PeekCanvasModel: compileDisps took ${timeTaken}ms` +
                 ` for ${disps.length} disps` +
-                ` and ${gridsOrBranchesToCompile.length} grids/branches`
+                ` and ${gridsOrBranchesToCompile.length} grids/branches`,
         );
     }
 
@@ -393,7 +393,7 @@ export class PeekCanvasModel {
 
         let viewingGridKeys = this.config.controller.coordSet.gridKeysForArea(
             area,
-            zoom
+            zoom,
         );
 
         // If there is no change, then do nothing
@@ -413,7 +413,7 @@ export class PeekCanvasModel {
         // Notify the grid manager that the view has changed
         this.gridObservable.updateDiagramWatchedGrids(
             this.config.canvasId,
-            viewingGridKeys
+            viewingGridKeys,
         );
     }
 
@@ -462,7 +462,7 @@ export class PeekCanvasModel {
                 continue;
 
             console.log(
-                `PeekCanvasModel: Applying grid ${linkedGrid.gridKey},  ${linkedGrid.lastUpdate}`
+                `PeekCanvasModel: Applying grid ${linkedGrid.gridKey},  ${linkedGrid.lastUpdate}`,
             );
             this._gridBuffer[linkedGrid.gridKey] = linkedGrid;
             this.needsCompiling = true;

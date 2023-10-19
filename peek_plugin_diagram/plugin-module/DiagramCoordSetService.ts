@@ -8,7 +8,7 @@ import { Observable } from "rxjs";
  */
 export abstract class DiagramCoordSetService {
     abstract diagramCoordSetTuples(
-        modelSetKey: string
+        modelSetKey: string,
     ): Observable<DiagramCoordSetTuple[]>;
 
     abstract modelSetKeys(): string[];

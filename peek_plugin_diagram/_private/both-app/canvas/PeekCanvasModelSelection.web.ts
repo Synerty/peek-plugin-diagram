@@ -24,7 +24,10 @@ export class PeekCanvasModelSelection {
 
     private _keysToTryToSelect: string[] = [];
 
-    constructor(private model, private config: PeekCanvasConfig) {}
+    constructor(
+        private model,
+        private config: PeekCanvasConfig,
+    ) {}
 
     // -------------------------------------------------------------------------------------
     // reset

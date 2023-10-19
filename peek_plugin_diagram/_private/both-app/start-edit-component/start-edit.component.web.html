@@ -83,10 +83,9 @@
                 >
                 </nz-switch>
             </div>
-            
+
             <p *ngIf="noItems()">You have no existing branches.</p>
-            <p *ngIf="noFilteredItems()">Your filter returned no
-                                         items.</p>
+            <p *ngIf="noFilteredItems()">Your filter returned no items.</p>
             <div *ngIf="!noItems()" class="scroll-outer">
                 <nz-list nzBordered nzSize="large">
                     <nz-list-item

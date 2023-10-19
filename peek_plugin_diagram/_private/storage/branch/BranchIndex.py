@@ -9,7 +9,7 @@ from peek_plugin_diagram._private.storage.ModelSet import ModelCoordSet
 
 
 @addTupleType
-class BranchIndex(Tuple, DeclarativeBase):
+class BranchIndex(DeclarativeBase, Tuple):
     """Branch Index
 
     The BranchIndex is implemented to allow editing of individual branches via the UI,
@@ -31,7 +31,9 @@ class BranchIndex(Tuple, DeclarativeBase):
 
     #:  The model set for this branchIndex
     coordSetId = Column(
-        Integer, ForeignKey("ModelCoordSet.id", ondelete="CASCADE"), nullable=False
+        Integer,
+        ForeignKey("ModelCoordSet.id", ondelete="CASCADE"),
+        nullable=False,
     )
     coordSet = relationship(ModelCoordSet)
 
@@ -54,8 +56,13 @@ class BranchIndex(Tuple, DeclarativeBase):
     __table_args__ = (
         Index("idx_BranchIndex_key", coordSetId, key, unique=True),
         Index("idx_BranchIndex_chunkKey", chunkKey, unique=False),
-        Index("idx_BranchIndex_importHash", coordSetId, importHash, unique=True),
         Index(
-            "idx_BranchIndex_importGroupHash", coordSetId, importGroupHash, unique=False
+            "idx_BranchIndex_importHash", coordSetId, importHash, unique=True
+        ),
+        Index(
+            "idx_BranchIndex_importGroupHash",
+            coordSetId,
+            importGroupHash,
+            unique=False,
         ),
     )

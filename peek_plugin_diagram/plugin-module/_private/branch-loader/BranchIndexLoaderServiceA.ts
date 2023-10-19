@@ -19,6 +19,6 @@ export abstract class BranchIndexLoaderServiceA extends NgLifeCycleEvents {
     abstract getBranches(
         modelSetKey: string,
         coordSetId: number | null,
-        keys: string[]
+        keys: string[],
     ): Promise<BranchIndexResultI>;
 }

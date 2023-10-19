@@ -55,7 +55,11 @@ class GridKeyCompilerQueueController(ACIProcessorQueueControllerABC):
 
     _logger = logger
     _QueueDeclarative: ACIProcessorQueueTupleABC = GridKeyCompilerQueue
-    _VacuumDeclaratives = (GridKeyCompilerQueue, GridKeyIndex, GridKeyIndexCompiled)
+    _VacuumDeclaratives = (
+        GridKeyCompilerQueue,
+        GridKeyIndex,
+        GridKeyIndexCompiled,
+    )
 
     def __init__(
         self,
@@ -67,7 +71,9 @@ class GridKeyCompilerQueueController(ACIProcessorQueueControllerABC):
             self, dbSessionCreator, _Notifier(statusController)
         )
 
-        self._clientGridUpdateHandler: ClientGridUpdateHandler = clientGridUpdateHandler
+        self._clientGridUpdateHandler: ClientGridUpdateHandler = (
+            clientGridUpdateHandler
+        )
 
     def _sendToWorker(self, block: ACIProcessorQueueBlockItem):
         from peek_plugin_diagram._private.worker.tasks.GridCompilerTask import (

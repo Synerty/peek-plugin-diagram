@@ -43,7 +43,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
         editArgs: InputDelegateConstructorEditArgs,
-        tool: EditorToolType
+        tool: EditorToolType,
     ) {
         super(viewArgs, editArgs, tool);
 
@@ -61,7 +61,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         this._lastMousePos = new CanvasInputPos();
     }
 
-    keyUp(event) {
+    override keyUp(event) {
         if (!this._creating) return;
 
         // Cancel creating object
@@ -92,17 +92,17 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     }
 
     // Map mouse events
-    mouseDown(event: MouseEvent, inputPos: CanvasInputPos) {
+    override mouseDown(event: MouseEvent, inputPos: CanvasInputPos) {
         this.inputStart(inputPos);
     }
 
     // ---------------
 
-    mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
+    override mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
         this.inputMove(inputPos, event.shiftKey);
     }
 
-    mouseUp(event: MouseEvent, inputPos: CanvasInputPos) {
+    override mouseUp(event: MouseEvent, inputPos: CanvasInputPos) {
         if (event.button == 2) {
             this._finaliseCreate();
             return;
@@ -110,7 +110,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         this.inputEnd(inputPos, event.shiftKey, false);
     }
 
-    mouseDoubleClick(event: MouseEvent, inputPos: CanvasInputPos) {
+    override mouseDoubleClick(event: MouseEvent, inputPos: CanvasInputPos) {
         // The double click will cause two "MouseUp" events
         DispPoly.popPoint(this._creating);
         DispPoly.popPoint(this._creating);
@@ -118,7 +118,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
     }
 
     // Map touch events
-    touchStart(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchStart(event: TouchEvent, inputPos: CanvasInputPos) {
         if (event.touches.length == 2) {
             this._finaliseCreate();
             return;
@@ -129,11 +129,11 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
     // ---------------
 
-    touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
         this.inputMove(inputPos, event.shiftKey);
     }
 
-    touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
         this.inputEnd(inputPos, false, true);
     }
 
@@ -143,7 +143,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
 
     // ---------------
 
-    draw(
+    override draw(
         ctx: CanvasRenderingContext2D,
         zoom: number,
         pan: PointI,
@@ -166,7 +166,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         if (this.NAME == EditorToolType.EDIT_MAKE_LINE_WITH_ARROW)
             DispPolyline.setEndEndType(
                 this._creating,
-                DispPolylineEndTypeE.Arrow
+                DispPolylineEndTypeE.Arrow,
             );
 
         DispPoly.addPoint(this._creating, this._startMousePos);
@@ -181,7 +181,7 @@ export class PeekCanvasInputEditMakeDispPolyDelegate extends PeekCanvasInputDele
         this._creating =
             this.editArgs.branchContext.branchTuple.addOrUpdateDisp(
                 this._creating,
-                true
+                true,
             );
 
         // TODO, Snap the coordinates if required

@@ -22,7 +22,10 @@ def upgrade():
     op.add_column(
         "DispGroup",
         sa.Column(
-            "compileAsTemplate", sa.Boolean(), server_default="false", nullable=False
+            "compileAsTemplate",
+            sa.Boolean(),
+            server_default="false",
+            nullable=False,
         ),
         schema="pl_diagram",
     )
@@ -70,7 +73,11 @@ def upgrade():
         schema="pl_diagram",
     )
     op.create_index(
-        "idx_Disp_groupId", "DispBase", ["groupId"], unique=False, schema="pl_diagram"
+        "idx_Disp_groupId",
+        "DispBase",
+        ["groupId"],
+        unique=False,
+        schema="pl_diagram",
     )
     op.create_foreign_key(
         None,

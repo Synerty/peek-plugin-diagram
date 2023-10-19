@@ -24,7 +24,9 @@ def upgrade():
     op.create_table(
         "BranchIndexCompilerQueue",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("modelSetId", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column(
+            "modelSetId", sa.Integer(), autoincrement=True, nullable=False
+        ),
         sa.Column("chunkKey", sa.String(), nullable=False),
         sa.ForeignKeyConstraint(
             ["modelSetId"], ["pl_diagram.ModelSet.id"], ondelete="CASCADE"
@@ -129,12 +131,18 @@ def downgrade():
         schema="pl_diagram",
     )
     op.drop_table("BranchGridIndex", schema="pl_diagram")
-    op.drop_index("idx_BranchIndex_key", table_name="BranchIndex", schema="pl_diagram")
     op.drop_index(
-        "idx_BranchIndex_importGroupHash", table_name="BranchIndex", schema="pl_diagram"
+        "idx_BranchIndex_key", table_name="BranchIndex", schema="pl_diagram"
     )
     op.drop_index(
-        "idx_BranchIndex_chunkKey", table_name="BranchIndex", schema="pl_diagram"
+        "idx_BranchIndex_importGroupHash",
+        table_name="BranchIndex",
+        schema="pl_diagram",
+    )
+    op.drop_index(
+        "idx_BranchIndex_chunkKey",
+        table_name="BranchIndex",
+        schema="pl_diagram",
     )
     op.drop_table("BranchIndex", schema="pl_diagram")
     op.drop_index(

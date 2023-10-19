@@ -98,7 +98,7 @@ export class PeekCanvasModelQuery {
         disps,
         zoom,
         includeShapesWithNoColor = false,
-        includeShapesWithNoKey: boolean = true
+        includeShapesWithNoKey: boolean = true,
     ): any[] {
         function check(disp): boolean {
             if (!includeShapesWithNoColor && !DispBase.hasColor(disp))
@@ -122,7 +122,7 @@ export class PeekCanvasModelQuery {
         zoom: number,
         margin: number,
         point: PointI,
-        useBoxContainsForPolygons: boolean
+        useBoxContainsForPolygons: boolean,
     ): any[] {
         margin = margin / zoom;
         return disps.filter((d) => {
@@ -150,14 +150,14 @@ export class PeekCanvasModelQuery {
     uniqueDisps(disps: any[]): string[] {
         const ids = {};
         return disps.filter((d) =>
-            ids[d.id] === true ? false : (ids[d.id] = true)
+            ids[d.id] === true ? false : (ids[d.id] = true),
         );
     }
 
     uniquePolylineEnds(ends: PolylineEnd[]): PolylineEnd[] {
         const ids = {};
         return ends.filter((d) =>
-            ids[d.disp.id] === true ? false : (ids[d.disp.id] = true)
+            ids[d.disp.id] === true ? false : (ids[d.disp.id] = true),
         );
     }
 
@@ -221,7 +221,7 @@ export class PeekCanvasModelQuery {
 
     decentAndAddDisps(
         disps: DispBaseT[],
-        outDisps: DispBaseT[] = []
+        outDisps: DispBaseT[] = [],
     ): DispBaseT[] {
         for (let disp of disps) {
             outDisps.push(disp);
@@ -278,7 +278,7 @@ export class PeekCanvasModelQuery {
     closestDispToPoint(
         x,
         y,
-        dispFiltCallable: DispFilterCallableT | null = null
+        dispFiltCallable: DispFilterCallableT | null = null,
     ): DispBaseT | null {
         let closestDisp = null;
         let closestDispDistance = null;

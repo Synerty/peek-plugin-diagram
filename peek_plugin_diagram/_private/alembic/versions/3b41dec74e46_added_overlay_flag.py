@@ -22,7 +22,9 @@ import geoalchemy2
 def upgrade():
     op.add_column(
         "DispBase",
-        sa.Column("overlay", sa.Boolean(), server_default="false", nullable=True),
+        sa.Column(
+            "overlay", sa.Boolean(), server_default="false", nullable=True
+        ),
         schema="pl_diagram",
     )
 
@@ -39,7 +41,11 @@ def upgrade():
     )
 
     op.alter_column(
-        "DispBase", "overlay", type_=sa.Boolean(), nullable=False, schema="pl_diagram"
+        "DispBase",
+        "overlay",
+        type_=sa.Boolean(),
+        nullable=False,
+        schema="pl_diagram",
     )
 
     op.execute(

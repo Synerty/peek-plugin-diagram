@@ -20,7 +20,11 @@ from alembic import op
 
 def upgrade():
     op.alter_column(
-        "DispBase", "dispJson", type_=sa.String(), nullable=True, schema="pl_diagram"
+        "DispBase",
+        "dispJson",
+        type_=sa.String(),
+        nullable=True,
+        schema="pl_diagram",
     )
     op.alter_column(
         "DispBase",
@@ -33,14 +37,26 @@ def upgrade():
         "DispBase", "key", type_=sa.String(), nullable=True, schema="pl_diagram"
     )
     op.alter_column(
-        "DispBase", "dataJson", type_=sa.String(), nullable=True, schema="pl_diagram"
+        "DispBase",
+        "dataJson",
+        type_=sa.String(),
+        nullable=True,
+        schema="pl_diagram",
     )
 
     op.alter_column(
-        "DispGroup", "name", type_=sa.String(), nullable=False, schema="pl_diagram"
+        "DispGroup",
+        "name",
+        type_=sa.String(),
+        nullable=False,
+        schema="pl_diagram",
     )
     op.alter_column(
-        "DispText", "geomJson", type_=sa.String(), nullable=False, schema="pl_diagram"
+        "DispText",
+        "geomJson",
+        type_=sa.String(),
+        nullable=False,
+        schema="pl_diagram",
     )
     op.alter_column(
         "DispPolygon",

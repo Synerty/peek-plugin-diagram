@@ -35,17 +35,25 @@ def upgrade():
     )
 
     op.drop_index(
-        "idx_DispLineStyle_importHash", table_name="DispLineStyle", schema="pl_diagram"
+        "idx_DispLineStyle_importHash",
+        table_name="DispLineStyle",
+        schema="pl_diagram",
     )
     op.drop_index(
-        "idx_DispLineStyle_modelSetId", table_name="DispLineStyle", schema="pl_diagram"
+        "idx_DispLineStyle_modelSetId",
+        table_name="DispLineStyle",
+        schema="pl_diagram",
     )
 
     op.drop_index(
-        "idx_DispTextStyle_importHash", table_name="DispTextStyle", schema="pl_diagram"
+        "idx_DispTextStyle_importHash",
+        table_name="DispTextStyle",
+        schema="pl_diagram",
     )
     op.drop_index(
-        "idx_DispTextStyle_modelSetId", table_name="DispTextStyle", schema="pl_diagram"
+        "idx_DispTextStyle_modelSetId",
+        table_name="DispTextStyle",
+        schema="pl_diagram",
     )
 
     op.create_index(

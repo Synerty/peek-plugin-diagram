@@ -18,7 +18,7 @@ export class PeekCanvasBounds {
         x: number | PeekCanvasBounds = 0.0,
         y: number = 0.0,
         w: number = 0.0,
-        h: number = 0.0
+        h: number = 0.0,
     ) {
         // Copy constructor
         if (x instanceof PeekCanvasBounds) {
@@ -178,7 +178,7 @@ export class PeekCanvasBounds {
     distanceFromPoint(point: { x: number; y: number }): number {
         let center = this.center();
         return Math.sqrt(
-            Math.pow(center.x - point.x, 2) + Math.pow(center.y - point.y, 2)
+            Math.pow(center.x - point.x, 2) + Math.pow(center.y - point.y, 2),
         );
     }
 

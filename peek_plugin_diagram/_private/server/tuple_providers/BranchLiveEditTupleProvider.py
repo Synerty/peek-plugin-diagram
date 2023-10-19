@@ -27,6 +27,8 @@ class BranchLiveEditTupleProvider(TuplesProviderABC):
         tuple = self._controller.getLiveEditTuple(coordSetId, key)
         tuples = [tuple] if tuple else []
 
-        payloadEnvelope = yield Payload(filt, tuples=tuples).makePayloadEnvelopeDefer()
+        payloadEnvelope = yield Payload(
+            filt, tuples=tuples
+        ).makePayloadEnvelopeDefer()
         vortexMsg = yield payloadEnvelope.toVortexMsgDefer()
         return vortexMsg

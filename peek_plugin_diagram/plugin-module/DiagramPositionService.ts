@@ -68,7 +68,7 @@ export abstract class DiagramPositionService {
         x: number,
         y: number,
         zoom: number,
-        opts: OptionalPositionArgsI | null
+        opts: OptionalPositionArgsI | null,
     ): void;
 
     /** Position By Keys
@@ -80,7 +80,7 @@ export abstract class DiagramPositionService {
     abstract positionByKeys(
         keys: string[],
         modelSetKey: string,
-        coordSetKey: string
+        coordSetKey: string,
     ): void;
 
     /** Position By Keys
@@ -97,7 +97,7 @@ export abstract class DiagramPositionService {
     abstract positionByKey(
         modelSetKey: string,
         coordSetKey: string | null,
-        opts: OptionalPositionArgsI | null
+        opts: OptionalPositionArgsI | null,
     ): void;
 
     /** Can Position By Key
@@ -110,7 +110,7 @@ export abstract class DiagramPositionService {
      */
     abstract canPositionByKey(
         modelSetKey: string,
-        dispKey: string
+        dispKey: string,
     ): Promise<boolean>;
 
     /** Locations For Key
@@ -123,7 +123,7 @@ export abstract class DiagramPositionService {
      */
     abstract locationsForKey(
         modelSetKey: string,
-        dispKey: string
+        dispKey: string,
     ): Promise<DispKeyLocation[]>;
 
     /** Position Updated Observable

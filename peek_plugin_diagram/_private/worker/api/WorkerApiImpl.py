@@ -7,11 +7,16 @@ from sqlalchemy import select, and_
 
 from peek_plugin_diagram._private.storage.DispIndex import DispIndexerQueue
 from peek_plugin_diagram._private.storage.LiveDbDispLink import LiveDbDispLink
-from peek_plugin_diagram._private.storage.ModelSet import ModelSet, ModelCoordSet
+from peek_plugin_diagram._private.storage.ModelSet import (
+    ModelSet,
+    ModelCoordSet,
+)
 from peek_plugin_diagram._private.worker.tasks.LiveDbDisplayValueConverter import (
     LiveDbDisplayValueConverter,
 )
-from peek_plugin_livedb.tuples.LiveDbDisplayValueTuple import LiveDbDisplayValueTuple
+from peek_plugin_livedb.tuples.LiveDbDisplayValueTuple import (
+    LiveDbDisplayValueTuple,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +44,10 @@ class WorkerApiImpl:
         startTime = datetime.now(pytz.utc)
 
         modelSetId = (
-            ormSession.query(ModelSet.id).filter(ModelSet.key == modelSetKey).one().id
+            ormSession.query(ModelSet.id)
+            .filter(ModelSet.key == modelSetKey)
+            .one()
+            .id
         )
 
         translater = LiveDbDisplayValueConverter.create(ormSession, modelSetId)
@@ -49,7 +57,9 @@ class WorkerApiImpl:
                 logger.warning("LiveDB key %s is missing dataType", item.key)
                 continue
 
-            item.displayValue = translater.translate(item.dataType, item.rawValue)
+            item.displayValue = translater.translate(
+                item.dataType, item.rawValue
+            )
 
         logger.debug(
             "Converted %s LiveDB Raw Values in %s",
@@ -61,18 +71,20 @@ class WorkerApiImpl:
     def liveDbDisplayValueUpdateNotify(
         cls, ormSession, modelSetKey: str, updatedKeys: List[str]
     ):
-
         logger.debug("TODO TODO - liveDbDisplayValueUpdateNotify coordSetId")
         linkTable = LiveDbDispLink.__table__
         coordSetTable = ModelCoordSet.__table__
         queueTable = DispIndexerQueue.__table__
 
         modelSetId = (
-            ormSession.query(ModelSet.id).filter(ModelSet.key == modelSetKey).one().id
+            ormSession.query(ModelSet.id)
+            .filter(ModelSet.key == modelSetKey)
+            .one()
+            .id
         )
 
         stmt = (
-            select([linkTable.c.dispId])
+            select(linkTable.c.dispId)
             .select_from(
                 linkTable.join(
                     coordSetTable, linkTable.c.coordSetId == coordSetTable.c.id

@@ -36,7 +36,7 @@ export abstract class PeekCanvasInputDelegate {
     protected constructor(
         protected viewArgs: InputDelegateConstructorViewArgs,
         protected editArgs: InputDelegateConstructorEditArgs,
-        public NAME: EditorToolType
+        public NAME: EditorToolType,
     ) {}
 
     keyDown(event) {}
@@ -93,7 +93,7 @@ export abstract class PeekCanvasInputDelegate {
      */
     protected _setLastMousePos(
         inputPos: CanvasInputPos,
-        snapping = true
+        snapping = true,
     ): CanvasInputDeltaI {
         let dx = inputPos.x - this._lastMousePos.x;
         let dy = inputPos.y - this._lastMousePos.y;
@@ -130,13 +130,13 @@ export abstract class PeekCanvasInputDelegate {
             (disp) => {
                 let key = DispBase.key(disp);
                 return key != null && key.length != 0;
-            }
+            },
         );
 
         // TODO, See how close it is to other disps.
         if (closestDisp != null) {
             this.editArgs.branchContext.branchTuple.addAnchorDispKey(
-                DispBase.key(closestDisp)
+                DispBase.key(closestDisp),
             );
         }
     }

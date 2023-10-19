@@ -111,7 +111,6 @@ class GridCacheHandler(ACICacheHandlerABC):
         payloadsByVortexUuid = defaultdict(cratePayloadEnvelope)
 
         for gridKey in gridKeys:
-
             gridTuple = self._cacheController.encodedChunk(gridKey)
             if not gridTuple:
                 gridTuple = EncodedGridTuple()
@@ -155,7 +154,7 @@ class GridCacheHandler(ACICacheHandlerABC):
         payloadEnvelope: PayloadEnvelope,
         vortexUuid: str,
         sendResponse: SendVortexMsgResponseCallable,
-        **kwargs
+        **kwargs,
     ):
         cacheAll = payloadEnvelope.filt.get("cacheAll") is True
 

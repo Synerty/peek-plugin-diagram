@@ -24,12 +24,12 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate extends PeekCanvasInp
 
     constructor(
         viewArgs: InputDelegateConstructorViewArgs,
-        editArgs: InputDelegateConstructorEditArgs
+        editArgs: InputDelegateConstructorEditArgs,
     ) {
         super(
             viewArgs,
             editArgs,
-            PeekCanvasInputMakeDispGroupPtrVertexDelegate.TOOL_NAME
+            PeekCanvasInputMakeDispGroupPtrVertexDelegate.TOOL_NAME,
         );
 
         this._reset();
@@ -46,29 +46,29 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate extends PeekCanvasInp
 
     // ---------------
     // Map mouse events
-    mouseDown(event: MouseEvent, inputPos: CanvasInputPos) {
+    override mouseDown(event: MouseEvent, inputPos: CanvasInputPos) {
         this.inputStart(inputPos);
     }
 
-    mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
+    override mouseMove(event: MouseEvent, inputPos: CanvasInputPos) {
         this.inputMove(inputPos);
     }
 
-    mouseUp(event: MouseEvent, inputPos: CanvasInputPos) {
+    override mouseUp(event: MouseEvent, inputPos: CanvasInputPos) {
         this.inputEnd(inputPos);
     }
 
     // ---------------
     // Map touch events
-    touchStart(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchStart(event: TouchEvent, inputPos: CanvasInputPos) {
         this.inputStart(inputPos);
     }
 
-    touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchMove(event: TouchEvent, inputPos: CanvasInputPos) {
         this.inputMove(inputPos);
     }
 
-    touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
+    override touchEnd(event: TouchEvent, inputPos: CanvasInputPos) {
         this.inputEnd(inputPos);
     }
 
@@ -78,7 +78,7 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate extends PeekCanvasInp
         this._finaliseCreate();
     }
 
-    draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {}
+    override draw(ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {}
 
     // ---------------
     // Start logic
@@ -115,7 +115,7 @@ export class PeekCanvasInputMakeDispGroupPtrVertexDelegate extends PeekCanvasInp
         // Add the shape to the branch
         created = this.editArgs.branchContext.branchTuple.addOrUpdateDisp(
             created,
-            true
+            true,
         );
         this.editArgs.branchContext.branchTuple.touchUndo();
 

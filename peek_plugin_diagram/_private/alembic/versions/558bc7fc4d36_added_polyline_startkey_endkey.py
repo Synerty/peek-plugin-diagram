@@ -48,10 +48,14 @@ def upgrade():
 
 def downgrade():
     op.drop_index(
-        "idx_DispPolyline_startKey", table_name="DispPolyline", schema="pl_diagram"
+        "idx_DispPolyline_startKey",
+        table_name="DispPolyline",
+        schema="pl_diagram",
     )
     op.drop_index(
-        "idx_DispPolyline_endKey", table_name="DispPolyline", schema="pl_diagram"
+        "idx_DispPolyline_endKey",
+        table_name="DispPolyline",
+        schema="pl_diagram",
     )
     op.drop_column("DispPolyline", "startKey", schema="pl_diagram")
     op.drop_column("DispPolyline", "endKey", schema="pl_diagram")

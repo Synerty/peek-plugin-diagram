@@ -9,7 +9,7 @@ export abstract class DiagramConfigService {
     abstract setLayerVisible(
         modelSetKey: string,
         layerName: string,
-        visible: boolean
+        visible: boolean,
     ): void;
 
     abstract usePolylineEdgeColors(): boolean;
@@ -17,6 +17,6 @@ export abstract class DiagramConfigService {
     abstract setUsePolylineEdgeColors(enabled: boolean): void;
 
     abstract setToolbarButtons(
-        buttonBitmask: DiagramToolbarBuiltinButtonEnum
+        buttonBitmask: DiagramToolbarBuiltinButtonEnum,
     ): void;
 }

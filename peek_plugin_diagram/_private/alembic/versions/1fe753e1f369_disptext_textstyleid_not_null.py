@@ -19,10 +19,16 @@ from alembic import op
 
 
 def upgrade():
-    op.drop_index("idx_DispText_styleId", table_name="DispText", schema="pl_diagram")
+    op.drop_index(
+        "idx_DispText_styleId", table_name="DispText", schema="pl_diagram"
+    )
 
     op.alter_column(
-        "DispText", "textStyleId", type_=sa.Integer, nullable=False, schema="pl_diagram"
+        "DispText",
+        "textStyleId",
+        type_=sa.Integer,
+        nullable=False,
+        schema="pl_diagram",
     )
     op.create_index(
         "idx_DispText_styleId",
@@ -35,5 +41,9 @@ def upgrade():
 
 def downgrade():
     op.alter_column(
-        "DispText", "textStyleId", type_=sa.Integer, nullable=True, schema="pl_diagram"
+        "DispText",
+        "textStyleId",
+        type_=sa.Integer,
+        nullable=True,
+        schema="pl_diagram",
     )

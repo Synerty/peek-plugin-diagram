@@ -148,20 +148,24 @@ export class DispEllipse extends DispBase {
         DispBase.setBoundsNull(disp);
     }
 
-    static rotateAboutAxis(disp, center: PointI, rotationDegrees: number) {
+    static override rotateAboutAxis(
+        disp,
+        center: PointI,
+        rotationDegrees: number,
+    ) {
         if (disp.g == null) return;
 
         DispBase.rotateAboutAxis(disp, center, rotationDegrees);
         DispEllipse.setRotation(
             disp,
-            DispEllipse.rotation(disp) + rotationDegrees
+            DispEllipse.rotation(disp) + rotationDegrees,
         );
     }
 
     // ---------------
     // Create Method
 
-    static create(coordSet: ModelCoordSet): DispEllipseT {
+    static override create(coordSet: ModelCoordSet): DispEllipseT {
         let newDisp = {
             ...DispBase.create(coordSet, DispBase.TYPE_DE),
             g: [], // PointsT[]
@@ -185,7 +189,9 @@ export class DispEllipse extends DispBase {
         return newDisp;
     }
 
-    static makeShapeContext(context: PeekCanvasShapePropsContext): void {
+    static override makeShapeContext(
+        context: PeekCanvasShapePropsContext,
+    ): void {
         DispPoly.makeShapeContext(context);
 
         context.addProp(
@@ -193,8 +199,8 @@ export class DispEllipse extends DispBase {
                 ShapePropType.Color,
                 DispEllipse.fillColor,
                 DispEllipse.setFillColor,
-                "Fill Color"
-            )
+                "Fill Color",
+            ),
         );
 
         context.addProp(
@@ -202,8 +208,8 @@ export class DispEllipse extends DispBase {
                 ShapePropType.LineStyle,
                 DispEllipse.lineStyle,
                 DispEllipse.setLineStyle,
-                "Line Style"
-            )
+                "Line Style",
+            ),
         );
 
         context.addProp(
@@ -211,8 +217,8 @@ export class DispEllipse extends DispBase {
                 ShapePropType.Color,
                 DispEllipse.lineColor,
                 DispEllipse.setLineColor,
-                "Line Color"
-            )
+                "Line Color",
+            ),
         );
 
         context.addProp(
@@ -220,8 +226,8 @@ export class DispEllipse extends DispBase {
                 ShapePropType.Integer,
                 DispEllipse.lineWidth,
                 DispEllipse.setLineWidth,
-                "Line Width"
-            )
+                "Line Width",
+            ),
         );
 
         context.addProp(
@@ -229,8 +235,8 @@ export class DispEllipse extends DispBase {
                 ShapePropType.Integer,
                 DispEllipse.rotation,
                 DispEllipse.setRotation,
-                "Rotation"
-            )
+                "Rotation",
+            ),
         );
 
         context.addProp(
@@ -238,8 +244,8 @@ export class DispEllipse extends DispBase {
                 ShapePropType.Integer,
                 DispEllipse.startAngle,
                 DispEllipse.setStartAngle,
-                "Start Angle"
-            )
+                "Start Angle",
+            ),
         );
 
         context.addProp(
@@ -247,15 +253,15 @@ export class DispEllipse extends DispBase {
                 ShapePropType.Integer,
                 DispEllipse.endAngle,
                 DispEllipse.setEndAngle,
-                "End Angle"
-            )
+                "End Angle",
+            ),
         );
     }
 
     // ---------------
     // Represent the disp as a user friendly string
 
-    static makeShapeStr(disp: DispEllipseT): string {
+    static override makeShapeStr(disp: DispEllipseT): string {
         let center = DispEllipse.center(disp);
         return (
             DispBase.makeShapeStr(disp) +

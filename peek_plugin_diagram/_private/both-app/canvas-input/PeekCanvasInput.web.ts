@@ -43,14 +43,14 @@ export class PeekCanvasInput {
         private objectPopupService,
         private copyPasteService: CopyPasteService,
         private contextMenuService: ContextMenuService,
-        private actioner: PeekCanvasActioner
+        private actioner: PeekCanvasActioner,
     ) {
         this.delegateFinished();
     }
 
     setDelegate(
         Delegate,
-        editArgs: InputDelegateConstructorEditArgs | null = null
+        editArgs: InputDelegateConstructorEditArgs | null = null,
     ) {
         if (this._delegate) this._delegate.shutdown();
 
@@ -141,7 +141,7 @@ export class PeekCanvasInput {
             (e) => {
                 this._delegate.keyDown(e);
             },
-            true
+            true,
         );
 
         canvas.addEventListener(
@@ -149,7 +149,7 @@ export class PeekCanvasInput {
             (e) => {
                 this._delegate.keyPress(e);
             },
-            true
+            true,
         );
 
         canvas.addEventListener(
@@ -157,7 +157,7 @@ export class PeekCanvasInput {
             (e) => {
                 this._delegate.keyUp(e);
             },
-            true
+            true,
         );
 
         canvas.addEventListener(
@@ -166,7 +166,7 @@ export class PeekCanvasInput {
                 if (!(e instanceof MouseEvent)) return;
                 this._delegate.mouseDown(e, this._getMouse(e));
             },
-            true
+            true,
         );
 
         canvas.addEventListener(
@@ -175,7 +175,7 @@ export class PeekCanvasInput {
                 if (!(e instanceof MouseEvent)) return;
                 this._delegate.mouseMove(e, this._getMouse(e));
             },
-            true
+            true,
         );
 
         canvas.addEventListener(
@@ -184,7 +184,7 @@ export class PeekCanvasInput {
                 if (!(e instanceof MouseEvent)) return;
                 this._delegate.mouseUp(e, this._getMouse(e));
             },
-            true
+            true,
         );
 
         canvas.addEventListener(
@@ -193,7 +193,7 @@ export class PeekCanvasInput {
                 if (!(e instanceof MouseEvent)) return;
                 this._delegate.mouseDoubleClick(e, this._getMouse(e));
             },
-            true
+            true,
         );
 
         canvas.addEventListener(
@@ -205,7 +205,7 @@ export class PeekCanvasInput {
                 e.preventDefault();
                 return false;
             },
-            true
+            true,
         );
 
         canvas.addEventListener(
@@ -215,7 +215,7 @@ export class PeekCanvasInput {
                 this._delegate.touchStart(e, this._getMouse(e));
                 disableContextMenu(e);
             },
-            true
+            true,
         );
 
         canvas.addEventListener(
@@ -225,7 +225,7 @@ export class PeekCanvasInput {
                 this._delegate.touchMove(e, this._getMouse(e));
                 disableContextMenu(e);
             },
-            true
+            true,
         );
 
         canvas.addEventListener(
@@ -235,7 +235,7 @@ export class PeekCanvasInput {
                 this._delegate.touchEnd(e, this._getMouse(e));
                 disableContextMenu(e);
             },
-            true
+            true,
         );
 
         canvas.addEventListener(
@@ -245,7 +245,7 @@ export class PeekCanvasInput {
                 e.preventDefault();
                 return false;
             },
-            true
+            true,
         );
 
         canvas.addEventListener("contextmenu", disableContextMenu, true);

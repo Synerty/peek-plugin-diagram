@@ -36,7 +36,9 @@ def upgrade():
     )
     op.add_column(
         "DispBase",
-        sa.Column("selectable", sa.Boolean(), server_default="0", nullable=False),
+        sa.Column(
+            "selectable", sa.Boolean(), server_default="0", nullable=False
+        ),
         schema="pl_diagram",
     )
 

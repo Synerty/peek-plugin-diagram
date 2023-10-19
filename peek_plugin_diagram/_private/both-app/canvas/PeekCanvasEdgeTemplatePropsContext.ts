@@ -9,7 +9,7 @@ export class PeekCanvasEdgeTemplatePropsContext {
         private model: PeekCanvasModel,
         private polyline: DispPolylineT,
         private lookupService: PrivateDiagramLookupService,
-        private branchTuple: BranchTuple
+        private branchTuple: BranchTuple,
     ) {}
 
     get targetEdgeTemplateCoordSetId(): number | null {
@@ -26,7 +26,7 @@ export class PeekCanvasEdgeTemplatePropsContext {
             edgeTemplate,
             coordSetId,
             this.lookupService,
-            this.branchTuple
+            this.branchTuple,
         );
 
         this.model.recompileModel();

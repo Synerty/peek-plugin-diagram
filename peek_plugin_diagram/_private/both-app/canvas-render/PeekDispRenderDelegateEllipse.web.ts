@@ -29,7 +29,7 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
             centerX - xRadius,
             centerY - yRadius,
             2 * xRadius,
-            2 * yRadius
+            2 * yRadius,
         );
     }
 
@@ -62,7 +62,7 @@ export class PeekDispRenderDelegateEllipse extends PeekDispRenderDelegateABC {
         ctx.save();
         ctx.translate(
             DispEllipse.centerPointX(disp),
-            DispEllipse.centerPointY(disp)
+            DispEllipse.centerPointY(disp),
         );
         ctx.scale(1, yScale);
         ctx.rotate(rotationRadian);

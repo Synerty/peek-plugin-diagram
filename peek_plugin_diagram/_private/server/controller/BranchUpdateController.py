@@ -88,7 +88,6 @@ class BranchUpdateController(TupleActionProcessorDelegateABC):
     def __processUpdateFromClient(
         self, tupleAction: TupleActionABC
     ) -> Deferred:
-
         dbSession = self._dbSessionCreator()
         try:
             encodedPayload = yield Payload(

@@ -1,6 +1,8 @@
 import logging
 
-from peek_plugin_base.agent.PluginAgentEntryHookABC import PluginAgentEntryHookABC
+from peek_plugin_base.agent.PluginAgentEntryHookABC import (
+    PluginAgentEntryHookABC,
+)
 
 # from peek_plugin_diagram._private.storage.DeclarativeBase import loadStorageTuples
 # from peek_plugin_diagram._private.tuples import loadPrivateTuples

@@ -10,12 +10,12 @@ import { DiagramComponentBase } from "./diagram.component";
     styleUrls: ["diagram.component.web.scss"],
 })
 export class DiagramComponent extends DiagramComponentBase {
-    @Input() modelSetKey;
+    @Input() override modelSetKey;
 
     constructor(
         headerService: HeaderService,
         positionService: DiagramPositionService,
-        toolbarService: DiagramToolbarService
+        toolbarService: DiagramToolbarService,
     ) {
         super(headerService, positionService, toolbarService);
     }

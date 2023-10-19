@@ -27,7 +27,7 @@ export class PeekDispRenderDelegateNull extends PeekDispRenderDelegateABC {
         ctx,
         zoom: number,
         pan: PointI,
-        drawMode: DrawModeE
+        drawMode: DrawModeE,
     ) {}
 
     drawSelected(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {}

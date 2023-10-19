@@ -65,7 +65,7 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
                         b.y + b.h / 2,
                         b.h / 2 / zoom,
                         0,
-                        2 * Math.PI
+                        2 * Math.PI,
                     );
                     break;
                 case DispHandleTypeE.snapRotate:
@@ -95,7 +95,7 @@ export class PeekDispRenderDelegateGroupPtr extends PeekDispRenderDelegateABC {
         ctx,
         zoom: number,
         pan: PointI,
-        drawMode: DrawModeE
+        drawMode: DrawModeE,
     ) {
         if (drawMode != DrawModeE.ForEdit) return;
 

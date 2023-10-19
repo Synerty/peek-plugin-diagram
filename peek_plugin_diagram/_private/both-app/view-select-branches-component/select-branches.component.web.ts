@@ -51,7 +51,7 @@ export class SelectBranchesComponent extends NgLifeCycleEvents {
         private branchService: PrivateDiagramBranchService,
         abstractCoordSetService: DiagramCoordSetService,
         private globalBranchService: BranchService,
-        private userService: UserService
+        private userService: UserService,
     ) {
         super();
 
@@ -69,8 +69,8 @@ export class SelectBranchesComponent extends NgLifeCycleEvents {
             .pipe(
                 filter(
                     (reason) =>
-                        reason == DocDbPopupClosedReasonE.userClickedAction
-                )
+                        reason == DocDbPopupClosedReasonE.userClickedAction,
+                ),
             )
             .subscribe(() => this.closePopupFull());
 
@@ -79,8 +79,8 @@ export class SelectBranchesComponent extends NgLifeCycleEvents {
             .pipe(
                 filter(
                     (reason) =>
-                        reason == DocDbPopupClosedReasonE.userClickedAction
-                )
+                        reason == DocDbPopupClosedReasonE.userClickedAction,
+                ),
             )
             .subscribe(() => this.closePopupFull());
     }
@@ -163,11 +163,11 @@ export class SelectBranchesComponent extends NgLifeCycleEvents {
 
         if (this._sortByDate) {
             items = items.sort(
-                (a, b) => b.createdDate.getTime() - a.createdDate.getTime()
+                (a, b) => b.createdDate.getTime() - a.createdDate.getTime(),
             );
         } else {
             items = items.sort((a, b) =>
-                compStr(a.name.toLowerCase(), b.name.toLowerCase())
+                compStr(a.name.toLowerCase(), b.name.toLowerCase()),
             );
         }
         this.items$.next(items);
@@ -215,7 +215,7 @@ export class SelectBranchesComponent extends NgLifeCycleEvents {
     protected openPopup() {
         let coordSet = this.coordSetService.coordSetForKey(
             this.modelSetKey,
-            this.coordSetKey
+            this.coordSetKey,
         );
         console.log("Opening Branch Select popup");
 

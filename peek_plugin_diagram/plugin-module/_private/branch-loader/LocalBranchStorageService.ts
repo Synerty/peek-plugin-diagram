@@ -16,7 +16,10 @@ import { PrivateDiagramBranchContext } from "../branch";
  * This is just a short cut for the tuple selector
  */
 class LocallyStoredBranchTupleSelector extends TupleSelector {
-    constructor(private modelSetKey: string, private key: string) {
+    constructor(
+        private modelSetKey: string,
+        private key: string,
+    ) {
         super(diagramTuplePrefix + "BranchTuple.LocallyStored", {
             modelSetKey: modelSetKey,
             key: key,
@@ -42,7 +45,7 @@ export class LocalBranchStorageService extends NgLifeCycleEvents {
 
         this.storage = new TupleOfflineStorageService(
             storageFactory,
-            new TupleOfflineStorageNameService(branchLocalStorageName)
+            new TupleOfflineStorageNameService(branchLocalStorageName),
         );
     }
 
@@ -54,14 +57,14 @@ export class LocalBranchStorageService extends NgLifeCycleEvents {
     loadBranch(
         modelSetKey: string,
         coordSetId: number,
-        key: string
+        key: string,
     ): Promise<BranchTuple | null> {
         let prom: any = this.loadBranches(modelSetKey, key).then(
             (branches: BranchTuple[]) => {
                 for (let branch of branches) {
                     if (branch.coordSetId == coordSetId) return branch;
                 }
-            }
+            },
         );
         return prom;
     }
@@ -82,11 +85,11 @@ export class LocalBranchStorageService extends NgLifeCycleEvents {
         let branchToSave: BranchTuple = branchContext["branch"];
         let ts = new LocallyStoredBranchTupleSelector(
             branchContext.modelSetKey,
-            branchContext.key
+            branchContext.key,
         );
         let prom: any = this.loadBranches(
             branchContext.modelSetKey,
-            branchToSave.key
+            branchToSave.key,
         ).then((branches: BranchTuple[]) => {
             // Iterate though and update
             let updated = false;

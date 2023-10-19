@@ -5,7 +5,6 @@ import { GridTuple } from "./GridTuple";
 import { PrivateDiagramGridLoaderServiceA } from "./PrivateDiagramGridLoaderServiceA";
 
 import {
-    extend,
     Payload,
     PayloadEnvelope,
     TupleOfflineStorageNameService,
@@ -27,9 +26,9 @@ import {
 
 // ----------------------------------------------------------------------------
 
-let clientGridWatchUpdateFromDeviceFilt = extend(
+let clientGridWatchUpdateFromDeviceFilt = Object.assign(
     { key: "clientGridWatchUpdateFromDevice" },
-    diagramFilt
+    diagramFilt,
 );
 
 // ----------------------------------------------------------------------------
@@ -56,7 +55,7 @@ class GridKeyTupleSelector extends TupleSelector {
      *
      * This method is used by the Tuple Storage to generate the DB Primary Key
      */
-    toOrderedJsonStr(): string {
+    override toOrderedJsonStr(): string {
         return this.name;
     }
 }
@@ -107,7 +106,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
         private vortexStatusService: VortexStatusService,
         private tupleService: PrivateDiagramTupleService,
         storageFactory: TupleStorageFactoryService,
-        private deviceCacheControllerService: DeviceOfflineCacheService
+        private deviceCacheControllerService: DeviceOfflineCacheService,
     ) {
         super();
 
@@ -115,7 +114,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
         this._status.indexName = "Grids";
 
         this.storage = storageFactory.create(
-            new TupleOfflineStorageNameService(gridCacheStorageName)
+            new TupleOfflineStorageNameService(gridCacheStorageName),
         );
         this.storage
             .open()
@@ -184,7 +183,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
      */
     async loadGrids(
         currentGridUpdateTimes: { [gridKey: string]: string },
-        gridKeys: string[]
+        gridKeys: string[],
     ): Promise<void> {
         // Query the local storage for the grids we don't have in the cache
         let gridTuples: GridTuple[] = await this.queryStorageGrids(gridKeys);
@@ -203,12 +202,12 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
         this._status.initialFullLoadComplete = this.index.initialLoadComplete;
 
         this._status.loadingQueueCount = Object.values(
-            this.index.updateDateByChunkKey
+            this.index.updateDateByChunkKey,
         ).filter((v) => v == null).length;
 
         this._statusSubject.next(this._status);
         this.deviceCacheControllerService.updateLoaderCachingStatus(
-            this._status
+            this._status,
         );
     }
 
@@ -217,7 +216,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
         this.vortexService
             .createEndpointObservable(this, clientGridWatchUpdateFromDeviceFilt)
             .subscribe((payloadEnvelope: PayloadEnvelope) =>
-                this.processChunksFromServer(payloadEnvelope)
+                this.processChunksFromServer(payloadEnvelope),
             );
     }
 
@@ -263,7 +262,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
 
             console.log(
                 "peek-plugin-diagram: Getting GridUpdateDateTuple " +
-                    ` from ${start} to ${offset}`
+                    ` from ${start} to ${offset}`,
             );
 
             this.tupleService.observer
@@ -272,7 +271,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
                     if (!tuples.length) {
                         console.log(
                             "peek-plugin-diagram:" +
-                                " Load of GridUpdateDateTuple Complete"
+                                " Load of GridUpdateDateTuple Complete",
                         );
                         complete();
                         return;
@@ -287,7 +286,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
 
                         if (
                             !this.index.updateDateByChunkKey.hasOwnProperty(
-                                chunkKey
+                                chunkKey,
                             )
                         ) {
                             this.index.updateDateByChunkKey[chunkKey] = null;
@@ -358,7 +357,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
         let nextChunk = this.askServerChunks.pop();
 
         let payload = new Payload({ cacheAll: true }, [nextChunk]);
-        extend(payload.filt, clientGridWatchUpdateFromDeviceFilt);
+        Object.assign(payload.filt, clientGridWatchUpdateFromDeviceFilt);
         this.vortexService.sendPayload(payload);
 
         this._status.lastCheckDate = new Date();
@@ -382,7 +381,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
      * Process the grids the server has sent us.
      */
     private async processChunksFromServer(
-        payloadEnvelope: PayloadEnvelope
+        payloadEnvelope: PayloadEnvelope,
     ): Promise<void> {
         if (
             (payloadEnvelope.result != null &&
@@ -427,7 +426,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
      * This is called with grids from the server, store them for later.
      */
     private async storeChunkTuples(
-        tuplesToSave: EncodedGridTuple[]
+        tuplesToSave: EncodedGridTuple[],
     ): Promise<void> {
         // noinspection BadExpressionStatementJS
         const Selector = GridKeyTupleSelector;
@@ -444,7 +443,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
         for (let encodedGridTuple of tuplesToSave) {
             if (encodedGridTuple.encodedData == null) {
                 await this.storage.deleteTuples(
-                    new Selector(encodedGridTuple.chunkKey)
+                    new Selector(encodedGridTuple.chunkKey),
                 );
                 delete this.index.updateDateByChunkKey[
                     encodedGridTuple.chunkKey
@@ -502,14 +501,14 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
                 promises.push(Promise.resolve());
             } else {
                 let promise: any = Payload.fromEncodedPayload(
-                    encodedGridTuple.encodedGridTuple
+                    encodedGridTuple.encodedGridTuple,
                 )
                     .then((payload: Payload) => {
                         gridTuples.push(payload.tuples[0]);
                     })
                     .catch((err) => {
                         console.log(
-                            `GridLoader.emitEncodedGridTuples decode error: ${err}`
+                            `GridLoader.emitEncodedGridTuples decode error: ${err}`,
                         );
                     });
                 promises.push(promise);
@@ -522,7 +521,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
             })
             .catch((err) => {
                 console.log(
-                    `GridLoader.emitEncodedGridTuples all error: ${err}`
+                    `GridLoader.emitEncodedGridTuples all error: ${err}`,
                 );
             });
     }
@@ -546,7 +545,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
                         if (!grids.length) return;
                         gridTuples.push(grids[0]);
                         this.updatesObservable.next(grids);
-                    })
+                    }),
             );
         }
 
@@ -562,7 +561,7 @@ export class PrivateDiagramGridLoaderService extends PrivateDiagramGridLoaderSer
      */
     private async loadGridCacheIndex(): Promise<void> {
         let tuples: any[] = await this.storage.loadTuples(
-            new TupleSelector(GridUpdateDateTuple.tupleName, {})
+            new TupleSelector(GridUpdateDateTuple.tupleName, {}),
         );
         // Length should be 0 or 1
         if (tuples.length) this.index = tuples[0];
