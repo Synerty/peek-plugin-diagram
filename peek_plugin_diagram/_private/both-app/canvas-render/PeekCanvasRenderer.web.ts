@@ -31,6 +31,7 @@ export class PeekCanvasRenderer {
     private isValid = false;
     private _zoom = 1.0;
     private _pan = new PeekCanvasPan();
+    private lastZoomWhenShapesExisted: number = 1.0;
 
     constructor(
         private config: PeekCanvasConfig,
@@ -145,8 +146,8 @@ export class PeekCanvasRenderer {
             : DrawModeE.ForView;
 
         // Clear canvas
-        let w = this.canvas.width / this._zoom;
-        let h = this.canvas.height / this._zoom;
+        const w = this.canvas.width / this._zoom;
+        const h = this.canvas.height / this._zoom;
 
         ctx.save();
 
@@ -163,10 +164,42 @@ export class PeekCanvasRenderer {
         // draw all shapes, counting backwards for correct rendering
         // for (let i = dispObjs.length - 1; i != -1; i--) {
 
+        let lastLayerId = null;
+
+        // FIX: Fix for blank screens as the model set compiling
+        // happens every 400ms and the rendering happens every 60ms
+        // that's well over 340ms seconds of blank screen
+        // If filtering out all visible disps would leave the diagram blank
+        // then don't apply the filter.
+        // This means that zooming though grid layers won't show blank canvases
+        // but zooming within grid layers will still apply the decluttering.
+
+        const willAnyShapesBeVisible =
+            disps.filter((d) => DispBase.level(d).isVisibleAtZoom(this._zoom))
+                .length !== 0;
+        if (willAnyShapesBeVisible) {
+            this.lastZoomWhenShapesExisted = this._zoom;
+        }
+
         // draw all shapes, counting forwards for correct order or rendering
         for (let i = 0; i < disps.length; i++) {
             let disp = disps[i];
-            this.dispDelegate.draw(disp, ctx, this._zoom, this._pan, drawMode);
+
+            // If the layer changes, apply the globalAlpha
+            const layer = DispBase.layer(disp);
+            if (layer.id !== lastLayerId) {
+                lastLayerId = layer.id;
+                ctx.globalAlpha = layer.opacity;
+            }
+
+            this.dispDelegate.draw(
+                disp,
+                ctx,
+                this._zoom,
+                this._pan,
+                drawMode,
+                this.lastZoomWhenShapesExisted
+            );
         }
 
         // draw selection

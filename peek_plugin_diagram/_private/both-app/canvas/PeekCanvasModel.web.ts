@@ -1,4 +1,4 @@
-import { takeUntil } from "rxjs/operators";
+import { first, takeUntil } from "rxjs/operators";
 import { PeekCanvasConfig } from "./PeekCanvasConfig.web";
 import { GridObservable } from "../cache/GridObservable.web";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
@@ -17,8 +17,6 @@ import { DispGroupPointerT } from "../canvas-shapes/DispGroupPointer";
 import { PeekCanvasModelOverrideA } from "../canvas-override/PeekCanvasModelOverrideA";
 import { PeekCanvasModelOverrideColor } from "../canvas-override/PeekCanvasModelOverrideColor";
 import { PeekCanvasModelOverrideHighlight } from "../canvas-override/PeekCanvasModelOverrideHighlight";
-
-// import 'rxjs/add/operator/takeUntil';
 
 function now(): any {
     return new Date();
@@ -82,22 +80,14 @@ export class PeekCanvasModel {
             new PeekCanvasModelOverrideHighlight(config, lookupCache),
         ];
 
-        this.needsUpdate = false;
-
-        // Start the gridKey checker timer.
-        setInterval(
-            () => this._checkGridKeysForArea(),
-            this.config.controller.updateInterval,
-        );
-
-        // Start the draw timer.
-        setInterval(
-            () => this._compileDisps(),
-            this.config.controller.updateInterval,
-        );
-
         // Subscribe to grid updates, when the data store gets and update
         // from the server, we will
+
+        // Start the compile timer
+        setInterval(() => {
+            this._checkGridKeysForArea();
+            this._compileDisps();
+        }, this.config.controller.updateInterval);
 
         this.gridObservable
             .observableForCanvas(this.config.canvasId)
@@ -197,6 +187,18 @@ export class PeekCanvasModel {
 
     protected _compileDisps(force = false) {
         if (!this.needsCompiling && !force) return;
+
+        if (this._gridBuffer[this.centerGridKey] == null) {
+            console.log(
+                dateStr() +
+                    " PeekCanvasModel: We have not received the center grid for" +
+                    " this level yet, skipping recompile."
+            );
+            if (force) {
+                this.needsCompiling = true;
+            }
+            return;
+        }
 
         this.needsCompiling = false;
 
@@ -351,7 +353,7 @@ export class PeekCanvasModel {
         let timeTaken = now() - startTime;
 
         console.log(
-            `${dateStr()} Model: compileDisps took ${timeTaken}ms` +
+            `${dateStr()} PeekCanvasModel: compileDisps took ${timeTaken}ms` +
                 ` for ${disps.length} disps` +
                 ` and ${gridsOrBranchesToCompile.length} grids/branches`,
         );
@@ -367,6 +369,13 @@ export class PeekCanvasModel {
 
         this._viewingGridKeysDict = {};
         this._viewingGridKeysStr = "";
+    }
+
+    private get centerGridKey(): string {
+        return this.config.controller.coordSet.centerGridKeyForArea(
+            this.config.viewPort.window,
+            this.config.viewPort.zoom
+        );
     }
 
     // -------------------------------------------------------------------------
@@ -389,7 +398,7 @@ export class PeekCanvasModel {
 
         // If there is no change, then do nothing
         // Should these be sorted?
-        if (viewingGridKeys.join() == this._viewingGridKeysStr) return;
+        if (viewingGridKeys.join() === this._viewingGridKeysStr) return;
 
         this._viewingGridKeysStr = viewingGridKeys.join();
         this._viewingGridKeysDict = dictSetFromArray(viewingGridKeys);
@@ -422,14 +431,18 @@ export class PeekCanvasModel {
         // Overwrite with all the new ones
         for (let linkedGrid of linkedGrids) {
             console.log(
-                `PeekCanvasModel: Received grid ${linkedGrid.gridKey},  ${linkedGrid.lastUpdate}`,
+                `${dateStr()} PeekCanvasModel: Received grid ${
+                    linkedGrid.gridKey
+                },  ${linkedGrid.lastUpdate}`
             );
 
             // If the grid now has no data, then clear it from the model.
             if (!linkedGrid.hasData()) {
                 if (this._gridBuffer[linkedGrid.gridKey] != null) {
                     console.log(
-                        `PeekCanvasModel: Clearing grid ${linkedGrid.gridKey}`,
+                        `${dateStr()} PeekCanvasModel: Clearing grid ${
+                            linkedGrid.gridKey
+                        }`
                     );
                     delete this._gridBuffer[linkedGrid.gridKey];
                     this.needsCompiling = true;

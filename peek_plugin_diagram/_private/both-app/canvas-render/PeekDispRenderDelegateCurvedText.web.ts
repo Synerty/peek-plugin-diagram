@@ -500,8 +500,8 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
         borderColor: string | null,
     ): number {
         // set up text styling
-        ctx.textAlign = textAlign;
-        ctx.textBaseline = textBaseline;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
         ctx.font = font;
 
         if (!fontStyle.scalable) {
@@ -513,7 +513,7 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
             ctx.scale(horizontalStretchFactor, 1);
         }
 
-        // Bounds can get serliased in branches, so check to see if it's actually the
+        // Bounds can get serialised in branches, so check to see if it's actually the
         // class or just the restored object that it serialises to.
         if (updateBounds) {
             disp.bounds = new PeekCanvasBounds();
@@ -524,10 +524,17 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
 
         // cache all text measurement to workaround for performance
         //  https://bugzilla.mozilla.org/show_bug.cgi?id=527386#c19
-        let chars = DispCurvedText.text(disp).replace("\n", " ");
+        const chars = DispCurvedText.text(disp).replace("\n", " ");
+        if (!chars) {
+            return;
+        }
+
         const textWidth = ctx.measureText(chars).width;
-        const measureTextLengthMap: { [text: string]: number } = {};
-        measureTextLengthMap[chars] = textWidth;
+
+        // Measure Text is EXTREMELY SLOW
+        // We will sacrifice fonts that have variable letter widths for
+        // performance.
+        const charWidth = ctx.measureText(chars[0]).width;
 
         // this works like space-around in flexbox
         const spacingInBetween =
@@ -598,11 +605,6 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
                 // draw each character of the text
                 for (let charIndex = 0; charIndex < chars.length; ++charIndex) {
                     const char = chars[charIndex];
-                    const charWidth =
-                        char in measureTextLengthMap
-                            ? measureTextLengthMap["char"]
-                            : ctx.measureText(char).width;
-
                     curvedTextPathDrawingContext = this.locateNextCharacter(
                         distanceFromStartPoint + charWidth / 2,
                         subPath,
@@ -610,7 +612,6 @@ export class PeekDispRenderDelegateCurvedText extends PeekDispRenderDelegateABC 
                     );
                     ctx.save();
 
-                    ctx.textAlign = "center";
                     ctx.translate(
                         curvedTextPathDrawingContext.nextPoint.location.x,
                         curvedTextPathDrawingContext.nextPoint.location.y,
