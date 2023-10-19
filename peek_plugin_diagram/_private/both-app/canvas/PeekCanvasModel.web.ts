@@ -188,7 +188,10 @@ export class PeekCanvasModel {
     protected _compileDisps(force = false) {
         if (!this.needsCompiling && !force) return;
 
-        if (this._gridBuffer[this.centerGridKey] == null) {
+        if (
+            this._gridBuffer[this.centerGridKey] == null &&
+            4 <= this.gridCount
+        ) {
             console.log(
                 dateStr() +
                     " PeekCanvasModel: We have not received the center grid for" +
@@ -376,6 +379,13 @@ export class PeekCanvasModel {
             this.config.viewPort.window,
             this.config.viewPort.zoom
         );
+    }
+
+    private get gridCount(): number {
+        return this.config.controller.coordSet.gridKeysForArea(
+            this.config.viewPort.window,
+            this.config.viewPort.zoom
+        ).length;
     }
 
     // -------------------------------------------------------------------------
