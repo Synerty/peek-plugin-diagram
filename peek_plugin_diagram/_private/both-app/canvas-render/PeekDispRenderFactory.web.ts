@@ -16,7 +16,7 @@ import { DispGroupPointerT } from "../canvas-shapes/DispGroupPointer";
 import { PeekDispRenderDelegateCurvedText } from "./PeekDispRenderDelegateCurvedText.web";
 
 export class PeekDispRenderFactory {
-    private _delegatesByType: {};
+    private readonly _delegatesByType: {};
 
     constructor(
         private config: PeekCanvasConfig,
@@ -45,12 +45,23 @@ export class PeekDispRenderFactory {
         this._delegatesByType[DispBase.TYPE_DN] = nullDelegate;
     }
 
-    draw(disp, ctx, zoom: number, pan: PointI, drawMode: DrawModeE) {
-        let level = DispBase.level(disp);
+    draw(
+        disp,
+        ctx,
+        zoom: number,
+        pan: PointI,
+        drawMode: DrawModeE,
+        applyDeclutterForZoom: number
+    ) {
         let layer = DispBase.layer(disp);
 
-        let isVisible =
-            level.isVisibleAtZoom(zoom) || this.config.editor.showAllLevels;
+        let isVisible = true;
+
+        if (!this.config.editor.showAllLevels) {
+            const level = DispBase.level(disp);
+            isVisible =
+                isVisible && level.isVisibleAtZoom(applyDeclutterForZoom);
+        }
 
         isVisible =
             isVisible && (layer.visible || this.config.editor.showAllLayers);

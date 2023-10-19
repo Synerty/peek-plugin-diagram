@@ -8,6 +8,7 @@ import {
     PrivateDiagramGridLoaderServiceA,
 } from "@peek/peek_plugin_diagram/_private/grid-loader";
 import { NgLifeCycleEvents } from "@synerty/vortexjs";
+import { dateStr } from "../DiagramUtil";
 
 class Cache {
     private cache: { [gridKey: string]: LinkedGrid } = {};
@@ -50,7 +51,7 @@ class Cache {
  *
  */
 @Injectable()
-export class GridCache {
+export class GridCache extends NgLifeCycleEvents {
     private updatesObservable = new Subject<LinkedGrid>();
 
     // This is the last X number of caches.
@@ -60,15 +61,15 @@ export class GridCache {
     private MAX_CACHE = 50;
 
     // TODO, There appears to be no way to tear down a service
-    private NgLifeCycleEvents = new NgLifeCycleEvents();
-
     constructor(
         private lookupService: PrivateDiagramLookupService,
         private gridLoader: PrivateDiagramGridLoaderServiceA
     ) {
+        super();
+
         // Services don't have destructors, I'm not sure how to unsubscribe.
         this.gridLoader.observable
-            .pipe(takeUntil(this.NgLifeCycleEvents.onDestroyEvent))
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((tuples: GridTuple[]) =>
                 this.processGridUpdates(tuples)
             );
@@ -76,7 +77,7 @@ export class GridCache {
         // If the lookups reload, we need to relink all the disps
         this.lookupService
             .dispsNeedRelinkingObservable()
-            .pipe(takeUntil(this.NgLifeCycleEvents.onDestroyEvent))
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe(() => this.relinkAllLookups());
     }
 
@@ -122,8 +123,13 @@ export class GridCache {
         let latestCache = this.rotateCache(gridKeys);
 
         // Get the grids and notify the observer
-        for (let linkedGrid of latestCache.grids)
+        for (let linkedGrid of latestCache.grids) {
+            console.log(
+                `${dateStr()} GridCache: Grid from mem cache : ` +
+                    `${linkedGrid.gridKey},  ${linkedGrid.lastUpdate}`
+            );
             this.updatesObservable.next(linkedGrid);
+        }
 
         // This is the list of grids we don't have in the cache and we should
         // as the local storage for
@@ -149,7 +155,7 @@ export class GridCache {
      * Instead of managing a pool of objects and determining how long they have been
      * in memory, We'll do this another way.
      *
-     * We'll have X number of cache indexes, and the oldest cache drops off the
+     * We'll have X number of cache indexes, and the oldest cache drops off
      * the queue. When this happens the garbage collector will clean it up.
      *
      * The overhead is this code and X dict objects.
