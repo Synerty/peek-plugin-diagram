@@ -398,7 +398,7 @@ export class PeekCanvasModel {
 
         // If there is no change, then do nothing
         // Should these be sorted?
-        if (viewingGridKeys.join() === this._viewingGridKeysStr) return ;
+        if (viewingGridKeys.join() === this._viewingGridKeysStr) return;
 
         this._viewingGridKeysStr = viewingGridKeys.join();
         this._viewingGridKeysDict = dictSetFromArray(viewingGridKeys);
