@@ -188,15 +188,13 @@ export class PeekCanvasModel {
     protected _compileDisps(force = false) {
         if (!this.needsCompiling && !force) return;
 
-        if (
-            this._gridBuffer[this.centerGridKey] == null &&
-            4 <= this.gridCount
-        ) {
+        if (this._gridBuffer[this.firstGrid] == null) {
             console.log(
                 dateStr() +
-                    " PeekCanvasModel: We have not received the center grid for" +
+                    " PeekCanvasModel: We have not received the first grid for" +
                     " this level yet, skipping recompile."
             );
+            // If we were told to force recompiling, then set needsCompiling
             if (force) {
                 this.needsCompiling = true;
             }
@@ -374,18 +372,12 @@ export class PeekCanvasModel {
         this._viewingGridKeysStr = "";
     }
 
-    private get centerGridKey(): string {
-        return this.config.controller.coordSet.centerGridKeyForArea(
-            this.config.viewPort.window,
-            this.config.viewPort.zoom
-        );
-    }
-
-    private get gridCount(): number {
+    private get firstGrid(): string {
+        // These grids are sorted from the center, outwards
         return this.config.controller.coordSet.gridKeysForArea(
             this.config.viewPort.window,
             this.config.viewPort.zoom
-        ).length;
+        )[0];
     }
 
     // -------------------------------------------------------------------------
