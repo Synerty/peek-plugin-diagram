@@ -232,3 +232,25 @@ Edit Light Mode Colours
         sudo systemctl restart peek_office
         sudo systemctl restart peek_field
 
+.. _set_default_background_colour:
+
+Set the Default Background Colour
+---------------------------------
+
+The default background colour in a World View can be set using the following
+instruction.
+
+#. Update the Peek database: ::
+
+        UPDATE pl_diagram."ModelCoordSet"
+        SET
+            "backgroundDarkColor" = '[HEX COLOUR]',
+            "backgroundLightColor" = '[HEX COLOUR]'
+        WHERE "name" = '[WORLD VIEW NAME]'
+
+#. Restart Peek: ::
+
+        restart_peek.sh
+
+.. note:: The colour fields only accept hexadecimal colour codes in the form
+          #000000 and the World View Name is case sensitive.
