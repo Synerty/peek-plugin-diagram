@@ -254,3 +254,24 @@ instruction.
 
 .. note:: The colour fields only accept hexadecimal colour codes in the form
           #000000 and the World View Name is case sensitive.
+
+Enable or Disable Light Mode
+----------------------------
+
+From a ssh session:
+
+#. Enter :code:`psql`
+
+#. Update the Peek database: ::
+
+    UPDATE pl_diagram."ModelCoordSet"
+    SET
+        "lightModeEnabled" = [BOOLEAN]
+    WHERE "name" = '[WORLD VIEW NAME]';
+
+#. Restart Peek: ::
+
+    restart_peek.sh
+
+.. note:: TRUE will show the Light Mode button and FALSE will not show the
+          Light Mode button in the World View.
