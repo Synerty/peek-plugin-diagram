@@ -81,9 +81,6 @@ def compileGrids(self, payloadEncodedArgs: bytes) -> dict[str, str]:
 
         conn.execute(gridTable.delete(gridTable.c.gridKey.in_(gridKeys)))
 
-        transaction.commit()
-        transaction = conn.begin()
-
         inserts = []
         for gridKey, dispJsonStr in dispData.items():
             m = hashlib.sha256()
